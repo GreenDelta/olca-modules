@@ -1,32 +1,26 @@
 package org.openlca.ipc.handlers;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.LocationResult;
-import org.openlca.core.results.UpstreamNode;
-import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
-import org.openlca.ipc.handlers.Upstream.StringPair;
 
 import com.google.gson.JsonArray;
+import org.openlca.jsonld.Json;
 
 public class ImpactHandler {
 
 	private final HandlerContext context;
-	private final Utils utils;
 
 	public ImpactHandler(HandlerContext context) {
 		this.context = context;
-		this.utils = new Utils(context);
 	}
 
 	@Rpc("get/impacts")
@@ -129,51 +123,54 @@ public class ImpactHandler {
 
 	@Rpc("get/impacts/contributions/locations")
 	public RpcResponse getLocationContributions(RpcRequest req) {
-
-		return utils.contributionImpact(req, (result, impact, cache) -> {
-			LocationResult r = new LocationResult(result, cache.db);
-			List<Contribution<LocationDescriptor>> contributions = utils
-					.toDescriptors(r.getContributions(impact));
-			contributions = utils.filter(contributions, contribution -> contribution.amount != 0);
-			return JsonRpc.encodeResult(contributions, cache, json -> json.addProperty("unit", impact.referenceUnit));
+		return ResultRequest.of(req, context, rr -> {
+			var result = rr.result();
+			var impact = rr.impact();
+			if (impact == null)
+				return rr.impactMissing();
+			var r = new LocationResult(result, context.db());
+			var array = r.getContributions(impact).stream()
+					.filter(c -> c.amount != 0)
+					.map(c -> JsonRpc.encodeContribution(c, Json::asRef))
+					.collect(JsonRpc.toArray());
+			return Responses.ok(array, req);
 		});
 	}
 
 	@Rpc("get/impacts/process_results")
 	public RpcResponse getProcessResultsImpacts(RpcRequest req) {
-		return utils.fullProcess(req, (result, process, cache) -> {
-			JsonArray contributions = new JsonArray();
-			result.getImpacts().forEach(impact -> {
-				double total = result.getTotalImpactResult(impact);
-				if (total == 0)
-					return;
-				Contribution<ImpactDescriptor> c = new Contribution<>();
+		return ResultRequest.of(req, context, rr -> {
+			var result = rr.result();
+			var techFlow = rr.techFlow();
+			if (techFlow == null)
+				return rr.providerMissing();
+
+			var array = new JsonArray();
+			if (!result.hasImpacts())
+				return Responses.ok(array, req);
+
+			for (var impact : result.impactIndex()) {
+				var total = result.getTotalImpactResult(impact);
+				var c = new Contribution<ImpactDescriptor>();
 				c.item = impact;
-				c.amount = result.getDirectImpactResult(process, impact);
-				c.share = c.amount / total;
-				if (c.amount == 0)
-					return;
-				contributions.add(JsonRpc.encodeResult(c, cache, json -> {
-					json.addProperty("unit", impact.referenceUnit);
-					json.addProperty("upstream", result.getUpstreamImpactResult(process, impact));
-				}));
-			});
-			return contributions;
+				c.amount = result.getDirectImpactResult(techFlow, impact);
+				c.share = total != 0 ? c.amount / total : 0;
+				c.unit = impact.referenceUnit;
+				var obj = JsonRpc.encodeContribution(c, rr.refs()::asRef);
+				Json.put(obj, "upstream",
+						result.getUpstreamImpactResult(techFlow, impact));
+			}
+			return Responses.ok(array, req);
 		});
 	}
 
 	@Rpc("get/impacts/upstream")
 	public RpcResponse getUpstream(RpcRequest req) {
-		return utils.fullImpact(req, (result, impact, cache) -> {
-			List<StringPair> products = utils.parseProducts(req);
-			UpstreamTree tree = result.getTree(impact);
-			List<UpstreamNode> results = Upstream.calculate(tree, products);
-			return JsonRpc.encode(results, tree, cache, json -> {
-				json.addProperty("unit", impact.referenceUnit);
-				json.add("upstream", json.remove("amount"));
-			});
+		return ResultRequest.of(req, context, rr -> {
+			if (rr.impact() == null)
+				return rr.impactMissing();
+			var tree = rr.result().getTree(rr.impact());
+			return Upstream.getNodesForPath(rr, tree);
 		});
 	}
-
-
 }
