@@ -17,7 +17,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.nativelib.NativeLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class SolverTest {
 		var process = new ProcessDescriptor();
 		process.id = 1;
 		var refFlow = TechFlow.of(process, flow);
-		
+
 		var data = new MatrixData();
 		data.demand = new Demand(refFlow, 1);
 		data.techIndex = new TechIndex(refFlow);
@@ -81,7 +81,7 @@ public class SolverTest {
 		}
 		data.enviMatrix = enviMatrix;
 
-		var result = SimpleResult.of(Tests.getDb(), data);
+		var result = FullResult.of(Tests.getDb(), data);
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
 				result.totalFlowResults(), 1e-14);
 	}

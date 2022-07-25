@@ -10,9 +10,8 @@ indent_style = space
 indent_size = 2
 tab_width = 2
 
-[*.{java, xml}]
+[*.{java,xml}]
 indent_style = tab
 indent_size = 2
 tab_width = 2
 ij_continuation_indent_size = 4
-ij_align_method

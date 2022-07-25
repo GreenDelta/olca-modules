@@ -25,6 +25,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.providers.ResultProviders;
@@ -156,11 +157,11 @@ public class Simulator {
 			// generate the numbers and calculate the overall result
 			for (var sub : subNodes) {
 				generateData(sub);
-				sub.lastResult = SimpleResult.of(contextOf(sub.data));
+				sub.lastResult = solve(sub.data);
 			}
 			generateData(root);
-			var provider = ResultProviders.solveLazy(contextOf(root.data));
-			var next = new SimpleResult(provider);
+			var next = solve(root.data);
+			var provider = next.provider();
 			var result = getResult();
 			result.append(next);
 
@@ -171,7 +172,7 @@ public class Simulator {
 					continue;
 				var pin = result.pin(product);
 				if (provider.hasFlows()) {
-					pin.withDirectFlows(provider.directFlowsOf(idx));
+					pin.withDirectFlows(next.provider().directFlowsOf(idx));
 					pin.withUpstreamFlows(provider.totalFlowsOf(idx));
 				}
 				if (provider.hasImpacts()) {
@@ -188,10 +189,12 @@ public class Simulator {
 		}
 	}
 
-	private SolverContext contextOf(MatrixData data) {
-		return SolverContext.of(db, data)
-			.solver(solver)
-			.libraryDir(libraryDir);
+	private FullResult solve(MatrixData data) {
+		var context = SolverContext.of(db, data)
+				.solver(solver)
+				.libraryDir(libraryDir);
+		var provider =  ResultProviders.solveLazy(context);
+		return new FullResult(provider);
 	}
 
 	private void generateData(Node node) {

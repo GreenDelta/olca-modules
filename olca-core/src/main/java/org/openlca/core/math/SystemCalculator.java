@@ -54,11 +54,7 @@ public class SystemCalculator {
 	 * @return the result of the respective calculation
 	 */
 	public IResult calculate(CalculationSetup setup) {
-		if (setup.type() == null)
-			return calculateSimple(setup);
 		return switch (setup.type()) {
-			case SIMPLE_CALCULATION -> calculateSimple(setup);
-			case CONTRIBUTION_ANALYSIS, UPSTREAM_ANALYSIS -> calculateFull(setup);
 			case MONTE_CARLO_SIMULATION -> {
 				var simulator = Simulator.create(setup, db);
 				for (int i = 0; i < setup.numberOfRuns(); i++) {
@@ -66,11 +62,8 @@ public class SystemCalculator {
 				}
 				yield simulator.getResult();
 			}
+			default -> calculateFull(setup);
 		};
-	}
-
-	public SimpleResult calculateSimple(CalculationSetup setup) {
-		return with(setup, SimpleResult::of);
 	}
 
 	public FullResult calculateFull(CalculationSetup setup) {

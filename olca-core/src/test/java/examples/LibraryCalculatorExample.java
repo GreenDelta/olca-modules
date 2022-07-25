@@ -12,15 +12,13 @@ public class LibraryCalculatorExample {
 	public static void main(String[] args) throws Exception {
 
 		var workspace = "C:/Users/Win10/openLCA-data-1.4";
-		var db = new Derby(new File(
-				workspace + "/databases/libre2"));
+		var db = new Derby(new File(workspace + "/databases/libre2"));
 
 		var system = db.get(ProductSystem.class,
 				"6b32cda2-5aa4-44b9-b32a-c654da48436d");
 		var setup = CalculationSetup.simple(system);
 
-		var result = new SystemCalculator(db)
-				.calculateSimple(setup);
+		var result = new SystemCalculator(db).calculateFull(setup);
 
 		var flow = result.enviIndex().at(0);
 		System.out.println(flow.flow().name

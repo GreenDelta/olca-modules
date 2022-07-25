@@ -46,10 +46,6 @@ public class SimpleResult implements IResult {
 		this.subResults = new HashMap<>();
 	}
 
-	public static SimpleResult of(IDatabase db, MatrixData data) {
-		return of(SolverContext.of(db, data));
-	}
-
 	public static SimpleResult of(SolverContext context) {
 		var provider = ResultProviders.solveLazy(context);
 		return new SimpleResult(provider);

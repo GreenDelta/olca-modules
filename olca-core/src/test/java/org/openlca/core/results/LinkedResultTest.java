@@ -86,7 +86,7 @@ public class LinkedResultTest {
 	@Test
 	public void testSimpleResult() {
 		var calculator = new SystemCalculator(db);
-		var r = calculator.calculateSimple(setup);
+		var r = calculator.calculateFull(setup);
 		assertEquals(42.0, r.getTotalImpactResult(impact), 1e-10);
 	}
 
