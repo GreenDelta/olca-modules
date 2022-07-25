@@ -7,7 +7,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.nativelib.NativeLib;
 
 public class SimulatorExample {
@@ -37,7 +36,7 @@ public class SimulatorExample {
 		double max = 0;
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 200; i++) {
-			SimpleResult r = simulator.nextRun();
+			var r = simulator.nextRun();
 			double val = r.getTotalImpactResult(gwp);
 			if (i == 0) {
 				min = val;

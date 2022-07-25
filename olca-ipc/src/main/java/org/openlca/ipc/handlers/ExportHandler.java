@@ -11,7 +11,7 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.io.xls.results.SimulationResultExport;
 import org.openlca.io.xls.results.system.ResultExport;
 import org.openlca.ipc.Responses;
@@ -47,7 +47,7 @@ public class ExportHandler {
 		if (r == null)
 			return Responses.notImplemented("The Excel export is currently"
 				+ " only implemented for calculation results", req);
-		if (r.result() instanceof SimpleResult)
+		if (r.result() instanceof FullResult)
 			return exportSimpleResult(req, path, r);
 		if (r.result() instanceof Simulator)
 			return exportSimulationResult(req, path, r);
@@ -59,7 +59,7 @@ public class ExportHandler {
 	                                       CachedResult<?> r) {
 		var export = new ResultExport(
 			r.setup(),
-			(SimpleResult) r.result(),
+			(FullResult) r.result(),
 			new File(path),
 			EntityCache.create(context.db()));
 		export.run();

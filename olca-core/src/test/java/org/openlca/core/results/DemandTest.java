@@ -1,6 +1,6 @@
 package org.openlca.core.results;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class DemandTest {
 			data.demand = Demand.of(data.techIndex.at(i), 2);
 			var context = SolverContext.of(data);
 			var result = FullResult.of(context);
-			var g = result.totalFlowResults[0];
+			var g = result.totalFlowResults()[0];
 			switch (i) {
 				case 0 -> assertEquals(6, g, 1e-16);
 				case 1 -> assertEquals(4, g, 1e-16);

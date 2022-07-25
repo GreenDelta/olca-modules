@@ -7,15 +7,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ResultItemOrder;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
 class InventorySheet {
 
 	private final CellWriter writer;
 	private final Workbook workbook;
-	private final SimpleResult result;
+	private final FullResult result;
 	private final DQResult dqResult;
 	private final ResultItemOrder items;
 	private Sheet sheet;

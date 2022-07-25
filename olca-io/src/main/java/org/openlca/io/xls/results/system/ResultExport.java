@@ -5,12 +5,11 @@ import java.io.FileOutputStream;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ResultItemOrder;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 import org.openlca.io.xls.results.InfoSheet;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ public class ResultExport implements Runnable {
 
 	private final File file;
 	final CalculationSetup setup;
-	final SimpleResult result;
+	final FullResult result;
 	final EntityCache cache;
 
 	DQResult dqResult;
@@ -37,7 +36,7 @@ public class ResultExport implements Runnable {
 	CellWriter writer;
 
 	public ResultExport(CalculationSetup setup,
-			SimpleResult result, File file, EntityCache cache) {
+			FullResult result, File file, EntityCache cache) {
 		this.setup = setup;
 		this.result = result;
 		this.file = file;
@@ -88,21 +87,17 @@ public class ResultExport implements Runnable {
 	}
 
 	private void writeContributionSheets() {
-		if (!(result instanceof FullResult cons))
-			return;
-		ProcessFlowContributionSheet.write(this, cons);
-		if (cons.hasImpacts()) {
-			ProcessImpactContributionSheet.write(this, cons);
-			FlowImpactContributionSheet.write(this, cons);
+		ProcessFlowContributionSheet.write(this, result);
+		if (result.hasImpacts()) {
+			ProcessImpactContributionSheet.write(this, result);
+			FlowImpactContributionSheet.write(this, result);
 		}
 	}
 
 	private void writeUpstreamSheets() {
-		if (!(result instanceof FullResult r))
-			return;
-		ProcessFlowUpstreamSheet.write(this, r);
-		if (r.hasImpacts()) {
-			ProcessImpactUpstreamSheet.write(this, r);
+		ProcessFlowUpstreamSheet.write(this, result);
+		if (result.hasImpacts()) {
+			ProcessImpactUpstreamSheet.write(this, result);
 		}
 	}
 

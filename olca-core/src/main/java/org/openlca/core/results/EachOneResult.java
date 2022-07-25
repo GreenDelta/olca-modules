@@ -4,11 +4,11 @@ import java.util.Iterator;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.Demand;
-import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.util.Pair;
@@ -42,7 +42,7 @@ public class EachOneResult {
 		return eor;
 	}
 
-	public Iterable<Pair<TechFlow, SimpleResult>> get() {
+	public Iterable<Pair<TechFlow, FullResult>> get() {
 		if (data == null) {
 			var techIndex = TechIndex.of(db);
 			data = MatrixData.of(db, techIndex)
@@ -60,8 +60,8 @@ public class EachOneResult {
 	}
 
 	private class Iter implements
-		Iterator<Pair<TechFlow, SimpleResult>>,
-		Iterable<Pair<TechFlow, SimpleResult>> {
+		Iterator<Pair<TechFlow, FullResult>>,
+		Iterable<Pair<TechFlow, FullResult>> {
 
 		@Override
 		public boolean hasNext() {
@@ -71,7 +71,7 @@ public class EachOneResult {
 		}
 
 		@Override
-		public Pair<TechFlow, SimpleResult> next() {
+		public Pair<TechFlow, FullResult> next() {
 
 			var demand = Demand.of(data.techIndex.at(next), 1.0);
 			var p = SimpleResultProvider.of(demand, data.techIndex)
@@ -100,10 +100,10 @@ public class EachOneResult {
 			var result = p.toResult();
 			var product = data.techIndex.at(next);
 			if (product.isWaste()) {
-				swapSign(result.scalingVector);
-				swapSign(result.totalRequirements);
-				swapSign(result.totalFlowResults);
-				swapSign(result.totalImpactResults);
+				swapSign(result.scalingVector());
+				swapSign(result.totalRequirements());
+				swapSign(result.totalFlowResults());
+				swapSign(result.totalImpactResults());
 			}
 
 			next++;
@@ -122,7 +122,7 @@ public class EachOneResult {
 		}
 
 		@Override
-		public Iterator<Pair<TechFlow, SimpleResult>> iterator() {
+		public Iterator<Pair<TechFlow, FullResult>> iterator() {
 			return this;
 		}
 	}

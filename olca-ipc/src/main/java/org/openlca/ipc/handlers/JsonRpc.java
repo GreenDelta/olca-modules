@@ -8,18 +8,18 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
-import com.google.gson.JsonElement;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowValue;
+import org.openlca.core.results.FullResult;
 import org.openlca.core.results.ImpactValue;
-import org.openlca.core.results.SimpleResult;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.DbRefs;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Some utility functions for en/decoding data in JSON-RPC.
@@ -29,7 +29,7 @@ class JsonRpc {
 	private JsonRpc() {
 	}
 
-	static JsonObject encodeResult(SimpleResult r, String id, DbRefs refs) {
+	static JsonObject encodeResult(FullResult r, String id, DbRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "@id", id);
 		obj.addProperty("@id", id);

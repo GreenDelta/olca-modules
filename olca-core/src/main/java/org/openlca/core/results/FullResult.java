@@ -2,14 +2,21 @@ package org.openlca.core.results;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -19,16 +26,14 @@ import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SolverContext;
 
-/**
- * The `ContributionResult` extends the `SimpleResult` type. It also contains
- * all direct contributions of the processes to the LCI and LCIA results.
- * Additionally, it contains the contributions of the (elementary) flows to the
- * LCIA results.
- */
-public class FullResult extends SimpleResult {
+public class FullResult implements IResult {
+
+	private final ResultProvider provider;
+	private final Map<TechFlow, FullResult> subResults;
 
 	public FullResult(ResultProvider provider) {
-		super(provider);
+		this.provider = Objects.requireNonNull(provider);
+		this.subResults = new HashMap<>();
 	}
 
 	public static FullResult of(IDatabase db, MatrixData data) {
@@ -36,7 +41,7 @@ public class FullResult extends SimpleResult {
 	}
 
 	public static FullResult of(SolverContext context) {
-		var provider = ResultProviders.solveLazy(context);
+		var provider = ResultProviders.solve(context);
 		return new FullResult(provider);
 	}
 
@@ -48,6 +53,212 @@ public class FullResult extends SimpleResult {
 	public static FullResult of(IDatabase db, CalculationSetup setup) {
 		var calculator = new SystemCalculator(db);
 		return calculator.calculateFull(setup);
+	}
+
+	/**
+	 * Returns the underlying result provider of this result.
+	 */
+	public ResultProvider provider() {
+		return provider;
+	}
+
+	@Override
+	public Demand demand() {
+		return provider.demand();
+	}
+
+	@Override
+	public TechIndex techIndex() {
+		return provider.techIndex();
+	}
+
+	@Override
+	public EnviIndex enviIndex() {
+		return provider.enviIndex();
+	}
+
+	@Override
+	public ImpactIndex impactIndex() {
+		return provider.impactIndex();
+	}
+
+	@Override
+	public boolean hasEnviFlows() {
+		return provider.hasFlows();
+	}
+
+	@Override
+	public boolean hasImpacts() {
+		return provider.hasImpacts();
+	}
+
+	@Override
+	public boolean hasCosts() {
+		return provider.hasCosts();
+	}
+
+	/**
+	 * Returns the scaling vector of the result.
+	 *
+	 * The scaling vector {@code s} is calculated by solving the equation {@code A
+	 * * s = f} where {@code A} is the technology matrix and {@code f} the final
+	 * demand vector of the product system.
+	 */
+	public double[] scalingVector() {
+		return provider().scalingVector();
+	}
+
+	/**
+	 * Returns the total requirements vector.
+	 *
+	 * The total requirements are the respective product amounts fulfill the
+	 * demand of the product system. As our technology matrix {@code A} is indexed
+	 * symmetrically (means rows and columns refer to the same process-product
+	 * pair) our product amounts are on the diagonal of the technology matrix
+	 * {@code A} and the total requirements can be calculated by the following
+	 * equation where {@code s} is the scaling vector ({@code °} denotes
+	 * element-wise multiplication): {@code t = diag(A) ° s}
+	 */
+	public double[] totalRequirements() {
+		return provider.totalRequirements();
+	}
+
+	/**
+	 * Returns the total flow / inventory result of a product system.
+	 *
+	 * The total inventory result {@code g} can be calculated via {@code g = B *
+	 * s} where {@code B} is the intervention matrix and {@code s} the scaling
+	 * vector. Note that inputs have negative values in this vector.
+	 */
+	public double[] totalFlowResults() {
+		return provider.totalFlows();
+	}
+
+	/**
+	 * Returns the total impact assessment result vector of a product system.
+	 *
+	 * The total impact assessment result {@code h} can be calculated via: {@code
+	 * h = C * g} where {@code C} is a {@code flow * impact category} matrix that
+	 * contains the characterization factors and {@code g} the total inventory
+	 * result of the system.
+	 */
+	public double[] totalImpactResults() {
+		return provider.totalImpacts();
+	}
+
+	/**
+	 * Returns the total net-life-cycle-costs of a product system.
+	 *
+	 * These costs {@code k_t} can be calculated via {@code k_t = k ° s} where
+	 * {@code k_j} are the net-costs of process {@code j} and {@code s_j} is the
+	 * scaling factor of that process.
+	 */
+	public double totalCosts() {
+		return provider.totalCosts();
+	}
+
+	/**
+	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair
+	 * $j$.
+	 */
+	public double getScalingFactor(TechFlow product) {
+		int idx = techIndex().of(product);
+		var scalingVector = scalingVector();
+		if (idx < 0 || idx > scalingVector.length)
+			return 0;
+		return scalingVector[idx];
+	}
+
+	/**
+	 * Get the scaling factor $\mathbf{s}_j$ of the given process $j$. When the
+	 * process has multiple products in the system it returns the sum of the
+	 * scaling factors of all of these process-product pairs.
+	 */
+	public double getScalingFactor(RootDescriptor process) {
+		double factor = 0;
+		for (TechFlow p : techIndex().getProviders(process)) {
+			factor += getScalingFactor(p);
+		}
+		return factor;
+	}
+
+	/**
+	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
+	 */
+	public double getTotalFlowResult(EnviFlow flow) {
+		var flowIndex = enviIndex();
+		if (flowIndex == null)
+			return 0;
+		int idx = flowIndex.of(flow);
+		var totalFlows = totalFlowResults();
+		if (idx < 0 || idx >= totalFlows.length)
+			return 0;
+		return adopt(flow, totalFlows[idx]);
+	}
+
+	/**
+	 * Returns the flow results of the inventory result $\mathbf{g}$.
+	 */
+	public List<FlowValue> getTotalFlowResults() {
+		var flowIndex = enviIndex();
+		if (flowIndex == null)
+			return Collections.emptyList();
+		List<FlowValue> results = new ArrayList<>(flowIndex.size());
+		flowIndex.each((i, f) -> results.add(
+				new FlowValue(f, getTotalFlowResult(f))));
+		return results;
+	}
+
+	/**
+	 * Returns the total LCIA result $\mathbf{h}_i$ of the given LCIA category
+	 * $i$.
+	 */
+	public double getTotalImpactResult(ImpactDescriptor impact) {
+		var impactIndex = impactIndex();
+		if (impactIndex == null)
+			return 0;
+		int idx = impactIndex.of(impact);
+		var totalImpacts = totalImpactResults();
+		if (idx < 0 || idx >= totalImpacts.length)
+			return 0;
+		return totalImpacts[idx];
+	}
+
+	/**
+	 * Returns the impact category results for the given result.
+	 */
+	public List<ImpactValue> getTotalImpactResults() {
+		var impactIndex = impactIndex();
+		if (impactIndex == null)
+			return Collections.emptyList();
+		var results = new ArrayList<ImpactValue>();
+		impactIndex.each((i, d) -> {
+			double amount = getTotalImpactResult(d);
+			results.add(new ImpactValue(d, amount));
+		});
+		return results;
+	}
+
+	/**
+	 * Returns the sub-result for the given product. Sub-results are typically
+	 * available for sub-systems of a product system.
+	 *
+	 * @param product the product for which the sub-result is requested
+	 * @return the sub-result of the product. This is {@code null} if there is
+	 * no such sub-result available in this result. Also, the returned result
+	 * can be a more specific result (e.g. contribution result) depending on how
+	 * the result was calculated.
+	 */
+	public FullResult subResultOf(TechFlow product) {
+		return subResults.get(product);
+	}
+
+	public Map<TechFlow, FullResult> subResults() {
+		return new HashMap<>(subResults);
+	}
+
+	public void addSubResult(TechFlow product, FullResult result) {
+		subResults.put(product, result);
 	}
 
 	public double getTotalRequirementsOf(TechFlow techFlow) {
@@ -200,7 +411,7 @@ public class FullResult extends SimpleResult {
 	public List<Contribution<TechFlow>> getProcessCostContributions() {
 		return Contributions.calculate(
 			techIndex(),
-			totalCosts,
+			totalCosts(),
 			this::getDirectCostResult);
 	}
 
@@ -425,7 +636,7 @@ public class FullResult extends SimpleResult {
 	 * Calculate the upstream tree for the LCC result as costs.
 	 */
 	public UpstreamTree getCostTree() {
-		return new UpstreamTree(this, totalCosts,
+		return new UpstreamTree(this, totalCosts(),
 			provider::totalCostsOfOne);
 	}
 
@@ -433,7 +644,7 @@ public class FullResult extends SimpleResult {
 	 * Calculate the upstream tree for the LCC result as added value.
 	 */
 	public UpstreamTree getAddedValueTree() {
-		return new UpstreamTree(this, -totalCosts,
+		return new UpstreamTree(this, -totalCosts(),
 			product -> -provider.totalCostsOfOne(product));
 	}
 }

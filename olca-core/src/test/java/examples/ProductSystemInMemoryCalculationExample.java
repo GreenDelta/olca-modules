@@ -2,20 +2,19 @@ package examples;
 
 import java.io.File;
 
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.Derby;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.ProviderLinking;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.SimpleResult;
 
 /*
  * This example shows how you can create and calculate a
@@ -50,7 +49,7 @@ public class ProductSystemInMemoryCalculationExample {
 		// load the native library and calculate the result
 		// TODO: load Julia libraries first here
 		SystemCalculator calc = new SystemCalculator(db);
-		SimpleResult r = calc.calculateFull(setup);
+		var r = calc.calculateFull(setup);
 
 		// print the LCIA results
 		for (ImpactDescriptor impact : r.impactIndex()) {

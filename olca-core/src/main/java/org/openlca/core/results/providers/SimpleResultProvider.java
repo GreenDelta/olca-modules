@@ -6,7 +6,7 @@ import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.FullResult;
 
 /**
  * A SimpleResultProvider just wraps a set of result data. It should be just
@@ -63,8 +63,8 @@ public class SimpleResultProvider implements ResultProvider {
 		return this;
 	}
 
-	public SimpleResult toResult() {
-		return new SimpleResult(this);
+	public FullResult toResult() {
+		return new FullResult(this);
 	}
 
 	@Override

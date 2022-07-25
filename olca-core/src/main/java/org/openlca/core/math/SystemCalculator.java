@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
@@ -16,7 +15,6 @@ import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.FullResult;
 import org.openlca.core.results.IResult;
-import org.openlca.core.results.SimpleResult;
 import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.SolverContext;
 
@@ -66,12 +64,8 @@ public class SystemCalculator {
 		};
 	}
 
+	// TODO: somewhere we need a switch between eager and lazy calculations
 	public FullResult calculateFull(CalculationSetup setup) {
-		return with(setup, FullResult::of);
-	}
-
-	private <T extends SimpleResult> T with(
-		CalculationSetup setup, Function<SolverContext, T> fn) {
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
 		var data = MatrixData.of(db, techIndex)
@@ -81,8 +75,7 @@ public class SystemCalculator {
 		var context = SolverContext.of(db, data)
 			.libraryDir(libraryDir)
 			.solver(solver);
-
-		T result = fn.apply(context);
+		var result = FullResult.of(context);
 
 		for (var sub : subs.entrySet()) {
 			var techFlow = sub.getKey();
@@ -102,12 +95,12 @@ public class SystemCalculator {
 	 * the sub-results, the same calculation type is performed as defined in
 	 * the original calculation setup.
 	 */
-	private Map<TechFlow, SimpleResult> solveSubSystems(
+	private Map<TechFlow, FullResult> solveSubSystems(
 		CalculationSetup setup, TechIndex techIndex) {
 		if (setup == null || !setup.hasProductSystem())
 			return Collections.emptyMap();
 
-		var subResults = new HashMap<TechFlow, SimpleResult>();
+		var subResults = new HashMap<TechFlow, FullResult>();
 
 		var subSystems = new HashSet<TechFlow>();
 		for (var link : setup.productSystem().processLinks) {
@@ -126,7 +119,7 @@ public class SystemCalculator {
 				var result = db.get(org.openlca.core.model.Result.class, provider.providerId());
 				if (result != null) {
 					subResults.put(
-						provider, new SimpleResult(ResultModelProvider.of(result)));
+						provider, new FullResult(ResultModelProvider.of(result)));
 				}
 			}
 		}
@@ -148,7 +141,7 @@ public class SystemCalculator {
 				.withImpactMethod(setup.impactMethod())
 				.withNwSet(setup.nwSet());
 			var subResult = calculate(subSetup);
-			if (subResult instanceof SimpleResult simple) {
+			if (subResult instanceof FullResult simple) {
 				subResults.put(pp, simple);
 			}
 		}

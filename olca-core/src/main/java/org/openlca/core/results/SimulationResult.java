@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -62,14 +62,14 @@ public class SimulationResult implements IResult {
 	 * Append the total LCI and LCIA result vectors of the given result to this
 	 * simulation result.
 	 */
-	public void append(SimpleResult r) {
+	public void append(FullResult r) {
 		if (r == null)
 			return;
-		if (r.totalFlowResults != null) {
-			flowResults.add(r.totalFlowResults);
+		if (r.totalFlowResults() != null) {
+			flowResults.add(r.totalFlowResults());
 		}
-		if (r.totalImpactResults != null) {
-			impactResults.add(r.totalImpactResults);
+		if (r.totalImpactResults() != null) {
+			impactResults.add(r.totalImpactResults());
 		}
 	}
 

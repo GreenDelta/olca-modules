@@ -138,7 +138,7 @@ public class LocationResult {
 			cons.compute(loc,
 					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 		});
-		double total = result.totalCosts;
+		double total = result.totalCosts();
 		total = total == 0 ? 0 : -total;
 		return asContributions(cons, total);
 	}
@@ -156,7 +156,7 @@ public class LocationResult {
 			cons.compute(loc,
 					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 		});
-		double total = result.totalCosts;
+		double total = result.totalCosts();
 		return asContributions(cons, total);
 	}
 

@@ -3,7 +3,7 @@ package org.openlca.proto.io.server;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.ProtoEnviFlow;
 import org.openlca.proto.grpc.ProtoTechFlow;
@@ -17,7 +17,7 @@ final class Results {
   private Results() {
   }
 
-  static ImpactDescriptor findImpact(SimpleResult result, ProtoRef ref) {
+  static ImpactDescriptor findImpact(FullResult result, ProtoRef ref) {
 
     if (result == null || Messages.isEmpty(ref))
       return null;
@@ -35,7 +35,7 @@ final class Results {
     return null;
   }
 
-  static EnviFlow findFlow(SimpleResult result, ProtoEnviFlow proto) {
+  static EnviFlow findFlow(FullResult result, ProtoEnviFlow proto) {
 
     if (result == null || Messages.isEmpty(proto))
       return null;
@@ -61,7 +61,7 @@ final class Results {
     return null;
   }
 
-  static TechFlow findProduct(SimpleResult result, ProtoTechFlow proto) {
+  static TechFlow findProduct(FullResult result, ProtoTechFlow proto) {
     if (result == null || Messages.isEmpty(proto))
       return null;
     var processId = proto.getProcess().getId();

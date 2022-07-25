@@ -211,7 +211,7 @@ public class Sankey<T> {
 		private PriorityQueue<Candidate> candidates;
 
 		private Builder(T ref, FullResult result) {
-			this.sankey = new Sankey<>(ref, result.provider);
+			this.sankey = new Sankey<>(ref, result.provider());
 			this.result = result;
 			handled = new TIntObjectHashMap<>(
 					Constants.DEFAULT_CAPACITY,
@@ -290,7 +290,7 @@ public class Sankey<T> {
 		 * added to the graph, according to the cutoff rules of this builder.
 		 */
 		private void expand(Node node) {
-			var colA = result.provider.techColumnOf(node.index);
+			var colA = result.provider().techColumnOf(node.index);
 			for (int i = 0; i < colA.length; i++) {
 				if (i == node.index || colA[i] == 0)
 					continue;

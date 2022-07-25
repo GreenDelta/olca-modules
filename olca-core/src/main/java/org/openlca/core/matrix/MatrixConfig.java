@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationType;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.results.SimpleResult;
+import org.openlca.core.results.FullResult;
 import org.openlca.expressions.FormulaInterpreter;
 
 public class MatrixConfig {
@@ -33,7 +33,7 @@ public class MatrixConfig {
 	/**
 	 * Optional sub-system results of the product system.
 	 */
-	public final Map<TechFlow, SimpleResult> subResults;
+	public final Map<TechFlow, FullResult> subResults;
 	public final ImpactIndex impactIndex;
 	public final FormulaInterpreter interpreter;
 
@@ -92,7 +92,7 @@ public class MatrixConfig {
 		private Demand demand;
 		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
-		private Map<TechFlow, SimpleResult> subResults;
+		private Map<TechFlow, FullResult> subResults;
 
 		private AllocationMethod allocationMethod;
 		private boolean withUncertainties;
@@ -156,7 +156,7 @@ public class MatrixConfig {
 			return this;
 		}
 
-		public Builder withSubResults(Map<TechFlow, SimpleResult> results) {
+		public Builder withSubResults(Map<TechFlow, FullResult> results) {
 			this.subResults = results;
 			return this;
 		}

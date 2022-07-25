@@ -24,11 +24,11 @@ public class TagResult {
 		this.tag = tag;
 		this.result = result;
 		inventory = result.hasEnviFlows()
-			? new double[result.totalFlowResults.length]
-			: null;
+				? new double[result.totalFlowResults().length]
+				: null;
 		impacts = result.hasImpacts()
-			? new double[result.totalImpactResults.length]
-			: null;
+				? new double[result.totalImpactResults().length]
+				: null;
 		hasCosts = result.hasCosts();
 	}
 
@@ -53,8 +53,8 @@ public class TagResult {
 			return new FlowValue(flow, 0);
 		var idx = result.enviIndex().of(flow);
 		double value = idx < 0
-			? 0
-			: result.adopt(flow, inventory[idx]);
+				? 0
+				: result.adopt(flow, inventory[idx]);
 		return new FlowValue(flow, value);
 	}
 
@@ -63,8 +63,8 @@ public class TagResult {
 			return new ImpactValue(impact, 0);
 		var idx = result.impactIndex().of(impact);
 		var value = idx < 0
-			? 0
-			: impacts[idx];
+				? 0
+				: impacts[idx];
 		return new ImpactValue(impact, value);
 	}
 
@@ -77,19 +77,19 @@ public class TagResult {
 		if (idx < 0)
 			return;
 		if (hasInventoryResults()) {
-			var b = result.provider.directFlowsOf(idx);
+			var b = result.provider().directFlowsOf(idx);
 			for (int i = 0; i < b.length; i++) {
 				inventory[i] += b[i];
 			}
 		}
 		if (hasImpactResults()) {
-			var h = result.provider.directImpactsOf(idx);
+			var h = result.provider().directImpactsOf(idx);
 			for (int i = 0; i < h.length; i++) {
 				impacts[i] += h[i];
 			}
 		}
 		if (hasCosts) {
-			costs += result.provider.directCostsOf(idx);
+			costs += result.provider().directCostsOf(idx);
 		}
 	}
 
@@ -123,8 +123,8 @@ public class TagResult {
 			return Collections.emptyList();
 
 		return tags.stream()
-			.map(tag -> TagResult.of(tag, result))
-			.collect(Collectors.toList());
+				.map(tag -> TagResult.of(tag, result))
+				.collect(Collectors.toList());
 
 	}
 
@@ -135,11 +135,9 @@ public class TagResult {
 			// add tag results of sub-systems recursively
 			if (techFlow.isProductSystem()) {
 				var subResult = result.subResultOf(techFlow);
-				if (subResult instanceof FullResult subContributions) {
-					var subTags = TagResult.of(tag, subContributions);
-					var scaling = result.getScalingFactor(techFlow);
-					tagResult.addSubResult(scaling, subTags);
-				}
+				var subTags = TagResult.of(tag, subResult);
+				var scaling = result.getScalingFactor(techFlow);
+				tagResult.addSubResult(scaling, subTags);
 				continue;
 			}
 
@@ -159,9 +157,7 @@ public class TagResult {
 			// add tags of sub-systems recursively
 			if (techFlow.isProductSystem()) {
 				var subResult = result.subResultOf(techFlow);
-				if (subResult instanceof FullResult subCons) {
-					tags.addAll(allTagsOf(subCons));
-				}
+				tags.addAll(allTagsOf(subResult));
 				continue;
 			}
 
@@ -191,7 +187,7 @@ public class TagResult {
 		if (demand == null)
 			return super.toString();
 		return String.format(
-			"TagResult '%s' for %.2f ref. units from '%s'",
-			tag, demand.value(), demand.techFlow().provider().name);
+				"TagResult '%s' for %.2f ref. units from '%s'",
+				tag, demand.value(), demand.techFlow().provider().name);
 	}
 }
