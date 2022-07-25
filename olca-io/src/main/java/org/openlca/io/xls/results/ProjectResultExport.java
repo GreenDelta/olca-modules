@@ -18,7 +18,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ProjectResult;
-import org.openlca.core.results.ResultItemView;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 
@@ -26,7 +26,7 @@ public class ProjectResultExport {
 
 	final Project project;
 	final ProjectResult result;
-	final ResultItemView resultItems;
+	final ResultItemOrder resultItems;
 	final EntityCache cache;
 	final ProjectVariant[] variants;
 
@@ -36,7 +36,7 @@ public class ProjectResultExport {
 		Project project, ProjectResult result, IDatabase db) {
 		this.project = project;
 		this.result = result;
-		this.resultItems = ResultItemView.of(result);
+		this.resultItems = ResultItemOrder.of(result);
 		this.cache = EntityCache.create(db);
 		this.variants = project.variants.stream()
 			.filter(variant -> !variant.isDisabled)
@@ -139,8 +139,7 @@ public class ProjectResultExport {
 	private String processName(ParameterRedef redef) {
 		if (redef.contextId == null)
 			return "global";
-		ProcessDescriptor p = cache.get(ProcessDescriptor.class,
-				redef.contextId);
+		var p = cache.get(ProcessDescriptor.class, redef.contextId);
 		if (p == null)
 			return "not found: " + redef.contextId;
 		return p.name;

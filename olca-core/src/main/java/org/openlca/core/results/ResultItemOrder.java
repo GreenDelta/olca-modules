@@ -12,15 +12,15 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
- * A view on the index elements of one ore more results. A result index maps
- * elements like processes, flows, or impact categories to rows and columns
- * of result matrices. An instance of this class provides a view on these
- * elements. It holds its own lists which are directly returned from the
- * respective methods. You can sort  these lists via {@code List.sort} or
- * {@code Collections.sort} and they keep sorted in the view. Note, that an
+ * Stores the index elements of one or more results in a specific order. A
+ * result index maps elements like processes, flows, or impact categories to
+ * rows and columns of result matrices. An instance of this class provides a
+ * view on these elements. It holds its own lists which are directly returned
+ * from the respective methods. You can sort  these lists via {@code List.sort}
+ * or {@code Collections.sort} and they keep sorted in the view. Note, that an
  * instance of this class is not thread-safe.
  */
-public class ResultItemView {
+public class ResultItemOrder {
 
 	private final List<? extends IResult> results;
 	private final boolean hasEnviFlows;
@@ -32,7 +32,7 @@ public class ResultItemView {
 	private List<TechFlow> techFlows;
 	private List<RootDescriptor> processes;
 
-	private ResultItemView(List<? extends IResult> results) {
+	private ResultItemOrder(List<? extends IResult> results) {
 		this.results = results;
 		this.hasEnviFlows = results.stream()
 			.anyMatch(IResult::hasEnviFlows);
@@ -42,17 +42,17 @@ public class ResultItemView {
 			.anyMatch(IResult::hasCosts);
 	}
 
-	public static ResultItemView of(IResult result) {
+	public static ResultItemOrder of(IResult result) {
 		var list = Collections.singletonList(result);
-		return new ResultItemView(list);
+		return new ResultItemOrder(list);
 	}
 
-	public static ResultItemView of(ProjectResult result) {
+	public static ResultItemOrder of(ProjectResult result) {
 		var list = result.getVariants()
 			.stream()
 			.map(result::getResult)
 			.collect(Collectors.toList());
-		return new ResultItemView(list);
+		return new ResultItemOrder(list);
 	}
 
 	public boolean hasEnviFlows() {

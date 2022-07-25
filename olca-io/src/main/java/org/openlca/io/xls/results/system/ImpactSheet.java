@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -15,6 +15,7 @@ class ImpactSheet {
 	private final SimpleResult result;
 	private final DQResult dqResult;
 	private final NwSet nwSet;
+	private final ResultItemOrder items;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
@@ -26,7 +27,8 @@ class ImpactSheet {
 		this.workbook = export.workbook;
 		this.result = export.result;
 		this.dqResult = export.dqResult;
-		this.nwSet = export.nwSet;
+		this.nwSet = export.setup.nwSet();
+		this.items = export.items();
 	}
 
 	private void write() {
@@ -49,7 +51,7 @@ class ImpactSheet {
 
 	private void data() {
 		int row = 2;
-		for (ImpactDescriptor impact : result.getImpacts()) {
+		for (var impact : items.impacts()) {
 			double value = result.getTotalImpactResult(impact);
 			int col = writer.impactRow(sheet, row, 1, impact);
 			writer.cell(sheet, row, col++, value);

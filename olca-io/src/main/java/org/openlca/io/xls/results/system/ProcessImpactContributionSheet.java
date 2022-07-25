@@ -5,50 +5,47 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessImpactContributionSheet
-		extends
-		ContributionSheet<RootDescriptor, ImpactDescriptor> {
+		extends ContributionSheet<RootDescriptor, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final FullResult r;
+	private final ResultItemOrder items;
 
 	static void write(ResultExport export, FullResult r) {
-		new ProcessImpactContributionSheet(export, r)
-				.write(export.workbook);
+		new ProcessImpactContributionSheet(export, r).write(export.workbook);
 	}
 
-	private ProcessImpactContributionSheet(ResultExport export,
-			FullResult r) {
+	private ProcessImpactContributionSheet(ResultExport export, FullResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = r;
+		this.items = export.items();
 	}
 
 	private void write(Workbook wb) {
 		Sheet sheet = wb.createSheet("Process impact contributions");
 		header(sheet);
-		subHeaders(sheet, r.getProcesses(), r.getImpacts());
-		data(sheet, r.getProcesses(), r.getImpacts());
+		subHeaders(sheet, items.processes(), items.impacts());
+		data(sheet, items.processes(), items.impacts());
 	}
 
 	@Override
-	protected double getValue(RootDescriptor process,
-                              ImpactDescriptor impact) {
+	protected double getValue(RootDescriptor process, ImpactDescriptor impact) {
 		return r.getDirectImpactResult(process, impact);
 	}
 
 	@Override
-	protected void subHeaderCol(RootDescriptor process, Sheet sheet,
-                                int col) {
+	protected void subHeaderCol(RootDescriptor process, Sheet sheet, int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
 
 	@Override
-	protected void subHeaderRow(ImpactDescriptor impact, Sheet sheet,
-			int row) {
+	protected void subHeaderRow(ImpactDescriptor impact, Sheet sheet, int row) {
 		writer.impactRow(sheet, row, 1, impact);
 	}
 

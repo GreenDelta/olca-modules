@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.core.results.SimpleResult;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -16,6 +17,7 @@ class InventorySheet {
 	private final Workbook workbook;
 	private final SimpleResult result;
 	private final DQResult dqResult;
+	private final ResultItemOrder items;
 	private Sheet sheet;
 
 	static void write(ResultExport export) {
@@ -27,6 +29,7 @@ class InventorySheet {
 		this.workbook = export.workbook;
 		this.result = export.result;
 		this.dqResult = export.dqResult;
+		this.items = export.items();
 	}
 
 	private void write() {
@@ -38,7 +41,7 @@ class InventorySheet {
 	}
 
 	private List<EnviFlow> filterByInputType(boolean input) {
-		return result.getFlows().stream()
+		return items.enviFlows().stream()
 				.filter(f -> f.isInput() == input)
 				.collect(Collectors.toList());
 	}

@@ -28,6 +28,7 @@ import com.google.common.collect.Multimap;
  * used for caching entities that are used very often (like unit groups or flow
  * properties) and descriptors.
  */
+@Deprecated
 public class EntityCache {
 
 	public final IDatabase db;

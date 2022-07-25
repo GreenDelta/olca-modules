@@ -48,9 +48,8 @@ public class CellWriter {
 			RootDescriptor process) {
 		cell(sheet, row++, col, process.refId, false);
 		cell(sheet, row++, col, process.name, false);
-		if (!(process instanceof ProcessDescriptor))
+		if (!(process instanceof ProcessDescriptor p))
 			return;
-		ProcessDescriptor p = (ProcessDescriptor) process;
 		if (p.location == null)
 			return;
 		Location loc = cache.get(Location.class, p.location);

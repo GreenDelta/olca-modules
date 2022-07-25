@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
 class FlowImpactContributionSheet
@@ -12,6 +13,7 @@ class FlowImpactContributionSheet
 
 	private final CellWriter writer;
 	private final FullResult r;
+	private final ResultItemOrder items;
 
 	static void write(ResultExport export,
 			FullResult result) {
@@ -19,19 +21,18 @@ class FlowImpactContributionSheet
 				.write(export.workbook);
 	}
 
-	private FlowImpactContributionSheet(ResultExport export,
-			FullResult result) {
-		super(export.writer, ResultExport.FLOW_HEADER,
-				ResultExport.IMPACT_HEADER);
+	private FlowImpactContributionSheet(ResultExport export, FullResult result) {
+		super(export.writer, ResultExport.FLOW_HEADER, ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = result;
+		this.items = export.items();
 	}
 
 	private void write(Workbook wb) {
 		Sheet sheet = wb.createSheet("Flow impact contributions");
 		header(sheet);
-		subHeaders(sheet, r.getFlows(), r.getImpacts());
-		data(sheet, r.getFlows(), r.getImpacts());
+		subHeaders(sheet, items.enviFlows(), items.impacts());
+		data(sheet, items.enviFlows(), items.impacts());
 	}
 
 	@Override

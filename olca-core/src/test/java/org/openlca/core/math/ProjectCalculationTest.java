@@ -13,7 +13,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.results.ProjectResult;
-import org.openlca.core.results.ResultItemView;
+import org.openlca.core.results.ResultItemOrder;
 
 public class ProjectCalculationTest {
 
@@ -41,7 +41,7 @@ public class ProjectCalculationTest {
 		project.variants.add(var2);
 
 		var result = ProjectResult.calculate(project, Tests.getDb());
-		var items = ResultItemView.of(result);
+		var items = ResultItemOrder.of(result);
 		assertEquals(2, items.enviFlows().size());
 
 		AtomicInteger icount = new AtomicInteger(0);

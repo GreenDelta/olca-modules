@@ -15,8 +15,8 @@ import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.Statistics;
 import org.openlca.io.xls.Excel;
@@ -44,6 +44,7 @@ public class SimulationResultExport {
 	private final CalculationSetup setup;
 	private final SimulationResult result;
 	private final EntityCache cache;
+	private ResultItemOrder _items;
 
 	private int row = 0;
 	private CellWriter writer;
@@ -54,6 +55,18 @@ public class SimulationResultExport {
 		this.setup = setup;
 		this.result = result;
 		this.cache = cache;
+	}
+
+	public SimulationResultExport withOrder(ResultItemOrder order) {
+		this._items = order;
+		return this;
+	}
+
+	private ResultItemOrder items() {
+		if (_items == null) {
+			_items = ResultItemOrder.of(result);
+		}
+		return _items;
 	}
 
 	/**
@@ -103,7 +116,7 @@ public class SimulationResultExport {
 		writeValueHeaders(sheet, row, nextCol);
 		row++;
 
-		for (ImpactDescriptor impact : result.getImpacts()) {
+		for (var impact : items().impacts()) {
 			writer.impactRow(sheet, row, 1, impact);
 			double[] values = result.getAll(impact);
 			writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -116,7 +129,7 @@ public class SimulationResultExport {
 		Sheet sheet = wb.createSheet("Inventory");
 		Excel.trackSize(sheet, 0, FLOW_HEADER.length + 6);
 		row = 0;
-		List<EnviFlow> flows = result.getFlows();
+		var flows = items().enviFlows();
 		writeInventorySection(flows, true, sheet);
 		writeInventorySection(flows, false, sheet);
 		Excel.autoSize(sheet, 0, FLOW_HEADER.length + 6);
@@ -150,8 +163,7 @@ public class SimulationResultExport {
 		String label = "Contributions of: ";
 		if (pp.provider() != null) {
 			label += pp.provider().name;
-			if (pp.provider() instanceof ProcessDescriptor) {
-				ProcessDescriptor p = (ProcessDescriptor) pp.provider();
+			if (pp.provider() instanceof ProcessDescriptor p) {
 				if (p.location != null) {
 					Location loc = cache.get(Location.class, p.location);
 					if (loc != null) {
@@ -180,7 +192,7 @@ public class SimulationResultExport {
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
 			int valCol = IMPACT_HEADER.length + 1;
 			writeValueHeaders(sheet, row++, valCol);
-			for (ImpactDescriptor impact : result.getImpacts()) {
+			for (var impact : items().impacts()) {
 				writer.impactRow(sheet, row, 1, impact);
 				double[] values = result.getAllDirect(pp, impact);
 				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -191,7 +203,7 @@ public class SimulationResultExport {
 			writer.headerRow(sheet, row++, 1, "Upstream LCIA contributions");
 			writer.headerRow(sheet, row, 1, IMPACT_HEADER);
 			writeValueHeaders(sheet, row++, valCol);
-			for (ImpactDescriptor impact : result.getImpacts()) {
+			for (var impact : items().impacts()) {
 				writer.impactRow(sheet, row, 1, impact);
 				double[] values = result.getAllUpstream(pp, impact);
 				writeValues(sheet, row, IMPACT_HEADER.length + 1, values);
@@ -200,7 +212,7 @@ public class SimulationResultExport {
 			row++;
 		}
 
-		List<EnviFlow> flows = result.getFlows();
+		List<EnviFlow> flows = items().enviFlows();
 
 		writer.headerRow(sheet, row++, 1, "Direct LCI contributions - Inputs");
 		writeFlowContributions(flows, pp, true, result::getAllDirect, sheet);
@@ -269,9 +281,8 @@ public class SimulationResultExport {
 	private void flushSheet(Sheet sheet) {
 		if (!useStreaming)
 			return;
-		if (!(sheet instanceof SXSSFSheet))
+		if (!(sheet instanceof SXSSFSheet s))
 			return;
-		SXSSFSheet s = (SXSSFSheet) sheet;
 		try {
 			log.trace("flush rows of sheet {}", sheet.getSheetName());
 			s.flushRows();

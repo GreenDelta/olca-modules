@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.FullResult;
+import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessFlowUpstreamSheet
@@ -12,6 +13,7 @@ class ProcessFlowUpstreamSheet
 
 	private final CellWriter writer;
 	private final FullResult r;
+	private final ResultItemOrder items;
 
 	static void write(ResultExport export, FullResult r) {
 		new ProcessFlowUpstreamSheet(export, r)
@@ -19,17 +21,17 @@ class ProcessFlowUpstreamSheet
 	}
 
 	private ProcessFlowUpstreamSheet(ResultExport export, FullResult r) {
-		super(export.writer, ResultExport.PROCESS_HEADER,
-				ResultExport.FLOW_HEADER);
+		super(export.writer, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
 		this.r = r;
+		this.items = export.items();
 	}
 
 	private void write(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Process upstream flows");
 		header(sheet);
-		subHeaders(sheet, r.getProcesses(), r.getFlows());
-		data(sheet, r.getProcesses(), r.getFlows());
+		subHeaders(sheet, items.processes(), items.enviFlows());
+		data(sheet, items.processes(), items.enviFlows());
 	}
 
 	@Override
@@ -39,7 +41,7 @@ class ProcessFlowUpstreamSheet
 
 	@Override
 	protected void subHeaderCol(RootDescriptor process, Sheet sheet,
-                                int col) {
+			int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
 
