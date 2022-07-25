@@ -3,7 +3,7 @@ package examples;
 import org.openlca.core.DataDir;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.Sankey;
 import org.openlca.nativelib.NativeLib;
 
@@ -17,7 +17,7 @@ public class SankeyExample {
 				"2bc48e5d-7a6c-4655-8477-42d2e53fa171");
 
 		var start = System.currentTimeMillis();
-		var result = FullResult.of(db, system);
+		var result = LcaResult.of(db, system);
 		var end = System.currentTimeMillis();
 		System.out.println("Computed result in: "
 				+ ((end - start) / 1000d));

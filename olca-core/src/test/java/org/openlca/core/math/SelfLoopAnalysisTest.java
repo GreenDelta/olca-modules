@@ -11,12 +11,12 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class SelfLoopAnalysisTest {
 
 	private final IDatabase db = Tests.getDb();
-	private FullResult result;
+	private LcaResult result;
 
 	@Before
 	public void setUp() {

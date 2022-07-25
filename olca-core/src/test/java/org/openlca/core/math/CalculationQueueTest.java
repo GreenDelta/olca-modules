@@ -17,7 +17,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class CalculationQueueTest {
 
@@ -73,7 +73,7 @@ public class CalculationQueueTest {
 					continue;
 				assertTrue(state.isReady());
 				finished.add(id);
-				var result = (FullResult) state.result();
+				var result = (LcaResult) state.result();
 				assertEquals(2, result.getTotalFlowResults().get(0).value(), 1e-10);
 			}
 

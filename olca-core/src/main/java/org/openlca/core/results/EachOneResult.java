@@ -42,7 +42,7 @@ public class EachOneResult {
 		return eor;
 	}
 
-	public Iterable<Pair<TechFlow, FullResult>> get() {
+	public Iterable<Pair<TechFlow, LcaResult>> get() {
 		if (data == null) {
 			var techIndex = TechIndex.of(db);
 			data = MatrixData.of(db, techIndex)
@@ -60,8 +60,8 @@ public class EachOneResult {
 	}
 
 	private class Iter implements
-		Iterator<Pair<TechFlow, FullResult>>,
-		Iterable<Pair<TechFlow, FullResult>> {
+		Iterator<Pair<TechFlow, LcaResult>>,
+		Iterable<Pair<TechFlow, LcaResult>> {
 
 		@Override
 		public boolean hasNext() {
@@ -71,7 +71,7 @@ public class EachOneResult {
 		}
 
 		@Override
-		public Pair<TechFlow, FullResult> next() {
+		public Pair<TechFlow, LcaResult> next() {
 
 			var demand = Demand.of(data.techIndex.at(next), 1.0);
 			var p = SimpleResultProvider.of(demand, data.techIndex)
@@ -122,7 +122,7 @@ public class EachOneResult {
 		}
 
 		@Override
-		public Iterator<Pair<TechFlow, FullResult>> iterator() {
+		public Iterator<Pair<TechFlow, LcaResult>> iterator() {
 			return this;
 		}
 	}

@@ -21,14 +21,14 @@ public class UpstreamTree {
 	public final Object ref;
 
 	private final IntToDoubleFunction intensity;
-	private final FullResult r;
+	private final LcaResult r;
 
-	public UpstreamTree(FullResult r, double total, IntToDoubleFunction intensity) {
+	public UpstreamTree(LcaResult r, double total, IntToDoubleFunction intensity) {
 		this(null, r, total, intensity);
 	}
 
 	public UpstreamTree(
-		Object ref, FullResult r, double total, IntToDoubleFunction intensity) {
+		Object ref, LcaResult r, double total, IntToDoubleFunction intensity) {
 		this.ref = ref;
 		this.r = r;
 		this.intensity = intensity;

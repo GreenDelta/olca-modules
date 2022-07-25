@@ -14,7 +14,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class TestSystem {
 
@@ -92,18 +92,18 @@ public class TestSystem {
 		return dao.insert(system);
 	}
 
-	public static FullResult calculate(ProductSystem system) {
+	public static LcaResult calculate(ProductSystem system) {
 		var setup = CalculationSetup.fullAnalysis(system)
 			.withCosts(true);
 		return calculate(setup);
 	}
 
-	public static FullResult calculate(CalculationSetup setup) {
+	public static LcaResult calculate(CalculationSetup setup) {
 		var calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateFull(setup);
 	}
 
-	public static FullResult contributions(ProductSystem system) {
+	public static LcaResult contributions(ProductSystem system) {
 		var setup = CalculationSetup.contributions(system).withCosts(true);
 		var calc = new SystemCalculator(Tests.getDb());
 		return calc.calculateFull(setup);

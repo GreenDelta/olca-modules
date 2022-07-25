@@ -12,7 +12,7 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class CostTests {
 
@@ -53,7 +53,7 @@ public class CostTests {
 				.addCosts("water", 5, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
-		FullResult r = TestSystem.contributions(system);
+		LcaResult r = TestSystem.contributions(system);
 		Assert.assertEquals(3, r.totalCosts(), 1e-10);
 	}
 
@@ -72,7 +72,7 @@ public class CostTests {
 				.addCosts("p1", 4, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p2).link(p1).get();
-		FullResult r = TestSystem.calculate(system);
+		LcaResult r = TestSystem.calculate(system);
 
 		ProcessDescriptor d1 = Descriptor.of(p1);
 		ProcessDescriptor d2 = Descriptor.of(p2);
@@ -112,7 +112,7 @@ public class CostTests {
 		system.processLinks.add(selfLink);
 		system = db.update(system);
 
-		FullResult r = TestSystem.calculate(system);
+		LcaResult r = TestSystem.calculate(system);
 		Assert.assertEquals(-1.2, r.totalCosts(), 1e-10);
 	}
 
@@ -162,7 +162,7 @@ public class CostTests {
 				.get();
 
 		// TODO: test something here
-		FullResult result = TestSystem.calculate(system);
+		LcaResult result = TestSystem.calculate(system);
 		System.out.println(result.totalCosts());
 
 	}

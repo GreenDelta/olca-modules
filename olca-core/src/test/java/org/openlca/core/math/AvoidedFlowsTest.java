@@ -10,7 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class AvoidedFlowsTest {
 
@@ -50,7 +50,7 @@ public class AvoidedFlowsTest {
 
 	private void check(Process refProc, Process linkedProc) {
 		ProductSystem system = TestSystem.of(refProc).link(linkedProc).get();
-		FullResult r = TestSystem.calculate(system);
+		LcaResult r = TestSystem.calculate(system);
 		assertEquals(1, r.enviIndex().size());
 		EnviFlow co2 = r.enviIndex().at(0);
 		assertEquals(1.0, r.getTotalFlowResult(co2), 1e-16);

@@ -17,7 +17,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class DQDataTest {
 
@@ -83,7 +83,7 @@ public class DQDataTest {
 		var product1 = TechFlow.of(process1);
 		var product2 = TechFlow.of(process2);
 
-		var result = FullResult.of(db, productSystem);
+		var result = LcaResult.of(db, productSystem);
 		var iFlow = result.enviIndex().at(0);
 
 		// test process data

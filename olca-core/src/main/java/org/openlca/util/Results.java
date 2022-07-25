@@ -14,7 +14,7 @@ import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 import jakarta.persistence.EntityManager;
 
@@ -24,7 +24,7 @@ public class Results {
 	}
 
 	public static Result createFrom(IDatabase db,
-		CalculationSetup setup, FullResult result) {
+		CalculationSetup setup, LcaResult result) {
 		return new Generator(db, setup, result).generate();
 	}
 
@@ -32,9 +32,9 @@ public class Results {
 
 		private final EntityManager em;
 		private final CalculationSetup setup;
-		private final FullResult result;
+		private final LcaResult result;
 
-		Generator(IDatabase db, CalculationSetup setup, FullResult result) {
+		Generator(IDatabase db, CalculationSetup setup, LcaResult result) {
 			this.setup = Objects.requireNonNull(setup);
 			this.result = Objects.requireNonNull(result);
 			// we use a shared entity manager for fetching flows and impacts

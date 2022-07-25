@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -12,16 +12,16 @@ class FlowImpactContributionSheet
 		extends ContributionSheet<EnviFlow, ImpactDescriptor> {
 
 	private final CellWriter writer;
-	private final FullResult r;
+	private final LcaResult r;
 	private final ResultItemOrder items;
 
 	static void write(ResultExport export,
-			FullResult result) {
+			LcaResult result) {
 		new FlowImpactContributionSheet(export, result)
 				.write(export.workbook);
 	}
 
-	private FlowImpactContributionSheet(ResultExport export, FullResult result) {
+	private FlowImpactContributionSheet(ResultExport export, LcaResult result) {
 		super(export.writer, ResultExport.FLOW_HEADER, ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = result;

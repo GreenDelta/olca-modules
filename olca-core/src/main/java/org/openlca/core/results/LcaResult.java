@@ -26,31 +26,31 @@ import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SolverContext;
 
-public class FullResult implements IResult {
+public class LcaResult implements IResult {
 
 	private final ResultProvider provider;
-	private final Map<TechFlow, FullResult> subResults;
+	private final Map<TechFlow, LcaResult> subResults;
 
-	public FullResult(ResultProvider provider) {
+	public LcaResult(ResultProvider provider) {
 		this.provider = Objects.requireNonNull(provider);
 		this.subResults = new HashMap<>();
 	}
 
-	public static FullResult of(IDatabase db, MatrixData data) {
+	public static LcaResult of(IDatabase db, MatrixData data) {
 		return of(SolverContext.of(db, data));
 	}
 
-	public static FullResult of(SolverContext context) {
+	public static LcaResult of(SolverContext context) {
 		var provider = ResultProviders.solve(context);
-		return new FullResult(provider);
+		return new LcaResult(provider);
 	}
 
-	public static FullResult of(IDatabase db, ProductSystem system) {
+	public static LcaResult of(IDatabase db, ProductSystem system) {
 		var setup = CalculationSetup.fullAnalysis(system);
 		return of(db, setup);
 	}
 
-	public static FullResult of(IDatabase db, CalculationSetup setup) {
+	public static LcaResult of(IDatabase db, CalculationSetup setup) {
 		var calculator = new SystemCalculator(db);
 		return calculator.calculateFull(setup);
 	}
@@ -249,15 +249,15 @@ public class FullResult implements IResult {
 	 * can be a more specific result (e.g. contribution result) depending on how
 	 * the result was calculated.
 	 */
-	public FullResult subResultOf(TechFlow product) {
+	public LcaResult subResultOf(TechFlow product) {
 		return subResults.get(product);
 	}
 
-	public Map<TechFlow, FullResult> subResults() {
+	public Map<TechFlow, LcaResult> subResults() {
 		return new HashMap<>(subResults);
 	}
 
-	public void addSubResult(TechFlow product, FullResult result) {
+	public void addSubResult(TechFlow product, LcaResult result) {
 		subResults.put(product, result);
 	}
 

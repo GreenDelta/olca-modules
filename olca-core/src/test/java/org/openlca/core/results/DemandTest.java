@@ -49,7 +49,7 @@ public class DemandTest {
 		for (int i = 0; i < 3; i++) {
 			data.demand = Demand.of(data.techIndex.at(i), 2);
 			var context = SolverContext.of(data);
-			var result = FullResult.of(context);
+			var result = LcaResult.of(context);
 			var g = result.totalFlowResults()[0];
 			switch (i) {
 				case 0 -> assertEquals(6, g, 1e-16);

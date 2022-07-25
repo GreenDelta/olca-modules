@@ -47,7 +47,7 @@ public class ContributionTreeTest {
 		data.enviMatrix = flowMatrix;
 
 		// calculate and check the result
-		var r = FullResult.of(Tests.getDb(), data);
+		var r = LcaResult.of(Tests.getDb(), data);
 		Assert.assertEquals(1.0, r.getTotalFlowResult(enviIndex.at(0)), 1e-16);
 
 		var tree = r.getTree(enviIndex.at(0));

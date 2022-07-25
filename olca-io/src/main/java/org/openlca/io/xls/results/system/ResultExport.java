@@ -8,7 +8,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.math.data_quality.DQCalculationSetup;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 import org.openlca.io.xls.results.InfoSheet;
@@ -25,7 +25,7 @@ public class ResultExport implements Runnable {
 
 	private final File file;
 	final CalculationSetup setup;
-	final FullResult result;
+	final LcaResult result;
 	final EntityCache cache;
 
 	DQResult dqResult;
@@ -36,7 +36,7 @@ public class ResultExport implements Runnable {
 	CellWriter writer;
 
 	public ResultExport(CalculationSetup setup,
-			FullResult result, File file, EntityCache cache) {
+			LcaResult result, File file, EntityCache cache) {
 		this.setup = setup;
 		this.result = result;
 		this.file = file;

@@ -13,7 +13,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.IResult;
 import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.SolverContext;
@@ -65,7 +65,7 @@ public class SystemCalculator {
 	}
 
 	// TODO: somewhere we need a switch between eager and lazy calculations
-	public FullResult calculateFull(CalculationSetup setup) {
+	public LcaResult calculateFull(CalculationSetup setup) {
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
 		var data = MatrixData.of(db, techIndex)
@@ -75,7 +75,7 @@ public class SystemCalculator {
 		var context = SolverContext.of(db, data)
 			.libraryDir(libraryDir)
 			.solver(solver);
-		var result = FullResult.of(context);
+		var result = LcaResult.of(context);
 
 		for (var sub : subs.entrySet()) {
 			var techFlow = sub.getKey();
@@ -95,12 +95,12 @@ public class SystemCalculator {
 	 * the sub-results, the same calculation type is performed as defined in
 	 * the original calculation setup.
 	 */
-	private Map<TechFlow, FullResult> solveSubSystems(
+	private Map<TechFlow, LcaResult> solveSubSystems(
 		CalculationSetup setup, TechIndex techIndex) {
 		if (setup == null || !setup.hasProductSystem())
 			return Collections.emptyMap();
 
-		var subResults = new HashMap<TechFlow, FullResult>();
+		var subResults = new HashMap<TechFlow, LcaResult>();
 
 		var subSystems = new HashSet<TechFlow>();
 		for (var link : setup.productSystem().processLinks) {
@@ -119,7 +119,7 @@ public class SystemCalculator {
 				var result = db.get(org.openlca.core.model.Result.class, provider.providerId());
 				if (result != null) {
 					subResults.put(
-						provider, new FullResult(ResultModelProvider.of(result)));
+						provider, new LcaResult(ResultModelProvider.of(result)));
 				}
 			}
 		}
@@ -141,7 +141,7 @@ public class SystemCalculator {
 				.withImpactMethod(setup.impactMethod())
 				.withNwSet(setup.nwSet());
 			var subResult = calculate(subSetup);
-			if (subResult instanceof FullResult simple) {
+			if (subResult instanceof LcaResult simple) {
 				subResults.put(pp, simple);
 			}
 		}

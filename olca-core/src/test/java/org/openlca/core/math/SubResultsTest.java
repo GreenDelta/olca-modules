@@ -16,7 +16,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.TagResult;
 import org.openlca.util.Pair;
 
@@ -95,13 +95,13 @@ public class SubResultsTest {
 
 		// check sub-result B
 		var techFlowB = TechFlow.of(sysB);
-		var resultB = (FullResult) resultC.subResultOf(techFlowB);
+		var resultB = (LcaResult) resultC.subResultOf(techFlowB);
 		assertEquals(3, resultB.getTotalFlowResult(co2Idx), 1e-10);
 		assertEquals(4, resultC.getScalingFactor(techFlowB), 1e-10);
 
 		// check sub-result A
 		var techFlowA = TechFlow.of(sysA);
-		var resultA = (FullResult) resultB.subResultOf(techFlowA);
+		var resultA = (LcaResult) resultB.subResultOf(techFlowA);
 		assertEquals(1, resultA.getTotalFlowResult(co2Idx), 1e-10);
 		assertEquals(2, resultB.getScalingFactor(techFlowA), 1e-10);
 
@@ -121,7 +121,7 @@ public class SubResultsTest {
 				.findFirst()
 				.orElseThrow();
 			assertEquals(
-				expected.second, 
+				expected.second,
 				tagResult.inventoryResultOf(co2Idx).value(), 1e-10);
 		}
 

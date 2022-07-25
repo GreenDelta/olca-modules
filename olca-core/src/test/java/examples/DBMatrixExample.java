@@ -3,7 +3,7 @@ package examples;
 import org.openlca.core.DataDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.nativelib.NativeLib;
 
 /**
@@ -26,7 +26,7 @@ public class DBMatrixExample {
 
 			// now the full result calculation
 			start = System.currentTimeMillis();
-			var r = FullResult.of(db, matrices);
+			var r = LcaResult.of(db, matrices);
 			end = System.currentTimeMillis();
 			System.out.printf(
 				"calculation took %.3f seconds",

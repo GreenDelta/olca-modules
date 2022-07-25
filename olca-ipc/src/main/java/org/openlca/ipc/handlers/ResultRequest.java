@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
@@ -17,7 +17,7 @@ class ResultRequest {
 
 	private final RpcRequest req;
 	private final JsonObject reqParam;
-	private final FullResult result;
+	private final LcaResult result;
 	private final DbRefs refs;
 
 	private TechFlow _techFlow;
@@ -27,7 +27,7 @@ class ResultRequest {
 	private ResultRequest(
 			RpcRequest req,
 			JsonObject reqParam,
-			FullResult result,
+			LcaResult result,
 			DbRefs refs) {
 		this.req = req;
 		this.reqParam = reqParam;
@@ -45,7 +45,7 @@ class ResultRequest {
 		if (cached.isError())
 			return cached.error();
 		var cachedResult = cached.value();
-		if (!(cachedResult.result() instanceof FullResult result))
+		if (!(cachedResult.result() instanceof LcaResult result))
 			return Responses.badRequest(
 					"method cannot be called on this type of result", req);
 
@@ -87,7 +87,7 @@ class ResultRequest {
 		return reqParam;
 	}
 
-	FullResult result() {
+	LcaResult result() {
 		return result;
 	}
 

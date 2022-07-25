@@ -26,7 +26,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class DQResultTest {
 
@@ -130,7 +130,7 @@ public class DQResultTest {
 		var setup = CalculationSetup.fullAnalysis(system)
 			.withAmount(1)
 			.withImpactMethod(method);
-		var result = FullResult.of(db, setup);
+		var result = LcaResult.of(db, setup);
 		var dqSetup = DQCalculationSetup.of(system);
 		var dqResult = DQResult.of(db, dqSetup, result);
 

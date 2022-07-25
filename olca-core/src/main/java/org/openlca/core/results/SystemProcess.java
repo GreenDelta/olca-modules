@@ -17,23 +17,23 @@ public class SystemProcess {
 	public static Process create(
 		IDatabase database,
 		CalculationSetup setup,
-		FullResult result,
+		LcaResult result,
 		String name) {
 		return new SystemProcess(database, setup, result, name).create(false);
 	}
 
 	public static Process createWithMetaData(IDatabase database,
-		CalculationSetup setup, FullResult result, String name) {
+		CalculationSetup setup, LcaResult result, String name) {
 		return new SystemProcess(database, setup, result, name).create(true);
 	}
 
 	private final FlowDao flowDao;
 	private final CalculationSetup setup;
-	private final FullResult result;
+	private final LcaResult result;
 	private final String name;
 
 	private SystemProcess(IDatabase database, CalculationSetup setup,
-			FullResult result, String name) {
+			LcaResult result, String name) {
 		this.flowDao = new FlowDao(database);
 		this.setup = setup;
 		this.result = result;

@@ -17,7 +17,7 @@ import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class NwResultTest {
 
@@ -51,7 +51,7 @@ public class NwResultTest {
 		var setup = CalculationSetup.fullAnalysis(system)
 			.withImpactMethod(method)
 			.withNwSet(nwSet);
-		var result = FullResult.of(db, setup);
+		var result = LcaResult.of(db, setup);
 		var impacts = result.getTotalImpactResults();
 		assertEquals(4, impacts.get(0).value(), 1e-10);
 

@@ -12,7 +12,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.FlowValue;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.DbRefs;
@@ -29,7 +29,7 @@ class JsonRpc {
 	private JsonRpc() {
 	}
 
-	static JsonObject encodeResult(FullResult r, String id, DbRefs refs) {
+	static JsonObject encodeResult(LcaResult r, String id, DbRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "@id", id);
 		obj.addProperty("@id", id);

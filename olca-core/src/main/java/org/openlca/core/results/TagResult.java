@@ -17,10 +17,10 @@ public class TagResult {
 	private final double[] inventory;
 	private final double[] impacts;
 	private final boolean hasCosts;
-	private final FullResult result;
+	private final LcaResult result;
 	private double costs;
 
-	private TagResult(String tag, FullResult result) {
+	private TagResult(String tag, LcaResult result) {
 		this.tag = tag;
 		this.result = result;
 		inventory = result.hasEnviFlows()
@@ -115,7 +115,7 @@ public class TagResult {
 		}
 	}
 
-	public static Collection<TagResult> allOf(FullResult result) {
+	public static Collection<TagResult> allOf(LcaResult result) {
 		if (result == null)
 			return Collections.emptyList();
 		var tags = allTagsOf(result);
@@ -128,7 +128,7 @@ public class TagResult {
 
 	}
 
-	public static TagResult of(String tag, FullResult result) {
+	public static TagResult of(String tag, LcaResult result) {
 		var tagResult = new TagResult(tag, result);
 		for (var techFlow : result.techIndex()) {
 
@@ -149,7 +149,7 @@ public class TagResult {
 		return tagResult;
 	}
 
-	private static Set<String> allTagsOf(FullResult result) {
+	private static Set<String> allTagsOf(LcaResult result) {
 		if (result == null)
 			return Collections.emptySet();
 		var tags = new HashSet<String>();

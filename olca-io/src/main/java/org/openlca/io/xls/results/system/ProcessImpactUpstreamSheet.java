@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -12,14 +12,14 @@ class ProcessImpactUpstreamSheet extends
 		ContributionSheet<RootDescriptor, ImpactDescriptor> {
 
 	private final CellWriter writer;
-	private final FullResult r;
+	private final LcaResult r;
 	private final ResultItemOrder items;
 
-	static void write(ResultExport export, FullResult r) {
+	static void write(ResultExport export, LcaResult r) {
 		new ProcessImpactUpstreamSheet(export, r).write(export.workbook);
 	}
 
-	private ProcessImpactUpstreamSheet(ResultExport export, FullResult r) {
+	private ProcessImpactUpstreamSheet(ResultExport export, LcaResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;

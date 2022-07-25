@@ -62,7 +62,7 @@ public class SimulationResult implements IResult {
 	 * Append the total LCI and LCIA result vectors of the given result to this
 	 * simulation result.
 	 */
-	public void append(FullResult r) {
+	public void append(LcaResult r) {
 		if (r == null)
 			return;
 		if (r.totalFlowResults() != null) {

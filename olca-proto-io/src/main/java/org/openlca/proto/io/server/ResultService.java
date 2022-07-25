@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.math.SystemCalculator;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.proto.ProtoCalculationSetup;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.ImpactFactorRequest;
@@ -29,7 +29,7 @@ import io.grpc.stub.StreamObserver;
 class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
   final IDatabase db;
-  final Map<String, FullResult> results = new HashMap<>();
+  final Map<String, LcaResult> results = new HashMap<>();
 
   ResultService(IDatabase db) {
     this.db = db;
@@ -238,9 +238,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
-      .ifImpact(FullResult::getDirectImpactResult)
-      .ifFlow(FullResult::getDirectFlowResult)
-      .ifCosts(FullResult::getDirectCostResult)
+      .ifImpact(LcaResult::getDirectImpactResult)
+      .ifFlow(LcaResult::getDirectFlowResult)
+      .ifCosts(LcaResult::getDirectCostResult)
       .close();
   }
 
@@ -249,9 +249,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 
     TechFlowContribution.of(this, req, resp)
-      .ifImpact(FullResult::getUpstreamImpactResult)
-      .ifFlow(FullResult::getUpstreamFlowResult)
-      .ifCosts(FullResult::getUpstreamCostResult)
+      .ifImpact(LcaResult::getUpstreamImpactResult)
+      .ifFlow(LcaResult::getUpstreamFlowResult)
+      .ifCosts(LcaResult::getUpstreamCostResult)
       .close();
   }
 

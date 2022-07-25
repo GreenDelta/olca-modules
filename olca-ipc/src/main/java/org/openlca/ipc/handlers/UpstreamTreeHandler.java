@@ -6,7 +6,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.ipc.Responses;
@@ -70,7 +70,7 @@ public class UpstreamTreeHandler {
 		return null;
 	}
 
-	private UpstreamTree impactTree(FullResult result, String impactID) {
+	private UpstreamTree impactTree(LcaResult result, String impactID) {
 		var impactIdx = result.impactIndex();
 		if (impactIdx == null)
 			return null;
@@ -82,7 +82,7 @@ public class UpstreamTreeHandler {
 		return null;
 	}
 
-	private UpstreamTree flowTree(FullResult result, String flowID) {
+	private UpstreamTree flowTree(LcaResult result, String flowID) {
 		var flowIdx = result.enviIndex();
 		if (flowIdx == null)
 			return null;

@@ -36,7 +36,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 /**
  * We test different aspects of regionalized models here. Our test model has two
@@ -139,7 +139,7 @@ public class RegionalizedCalculationTest {
 
 	@Test
 	public void checkNormalCalculation() {
-		var r = FullResult.of(db, calcSetup());
+		var r = LcaResult.of(db, calcSetup());
 
 		// total results
 		checkTotalFlowResults(r, new Object[][]{
@@ -278,11 +278,11 @@ public class RegionalizedCalculationTest {
 		var data = MatrixData.of(db, TechIndex.of(db, setup))
 			.withSetup(setup)
 			.build();
-		var result = FullResult.of(db, data);
+		var result = LcaResult.of(db, data);
 		checkRegionalizedResults(result);
 	}
 
-	private void checkRegionalizedResults(FullResult r) {
+	private void checkRegionalizedResults(LcaResult r) {
 
 		checkRegTotalFlowResults(r, new Object[][]{
 			{e1, loc1, 2.0},
@@ -339,7 +339,7 @@ public class RegionalizedCalculationTest {
 	/**
 	 * Checks a sequence of (Flow, Double) values.
 	 */
-	private void checkTotalFlowResults(FullResult r, Object[][] defs) {
+	private void checkTotalFlowResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			Flow flow = (Flow) row[0];
 			int flowIdx = r.enviIndex().of(flow.id);
@@ -352,7 +352,7 @@ public class RegionalizedCalculationTest {
 	/**
 	 * Checks a sequence of (Flow, Location, Double) values.
 	 */
-	private void checkRegTotalFlowResults(FullResult r, Object[][] defs) {
+	private void checkRegTotalFlowResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			var flow = (Flow) row[0];
 			var loc = (Location) row[1];
@@ -368,7 +368,7 @@ public class RegionalizedCalculationTest {
 	 * Checks a sequence of (Process, Flow, Double) for non-regionalized results
 	 * and (Process, Flow, Location, Double) for regionalized results.
 	 */
-	private void checkDirectFlowResults(FullResult r, Object[][] defs) {
+	private void checkDirectFlowResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			TechFlow product = product((Process) row[0]);
 			Flow flow = (Flow) row[1];
@@ -392,7 +392,7 @@ public class RegionalizedCalculationTest {
 	 * Checks a sequence of (Process, Flow, Double) for non-regionalized results
 	 * and (Process, Flow, Location, Double) for regionalized results.
 	 */
-	private void checkUpstreamFlowResults(FullResult r, Object[][] defs) {
+	private void checkUpstreamFlowResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			TechFlow product = product((Process) row[0]);
 			Flow flow = (Flow) row[1];
@@ -422,11 +422,11 @@ public class RegionalizedCalculationTest {
 			: 0;
 	}
 
-	private void checkTotalImpactResult(FullResult r, double val) {
+	private void checkTotalImpactResult(LcaResult r, double val) {
 		Assert.assertEquals(val, r.getTotalImpactResult(des(impact)), 1e-10);
 	}
 
-	private void checkDirectImpactResults(FullResult r, Object[][] defs) {
+	private void checkDirectImpactResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			double v = r.getDirectImpactResult(
 				product((Process) row[0]), des(impact));
@@ -434,7 +434,7 @@ public class RegionalizedCalculationTest {
 		}
 	}
 
-	private void checkUpstreamImpactResults(FullResult r, Object[][] defs) {
+	private void checkUpstreamImpactResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
 			double v = r.getUpstreamImpactResult(
 				product((Process) row[0]), des(impact));
@@ -487,7 +487,7 @@ public class RegionalizedCalculationTest {
 			.withRegionalization(true);
 		var calculator = new SystemCalculator(db);
 
-		FullResult r = calculator.calculateFull(setup);
+		LcaResult r = calculator.calculateFull(setup);
 		Assert.assertTrue(r.enviIndex().isRegionalized());
 		checkRegTotalFlowResults(r, new Object[][]{
 			{nox, loc1, 5.0},

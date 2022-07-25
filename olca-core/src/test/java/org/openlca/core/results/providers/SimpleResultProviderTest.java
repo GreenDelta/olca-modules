@@ -18,11 +18,11 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 public class SimpleResultProviderTest {
 
-	private FullResult result;
+	private LcaResult result;
 
 	@Before
 	public void setup() {

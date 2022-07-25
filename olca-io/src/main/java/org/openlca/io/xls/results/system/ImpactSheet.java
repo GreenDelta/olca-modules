@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
@@ -12,7 +12,7 @@ class ImpactSheet {
 
 	private final CellWriter writer;
 	private final Workbook workbook;
-	private final FullResult result;
+	private final LcaResult result;
 	private final DQResult dqResult;
 	private final NwSet nwSet;
 	private final ResultItemOrder items;

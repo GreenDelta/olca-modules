@@ -15,7 +15,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationType;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.expressions.FormulaInterpreter;
 
 public class MatrixConfig {
@@ -33,7 +33,7 @@ public class MatrixConfig {
 	/**
 	 * Optional sub-system results of the product system.
 	 */
-	public final Map<TechFlow, FullResult> subResults;
+	public final Map<TechFlow, LcaResult> subResults;
 	public final ImpactIndex impactIndex;
 	public final FormulaInterpreter interpreter;
 
@@ -92,7 +92,7 @@ public class MatrixConfig {
 		private Demand demand;
 		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
-		private Map<TechFlow, FullResult> subResults;
+		private Map<TechFlow, LcaResult> subResults;
 
 		private AllocationMethod allocationMethod;
 		private boolean withUncertainties;
@@ -156,7 +156,7 @@ public class MatrixConfig {
 			return this;
 		}
 
-		public Builder withSubResults(Map<TechFlow, FullResult> results) {
+		public Builder withSubResults(Map<TechFlow, LcaResult> results) {
 			this.subResults = results;
 			return this;
 		}

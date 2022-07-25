@@ -25,7 +25,7 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.SimulationResult;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SimpleResultProvider;
@@ -150,7 +150,7 @@ public class Simulator {
 	 * singular). The returned result is appended to the result of the simulator
 	 * (which you get via `getResult()`, so it does not need to be cached.
 	 */
-	public FullResult nextRun() {
+	public LcaResult nextRun() {
 		try {
 
 			// generate the numbers and calculate the overall result
@@ -188,12 +188,12 @@ public class Simulator {
 		}
 	}
 
-	private FullResult solve(MatrixData data) {
+	private LcaResult solve(MatrixData data) {
 		var context = SolverContext.of(db, data)
 				.solver(solver)
 				.libraryDir(libraryDir);
 		var provider =  ResultProviders.solveLazy(context);
-		return new FullResult(provider);
+		return new LcaResult(provider);
 	}
 
 	private void generateData(Node node) {
@@ -315,7 +315,7 @@ public class Simulator {
 				"there are sub-system cycles in the product system");
 
 		// now, we initialize the nodes in topological order
-		Map<TechFlow, FullResult> subResults = new HashMap<>();
+		Map<TechFlow, LcaResult> subResults = new HashMap<>();
 		for (long system : order) {
 
 			CalculationSetup _setup;
@@ -380,10 +380,10 @@ public class Simulator {
 		final ParameterTable parameters;
 
 		Set<TechFlow> subSystems;
-		FullResult lastResult;
+		LcaResult lastResult;
 
 		Node(CalculationSetup setup, IDatabase db,
-			Map<TechFlow, FullResult> subResults) {
+			Map<TechFlow, LcaResult> subResults) {
 
 			systemID = setup.hasProductSystem()
 				? setup.productSystem().id

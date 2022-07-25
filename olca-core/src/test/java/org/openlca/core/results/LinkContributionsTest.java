@@ -50,7 +50,7 @@ public class LinkContributionsTest {
 		data.techIndex = index;
 
 		var solution = FactorizationSolver.solve(SolverContext.of(data));
-		var r = new FullResult(solution);
+		var r = new LcaResult(solution);
 
 		Assert.assertEquals(0, r.getLinkShare(link(4, 4, 1)), 1e-16);
 		Assert.assertEquals(1, r.getLinkShare(link(2, 2, 1)), 1e-16);
@@ -87,7 +87,7 @@ public class LinkContributionsTest {
 		data.techIndex = index;
 		data.techMatrix = techMatrix;
 		var solutions = FactorizationSolver.solve(SolverContext.of(data));
-		var r = new FullResult(solutions);
+		var r = new LcaResult(solutions);
 
 		for (int i = 0; i < size; i++) {
 			if (i < (size - 1)) {

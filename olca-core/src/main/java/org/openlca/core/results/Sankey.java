@@ -115,7 +115,7 @@ public class Sankey<T> {
 	 * Creates a new builder of a graph for a Sankey diagram for the given
 	 * reference (flow or impact) and result.
 	 */
-	public static <T> Builder<T> of(T ref, FullResult result) {
+	public static <T> Builder<T> of(T ref, LcaResult result) {
 		return new Builder<>(ref, result);
 	}
 
@@ -197,7 +197,7 @@ public class Sankey<T> {
 	public static class Builder<T> {
 
 		private final Sankey<T> sankey;
-		private final FullResult result;
+		private final LcaResult result;
 
 		// result references
 		private EnviFlow flow;
@@ -210,7 +210,7 @@ public class Sankey<T> {
 		private final TIntObjectHashMap<Node> handled;
 		private PriorityQueue<Candidate> candidates;
 
-		private Builder(T ref, FullResult result) {
+		private Builder(T ref, LcaResult result) {
 			this.sankey = new Sankey<>(ref, result.provider());
 			this.result = result;
 			handled = new TIntObjectHashMap<>(

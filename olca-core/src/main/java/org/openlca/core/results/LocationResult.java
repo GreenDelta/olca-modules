@@ -25,10 +25,10 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 public class LocationResult {
 
 	private final IDatabase db;
-	private final FullResult result;
+	private final LcaResult result;
 	private final TLongObjectHashMap<Location> cache = new TLongObjectHashMap<>();
 
-	public LocationResult(FullResult result, IDatabase db) {
+	public LocationResult(LcaResult result, IDatabase db) {
 		this.result = result;
 		this.db = db;
 	}

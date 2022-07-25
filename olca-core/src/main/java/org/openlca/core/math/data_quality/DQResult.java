@@ -9,7 +9,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.FullResult;
+import org.openlca.core.results.LcaResult;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -27,7 +27,7 @@ public class DQResult {
 	/**
 	 * The LCA result on which this data quality result is based.
 	 */
-	private final FullResult result;
+	private final LcaResult result;
 
 	/**
 	 * We store the process data in a k*n byte matrix where the k data quality
@@ -79,7 +79,7 @@ public class DQResult {
 	private DenseByteMatrix[] processImpactResult;
 
 	public static DQResult of(IDatabase db, DQCalculationSetup setup,
-							  FullResult result) {
+							  LcaResult result) {
 		var r = new DQResult(setup, result);
 		r.loadProcessData(db);
 		r.loadExchangeData(db);
@@ -88,7 +88,7 @@ public class DQResult {
 		return r;
 	}
 
-	private DQResult(DQCalculationSetup setup, FullResult result) {
+	private DQResult(DQCalculationSetup setup, LcaResult result) {
 		this.setup = setup;
 		this.result = result;
 	}
