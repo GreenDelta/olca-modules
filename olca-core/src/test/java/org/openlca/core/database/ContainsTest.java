@@ -35,7 +35,7 @@ public class ContainsTest {
                                             RefEntityDao<T, ?> dao) throws Exception {
 		String refId = UUID.randomUUID().toString();
 		Assert.assertFalse(dao.contains(refId));
-		T entity = clazz.newInstance();
+		T entity = clazz.getDeclaredConstructor().newInstance();
 		entity.refId = refId;
 		dao.insert(entity);
 		Assert.assertTrue(dao.contains(refId));

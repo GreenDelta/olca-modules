@@ -1,11 +1,11 @@
 package org.openlca.core.database.descriptors;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.LocationDescriptor;
 
 public class LocationDescriptorTest {
 
@@ -22,8 +22,8 @@ public class LocationDescriptorTest {
 		var d = dao.descriptorMap().get(loc.id);
 		dao.delete(loc);
 
-		Assert.assertEquals(loc.name, d.name);
-		Assert.assertEquals(loc.refId, d.refId);
-		Assert.assertEquals(loc.code, d.code);
+		assertEquals(loc.name, d.name);
+		assertEquals(loc.refId, d.refId);
+		assertEquals(loc.code, d.code);
 	}
 }

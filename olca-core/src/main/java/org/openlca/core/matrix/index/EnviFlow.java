@@ -3,6 +3,7 @@ package org.openlca.core.matrix.index;
 import java.util.Objects;
 
 import org.openlca.core.model.AbstractExchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -58,6 +59,10 @@ public record EnviFlow(
 
 	public static EnviFlow outputOf(FlowDescriptor flow) {
 		return outputOf(flow, null);
+	}
+
+	public static EnviFlow outputOf(Flow flow) {
+		return outputOf(Descriptor.of(flow));
 	}
 
 	public static EnviFlow outputOf(FlowDescriptor flow, LocationDescriptor loc) {
