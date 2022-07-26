@@ -43,9 +43,4 @@ public class Tests {
 		return new Derby(folder);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends AbstractEntity> BaseDao<T> dao(T entity) {
-		return (BaseDao<T>) Daos.base(getDb(), entity.getClass());
-	}
-
 }
