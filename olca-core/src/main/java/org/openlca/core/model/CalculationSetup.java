@@ -308,11 +308,6 @@ public class CalculationSetup extends AbstractEntity
 				: OptionalInt.empty();
 	}
 
-	public CalculationSetup withSimulationOfRuns(int n) {
-		this.numberOfRuns = n;
-		return this;
-	}
-
 	@Override
 	public CalculationSetup copy() {
 		var target = system != null ? system : process;

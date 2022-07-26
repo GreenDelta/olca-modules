@@ -16,7 +16,10 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.providers.ResultModelProvider;
+import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SolverContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Calculates the results of a calculation setup. The product systems of the
@@ -25,6 +28,12 @@ import org.openlca.core.results.providers.SolverContext;
  * etc.
  */
 public class SystemCalculator {
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final int DEFAULT = 0;
+	private final int LAZY = 1;
+	private final int EAGER = 2;
 
 	private final IDatabase db;
 	private LibraryDir libraryDir;
@@ -44,10 +53,23 @@ public class SystemCalculator {
 		return this;
 	}
 
-	// TODO: somewhere we need a switch between eager and lazy calculations
 	public LcaResult calculate(CalculationSetup setup) {
+		return solve(setup, DEFAULT);
+	}
+
+	public LcaResult calculateLazy(CalculationSetup setup) {
+		return solve(setup, LAZY);
+	}
+
+	public LcaResult calculateEager(CalculationSetup setup) {
+		return solve(setup, EAGER);
+	}
+
+	private LcaResult solve(CalculationSetup setup, int type) {
+		log.info("calculate result for {}", setup.target());
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
+		log.trace("solved {} sub-systems", subs.size());
 		var data = MatrixData.of(db, techIndex)
 				.withSetup(setup)
 				.withSubResults(subs)
@@ -55,7 +77,15 @@ public class SystemCalculator {
 		var context = SolverContext.of(db, data)
 				.libraryDir(libraryDir)
 				.solver(solver);
-		var result = LcaResult.of(context);
+
+		var provider = switch (type) {
+			case LAZY -> ResultProviders.solveLazy(context);
+			case EAGER -> ResultProviders.solveEager(context);
+			default -> ResultProviders.solve(context);
+		};
+		log.info("selected provider {}", provider);
+
+		var result = new LcaResult(provider);
 
 		for (var sub : subs.entrySet()) {
 			var techFlow = sub.getKey();
