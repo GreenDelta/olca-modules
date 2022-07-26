@@ -93,8 +93,7 @@ public class TestSystem {
 	}
 
 	public static LcaResult calculate(ProductSystem system) {
-		var setup = CalculationSetup.fullAnalysis(system)
-			.withCosts(true);
+		var setup = CalculationSetup.of(system).withCosts(true);
 		return calculate(setup);
 	}
 
@@ -102,11 +101,4 @@ public class TestSystem {
 		var calc = new SystemCalculator(Tests.getDb());
 		return calc.calculate(setup);
 	}
-
-	public static LcaResult contributions(ProductSystem system) {
-		var setup = CalculationSetup.contributions(system).withCosts(true);
-		var calc = new SystemCalculator(Tests.getDb());
-		return calc.calculate(setup);
-	}
-
 }

@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 
 import com.google.protobuf.AbstractMessage;
 import org.openlca.core.model.ModelType;
-import org.openlca.proto.Proto;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;

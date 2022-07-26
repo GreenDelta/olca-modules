@@ -43,7 +43,7 @@ public class ProductSystemInMemoryCalculationExample {
 			"207ffac9-aaa8-401d-ac90-874defd3751a");
 
 		// create the calculation setup
-		var setup = CalculationSetup.simple(system)
+		var setup = CalculationSetup.of(system)
 			.withImpactMethod(method);
 
 		// load the native library and calculate the result

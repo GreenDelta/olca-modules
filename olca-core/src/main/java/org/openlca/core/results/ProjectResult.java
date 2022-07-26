@@ -29,7 +29,7 @@ public class ProjectResult {
 		for (var v : project.variants) {
 			if (v.isDisabled)
 				continue;
-			var setup = CalculationSetup.contributions(v.productSystem)
+			var setup = CalculationSetup.of(v.productSystem)
 				.withUnit(v.unit)
 				.withFlowPropertyFactor(v.flowPropertyFactor)
 				.withAmount(v.amount)

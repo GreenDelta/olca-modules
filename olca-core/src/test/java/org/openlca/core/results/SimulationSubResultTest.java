@@ -47,7 +47,7 @@ public class SimulationSubResultTest {
 		db.insert(sysQ);
 
 		var ee = EnviFlow.outputOf(e);
-		var setup = CalculationSetup.monteCarlo(sysQ, 1);
+		var setup = CalculationSetup.of(sysQ).withSimulationRuns(1);
 		var simulator = Simulator.create(setup, db);
 		simulator.nextRun();
 

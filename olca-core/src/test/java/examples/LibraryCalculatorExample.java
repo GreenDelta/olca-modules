@@ -16,7 +16,7 @@ public class LibraryCalculatorExample {
 
 		var system = db.get(ProductSystem.class,
 				"6b32cda2-5aa4-44b9-b32a-c654da48436d");
-		var setup = CalculationSetup.simple(system);
+		var setup = CalculationSetup.of(system);
 
 		var result = new SystemCalculator(db).calculate(setup);
 

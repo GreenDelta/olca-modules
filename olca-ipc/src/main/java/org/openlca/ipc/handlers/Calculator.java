@@ -10,7 +10,6 @@ import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.CalculationType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
@@ -111,15 +110,7 @@ public class Calculator {
 		if (system == null)
 			return error.apply("No product system found for @id=" + systemID);
 
-		// read the calculation type
-		var type = Json.getEnum(json, "calculationType", CalculationType.class);
-		if (type == null) {
-			type = CalculationType.CONTRIBUTION_ANALYSIS;
-			log.info("No calculation type defined; " +
-				"calculate contributions as default");
-		}
-
-		var setup = new CalculationSetup(type, system);
+		var setup = CalculationSetup.of(system);
 
 		// LCIA method and normalization and weighting
 		var methodID = Json.getRefId(json, "impactMethod");
@@ -240,10 +231,6 @@ public class Calculator {
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
 			var r = new SystemCalculator(db).calculate(setup);
-			if (r == null) {
-				return Responses.error(501,
-					"invalid calculation type: " + setup.type(), req);
-			}
 			var cached = CachedResult.of(context, setup, r);
 			var id = context.cache(cached);
 			return Responses.ok(JsonRpc.encodeResult(r, id, cached.refs()), req);

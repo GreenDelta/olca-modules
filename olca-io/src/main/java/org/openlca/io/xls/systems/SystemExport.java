@@ -40,7 +40,7 @@ class SystemExport {
 	}
 
 	public void exportTo(File dir) throws IOException {
-		var setup = CalculationSetup.simple(conf.system)
+		var setup = CalculationSetup.of(conf.system)
 			// TODO: .withParameters(conf.system.parameterRedefs)
 			.withAllocation(conf.allocationMethod);
 		// setup.impactMethod = conf.impactMethod;

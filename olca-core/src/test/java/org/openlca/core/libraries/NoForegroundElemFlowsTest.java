@@ -100,7 +100,7 @@ public class NoForegroundElemFlowsTest {
 		LibMatrix.M.write(lib, matrixM);
 
 		// calculate the results
-		var setup = CalculationSetup.fullAnalysis(system);
+		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db)
 			.withLibraryDir(libDir)
 			.calculate(setup);

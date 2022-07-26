@@ -48,7 +48,7 @@ public class NwResultTest {
 		method = db.insert(method);
 
 		// calculate results
-		var setup = CalculationSetup.fullAnalysis(system)
+		var setup = CalculationSetup.of(system)
 			.withImpactMethod(method)
 			.withNwSet(nwSet);
 		var result = LcaResult.of(db, setup);

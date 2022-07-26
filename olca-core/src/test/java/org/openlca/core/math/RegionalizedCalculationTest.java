@@ -450,7 +450,7 @@ public class RegionalizedCalculationTest {
 	private CalculationSetup calcSetup() {
 		// reload the product system to get the updates
 		sys = new ProductSystemDao(db).getForId(sys.id);
-		return CalculationSetup.fullAnalysis(sys)
+		return CalculationSetup.of(sys)
 			.withImpactMethod(method);
 	}
 
@@ -482,7 +482,7 @@ public class RegionalizedCalculationTest {
 		method = new ImpactMethodDao(db).insert(method);
 
 		// create the product system and calculation setup
-		var setup = CalculationSetup.fullAnalysis(ProductSystem.of(p))
+		var setup = CalculationSetup.of(ProductSystem.of(p))
 			.withImpactMethod(method)
 			.withRegionalization(true);
 		var calculator = new SystemCalculator(db);

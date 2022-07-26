@@ -53,7 +53,7 @@ public class CostTests {
 				.addCosts("water", 5, "EUR")
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
-		LcaResult r = TestSystem.contributions(system);
+		LcaResult r = TestSystem.calculate(system);
 		Assert.assertEquals(3, r.totalCosts(), 1e-10);
 	}
 

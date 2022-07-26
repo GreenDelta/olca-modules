@@ -54,7 +54,7 @@ public class WasteCalculationTest {
 		w = db.insert(w);
 		var system = ProductSystem.of(p)
 				.link(p, w);
-		var setup = CalculationSetup.fullAnalysis(system);
+		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db).calculate(setup);
 		assertEquals(4.0, result.getTotalFlowResults().get(0).value(), 1e-10);
 	}
@@ -69,7 +69,7 @@ public class WasteCalculationTest {
 		p = db.insert(p);
 		var system = ProductSystem.of(w)
 				.link(p, w);
-		var setup = CalculationSetup.fullAnalysis(system);
+		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db).calculate(setup);
 		assertEquals(4.0, result.getTotalFlowResults().get(0).value(), 1e-10);
 	}

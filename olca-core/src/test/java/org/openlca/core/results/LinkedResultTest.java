@@ -72,7 +72,7 @@ public class LinkedResultTest {
 		system.processLinks.add(link);
 		db.insert(system);
 
-		setup = CalculationSetup.fullAnalysis(system)
+		setup = CalculationSetup.of(system)
 			.withImpactMethod(method);
 		this.impact = Descriptor.of(impact);
 		this.resultFlow = TechFlow.of(result);

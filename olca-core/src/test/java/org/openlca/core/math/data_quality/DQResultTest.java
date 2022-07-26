@@ -127,7 +127,7 @@ public class DQResultTest {
 
 	@Test
 	public void test() {
-		var setup = CalculationSetup.fullAnalysis(system)
+		var setup = CalculationSetup.of(system)
 			.withAmount(1)
 			.withImpactMethod(method);
 		var result = LcaResult.of(db, setup);

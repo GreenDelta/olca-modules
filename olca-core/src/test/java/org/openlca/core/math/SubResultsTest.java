@@ -86,7 +86,7 @@ public class SubResultsTest {
 		var sysB = systems.get(1);
 		var sysC = systems.get(2);
 
-		var setup = CalculationSetup.fullAnalysis(sysC);
+		var setup = CalculationSetup.of(sysC);
 		var resultC = new SystemCalculator(db).calculate(setup);
 		var co2Idx = resultC.enviIndex().at(0);
 

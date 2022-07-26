@@ -16,7 +16,7 @@ public class CalculationExample {
 				"7d1cbce0-b5b3-47ba-95b5-014ab3c7f569");
 			var method = new ImpactMethodDao(db)
 				.getForRefId("207ffac9-aaa8-401d-ac90-874defd3751a");
-			var setup = CalculationSetup.fullAnalysis(system)
+			var setup = CalculationSetup.of(system)
 				.withImpactMethod(method);
 			var calc = new SystemCalculator(db);
 			var r = calc.calculate(setup);

@@ -114,7 +114,7 @@ public class MatrixExceptionTest {
 		boolean caughtIt = false;
 		assumeTrue(NativeLib.isLoaded());
 		try {
-			var setup = CalculationSetup.simple(sys);
+			var setup = CalculationSetup.of(sys);
 			new SystemCalculator(db).calculate(setup);
 		} catch (SingularMatrixException e) {
 			caughtIt = true;

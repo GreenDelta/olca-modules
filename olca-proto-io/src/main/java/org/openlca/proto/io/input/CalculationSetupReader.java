@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationTarget;
-import org.openlca.core.model.CalculationType;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
@@ -30,12 +29,11 @@ public final class CalculationSetupReader {
   public CalculationSetup read(ProtoCalculationSetup proto) {
     if (proto == null)
       return null;
-    var type = typeOf(proto);
     var target = targetOf(proto);
     if (target == null)
       return null;
 
-    var setup = new CalculationSetup(type, target);
+    var setup = CalculationSetup.of(target);
     setQuantity(proto, setup);
     setImpactMethod(proto, setup);
     setParameters(proto, setup);
@@ -46,15 +44,6 @@ public final class CalculationSetupReader {
       .withRegionalization(proto.getWithRegionalization());
 
     return setup;
-  }
-
-  private CalculationType typeOf(ProtoCalculationSetup proto) {
-    return switch (proto.getCalculationType()) {
-      case MONTE_CARLO_SIMULATION -> CalculationType.MONTE_CARLO_SIMULATION;
-      case SIMPLE_CALCULATION -> CalculationType.SIMPLE_CALCULATION;
-      case UPSTREAM_ANALYSIS -> CalculationType.UPSTREAM_ANALYSIS;
-      default -> CalculationType.CONTRIBUTION_ANALYSIS;
-    };
   }
 
   private CalculationTarget targetOf(ProtoCalculationSetup proto) {

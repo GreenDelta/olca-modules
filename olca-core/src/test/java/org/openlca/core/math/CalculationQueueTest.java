@@ -53,7 +53,7 @@ public class CalculationQueueTest {
 		// int n = 100_000;
 		int n = 100;
 		var queue = new CalculationQueue(db, 2);
-		var setup = CalculationSetup.simple(process);
+		var setup = CalculationSetup.of(process);
 		var ids = new HashSet<String>();
 		for (int i = 0; i < n; i++) {
 			var state = queue.schedule(setup);

@@ -106,7 +106,7 @@ public class Simulator {
 	}
 
 	public static Simulator create(CalculationSetup setup, IDatabase db) {
-		Simulator g = new Simulator(db);
+		var g = new Simulator(db);
 		g.init(db, setup);
 		return g;
 	}
@@ -192,7 +192,7 @@ public class Simulator {
 		var context = SolverContext.of(db, data)
 				.solver(solver)
 				.libraryDir(libraryDir);
-		var provider =  ResultProviders.solveLazy(context);
+		var provider = ResultProviders.solveLazy(context);
 		return new LcaResult(provider);
 	}
 
@@ -207,7 +207,7 @@ public class Simulator {
 				if (sub == null)
 					continue;
 				if (sub.lastResult == null
-					|| sub.lastResult.totalFlowResults() == null)
+						|| sub.lastResult.totalFlowResults() == null)
 					continue; // should not happen
 				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
@@ -228,8 +228,8 @@ public class Simulator {
 	private void init(IDatabase db, CalculationSetup setup) {
 
 		long rootID = setup.hasProductSystem()
-			? setup.productSystem().id
-			: setup.process().id;
+				? setup.productSystem().id
+				: setup.process().id;
 		if (!setup.hasProductSystem()) {
 			root = new Node(setup, db, Collections.emptyMap());
 			nodeIndex.put(root.systemID, root);
@@ -264,7 +264,7 @@ public class Simulator {
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(
-				"failed to collect product system IDs", e);
+					"failed to collect product system IDs", e);
 		}
 
 		// allRels contains the sub-system relations of each product system
@@ -278,13 +278,13 @@ public class Simulator {
 					return true;
 				long system = r.getLong(1);
 				List<LongPair> rels = allRels.computeIfAbsent(
-					system, k -> new ArrayList<>());
+						system, k -> new ArrayList<>());
 				rels.add(LongPair.of(provider, system));
 				return true;
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(
-				"failed to collect sub-system relations", e);
+					"failed to collect sub-system relations", e);
 		}
 
 		// now collect the sub-system relations that we need to consider
@@ -312,7 +312,7 @@ public class Simulator {
 		List<Long> order = TopoSort.of(sysRels);
 		if (order == null)
 			throw new RuntimeException(
-				"there are sub-system cycles in the product system");
+					"there are sub-system cycles in the product system");
 
 		// now, we initialize the nodes in topological order
 		Map<TechFlow, LcaResult> subResults = new HashMap<>();
@@ -326,10 +326,11 @@ public class Simulator {
 				// do *not* copy the LCIA method here
 				var dao = new ProductSystemDao(db);
 				var subSystem = dao.getForId(system);
-				_setup = CalculationSetup.monteCarlo(subSystem, setup.numberOfRuns())
-					.withParameters(ParameterRedefs.join(setup, subSystem))
-					.withCosts(setup.hasCosts())
-					.withAllocation(setup.allocation());
+				_setup = CalculationSetup.of(subSystem)
+						.withSimulationRuns(setup.simulationRuns().orElse(1))
+						.withParameters(ParameterRedefs.join(setup, subSystem))
+						.withCosts(setup.hasCosts())
+						.withAllocation(setup.allocation());
 			}
 
 			Node node = new Node(_setup, db, subResults);
@@ -345,9 +346,9 @@ public class Simulator {
 				// e.g. flows that only occur in a sub-system
 				// need a row in the respective host-systems)
 				var r = SimpleResultProvider.of(node.data.demand, node.data.techIndex)
-					.withFlowIndex(node.data.enviIndex)
-					.withTotalFlows(new double[node.data.enviIndex.size()])
-					.toResult();
+						.withFlowIndex(node.data.enviIndex)
+						.withTotalFlows(new double[node.data.enviIndex.size()])
+						.toResult();
 				node.lastResult = r;
 				subResults.put(node.product, r);
 			}
@@ -383,33 +384,34 @@ public class Simulator {
 		LcaResult lastResult;
 
 		Node(CalculationSetup setup, IDatabase db,
-			Map<TechFlow, LcaResult> subResults) {
+				Map<TechFlow, LcaResult> subResults) {
 
 			systemID = setup.hasProductSystem()
-				? setup.productSystem().id
-				: setup.process().id;
+					? setup.productSystem().id
+					: setup.process().id;
 			product = TechFlow.of(setup.process(), setup.flow());
 			data = MatrixData.of(db, TechIndex.of(db, setup))
-				.withSetup(setup)
-				.withSubResults(subResults)
-				.build();
+					.withUncertainties(true)
+					.withSetup(setup)
+					.withSubResults(subResults)
+					.build();
 
 			// parameters
 			var paramContexts = new HashSet<Long>();
 			data.techIndex.each((i, p) -> {
 				if (p.provider() != null
-					&& p.provider().type == ModelType.PROCESS) {
+						&& p.provider().type == ModelType.PROCESS) {
 					paramContexts.add(p.providerId());
 				}
 			});
 			var impactMethod = setup.impactMethod();
 			if (impactMethod != null) {
 				new ImpactMethodDao(db)
-					.getCategoryDescriptors(impactMethod.id)
-					.forEach(d -> paramContexts.add(d.id));
+						.getCategoryDescriptors(impactMethod.id)
+						.forEach(d -> paramContexts.add(d.id));
 			}
 			parameters = ParameterTable.forSimulation(
-				db, paramContexts, setup.parameters());
+					db, paramContexts, setup.parameters());
 		}
 	}
 

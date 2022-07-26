@@ -34,7 +34,7 @@ public class ResultExportTest {
 
 		// create a system and calculate it
 		var sys = ProductSystem.of(process);
-		var setup = CalculationSetup.fullAnalysis(sys);
+		var setup = CalculationSetup.of(sys);
 		var calculator = new SystemCalculator(db);
 		var result = calculator.calculate(setup);
 

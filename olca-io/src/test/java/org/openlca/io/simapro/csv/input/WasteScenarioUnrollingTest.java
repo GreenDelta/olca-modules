@@ -169,7 +169,7 @@ public class WasteScenarioUnrollingTest {
 		var system = systems.get(0);
 		assertEquals(1, system.parameterSets.size());
 
-		var setup = CalculationSetup.simple(systems.get(0))
+		var setup = CalculationSetup.of(systems.get(0))
 			.withParameters(system.parameterSets.get(0).parameters);
 		var result = new SystemCalculator(db).calculate(setup);
 		var inventory = result.getTotalFlowResults();

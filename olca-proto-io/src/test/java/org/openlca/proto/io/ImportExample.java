@@ -3,7 +3,6 @@ package org.openlca.proto.io;
 import java.io.File;
 
 import org.openlca.core.database.Derby;
-import org.openlca.proto.io.ZipStore;
 import org.openlca.proto.io.input.ProtoImport;
 
 public class ImportExample {

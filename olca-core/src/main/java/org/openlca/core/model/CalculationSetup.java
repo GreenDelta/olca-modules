@@ -3,22 +3,16 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.OptionalInt;
 
 import org.openlca.core.math.ReferenceAmount;
 
 /**
- * A calculation for a process or product system. In case of a process,
- * we construct the calculation matrices for all processes in the database
- * and link the processes as good as we can for the information in these
- * processes. In case of product systems, only the processes of that
- * system are added to the calculation matrices and are linked as defined
- * in the product system.
+ * A calculation setup for a process or product system.
  */
 public class CalculationSetup extends AbstractEntity
 	implements Copyable<CalculationSetup> {
 
-	private CalculationType type;
 	private ProductSystem system;
 	private Process process;
 
@@ -39,8 +33,7 @@ public class CalculationSetup extends AbstractEntity
 	 * it does not add the parameter redefinitions of the system to this setup.
 	 * Thus, you need to do this in a separate step.
 	 */
-	public CalculationSetup(CalculationType type, CalculationTarget target) {
-		this.type = Objects.requireNonNull(type);
+	public CalculationSetup(CalculationTarget target) {
 		if (target.isProcess()) {
 			this.process = target.asProcess();
 			this.system = null;
@@ -54,37 +47,8 @@ public class CalculationSetup extends AbstractEntity
 		}
 	}
 
-	public static CalculationSetup simple(CalculationTarget system) {
-		return new CalculationSetup(
-			CalculationType.SIMPLE_CALCULATION, system);
-	}
-
-	public static CalculationSetup contributions(CalculationTarget system) {
-		return new CalculationSetup(
-			CalculationType.CONTRIBUTION_ANALYSIS, system);
-	}
-
-	public static CalculationSetup fullAnalysis(CalculationTarget system) {
-		return new CalculationSetup(
-			CalculationType.UPSTREAM_ANALYSIS, system);
-	}
-
-	public static CalculationSetup monteCarlo(CalculationTarget system, int runs) {
-		var setup = new CalculationSetup(
-			CalculationType.MONTE_CARLO_SIMULATION, system);
-		setup.numberOfRuns = runs;
-		return setup;
-	}
-
-	public CalculationType type() {
-		return type;
-	}
-
-	public CalculationSetup withType(CalculationType type) {
-		if (type != null) {
-			this.type = type;
-		}
-		return this;
+	public static CalculationSetup of(CalculationTarget target) {
+		return new CalculationSetup(target);
 	}
 
 	/**
@@ -199,6 +163,11 @@ public class CalculationSetup extends AbstractEntity
 	 */
 	public CalculationSetup withAmount(double amount) {
 		this.amount = amount;
+		return this;
+	}
+
+	public CalculationSetup withSimulationRuns(int numberOfRuns) {
+		this.numberOfRuns = numberOfRuns;
 		return this;
 	}
 
@@ -333,11 +302,13 @@ public class CalculationSetup extends AbstractEntity
 	 * This is only valid for Monte Carlo Simulations and returns the number of
 	 * simulation runs in this case, otherwise it just returns {@code -1}.
 	 */
-	public int numberOfRuns() {
-		return this.numberOfRuns;
+	public OptionalInt simulationRuns() {
+		return numberOfRuns > 0
+				? OptionalInt.of(numberOfRuns)
+				: OptionalInt.empty();
 	}
 
-	public CalculationSetup withNumberOfRuns(int n) {
+	public CalculationSetup withSimulationOfRuns(int n) {
 		this.numberOfRuns = n;
 		return this;
 	}
@@ -345,8 +316,7 @@ public class CalculationSetup extends AbstractEntity
 	@Override
 	public CalculationSetup copy() {
 		var target = system != null ? system : process;
-		var clone = new CalculationSetup(type, target);
-		clone.type = type;
+		var clone = new CalculationSetup(target);
 		clone.system = system;
 		clone.process = process;
 		clone.impactMethod = impactMethod;

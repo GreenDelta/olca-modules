@@ -46,7 +46,7 @@ public class LcaResult implements IResult {
 	}
 
 	public static LcaResult of(IDatabase db, ProductSystem system) {
-		var setup = CalculationSetup.fullAnalysis(system);
+		var setup = CalculationSetup.of(system);
 		return of(db, setup);
 	}
 

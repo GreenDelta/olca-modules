@@ -112,7 +112,7 @@ public class SystemCalculator {
 			if (subSystem == null)
 				continue;
 
-			var subSetup = new CalculationSetup(setup.type(), subSystem)
+			var subSetup = CalculationSetup.of(subSystem)
 					.withParameters(ParameterRedefs.join(setup, subSystem))
 					.withCosts(setup.hasCosts())
 					.withRegionalization(setup.hasRegionalization())

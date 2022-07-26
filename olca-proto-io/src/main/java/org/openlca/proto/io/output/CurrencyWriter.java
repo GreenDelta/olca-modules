@@ -1,8 +1,6 @@
 package org.openlca.proto.io.output;
 
-import jakarta.persistence.metamodel.EntityType;
 import org.openlca.core.model.Currency;
-import org.openlca.proto.Proto;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
