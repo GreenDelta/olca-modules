@@ -239,7 +239,7 @@ public class Calculator {
 
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
-			var r = new SystemCalculator(db).calculateFull(setup);
+			var r = new SystemCalculator(db).calculate(setup);
 			if (r == null) {
 				return Responses.error(501,
 					"invalid calculation type: " + setup.type(), req);

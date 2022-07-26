@@ -19,7 +19,7 @@ public class CalculationExample {
 			var setup = CalculationSetup.fullAnalysis(system)
 				.withImpactMethod(method);
 			var calc = new SystemCalculator(db);
-			var r = calc.calculateFull(setup);
+			var r = calc.calculate(setup);
 			var f = r.enviIndex().at(0);
 			System.out.println(f.flow().name + "  -> " + r.getTotalFlowResult(f));
 			var impact =  r.impactIndex().at(0);

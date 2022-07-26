@@ -86,14 +86,14 @@ public class LinkedResultTest {
 	@Test
 	public void testSimpleResult() {
 		var calculator = new SystemCalculator(db);
-		var r = calculator.calculateFull(setup);
+		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactResult(impact), 1e-10);
 	}
 
 	@Test
 	public void testContributionResult() {
 		var calculator = new SystemCalculator(db);
-		var r = calculator.calculateFull(setup);
+		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactResult(impact), 1e-10);
 		assertEquals(42.0, r.getDirectImpactResult(resultFlow, impact), 1e-10);
 	}
@@ -101,7 +101,7 @@ public class LinkedResultTest {
 	@Test
 	public void testFullResult() {
 		var calculator = new SystemCalculator(db);
-		var r = calculator.calculateFull(setup);
+		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactResult(impact), 1e-10);
 		assertEquals(42.0, r.getDirectImpactResult(resultFlow, impact), 1e-10);
 		assertEquals(42.0, r.getUpstreamImpactResult(resultFlow, impact), 1e-10);

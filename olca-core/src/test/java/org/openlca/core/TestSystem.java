@@ -100,13 +100,13 @@ public class TestSystem {
 
 	public static LcaResult calculate(CalculationSetup setup) {
 		var calc = new SystemCalculator(Tests.getDb());
-		return calc.calculateFull(setup);
+		return calc.calculate(setup);
 	}
 
 	public static LcaResult contributions(ProductSystem system) {
 		var setup = CalculationSetup.contributions(system).withCosts(true);
 		var calc = new SystemCalculator(Tests.getDb());
-		return calc.calculateFull(setup);
+		return calc.calculate(setup);
 	}
 
 }

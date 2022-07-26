@@ -13,8 +13,8 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
 import org.openlca.core.results.LcaResult;
-import org.openlca.core.results.IResult;
 import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.SolverContext;
 
@@ -44,37 +44,17 @@ public class SystemCalculator {
 		return this;
 	}
 
-	/**
-	 * Calculates the given calculation setup. It performs the calculation type as
-	 * defined in the given setup.
-	 *
-	 * @param setup the calculation setup that should be used
-	 * @return the result of the respective calculation
-	 */
-	public IResult calculate(CalculationSetup setup) {
-		return switch (setup.type()) {
-			case MONTE_CARLO_SIMULATION -> {
-				var simulator = Simulator.create(setup, db);
-				for (int i = 0; i < setup.numberOfRuns(); i++) {
-					simulator.nextRun();
-				}
-				yield simulator.getResult();
-			}
-			default -> calculateFull(setup);
-		};
-	}
-
 	// TODO: somewhere we need a switch between eager and lazy calculations
-	public LcaResult calculateFull(CalculationSetup setup) {
+	public LcaResult calculate(CalculationSetup setup) {
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
 		var data = MatrixData.of(db, techIndex)
-			.withSetup(setup)
-			.withSubResults(subs)
-			.build();
+				.withSetup(setup)
+				.withSubResults(subs)
+				.build();
 		var context = SolverContext.of(db, data)
-			.libraryDir(libraryDir)
-			.solver(solver);
+				.libraryDir(libraryDir)
+				.solver(solver);
 		var result = LcaResult.of(context);
 
 		for (var sub : subs.entrySet()) {
@@ -96,7 +76,7 @@ public class SystemCalculator {
 	 * the original calculation setup.
 	 */
 	private Map<TechFlow, LcaResult> solveSubSystems(
-		CalculationSetup setup, TechIndex techIndex) {
+			CalculationSetup setup, TechIndex techIndex) {
 		if (setup == null || !setup.hasProductSystem())
 			return Collections.emptyMap();
 
@@ -116,10 +96,9 @@ public class SystemCalculator {
 
 			// add a result
 			if (provider.isResult()) {
-				var result = db.get(org.openlca.core.model.Result.class, provider.providerId());
+				var result = db.get(Result.class, provider.providerId());
 				if (result != null) {
-					subResults.put(
-						provider, new LcaResult(ResultModelProvider.of(result)));
+					subResults.put(provider, new LcaResult(ResultModelProvider.of(result)));
 				}
 			}
 		}
@@ -134,16 +113,14 @@ public class SystemCalculator {
 				continue;
 
 			var subSetup = new CalculationSetup(setup.type(), subSystem)
-				.withParameters(ParameterRedefs.join(setup, subSystem))
-				.withCosts(setup.hasCosts())
-				.withRegionalization(setup.hasRegionalization())
-				.withAllocation(setup.allocation())
-				.withImpactMethod(setup.impactMethod())
-				.withNwSet(setup.nwSet());
+					.withParameters(ParameterRedefs.join(setup, subSystem))
+					.withCosts(setup.hasCosts())
+					.withRegionalization(setup.hasRegionalization())
+					.withAllocation(setup.allocation())
+					.withImpactMethod(setup.impactMethod())
+					.withNwSet(setup.nwSet());
 			var subResult = calculate(subSetup);
-			if (subResult instanceof LcaResult simple) {
-				subResults.put(pp, simple);
-			}
+			subResults.put(pp, subResult);
 		}
 		return subResults;
 	}

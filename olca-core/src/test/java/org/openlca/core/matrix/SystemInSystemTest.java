@@ -48,7 +48,7 @@ public class SystemInSystemTest {
 		db.insert(sysQ);
 
 		var setup = CalculationSetup.fullAnalysis(sysQ);
-		var result = new SystemCalculator(db).calculateFull(setup);
+		var result = new SystemCalculator(db).calculate(setup);
 		var ee = EnviFlow.outputOf(e);
 		assertEquals(42, result.getTotalFlowResult(ee), 1e-16);
 

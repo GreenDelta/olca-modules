@@ -103,7 +103,7 @@ public class NoForegroundElemFlowsTest {
 		var setup = CalculationSetup.fullAnalysis(system);
 		var result = new SystemCalculator(db)
 			.withLibraryDir(libDir)
-			.calculateFull(setup);
+			.calculate(setup);
 
 		// check the result
 		var expected = matrixM.getColumn(1);

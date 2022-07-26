@@ -39,7 +39,7 @@ public class ProjectResult {
 				.withParameters(v.parameterRedefs)
 				.withCosts(project.isWithCosts)
 				.withRegionalization(project.isWithRegionalization);
-			var variantResult = calculator.calculateFull(setup);
+			var variantResult = calculator.calculate(setup);
 			result.results.put(v, variantResult);
 		}
 		return result;

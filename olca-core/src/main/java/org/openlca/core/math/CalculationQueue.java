@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.results.IResult;
+import org.openlca.core.results.LcaResult;
 
 public class CalculationQueue {
 
@@ -107,7 +107,7 @@ public class CalculationQueue {
 		String id,
 		long time,
 		CalculationSetup setup,
-		IResult result,
+		LcaResult result,
 		String error) {
 
 		public boolean isEmpty() {
@@ -137,7 +137,7 @@ public class CalculationQueue {
 			return new State(id, time, setup, null, null);
 		}
 
-		State toResult(IResult result) {
+		State toResult(LcaResult result) {
 			long time = System.currentTimeMillis();
 			return new State(id, time, null, result, null);
 		}

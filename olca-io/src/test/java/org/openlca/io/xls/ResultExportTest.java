@@ -36,7 +36,7 @@ public class ResultExportTest {
 		var sys = ProductSystem.of(process);
 		var setup = CalculationSetup.fullAnalysis(sys);
 		var calculator = new SystemCalculator(db);
-		var result = calculator.calculateFull(setup);
+		var result = calculator.calculate(setup);
 
 		// run the export
 		var file = Files.createTempFile("_olca_test_", ".xlsx").toFile();

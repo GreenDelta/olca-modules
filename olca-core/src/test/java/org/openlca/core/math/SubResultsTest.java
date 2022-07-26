@@ -87,7 +87,7 @@ public class SubResultsTest {
 		var sysC = systems.get(2);
 
 		var setup = CalculationSetup.fullAnalysis(sysC);
-		var resultC = new SystemCalculator(db).calculateFull(setup);
+		var resultC = new SystemCalculator(db).calculate(setup);
 		var co2Idx = resultC.enviIndex().at(0);
 
 		// check the total CO2 result: 13 kg

@@ -177,7 +177,7 @@ public class RegionalizedCalculationTest {
 	public void checkNoLocations() {
 		CalculationSetup setup = calcSetup();
 		SystemCalculator calc = new SystemCalculator(db);
-		var r = calc.calculateFull(setup);
+		var r = calc.calculate(setup);
 
 		// total results
 		checkTotalFlowResults(r, new Object[][]{
@@ -224,7 +224,7 @@ public class RegionalizedCalculationTest {
 		p2 = setLoc(p2, loc3);
 		var setup = calcSetup().withRegionalization(true);
 		var calc = new SystemCalculator(db);
-		var r = calc.calculateFull(setup);
+		var r = calc.calculate(setup);
 
 		// LCI results and contributions
 		checkRegTotalFlowResults(r, new Object[][]{
@@ -266,7 +266,7 @@ public class RegionalizedCalculationTest {
 		p2 = setLoc(p2, loc2);
 		var setup = calcSetup().withRegionalization(true);
 		var calc = new SystemCalculator(db);
-		var r = calc.calculateFull(setup);
+		var r = calc.calculate(setup);
 		checkRegionalizedResults(r);
 	}
 
@@ -487,7 +487,7 @@ public class RegionalizedCalculationTest {
 			.withRegionalization(true);
 		var calculator = new SystemCalculator(db);
 
-		LcaResult r = calculator.calculateFull(setup);
+		LcaResult r = calculator.calculate(setup);
 		Assert.assertTrue(r.enviIndex().isRegionalized());
 		checkRegTotalFlowResults(r, new Object[][]{
 			{nox, loc1, 5.0},

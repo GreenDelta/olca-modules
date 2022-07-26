@@ -49,7 +49,7 @@ public class ProductSystemInMemoryCalculationExample {
 		// load the native library and calculate the result
 		// TODO: load Julia libraries first here
 		SystemCalculator calc = new SystemCalculator(db);
-		var r = calc.calculateFull(setup);
+		var r = calc.calculate(setup);
 
 		// print the LCIA results
 		for (ImpactDescriptor impact : r.impactIndex()) {

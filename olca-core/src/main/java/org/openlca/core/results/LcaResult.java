@@ -52,7 +52,7 @@ public class LcaResult implements IResult {
 
 	public static LcaResult of(IDatabase db, CalculationSetup setup) {
 		var calculator = new SystemCalculator(db);
-		return calculator.calculateFull(setup);
+		return calculator.calculate(setup);
 	}
 
 	/**

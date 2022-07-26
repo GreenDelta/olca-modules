@@ -48,7 +48,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
     }
 
     var result = new SystemCalculator(db)
-    		.calculateFull(setup);
+    		.calculate(setup);
     var key = UUID.randomUUID().toString();
     results.put(key, result);
     var r = ProtoResultRef.newBuilder()

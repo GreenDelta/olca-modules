@@ -18,7 +18,7 @@ public class LibraryCalculatorExample {
 				"6b32cda2-5aa4-44b9-b32a-c654da48436d");
 		var setup = CalculationSetup.simple(system);
 
-		var result = new SystemCalculator(db).calculateFull(setup);
+		var result = new SystemCalculator(db).calculate(setup);
 
 		var flow = result.enviIndex().at(0);
 		System.out.println(flow.flow().name
