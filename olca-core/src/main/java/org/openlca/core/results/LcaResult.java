@@ -99,7 +99,7 @@ public class LcaResult implements IResult {
 
 	/**
 	 * Returns the scaling vector of the result.
-	 *
+	 * <p>
 	 * The scaling vector {@code s} is calculated by solving the equation {@code A
 	 * * s = f} where {@code A} is the technology matrix and {@code f} the final
 	 * demand vector of the product system.
@@ -110,7 +110,7 @@ public class LcaResult implements IResult {
 
 	/**
 	 * Returns the total requirements vector.
-	 *
+	 * <p>
 	 * The total requirements are the respective product amounts fulfill the
 	 * demand of the product system. As our technology matrix {@code A} is indexed
 	 * symmetrically (means rows and columns refer to the same process-product
@@ -125,7 +125,7 @@ public class LcaResult implements IResult {
 
 	/**
 	 * Returns the total flow / inventory result of a product system.
-	 *
+	 * <p>
 	 * The total inventory result {@code g} can be calculated via {@code g = B *
 	 * s} where {@code B} is the intervention matrix and {@code s} the scaling
 	 * vector. Note that inputs have negative values in this vector.
@@ -136,7 +136,7 @@ public class LcaResult implements IResult {
 
 	/**
 	 * Returns the total impact assessment result vector of a product system.
-	 *
+	 * <p>
 	 * The total impact assessment result {@code h} can be calculated via: {@code
 	 * h = C * g} where {@code C} is a {@code flow * impact category} matrix that
 	 * contains the characterization factors and {@code g} the total inventory
@@ -148,7 +148,7 @@ public class LcaResult implements IResult {
 
 	/**
 	 * Returns the total net-life-cycle-costs of a product system.
-	 *
+	 * <p>
 	 * These costs {@code k_t} can be calculated via {@code k_t = k ° s} where
 	 * {@code k_j} are the net-costs of process {@code j} and {@code s_j} is the
 	 * scaling factor of that process.

@@ -18,10 +18,10 @@ public class ISolverTest {
 	public void testScaleColumns() {
 		Solver solver = new Solver();
 		Matrix m = solver.matrix(2, 3);
-		double[][] vals = { { 1, 2, 3 }, { 4, 5, 6 } };
+		double[][] vals = {{1, 2, 3}, {4, 5, 6}};
 		m.setValues(vals);
-		m.scaleColumns(new double[] { 2, 1, 0.5 });
-		double[][] expected = { { 2, 2, 1.5 }, { 8, 5, 3 } };
+		m.scaleColumns(new double[]{2, 1, 0.5});
+		double[][] expected = {{2, 2, 1.5}, {8, 5, 3}};
 		for (int row = 0; row < 2; row++) {
 			for (int col = 0; col < 3; col++) {
 				assertEquals(expected[row][col], m.get(row, col), 1e-18);
@@ -33,8 +33,8 @@ public class ISolverTest {
 	public void testMatrixVectorMultiplication() {
 		Solver solver = new Solver();
 		Matrix m = solver.matrix(2, 3);
-		m.setValues(new double[][] { { 1, 2, 3 }, { 4, 5, 6 } });
-		double[] r = solver.multiply(m, new double[] { 2, 1, 0.5 });
+		m.setValues(new double[][]{{1, 2, 3}, {4, 5, 6}});
+		double[] r = solver.multiply(m, new double[]{2, 1, 0.5});
 		assertEquals(2, r.length);
 		assertEquals(5.5, r[0], 1e-18);
 		assertEquals(16, r[1], 1e-18);
@@ -42,15 +42,25 @@ public class ISolverTest {
 
 	@Test
 	public void testMatrixMatrixMultiplication() {
-		Solver solver = new Solver();
-		Matrix a = solver.matrix(2, 3);
-		a.setValues(new double[][] { { 1, 2, 3 }, { 4, 5, 6 } });
-		Matrix b = solver.matrix(3, 3);
-		b.setValues(new double[][] { { 2, 0, 0 }, { 0, 1, 0 }, { 0, 0, 0.5 } });
-		Matrix r = solver.multiply(a, b);
+		var solver = new Solver();
+		var a = solver.matrix(2, 3);
+		a.setValues(new double[][]{
+				{1, 2, 3},
+				{4, 5, 6}
+		});
+		var b = solver.matrix(3, 3);
+		b.setValues(new double[][]{
+				{2, 0, 0},
+				{0, 1, 0},
+				{0, 0, 0.5}
+		});
+		var r = solver.multiply(a, b);
 		assertEquals(2, r.rows());
 		assertEquals(3, r.columns());
-		double[][] expected = { { 2, 2, 1.5 }, { 8, 5, 3 } };
+		double[][] expected = {
+				{2, 2, 1.5},
+				{8, 5, 3}
+		};
 		for (int row = 0; row < 2; row++) {
 			for (int col = 0; col < 3; col++) {
 				assertEquals(expected[row][col], r.get(row, col), 1e-18);
@@ -58,7 +68,7 @@ public class ISolverTest {
 		}
 	}
 
-	private class Solver implements MatrixSolver {
+	private static class Solver implements MatrixSolver {
 
 		@Override
 		public boolean hasSparseSupport() {

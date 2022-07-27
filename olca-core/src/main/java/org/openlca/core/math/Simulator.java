@@ -7,13 +7,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
@@ -25,8 +23,10 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.SimulationResult;
+import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SimpleResultProvider;
 import org.openlca.core.results.providers.SolverContext;
@@ -206,8 +206,7 @@ public class Simulator {
 				Node sub = nodeIndex.get(subLink.providerId());
 				if (sub == null)
 					continue;
-				if (sub.lastResult == null
-						|| sub.lastResult.totalFlowResults() == null)
+				if (sub.lastResult == null || !sub.lastResult.hasEnviFlows())
 					continue; // should not happen
 				int col = node.data.techIndex.of(subLink);
 				if (col < 0)
@@ -227,12 +226,11 @@ public class Simulator {
 
 	private void init(IDatabase db, CalculationSetup setup) {
 
-		long rootID = setup.hasProductSystem()
-				? setup.productSystem().id
-				: setup.process().id;
+		// if the calculation target is a process, the simulation graph
+		// has a single node
 		if (!setup.hasProductSystem()) {
 			root = new Node(setup, db, Collections.emptyMap());
-			nodeIndex.put(root.systemID, root);
+			nodeIndex.put(root.providerId, root);
 			return;
 		}
 
@@ -248,58 +246,49 @@ public class Simulator {
 		}
 		if (!hasSubSystems) {
 			root = new Node(setup, db, Collections.emptyMap());
-			nodeIndex.put(root.systemID, root);
+			nodeIndex.put(root.providerId, root);
 			return;
 		}
 
 		// systems contains the IDs of all product systems;
 		// with this we can quickly check if an ID is an
 		// ID of a product system
-		HashSet<Long> systems = new HashSet<>();
-		String sql = "select id from tbl_product_systems";
-		try {
-			NativeSql.on(db).query(sql, r -> {
-				systems.add(r.getLong(1));
-				return true;
-			});
-		} catch (Exception e) {
-			throw new RuntimeException(
-					"failed to collect product system IDs", e);
-		}
+		var systems = new HashSet<Long>();
+		var sql = "select id from tbl_product_systems";
+		NativeSql.on(db).query(sql, r -> {
+			systems.add(r.getLong(1));
+			return true;
+		});
 
 		// allRels contains the sub-system relations of each product system
 		// in the database as: hostSystemID -> (subSystemID, hostSystemID)*
-		Map<Long, List<LongPair>> allRels = new HashMap<>();
+		var allRels = new HashMap<Long, List<LongPair>>();
 		sql = "select f_product_system, f_provider from tbl_process_links";
-		try {
-			NativeSql.on(db).query(sql, r -> {
-				long provider = r.getLong(2);
-				if (!systems.contains(provider))
-					return true;
-				long system = r.getLong(1);
-				List<LongPair> rels = allRels.computeIfAbsent(
-						system, k -> new ArrayList<>());
-				rels.add(LongPair.of(provider, system));
+		NativeSql.on(db).query(sql, r -> {
+			long provider = r.getLong(2);
+			if (!systems.contains(provider))
 				return true;
-			});
-		} catch (Exception e) {
-			throw new RuntimeException(
-					"failed to collect sub-system relations", e);
-		}
+			long system = r.getLong(1);
+			var rels = allRels.computeIfAbsent(
+					system, k -> new ArrayList<>());
+			rels.add(LongPair.of(provider, system));
+			return true;
+		});
 
 		// now collect the sub-system relations that we need to consider
-		HashSet<LongPair> sysRels = new HashSet<>();
-		Queue<Long> queue = new ArrayDeque<>();
-		queue.add(rootID);
-		HashSet<Long> handled = new HashSet<>();
-		handled.add(rootID);
+		long rootId = setup.target().id;
+		var sysRels = new HashSet<LongPair>();
+		var queue = new ArrayDeque<Long>();
+		queue.add(rootId);
+		var handled = new HashSet<Long>();
+		handled.add(rootId);
 		while (!queue.isEmpty()) {
-			long nextID = queue.poll();
-			List<LongPair> rels = allRels.get(nextID);
+			long nextId = queue.poll();
+			var rels = allRels.get(nextId);
 			if (rels == null)
 				continue;
 			sysRels.addAll(rels);
-			for (LongPair rel : rels) {
+			for (var rel : rels) {
 				long subSystem = rel.first();
 				if (handled.contains(subSystem))
 					continue;
@@ -316,16 +305,15 @@ public class Simulator {
 
 		// now, we initialize the nodes in topological order
 		Map<TechFlow, LcaResult> subResults = new HashMap<>();
-		for (long system : order) {
+		for (long systemId : order) {
 
 			CalculationSetup _setup;
-			if (system == rootID) {
+			if (systemId == rootId) {
 				_setup = setup;
 			} else {
 				// create node for LCI and LCC data simulation
-				// do *not* copy the LCIA method here
-				var dao = new ProductSystemDao(db);
-				var subSystem = dao.getForId(system);
+				// do *not* set the LCIA method here
+				var subSystem = db.get(ProductSystem.class, systemId);
 				_setup = CalculationSetup.of(subSystem)
 						.withSimulationRuns(setup.simulationRuns().orElse(1))
 						.withParameters(ParameterRedefs.join(setup, subSystem))
@@ -334,8 +322,8 @@ public class Simulator {
 			}
 
 			Node node = new Node(_setup, db, subResults);
-			nodeIndex.put(system, node);
-			if (system == rootID) {
+			nodeIndex.put(systemId, node);
+			if (systemId == rootId) {
 				root = node;
 			} else {
 				subNodes.add(node);
@@ -345,27 +333,31 @@ public class Simulator {
 				// be initialized with the correct matrix shapes (
 				// e.g. flows that only occur in a sub-system
 				// need a row in the respective host-systems)
+				var enviIdx = node.data.enviIndex;
+				var totalFlows = enviIdx != null
+						? new double[enviIdx.size()]
+						: ResultProvider.EMPTY_VECTOR;
 				var r = SimpleResultProvider.of(node.data.demand, node.data.techIndex)
-						.withFlowIndex(node.data.enviIndex)
-						.withTotalFlows(new double[node.data.enviIndex.size()])
+						.withFlowIndex(enviIdx)
+						.withTotalFlows(totalFlows)
 						.toResult();
 				node.lastResult = r;
-				subResults.put(node.product, r);
+				subResults.put(node.provider, r);
 			}
 		}
 
 		// finally, we add the sub-system links to the nodes so
-		// the we do not need to collect them in the simulation
+		// that we do not need to collect them in the simulation
 		for (Node node : nodeIndex.values()) {
-			List<LongPair> subRels = allRels.get(node.systemID);
+			List<LongPair> subRels = allRels.get(node.providerId);
 			if (subRels == null || subRels.isEmpty())
 				continue;
 			node.subSystems = new HashSet<>();
 			for (LongPair rel : subRels) {
-				Node subNode = nodeIndex.get(rel.first());
+				var subNode = nodeIndex.get(rel.first());
 				if (subNode == null)
 					continue;
-				node.subSystems.add(subNode.product);
+				node.subSystems.add(subNode.provider);
 			}
 		}
 	}
@@ -375,8 +367,8 @@ public class Simulator {
 	 * system.
 	 */
 	private static class Node {
-		final long systemID;
-		final TechFlow product;
+		final long providerId;
+		final TechFlow provider;
 		final MatrixData data;
 		final ParameterTable parameters;
 
@@ -386,15 +378,19 @@ public class Simulator {
 		Node(CalculationSetup setup, IDatabase db,
 				Map<TechFlow, LcaResult> subResults) {
 
-			systemID = setup.hasProductSystem()
-					? setup.productSystem().id
-					: setup.process().id;
-			product = TechFlow.of(setup.process(), setup.flow());
 			data = MatrixData.of(db, TechIndex.of(db, setup))
-					.withUncertainties(true)
 					.withSetup(setup)
+					.withUncertainties(true)
 					.withSubResults(subResults)
 					.build();
+
+			if (setup.hasProductSystem()) {
+				providerId = setup.productSystem().id;
+				provider = TechFlow.of(setup.productSystem());
+			} else {
+				providerId = setup.process().id;
+				provider = data.demand.techFlow();
+			}
 
 			// parameters
 			var paramContexts = new HashSet<Long>();
