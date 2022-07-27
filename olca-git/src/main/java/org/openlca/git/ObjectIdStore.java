@@ -194,6 +194,29 @@ public class ObjectIdStore {
 	}
 
 	public void remove(String path) {
+		head.remove(path);
+	}
+
+	public void invalidate() {
+		invalidate("");
+	}
+
+	public void invalidate(ModelType type) {
+		var path = getPath(type);
+		invalidate(path);
+	}
+
+	public void invalidate(RootEntity e) {
+		var path = getPath(e);
+		invalidate(path);
+	}
+
+	public void invalidate(PathBuilder categoryPath, RootDescriptor d) {
+		var path = getPath(categoryPath, d);
+		invalidate(path);
+	}
+
+	public void invalidate(String path) {
 		var split = path.split("/");
 		for (var i = 0; i < split.length; i++) {
 			var k = "";
@@ -206,7 +229,6 @@ public class ObjectIdStore {
 			workspace.remove(k);
 		}
 		workspace.remove("");
-		head.remove(path);
 	}
 
 	public void clear() {
