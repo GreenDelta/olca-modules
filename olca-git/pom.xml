@@ -35,20 +35,6 @@
 			<version>2.12.5</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.zeroturnaround</groupId>
-			<artifactId>zt-zip</artifactId>
-			<version>1.13</version>
-			<type>jar</type>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 </project>
