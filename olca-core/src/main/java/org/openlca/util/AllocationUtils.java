@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 
@@ -37,35 +38,39 @@ public final class AllocationUtils {
 			return Collections.emptySet();
 
 		var techFlows = process.exchanges.stream()
-			.filter(Exchanges::isProviderFlow)
-			.map(e -> e.flow)
-			.toList();
+				.filter(Exchanges::isProviderFlow)
+				.map(e -> e.flow)
+				.toList();
 		if (techFlows.isEmpty())
 			return Collections.emptySet();
 
 		var first = techFlows.get(0);
 		var props = new HashSet<FlowProperty>();
 		for (var propFac : first.flowPropertyFactors) {
-			var next = propFac.flowProperty;
-			if (next == null)
-				continue;
+			var nextProp = propFac.flowProperty;
 			boolean matches = true;
 			for (int i = 1; i < techFlows.size(); i++) {
-				for (var otherFac : techFlows.get(i).flowPropertyFactors) {
-					if (!Objects.equals(next, otherFac.flowProperty)) {
-						matches = false;
-						break;
-					}
-				}
-				if (!matches)
+				if (!hasProperty(techFlows.get(i), nextProp)) {
+					matches = false;
 					break;
+				}
 			}
 			if (matches) {
-				props.add(next);
+				props.add(nextProp);
 			}
 		}
 
 		return props;
+	}
+
+	private static boolean hasProperty(Flow flow, FlowProperty prop) {
+		if (flow == null || prop == null)
+			return false;
+		for (var factor : flow.flowPropertyFactors) {
+			if (Objects.equals(factor.flowProperty, prop))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -77,8 +82,8 @@ public final class AllocationUtils {
 		if (p == null)
 			return Collections.emptyList();
 		return p.exchanges.stream()
-			.filter(Exchanges::isProviderFlow)
-			.collect(Collectors.toList());
+				.filter(Exchanges::isProviderFlow)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -90,8 +95,8 @@ public final class AllocationUtils {
 		if (p == null)
 			return Collections.emptyList();
 		return p.exchanges.stream()
-			.filter(e -> !Exchanges.isProviderFlow(e))
-			.collect(Collectors.toList());
+				.filter(e -> !Exchanges.isProviderFlow(e))
+				.collect(Collectors.toList());
 	}
 
 }
