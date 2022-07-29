@@ -16,7 +16,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (10);
+INSERT INTO openlca_version (version) VALUES (11);
 
 
 CREATE TABLE tbl_libraries (
@@ -131,8 +131,6 @@ CREATE TABLE tbl_units (
     ref_id             VARCHAR(36),
     name               VARCHAR(2048),
     description        TEXT,
-    version            BIGINT,
-    last_change        BIGINT,
 
     conversion_factor  DOUBLE,
     synonyms           VARCHAR(255),
@@ -393,7 +391,7 @@ CREATE TABLE tbl_process_links (
     f_flow            BIGINT,
     f_process         BIGINT,
     f_exchange        BIGINT,
-    is_system_link    TINYINT default 0
+    provider_type     TINYINT default 0
 );
 CREATE INDEX idx_process_link_system ON tbl_process_links(f_product_system);
 
@@ -423,8 +421,8 @@ CREATE TABLE tbl_impact_methods (
     library       VARCHAR(255),
     description   TEXT,
 
-    f_author      BIGINT,
-    f_generator   BIGINT,
+    code        VARCHAR(255),
+    f_source      BIGINT,
 
     PRIMARY KEY (id)
 
@@ -443,7 +441,10 @@ CREATE TABLE tbl_impact_categories (
     library         VARCHAR(255),
     description     TEXT,
 
+    direction       VARCHAR(255),
+    code            VARCHAR(255),
     reference_unit  VARCHAR(255),
+    f_source        BIGINT,
 
     PRIMARY KEY (id)
 
@@ -487,8 +488,6 @@ CREATE TABLE tbl_nw_sets (
     ref_id               VARCHAR(36),
     name                 VARCHAR(2048),
     description          TEXT,
-    version              BIGINT,
-    last_change          BIGINT,
 
     f_impact_method      BIGINT,
     weighted_score_unit  VARCHAR(255),
@@ -550,6 +549,7 @@ CREATE TABLE tbl_parameter_redefs (
     f_owner             BIGINT,
     f_context           BIGINT,
     context_type        VARCHAR(255),
+    is_protected        TINYINT default 0,
     `value`             DOUBLE,
 
     distribution_type   INTEGER default 0,
@@ -715,4 +715,84 @@ CREATE TABLE tbl_dq_scores (
     f_dq_indicator  BIGINT,
 
     PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_results (
+
+    id                   BIGINT NOT NULL,
+    ref_id               VARCHAR(36),
+    name                 VARCHAR(2048),
+    version              BIGINT,
+    last_change          BIGINT,
+    f_category           BIGINT,
+    tags                 VARCHAR(255),
+    library              VARCHAR(255),
+    description          TEXT,
+
+    f_product_system     BIGINT,
+    f_impact_method      BIGINT,
+    f_reference_flow     BIGINT,
+
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_flow_results (
+
+    id                        BIGINT NOT NULL,
+    f_result                  BIGINT,
+    f_flow                    BIGINT,
+    f_unit                    BIGINT,
+    is_input                  TINYINT default 0,
+    f_flow_property_factor    BIGINT,
+    resulting_amount_value    DOUBLE,
+    f_location                BIGINT,
+    description               TEXT,
+
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_impact_results (
+
+    id                 BIGINT NOT NULL,
+    f_result           BIGINT,
+    f_impact_category  BIGINT,
+    amount             DOUBLE,
+    description        TEXT,
+
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_epds (
+
+    id                   BIGINT NOT NULL,
+    ref_id               VARCHAR(36),
+    name                 VARCHAR(2048),
+    version              BIGINT,
+    last_change          BIGINT,
+    f_category           BIGINT,
+    tags                 VARCHAR(255),
+    library              VARCHAR(255),
+    description          TEXT,
+
+    f_flow               BIGINT,
+    f_flow_property      BIGINT,
+    f_unit               BIGINT,
+    amount               DOUBLE,
+
+    urn                  VARCHAR(2048),
+    f_manufacturer       BIGINT,
+    f_verifier           BIGINT,
+    f_pcr                BIGINT,
+    f_program_operator   BIGINT,
+
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE tbl_epd_modules (
+
+    id           BIGINT NOT NULL,
+    f_epd        BIGINT,
+    name         VARCHAR(2048),
+    f_result     BIGINT,
+    multiplier   DOUBLE
 );
