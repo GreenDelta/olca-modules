@@ -1,7 +1,6 @@
 package org.openlca.proto.io;
 
 import org.openlca.proto.ProtoActor;
-import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoFlow;
@@ -20,8 +19,6 @@ import org.openlca.proto.ProtoUnitGroup;
 public interface ProtoWriter {
 
   void putActor(ProtoActor actor);
-
-  void putCategory(ProtoCategory category);
 
   void putCurrency(ProtoCurrency currency);
 

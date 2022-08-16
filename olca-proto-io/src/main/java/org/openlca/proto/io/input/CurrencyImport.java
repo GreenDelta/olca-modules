@@ -61,7 +61,7 @@ class CurrencyImport implements Import<Currency> {
   private void map(ProtoCurrency proto, Currency currency) {
     currency.code = proto.getCode();
     currency.conversionFactor = proto.getConversionFactor();
-    var refCurrencyID = proto.getReferenceCurrency().getId();
+    var refCurrencyID = proto.getRefCurrency().getId();
     if (Objects.equals(refCurrencyID, proto.getId())) {
       currency.referenceCurrency = currency;
     } else {

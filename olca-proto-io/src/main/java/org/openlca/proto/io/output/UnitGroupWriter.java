@@ -47,8 +47,7 @@ public class UnitGroupWriter {
           .filter(Strings::notEmpty)
           .forEach(protoUnit::addSynonyms);
       }
-      protoUnit.setReferenceUnit(
-        Objects.equals(unit, group.referenceUnit));
+      protoUnit.setIsRefUnit(Objects.equals(unit, group.referenceUnit));
       proto.addUnits(protoUnit.build());
     }
   }

@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import com.google.protobuf.AbstractMessage;
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.ProtoActor;
-import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoFlow;
@@ -52,11 +51,6 @@ public class InMemoryProtoStore implements ProtoReader, ProtoWriter {
   @Override
   public ProtoActor getActor(String id) {
     return get(ModelType.ACTOR, ProtoActor.class, id);
-  }
-
-  @Override
-  public ProtoCategory getCategory(String id) {
-    return get(ModelType.CATEGORY, ProtoCategory.class, id);
   }
 
   @Override
@@ -144,12 +138,6 @@ public class InMemoryProtoStore implements ProtoReader, ProtoWriter {
   public void putActor(ProtoActor proto) {
     if (proto == null) return;
     put(ModelType.ACTOR, proto, proto::getId);
-  }
-
-  @Override
-  public void putCategory(ProtoCategory proto) {
-    if (proto == null) return;
-    put(ModelType.CATEGORY, proto, proto::getId);
   }
 
   @Override

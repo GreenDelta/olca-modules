@@ -86,7 +86,7 @@ class ProcessImport implements Import<Process> {
   private void map(ProtoProcess proto, Process p, boolean inUpdateMode) {
 
     p.processType = In.processTypeOf(proto.getProcessType());
-    p.infrastructureProcess = proto.getInfrastructureProcess();
+    p.infrastructureProcess = proto.getIsInfrastructureProcess();
     p.defaultAllocationMethod = In.allocationMethod(
       proto.getDefaultAllocationMethod());
     p.documentation = doc(proto.getProcessDocumentation());
@@ -151,7 +151,7 @@ class ProcessImport implements Import<Process> {
       }
 
       mapExchange(protoEx, e);
-      if (protoEx.getQuantitativeReference()) {
+      if (protoEx.getIsQuantitativeReference()) {
         p.quantitativeReference = e;
       }
 
@@ -210,7 +210,7 @@ class ProcessImport implements Import<Process> {
       }
     }
 
-    doc.copyright = proto.getCopyright();
+    doc.copyright = proto.getIsCopyrightProtected();
     doc.creationDate = Json.parseDate(proto.getCreationDate());
     doc.validFrom = Json.parseDate(proto.getValidFrom());
     doc.validUntil = Json.parseDate(proto.getValidUntil());
@@ -236,8 +236,8 @@ class ProcessImport implements Import<Process> {
   }
 
   private void mapExchange(ProtoExchange proto, Exchange e) {
-    e.isAvoided = proto.getAvoidedProduct();
-    e.isInput = proto.getInput();
+    e.isAvoided = proto.getIsAvoidedProduct();
+    e.isInput = proto.getIsInput();
     e.baseUncertainty = proto.getBaseUncertainty() == 0
       ? null
       : proto.getBaseUncertainty();

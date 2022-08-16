@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.ProtoActor;
-import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoFlow;
@@ -23,8 +22,6 @@ import org.openlca.proto.ProtoUnitGroup;
 public interface ProtoReader {
 
   Set<String> getIds(ModelType modelType);
-
-  ProtoCategory getCategory(String id);
 
   ProtoActor getActor(String id);
 

@@ -26,7 +26,7 @@ public class FlowWriter {
 
     proto.setCas(Strings.orEmpty(flow.casNumber));
     proto.setFormula(Strings.orEmpty(flow.formula));
-    proto.setInfrastructureFlow(flow.infrastructureFlow);
+    proto.setIsInfrastructureFlow(flow.infrastructureFlow);
     proto.setSynonyms(Strings.orEmpty(flow.synonyms));
     proto.setFlowType(Out.flowTypeOf(flow.flowType));
     if (flow.location != null) {
@@ -45,7 +45,7 @@ public class FlowWriter {
       if (f.flowProperty != null) {
         protoF.setFlowProperty(Refs.refOf(f.flowProperty));
         Out.dep(config, f.flowProperty);
-        protoF.setReferenceFlowProperty(
+        protoF.setIsRefFlowProperty(
           Objects.equals(f.flowProperty, flow.referenceFlowProperty));
       }
       proto.addFlowProperties(protoF.build());

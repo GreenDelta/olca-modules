@@ -23,7 +23,7 @@ public class ParameterWriter {
     Out.dep(config, parameter.category);
 
     proto.setFormula(Strings.orEmpty(parameter.formula));
-    proto.setInputParameter(parameter.isInputParameter);
+    proto.setIsInputParameter(parameter.isInputParameter);
     if (parameter.uncertainty != null) {
       proto.setUncertainty(
         Out.uncertaintyOf(parameter.uncertainty));

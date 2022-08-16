@@ -182,7 +182,7 @@ record ProductSystemImport(ProtoImport imp) implements Import<ProductSystem> {
 			}
 		};
 
-		handleRef.accept(proto.getReferenceProcess().getId(), false);
+		handleRef.accept(proto.getRefProcess().getId(), false);
 		for (var ref : proto.getProcessesList()) {
 			handleRef.accept(ref.getId(), true);
 		}
@@ -197,11 +197,11 @@ record ProductSystemImport(ProtoImport imp) implements Import<ProductSystem> {
 
 		// ref. process
 		sys.referenceProcess = ProcessImport
-			.of(imp, proto.getReferenceProcess().getId())
+			.of(imp, proto.getRefProcess().getId())
 			.model();
 
 		// ref. exchange
-		var refExchange = proto.getReferenceExchange().getInternalId();
+		var refExchange = proto.getRefExchange().getInternalId();
 		if (sys.referenceProcess != null && refExchange > 0) {
 			sys.referenceExchange = sys.referenceProcess.exchanges.stream()
 				.filter(e -> e.internalId == refExchange)

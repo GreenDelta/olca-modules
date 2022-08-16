@@ -101,7 +101,7 @@ class UnitGroupImport implements Import<UnitGroup> {
         unit = new Unit();
       }
       mapUnit(protoUnit, unit);
-      if (protoUnit.getReferenceUnit()) {
+      if (protoUnit.getIsRefUnit()) {
         group.referenceUnit = unit;
       }
       group.units.add(unit);

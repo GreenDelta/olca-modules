@@ -11,7 +11,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ActorDescriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.descriptors.EpdDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
 import org.openlca.core.model.descriptors.DQSystemDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -54,9 +54,9 @@ public final class In {
       return ModelType.UNKNOWN;
     return switch (protoType) {
       case Actor -> ModelType.ACTOR;
-      case Category -> ModelType.CATEGORY;
       case Currency -> ModelType.CURRENCY;
       case DQSystem -> ModelType.DQ_SYSTEM;
+			case Epd -> ModelType.EPD;
       case Flow -> ModelType.FLOW;
       case FlowProperty -> ModelType.FLOW_PROPERTY;
       case ImpactCategory -> ModelType.IMPACT_CATEGORY;
@@ -152,9 +152,6 @@ public final class In {
     d.refId = proto.getId();
     d.name = proto.getName();
     d.description = Strings.nullIfEmpty(proto.getDescription());
-    d.lastChange = timeOf(proto.getLastChange());
-    d.version = versionOf(proto.getVersion());
-    d.library = proto.getLibrary();
 
     if (d instanceof ProcessDescriptor) {
       ((ProcessDescriptor) d).processType = processTypeOf(
@@ -172,10 +169,10 @@ public final class In {
   private static Descriptor initDescriptor(ProtoRef ref) {
     return switch (ref.getType()) {
       case Actor -> new ActorDescriptor();
-      case Category -> new RootDescriptor();
       case Currency -> new CurrencyDescriptor();
       case DQSystem -> new DQSystemDescriptor();
-      case Flow -> new FlowDescriptor();
+			case Epd -> new EpdDescriptor();
+			case Flow -> new FlowDescriptor();
       case FlowProperty -> new FlowPropertyDescriptor();
       case ImpactCategory -> new ImpactDescriptor();
       case ImpactMethod -> new ImpactMethodDescriptor();

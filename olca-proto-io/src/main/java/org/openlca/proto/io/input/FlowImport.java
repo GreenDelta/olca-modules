@@ -68,7 +68,7 @@ class FlowImport implements Import<Flow> {
     flow.casNumber = proto.getCas();
     flow.synonyms = proto.getSynonyms();
     flow.synonyms = proto.getFormula();
-    flow.infrastructureFlow = proto.getInfrastructureFlow();
+    flow.infrastructureFlow = proto.getIsInfrastructureFlow();
     var locID = proto.getLocation().getId();
     if (Strings.notEmpty(locID)) {
       flow.location = new LocationImport(imp).of(locID).model();
@@ -107,7 +107,7 @@ class FlowImport implements Import<Flow> {
           .model();
       }
       factor.conversionFactor = protoFactor.getConversionFactor();
-      if (protoFactor.getReferenceFlowProperty()) {
+      if (protoFactor.getIsRefFlowProperty()) {
         flow.referenceFlowProperty = factor.flowProperty;
       }
       flow.flowPropertyFactors.add(factor);

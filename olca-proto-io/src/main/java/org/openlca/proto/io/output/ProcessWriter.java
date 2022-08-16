@@ -37,7 +37,7 @@ public class ProcessWriter {
     proto.setProcessType(Out.processTypeOf(process.processType));
     proto.setDefaultAllocationMethod(
       allocationType(process.defaultAllocationMethod));
-    proto.setInfrastructureProcess(process.infrastructureProcess);
+    proto.setIsInfrastructureProcess(process.infrastructureProcess);
     if (process.location != null) {
       proto.setLocation(Refs.refOf(process.location));
       Out.dep(config, process.location);
@@ -89,8 +89,8 @@ public class ProcessWriter {
   private void writeExchanges(Process p, ProtoProcess.Builder proto) {
     for (var e : p.exchanges) {
       var pe = ProtoExchange.newBuilder();
-      pe.setAvoidedProduct(e.isAvoided);
-      pe.setInput(e.isInput);
+      pe.setIsAvoidedProduct(e.isAvoided);
+      pe.setIsInput(e.isInput);
       if (e.baseUncertainty != null) {
         pe.setBaseUncertainty(e.baseUncertainty);
       }
@@ -136,7 +136,7 @@ public class ProcessWriter {
       }
 
       if (Objects.equals(e, p.quantitativeReference)) {
-        pe.setQuantitativeReference(true);
+        pe.setIsQuantitativeReference(true);
       }
 
       proto.addExchanges(pe);

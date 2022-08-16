@@ -63,7 +63,7 @@ class ImpactCategoryImport implements Import<ImpactCategory> {
   }
 
   private void map(ProtoImpactCategory proto, ImpactCategory impact) {
-    impact.referenceUnit = proto.getReferenceUnitName();
+    impact.referenceUnit = proto.getRefUnit();
 
     // parameters
     for (var protoParam : proto.getParametersList()) {

@@ -88,30 +88,24 @@ public final class Refs {
     if (d == null || refData == null)
       return proto;
 
-    if (d instanceof RootDescriptor) {
-      var cd = (RootDescriptor) d;
-      if (cd.category != null) {
-        proto.addAllCategoryPath(
-          refData.categoryPathOf(cd.category));
+    if (d instanceof RootDescriptor cd) {
+			if (cd.category != null) {
+        // TODO: set category path
+				// proto.setCategory(refData.categoryPathOf(cd.category));
       }
     }
 
-    if (d instanceof ProcessDescriptor) {
-      var pd = (ProcessDescriptor) d;
-      if (pd.location != null) {
-        proto.setLocation(
-          refData.locationCodeOf(pd.location));
+    if (d instanceof ProcessDescriptor pd) {
+			if (pd.location != null) {
+        proto.setLocation(refData.locationCodeOf(pd.location));
       }
     }
 
-    if (d instanceof FlowDescriptor) {
-      var fd = (FlowDescriptor) d;
-      if (fd.location != null) {
-        proto.setLocation(
-          refData.locationCodeOf(fd.location));
+    if (d instanceof FlowDescriptor fd) {
+			if (fd.location != null) {
+        proto.setLocation(refData.locationCodeOf(fd.location));
       }
-      proto.setRefUnit(
-        refData.flowUnitOf(fd.refFlowPropertyId));
+      proto.setRefUnit(refData.flowUnitOf(fd.refFlowPropertyId));
     }
 
     return proto;
@@ -123,19 +117,16 @@ public final class Refs {
       return proto;
     proto.setType(Out.protoTypeOf(d.type));
     map(d, proto);
-    if (d instanceof FlowDescriptor) {
-      var fd = (FlowDescriptor) d;
-      if (fd.flowType != null) {
+    if (d instanceof FlowDescriptor fd) {
+			if (fd.flowType != null) {
         proto.setFlowType(Out.flowTypeOf(fd.flowType));
       }
-    } else if (d instanceof ProcessDescriptor) {
-      var pd = (ProcessDescriptor) d;
-      if (pd.processType != null) {
+    } else if (d instanceof ProcessDescriptor pd) {
+			if (pd.processType != null) {
         proto.setProcessType(Out.processTypeOf(pd.processType));
       }
-    } else if (d instanceof ImpactDescriptor) {
-      var id = (ImpactDescriptor) d;
-      proto.setRefUnit(Strings.orEmpty(id.referenceUnit));
+    } else if (d instanceof ImpactDescriptor id) {
+			proto.setRefUnit(Strings.orEmpty(id.referenceUnit));
     }
     return proto;
   }

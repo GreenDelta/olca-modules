@@ -60,7 +60,7 @@ class ParameterImport implements Import<Parameter> {
 
   static void map(ProtoParameter proto, Parameter param) {
     param.scope = scopeOf(proto);
-    param.isInputParameter = proto.getInputParameter();
+    param.isInputParameter = proto.getIsInputParameter();
     param.value = proto.getValue();
     param.formula = proto.getFormula();
     param.uncertainty = In.uncertainty(proto.getUncertainty());

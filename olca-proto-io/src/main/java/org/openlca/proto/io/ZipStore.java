@@ -26,7 +26,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoActor;
-import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoFlow;
@@ -91,18 +90,6 @@ public class ZipStore implements ProtoReader, AutoCloseable {
       log.error("failed to collect IDs from folder in zip: " + path, e);
       return Collections.emptySet();
     }
-  }
-
-  @Override
-  public ProtoCategory getCategory(String id) {
-    var proto = readBin("categories", id, ProtoCategory.parser());
-    if (proto != null)
-      return proto;
-    var builder = ProtoCategory.newBuilder();
-    if (readJson("categories", id, builder)) {
-      return builder.build();
-    }
-    return null;
   }
 
   @Override

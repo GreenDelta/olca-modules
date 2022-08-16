@@ -31,7 +31,6 @@ import org.openlca.proto.io.InMemoryProtoStore;
 import org.openlca.proto.io.ProtoReader;
 import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.ActorWriter;
-import org.openlca.proto.io.output.CategoryWriter;
 import org.openlca.proto.io.output.CurrencyWriter;
 import org.openlca.proto.io.output.DQSystemWriter;
 import org.openlca.proto.io.output.FlowPropertyWriter;
@@ -107,10 +106,6 @@ class DataUtil {
       return ds.setActor(new ActorWriter(conf)
         .write((Actor) e));
 
-    if (e instanceof Category)
-      return ds.setCategory(new CategoryWriter(conf)
-        .write((Category) e));
-
     if (e instanceof Currency)
       return ds.setCurrency(new CurrencyWriter(conf)
         .write((Currency) e));
@@ -176,8 +171,6 @@ class DataUtil {
       return store;
     if (dataSet.hasActor()) {
       store.putActor(dataSet.getActor());
-    } else if (dataSet.hasCategory()) {
-      store.putCategory(dataSet.getCategory());
     } else if (dataSet.hasCurrency()) {
       store.putCurrency(dataSet.getCurrency());
     } else if (dataSet.hasDqSystem()) {

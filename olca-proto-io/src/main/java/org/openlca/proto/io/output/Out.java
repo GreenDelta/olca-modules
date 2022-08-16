@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Epd;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
@@ -239,8 +239,6 @@ public final class Out {
 		var conf = WriterConfig.of(db);
 		if (e instanceof Actor)
 			return new ActorWriter(conf).write((Actor) e);
-		if (e instanceof Category)
-			return new CategoryWriter(conf).write((Category) e);
 		if (e instanceof Currency)
 			return new CurrencyWriter(conf).write((Currency) e);
 		if (e instanceof DQSystem)
@@ -278,9 +276,9 @@ public final class Out {
 			return ProtoType.Undefined;
 		return switch (modelType) {
 			case ACTOR -> ProtoType.Actor;
-			case CATEGORY -> ProtoType.Category;
 			case CURRENCY -> ProtoType.Currency;
 			case DQ_SYSTEM -> ProtoType.DQSystem;
+			case EPD -> ProtoType.Epd;
 			case FLOW -> ProtoType.Flow;
 			case FLOW_PROPERTY -> ProtoType.FlowProperty;
 			case IMPACT_CATEGORY -> ProtoType.ImpactCategory;
@@ -304,9 +302,9 @@ public final class Out {
 		if (e == null)
 			return ProtoType.Undefined;
 		if (e instanceof Actor) return ProtoType.Actor;
-		if (e instanceof Category) return ProtoType.Category;
 		if (e instanceof Currency) return ProtoType.Currency;
 		if (e instanceof DQSystem) return ProtoType.DQSystem;
+		if (e instanceof Epd) return ProtoType.Epd;
 		if (e instanceof Flow) return ProtoType.Flow;
 		if (e instanceof FlowProperty) return ProtoType.FlowProperty;
 		if (e instanceof ImpactCategory) return ProtoType.ImpactCategory;

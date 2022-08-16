@@ -154,8 +154,10 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
     // flow information
     flowRef.flow = In.fill(new FlowDescriptor(), protoRef.getFlow());
-    flowRef.flowCategory = categoryPathOf(
-        protoRef.getFlow().getCategoryPathList());
+
+		// TODO: set category path
+    // flowRef.flowCategory = categoryPathOf(
+    //    protoRef.getFlow().getCategoryPathList());
     flowRef.flowLocation = Strings.nullIfEmpty(
         protoRef.getFlow().getLocation());
 
@@ -176,8 +178,9 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     if (Messages.isNotEmpty(provider)) {
       flowRef.provider = In.fill(
           new ProcessDescriptor(), provider);
-      flowRef.providerCategory = categoryPathOf(
-          provider.getCategoryPathList());
+			// TODO: set category
+      // flowRef.providerCategory = categoryPathOf(
+      //     provider.getCategoryPathList());
       flowRef.providerLocation = Strings.nullIfEmpty(
           provider.getLocation());
     }

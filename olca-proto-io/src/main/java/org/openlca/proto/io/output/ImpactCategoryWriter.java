@@ -22,8 +22,7 @@ public class ImpactCategoryWriter {
     Out.map(impact, proto);
     Out.dep(config, impact.category);
 
-    proto.setReferenceUnitName(
-      Strings.orEmpty(impact.referenceUnit));
+    proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
     writeFactors(impact, proto);
     var paramWriter = new ParameterWriter(config);
     for (var param : impact.parameters) {

@@ -325,7 +325,7 @@ class DataFetchService extends
 			if (flow == null || process == null)
 				return null;
 			var proto = ProtoTechFlow.newBuilder()
-				.setProcess(Refs.refOf(process, refData));
+				.setProvider(Refs.refOf(process, refData));
 			var protoFlow = Refs.refOf(flow, refData);
 			if (flow.flowType == FlowType.WASTE_FLOW) {
 				proto.setWaste(protoFlow);

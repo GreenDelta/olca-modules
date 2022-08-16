@@ -51,7 +51,7 @@ public class ProductSystemWriter {
     // ref. process
     if (system.referenceProcess != null) {
       var p = Refs.refOf(system.referenceProcess);
-      proto.setReferenceProcess(p);
+      proto.setRefProcess(p);
       Out.dep(config, system.referenceProcess);
     }
 
@@ -59,7 +59,7 @@ public class ProductSystemWriter {
     if (system.referenceExchange != null) {
       var e = ProtoExchangeRef.newBuilder()
         .setInternalId(system.referenceExchange.internalId);
-      proto.setReferenceExchange(e);
+      proto.setRefExchange(e);
     }
 
     // ref. quantity
