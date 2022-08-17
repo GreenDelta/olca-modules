@@ -18,6 +18,11 @@ public record SourceReader(EntityResolver resolver)
 	@Override
 	public void update(Source source, ProtoSource proto) {
 		Util.mapBase(source, ProtoWrap.of(proto), resolver);
-
+		source.url = proto.getUrl();
+		source.externalFile = proto.getExternalFile();
+		source.textReference = proto.getTextReference();
+		if (proto.getYear() > 0) {
+			source.year = (short) proto.getYear();
+		}
 	}
 }
