@@ -19,15 +19,31 @@ import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoUncertainty;
 import org.openlca.util.Strings;
 
 class Util {
 
 	private Util() {
+	}
+
+	static Uncertainty uncertaintyOf(ProtoUncertainty proto) {
+		return switch (proto.getDistributionType()) {
+			case NORMAL_DISTRIBUTION -> Uncertainty.normal(
+				proto.getMean(), proto.getSd());
+			case LOG_NORMAL_DISTRIBUTION -> Uncertainty.logNormal(
+				proto.getGeomMean(), proto.getGeomSd());
+			case TRIANGLE_DISTRIBUTION -> Uncertainty.triangle(
+				proto.getMinimum(), proto.getMode(), proto.getMaximum());
+			case UNIFORM_DISTRIBUTION -> Uncertainty.uniform(
+				proto.getMinimum(), proto.getMaximum());
+			default -> null;
+		};
 	}
 
 	static void mapBase(RootEntity e, ProtoWrap proto, EntityResolver resolver) {
@@ -47,7 +63,7 @@ class Util {
 		}
 
 		// tags
-		if(!proto.tags().isEmpty()) {
+		if (!proto.tags().isEmpty()) {
 			e.tags = String.join(",", proto.tags());
 		}
 	}
@@ -76,14 +92,12 @@ class Util {
 			: null;
 	}
 
-
 	static Currency getCurrency(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(Currency.class, id)
 			: null;
 	}
-
 
 	static DQSystem getDQSystem(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -92,14 +106,12 @@ class Util {
 			: null;
 	}
 
-
 	static Epd getEpd(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(Epd.class, id)
 			: null;
 	}
-
 
 	static FlowProperty getFlowProperty(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -108,14 +120,12 @@ class Util {
 			: null;
 	}
 
-
 	static Flow getFlow(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(Flow.class, id)
 			: null;
 	}
-
 
 	static ImpactCategory getImpactCategory(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -124,14 +134,12 @@ class Util {
 			: null;
 	}
 
-
 	static ImpactMethod getImpactMethod(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(ImpactMethod.class, id)
 			: null;
 	}
-
 
 	static Location getLocation(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -140,14 +148,12 @@ class Util {
 			: null;
 	}
 
-
 	static Parameter getParameter(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(Parameter.class, id)
 			: null;
 	}
-
 
 	static Process getProcess(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -156,14 +162,12 @@ class Util {
 			: null;
 	}
 
-
 	static ProductSystem getProductSystem(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(ProductSystem.class, id)
 			: null;
 	}
-
 
 	static Project getProject(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -172,14 +176,12 @@ class Util {
 			: null;
 	}
 
-
 	static Result getResult(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(Result.class, id)
 			: null;
 	}
-
 
 	static SocialIndicator getSocialIndicator(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
@@ -188,14 +190,12 @@ class Util {
 			: null;
 	}
 
-
 	static Source getSource(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
 		return Strings.notEmpty(id)
 			? resolver.get(Source.class, id)
 			: null;
 	}
-
 
 	static UnitGroup getUnitGroup(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
