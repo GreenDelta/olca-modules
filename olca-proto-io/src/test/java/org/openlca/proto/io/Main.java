@@ -16,8 +16,7 @@ public class Main {
         .setId(UUID.randomUUID().toString())
         .setName("steel")
         .setDescription("some steel process")
-        .addCategoryPath("materials")
-        .addCategoryPath("metals")
+        .setCategory("materials/metals")
         .build();
     var json = JsonFormat.printer().print(p);
     var clone = ProtoRef.newBuilder();

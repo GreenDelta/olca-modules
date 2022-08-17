@@ -227,11 +227,9 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 
     // flow
     var protoFlow = Refs.refOf(flowRef.flow);
-    if (flowRef.flowCategory != null) {
-      Arrays.stream(flowRef.flowCategory.split("/"))
-          .filter(Strings::notEmpty)
-          .forEach(protoFlow::addCategoryPath);
-    }
+		if (flowRef.flowCategory != null) {
+			protoFlow.setCategory(flowRef.flowCategory);
+		}
     if (flowRef.flowLocation != null) {
       protoFlow.setLocation(flowRef.flowLocation);
     }
@@ -252,9 +250,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
         protoProv.setLocation(flowRef.providerLocation);
       }
       if (flowRef.providerCategory != null) {
-        Arrays.stream(flowRef.providerCategory.split("/"))
-            .filter(Strings::notEmpty)
-            .forEach(protoProv::addCategoryPath);
+				protoProv.setCategory(flowRef.providerCategory);
       }
       proto.setProvider(protoProv);
     }

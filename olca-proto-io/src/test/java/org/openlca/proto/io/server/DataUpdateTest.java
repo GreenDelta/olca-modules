@@ -60,7 +60,6 @@ public class DataUpdateTest {
 					instance.version = Version.valueOf(0, 0, 1);
 					var ref = update.put(DataUtil.toDataSet(db, instance).build());
 					assertEquals(id, ref.getId());
-					assertEquals("00.00.001", ref.getVersion());
 
 					// check that we can get it
 					dataSet = fetch.find(findRequestOf(type, id));
@@ -73,7 +72,6 @@ public class DataUpdateTest {
 					ref = update.put(DataUtil.toDataSet(db, instance).build());
 					assertEquals(id, ref.getId());
 					assertEquals(type.name(), ref.getName());
-					assertEquals("01.00.000", ref.getVersion());
 
 					// check that we get the updated thing
 					dataSet = fetch.find(findRequestOf(type, id));
@@ -109,7 +107,6 @@ public class DataUpdateTest {
 	private String getField(ModelType type, ProtoDataSet ds, String field) {
 		var proto = switch (type) {
 			case ACTOR -> ds.getActor();
-			case CATEGORY -> ds.getCategory();
 			case CURRENCY -> ds.getCurrency();
 			case DQ_SYSTEM -> ds.getDqSystem();
 			case FLOW -> ds.getFlow();

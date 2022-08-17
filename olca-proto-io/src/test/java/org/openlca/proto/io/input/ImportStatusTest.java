@@ -16,7 +16,6 @@ import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.ProtoActor;
-import org.openlca.proto.ProtoCategory;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoFlow;
@@ -130,8 +129,6 @@ public class ImportStatusTest {
 		switch (type) {
 			case ACTOR -> store.putActor(
 				(ProtoActor) proto);
-			case CATEGORY -> store.putCategory(
-				(ProtoCategory) proto);
 			case CURRENCY -> store.putCurrency(
 				(ProtoCurrency) proto);
 			case DQ_SYSTEM -> store.putDQSystem(

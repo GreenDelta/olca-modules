@@ -146,7 +146,7 @@ public class DataFetchTest {
 			var techFlows = fetch.getTechFlows(Empty.newBuilder().build());
 			while (techFlows.hasNext()) {
 				var next = techFlows.next();
-				if (next.getProcess().getId().equals(process.refId)) {
+				if (next.getProvider().getId().equals(process.refId)) {
 					ref.set(next);
 					break;
 				}
@@ -155,10 +155,10 @@ public class DataFetchTest {
 
 		var proto = ref.get();
 		assertNotNull(proto);
-		assertTrue(proto.hasProcess());
+		assertTrue(proto.hasProvider());
 		assertTrue(proto.hasProduct());
 		assertFalse(proto.hasWaste());
-		assertEquals(process.refId, proto.getProcess().getId());
+		assertEquals(process.refId, proto.getProvider().getId());
 		assertEquals(product.refId, proto.getProduct().getId());
 		assertEquals("kg", proto.getProduct().getRefUnit());
 

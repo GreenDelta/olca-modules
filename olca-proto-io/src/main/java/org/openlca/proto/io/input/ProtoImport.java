@@ -197,8 +197,6 @@ public class ProtoImport implements Runnable {
       return (Import<T>) new FlowImport(this);
     if (type == Process.class)
       return (Import<T>) new ProcessImport(this);
-    if (type == Category.class)
-      return (Import<T>) new CategoryImport(this);
     if (type == Location.class)
       return (Import<T>) new LocationImport(this);
     if (type == ImpactCategory.class)
