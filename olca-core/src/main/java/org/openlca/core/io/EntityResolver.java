@@ -47,12 +47,12 @@ public interface EntityResolver {
 	 * otherwise.
 	 */
 	default <T extends RootEntity> Descriptor getDescriptor(
-		Class<T> type, String refId) {
+			Class<T> type, String refId) {
 
 		var t = get(type, refId);
 		return t == null
-			? null
-			: Descriptor.of(t);
+				? null
+				: Descriptor.of(t);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public interface EntityResolver {
 
 		@Override
 		public <T extends RootEntity> Descriptor getDescriptor(
-			Class<T> type, String refId) {
+				Class<T> type, String refId) {
 			return null;
 		}
 

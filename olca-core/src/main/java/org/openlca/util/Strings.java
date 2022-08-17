@@ -108,10 +108,7 @@ public class Strings {
 	 * other characters than white-spaces.
 	 */
 	public static boolean notEmpty(String val) {
-		if (val == null)
-			return false;
-		String str = val.trim();
-		return !str.isEmpty();
+		return val != null && !val.isBlank();
 	}
 
 	/**

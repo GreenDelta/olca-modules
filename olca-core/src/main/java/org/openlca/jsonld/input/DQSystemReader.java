@@ -25,18 +25,18 @@ public record DQSystemReader(EntityResolver resolver)
 	}
 
 	@Override
-	public void update(DQSystem dqSystem, JsonObject json) {
-		Util.mapBase(dqSystem, json, resolver);
-		dqSystem.hasUncertainties = Json.getBool(json, "hasUncertainties", false);
+	public void update(DQSystem system, JsonObject json) {
+		Util.mapBase(system, json, resolver);
+		system.hasUncertainties = Json.getBool(json, "hasUncertainties", false);
 		var sourceRefId = Json.getRefId(json, "source");
 		if (sourceRefId != null) {
-			dqSystem.source = resolver.get(Source.class, sourceRefId);
+			system.source = resolver.get(Source.class, sourceRefId);
 		}
-		mapIndicators(dqSystem, json);
+		mapIndicators(system, json);
 	}
 
-	private void mapIndicators(DQSystem dqSystem, JsonObject json) {
-		dqSystem.indicators.clear();
+	private void mapIndicators(DQSystem system, JsonObject json) {
+		system.indicators.clear();
 		var indicators = Json.getArray(json, "indicators");
 		if (indicators == null || indicators.size() == 0)
 			return;
@@ -48,7 +48,7 @@ public record DQSystemReader(EntityResolver resolver)
 			indicator.name = Json.getString(indicatorJson, "name");
 			indicator.position = Json.getInt(indicatorJson, "position", 0);
 			mapScores(indicator, indicatorJson);
-			dqSystem.indicators.add(indicator);
+			system.indicators.add(indicator);
 		}
 	}
 
