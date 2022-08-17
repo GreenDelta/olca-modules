@@ -28,10 +28,8 @@ public record LocationReader(EntityResolver resolver)
 	public void update(Location location, JsonObject json) {
 		Util.mapBase(location, json, resolver);
 		location.code = Json.getString(json, "code");
-		double latitude = Json.getDouble(json, "latitude", 0);
-		double longitude = Json.getDouble(json, "longitude", 0);
-		location.latitude = latitude;
-		location.longitude = longitude;
+		location.latitude = Json.getDouble(json, "latitude", 0);
+		location.longitude = Json.getDouble(json, "longitude", 0);
 		var geometry = Json.getObject(json, "geometry");
 		if (geometry != null) {
 			try {
