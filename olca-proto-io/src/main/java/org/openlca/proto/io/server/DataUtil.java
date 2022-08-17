@@ -28,7 +28,7 @@ import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.InMemoryProtoStore;
-import org.openlca.proto.io.ProtoReader;
+import org.openlca.proto.io.ProtoStoreReader;
 import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.ActorWriter;
 import org.openlca.proto.io.output.CurrencyWriter;
@@ -165,7 +165,7 @@ class DataUtil {
     return ds;
   }
 
-  static ProtoReader readerOf(ProtoDataSet dataSet) {
+  static ProtoStoreReader readerOf(ProtoDataSet dataSet) {
     var store = InMemoryProtoStore.create();
     if (dataSet == null)
       return store;

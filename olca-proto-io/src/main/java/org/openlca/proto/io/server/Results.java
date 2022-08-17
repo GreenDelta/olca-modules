@@ -64,7 +64,7 @@ final class Results {
   static TechFlow findProduct(LcaResult result, ProtoTechFlow proto) {
     if (result == null || Messages.isEmpty(proto))
       return null;
-    var processId = proto.getProcess().getId();
+    var processId = proto.getProvider().getId();
     var flowId = proto.hasProduct()
       ? proto.getProduct().getId()
       : proto.getWaste().getId();
@@ -105,7 +105,7 @@ final class Results {
     if (product == null)
       return proto.build();
     if (product.provider() != null) {
-      proto.setProcess(Refs.refOf(product.provider(), refData));
+      proto.setProvider(Refs.refOf(product.provider(), refData));
     }
     if (product.flow() != null) {
       if (product.isWaste()) {

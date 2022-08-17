@@ -42,7 +42,7 @@ import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 import org.slf4j.LoggerFactory;
 
-public class ZipStore implements ProtoReader, AutoCloseable {
+public class ZipStore implements ProtoStoreReader, AutoCloseable {
 
   private final FileSystem zip;
 

@@ -16,7 +16,7 @@ import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 
-public interface ProtoWriter {
+public interface ProtoStoreWriter {
 
   void putActor(ProtoActor actor);
 

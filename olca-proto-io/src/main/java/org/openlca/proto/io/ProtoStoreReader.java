@@ -19,7 +19,7 @@ import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 
-public interface ProtoReader {
+public interface ProtoStoreReader {
 
   Set<String> getIds(ModelType modelType);
 

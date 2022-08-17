@@ -25,7 +25,7 @@ import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 
-public class InMemoryProtoStore implements ProtoReader, ProtoWriter {
+public class InMemoryProtoStore implements ProtoStoreReader, ProtoStoreWriter {
 
   private final EnumMap<ModelType, HashMap<String, Object>> store;
 
