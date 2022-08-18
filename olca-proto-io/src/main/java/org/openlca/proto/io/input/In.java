@@ -92,18 +92,6 @@ public final class In {
     };
   }
 
-  public static AllocationMethod allocationMethod(ProtoAllocationType proto) {
-    if (proto == null)
-      return null;
-    return switch (proto) {
-      case CAUSAL_ALLOCATION -> AllocationMethod.CAUSAL;
-      case ECONOMIC_ALLOCATION -> AllocationMethod.ECONOMIC;
-      case PHYSICAL_ALLOCATION -> AllocationMethod.PHYSICAL;
-      case USE_DEFAULT_ALLOCATION -> AllocationMethod.USE_DEFAULT;
-      default -> AllocationMethod.NONE;
-    };
-  }
-
   public static long timeOf(String dateTime) {
     if (Strings.nullOrEmpty(dateTime))
       return 0;

@@ -1,7 +1,11 @@
 package org.openlca.proto.io.input;
 
+import java.util.Date;
+import java.util.Optional;
+
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Epd;
@@ -16,6 +20,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
+import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -23,7 +28,9 @@ import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
+import org.openlca.proto.ProtoAllocationType;
 import org.openlca.proto.ProtoRef;
+import org.openlca.proto.ProtoRiskLevel;
 import org.openlca.proto.ProtoUncertainty;
 import org.openlca.util.Strings;
 
@@ -42,6 +49,43 @@ class Util {
 				proto.getMinimum(), proto.getMode(), proto.getMaximum());
 			case UNIFORM_DISTRIBUTION -> Uncertainty.uniform(
 				proto.getMinimum(), proto.getMaximum());
+			default -> null;
+		};
+	}
+
+	static AllocationMethod allocationMethodOf(ProtoAllocationType proto) {
+		if (proto == null)
+			return null;
+		return switch (proto) {
+			case CAUSAL_ALLOCATION -> AllocationMethod.CAUSAL;
+			case ECONOMIC_ALLOCATION -> AllocationMethod.ECONOMIC;
+			case PHYSICAL_ALLOCATION -> AllocationMethod.PHYSICAL;
+			case USE_DEFAULT_ALLOCATION -> AllocationMethod.USE_DEFAULT;
+			default -> AllocationMethod.NONE;
+		};
+	}
+
+	static Optional<Date> dateOf(String field) {
+		if (Strings.nullOrEmpty(field))
+			return Optional.empty();
+		var date = Json.parseDate(field);
+		return Optional.ofNullable(date);
+	}
+
+	static RiskLevel riskLevelOf(ProtoRiskLevel proto) {
+		return switch (proto) {
+			case HIGH_OPPORTUNITY -> RiskLevel.HIGH_OPPORTUNITY;
+			case HIGH_RISK -> RiskLevel.HIGH_RISK;
+			case LOW_OPPORTUNITY -> RiskLevel.LOW_OPPORTUNITY;
+			case LOW_RISK -> RiskLevel.LOW_RISK;
+			case MEDIUM_OPPORTUNITY -> RiskLevel.MEDIUM_OPPORTUNITY;
+			case MEDIUM_RISK -> RiskLevel.MEDIUM_RISK;
+			case NOT_APPLICABLE -> RiskLevel.NOT_APPLICABLE;
+			case NO_DATA -> RiskLevel.NO_DATA;
+			case NO_OPPORTUNITY -> RiskLevel.NO_OPPORTUNITY;
+			case NO_RISK -> RiskLevel.NO_RISK;
+			case VERY_HIGH_RISK -> RiskLevel.VERY_HIGH_RISK;
+			case VERY_LOW_RISK -> RiskLevel.VERY_LOW_RISK;
 			default -> null;
 		};
 	}
