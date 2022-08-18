@@ -128,14 +128,14 @@ class Util {
 		return redefs;
 	}
 
-	static void mapBase(RootEntity e, ProtoWrap proto, EntityResolver resolver) {
+	static void mapBase(RootEntity e, ProtoWrap<?> proto, EntityResolver resolver) {
 		if (proto == null)
 			return;
 		e.refId = proto.id();
 		e.name = proto.name();
 		e.description = proto.description();
-		e.version = parseVersion(proto);
-		e.lastChange = parseLastChange(proto);
+		e.version = versionOf(proto);
+		e.lastChange = lastChangeOf(proto);
 
 		// category
 		var path = proto.category();
@@ -150,14 +150,14 @@ class Util {
 		}
 	}
 
-	private static long parseVersion(ProtoWrap proto) {
+	static long versionOf(ProtoWrap<?> proto) {
 		var s = proto.version();
 		return Strings.nullOrEmpty(s)
 			? 0
 			: Version.fromString(s).getValue();
 	}
 
-	private static long parseLastChange(ProtoWrap proto) {
+	static long lastChangeOf(ProtoWrap<?> proto) {
 		var s = proto.lastChange();
 		if (Strings.nullOrEmpty(s))
 			return 0;

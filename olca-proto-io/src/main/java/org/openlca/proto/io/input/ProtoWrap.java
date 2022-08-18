@@ -1,7 +1,7 @@
 package org.openlca.proto.io.input;
 
+import com.google.protobuf.Message;
 import com.google.protobuf.ProtocolStringList;
-import org.openlca.core.model.RootEntity;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
@@ -19,9 +19,18 @@ import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.util.Strings;
 
-abstract class ProtoWrap {
+abstract class ProtoWrap<T extends Message> {
+
+	private final T proto;
+
+	ProtoWrap(T proto) {
+		this.proto = proto;
+	}
+
+	T proto() {
+		return proto;
+	}
 
   abstract String id();
 
@@ -37,33 +46,8 @@ abstract class ProtoWrap {
 
   abstract ProtocolStringList tags();
 
-	@Deprecated
-  void mapTo(RootEntity e, ProtoImport config) {
-    if (e == null)
-      return;
-
-    // root entity fields
-    e.refId = id();
-    e.name = name();
-    e.description = description();
-    e.version = In.versionOf(version());
-    e.lastChange = In.timeOf(lastChange());
-
-    // categorized entity fields
-    var catPath = category();
-    if (Strings.notEmpty(catPath)) {
-
-			// TODO: resolve category by path
-			// e.category = config.;
-    }
-    e.tags = tags()
-      .stream()
-      .reduce((tag, tags) -> tags + "," + tag)
-      .orElse(null);
-  }
-
-  static ProtoWrap of(ProtoActor proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoActor> of(ProtoActor proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -102,8 +86,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoSource proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoSource> of(ProtoSource proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -142,8 +126,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoCurrency proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoCurrency> of(ProtoCurrency proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -182,8 +166,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoUnitGroup proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoUnitGroup> of(ProtoUnitGroup proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -222,8 +206,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoFlowProperty proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoFlowProperty> of(ProtoFlowProperty proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -262,8 +246,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoDQSystem proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoDQSystem> of(ProtoDQSystem proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -302,8 +286,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoFlow proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoFlow> of(ProtoFlow proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -342,8 +326,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoImpactMethod proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoImpactMethod> of(ProtoImpactMethod proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -382,8 +366,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoLocation proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoLocation> of(ProtoLocation proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -422,8 +406,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoParameter proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoParameter> of(ProtoParameter proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -462,8 +446,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoImpactCategory proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoImpactCategory> of(ProtoImpactCategory proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -502,8 +486,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoProcess proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoProcess> of(ProtoProcess proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -542,8 +526,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoProject proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoProject> of(ProtoProject proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -582,8 +566,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoSocialIndicator proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoSocialIndicator> of(ProtoSocialIndicator proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -622,8 +606,8 @@ abstract class ProtoWrap {
     };
   }
 
-  static ProtoWrap of(ProtoProductSystem proto) {
-    return new ProtoWrap() {
+  static ProtoWrap<ProtoProductSystem> of(ProtoProductSystem proto) {
+    return new ProtoWrap<>(proto) {
       @Override
       String id() {
         return proto.getId();
@@ -662,8 +646,8 @@ abstract class ProtoWrap {
     };
   }
 
-	static ProtoWrap of(ProtoEpd proto) {
-		return new ProtoWrap() {
+	static ProtoWrap<ProtoEpd> of(ProtoEpd proto) {
+		return new ProtoWrap<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -702,8 +686,8 @@ abstract class ProtoWrap {
 		};
 	}
 
-	static ProtoWrap of(ProtoResult proto) {
-		return new ProtoWrap() {
+	static ProtoWrap<ProtoResult> of(ProtoResult proto) {
+		return new ProtoWrap<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -738,7 +722,6 @@ abstract class ProtoWrap {
 			ProtocolStringList tags() {
 				return proto.getTagsList();
 			}
-
 		};
 	}
 }
