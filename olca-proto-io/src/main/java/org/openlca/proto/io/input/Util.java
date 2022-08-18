@@ -1,6 +1,8 @@
 package org.openlca.proto.io.input;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.openlca.core.io.EntityResolver;
@@ -16,6 +18,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -29,8 +32,10 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoAllocationType;
+import org.openlca.proto.ProtoParameterRedef;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoRiskLevel;
+import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
 import org.openlca.util.Strings;
 
@@ -88,6 +93,39 @@ class Util {
 			case VERY_LOW_RISK -> RiskLevel.VERY_LOW_RISK;
 			default -> null;
 		};
+	}
+
+	static List<ParameterRedef> parameterRedefsOf(
+		List<ProtoParameterRedef> protos, EntityResolver resolver) {
+		var redefs = new ArrayList<ParameterRedef>();
+		for (var proto : protos) {
+			var p = new ParameterRedef();
+			redefs.add(p);
+			p.name = proto.getName();
+			p.description =proto.getDescription();
+			p.value = proto.getValue();
+			p.uncertainty = uncertaintyOf(proto.getUncertainty());
+			p.isProtected = proto.getIsProtected();
+
+			// parameter context
+			if (proto.hasContext()) {
+				var protoCxt = proto.getContext();
+				if (protoCxt.getType() == ProtoType.Process) {
+					var d = resolver.getDescriptor(Process.class, protoCxt.getId());
+					if (d != null) {
+						p.contextType = ModelType.PROCESS;
+						p.contextId = d.id;
+					}
+				} else if (protoCxt.getType() == ProtoType.ImpactCategory) {
+					var d = resolver.getDescriptor(ImpactCategory.class, protoCxt.getId());
+					if (d != null) {
+						p.contextType = ModelType.IMPACT_CATEGORY;
+						p.contextId = d.id;
+					}
+				}
+			}
+		}
+		return redefs;
 	}
 
 	static void mapBase(RootEntity e, ProtoWrap proto, EntityResolver resolver) {

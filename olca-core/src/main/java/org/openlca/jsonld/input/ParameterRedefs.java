@@ -9,7 +9,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -47,13 +47,13 @@ class ParameterRedefs {
 			return true;
 		var type = Json.getString(context, "@type");
 		var refId = Json.getString(context, "@id");
-		RefEntity model = null;
+		Descriptor model = null;
 		if ("Process".equals(type)) {
 			p.contextType = ModelType.PROCESS;
-			model = resolver.get(Process.class, refId);
-		} else if ("ImpactMethod".equals(type)) {
-			p.contextType = ModelType.IMPACT_METHOD;
-			model = resolver.get(ImpactMethod.class, refId);
+			model = resolver.getDescriptor(Process.class, refId);
+		} else if ("ImpactCategory".equals(type)) {
+			p.contextType = ModelType.IMPACT_CATEGORY;
+			model = resolver.getDescriptor(ImpactMethod.class, refId);
 		}
 		if (model == null)
 			return false;

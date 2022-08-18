@@ -112,7 +112,7 @@ public class ProductSystemReader implements EntityReader<ProductSystem> {
 
 		system.referenceExchange = qRef == null
 			? system.referenceProcess.quantitativeReference
-			: null;
+			: qRef;
 		if (qRef == null || qRef.flow == null) {
 			clearQRef.run();
 			return;
