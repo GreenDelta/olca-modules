@@ -55,13 +55,15 @@ class UnitGroupImport implements EntityResolver {
 		if (item.isError() || item.isVisited())
 			return item.entity();
 
+
+
 		// read / update a unit group
 		UnitGroup group = null;
 		var reader = new UnitGroupReader(this);
 		if (item.isNew()) {
-			group = imp.db().insert(reader.read(item.json()));
+			group = imp.db().insert(reader.read(item.proto().proto()));
 		} else if (item.entity() instanceof UnitGroup g){
-			reader.update(g, item.json());
+			reader.update(g, item.proto().proto());
 			group = imp.db().update(g);
 		}
 		if (group == null)
