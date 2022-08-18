@@ -1,20 +1,26 @@
 
 package org.openlca.proto.io.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import com.google.gson.JsonObject;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntLongHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.EntityResolver;
-import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.jsonld.Json;
-import org.openlca.jsonld.input.ParameterRedefs;
-import org.openlca.jsonld.input.Quantity;
 import org.openlca.proto.ProtoProductSystem;
+import org.openlca.proto.ProtoRef;
 
 public class ProductSystemReader
 	implements EntityReader<ProductSystem, ProtoProductSystem> {
@@ -42,6 +48,31 @@ public class ProductSystemReader
 		Util.mapBase(system, ProtoWrap.of(proto), resolver);
 		mapQRef(system, proto);
 		addParameterSets(system, proto);
+
+		// add processes and cache them
+		system.processes.clear();
+		for (int i = 0; i < proto.getProcessesCount(); i++) {
+			var ref = proto.getProcesses(i);
+			addProcess(system, ref);
+		}
+
+		// add link references and cache them
+		system.processLinks.clear();
+		var linkRefs = new ArrayList<LinkRef>();
+		for (int i = 0; i < proto.getProcessLinksCount(); i++) {
+			var protoLink = proto.getProcessLinks(i);
+			var provider = addProcess(system, protoLink.getProvider());
+			var process = addProcess(system, protoLink.getProcess());
+			var flow = resolver.getDescriptor(Flow.class, protoLink.getFlow().getId());
+			var exchangeId = protoLink.getExchange().getInternalId();
+			if (provider == null
+				|| process == null
+				|| flow == null)
+				continue;
+			linkRefs.add(new LinkRef(provider, process, flow, exchangeId));
+		}
+
+		resolveLinks(system, linkRefs);
 	}
 
 	private void mapQRef(ProductSystem system, ProtoProductSystem proto) {
@@ -91,5 +122,93 @@ public class ProductSystemReader
 			set.parameters.addAll(redefs);
 			sys.parameterSets.add(set);
 		}
+	}
+
+	private Descriptor addProcess(ProductSystem sys, ProtoRef ref) {
+		var refId = ref.getId();
+		var d = processes.get(refId);
+		if (d != null)
+			return d;
+
+		var clazz = switch (ref.getType()) {
+			case ProductSystem -> ProductSystem.class;
+			case Result -> Result.class;
+			default -> Process.class;
+		};
+
+		var p = resolver.getDescriptor(clazz, refId);
+		if (p == null)
+			return null;
+		processes.put(refId, p);
+		sys.processes.add(p.id);
+		return p;
+	}
+
+	private void resolveLinks(ProductSystem system, List<LinkRef> refs) {
+		var db = resolver.db();
+		if (db == null)
+			return;
+
+		var processIds = new TLongHashSet();
+		var flowIds = new TLongHashSet();
+		for (var ref : refs) {
+			processIds.add(ref.provider.id);
+			processIds.add(ref.process.id);
+			flowIds.add(ref.flow.id);
+		}
+
+		var map = new TLongObjectHashMap<TIntLongHashMap>();
+		var sql = "select id, internal_id, f_owner, f_flow from tbl_exchanges";
+		NativeSql.on(db).query(sql, r -> {
+			long processId = r.getLong(3);
+			if (!processIds.contains(processId))
+				return true;
+			long flowId = r.getLong(4);
+			if (!flowIds.contains(flowId))
+				return true;
+
+			long eid = r.getLong(1);
+			int iid = r.getInt(2);
+			var imap = map.get(processId);
+			if (imap == null) {
+				imap = new TIntLongHashMap(
+					Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1, -1);
+				map.put(processId, imap);
+			}
+			imap.put(iid, eid);
+			return true;
+		});
+
+		for (var ref : refs) {
+			var link = ref.resolve(map);
+			if (link != null) {
+				system.processLinks.add(link);
+			}
+		}
+	}
+
+	private record LinkRef(
+		Descriptor provider,
+		Descriptor process,
+		Descriptor flow,
+		int exchange) {
+
+		ProcessLink resolve(TLongObjectHashMap<TIntLongHashMap> map) {
+			long processId = process.id;
+			var imap = map.get(processId);
+			if (imap == null)
+				return null;
+			long exchangeId = imap.get(exchange);
+			if (exchangeId < 0)
+				return null;
+			var link = new ProcessLink();
+			link.providerId = provider.id;
+			link.setProviderType(provider.type);
+			link.processId = processId;
+			link.flowId = flow.id;
+			link.exchangeId = exchangeId;
+			return link;
+		}
+
 	}
 }
