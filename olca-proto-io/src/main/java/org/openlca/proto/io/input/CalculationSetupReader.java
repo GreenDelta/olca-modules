@@ -39,7 +39,7 @@ public final class CalculationSetupReader {
     setParameters(proto, setup);
 
     // other settings
-    setup.withAllocation(In.allocationMethod(proto.getAllocation()))
+    setup.withAllocation(Util.allocationMethodOf(proto.getAllocation()))
       .withCosts(proto.getWithCosts())
       .withRegionalization(proto.getWithRegionalization());
 
