@@ -6,7 +6,6 @@ import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.DataUpdateServiceGrpc;
 import org.openlca.proto.grpc.DeleteRequest;
 import org.openlca.proto.grpc.ProtoDataSet;
-import org.openlca.proto.io.input.ImportStatus;
 import org.openlca.proto.io.input.ProtoImport;
 import org.openlca.proto.io.output.Refs;
 import org.openlca.util.Strings;
@@ -50,20 +49,23 @@ public class DataUpdateService extends
   @Override
   public void put(ProtoDataSet dataSet, StreamObserver<ProtoRef> resp) {
 
-    var model = new ProtoImport(DataSetReader.of(dataSet), db)
+		var reader = DataSetReader.of(dataSet);
+		var type = reader.getType();
+		var id = reader.getId();
+		if (type == null || !type.isRoot() || Strings.nullOrEmpty(id)) {
+			Response.invalidArg(resp, "No valid data set provided");
+			return;
+		}
+
+    var model = new ProtoImport(reader, db)
       .setUpdateMode(UpdateMode.ALWAYS)
-      .run(DataUtil.);
-
-    if (status == null) {
-      Response.invalidArg(resp, "No model in data set found");
-      return;
-    }
-    if (status.isError()) {
-      Response.serverError(resp, "Import error: " + status.error());
+      .run(type, id);
+    if (model == null) {
+      Response.serverError(resp, "Failed to import or update data set");
       return;
     }
 
-    var ref = Refs.refOf(status.model());
+    var ref = Refs.refOf(model);
     resp.onNext(ref.build());
     resp.onCompleted();
   }

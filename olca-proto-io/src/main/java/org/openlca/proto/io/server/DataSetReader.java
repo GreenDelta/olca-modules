@@ -20,6 +20,7 @@ import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.ProtoStoreReader;
+import org.openlca.util.Strings;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -31,45 +32,91 @@ record DataSetReader(ProtoDataSet dataSet) implements ProtoStoreReader {
 		return new DataSetReader(dataSet);
 	}
 
+	ModelType getType() {
+		if (dataSet.hasActor())
+			return ModelType.ACTOR;
+		if (dataSet.hasCurrency())
+			return ModelType.CURRENCY;
+		if (dataSet.hasDqSystem())
+			return ModelType.DQ_SYSTEM;
+		if (dataSet.hasEpd())
+			return ModelType.EPD;
+		if (dataSet.hasFlowProperty())
+			return ModelType.FLOW_PROPERTY;
+		if (dataSet.hasFlow())
+			return ModelType.FLOW;
+		if (dataSet.hasImpactCategory())
+			return ModelType.IMPACT_CATEGORY;
+		if (dataSet.hasImpactMethod())
+			return ModelType.IMPACT_METHOD;
+		if (dataSet.hasLocation())
+			return ModelType.LOCATION;
+		if (dataSet.hasParameter())
+			return ModelType.PARAMETER;
+		if (dataSet.hasProcess())
+			return ModelType.PROCESS;
+		if (dataSet.hasProductSystem())
+			return ModelType.PRODUCT_SYSTEM;
+		if (dataSet.hasProject())
+			return ModelType.PROJECT;
+		if (dataSet.hasResult())
+			return ModelType.RESULT;
+		if (dataSet.hasSocialIndicator())
+			return ModelType.SOCIAL_INDICATOR;
+		if (dataSet.hasSource())
+			return ModelType.SOURCE;
+		if (dataSet.hasUnitGroup())
+			return ModelType.UNIT_GROUP;
+		return ModelType.UNKNOWN;
+	}
+
+	String getId() {
+		if (dataSet.hasActor())
+			return dataSet.getActor().getId();
+		if (dataSet.hasCurrency())
+			return dataSet.getCurrency().getId();
+		if (dataSet.hasDqSystem())
+			return dataSet.getDqSystem().getId();
+		if (dataSet.hasEpd())
+			return dataSet.getEpd().getId();
+		if (dataSet.hasFlowProperty())
+			return dataSet.getFlowProperty().getId();
+		if (dataSet.hasFlow())
+			return dataSet.getFlow().getId();
+		if (dataSet.hasImpactCategory())
+			return dataSet.getImpactCategory().getId();
+		if (dataSet.hasImpactMethod())
+			return dataSet.getImpactMethod().getId();
+		if (dataSet.hasLocation())
+			return dataSet.getLocation().getId();
+		if (dataSet.hasParameter())
+			return dataSet.getParameter().getId();
+		if (dataSet.hasProcess())
+			return dataSet.getProcess().getId();
+		if (dataSet.hasProductSystem())
+			return dataSet.getProductSystem().getId();
+		if (dataSet.hasProject())
+			return dataSet.getProject().getId();
+		if (dataSet.hasResult())
+			return dataSet.getResult().getId();
+		if (dataSet.hasSocialIndicator())
+			return dataSet.getSocialIndicator().getId();
+		if (dataSet.hasSource())
+			return dataSet.getSource().getId();
+		if (dataSet.hasUnitGroup())
+			return dataSet.getUnitGroup().getId();
+		return null;
+	}
+
 	@Override
 	public Set<String> getIds(ModelType type) {
-		if (type == null)
+		var thisType = getType();
+		if (type != thisType)
 			return Collections.emptySet();
-		if (dataSet.hasActor())
-			return Set.of(dataSet.getActor().getId());
-		if (dataSet.hasCurrency())
-			return Set.of(dataSet.getCurrency().getId());
-		if (dataSet.hasDqSystem())
-			return Set.of(dataSet.getDqSystem().getId());
-		if (dataSet.hasEpd())
-			return Set.of(dataSet.getEpd().getId());
-		if (dataSet.hasFlowProperty())
-			return Set.of(dataSet.getFlowProperty().getId());
-		if (dataSet.hasFlow())
-			return Set.of(dataSet.getFlow().getId());
-		if (dataSet.hasImpactCategory())
-			return Set.of(dataSet.getImpactCategory().getId());
-		if (dataSet.hasImpactMethod())
-			return Set.of(dataSet.getImpactMethod().getId());
-		if (dataSet.hasLocation())
-			return Set.of(dataSet.getLocation().getId());
-		if (dataSet.hasParameter())
-			return Set.of(dataSet.getParameter().getId());
-		if (dataSet.hasProcess())
-			return Set.of(dataSet.getProcess().getId());
-		if (dataSet.hasProductSystem())
-			return Set.of(dataSet.getProductSystem().getId());
-		if (dataSet.hasProject())
-			return Set.of(dataSet.getProject().getId());
-		if (dataSet.hasResult())
-			return Set.of(dataSet.getResult().getId());
-		if (dataSet.hasSocialIndicator())
-			return Set.of(dataSet.getSocialIndicator().getId());
-		if (dataSet.hasSource())
-			return Set.of(dataSet.getSource().getId());
-		if (dataSet.hasUnitGroup())
-			return Set.of(dataSet.getUnitGroup().getId());
-		return Collections.emptySet();
+		var id = getId();
+		return Strings.notEmpty(id)
+			? Set.of(id)
+			: Collections.emptySet();
 	}
 
 	@Override
