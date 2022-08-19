@@ -118,7 +118,7 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 		};
 	}
 
-	static ProtoBox<ProtoSource> of(ProtoSource proto) {
+	static ProtoBox<ProtoSource, Source> of(ProtoSource proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -156,13 +156,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Source, ProtoSource> reader(EntityResolver resolver) {
-				return new SourceReader(resolver);
+			Source read(EntityResolver resolver) {
+				return new SourceReader(resolver).read(message());
+			}
+
+			@Override
+			void update(Source source, EntityResolver resolver) {
+				new SourceReader(resolver).update(source, message());
 			}
 		};
 	}
 
-	static ProtoBox<ProtoCurrency> of(ProtoCurrency proto) {
+	static ProtoBox<ProtoCurrency, Currency> of(ProtoCurrency proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -200,13 +205,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Currency, ProtoCurrency> reader(EntityResolver resolver) {
-				return new CurrencyReader(resolver);
+			Currency read(EntityResolver resolver) {
+				return new CurrencyReader(resolver).read(message());
+			}
+
+			@Override
+			void update(Currency currency, EntityResolver resolver) {
+				new CurrencyReader(resolver).update(currency, message());
 			}
 		};
 	}
 
-	static ProtoBox<ProtoUnitGroup> of(ProtoUnitGroup proto) {
+	static ProtoBox<ProtoUnitGroup, UnitGroup> of(ProtoUnitGroup proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -244,104 +254,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<UnitGroup, ProtoUnitGroup> reader(EntityResolver resolver) {
-				return new UnitGroupReader(resolver);
-			}
-
-		};
-	}
-
-	static ProtoBox<ProtoFlowProperty> of(ProtoFlowProperty proto) {
-		return new ProtoBox<>(proto) {
-			@Override
-			String id() {
-				return proto.getId();
+			UnitGroup read(EntityResolver resolver) {
+				return new UnitGroupReader(resolver).read(message());
 			}
 
 			@Override
-			String name() {
-				return proto.getName();
-			}
-
-			@Override
-			String description() {
-				return proto.getDescription();
-			}
-
-			@Override
-			String version() {
-				return proto.getVersion();
-			}
-
-			@Override
-			String lastChange() {
-				return proto.getLastChange();
-			}
-
-			@Override
-			String category() {
-				return proto.getCategory();
-			}
-
-			@Override
-			ProtocolStringList tags() {
-				return proto.getTagsList();
-			}
-
-			@Override
-			EntityReader<FlowProperty, ProtoFlowProperty> reader(
-				EntityResolver resolver) {
-				return new FlowPropertyReader(resolver);
-			}
-
-		};
-	}
-
-	static ProtoBox<ProtoDQSystem> of(ProtoDQSystem proto) {
-		return new ProtoBox<>(proto) {
-			@Override
-			String id() {
-				return proto.getId();
-			}
-
-			@Override
-			String name() {
-				return proto.getName();
-			}
-
-			@Override
-			String description() {
-				return proto.getDescription();
-			}
-
-			@Override
-			String version() {
-				return proto.getVersion();
-			}
-
-			@Override
-			String lastChange() {
-				return proto.getLastChange();
-			}
-
-			@Override
-			String category() {
-				return proto.getCategory();
-			}
-
-			@Override
-			ProtocolStringList tags() {
-				return proto.getTagsList();
-			}
-
-			@Override
-			EntityReader<DQSystem, ProtoDQSystem> reader(EntityResolver resolver) {
-				return new DQSystemReader(resolver);
+			void update(UnitGroup group, EntityResolver resolver) {
+				new UnitGroupReader(resolver).update(group, message());
 			}
 		};
 	}
 
-	static ProtoBox<ProtoFlow> of(ProtoFlow proto) {
+	static ProtoBox<ProtoFlowProperty, FlowProperty> of(ProtoFlowProperty proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -379,14 +303,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Flow, ProtoFlow> reader(EntityResolver resolver) {
-				return new FlowReader(resolver);
+			FlowProperty read(EntityResolver resolver) {
+				return new FlowPropertyReader(resolver).read(message());
 			}
 
+			@Override
+			void update(FlowProperty property, EntityResolver resolver) {
+				new FlowPropertyReader(resolver).update(property, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoImpactMethod> of(ProtoImpactMethod proto) {
+	static ProtoBox<ProtoDQSystem, DQSystem> of(ProtoDQSystem proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -424,15 +352,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<ImpactMethod, ProtoImpactMethod> reader(
-				EntityResolver resolver) {
-				return new ImpactMethodReader(resolver);
+			DQSystem read(EntityResolver resolver) {
+				return new DQSystemReader(resolver).read(message());
 			}
 
+			@Override
+			void update(DQSystem entity, EntityResolver resolver) {
+				new DQSystemReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoLocation> of(ProtoLocation proto) {
+	static ProtoBox<ProtoFlow, Flow> of(ProtoFlow proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -470,14 +401,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Location, ProtoLocation> reader(EntityResolver resolver) {
-				return new LocationReader(resolver);
+			Flow read(EntityResolver resolver) {
+				return new FlowReader(resolver).read(message());
 			}
 
+			@Override
+			void update(Flow entity, EntityResolver resolver) {
+				new FlowReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoParameter> of(ProtoParameter proto) {
+	static ProtoBox<ProtoImpactMethod, ImpactMethod> of(ProtoImpactMethod proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -515,14 +450,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Parameter, ProtoParameter> reader(EntityResolver resolver) {
-				return new ParameterReader(resolver);
+			ImpactMethod read(EntityResolver resolver) {
+				return new ImpactMethodReader(resolver).read(message());
 			}
 
+			@Override
+			void update(ImpactMethod entity, EntityResolver resolver) {
+				new ImpactMethodReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoImpactCategory> of(ProtoImpactCategory proto) {
+	static ProtoBox<ProtoLocation, Location> of(ProtoLocation proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -560,15 +499,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<ImpactCategory, ProtoImpactCategory> reader(
-				EntityResolver resolver) {
-				return new ImpactCategoryReader(resolver);
+			Location read(EntityResolver resolver) {
+				return new LocationReader(resolver).read(message());
 			}
 
+			@Override
+			void update(Location entity, EntityResolver resolver) {
+				new LocationReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoProcess> of(ProtoProcess proto) {
+	static ProtoBox<ProtoParameter, Parameter> of(ProtoParameter proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -606,14 +548,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Process, ProtoProcess> reader(EntityResolver resolver) {
-				return new ProcessReader(resolver);
+			Parameter read(EntityResolver resolver) {
+				return new ParameterReader(resolver).read(message());
 			}
 
+			@Override
+			void update(Parameter entity, EntityResolver resolver) {
+				new ParameterReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoProject> of(ProtoProject proto) {
+	static ProtoBox<ProtoImpactCategory, ImpactCategory> of(ProtoImpactCategory proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -651,14 +597,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Project, ProtoProject> reader(EntityResolver resolver) {
-				return new ProjectReader(resolver);
+			ImpactCategory read(EntityResolver resolver) {
+				return new ImpactCategoryReader(resolver).read(message());
 			}
 
+			@Override
+			void update(ImpactCategory entity, EntityResolver resolver) {
+				new ImpactCategoryReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoSocialIndicator> of(ProtoSocialIndicator proto) {
+	static ProtoBox<ProtoProcess, Process> of(ProtoProcess proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -696,15 +646,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<SocialIndicator, ProtoSocialIndicator> reader(
-				EntityResolver resolver) {
-				return new SocialIndicatorReader(resolver);
+			Process read(EntityResolver resolver) {
+				return new ProcessReader(resolver).read(message());
 			}
 
+			@Override
+			void update(Process entity, EntityResolver resolver) {
+				new ProcessReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoProductSystem> of(ProtoProductSystem proto) {
+	static ProtoBox<ProtoProject, Project> of(ProtoProject proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -742,15 +695,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<ProductSystem, ProtoProductSystem> reader(
-				EntityResolver resolver) {
-				return new ProductSystemReader(resolver);
+			Project read(EntityResolver resolver) {
+				return new ProjectReader(resolver).read(message());
 			}
 
+			@Override
+			void update(Project entity, EntityResolver resolver) {
+				new ProjectReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoEpd> of(ProtoEpd proto) {
+	static ProtoBox<ProtoSocialIndicator, SocialIndicator> of(ProtoSocialIndicator proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -788,14 +744,18 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Epd, ProtoEpd> reader(EntityResolver resolver) {
-				return new EpdReader(resolver);
+			SocialIndicator read(EntityResolver resolver) {
+				return new SocialIndicatorReader(resolver).read(message());
 			}
 
+			@Override
+			void update(SocialIndicator entity, EntityResolver resolver) {
+				new SocialIndicatorReader(resolver).update(entity, message());
+			}
 		};
 	}
 
-	static ProtoBox<ProtoResult> of(ProtoResult proto) {
+	static ProtoBox<ProtoProductSystem, ProductSystem> of(ProtoProductSystem proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -833,8 +793,111 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Result, ProtoResult> reader(EntityResolver resolver) {
-				return new ResultReader(resolver);
+			ProductSystem read(EntityResolver resolver) {
+				return new ProductSystemReader(resolver).read(message());
+			}
+
+			@Override
+			void update(ProductSystem entity, EntityResolver resolver) {
+				new ProductSystemReader(resolver).update(entity, message());
+			}
+		};
+	}
+
+	static ProtoBox<ProtoEpd, Epd> of(ProtoEpd proto) {
+		return new ProtoBox<>(proto) {
+			@Override
+			String id() {
+				return proto.getId();
+			}
+
+			@Override
+			String name() {
+				return proto.getName();
+			}
+
+			@Override
+			String description() {
+				return proto.getDescription();
+			}
+
+			@Override
+			String version() {
+				return proto.getVersion();
+			}
+
+			@Override
+			String lastChange() {
+				return proto.getLastChange();
+			}
+
+			@Override
+			String category() {
+				return proto.getCategory();
+			}
+
+			@Override
+			ProtocolStringList tags() {
+				return proto.getTagsList();
+			}
+
+			@Override
+			Epd read(EntityResolver resolver) {
+				return new EpdReader(resolver).read(message());
+			}
+
+			@Override
+			void update(Epd entity, EntityResolver resolver) {
+				new EpdReader(resolver).update(entity, message());
+			}
+		};
+	}
+
+	static ProtoBox<ProtoResult, Result> of(ProtoResult proto) {
+		return new ProtoBox<>(proto) {
+			@Override
+			String id() {
+				return proto.getId();
+			}
+
+			@Override
+			String name() {
+				return proto.getName();
+			}
+
+			@Override
+			String description() {
+				return proto.getDescription();
+			}
+
+			@Override
+			String version() {
+				return proto.getVersion();
+			}
+
+			@Override
+			String lastChange() {
+				return proto.getLastChange();
+			}
+
+			@Override
+			String category() {
+				return proto.getCategory();
+			}
+
+			@Override
+			ProtocolStringList tags() {
+				return proto.getTagsList();
+			}
+
+			@Override
+			Result read(EntityResolver resolver) {
+				return new ResultReader(resolver).read(message());
+			}
+
+			@Override
+			void update(Result entity, EntityResolver resolver) {
+				new ResultReader(resolver).update(entity, message());
 			}
 		};
 	}
