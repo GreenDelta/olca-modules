@@ -3,7 +3,7 @@ package org.openlca.proto.io.input;
 import org.openlca.core.model.RootEntity;
 
 record ImportItem<T extends RootEntity>(
-	ProtoWrap<?> proto, T entity, State state) {
+	ProtoBox<?, T> proto, T entity, State state) {
 
 	enum State {
 		NEW,
@@ -12,12 +12,12 @@ record ImportItem<T extends RootEntity>(
 		ERROR
 	}
 
-	static <T extends RootEntity> ImportItem<T> newOf(ProtoWrap<?> proto) {
+	static <T extends RootEntity> ImportItem<T> newOf(ProtoBox<?, T> proto) {
 		return new ImportItem<>(proto, null, State.NEW);
 	}
 
 	static <T extends RootEntity> ImportItem<T> update(
-		ProtoWrap<?> proto, T entity) {
+		ProtoBox<?, T> proto, T entity) {
 		return new ImportItem<>(proto, entity, State.UPDATE);
 	}
 
@@ -27,6 +27,10 @@ record ImportItem<T extends RootEntity>(
 
 	static <T extends RootEntity> ImportItem<T> error() {
 		return new ImportItem<>(null, null, State.ERROR);
+	}
+
+	boolean hasProto() {
+		return proto != null && proto.message() != null;
 	}
 
 	boolean isError() {

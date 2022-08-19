@@ -20,7 +20,7 @@ public record SocialIndicatorReader(EntityResolver resolver)
 
 	@Override
 	public void update(SocialIndicator indicator, ProtoSocialIndicator proto) {
-		Util.mapBase(indicator, ProtoWrap.of(proto), resolver);
+		Util.mapBase(indicator, ProtoBox.of(proto), resolver);
 		indicator.activityVariable = proto.getActivityVariable();
 		indicator.evaluationScheme = proto.getEvaluationScheme();
 		indicator.unitOfMeasurement = proto.getUnitOfMeasurement();

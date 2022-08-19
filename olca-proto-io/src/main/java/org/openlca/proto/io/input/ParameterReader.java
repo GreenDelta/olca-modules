@@ -1,12 +1,9 @@
 
 package org.openlca.proto.io.input;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.jsonld.Json;
-import org.openlca.jsonld.input.Uncertainties;
 import org.openlca.proto.ProtoParameter;
 
 public record ParameterReader(EntityResolver resolver)
@@ -26,7 +23,7 @@ public record ParameterReader(EntityResolver resolver)
 
 	static void mapFields(Parameter param, ProtoParameter proto,
 		EntityResolver resolver) {
-		Util.mapBase(param, ProtoWrap.of(proto), resolver);
+		Util.mapBase(param, ProtoBox.of(proto), resolver);
 		param.scope = switch (proto.getParameterScope()) {
 			case IMPACT_SCOPE -> ParameterScope.IMPACT;
 			case PROCESS_SCOPE -> ParameterScope.PROCESS;

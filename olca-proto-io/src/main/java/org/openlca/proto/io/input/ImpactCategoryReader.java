@@ -21,7 +21,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 
 	@Override
 	public void update(ImpactCategory impact, ProtoImpactCategory proto) {
-		Util.mapBase(impact, ProtoWrap.of(proto), resolver);
+		Util.mapBase(impact, ProtoBox.of(proto), resolver);
 
 		impact.referenceUnit = proto.getRefUnit();
 		// TODO: impact.direction = ...

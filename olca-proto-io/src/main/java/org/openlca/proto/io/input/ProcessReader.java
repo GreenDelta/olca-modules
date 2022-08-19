@@ -34,7 +34,7 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 
 	@Override
 	public void update(Process p, ProtoProcess proto) {
-		Util.mapBase(p, ProtoWrap.of(proto), resolver);
+		Util.mapBase(p, ProtoBox.of(proto), resolver);
 		p.processType = proto.getProcessType() == ProtoProcessType.LCI_RESULT
 			? ProcessType.LCI_RESULT
 			: ProcessType.UNIT_PROCESS;

@@ -1,24 +1,17 @@
 package org.openlca.proto.io.input;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.UnitGroupReader;
-import org.openlca.proto.ProtoUnit;
-import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.util.Strings;
 
 class UnitGroupImport implements EntityResolver {
 
@@ -61,9 +54,9 @@ class UnitGroupImport implements EntityResolver {
 		UnitGroup group = null;
 		var reader = new UnitGroupReader(this);
 		if (item.isNew()) {
-			group = imp.db().insert(reader.read(item.proto().proto()));
+			group = imp.db().insert(reader.read(item.proto().message()));
 		} else if (item.entity() instanceof UnitGroup g){
-			reader.update(g, item.proto().proto());
+			reader.update(g, item.proto().message());
 			group = imp.db().update(g);
 		}
 		if (group == null)

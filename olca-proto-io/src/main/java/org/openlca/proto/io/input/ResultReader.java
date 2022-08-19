@@ -17,7 +17,7 @@ public record ResultReader(EntityResolver resolver)
 
 	@Override
 	public void update(Result result, ProtoResult proto) {
-		Util.mapBase(result, ProtoWrap.of(proto), resolver);
+		Util.mapBase(result, ProtoBox.of(proto), resolver);
 
 	}
 }

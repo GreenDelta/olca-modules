@@ -19,7 +19,7 @@ public record ProjectReader(EntityResolver resolver)
 
 	@Override
 	public void update(Project project, ProtoProject proto) {
-		Util.mapBase(project, ProtoWrap.of(proto), resolver);
+		Util.mapBase(project, ProtoBox.of(proto), resolver);
 		mapAttrs(project, proto);
 		mapVariants(project, proto);
 	}

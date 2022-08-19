@@ -45,7 +45,7 @@ public class ProductSystemReader
 		// clear resources in case the reader is re-used
 		processes.clear();
 
-		Util.mapBase(system, ProtoWrap.of(proto), resolver);
+		Util.mapBase(system, ProtoBox.of(proto), resolver);
 		mapQRef(system, proto);
 		addParameterSets(system, proto);
 

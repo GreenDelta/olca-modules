@@ -19,7 +19,7 @@ public record FlowPropertyReader(EntityResolver resolver)
 
 	@Override
 	public void update(FlowProperty property, ProtoFlowProperty proto) {
-		Util.mapBase(property, ProtoWrap.of(proto), resolver);
+		Util.mapBase(property, ProtoBox.of(proto), resolver);
 		property.flowPropertyType =
 			proto.getFlowPropertyType() == ProtoFlowPropertyType.ECONOMIC_QUANTITY
 				? FlowPropertyType.ECONOMIC

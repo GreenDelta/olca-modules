@@ -17,7 +17,7 @@ public record LocationReader(EntityResolver resolver)
 
 	@Override
 	public void update(Location location, ProtoLocation proto) {
-		Util.mapBase(location, ProtoWrap.of(proto), resolver);
+		Util.mapBase(location, ProtoBox.of(proto), resolver);
 		location.code = proto.getCode();
 		location.latitude = proto.getLatitude();
 		location.longitude = proto.getLongitude();

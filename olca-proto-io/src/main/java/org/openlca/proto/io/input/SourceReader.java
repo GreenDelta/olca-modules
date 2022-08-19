@@ -17,7 +17,7 @@ public record SourceReader(EntityResolver resolver)
 
 	@Override
 	public void update(Source source, ProtoSource proto) {
-		Util.mapBase(source, ProtoWrap.of(proto), resolver);
+		Util.mapBase(source, ProtoBox.of(proto), resolver);
 		source.url = proto.getUrl();
 		source.externalFile = proto.getExternalFile();
 		source.textReference = proto.getTextReference();

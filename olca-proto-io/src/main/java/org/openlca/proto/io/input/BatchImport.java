@@ -37,7 +37,6 @@ class BatchImport<T extends RootEntity> {
 		};
 	}
 
-	@SuppressWarnings("unchecked")
 	void run() {
 		for (var refId : imp.reader.getIds(type)) {
 			var item = imp.fetch(clazz, refId);

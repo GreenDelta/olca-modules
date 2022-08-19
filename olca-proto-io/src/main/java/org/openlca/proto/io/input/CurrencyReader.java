@@ -19,7 +19,7 @@ public record CurrencyReader(EntityResolver resolver)
 
 	@Override
 	public void update(Currency currency, ProtoCurrency proto) {
-		Util.mapBase(currency, ProtoWrap.of(proto), resolver);
+		Util.mapBase(currency, ProtoBox.of(proto), resolver);
 		currency.code = proto.getCode();
 		currency.conversionFactor = proto.getConversionFactor();
 		var refCurrencyId = proto.getRefCurrency().getId();

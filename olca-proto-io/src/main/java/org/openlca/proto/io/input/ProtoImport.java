@@ -8,7 +8,6 @@ import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
@@ -103,7 +102,7 @@ public class ProtoImport implements Runnable {
    * entity is also marked as handled so there is no need to call the
    * `putHandled` method again after this call.
    */
-  boolean skipUpdate(RootEntity existing, ProtoWrap incoming) {
+  boolean skipUpdate(RootEntity existing, ProtoBox incoming) {
     if (existing == null)
       return true;
     if (updateMode == UpdateMode.ALWAYS)

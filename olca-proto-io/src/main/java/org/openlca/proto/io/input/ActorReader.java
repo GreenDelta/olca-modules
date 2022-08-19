@@ -16,7 +16,7 @@ public record ActorReader(EntityResolver resolver)
 
 	@Override
 	public void update(Actor actor, ProtoActor proto) {
-		Util.mapBase(actor, ProtoWrap.of(proto), resolver);
+		Util.mapBase(actor, ProtoBox.of(proto), resolver);
 		actor.address = proto.getAddress();
 		actor.city = proto.getCity();
 		actor.country = proto.getCountry();

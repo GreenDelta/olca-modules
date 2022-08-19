@@ -39,16 +39,16 @@ import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 
-abstract class ProtoWrap<T extends Message> {
+abstract class ProtoBox<M extends Message, E extends RootEntity> {
 
-	private final T proto;
+	private final M message;
 
-	ProtoWrap(T proto) {
-		this.proto = proto;
+	ProtoBox(M message) {
+		this.message = message;
 	}
 
-	T proto() {
-		return proto;
+	M message() {
+		return message;
 	}
 
 	abstract String id();
@@ -65,13 +65,12 @@ abstract class ProtoWrap<T extends Message> {
 
 	abstract ProtocolStringList tags();
 
-	abstract <T extends RootEntity> T read(EntityResolver resolver);
+	abstract E read(EntityResolver resolver);
 
-	abstract <T extends RootEntity> void update(
-		T entity, EntityResolver resolver);
+	abstract void update(E entity, EntityResolver resolver);
 
-	static ProtoWrap<ProtoActor> of(ProtoActor proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoActor> of(ProtoActor proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -111,11 +110,16 @@ abstract class ProtoWrap<T extends Message> {
 			EntityReader<Actor, ProtoActor> reader(EntityResolver resolver) {
 				return new ActorReader(resolver);
 			}
+
+			@Override
+			Actor read(EntityResolver resolver) {
+				return new ActorReader(resolver).read(message());
+			}
 		};
 	}
 
-	static ProtoWrap<ProtoSource> of(ProtoSource proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoSource> of(ProtoSource proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -158,8 +162,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoCurrency> of(ProtoCurrency proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoCurrency> of(ProtoCurrency proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -202,8 +206,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoUnitGroup> of(ProtoUnitGroup proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoUnitGroup> of(ProtoUnitGroup proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -247,8 +251,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoFlowProperty> of(ProtoFlowProperty proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoFlowProperty> of(ProtoFlowProperty proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -293,8 +297,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoDQSystem> of(ProtoDQSystem proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoDQSystem> of(ProtoDQSystem proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -337,8 +341,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoFlow> of(ProtoFlow proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoFlow> of(ProtoFlow proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -382,8 +386,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoImpactMethod> of(ProtoImpactMethod proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoImpactMethod> of(ProtoImpactMethod proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -428,8 +432,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoLocation> of(ProtoLocation proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoLocation> of(ProtoLocation proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -473,8 +477,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoParameter> of(ProtoParameter proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoParameter> of(ProtoParameter proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -518,8 +522,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoImpactCategory> of(ProtoImpactCategory proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoImpactCategory> of(ProtoImpactCategory proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -564,8 +568,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoProcess> of(ProtoProcess proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoProcess> of(ProtoProcess proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -609,8 +613,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoProject> of(ProtoProject proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoProject> of(ProtoProject proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -654,8 +658,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoSocialIndicator> of(ProtoSocialIndicator proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoSocialIndicator> of(ProtoSocialIndicator proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -700,8 +704,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoProductSystem> of(ProtoProductSystem proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoProductSystem> of(ProtoProductSystem proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -746,8 +750,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoEpd> of(ProtoEpd proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoEpd> of(ProtoEpd proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();
@@ -791,8 +795,8 @@ abstract class ProtoWrap<T extends Message> {
 		};
 	}
 
-	static ProtoWrap<ProtoResult> of(ProtoResult proto) {
-		return new ProtoWrap<>(proto) {
+	static ProtoBox<ProtoResult> of(ProtoResult proto) {
+		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
 				return proto.getId();

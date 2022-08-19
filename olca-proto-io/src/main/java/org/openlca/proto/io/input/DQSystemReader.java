@@ -22,7 +22,7 @@ public record DQSystemReader(EntityResolver resolver)
 
 	@Override
 	public void update(DQSystem system, ProtoDQSystem proto) {
-		Util.mapBase(system, ProtoWrap.of(proto), resolver);
+		Util.mapBase(system, ProtoBox.of(proto), resolver);
 		system.hasUncertainties = proto.getHasUncertainties();
 		var sourceRefId = proto.getSource().getId();
 		if (Strings.notEmpty(sourceRefId)) {

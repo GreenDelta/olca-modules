@@ -21,7 +21,7 @@ public record UnitGroupReader(EntityResolver resolver)
 
 	@Override
 	public void update(UnitGroup group, ProtoUnitGroup proto) {
-		Util.mapBase(group, ProtoWrap.of(proto), resolver);
+		Util.mapBase(group, ProtoBox.of(proto), resolver);
 		group.defaultFlowProperty = Util.getFlowProperty(
 			resolver, proto.getDefaultFlowProperty());
 		mapUnits(group, proto);

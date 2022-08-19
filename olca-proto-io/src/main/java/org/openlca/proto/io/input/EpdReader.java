@@ -20,7 +20,7 @@ public record EpdReader(EntityResolver resolver)
 
 	@Override
 	public void update(Epd epd, ProtoEpd proto) {
-		Util.mapBase(epd, ProtoWrap.of(proto), resolver);
+		Util.mapBase(epd, ProtoBox.of(proto), resolver);
 		epd.urn = proto.getUrn();
 		epd.manufacturer = Util.getActor(resolver, proto.getManufacturer());
 		epd.verifier = Util.getActor(resolver, proto.getVerifier());

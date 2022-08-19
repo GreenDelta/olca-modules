@@ -22,7 +22,7 @@ public record ImpactMethodReader(EntityResolver resolver)
 
 	@Override
 	public void update(ImpactMethod method, ProtoImpactMethod proto) {
-		Util.mapBase(method, ProtoWrap.of(proto), resolver);
+		Util.mapBase(method, ProtoBox.of(proto), resolver);
 		method.code = proto.getCode();
 		method.source = Util.getSource(resolver, proto.getSource());
 		// first map categories, nw sets will reference them

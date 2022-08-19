@@ -21,7 +21,7 @@ public record FlowReader(EntityResolver resolver)
 
 	@Override
 	public void update(Flow flow, ProtoFlow proto) {
-		Util.mapBase(flow, ProtoWrap.of(proto), resolver);
+		Util.mapBase(flow, ProtoBox.of(proto), resolver);
 		flow.flowType = switch (proto.getFlowType()) {
 			case ELEMENTARY_FLOW -> FlowType.ELEMENTARY_FLOW;
 			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
