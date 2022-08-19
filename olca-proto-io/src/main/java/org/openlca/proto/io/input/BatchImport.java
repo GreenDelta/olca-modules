@@ -8,12 +8,10 @@ import java.util.concurrent.Future;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.jsonld.input.EntityReader;
-import org.openlca.jsonld.input.JsonImport;
 
 class BatchImport<T extends RootEntity> {
 
-	private final ProtoImport2 imp;
+	private final ProtoImport imp;
 	private final Class<T> clazz;
 	private final ModelType type;
 	private final int batchSize;
@@ -22,7 +20,7 @@ class BatchImport<T extends RootEntity> {
 	private final ArrayList<RootEntity> inserts = new ArrayList<>();
 	private final ArrayList<RootEntity> updates = new ArrayList<>();
 
-	BatchImport(ProtoImport2 imp, Class<T> type, int batchSize) {
+	BatchImport(ProtoImport imp, Class<T> type, int batchSize) {
 		this.imp = imp;
 		this.type = imp.types.get(type);
 		this.clazz = type;
@@ -42,12 +40,11 @@ class BatchImport<T extends RootEntity> {
 			var item = imp.fetch(clazz, refId);
 			if (item.isVisited() || item.isError())
 				continue;
-			var reader = (EntityReader<T>)imp.readerFor(type);
 			if (item.isNew()) {
-				insert(reader.read(item.json()));
+				insert(item.proto().read(imp));
 			} else {
 				T model = item.entity();
-				reader.update(model, item.json());
+				item.proto().update(model, imp);
 				update(model);
 			}
 		}

@@ -29,10 +29,6 @@ record ImportItem<T extends RootEntity>(
 		return new ImportItem<>(null, null, State.ERROR);
 	}
 
-	boolean hasProto() {
-		return proto != null && proto.message() != null;
-	}
-
 	boolean isError() {
 		return state == State.ERROR;
 	}

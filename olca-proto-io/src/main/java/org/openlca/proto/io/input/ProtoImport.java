@@ -2,263 +2,160 @@ package org.openlca.proto.io.input;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.Objects;
 
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Currency;
-import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
+import org.openlca.core.io.CategorySync;
+import org.openlca.core.io.EntityResolver;
+import org.openlca.core.io.ExchangeProviderQueue;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Project;
-import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Source;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.Version;
-import org.openlca.jsonld.Json;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.io.ProtoStoreReader;
-import org.openlca.core.io.ExchangeProviderQueue;
-import org.openlca.util.Strings;
 
-public class ProtoImport implements Runnable {
+public class ProtoImport implements Runnable, EntityResolver {
 
-  final ProtoStoreReader reader;
-  final IDatabase db;
-
+	private final IDatabase db;
+	final ProtoStoreReader reader;
 	UpdateMode updateMode = UpdateMode.NEVER;
+	final CategorySync categories;
+	final Map<Class<?>, ModelType> types = new HashMap<>();
 
-	private ExchangeProviderQueue providerQueue;
-	private Consumer<ImportStatus<?>> statusHandler;
+	private final ImportCache cache = new ImportCache(this);
+	private final ExchangeProviderQueue providers;
 
-  /**
-   * Contains mapped category IDs. When inserting or updating a
-   * category into an openLCA database using the CategoryDao,
-   * the ID is calculated from the path. This ID is then maybe
-   * different than the ID that is used in the external data
-   * store. We hold the mapping `store ID -> db ID` in this map.
-   */
-  final Map<String, String> mappedCategories = new HashMap<>();
-
-  /**
-   * Cache the database IDs of the inserted and updated entities. This
-   * is used to avoid updating the same thing again and again and to
-   * cache the database IDs for a bit faster retrieval from the database.
-   */
-  private final Map<Class<?>, Map<String, Long>> handled = new HashMap<>();
-
-  public ProtoImport(ProtoStoreReader reader, IDatabase db) {
-    this.reader = reader;
-    this.db = db;
-  }
-
-  public ProtoImport withUpdateMode(UpdateMode mode) {
-    this.updateMode = mode;
-    return this;
-  }
-
-  public ProtoImport withStatusHandler(Consumer<ImportStatus<?>> handler) {
-    this.statusHandler = handler;
-    return this;
-  }
-
-	public ExchangeProviderQueue providerQueue() {
-		if (providerQueue == null) {
-			providerQueue = ExchangeProviderQueue.create(db);
+	public ProtoImport(ProtoStoreReader reader, IDatabase db) {
+		this.db = db;
+		this.reader = reader;
+		this.providers = ExchangeProviderQueue.create(db);
+		this.categories = CategorySync.of(db);
+		for (var type : ModelType.values()) {
+			if (type.isRoot()) {
+				types.put(type.getModelClass(), type);
+			}
 		}
-		return providerQueue;
 	}
 
-	/**
-   * Returns true if the given existing entity should be updated. If this is
-   * not the case, we mark it as handled.
-   */
-  boolean shouldUpdate(RefEntity entity) {
-    if (entity == null)
-      return false;
-    if (isHandled(entity))
-      return false;
-    if (updateMode == null || updateMode == UpdateMode.NEVER) {
-      putHandled(entity);
-      return false;
-    }
-    return true;
-  }
+	public ProtoImport setUpdateMode(UpdateMode mode) {
+		this.updateMode = mode;
+		return this;
+	}
 
-  /**
-   * Returns true if an update of an existing entity should be skipped. This is
-   * true when we are not in update mode `always` and the version or last
-   * change date of the incoming object are smaller. If true is returned, the
-   * entity is also marked as handled so there is no need to call the
-   * `putHandled` method again after this call.
-   */
-  boolean skipUpdate(RootEntity existing, ProtoBox incoming) {
-    if (existing == null)
-      return true;
-    if (updateMode == UpdateMode.ALWAYS)
-      return false;
+	@Override
+	public IDatabase db() {
+		return db;
+	}
 
-    // check the version
-    long version = Strings.notEmpty(incoming.version())
-      ? Version.fromString(incoming.version()).getValue()
-      : 0;
-    if (version > existing.version)
-      return false;
-    if (version < existing.version) {
-      putHandled(existing);
-      return true;
-    }
-
-    // equal version => check the date
-    var date = Strings.notEmpty(incoming.lastChange())
-      ? Json.parseDate(incoming.lastChange())
-      : null;
-    var lastChange = date != null
-      ? date.getTime()
-      : 0;
-    if (lastChange <= existing.lastChange) {
-      putHandled(existing);
-      return true;
-    }
-    return false;
-  }
-
-  void putHandled(RefEntity e) {
-    if (e == null || e.refId == null)
-      return;
-		if (e instanceof Process p) {
-			providerQueue().pop(p);
+	void visited(RootEntity entity) {
+		if (entity instanceof Process p) {
+			providers.pop(p);
 		}
-    var map = handled.computeIfAbsent(
-      e.getClass(), c -> new HashMap<>());
-    map.put(e.refId, e.id);
-  }
+		cache.visited(entity);
+	}
 
-  boolean isHandled(RefEntity e) {
-    if (e == null || e.refId == null)
-      return false;
-    var map = handled.get(e.getClass());
-    if (map == null)
-      return false;
-    var id = map.get(e.refId);
-    return id != null;
-  }
+	@SuppressWarnings("unchecked")
+	public void run(ModelType type, String id) {
+		if (type == null || !type.isRoot() || id == null)
+			return;
+		var clazz = type.getModelClass();
+		if (clazz == null)
+			return;
+		get((Class<? extends RootEntity>) clazz, id);
+	}
 
-  /**
-   * Get the entity with the given type and ID from the database
-   * if it exists. It first checks the cache of imported (handled)
-   * data sets if we have a fast ID for that entity. If not, it
-   * does not update this cache and searches the database for
-   * a matching ref. ID.
-   */
-  @SuppressWarnings("unchecked")
-  <T extends RefEntity> T get(Class<T> type, String refID) {
+	@Override
+	@SuppressWarnings("unchecked")
+	public void run() {
+		new UnitGroupImport(this).importAll();
+		var typeOrder = new ModelType[]{
+			ModelType.ACTOR,
+			ModelType.SOURCE,
+			ModelType.CURRENCY,
+			ModelType.DQ_SYSTEM,
+			ModelType.LOCATION,
+			ModelType.FLOW_PROPERTY,
+			ModelType.FLOW,
+			ModelType.SOCIAL_INDICATOR,
+			ModelType.PARAMETER,
+			ModelType.PROCESS,
+			ModelType.IMPACT_CATEGORY,
+			ModelType.IMPACT_METHOD,
+			ModelType.PRODUCT_SYSTEM,
+			ModelType.PROJECT,
+			ModelType.RESULT,
+			ModelType.EPD,
+		};
+		for (var type : typeOrder) {
+			var batchSize = BatchImport.batchSizeOf(type);
+			if (batchSize > 1) {
+				var clazz = (Class<? extends RootEntity>) type.getModelClass();
+				new BatchImport<>(this, clazz, batchSize).run();
+			} else {
+				for (var id : reader.getIds(type)) {
+					run(type, id);
+				}
+			}
+		}
+	}
 
-    // try to use a cached ID first
-    var map = handled.get(type);
-    var id = map != null
-      ? map.get(refID)
-      : null;
-    if (id != null)
-      return Daos.base(db, type).getForId(id);
+	@Override
+	public <T extends RootEntity> T get(Class<T> type, String refId) {
+		// unit groups can have cyclic dependencies with flow properties
+		// thus, we handle them a bit differently than other types
+		if (Objects.equals(UnitGroup.class, type))
+			return new UnitGroupImport(this).get(type, refId);
 
-    // try to load it with the refID
-    var dao = Daos.refDao(db, ModelType.forModelClass(type));
-    return dao != null
-      ? (T) dao.getForRefId(refID)
-      : null;
-  }
+		var item = cache.fetch(type, refId);
+		if (item.isError() || item.proto() == null)
+			return null;
+		if (item.isVisited())
+			return item.entity();
 
-  @SuppressWarnings("unchecked")
-  public <T extends RootEntity> Import<T> getImport(ModelType type) {
-    if (type == null || !type.isRoot())
-      return null;
-    return getImport((Class<T>) type.getModelClass());
-  }
+		var model = item.entity();
 
-  @SuppressWarnings("unchecked")
-  public <T extends RootEntity> Import<T> getImport(Class<T> type) {
-    // the comparisons are sorted by typical frequencies to minimize
-    // comparisons
-    // see https://gist.github.com/msrocka/b6a18064fbb76c8a8c3f1204839dd614
+		if (model == null) {
+			model = item.proto().read(this);
+			if (model == null)
+				return null;
+			db.insert(model);
+		} else {
+			item.proto().update(model, this);
+			db.update(model);
+		}
 
-    if (type == Flow.class)
-      return (Import<T>) new FlowImport(this);
-    if (type == Process.class)
-      return (Import<T>) new ProcessImport(this);
-    if (type == Location.class)
-      return (Import<T>) new LocationImport(this);
-    if (type == ImpactCategory.class)
-      return (Import<T>) new ImpactCategoryImport(this);
-    if (type == Actor.class)
-      return (Import<T>) new ActorImport(this);
-    if (type == Source.class)
-      return (Import<T>) new SourceImport(this);
-    if (type == Parameter.class)
-      return (Import<T>) new ParameterImport(this);
-    if (type == FlowProperty.class)
-      return (Import<T>) new FlowPropertyImport(this);
-    if (type == UnitGroup.class)
-      return (Import<T>) new UnitGroupImport(this);
-    if (type == Currency.class)
-      return (Import<T>) new CurrencyImport(this);
-    if (type == DQSystem.class)
-      return (Import<T>) new DqSystemImport(this);
-    if (type == ImpactMethod.class)
-      return (Import<T>) new ImpactMethodImport(this);
-    if (type == ProductSystem.class)
-      return (Import<T>) new ProductSystemImport(this);
-    if (type == Project.class)
-      return (Import<T>) new ProjectImport(this);
-    if (type == SocialIndicator.class)
-      return (Import<T>) new SocialIndicatorImport(this);
-    return null;
-  }
+		visited(model);
 
-  @Override
-  public void run() {
-    // the import order of the types in important here
-    var types = new ModelType[]{
-      ModelType.CATEGORY,
-      ModelType.ACTOR,
-      ModelType.SOURCE,
-      ModelType.CURRENCY,
-      ModelType.DQ_SYSTEM,
-      ModelType.LOCATION,
-      ModelType.UNIT_GROUP,
-      ModelType.FLOW_PROPERTY,
-      ModelType.FLOW,
-      ModelType.PARAMETER,
-      ModelType.SOCIAL_INDICATOR,
-      ModelType.PROCESS,
-      ModelType.IMPACT_CATEGORY,
-      ModelType.IMPACT_METHOD,
-      ModelType.PRODUCT_SYSTEM,
-      ModelType.PROJECT,
-    };
-    for (var type : types) {
-      var ids = reader.getIds(type);
-      if (ids.isEmpty())
-        continue;
-      var imp = getImport(type);
-      if (imp == null)
-        continue;
-      for (var id : reader.getIds(type)) {
-        var status = imp.of(id);
-        if (statusHandler != null) {
-          statusHandler.accept(status);
-        }
-      }
-    }
-  }
+		return model;
+	}
+
+	@Override
+	public <T extends RootEntity> Descriptor getDescriptor(
+		Class<T> type, String refId) {
+		var d = cache.getDescriptor(type, refId);
+		if (d != null)
+			return d;
+		var model = get(type, refId);
+		return model != null
+			? Descriptor.of(model)
+			: null;
+	}
+
+	<T extends RootEntity> ImportItem<T> fetch(Class<T> type, String refId) {
+		return cache.fetch(type, refId);
+	}
+
+	@Override
+	public Category getCategory(ModelType type, String path) {
+		return categories.get(type, path);
+	}
+
+	@Override
+	public void resolveProvider(String providerId, Exchange exchange) {
+		providers.add(providerId, exchange);
+	}
 }

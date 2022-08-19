@@ -10,14 +10,14 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.jsonld.Json;
-import org.openlca.jsonld.input.UnitGroupReader;
+import org.openlca.proto.ProtoUnitGroup;
+import org.openlca.util.Strings;
 
 class UnitGroupImport implements EntityResolver {
 
-  private final ProtoImport2 imp;
+  private final ProtoImport imp;
 
-  UnitGroupImport(ProtoImport2 imp) {
+  UnitGroupImport(ProtoImport imp) {
     this.imp = imp;
   }
 
@@ -48,15 +48,14 @@ class UnitGroupImport implements EntityResolver {
 		if (item.isError() || item.isVisited())
 			return item.entity();
 
-
+		var proto = (ProtoBox<ProtoUnitGroup, UnitGroup>) item.proto();
 
 		// read / update a unit group
 		UnitGroup group = null;
-		var reader = new UnitGroupReader(this);
 		if (item.isNew()) {
-			group = imp.db().insert(reader.read(item.proto().message()));
+			group = imp.db().insert(proto.read(this));
 		} else if (item.entity() instanceof UnitGroup g){
-			reader.update(g, item.proto().message());
+			proto.update(g, this);
 			group = imp.db().update(g);
 		}
 		if (group == null)
@@ -64,8 +63,8 @@ class UnitGroupImport implements EntityResolver {
 		imp.visited(group);
 
 		// set a possible default flow property
-		var propId = Json.getRefId(item.json(), "defaultFlowProperty");
-		if (propId != null) {
+		var propId = proto.message().getDefaultFlowProperty().getId();
+		if (Strings.notEmpty(propId)) {
 			var prop = imp.get(FlowProperty.class, propId);
 			if (prop != null) {
 				group.defaultFlowProperty = prop;

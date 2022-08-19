@@ -69,7 +69,7 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 
 	abstract void update(E entity, EntityResolver resolver);
 
-	static ProtoBox<ProtoActor> of(ProtoActor proto) {
+	static ProtoBox<ProtoActor, Actor> of(ProtoActor proto) {
 		return new ProtoBox<>(proto) {
 			@Override
 			String id() {
@@ -107,13 +107,13 @@ abstract class ProtoBox<M extends Message, E extends RootEntity> {
 			}
 
 			@Override
-			EntityReader<Actor, ProtoActor> reader(EntityResolver resolver) {
-				return new ActorReader(resolver);
+			Actor read(EntityResolver resolver) {
+				return new ActorReader(resolver).read(message());
 			}
 
 			@Override
-			Actor read(EntityResolver resolver) {
-				return new ActorReader(resolver).read(message());
+			void update(Actor actor, EntityResolver resolver) {
+				new ActorReader(resolver).update(actor, message());
 			}
 		};
 	}

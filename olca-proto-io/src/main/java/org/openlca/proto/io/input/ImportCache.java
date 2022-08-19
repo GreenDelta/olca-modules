@@ -21,7 +21,7 @@ import org.openlca.jsonld.input.UpdateMode;
 
 class ImportCache {
 
-	private final ProtoImport2 imp;
+	private final ProtoImport imp;
 
 	private final Map<Class<?>, Map<String, Object>> cache = new HashMap<>();
 
@@ -39,7 +39,7 @@ class ImportCache {
 		UnitGroup.class
 	);
 
-	ImportCache(ProtoImport2 imp) {
+	ImportCache(ProtoImport imp) {
 		this.imp = imp;
 	}
 
