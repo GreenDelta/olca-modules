@@ -3,6 +3,7 @@ package org.openlca.proto.io;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoEpd;
 import org.openlca.proto.ProtoFlow;
 import org.openlca.proto.ProtoFlowProperty;
 import org.openlca.proto.ProtoImpactCategory;
@@ -12,6 +13,7 @@ import org.openlca.proto.ProtoParameter;
 import org.openlca.proto.ProtoProcess;
 import org.openlca.proto.ProtoProductSystem;
 import org.openlca.proto.ProtoProject;
+import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
@@ -47,5 +49,9 @@ public interface ProtoStoreWriter {
   void putSource(ProtoSource source);
 
   void putUnitGroup(ProtoUnitGroup group);
+
+	void putEpd(ProtoEpd epd);
+
+	void putResult(ProtoResult result);
 
 }

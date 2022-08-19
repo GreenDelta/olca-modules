@@ -59,13 +59,13 @@ public class ProtoImport implements Runnable, EntityResolver {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void run(ModelType type, String id) {
+	public RootEntity run(ModelType type, String id) {
 		if (type == null || !type.isRoot() || id == null)
-			return;
+			return null;
 		var clazz = type.getModelClass();
-		if (clazz == null)
-			return;
-		get((Class<? extends RootEntity>) clazz, id);
+		return clazz != null
+			? get((Class<? extends RootEntity>) clazz, id)
+			: null;
 	}
 
 	@Override
