@@ -50,10 +50,9 @@ public class DataUpdateService extends
   @Override
   public void put(ProtoDataSet dataSet, StreamObserver<ProtoRef> resp) {
 
-
-    new ProtoImport(DataUtil.readerOf(dataSet), db)
+    var model = new ProtoImport(DataSetReader.of(dataSet), db)
       .setUpdateMode(UpdateMode.ALWAYS)
-      .run();
+      .run(DataUtil.);
 
     if (status == null) {
       Response.invalidArg(resp, "No model in data set found");

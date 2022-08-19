@@ -50,11 +50,10 @@ public final class Refs {
     proto.setType(Out.protoTypeOf(e));
     Out.map(e, proto);
 
-    if (e instanceof Flow) {
+    if (e instanceof Flow flow) {
 
       // flow specific fields
-      var flow = (Flow) e;
-      if (flow.flowType != null) {
+			if (flow.flowType != null) {
         proto.setFlowType(Out.flowTypeOf(flow.flowType));
       }
       if (flow.location != null) {
@@ -66,9 +65,8 @@ public final class Refs {
       }
 
       // process specific fields
-    } else if (e instanceof Process) {
-      var process = (Process) e;
-      if (process.processType != null) {
+    } else if (e instanceof Process process) {
+			if (process.processType != null) {
         proto.setProcessType(Out.processTypeOf(process.processType));
       }
       if (process.location != null) {
@@ -76,9 +74,8 @@ public final class Refs {
       }
 
       // impact specific fields
-    } else if (e instanceof ImpactCategory) {
-      proto.setRefUnit(Strings.orEmpty(
-        ((ImpactCategory) e).referenceUnit));
+    } else if (e instanceof ImpactCategory impact) {
+      proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
     }
     return proto;
   }

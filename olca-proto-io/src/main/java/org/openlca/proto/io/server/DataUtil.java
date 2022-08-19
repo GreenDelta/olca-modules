@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
@@ -33,6 +35,7 @@ import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.ActorWriter;
 import org.openlca.proto.io.output.CurrencyWriter;
 import org.openlca.proto.io.output.DQSystemWriter;
+import org.openlca.proto.io.output.EpdWriter;
 import org.openlca.proto.io.output.FlowPropertyWriter;
 import org.openlca.proto.io.output.FlowWriter;
 import org.openlca.proto.io.output.ImpactCategoryWriter;
@@ -42,6 +45,7 @@ import org.openlca.proto.io.output.ParameterWriter;
 import org.openlca.proto.io.output.ProcessWriter;
 import org.openlca.proto.io.output.ProductSystemWriter;
 import org.openlca.proto.io.output.ProjectWriter;
+import org.openlca.proto.io.output.ResultWriter;
 import org.openlca.proto.io.output.SocialIndicatorWriter;
 import org.openlca.proto.io.output.SourceWriter;
 import org.openlca.proto.io.output.UnitGroupWriter;
@@ -102,107 +106,59 @@ class DataUtil {
     var ds = ProtoDataSet.newBuilder();
     var conf = WriterConfig.of(db);
 
-    if (e instanceof Actor)
-      return ds.setActor(new ActorWriter(conf)
-        .write((Actor) e));
+    if (e instanceof Actor actor)
+      return ds.setActor(new ActorWriter(conf).write(actor));
 
-    if (e instanceof Currency)
-      return ds.setCurrency(new CurrencyWriter(conf)
-        .write((Currency) e));
+    if (e instanceof Currency currency)
+      return ds.setCurrency(new CurrencyWriter(conf).write(currency));
 
-    if (e instanceof DQSystem)
-      return ds.setDqSystem(new DQSystemWriter(conf)
-        .write((DQSystem) e));
+    if (e instanceof DQSystem dqs)
+      return ds.setDqSystem(new DQSystemWriter(conf) .write(dqs));
 
-    if (e instanceof Flow)
-      return ds.setFlow(new FlowWriter(conf)
-        .write((Flow) e));
+    if (e instanceof Flow flow)
+      return ds.setFlow(new FlowWriter(conf).write(flow));
 
-    if (e instanceof FlowProperty)
-      return ds.setFlowProperty(new FlowPropertyWriter(conf)
-        .write((FlowProperty) e));
+    if (e instanceof FlowProperty prop)
+      return ds.setFlowProperty(new FlowPropertyWriter(conf).write(prop));
 
-    if (e instanceof ImpactCategory)
-      return ds.setImpactCategory(new ImpactCategoryWriter(conf)
-        .write((ImpactCategory) e));
+    if (e instanceof ImpactCategory imp)
+      return ds.setImpactCategory(new ImpactCategoryWriter(conf).write(imp));
 
-    if (e instanceof ImpactMethod)
-      return ds.setImpactMethod(new ImpactMethodWriter(conf)
-        .write((ImpactMethod) e));
+    if (e instanceof ImpactMethod m)
+      return ds.setImpactMethod(new ImpactMethodWriter(conf).write(m));
 
-    if (e instanceof Location)
-      return ds.setLocation(new LocationWriter(conf)
-        .write((Location) e));
+    if (e instanceof Location loc)
+      return ds.setLocation(new LocationWriter(conf).write(loc));
 
-    if (e instanceof Parameter)
-      return ds.setParameter(new ParameterWriter(conf)
-        .write((Parameter) e));
+    if (e instanceof Parameter param)
+      return ds.setParameter(new ParameterWriter(conf).write(param));
 
-    if (e instanceof Process)
-      return ds.setProcess(new ProcessWriter(conf)
-        .write((Process) e));
+    if (e instanceof Process proc)
+      return ds.setProcess(new ProcessWriter(conf).write(proc));
 
-    if (e instanceof ProductSystem)
-      return ds.setProductSystem(new ProductSystemWriter(conf)
-        .write((ProductSystem) e));
+    if (e instanceof ProductSystem sys)
+      return ds.setProductSystem(new ProductSystemWriter(conf).write(sys));
 
-    if (e instanceof Project)
-      return ds.setProject(new ProjectWriter(conf)
-        .write((Project) e));
+    if (e instanceof Project proj)
+      return ds.setProject(new ProjectWriter(conf).write(proj));
 
-    if (e instanceof SocialIndicator)
-      return ds.setSocialIndicator(new SocialIndicatorWriter(conf)
-        .write((SocialIndicator) e));
+    if (e instanceof SocialIndicator ind)
+      return ds.setSocialIndicator(new SocialIndicatorWriter(conf).write(ind));
 
-    if (e instanceof Source)
-      return ds.setSource(new SourceWriter(conf)
-        .write((Source) e));
+    if (e instanceof Source s)
+      return ds.setSource(new SourceWriter(conf).write(s));
 
-    if (e instanceof UnitGroup)
-      return ds.setUnitGroup(new UnitGroupWriter(conf)
-        .write((UnitGroup) e));
+    if (e instanceof UnitGroup group)
+      return ds.setUnitGroup(new UnitGroupWriter(conf).write(group));
+
+		if (e instanceof Epd epd)
+			return ds.setEpd(new EpdWriter(conf).write(epd));
+
+		if (e instanceof Result r)
+			return ds.setResult(new ResultWriter(conf).write(r));
 
     return ds;
   }
-
-  static ProtoStoreReader readerOf(ProtoDataSet dataSet) {
-    var store = InMemoryProtoStore.create();
-    if (dataSet == null)
-      return store;
-    if (dataSet.hasActor()) {
-      store.putActor(dataSet.getActor());
-    } else if (dataSet.hasCurrency()) {
-      store.putCurrency(dataSet.getCurrency());
-    } else if (dataSet.hasDqSystem()) {
-      store.putDQSystem(dataSet.getDqSystem());
-    } else if (dataSet.hasFlow()) {
-      store.putFlow(dataSet.getFlow());
-    } else if (dataSet.hasFlowProperty()) {
-      store.putFlowProperty(dataSet.getFlowProperty());
-    } else if (dataSet.hasImpactCategory()) {
-      store.putImpactCategory(dataSet.getImpactCategory());
-    } else if (dataSet.hasImpactMethod()) {
-      store.putImpactMethod(dataSet.getImpactMethod());
-    } else if (dataSet.hasLocation()) {
-      store.putLocation(dataSet.getLocation());
-    } else if (dataSet.hasParameter()) {
-      store.putParameter(dataSet.getParameter());
-    } else if (dataSet.hasProcess()) {
-      store.putProcess(dataSet.getProcess());
-    } else if (dataSet.hasProductSystem()) {
-      store.putProductSystem(dataSet.getProductSystem());
-    } else if (dataSet.hasProject()) {
-      store.putProject(dataSet.getProject());
-    } else if (dataSet.hasSocialIndicator()) {
-      store.putSocialIndicator(dataSet.getSocialIndicator());
-    } else if (dataSet.hasSource()) {
-      store.putSource(dataSet.getSource());
-    } else if (dataSet.hasUnitGroup()) {
-      store.putUnitGroup(dataSet.getUnitGroup());
-    }
-    return store;
-  }
-
 
   static <T extends RefEntity> ModelQuery<T> model(
 		IDatabase db, Class<T> type) {
