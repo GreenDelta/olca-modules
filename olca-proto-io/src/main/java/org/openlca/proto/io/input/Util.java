@@ -128,7 +128,7 @@ class Util {
 		return redefs;
 	}
 
-	static void mapBase(RootEntity e, ProtoBox<?> proto, EntityResolver resolver) {
+	static void mapBase(RootEntity e, ProtoBox<?, ?> proto, EntityResolver resolver) {
 		if (proto == null)
 			return;
 		e.refId = proto.id();
@@ -150,14 +150,14 @@ class Util {
 		}
 	}
 
-	static long versionOf(ProtoBox<?> proto) {
+	static long versionOf(ProtoBox<?, ?> proto) {
 		var s = proto.version();
 		return Strings.nullOrEmpty(s)
 			? 0
 			: Version.fromString(s).getValue();
 	}
 
-	static long lastChangeOf(ProtoBox<?> proto) {
+	static long lastChangeOf(ProtoBox<?, ?> proto) {
 		var s = proto.lastChange();
 		if (Strings.nullOrEmpty(s))
 			return 0;

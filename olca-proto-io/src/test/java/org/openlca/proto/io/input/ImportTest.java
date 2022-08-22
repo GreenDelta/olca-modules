@@ -1,18 +1,15 @@
 package org.openlca.proto.io.input;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.ProtoActor;
@@ -34,61 +31,15 @@ import org.openlca.proto.io.InMemoryProtoStore;
 import org.openlca.proto.io.Tests;
 import org.openlca.proto.io.output.Out;
 
-public class ImportStatusTest {
+public class ImportTest {
 
 	private final IDatabase db = Tests.db();
-	private ProtoImport protoImport;
-
-	@Before
-	public void setup() {
-		protoImport = new ProtoImport(InMemoryProtoStore.create(), db);
-	}
-
-	@Test
-	public void testNullId() {
-		for (var type : ModelType.values()) {
-			// TODO: support results
-			if (!type.isRoot()
-				|| type == ModelType.RESULT
-				|| type == ModelType.EPD)
-				continue;
-			var imp = protoImport.getImport(type);
-			var status = imp.of(null);
-			assertTrue(status.isError());
-			assertNull(status.model());
-			assertTrue(status.error()
-				.startsWith("Could not resolve"));
-		}
-	}
-
-	@Test
-	public void testUnknownId() {
-		for (var type : ModelType.values()) {
-			// TODO: support results
-			if (!type.isRoot()
-				|| type == ModelType.RESULT
-				|| type == ModelType.EPD)
-				continue;
-			var imp = protoImport.getImport(type);
-			var status = imp.of(UUID.randomUUID().toString());
-			assertTrue(status.isError());
-			assertNull(status.model());
-			assertTrue(status.error()
-				.startsWith("Could not resolve"));
-		}
-	}
 
 	@Test
 	public void testUpdate() throws Exception {
-		int i = 0;
 		for (var type : ModelType.values()) {
-			// TODO: support results
-			if (!type.isRoot()
-				|| type == ModelType.CATEGORY
-				|| type == ModelType.RESULT
-				|| type == ModelType.EPD)
+			if (!type.isRoot() || type == ModelType.CATEGORY)
 				continue;
-			i++;
 
 			var id = UUID.randomUUID().toString();
 			var instance = (RootEntity) type.getModelClass()
@@ -100,28 +51,22 @@ public class ImportStatusTest {
 			instance.lastChange = new Date().getTime();
 
 			// create new object
-			var status1 = put(type, instance);
-			assertTrue(status1.isCreated());
-			assertEquals(id, status1.model().refId);
+			var m1 = put(type, instance);
+			assertTrue(m1.id > 0);
+			assertEquals(m1.refId, instance.refId);
 
-			// skip existing
-			var status2 = put(type, instance);
-			assertTrue(status2.isSkipped());
-			assertEquals(id, status2.model().refId);
-
-			// update existing
+			// update object
 			instance.version = Version.valueOf(0, 0, 2);
-			var status3 = put(type, instance);
-			assertTrue(status3.isUpdated());
-			assertEquals(id, status3.model().refId);
+			var m2 = put(type, instance);
+			assertEquals(m1.id, m2.id);
+			assertEquals(instance.version, m2.version);
 
 			// delete it from the database
-			db.delete(status3.model());
+			db.delete(m2);
 		}
-		assertEquals(15, i);
 	}
 
-	private ImportStatus<?> put(ModelType type, RefEntity entity) {
+	private RootEntity put(ModelType type, RootEntity entity) {
 
 		var store = InMemoryProtoStore.create();
 		var proto = Out.toProto(db, entity);
@@ -159,9 +104,8 @@ public class ImportStatusTest {
 				(ProtoUnitGroup) proto);
 		}
 
-		var protoImport = new ProtoImport(store, db)
-			.withUpdateMode(UpdateMode.IF_NEWER);
-		return protoImport.getImport(type).of(entity.refId);
+		return new ProtoImport(store, db)
+			.setUpdateMode(UpdateMode.IF_NEWER)
+			.run(type, entity.refId);
 	}
-
 }

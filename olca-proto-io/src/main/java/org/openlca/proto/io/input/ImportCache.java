@@ -111,23 +111,21 @@ class ImportCache {
 		}
 
 		return model == null
-			? ImportItem.newOf(proto)
-			: ImportItem.update(proto, model);
+			? (ImportItem<T>) ImportItem.newOf(proto)
+			: ImportItem.update((ProtoBox<?, T>) proto, model);
 	}
 
-	private <T extends RefEntity> boolean skipImport(T model, ProtoBox<?> proto) {
+	private <T extends RootEntity> boolean skipImport(T model, ProtoBox<?, T> proto) {
 		if (model == null || imp.updateMode == UpdateMode.ALWAYS)
 			return false;
-		if (!(model instanceof RootEntity root))
-			return false;
 		long jsonVersion = Util.versionOf(proto);
-		if (jsonVersion != root.version)
-			return jsonVersion < root.version;
+		if (jsonVersion != model.version)
+			return jsonVersion < model.version;
 		long jsonDate = Util.lastChangeOf(proto);
-		return jsonDate <= root.lastChange;
+		return jsonDate <= model.lastChange;
 	}
 
-	private ProtoBox<?> readProto(ModelType type, String refId) {
+	private ProtoBox<?, ?> readProto(ModelType type, String refId) {
 		if (type == null)
 			return null;
 		return switch (type) {

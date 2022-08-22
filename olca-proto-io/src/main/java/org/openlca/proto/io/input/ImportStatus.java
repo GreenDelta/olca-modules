@@ -17,22 +17,6 @@ public record ImportStatus<T extends RootEntity>(
 		this.error = error;
 	}
 
-	public static <T extends RootEntity> ImportStatus<T> created(T model) {
-		return new ImportStatus<>(model, Status.CREATED, null);
-	}
-
-	public static <T extends RootEntity> ImportStatus<T> updated(T model) {
-		return new ImportStatus<>(model, Status.UPDATED, null);
-	}
-
-	public static <T extends RootEntity> ImportStatus<T> skipped(T model) {
-		return new ImportStatus<>(model, Status.SKIPPED, null);
-	}
-
-	public static <T extends RootEntity> ImportStatus<T> error(String error) {
-		return new ImportStatus<>(null, Status.ERROR, error);
-	}
-
 	public boolean isCreated() {
 		return status == Status.CREATED;
 	}
