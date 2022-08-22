@@ -8,7 +8,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -29,7 +28,7 @@ public final class Refs {
 
 	/**
 	 * Creates a Ref that just contains the reference ID of the given descriptor.
-	 * This is useful when we have a huge amount of references and we know what
+	 * This is useful when we have a huge amount of references, and we know what
 	 * type they contain.
 	 */
 	public static ProtoRef.Builder tinyRefOf(Descriptor d) {
