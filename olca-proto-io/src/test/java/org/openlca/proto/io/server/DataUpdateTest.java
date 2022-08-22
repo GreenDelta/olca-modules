@@ -33,19 +33,13 @@ public class DataUpdateTest {
 
 			// create some instance of each categorized type and
 			// insert it via the service
-			int i = 0;
 			try {
 				for (var type : ModelType.values()) {
 
 					// the ID of categories is calculated from the category
 					// name; we do not test this behaviour here
-					// TODO: support results
-					if (!type.isRoot()
-							|| type == ModelType.CATEGORY
-							|| type == ModelType.RESULT
-							|| type == ModelType.EPD)
+					if (!type.isRoot() || type == ModelType.CATEGORY)
 						continue;
-					i++;
 					var id = UUID.randomUUID().toString();
 
 					// check that it does not yet exist
@@ -54,8 +48,8 @@ public class DataUpdateTest {
 
 					// create an instance and insert it
 					var instance = (RootEntity) type.getModelClass()
-							.getConstructor()
-							.newInstance();
+						.getConstructor()
+						.newInstance();
 					instance.refId = id;
 					instance.version = Version.valueOf(0, 0, 1);
 					var ref = update.put(DataUtil.toDataSet(db, instance).build());
@@ -81,9 +75,9 @@ public class DataUpdateTest {
 
 					// delete it and check that we do not get it anymore
 					update.delete(DeleteRequest.newBuilder()
-							.setType(Out.protoTypeOf(type))
-							.setId(id)
-							.build());
+						.setType(Out.protoTypeOf(type))
+						.setId(id)
+						.build());
 					dataSet = fetch.find(findRequestOf(type, id));
 					assertTrue(Messages.isEmpty(dataSet));
 
@@ -92,16 +86,14 @@ public class DataUpdateTest {
 				throw new RuntimeException(e);
 			}
 
-			assertEquals(15, i);
-
 		});
 	}
 
 	private FindRequest findRequestOf(ModelType type, String id) {
 		return FindRequest.newBuilder()
-				.setType(Out.protoTypeOf(type))
-				.setId(id)
-				.build();
+			.setType(Out.protoTypeOf(type))
+			.setId(id)
+			.build();
 	}
 
 	private String getField(ModelType type, ProtoDataSet ds, String field) {
@@ -109,6 +101,7 @@ public class DataUpdateTest {
 			case ACTOR -> ds.getActor();
 			case CURRENCY -> ds.getCurrency();
 			case DQ_SYSTEM -> ds.getDqSystem();
+			case EPD -> ds.getEpd();
 			case FLOW -> ds.getFlow();
 			case FLOW_PROPERTY -> ds.getFlowProperty();
 			case IMPACT_CATEGORY -> ds.getImpactCategory();
@@ -118,6 +111,7 @@ public class DataUpdateTest {
 			case PROCESS -> ds.getProcess();
 			case PRODUCT_SYSTEM -> ds.getProductSystem();
 			case PROJECT -> ds.getProject();
+			case RESULT -> ds.getResult();
 			case SOCIAL_INDICATOR -> ds.getSocialIndicator();
 			case SOURCE -> ds.getSource();
 			case UNIT_GROUP -> ds.getUnitGroup();
@@ -125,10 +119,10 @@ public class DataUpdateTest {
 		};
 		assertNotNull(proto);
 		var fieldDef = proto.getDescriptorForType()
-				.findFieldByName(field);
+			.findFieldByName(field);
 		var value = proto.getField(fieldDef);
 		return value instanceof String
-				? value.toString()
-				: null;
+			? value.toString()
+			: null;
 	}
 }
