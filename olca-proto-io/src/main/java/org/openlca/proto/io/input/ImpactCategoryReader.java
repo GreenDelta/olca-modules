@@ -2,6 +2,7 @@
 package org.openlca.proto.io.input;
 
 import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Parameter;
@@ -24,7 +25,11 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		Util.mapBase(impact, ProtoBox.of(proto), resolver);
 
 		impact.referenceUnit = proto.getRefUnit();
-		// TODO: impact.direction = ...
+		impact.direction = switch (proto.getDirection()) {
+			case INPUT -> Direction.INPUT;
+			case OUTPUT -> Direction.OUTPUT;
+			default -> null;
+		};
 		impact.code = proto.getCode();
 		impact.source = Util.getSource(resolver, proto.getSource());
 		mapParameters(impact, proto);

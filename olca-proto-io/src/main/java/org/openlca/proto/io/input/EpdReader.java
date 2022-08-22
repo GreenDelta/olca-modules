@@ -53,7 +53,7 @@ public record EpdReader(EntityResolver resolver)
 			var protoMod = proto.getModules(i);
 			var module = new EpdModule();
 			module.name = protoMod.getName();
-			// TODO: module.multiplier = protoMod.getMultiplier();
+			module.multiplier = protoMod.getMultiplier();
 			module.result = Util.getResult(resolver, protoMod.getResult());
 			epd.modules.add(module);
 		}
