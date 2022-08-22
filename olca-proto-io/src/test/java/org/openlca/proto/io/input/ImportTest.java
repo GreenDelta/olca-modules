@@ -15,6 +15,7 @@ import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCurrency;
 import org.openlca.proto.ProtoDQSystem;
+import org.openlca.proto.ProtoEpd;
 import org.openlca.proto.ProtoFlow;
 import org.openlca.proto.ProtoFlowProperty;
 import org.openlca.proto.ProtoImpactCategory;
@@ -24,6 +25,7 @@ import org.openlca.proto.ProtoParameter;
 import org.openlca.proto.ProtoProcess;
 import org.openlca.proto.ProtoProductSystem;
 import org.openlca.proto.ProtoProject;
+import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
@@ -72,36 +74,25 @@ public class ImportTest {
 		var proto = Out.toProto(db, entity);
 
 		switch (type) {
-			case ACTOR -> store.putActor(
-				(ProtoActor) proto);
-			case CURRENCY -> store.putCurrency(
-				(ProtoCurrency) proto);
-			case DQ_SYSTEM -> store.putDQSystem(
-				(ProtoDQSystem) proto);
-			case FLOW -> store.putFlow(
-				(ProtoFlow) proto);
-			case FLOW_PROPERTY -> store.putFlowProperty(
-				(ProtoFlowProperty) proto);
+			case ACTOR -> store.putActor((ProtoActor) proto);
+			case CURRENCY -> store.putCurrency((ProtoCurrency) proto);
+			case DQ_SYSTEM -> store.putDQSystem((ProtoDQSystem) proto);
+			case EPD -> store.putEpd((ProtoEpd) proto);
+			case FLOW -> store.putFlow((ProtoFlow) proto);
+			case FLOW_PROPERTY -> store.putFlowProperty((ProtoFlowProperty) proto);
 			case IMPACT_CATEGORY -> store.putImpactCategory(
 				(ProtoImpactCategory) proto);
-			case IMPACT_METHOD -> store.putImpactMethod(
-				(ProtoImpactMethod) proto);
-			case LOCATION -> store.putLocation(
-				(ProtoLocation) proto);
-			case PARAMETER -> store.putParameter(
-				(ProtoParameter) proto);
-			case PROCESS -> store.putProcess(
-				(ProtoProcess) proto);
-			case PRODUCT_SYSTEM -> store.putProductSystem(
-				(ProtoProductSystem) proto);
-			case PROJECT -> store.putProject(
-				(ProtoProject) proto);
+			case IMPACT_METHOD -> store.putImpactMethod((ProtoImpactMethod) proto);
+			case LOCATION -> store.putLocation((ProtoLocation) proto);
+			case PARAMETER -> store.putParameter((ProtoParameter) proto);
+			case PROCESS -> store.putProcess((ProtoProcess) proto);
+			case PRODUCT_SYSTEM -> store.putProductSystem((ProtoProductSystem) proto);
+			case PROJECT -> store.putProject((ProtoProject) proto);
+			case RESULT -> store.putResult((ProtoResult) proto);
 			case SOCIAL_INDICATOR -> store.putSocialIndicator(
 				(ProtoSocialIndicator) proto);
-			case SOURCE -> store.putSource(
-				(ProtoSource) proto);
-			case UNIT_GROUP -> store.putUnitGroup(
-				(ProtoUnitGroup) proto);
+			case SOURCE -> store.putSource((ProtoSource) proto);
+			case UNIT_GROUP -> store.putUnitGroup((ProtoUnitGroup) proto);
 		}
 
 		return new ProtoImport(store, db)

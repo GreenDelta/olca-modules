@@ -11,7 +11,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -68,6 +67,7 @@ class ImportCache {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	<T extends RootEntity> ImportItem<T> fetch(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return ImportItem.error();
@@ -97,7 +97,7 @@ class ImportCache {
 			}
 		}
 
-		var proto = readProto(modelType, refId);
+		var proto = (ProtoBox<?, T>)readProto(modelType, refId);
 		if (proto == null) {
 			if (model == null)
 				return ImportItem.error();
@@ -111,8 +111,8 @@ class ImportCache {
 		}
 
 		return model == null
-			? (ImportItem<T>) ImportItem.newOf(proto)
-			: ImportItem.update((ProtoBox<?, T>) proto, model);
+			? ImportItem.newOf(proto)
+			: ImportItem.update( proto, model);
 	}
 
 	private <T extends RootEntity> boolean skipImport(T model, ProtoBox<?, T> proto) {

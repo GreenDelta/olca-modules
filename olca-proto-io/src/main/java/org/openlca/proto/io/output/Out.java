@@ -109,13 +109,9 @@ public final class Out {
 					break;
 
 				case "category":
-					if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE) {
-						if (e instanceof RootEntity ce) {
-							if (ce.category != null) {
-								var catRef = Refs.refOf(ce.category);
-								proto.setField(field, catRef.build());
-							}
-						}
+					if (e instanceof RootEntity ce && ce.category != null) {
+						var path = ce.category.toPath();
+						set(proto, field, path);
 					}
 					break;
 
@@ -237,38 +233,42 @@ public final class Out {
 
 	public static AbstractMessage toProto(IDatabase db, RefEntity e) {
 		var conf = WriterConfig.of(db);
-		if (e instanceof Actor)
-			return new ActorWriter(conf).write((Actor) e);
-		if (e instanceof Currency)
-			return new CurrencyWriter(conf).write((Currency) e);
-		if (e instanceof DQSystem)
-			return new DQSystemWriter(conf).write((DQSystem) e);
-		if (e instanceof Flow)
-			return new FlowWriter(conf).write((Flow) e);
-		if (e instanceof FlowProperty)
-			return new FlowPropertyWriter(conf).write((FlowProperty) e);
-		if (e instanceof ImpactCategory)
-			return new ImpactCategoryWriter(conf).write((ImpactCategory) e);
-		if (e instanceof ImpactMethod)
-			return new ImpactMethodWriter(conf).write((ImpactMethod) e);
-		if (e instanceof Location)
-			return new LocationWriter(conf).write((Location) e);
-		if (e instanceof Parameter)
-			return new ParameterWriter(conf).write((Parameter) e);
-		if (e instanceof Process)
-			return new ProcessWriter(conf).write((Process) e);
-		if (e instanceof ProductSystem)
-			return new ProductSystemWriter(conf).write((ProductSystem) e);
-		if (e instanceof Project)
-			return new ProjectWriter(conf).write((Project) e);
-		if (e instanceof SocialIndicator)
-			return new SocialIndicatorWriter(conf).write((SocialIndicator) e);
-		if (e instanceof Source)
-			return new SourceWriter(conf).write((Source) e);
-		if (e instanceof UnitGroup)
-			return new UnitGroupWriter(conf).write((UnitGroup) e);
+		if (e instanceof Actor actor)
+			return new ActorWriter(conf).write(actor);
+		if (e instanceof Currency currency)
+			return new CurrencyWriter(conf).write(currency);
+		if (e instanceof DQSystem dqs)
+			return new DQSystemWriter(conf).write(dqs);
+		if (e instanceof Epd epd)
+			return new EpdWriter(conf).write(epd);
+		if (e instanceof Flow flow)
+			return new FlowWriter(conf).write(flow);
+		if (e instanceof FlowProperty prop)
+			return new FlowPropertyWriter(conf).write(prop);
+		if (e instanceof ImpactCategory impact)
+			return new ImpactCategoryWriter(conf).write(impact);
+		if (e instanceof ImpactMethod method)
+			return new ImpactMethodWriter(conf).write(method);
+		if (e instanceof Location loc)
+			return new LocationWriter(conf).write(loc);
+		if (e instanceof Parameter param)
+			return new ParameterWriter(conf).write(param);
+		if (e instanceof Process process)
+			return new ProcessWriter(conf).write(process);
+		if (e instanceof ProductSystem sys)
+			return new ProductSystemWriter(conf).write(sys);
+		if (e instanceof Project project)
+			return new ProjectWriter(conf).write(project);
+		if (e instanceof Result result)
+			return new ResultWriter(conf).write(result);
+		if (e instanceof SocialIndicator indicator)
+			return new SocialIndicatorWriter(conf).write(indicator);
+		if (e instanceof Source source)
+			return new SourceWriter(conf).write(source);
+		if (e instanceof UnitGroup group)
+			return new UnitGroupWriter(conf).write(group);
 		throw new RuntimeException(
-			"Unsupported entity type" + " for binary translation: " + e.getClass());
+			"Unsupported entity type for binary translation: " + e.getClass());
 	}
 
 	public static ProtoType protoTypeOf(ModelType modelType) {
