@@ -21,7 +21,7 @@ public record SourceReader(EntityResolver resolver)
 		source.url = proto.getUrl();
 		source.externalFile = proto.getExternalFile();
 		source.textReference = proto.getTextReference();
-		if (proto.getYear() > 0) {
+		if (proto.hasYear()) {
 			source.year = (short) proto.getYear();
 		}
 	}

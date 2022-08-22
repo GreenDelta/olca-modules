@@ -69,9 +69,13 @@ public record ImpactMethodReader(EntityResolver resolver)
 					.filter(imp -> Objects.equals(imp.refId, impactId))
 					.findAny()
 					.orElse(null);
-				// TODO: factor values are optional
-				f.normalisationFactor = protoFactor.getNormalisationFactor();
-				f.weightingFactor = protoFactor.getWeightingFactor();
+
+				if (protoFactor.hasNormalisationFactor()) {
+					f.normalisationFactor = protoFactor.getNormalisationFactor();
+				}
+				if (protoFactor.hasWeightingFactor()) {
+					f.weightingFactor = protoFactor.getWeightingFactor();
+				}
 				nwSet.factors.add(f);
 			}
 

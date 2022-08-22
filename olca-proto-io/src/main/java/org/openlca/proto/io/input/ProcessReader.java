@@ -156,7 +156,9 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 
 			// costs
 			e.costFormula = protoEx.getCostFormula();
-			e.costs = protoEx.getCostValue();
+			if (protoEx.hasCostValue()) {
+				e.costs = protoEx.getCostValue();
+			}
 			e.currency = Util.getCurrency(resolver, protoEx.getCurrency());
 
 			p.exchanges.add(e);
