@@ -1,4 +1,4 @@
-package org.openlca.io.maps;
+package org.openlca.core.io.maps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
