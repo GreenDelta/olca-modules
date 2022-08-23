@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import org.openlca.core.DataDir;
 import org.openlca.proto.io.Tests;
 
 class ServiceTests {
@@ -24,7 +25,7 @@ class ServiceTests {
         .addService(new DataFetchService(db))
         .addService(new DataUpdateService(db))
         .addService(new FlowMapService(db))
-        .addService(new ResultService(db))
+        .addService(new ResultService(db, DataDir.get().getLibraryDir()))
         .addService(new AboutService(db))
         .build()
         .start();

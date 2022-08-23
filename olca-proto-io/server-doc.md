@@ -5,7 +5,7 @@ with write permissions. The package contains a `run` script with which the
 server can be started from the command line via:
 
 ```
-run -db <database> [-port <port>]
+run -data <data-dir> -db <database> -port <port>
 ```
 
 The `-db` parameter takes the name of an openLCA database which is stored in

@@ -11,8 +11,8 @@ import org.openlca.util.Strings;
 
 public class AboutService extends AboutServiceGrpc.AboutServiceImplBase {
 
-  public static final int VERSION = 1;
-  public static final int MIN_SUPPORTED_VERSION = 1;
+  public static final int VERSION = 2;
+  public static final int MIN_SUPPORTED_VERSION = 2;
   private final IDatabase db;
 
   public AboutService(IDatabase db) {
