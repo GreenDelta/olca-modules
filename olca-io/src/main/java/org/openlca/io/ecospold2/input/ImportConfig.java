@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
-import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
 
 /**
  * Import configuration for EcoSpold 02 data sets.

@@ -20,7 +20,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.ecospold2.UncertaintyConverter;
-import org.openlca.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,7 +241,7 @@ public class EcoSpold2Export implements Runnable {
 				return null;
 		if (exchange.flow.flowType == FlowType.WASTE_FLOW)
 			if (exchange.isInput && !exchange.isAvoided)
-				return null;		
+				return null;
 		ProcessDao dao = new ProcessDao(db);
 		return dao.getDescriptor(exchange.defaultProviderId);
 	}

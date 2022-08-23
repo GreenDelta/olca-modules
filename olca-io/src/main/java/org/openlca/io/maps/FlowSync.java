@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Flow;
 
 public class FlowSync {

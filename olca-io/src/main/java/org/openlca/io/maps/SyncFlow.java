@@ -2,6 +2,7 @@ package org.openlca.io.maps;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;

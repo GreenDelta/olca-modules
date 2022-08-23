@@ -3,7 +3,7 @@ package org.openlca.io.simapro.csv.input;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.RootEntity;
-import org.openlca.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.simapro.csv.CsvDataSet;
 
 record ImportContext(

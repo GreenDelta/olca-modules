@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowRef;
+import org.openlca.core.io.maps.MappingStatus;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class StatusTest {
