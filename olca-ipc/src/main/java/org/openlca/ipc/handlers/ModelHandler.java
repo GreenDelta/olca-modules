@@ -52,7 +52,7 @@ public class ModelHandler {
 			new JsonExport(db, store)
 					.withReferences(false)
 					.write(model);
-			var modelType = ModelType.forModelClass(model.getClass());
+			var modelType = ModelType.of(model.getClass());
 			var obj = store.get(modelType, model.refId);
 			if (obj == null)
 				return Responses.error(500, "Conversion to JSON failed", req);
@@ -84,13 +84,12 @@ public class ModelHandler {
 	}
 
 	@Rpc("get/descriptors")
-	@SuppressWarnings("unchecked")
 	public RpcResponse getDescriptors(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
 		var type = getType(req.params.getAsJsonObject());
-		if (type == null || !type.isRoot())
+		if (type == null)
 			return Responses.invalidParams("params must be an object with"
 					+ " valid @type attribute", req);
 		try {
@@ -213,7 +212,6 @@ public class ModelHandler {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private Pair<RootEntity, RpcResponse> getModelOrError(RpcRequest req) {
 		var d = descriptorOf(req);
 		if (d == null || d.type == null) {
@@ -275,11 +273,27 @@ public class ModelHandler {
 		var s = Json.getString(obj, "@type");
 		if (s == null)
 			return null;
-		try {
-			var clazz = Class.forName("org.openlca.core.model." + s);
-			return ModelType.forModelClass(clazz);
-		} catch (Exception e) {
-			return null;
-		}
+		return switch (s) {
+			case "Project" -> ModelType.PROJECT;
+			case "ImpactMethod" -> ModelType.IMPACT_METHOD;
+			case "ImpactCategory" -> ModelType.IMPACT_CATEGORY;
+			case "ProductSystem" -> ModelType.PRODUCT_SYSTEM;
+			case "Process" -> ModelType.PROCESS;
+			case "Flow" -> ModelType.FLOW;
+			case "FlowProperty" -> ModelType.FLOW_PROPERTY;
+			case "UnitGroup" -> ModelType.UNIT_GROUP;
+			case "Actor" -> ModelType.ACTOR;
+			case "Source" -> ModelType.SOURCE;
+			case "Category" -> ModelType.CATEGORY;
+			case "Location" -> ModelType.LOCATION;
+			case "SocialIndicator" -> ModelType.SOCIAL_INDICATOR;
+			case "Currency" -> ModelType.CURRENCY;
+			case "Parameter" -> ModelType.PARAMETER;
+			case "DQSystem" -> ModelType.DQ_SYSTEM;
+			case "Result" -> ModelType.RESULT;
+			case "Epd" -> ModelType.EPD;
+			default -> null;
+		};
+
 	}
 }
