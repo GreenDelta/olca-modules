@@ -1,15 +1,13 @@
 package org.openlca.proto.io.server;
 
-import java.util.Arrays;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.FlowMapEntry;
-import org.openlca.io.maps.FlowRef;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowRef;
 import org.openlca.proto.ProtoFlowMap;
 import org.openlca.proto.ProtoFlowMapEntry;
 import org.openlca.proto.ProtoFlowMapRef;
@@ -21,7 +19,6 @@ import org.openlca.proto.io.output.Refs;
 import org.openlca.util.Strings;
 
 import com.google.protobuf.Empty;
-import com.google.protobuf.ProtocolStringList;
 
 import io.grpc.stub.StreamObserver;
 
@@ -178,23 +175,12 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     if (Messages.isNotEmpty(provider)) {
       flowRef.provider = In.fill(
           new ProcessDescriptor(), provider);
-			// TODO: set category
-      // flowRef.providerCategory = categoryPathOf(
-      //     provider.getCategoryPathList());
+      flowRef.providerCategory = provider.getCategory();
       flowRef.providerLocation = Strings.nullIfEmpty(
           provider.getLocation());
     }
 
     return flowRef;
-  }
-
-  private String categoryPathOf(ProtocolStringList categories) {
-    if (categories == null || categories.isEmpty())
-      return null;
-    return categories.stream()
-        .reduce(null, (path, elem) -> Strings.nullOrEmpty(path)
-            ? elem
-            : path + "/" + elem);
   }
 
   private ProtoFlowMap toProto(FlowMap model) {

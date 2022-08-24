@@ -1,4 +1,4 @@
-package org.openlca.io.maps;
+package org.openlca.core.io.maps;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -106,32 +107,32 @@ public class FlowMap extends Descriptor {
 		FlowMap fm = new FlowMap();
 		if (stream == null)
 			return fm;
-		Maps.each(stream, row -> {
+		Csv.each(stream, row -> {
 
 			// source flow
 			FlowRef sourceFlow = null;
-			String sid = Maps.getString(row, 0);
+			String sid = Csv.getString(row, 0);
 			if (Strings.notEmpty(sid)) {
 				sourceFlow = new FlowRef();
 				sourceFlow.flow = FlowDescriptor.create()
 					.refId(sid)
-					.name(Maps.getString(row, 3))
+					.name(Csv.getString(row, 3))
 					.get();
-				sourceFlow.flowCategory = Maps.getString(row, 4);
-				sourceFlow.flowLocation = Maps.getString(row, 5);
+				sourceFlow.flowCategory = Csv.getString(row, 4);
+				sourceFlow.flowLocation = Csv.getString(row, 5);
 
 				// flow property
-				String sprop = Maps.getString(row, 9);
+				String sprop = Csv.getString(row, 9);
 				if (Strings.notEmpty(sprop)) {
 					sourceFlow.property = FlowPropertyDescriptor.create()
 						.refId(sprop)
-						.name(Maps.getString(row, 10))
+						.name(Csv.getString(row, 10))
 						.get();
 				}
 
 				// unit
-				String sunitID = Maps.getString(row, 13);
-				String sunitName = Maps.getString(row, 14);
+				String sunitID = Csv.getString(row, 13);
+				String sunitName = Csv.getString(row, 14);
 				if (Strings.notEmpty(sunitID) || Strings.notEmpty(sunitName)) {
 					sourceFlow.unit = UnitDescriptor.create()
 						.refId(sunitID)
@@ -140,7 +141,7 @@ public class FlowMap extends Descriptor {
 				}
 
 				// status
-				String sstatus = Maps.getString(row, 21);
+				String sstatus = Csv.getString(row, 21);
 				if (Strings.notEmpty(sstatus)) {
 					sourceFlow.status = MappingStatus.fromString(sstatus);
 				}
@@ -148,28 +149,28 @@ public class FlowMap extends Descriptor {
 
 			// target flow
 			FlowRef targetFlow = null;
-			String tid = Maps.getString(row, 1);
+			String tid = Csv.getString(row, 1);
 			if (Strings.notEmpty(tid)) {
 				targetFlow = new FlowRef();
 				targetFlow.flow = FlowDescriptor.create()
 					.refId(tid)
-					.name(Maps.getString(row, 6))
+					.name(Csv.getString(row, 6))
 					.get();
-				targetFlow.flowCategory = Maps.getString(row, 7);
-				targetFlow.flowLocation = Maps.getString(row, 8);
+				targetFlow.flowCategory = Csv.getString(row, 7);
+				targetFlow.flowLocation = Csv.getString(row, 8);
 
 				// flow property
-				String tprop = Maps.getString(row, 11);
+				String tprop = Csv.getString(row, 11);
 				if (Strings.notEmpty(tprop)) {
 					targetFlow.property = FlowPropertyDescriptor.create()
 						.refId(tprop)
-						.name(Maps.getString(row, 12))
+						.name(Csv.getString(row, 12))
 						.get();
 				}
 
 				// unit
-				String tunitID = Maps.getString(row, 15);
-				String tunitName = Maps.getString(row, 16);
+				String tunitID = Csv.getString(row, 15);
+				String tunitName = Csv.getString(row, 16);
 				if (Strings.notEmpty(tunitID) || Strings.notEmpty(tunitName)) {
 					targetFlow.unit = UnitDescriptor.create()
 						.refId(tunitID)
@@ -178,25 +179,25 @@ public class FlowMap extends Descriptor {
 				}
 
 				// provider
-				String prov = Maps.getString(row, 17);
+				String prov = Csv.getString(row, 17);
 				if (Strings.notEmpty(prov)) {
 					targetFlow.provider = ProcessDescriptor.create()
 						.refId(prov)
-						.name(Maps.getString(row, 18))
+						.name(Csv.getString(row, 18))
 						.get();
-					targetFlow.providerCategory = Maps.getString(row, 19);
-					targetFlow.providerLocation = Maps.getString(row, 20);
+					targetFlow.providerCategory = Csv.getString(row, 19);
+					targetFlow.providerLocation = Csv.getString(row, 20);
 				}
 
 				// status
-				String tstatus = Maps.getString(row, 22);
+				String tstatus = Csv.getString(row, 22);
 				if (Strings.notEmpty(tstatus)) {
 					targetFlow.status = MappingStatus.fromString(tstatus);
 				}
 			}
 
 			if (sourceFlow != null || targetFlow != null) {
-				var factor = Maps.getDouble(row, 2);
+				var factor = Csv.getDouble(row, 2);
 				fm.entries.add(new FlowMapEntry(sourceFlow, targetFlow, factor));
 			}
 		});
@@ -248,7 +249,7 @@ public class FlowMap extends Descriptor {
 	public static void toCsv(FlowMap fm, OutputStream stream) {
 		if (fm == null || stream == null)
 			return;
-		Maps.write(stream, fm.entries.stream().map(e -> {
+		Csv.write(stream, fm.entries.stream().map(e -> {
 			Object[] row = new Object[23];
 			row[2] = e.factor();
 

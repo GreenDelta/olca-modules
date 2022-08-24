@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.io.maps.FlowMap;
-import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

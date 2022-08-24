@@ -111,7 +111,7 @@ public class ProtoImport implements Runnable, EntityResolver {
 			return new UnitGroupImport(this).get(type, refId);
 
 		var item = cache.fetch(type, refId);
-		if (item.isError() || item.proto() == null)
+		if (item.isError())
 			return null;
 		if (item.isVisited())
 			return item.entity();

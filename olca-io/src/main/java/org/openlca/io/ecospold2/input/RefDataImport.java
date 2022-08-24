@@ -25,7 +25,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.io.Categories;
-import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
 
 import spold2.Classification;

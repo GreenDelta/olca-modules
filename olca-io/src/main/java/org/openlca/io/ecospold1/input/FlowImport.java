@@ -17,7 +17,7 @@ import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

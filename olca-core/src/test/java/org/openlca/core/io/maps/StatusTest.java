@@ -1,4 +1,4 @@
-package org.openlca.io.maps;
+package org.openlca.core.io.maps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowRef;
+import org.openlca.core.io.maps.MappingStatus;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 
 public class StatusTest {

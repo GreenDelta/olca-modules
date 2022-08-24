@@ -4,7 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Source;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;

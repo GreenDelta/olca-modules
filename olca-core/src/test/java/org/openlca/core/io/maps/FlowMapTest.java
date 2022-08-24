@@ -1,4 +1,4 @@
-package org.openlca.io.maps;
+package org.openlca.core.io.maps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -7,6 +7,9 @@ import static org.junit.Assert.assertTrue;
 import java.nio.file.Files;
 
 import org.junit.Test;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowRef;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 

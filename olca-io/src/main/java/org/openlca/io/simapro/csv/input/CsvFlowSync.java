@@ -15,7 +15,7 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.io.maps.FlowSync;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.io.simapro.csv.Compartment;

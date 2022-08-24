@@ -16,7 +16,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStore;
-import org.openlca.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.io.maps.FlowSync;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;

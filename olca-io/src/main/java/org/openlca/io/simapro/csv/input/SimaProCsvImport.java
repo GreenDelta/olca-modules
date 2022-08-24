@@ -7,7 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Process;
 import org.openlca.io.Import;
-import org.openlca.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.simapro.csv.SimaProCsv;
 import org.openlca.simapro.csv.enums.ProductStageCategory;
 import org.openlca.simapro.csv.process.ProductStageBlock;

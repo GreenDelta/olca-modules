@@ -1,4 +1,4 @@
-package org.openlca.io.maps;
+package org.openlca.core.io.maps;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Copyable;
