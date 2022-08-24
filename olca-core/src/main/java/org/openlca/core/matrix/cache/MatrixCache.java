@@ -91,9 +91,6 @@ public final class MatrixCache {
 		case PROCESS:
 			evictProcess(id);
 			break;
-		case UNIT:
-			baseEviction();
-			break;
 		case UNIT_GROUP:
 			baseEviction();
 			break;
@@ -135,9 +132,6 @@ public final class MatrixCache {
 			break;
 		case PROCESS:
 			processTable = null;
-			break;
-		case UNIT:
-			baseEviction();
 			break;
 		case UNIT_GROUP:
 			baseEviction();

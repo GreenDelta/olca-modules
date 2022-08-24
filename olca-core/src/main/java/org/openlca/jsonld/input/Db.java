@@ -90,13 +90,11 @@ class Db {
 			case FLOW -> (T) get(new FlowDao(db), refId, flowIds);
 			case IMPACT_METHOD -> (T) get(new ImpactMethodDao(db), refId, methodIds);
 			case IMPACT_CATEGORY -> (T) get(new ImpactCategoryDao(db), refId, impactCategoryIds);
-			case NW_SET -> (T) get(new NwSetDao(db), refId, nwSetIds);
 			case SOCIAL_INDICATOR -> (T) get(new SocialIndicatorDao(db), refId, indicatorIds);
 			case PARAMETER -> (T) get(new ParameterDao(db), refId, parameterIds);
 			case DQ_SYSTEM -> (T) get(new DQSystemDao(db), refId, dqSystemIds);
 			case FLOW_PROPERTY -> (T) get(new FlowPropertyDao(db), refId, flowPropertyIds);
 			case UNIT_GROUP -> (T) get(new UnitGroupDao(db), refId, unitGroupIds);
-			case UNIT -> (T) get(new UnitDao(db), refId, unitIds);
 			case CURRENCY -> (T) get(new CurrencyDao(db), refId, currencyIds);
 			case ACTOR -> (T) get(new ActorDao(db), refId, actorIds);
 			case SOURCE -> (T) get(new SourceDao(db), refId, sourceIds);

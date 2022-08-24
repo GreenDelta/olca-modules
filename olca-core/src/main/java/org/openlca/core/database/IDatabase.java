@@ -122,15 +122,14 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	@SuppressWarnings("unchecked")
-	default <T extends AbstractEntity> T insert(T e) {
+	default <T extends RootEntity> T insert(T e) {
 		if (e == null)
 			return null;
 		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
 		return dao.insert(e);
 	}
 
-	default void insert(AbstractEntity e1, AbstractEntity e2,
-		AbstractEntity... more) {
+	default void insert(RootEntity e1, RootEntity e2, RootEntity... more) {
 		insert(e1);
 		insert(e2);
 		if (more == null)
@@ -141,21 +140,20 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	@SuppressWarnings("unchecked")
-	default <T extends AbstractEntity> T update(T e) {
+	default <T extends RootEntity> T update(T e) {
 		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
 		return dao.update(e);
 	}
 
 	@SuppressWarnings("unchecked")
-	default <T extends AbstractEntity> void delete(T e) {
+	default <T extends RootEntity> void delete(T e) {
 		if (e == null)
 			return;
 		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
 		dao.delete(e);
 	}
 
-	default void delete(AbstractEntity e1, AbstractEntity e2,
-		AbstractEntity... more) {
+	default void delete(RootEntity e1, RootEntity e2, RootEntity... more) {
 		this.delete(e1);
 		this.delete(e2);
 		if (more == null)
@@ -165,13 +163,12 @@ public interface IDatabase extends Closeable, INotifiable {
 		}
 	}
 
-	default <T extends AbstractEntity> T get(Class<T> type, long id) {
+	default <T extends RootEntity> T get(Class<T> type, long id) {
 		var dao = Daos.base(this, type);
 		return dao.getForId(id);
 	}
 
-	default <T extends AbstractEntity> List<T> getAll(
-		Class<T> type, TLongSet ids) {
+	default <T extends RootEntity> List<T> getAll(Class<T> type, TLongSet ids) {
 		var list = new ArrayList<T>();
 		var em = newEntityManager();
 		for (var it = ids.iterator(); it.hasNext(); ) {
@@ -185,13 +182,13 @@ public interface IDatabase extends Closeable, INotifiable {
 	}
 
 	@SuppressWarnings("unchecked")
-	default <T extends RefEntity> T get(Class<T> type, String refId) {
+	default <T extends RootEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
-		var dao = Daos.refDao(this, modelType);
+		var dao = Daos.root(this, modelType);
 		return dao == null
 			? null
 			: (T) dao.getForRefId(refId);
@@ -200,10 +197,10 @@ public interface IDatabase extends Closeable, INotifiable {
 	/**
 	 * Get the descriptor of the entity of the given type and ID.
 	 */
-	default <T extends RefEntity> Descriptor getDescriptor(
-		Class<T> type, long id) {
+	default <T extends RootEntity> Descriptor getDescriptor(
+			Class<T> type, long id) {
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.refDao(this, modelType);
+		var dao = Daos.root(this, modelType);
 		return dao == null
 			? null
 			: dao.getDescriptor(id);
@@ -212,12 +209,12 @@ public interface IDatabase extends Closeable, INotifiable {
 	/**
 	 * Get the descriptor of the entity of the given type and reference ID.
 	 */
-	default <T extends RefEntity> Descriptor getDescriptor(
+	default <T extends RootEntity> Descriptor getDescriptor(
 		Class<T> type, String refID) {
 		if (refID == null)
 			return null;
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.refDao(this, modelType);
+		var dao = Daos.root(this, modelType);
 		return dao == null
 			? null
 			: dao.getDescriptorForRefId(refID);
@@ -227,11 +224,11 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * Get all entities of the given type from this database.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends RefEntity> List<T> getAll(Class<T> type) {
+	default <T extends RootEntity> List<T> getAll(Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return Collections.emptyList();
-		var dao = Daos.refDao(this, modelType);
+		var dao = Daos.root(this, modelType);
 		return dao == null
 			? Collections.emptyList()
 			: (List<T>) dao.getAll();
@@ -240,10 +237,10 @@ public interface IDatabase extends Closeable, INotifiable {
 	/**
 	 * Get the descriptors of all entities of the given type from this database.
 	 */
-	default <T extends RefEntity> List<? extends Descriptor> getDescriptors(
+	default <T extends RootEntity> List<? extends Descriptor> getDescriptors(
 		Class<T> type) {
 		var modelType = ModelType.forModelClass(type);
-		var dao = Daos.refDao(this, modelType);
+		var dao = Daos.root(this, modelType);
 		return dao == null
 			? Collections.emptyList()
 			: dao.getDescriptors();
@@ -265,11 +262,11 @@ public interface IDatabase extends Closeable, INotifiable {
 	 * database. It returns `null` if no entity with the given name exists.
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends RefEntity> T getForName(Class<T> type, String name) {
+	default <T extends RootEntity> T getForName(Class<T> type, String name) {
 		var modelType = ModelType.forModelClass(type);
 		if (modelType == null)
 			return null;
-		var dao = Daos.refDao(this, modelType);
+		var dao = Daos.root(this, modelType);
 		if (dao == null)
 			return null;
 		var candidates = dao.getForName(name);

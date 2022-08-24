@@ -17,6 +17,7 @@ class IdSet {
 	private final IDatabase db;
 	private final EnumMap<ModelType, TLongHashSet> ids;
 	private final TLongHashSet propertyFactors;
+	
 
 	private IdSet(IDatabase db) {
 		this.db = db;

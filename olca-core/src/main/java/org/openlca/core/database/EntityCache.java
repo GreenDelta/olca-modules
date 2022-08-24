@@ -144,7 +144,7 @@ public class EntityCache {
 			for (var modelType : ModelType.values()) {
 				if (modelType.getModelClass() == null)
 					continue;
-				var dao = Daos.refDao(db, modelType);
+				var dao = Daos.root(db, modelType);
 				if (dao != null) {
 					descriptorDaos.put(dao.getDescriptorType(), dao);
 				}

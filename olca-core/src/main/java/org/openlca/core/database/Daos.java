@@ -14,7 +14,7 @@ public class Daos {
 			return null;
 		var type = ModelType.forModelClass(clazz);
 		if (type != null)
-			return (BaseDao<T>) refDao(db, type);
+			return (BaseDao<T>) root(db, type);
 		if (clazz == Exchange.class)
 			return (BaseDao<T>) new ExchangeDao(db);
 		if (clazz == MappingFile.class)
@@ -22,18 +22,6 @@ public class Daos {
 		if (clazz == ProcessGroupSet.class)
 			return (BaseDao<T>) new ProcessGroupSetDao(db);
 		return new BaseDao<>(clazz, db);
-	}
-
-	public static RefEntityDao<?, ?> refDao(IDatabase db, ModelType type) {
-		if (db == null | type == null)
-			return null;
-		if (type.isRoot())
-			return root(db, type);
-		if (type == ModelType.NW_SET)
-			return new NwSetDao(db);
-		if (type == ModelType.UNIT)
-			return new UnitDao(db);
-		return null;
 	}
 
 	public static RootEntityDao<?, ?> root(

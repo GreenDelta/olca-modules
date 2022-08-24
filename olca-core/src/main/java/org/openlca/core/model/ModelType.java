@@ -2,13 +2,12 @@ package org.openlca.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Enumeration of the basic types in the openLCA domain model.
+ * Enumeration of the root entity types in the openLCA domain model.
  */
 public enum ModelType {
-
-	UNKNOWN(null),
 
 	PROJECT(Project.class),
 
@@ -26,8 +25,6 @@ public enum ModelType {
 
 	UNIT_GROUP(UnitGroup.class),
 
-	UNIT(Unit.class),
-
 	ACTOR(Actor.class),
 
 	SOURCE(Source.class),
@@ -35,8 +32,6 @@ public enum ModelType {
 	CATEGORY(Category.class),
 
 	LOCATION(Location.class),
-
-	NW_SET(NwSet.class),
 
 	SOCIAL_INDICATOR(SocialIndicator.class),
 
@@ -52,7 +47,7 @@ public enum ModelType {
 
 	final Class<? extends RefEntity> modelClass;
 
-	ModelType(Class<? extends RefEntity> clazz) {
+	ModelType(Class<? extends RootEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
@@ -98,20 +93,18 @@ public enum ModelType {
 	 * Get the model type of the given entity.
 	 *
 	 * @param e a root entity; maybe {@code null}
-	 * @return the model type of the entity or {@code UNKNOWN} if the type could
+	 * @return the model type of the entity or {@code null} if the type could
 	 * not be determined or the entity was null.
 	 */
-	public static ModelType of(RefEntity e) {
+	public static ModelType of(RootEntity e) {
 		if (e == null)
-			return UNKNOWN;
+			return null;
 		for (var v : values()) {
-			if (v.modelClass == null)
-				continue;
-			if (e.getClass().equals(v.modelClass)) {
+			if (Objects.equals(e.getClass(), v.modelClass)) {
 				return v;
 			}
 		}
-		return UNKNOWN;
+		return null;
 	}
 
 }
