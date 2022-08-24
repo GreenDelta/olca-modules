@@ -37,6 +37,13 @@ public class Daos {
 		return new BaseDao<>(clazz, db);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T extends RootEntity> RootEntityDao<T, ?> root(
+			IDatabase db, Class<T> type) {
+		var modelType = ModelType.of(type);
+		return (RootEntityDao<T, ?>) root(db, modelType);
+	}
+
 	public static RootEntityDao<?, ?> root(IDatabase db, ModelType type) {
 		if (db == null || type == null)
 			return null;

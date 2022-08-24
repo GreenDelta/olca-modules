@@ -17,11 +17,13 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.store.EntityStore;
+import org.openlca.util.TLongSets;
 
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase extends Closeable, INotifiable {
+public interface IDatabase extends EntityStore, Closeable, INotifiable {
 
 	/**
 	 * The current database schema version of this package. Together with the
@@ -65,7 +67,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	/**
 	 * Clears the cache of the entity manager of this database. You should always
 	 * call this method when you modified the database (via native SQL queries)
-	 * outside of the entity manager.
+	 * outside the entity manager.
 	 */
 	default void clearCache() {
 		var emf = getEntityFactory();
@@ -119,53 +121,38 @@ public interface IDatabase extends Closeable, INotifiable {
 		NativeSql.on(this).update(sql, s -> s.setString(1, id));
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> T insert(T e) {
 		if (e == null)
 			return null;
-		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
+		var dao = (BaseDao<T>) Daos.root(this, e.getClass());
 		return dao.insert(e);
 	}
 
-	default void insert(RootEntity e1, RootEntity e2, RootEntity... more) {
-		insert(e1);
-		insert(e2);
-		if (more == null)
-			return;
-		for (var e : more) {
-			insert(e);
-		}
-	}
-
+	@Override
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> T update(T e) {
-		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
+		var dao = (BaseDao<T>) Daos.root(this, e.getClass());
 		return dao.update(e);
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> void delete(T e) {
 		if (e == null)
 			return;
-		var dao = (BaseDao<T>) Daos.base(this, e.getClass());
+		var dao = (BaseDao<T>) Daos.root(this, e.getClass());
 		dao.delete(e);
 	}
 
-	default void delete(RootEntity e1, RootEntity e2, RootEntity... more) {
-		this.delete(e1);
-		this.delete(e2);
-		if (more == null)
-			return;
-		for (var e : more) {
-			delete(e);
-		}
-	}
-
+	@Override
 	default <T extends RootEntity> T get(Class<T> type, long id) {
 		var dao = Daos.base(this, type);
 		return dao.getForId(id);
 	}
 
+	@Override
 	default <T extends RootEntity> List<T> getAll(Class<T> type, TLongSet ids) {
 		var list = new ArrayList<T>();
 		var em = newEntityManager();
@@ -179,6 +166,7 @@ public interface IDatabase extends Closeable, INotifiable {
 		return list;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
@@ -188,39 +176,36 @@ public interface IDatabase extends Closeable, INotifiable {
 			return null;
 		var dao = Daos.root(this, modelType);
 		return dao == null
-			? null
-			: (T) dao.getForRefId(refId);
+				? null
+				: (T) dao.getForRefId(refId);
 	}
 
 	/**
 	 * Get the descriptor of the entity of the given type and ID.
 	 */
-	default <T extends RootEntity> Descriptor getDescriptor(
+	@Override
+	default <T extends RootEntity> RootDescriptor getDescriptor(
 			Class<T> type, long id) {
 		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao == null
-			? null
-			: dao.getDescriptor(id);
+				? null
+				: dao.getDescriptor(id);
 	}
 
-	/**
-	 * Get the descriptor of the entity of the given type and reference ID.
-	 */
-	default <T extends RootEntity> Descriptor getDescriptor(
-		Class<T> type, String refID) {
+	@Override
+	default <T extends RootEntity> RootDescriptor getDescriptor(
+			Class<T> type, String refID) {
 		if (refID == null)
 			return null;
 		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao == null
-			? null
-			: dao.getDescriptorForRefId(refID);
+				? null
+				: dao.getDescriptorForRefId(refID);
 	}
 
-	/**
-	 * Get all entities of the given type from this database.
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> List<T> getAll(Class<T> type) {
 		var modelType = ModelType.of(type);
@@ -228,37 +213,44 @@ public interface IDatabase extends Closeable, INotifiable {
 			return Collections.emptyList();
 		var dao = Daos.root(this, modelType);
 		return dao == null
-			? Collections.emptyList()
-			: (List<T>) dao.getAll();
+				? Collections.emptyList()
+				: (List<T>) dao.getAll();
 	}
 
-	/**
-	 * Get the descriptors of all entities of the given type from this database.
-	 */
+	@Override
 	default <T extends RootEntity> List<? extends Descriptor> getDescriptors(
-		Class<T> type) {
+			Class<T> type) {
 		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao == null
-			? Collections.emptyList()
-			: dao.getDescriptors();
+				? Collections.emptyList()
+				: dao.getDescriptors();
 	}
 
 	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
-		Class<T> type, Set<Long> ids) {
+			Class<T> type, Set<Long> ids) {
 		if (type == null || ids.isEmpty())
 			return Collections.emptyList();
 		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao != null
-			? dao.getDescriptors(ids)
-			: Collections.emptyList();
+				? dao.getDescriptors(ids)
+				: Collections.emptyList();
 	}
 
-	/**
-	 * Get the first entity of the given type and with the given name from the
-	 * database. It returns `null` if no entity with the given name exists.
-	 */
+	@Override
+	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
+			Class<T> type, TLongSet ids) {
+		if (type == null || ids.isEmpty())
+			return Collections.emptyList();
+		var modelType = ModelType.of(type);
+		var dao = Daos.root(this, modelType);
+		return dao != null
+				? dao.getDescriptors(TLongSets.box(ids))  // TODO: not very efficient
+				: Collections.emptyList();
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> T getForName(Class<T> type, String name) {
 		var modelType = ModelType.of(type);
@@ -269,14 +261,11 @@ public interface IDatabase extends Closeable, INotifiable {
 			return null;
 		var candidates = dao.getForName(name);
 		return candidates.isEmpty()
-			? null
-			: (T) candidates.get(0);
+				? null
+				: (T) candidates.get(0);
 	}
 
-	/**
-	 * Deletes everything from this database. We assume that you now what you
-	 * do when calling this method.
-	 */
+	@Override
 	default void clear() {
 		var tables = new ArrayList<String>();
 		// type = T means user table
@@ -287,7 +276,7 @@ public interface IDatabase extends Closeable, INotifiable {
 		});
 		for (var table : tables) {
 			if (table.equalsIgnoreCase("SEQUENCE")
-				|| table.equalsIgnoreCase("OPENLCA_VERSION"))
+					|| table.equalsIgnoreCase("OPENLCA_VERSION"))
 				continue;
 			NativeSql.on(this).runUpdate("DELETE FROM " + table);
 		}

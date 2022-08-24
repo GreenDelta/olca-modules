@@ -9,10 +9,23 @@ import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class TLongSets {
 
 	private TLongSets() {
+	}
+
+	public static Set<Long> box(TLongSet set) {
+		if (set == null || set.isEmpty())
+			return Collections.emptySet();
+		var boxed = new HashSet<Long>(set.size());
+		for (var i = set.iterator(); i.hasNext();) {
+			boxed.add(i.next());
+		}
+		return boxed;
 	}
 
 	public static TLongSet singleton(long v) {
