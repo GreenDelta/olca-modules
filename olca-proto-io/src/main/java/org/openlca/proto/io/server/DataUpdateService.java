@@ -52,7 +52,7 @@ public class DataUpdateService extends
 		var reader = DataSetReader.of(dataSet);
 		var type = reader.getType();
 		var id = reader.getId();
-		if (type == null || !type.isRoot() || Strings.nullOrEmpty(id)) {
+		if (type == null || Strings.nullOrEmpty(id)) {
 			Response.invalidArg(resp, "No valid data set provided");
 			return;
 		}

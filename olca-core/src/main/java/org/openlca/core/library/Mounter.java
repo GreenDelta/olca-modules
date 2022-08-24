@@ -89,8 +89,6 @@ public class Mounter implements Runnable {
 				.setUpdateMode(UpdateMode.ALWAYS)
 				.run();
 			for (var type : ModelType.values()) {
-				if (!type.isRoot())
-					continue;
 				var refIds = zip.getRefIds(type);
 				if (refIds.isEmpty())
 					continue;

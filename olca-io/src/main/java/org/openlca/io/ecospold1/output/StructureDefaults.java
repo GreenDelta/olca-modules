@@ -71,7 +71,7 @@ final class StructureDefaults {
 		ISource source = factory.createSource();
 		source.setNumber(1);
 		source.setFirstAuthor("default");
-		source.setYear(Util.toXml(new Short((short) 9999)));
+		source.setYear(Util.toXml((short) 9999));
 		source.setTitle("Created for EcoSpold 1 compatibility");
 		source.setPlaceOfPublications("none");
 		source.setSourceType(0);

@@ -9,8 +9,8 @@ import org.openlca.ecospold.io.DataSet;
 
 final class ActorSourceMapper {
 
-	private ExportConfig config;
-	private IEcoSpoldFactory factory;
+	private final ExportConfig config;
+	private final IEcoSpoldFactory factory;
 
 	ActorSourceMapper(IEcoSpoldFactory factory, ExportConfig config) {
 		this.factory = factory;
@@ -77,7 +77,7 @@ final class ActorSourceMapper {
 		if (source.getTitle() == null)
 			source.setTitle("no title");
 		if (source.getYear() == null)
-			source.setYear(Util.toXml(new Short((short) 9999)));
+			source.setYear(Util.toXml((short) 9999));
 	}
 
 }

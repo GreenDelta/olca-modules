@@ -13,9 +13,7 @@ import java.util.function.Consumer;
 import gnu.trove.set.TLongSet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -185,7 +183,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	default <T extends RootEntity> T get(Class<T> type, String refId) {
 		if (type == null || refId == null)
 			return null;
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		if (modelType == null)
 			return null;
 		var dao = Daos.root(this, modelType);
@@ -199,7 +197,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	 */
 	default <T extends RootEntity> Descriptor getDescriptor(
 			Class<T> type, long id) {
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao == null
 			? null
@@ -213,7 +211,7 @@ public interface IDatabase extends Closeable, INotifiable {
 		Class<T> type, String refID) {
 		if (refID == null)
 			return null;
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao == null
 			? null
@@ -225,7 +223,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> List<T> getAll(Class<T> type) {
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		if (modelType == null)
 			return Collections.emptyList();
 		var dao = Daos.root(this, modelType);
@@ -239,7 +237,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	 */
 	default <T extends RootEntity> List<? extends Descriptor> getDescriptors(
 		Class<T> type) {
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao == null
 			? Collections.emptyList()
@@ -250,7 +248,7 @@ public interface IDatabase extends Closeable, INotifiable {
 		Class<T> type, Set<Long> ids) {
 		if (type == null || ids.isEmpty())
 			return Collections.emptyList();
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao != null
 			? dao.getDescriptors(ids)
@@ -263,7 +261,7 @@ public interface IDatabase extends Closeable, INotifiable {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends RootEntity> T getForName(Class<T> type, String name) {
-		var modelType = ModelType.forModelClass(type);
+		var modelType = ModelType.of(type);
 		if (modelType == null)
 			return null;
 		var dao = Daos.root(this, modelType);

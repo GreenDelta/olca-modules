@@ -10,10 +10,7 @@ public class DescriptorsTest {
 	@Test
 	public void testToDescriptor() throws Exception {
 		for (ModelType t : ModelType.values()) {
-			Class<? extends RefEntity> clazz = t.modelClass;
-			if (clazz == null)
-				continue;
-			RefEntity e = clazz.newInstance();
+			var e = t.modelClass.getDeclaredConstructor().newInstance();
 			e.name = t.name();
 			e.refId = t.name();
 			Descriptor d = Descriptor.of(e);

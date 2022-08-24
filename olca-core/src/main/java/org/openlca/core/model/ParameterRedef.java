@@ -81,7 +81,7 @@ public class ParameterRedef extends AbstractEntity
 		}
 		if (owner != null) {
 			redef.contextId = owner.id;
-			redef.contextType = ModelType.forModelClass(owner.getClass());
+			redef.contextType = ModelType.of(owner.getClass());
 		}
 		return redef;
 	}

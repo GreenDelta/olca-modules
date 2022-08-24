@@ -54,8 +54,6 @@ public class ZipStoreTest extends AbstractZipTest {
 		Map<ModelType, String> entries = new HashMap<>();
 		with(zip -> {
 			for (var type : ModelType.values()) {
-				if (!type.isRoot())
-					continue;
 				String refId = UUID.randomUUID().toString();
 				entries.put(type, refId);
 				JsonObject obj = new JsonObject();

@@ -35,9 +35,7 @@ public class ProtoImport implements Runnable, EntityResolver {
 		this.providers = ExchangeProviderQueue.create(db);
 		this.categories = CategorySync.of(db);
 		for (var type : ModelType.values()) {
-			if (type.isRoot()) {
-				types.put(type.getModelClass(), type);
-			}
+			types.put(type.getModelClass(), type);
 		}
 	}
 
@@ -58,18 +56,13 @@ public class ProtoImport implements Runnable, EntityResolver {
 		cache.visited(entity);
 	}
 
-	@SuppressWarnings("unchecked")
 	public RootEntity run(ModelType type, String id) {
-		if (type == null || !type.isRoot() || id == null)
-			return null;
-		var clazz = type.getModelClass();
-		return clazz != null
-			? get((Class<? extends RootEntity>) clazz, id)
-			: null;
+		return type == null || id == null
+			? null
+			: get(type.getModelClass(), id);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void run() {
 		new UnitGroupImport(this).importAll();
 		var typeOrder = new ModelType[]{
@@ -93,7 +86,7 @@ public class ProtoImport implements Runnable, EntityResolver {
 		for (var type : typeOrder) {
 			var batchSize = BatchImport.batchSizeOf(type);
 			if (batchSize > 1) {
-				var clazz = (Class<? extends RootEntity>) type.getModelClass();
+				var clazz = type.getModelClass();
 				new BatchImport<>(this, clazz, batchSize).run();
 			} else {
 				for (var id : reader.getIds(type)) {

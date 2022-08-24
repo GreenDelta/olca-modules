@@ -14,8 +14,6 @@ public class VersionChangeTest {
 	@Test
 	public void testUpdate() throws Exception {
 		for (var type : ModelType.values()) {
-			if (!type.isRoot())
-				continue;
 			var entity = (RootEntity) type.getModelClass()
 					.getDeclaredConstructor()
 					.newInstance();

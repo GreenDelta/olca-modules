@@ -47,7 +47,7 @@ public record PreMountCheck(IDatabase db, Library library)
 		PreMountState state = null;
 		try (var zip = lib.openJsonZip()) {
 			for (var type : ModelType.values()) {
-				if (!type.isRoot() || type == ModelType.CATEGORY)
+				if (type == ModelType.CATEGORY)
 					continue;
 				var next = new TableState(type).get(lib.name(), zip);
 				if (next == null)

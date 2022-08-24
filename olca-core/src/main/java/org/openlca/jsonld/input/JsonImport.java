@@ -44,9 +44,7 @@ public class JsonImport implements Runnable, EntityResolver {
 		this.providers = ExchangeProviderQueue.create(db);
 		this.categories = CategorySync.of(db);
 		for (var type : ModelType.values()) {
-			if (type.isRoot()) {
-				types.put(type.getModelClass(), type);
-			}
+			types.put(type.getModelClass(), type);
 		}
 	}
 
@@ -82,37 +80,32 @@ public class JsonImport implements Runnable, EntityResolver {
 		callback.accept(entity);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void run(ModelType type, String id) {
-		if (type == null || !type.isRoot() || id == null)
+		if (type == null || id == null)
 			return;
-		var clazz = type.getModelClass();
-		if (clazz == null)
-			return;
-		get((Class<? extends RootEntity>) clazz, id);
+		get(type.getModelClass(), id);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void run() {
 		new UnitGroupImport(this).importAll();
 		var typeOrder = new ModelType[]{
-			ModelType.ACTOR,
-			ModelType.SOURCE,
-			ModelType.CURRENCY,
-			ModelType.DQ_SYSTEM,
-			ModelType.LOCATION,
-			ModelType.FLOW_PROPERTY,
-			ModelType.FLOW,
-			ModelType.SOCIAL_INDICATOR,
-			ModelType.PARAMETER,
-			ModelType.PROCESS,
-			ModelType.IMPACT_CATEGORY,
-			ModelType.IMPACT_METHOD,
-			ModelType.PRODUCT_SYSTEM,
-			ModelType.PROJECT,
-			ModelType.RESULT,
-			ModelType.EPD,
+				ModelType.ACTOR,
+				ModelType.SOURCE,
+				ModelType.CURRENCY,
+				ModelType.DQ_SYSTEM,
+				ModelType.LOCATION,
+				ModelType.FLOW_PROPERTY,
+				ModelType.FLOW,
+				ModelType.SOCIAL_INDICATOR,
+				ModelType.PARAMETER,
+				ModelType.PROCESS,
+				ModelType.IMPACT_CATEGORY,
+				ModelType.IMPACT_METHOD,
+				ModelType.PRODUCT_SYSTEM,
+				ModelType.PROJECT,
+				ModelType.RESULT,
+				ModelType.EPD,
 		};
 		for (var type : typeOrder) {
 			var batchSize = BatchImport.batchSizeOf(type);
@@ -167,14 +160,14 @@ public class JsonImport implements Runnable, EntityResolver {
 
 	@Override
 	public <T extends RootEntity> Descriptor getDescriptor(
-		Class<T> type, String refId) {
+			Class<T> type, String refId) {
 		var d = cache.getDescriptor(type, refId);
 		if (d != null)
 			return d;
 		var model = get(type, refId);
 		return model != null
-			? Descriptor.of(model)
-			: null;
+				? Descriptor.of(model)
+				: null;
 	}
 
 	<T extends RootEntity> ImportItem<T> fetch(Class<T> type, String refId) {

@@ -40,7 +40,7 @@ public class ImportTest {
 	@Test
 	public void testUpdate() throws Exception {
 		for (var type : ModelType.values()) {
-			if (!type.isRoot() || type == ModelType.CATEGORY)
+			if (type == ModelType.CATEGORY)
 				continue;
 
 			var id = UUID.randomUUID().toString();

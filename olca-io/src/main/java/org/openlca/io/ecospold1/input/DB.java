@@ -13,7 +13,6 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IExchange;
@@ -169,7 +168,7 @@ class DB {
 	@SuppressWarnings("unchecked")
 	public <T extends RootEntity> T get(Class<T> type, String id) {
 		try {
-			ModelType modelType = ModelType.forModelClass(type);
+			var modelType = ModelType.of(type);
 			return (T) Daos.root(database, modelType).getForRefId(id);
 		} catch (Exception e) {
 			log.error("Failed to query database for " + type + " id=" + id, e);

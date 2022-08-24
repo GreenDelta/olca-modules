@@ -4,7 +4,10 @@ import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.ProcessGroupSet;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Unit;
 
 public class Daos {
 
@@ -12,9 +15,19 @@ public class Daos {
 	public static <T extends AbstractEntity> BaseDao<T> base(IDatabase db, Class<T> clazz) {
 		if (db == null || clazz == null)
 			return null;
-		var type = ModelType.forModelClass(clazz);
-		if (type != null)
-			return (BaseDao<T>) root(db, type);
+
+		// root entity daos
+		if (RootEntity.class.isAssignableFrom(clazz)) {
+			var type = ModelType.of((Class<? extends RootEntity>) clazz);
+			if (type != null)
+				return (BaseDao<T>) root(db, type);
+		}
+
+		// some specific daos
+		if( clazz == Unit.class)
+			return (BaseDao<T>) new UnitDao(db);
+		if (clazz == NwSet.class)
+			return (BaseDao<T>) new NwSetDao(db);
 		if (clazz == Exchange.class)
 			return (BaseDao<T>) new ExchangeDao(db);
 		if (clazz == MappingFile.class)
@@ -25,7 +38,7 @@ public class Daos {
 	}
 
 	public static RootEntityDao<?, ?> root(IDatabase db, ModelType type) {
-		if (db == null || type == null || !type.isRoot())
+		if (db == null || type == null)
 			return null;
 		return switch (type) {
 			case ACTOR -> new ActorDao(db);

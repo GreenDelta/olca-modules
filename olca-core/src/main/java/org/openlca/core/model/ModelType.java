@@ -1,7 +1,5 @@
 package org.openlca.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -55,60 +53,23 @@ public enum ModelType {
 		return modelClass;
 	}
 
-	/**
-	 * @deprecated this is always true
-	 */
-	@Deprecated
-	public boolean isRoot() {
-		return modelClass != null
-			&& RootEntity.class.isAssignableFrom(modelClass);
-	}
-
-	public boolean isOneOf(ModelType... types) {
-		if (types == null || types.length == 0)
-			return false;
-		for (ModelType type : types)
-			if (this == type)
-				return true;
-		return false;
-	}
-
-	public static ModelType forModelClass(Class<?> clazz) {
+	public static ModelType of(Class<? extends RootEntity> clazz) {
 		if (clazz == null)
 			return null;
-		for (ModelType type : ModelType.values()) {
-			if (clazz.equals(type.getModelClass()))
+		for (var type : values()) {
+			if (Objects.equals(clazz, type.getModelClass()))
 				return type;
 		}
 		return null;
 	}
 
-	public static ModelType[] rootTypes() {
-		List<ModelType> list = new ArrayList<>();
-		for (ModelType type : values()) {
-			if (!type.isRoot())
-				continue;
-			list.add(type);
-		}
-		return list.toArray(new ModelType[0]);
-	}
-
 	/**
 	 * Get the model type of the given entity.
-	 *
-	 * @param e a root entity; maybe {@code null}
-	 * @return the model type of the entity or {@code null} if the type could
-	 * not be determined or the entity was null.
 	 */
 	public static ModelType of(RootEntity e) {
-		if (e == null)
-			return null;
-		for (var v : values()) {
-			if (Objects.equals(e.getClass(), v.modelClass)) {
-				return v;
-			}
-		}
-		return null;
+		return e != null
+				? of(e.getClass())
+				: null;
 	}
 
 }

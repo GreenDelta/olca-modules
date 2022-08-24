@@ -80,7 +80,7 @@ public class BaseDaoTest {
 		if (!RootEntity.class.isAssignableFrom(clazz))
 			return;
 		var entity = (RootEntity) instance;
-		var type = ModelType.forModelClass(clazz);
+		var type = ModelType.of(entity);
 		var dependents = UsageSearch.of(type, Tests.getDb())
 			.find(entity.id);
 		Assert.assertTrue(dependents.isEmpty());

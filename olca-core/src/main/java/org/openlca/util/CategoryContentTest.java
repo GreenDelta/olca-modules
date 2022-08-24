@@ -102,7 +102,7 @@ public class CategoryContentTest {
 		}
 
 		static Cache load(IDatabase db, ModelType type) {
-			if (db == null || type == null || !type.isRoot())
+			if (db == null || type == null)
 				return empty();
 			var clazz = type.getModelClass();
 			if (clazz == null)

@@ -243,7 +243,7 @@ public class ObjectIdStore {
 		var path = String.join("/", Categories.path(e.category));
 		if (e instanceof Category)
 			return getPath(((Category) e).modelType, path, e.name);
-		return getPath(ModelType.forModelClass(e.getClass()), path, e.refId + GitUtil.DATASET_SUFFIX);
+		return getPath(ModelType.of(e), path, e.refId + GitUtil.DATASET_SUFFIX);
 	}
 
 	public String getPath(PathBuilder categoryPath, RootDescriptor d) {

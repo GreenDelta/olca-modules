@@ -22,7 +22,7 @@ public class EntityTypeTest {
 	@Test
 	public void testWriteToModels() throws Exception {
 		for (var modelType : ModelType.values()) {
-			if (!modelType.isRoot() || modelType == ModelType.CATEGORY)
+			if (modelType == ModelType.CATEGORY)
 				continue;
 			var id = UUID.randomUUID().toString();
 			var instance = modelType.getModelClass()
@@ -50,7 +50,7 @@ public class EntityTypeTest {
 		};
 
 		for (var modelType : ModelType.values()) {
-			if (!modelType.isRoot() || modelType == ModelType.CATEGORY)
+			if (modelType == ModelType.CATEGORY)
 				continue;
 			var id = UUID.randomUUID().toString();
 			var instance = modelType.getModelClass()

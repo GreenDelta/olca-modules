@@ -133,7 +133,7 @@ public class EntityCacheTest {
 	public void testAllModels() throws Exception{
 		for (var modelType : ModelType.values()) {
 			var type = modelType.getModelClass();
-			if (type == null || !modelType.isRoot())
+			if (type == null)
 				continue;
 
 			// create it

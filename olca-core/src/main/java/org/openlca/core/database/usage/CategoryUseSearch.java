@@ -11,7 +11,6 @@ import gnu.trove.set.TLongSet;
 import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 public class CategoryUseSearch implements UsageSearch {
@@ -38,8 +37,6 @@ public class CategoryUseSearch implements UsageSearch {
 			var exec = Executors.newFixedThreadPool(4);
 			var calls = new ArrayList<Future<Set<? extends RootDescriptor>>>();
 			for (var type : ModelType.values()) {
-				if (!type.isRoot())
-					continue;
 				calls.add(exec.submit(() -> query(type, ids)));
 			}
 			exec.shutdown();
@@ -53,11 +50,8 @@ public class CategoryUseSearch implements UsageSearch {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private Set<? extends RootDescriptor> query(ModelType type, TLongSet ids) {
-		if (!type.isRoot())
-			return Collections.emptySet();
-		var clazz = (Class<? extends RootEntity>) type.getModelClass();
+		var clazz = type.getModelClass();
 		var table = clazz.getAnnotation(Table.class);
 		if (table == null)
 			return Collections.emptySet();

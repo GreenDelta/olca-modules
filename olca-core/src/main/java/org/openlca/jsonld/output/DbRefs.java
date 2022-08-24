@@ -79,7 +79,7 @@ public class DbRefs {
 	}
 
 	RootDescriptor descriptorOf(ModelType type, long id) {
-		if (type == null || !type.isRoot())
+		if (type == null)
 			return null;
 		var map = cache.computeIfAbsent(
 			type, _type -> Daos.root(db, type).descriptorMap());

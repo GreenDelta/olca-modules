@@ -35,10 +35,7 @@ public class DataUpdateTest {
 			// insert it via the service
 			try {
 				for (var type : ModelType.values()) {
-
-					// the ID of categories is calculated from the category
-					// name; we do not test this behaviour here
-					if (!type.isRoot() || type == ModelType.CATEGORY)
+					if (type == ModelType.CATEGORY)
 						continue;
 					var id = UUID.randomUUID().toString();
 

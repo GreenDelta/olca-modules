@@ -114,12 +114,12 @@ public class JsonExport {
 
 	/**
 	 * Creates a short reference for the entity with the given type and ID. This
-	 * method should be only used when nothing more than the ID and type of a
+	 * method should be only used when nothing more than the ID and type of the
 	 * thing are available (e.g. for default providers in exchanges or processes
 	 * in process links).
 	 */
 	JsonObject handleRef(ModelType type, long id) {
-		if (type == null || !type.isRoot() || dbRefs == null)
+		if (type == null || dbRefs == null)
 			return null;
 		var d = dbRefs.descriptorOf(type, id);
 		if (d == null)
@@ -197,7 +197,7 @@ public class JsonExport {
 	}
 
 	private void writeExternalFiles(
-		RefEntity entity, ModelType type, Callback cb) {
+		RootEntity entity, ModelType type, Callback cb) {
 		if (entity == null || db == null
 			|| db.getFileStorageLocation() == null
 			|| writer == null)

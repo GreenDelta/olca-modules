@@ -12,6 +12,7 @@ import java.util.Set;
 import jakarta.persistence.Table;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 
@@ -163,6 +164,7 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	 * can be overwritten by subclasses but it must be implemented in a way that it
 	 * matches the respective descriptor query.
 	 */
+	@SuppressWarnings("unchecked")
 	protected V createDescriptor(Object[] record) {
 		if (record == null)
 			return null;
@@ -173,7 +175,9 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 			d.refId = (String) record[1];
 			d.name = (String) record[2];
 			d.description = (String) record[3];
-			d.type = ModelType.forModelClass(entityType);
+			if (RootEntity.class.isAssignableFrom(entityType)) {
+				d.type = ModelType.of((Class<? extends RootEntity>) entityType);
+			}
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(
 				log, "failed to map query result to descriptor", e);

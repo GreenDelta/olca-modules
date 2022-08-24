@@ -39,6 +39,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
@@ -107,10 +108,10 @@ class Db {
 	}
 
 	@SuppressWarnings("unchecked")
-	<T extends RefEntity> T put(T entity) {
+	<T extends RootEntity> T put(T entity) {
 		if (entity == null)
 			return null;
-		var modelType = ModelType.forModelClass(entity.getClass());
+		var modelType = ModelType.of(entity.getClass());
 		if (modelType == null)
 			throw new RuntimeException(entity.getClass().getCanonicalName() + " not supported");
 		return switch (modelType) {
@@ -132,7 +133,6 @@ class Db {
 			case CATEGORY -> (T) put(new CategoryDao(db), (Category) entity, categoryIds);
 			case RESULT -> (T) put(new ResultDao(db), (Result) entity, resultIds);
 			case EPD -> (T) put(new EpdDao(db), (Epd) entity, epdIds);
-			default -> throw new RuntimeException(modelType.name() + " not supported");
 		};
 	}
 

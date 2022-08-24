@@ -1,6 +1,5 @@
 package org.openlca.core.database;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,7 +20,7 @@ import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
 public class CategoryDao
-	extends RootEntityDao<Category, CategoryDescriptor> {
+		extends RootEntityDao<Category, CategoryDescriptor> {
 
 	private static Map<ModelType, String> tables;
 
@@ -32,16 +31,16 @@ public class CategoryDao
 	@Override
 	protected String[] getDescriptorFields() {
 		return new String[]{
-			"id",
-			"ref_id",
-			"name",
-			"description",
-			"version",
-			"last_change",
-			"f_category",
-			"library",
-			"tags",
-			"model_type",
+				"id",
+				"ref_id",
+				"name",
+				"description",
+				"version",
+				"last_change",
+				"f_category",
+				"library",
+				"tags",
+				"model_type",
 		};
 	}
 
@@ -127,7 +126,7 @@ public class CategoryDao
 	private boolean contains(List<Category> categories, Category category) {
 		for (Category child : categories)
 			if (Categories.createRefId(child)
-				.equals(Categories.createRefId(category)))
+					.equals(Categories.createRefId(category)))
 				return true;
 		return false;
 	}
@@ -143,8 +142,8 @@ public class CategoryDao
 			d.version = version;
 			d.lastChange = lastChange;
 			String update = "UPDATE " + getTable(d.type)
-											+ " SET version = " + version + ", last_change = "
-											+ lastChange + " WHERE id = " + d.id;
+					+ " SET version = " + version + ", last_change = "
+					+ lastChange + " WHERE id = " + d.id;
 			NativeSql.on(db).runUpdate(update);
 			db.notifyUpdate(d);
 		}
@@ -155,7 +154,7 @@ public class CategoryDao
 			tables = new HashMap<>();
 			for (ModelType type : ModelType.values()) {
 				if (type.getModelClass() == null || !RefEntity.class
-					.isAssignableFrom(type.getModelClass()))
+						.isAssignableFrom(type.getModelClass()))
 					continue;
 				String table = Daos.root(db, type).getEntityTable();
 				tables.put(type, table);
@@ -165,17 +164,16 @@ public class CategoryDao
 	}
 
 	private List<? extends RootDescriptor> getDescriptors(
-		ModelType type,
-		Optional<Category> category) {
-		if (type == null || !type.isRoot())
-			return new ArrayList<>();
+			ModelType type, Optional<Category> category) {
+		if (type == null)
+			return Collections.emptyList();
 		return Daos.root(getDatabase(), type).getDescriptors(category);
 	}
 
 	public static Category sync(IDatabase db, ModelType type, String... path) {
 		return db == null
-			? null
-			: new CategoryDao(db).sync(type, path);
+				? null
+				: new CategoryDao(db).sync(type, path);
 	}
 
 	/**
@@ -252,13 +250,13 @@ public class CategoryDao
 				continue;
 			category = null;
 			for (var c : next) {
-					if (c.name == null)
-						continue;
-					if (c.name.trim().equalsIgnoreCase(part)) {
-						category = c;
-						next = c.childCategories;
-						break;
-					}
+				if (c.name == null)
+					continue;
+				if (c.name.trim().equalsIgnoreCase(part)) {
+					category = c;
+					next = c.childCategories;
+					break;
+				}
 			}
 			if (category == null)
 				return null;

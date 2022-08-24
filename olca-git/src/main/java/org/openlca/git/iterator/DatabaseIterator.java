@@ -44,7 +44,7 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(IDatabase database) {
-		return Arrays.stream(ModelType.rootTypes()).filter(type -> {
+		return Arrays.stream(ModelType.values()).filter(type -> {
 			if (type == ModelType.CATEGORY)
 				return false;
 			var dao = new CategoryDao(database);

@@ -42,8 +42,6 @@ class Retagger {
 		try (var zip = lib.openJsonZip()) {
 			int total = 0;
 			for (var type : ModelType.values()) {
-				if (!type.isRoot())
-					continue;
 				var refIds = new HashSet<>(zip.getRefIds(type));
 				if (refIds.isEmpty())
 					continue;
