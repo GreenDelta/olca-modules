@@ -7,6 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Unit;
 import org.openlca.io.maps.Maps;
 
 class ImpactFactorImport extends AbstractImport {
@@ -41,7 +42,7 @@ class ImpactFactorImport extends AbstractImport {
 		stmt.setLong(2, seq.get(ModelType.IMPACT_CATEGORY, Maps.getString(row, 0)));
 		stmt.setLong(3, flowId);
 		stmt.setLong(4, factorId);
-		stmt.setLong(5, seq.get(ModelType.UNIT, Maps.getString(row, 3)));
+		stmt.setLong(5, seq.get(Unit.class, Maps.getString(row, 3)));
 		stmt.setDouble(6, Maps.getDouble(row, 4));
 		stmt.setString(7, Maps.getString(row, 5));
 	}

@@ -14,6 +14,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RefEntity;
 import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ abstract class AbstractImport {
 			return;
 		try {
 			NativeSql.on(db).batchInsert(getStatement(),
-				nextBatch.size(), new BatchHandler());
+					nextBatch.size(), new BatchHandler());
 		} catch (Exception e) {
 			log.error("failed to execute batch insert", e);
 		}
@@ -59,10 +60,15 @@ abstract class AbstractImport {
 	protected abstract String getStatement();
 
 	protected abstract void setValues(
-		PreparedStatement statement, CSVRecord values) throws Exception;
+			PreparedStatement statement, CSVRecord values) throws Exception;
 
 	protected void setRef(PreparedStatement stmt, int field, ModelType type,
-		String refId) throws Exception {
+			String refId) throws Exception {
+		setRef(stmt, field, type.getModelClass(), refId);
+	}
+
+	protected void setRef(PreparedStatement stmt, int field,
+			Class<? extends RefEntity> type, String refId) throws Exception {
 		if (Strings.isNullOrEmpty(refId)) {
 			stmt.setNull(field, Types.BIGINT);
 			return;

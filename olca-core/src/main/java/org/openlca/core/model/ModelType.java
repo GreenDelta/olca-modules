@@ -45,13 +45,13 @@ public enum ModelType {
 
 	EPD(Epd.class);
 
-	final Class<? extends RefEntity> modelClass;
+	final Class<? extends RootEntity> modelClass;
 
 	ModelType(Class<? extends RootEntity> clazz) {
 		this.modelClass = clazz;
 	}
 
-	public Class<? extends RefEntity> getModelClass() {
+	public Class<? extends RootEntity> getModelClass() {
 		return modelClass;
 	}
 
