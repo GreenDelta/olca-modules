@@ -24,8 +24,7 @@ public class Daos {
 		return new BaseDao<>(clazz, db);
 	}
 
-	public static RootEntityDao<?, ?> root(
-		IDatabase db, ModelType type) {
+	public static RootEntityDao<?, ?> root(IDatabase db, ModelType type) {
 		if (db == null || type == null || !type.isRoot())
 			return null;
 		return switch (type) {
@@ -47,7 +46,6 @@ public class Daos {
 			case UNIT_GROUP -> new UnitGroupDao(db);
 			case RESULT -> new ResultDao(db);
 			case EPD -> new EpdDao(db);
-			default -> null;
 		};
 	}
 }

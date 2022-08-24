@@ -55,6 +55,10 @@ public enum ModelType {
 		return modelClass;
 	}
 
+	/**
+	 * @deprecated this is always true
+	 */
+	@Deprecated
 	public boolean isRoot() {
 		return modelClass != null
 			&& RootEntity.class.isAssignableFrom(modelClass);

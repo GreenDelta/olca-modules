@@ -1,7 +1,6 @@
 package org.openlca.proto.io.input;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
@@ -31,7 +30,6 @@ import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.proto.ProtoAllocationType;
 import org.openlca.proto.ProtoFlowType;
 import org.openlca.proto.ProtoParameterRedef;
 import org.openlca.proto.ProtoProcessType;
@@ -51,7 +49,7 @@ public final class In {
 
   public static ModelType modelTypeOf(ProtoType protoType) {
     if (protoType == null)
-      return ModelType.UNKNOWN;
+      return null;
     return switch (protoType) {
       case Actor -> ModelType.ACTOR;
       case Currency -> ModelType.CURRENCY;
@@ -62,7 +60,6 @@ public final class In {
       case ImpactCategory -> ModelType.IMPACT_CATEGORY;
       case ImpactMethod -> ModelType.IMPACT_METHOD;
       case Location -> ModelType.LOCATION;
-      case NwSet -> ModelType.NW_SET;
       case Parameter -> ModelType.PARAMETER;
       case Process -> ModelType.PROCESS;
       case ProductSystem -> ModelType.PRODUCT_SYSTEM;
@@ -70,9 +67,8 @@ public final class In {
       case Result -> ModelType.RESULT;
       case SocialIndicator -> ModelType.SOCIAL_INDICATOR;
       case Source -> ModelType.SOURCE;
-      case Unit -> ModelType.UNIT;
       case UnitGroup -> ModelType.UNIT_GROUP;
-      case Undefined, UNRECOGNIZED -> ModelType.UNKNOWN;
+      default -> null;
     };
   }
 

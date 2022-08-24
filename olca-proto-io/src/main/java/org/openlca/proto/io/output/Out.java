@@ -282,7 +282,6 @@ public final class Out {
 			case IMPACT_CATEGORY -> ProtoType.ImpactCategory;
 			case IMPACT_METHOD -> ProtoType.ImpactMethod;
 			case LOCATION -> ProtoType.Location;
-			case NW_SET -> ProtoType.NwSet;
 			case PARAMETER -> ProtoType.Parameter;
 			case PROCESS -> ProtoType.Process;
 			case PRODUCT_SYSTEM -> ProtoType.ProductSystem;
@@ -290,7 +289,6 @@ public final class Out {
 			case RESULT -> ProtoType.Result;
 			case SOCIAL_INDICATOR -> ProtoType.SocialIndicator;
 			case SOURCE -> ProtoType.Source;
-			case UNIT -> ProtoType.Unit;
 			case UNIT_GROUP -> ProtoType.UnitGroup;
 			default -> ProtoType.Undefined;
 		};

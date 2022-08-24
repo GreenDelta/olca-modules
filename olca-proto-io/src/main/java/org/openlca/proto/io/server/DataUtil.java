@@ -160,12 +160,12 @@ class DataUtil {
     return ds;
   }
 
-  static <T extends RefEntity> ModelQuery<T> model(
+  static <T extends RootEntity> ModelQuery<T> model(
 		IDatabase db, Class<T> type) {
     return new ModelQuery<>(db, type);
   }
 
-  static class ModelQuery<T extends RefEntity> {
+  static class ModelQuery<T extends RootEntity> {
 
     private final IDatabase db;
     private final Class<T> type;

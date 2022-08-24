@@ -67,7 +67,7 @@ record DataSetReader(ProtoDataSet dataSet) implements ProtoStoreReader {
 			return ModelType.SOURCE;
 		if (dataSet.hasUnitGroup())
 			return ModelType.UNIT_GROUP;
-		return ModelType.UNKNOWN;
+		return null;
 	}
 
 	String getId() {
