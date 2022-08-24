@@ -45,7 +45,7 @@ class ProjectCheck implements Runnable {
 			}
 
 			var nwSetId = r.getLong(3);
-			if (!v.ids.containsOrZero(ModelType.NW_SET, nwSetId)) {
+			if (!v.ids.nwSets().contains(nwSetId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to nw-set @" + nwSetId);
 				foundErrors = true;
@@ -83,7 +83,7 @@ class ProjectCheck implements Runnable {
 			}
 
 			long unitId = r.getLong(4);
-			if (!v.ids.contains(ModelType.UNIT, unitId)) {
+			if (!v.ids.units().contains(unitId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to unit @" + unitId
 						+ " in variant @" + variantId);

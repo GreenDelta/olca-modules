@@ -117,6 +117,7 @@ class ProcessCheck implements Runnable {
 			return;
 
 		var propFactors = v.ids.flowPropertyFactors();
+		var units = v.ids.units();
 		var processIDs = v.ids.allOf(ModelType.PROCESS);
 		var sql = "select " +
 			/* 1 */ "f_owner, " +
@@ -133,7 +134,7 @@ class ProcessCheck implements Runnable {
 				return true;
 
 			var unitID = r.getLong(2);
-			if (!v.ids.contains(ModelType.UNIT, unitID)) {
+			if (!units.contains(unitID)) {
 				v.error(id, ModelType.PROCESS,
 					"invalid exchange unit @" + unitID);
 				foundErrors = true;

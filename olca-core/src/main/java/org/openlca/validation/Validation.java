@@ -198,7 +198,7 @@ public class Validation implements Runnable {
 
 	void error(long id, ModelType type, String message) {
 		try {
-			var dao = Daos.refDao(db, type);
+			var dao = Daos.root(db, type);
 			var d = dao.getDescriptor(id);
 			put(Item.error(d, message));
 		} catch (Exception e) {
@@ -208,7 +208,7 @@ public class Validation implements Runnable {
 
 	void warning(long id, ModelType type, String message) {
 		try {
-			var dao = Daos.refDao(db, type);
+			var dao = Daos.root(db, type);
 			var d = dao.getDescriptor(id);
 			put(Item.warning(d, message));
 		} catch (Exception e) {

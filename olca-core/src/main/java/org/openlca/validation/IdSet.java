@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import gnu.trove.set.hash.TLongHashSet;
 import jakarta.persistence.Table;
@@ -17,12 +19,15 @@ class IdSet {
 	private final IDatabase db;
 	private final EnumMap<ModelType, TLongHashSet> ids;
 	private final TLongHashSet propertyFactors;
-	
+	private final TLongHashSet units;
+	private final TLongHashSet nwSets;
 
 	private IdSet(IDatabase db) {
 		this.db = db;
 		ids = new EnumMap<>(ModelType.class);
 		propertyFactors = new TLongHashSet();
+		units = new TLongHashSet();
+		nwSets = new TLongHashSet();
 	}
 
 	public static IdSet of(IDatabase db) {
@@ -46,13 +51,21 @@ class IdSet {
 		return propertyFactors;
 	}
 
+	public TLongHashSet units() {
+		return units;
+	}
+
+	public TLongHashSet nwSets() {
+		return nwSets;
+	}
+
 	TLongHashSet allOf(ModelType type) {
 		if (type == null)
 			return new TLongHashSet(0);
 		var ids = this.ids.get(type);
 		return ids == null
-			? new TLongHashSet(0)
-			: ids;
+				? new TLongHashSet(0)
+				: ids;
 	}
 
 	private void fill() {
@@ -66,13 +79,19 @@ class IdSet {
 				continue;
 			futures.add(service.submit(() -> of(type)));
 		}
-		service.submit(() -> {
-			var sql = "select id from tbl_flow_property_factors";
-			NativeSql.on(db).query(sql, r -> {
-				propertyFactors.add(r.getLong(1));
-				return true;
-			});
-		});
+
+		Stream.of(
+						Pair.of("tbl_flow_property_factors", propertyFactors),
+						Pair.of("tbl_units", units),
+						Pair.of("tbl_nw_sets", nwSets))
+				.forEach(spec -> service.submit(() -> {
+					var sql = "select id from " + spec.first;
+					var ids = spec.second;
+					NativeSql.on(db).query(sql, r -> {
+						ids.add(r.getLong(1));
+						return true;
+					});
+				}));
 
 		for (var future : futures) {
 			try {
@@ -83,6 +102,11 @@ class IdSet {
 			}
 		}
 		service.shutdown();
+		try {
+			service.awaitTermination(1, TimeUnit.DAYS);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("failed to wait for ID filling", e);
+		}
 	}
 
 	private Pair<ModelType, TLongHashSet> of(ModelType type) {
