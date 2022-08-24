@@ -107,7 +107,7 @@ class DataUtil {
     var conf = WriterConfig.of(db);
 
     if (e instanceof Actor actor)
-      return ds.setActor(new ActorWriter(conf).write(actor));
+      return ds.setActor(new ActorWriter().write(actor));
 
     if (e instanceof Currency currency)
       return ds.setCurrency(new CurrencyWriter(conf).write(currency));

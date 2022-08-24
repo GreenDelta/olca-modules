@@ -4,28 +4,20 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
-public class WriterConfig {
+public record WriterConfig(IDatabase db, DependencyHandler deps) {
 
-  public final IDatabase db;
-  public final DependencyHandler dependencies;
+	public static WriterConfig of(IDatabase db) {
+		return new WriterConfig(db, new DefaultHandler());
+	}
 
-  public WriterConfig(IDatabase db, DependencyHandler dependencies) {
-    this.db = db;
-    this.dependencies = dependencies;
-  }
+	private static class DefaultHandler implements DependencyHandler {
 
-  public static WriterConfig of(IDatabase db) {
-    return new WriterConfig(db, new DefaultHandler());
-  }
+		@Override
+		public void push(RefEntity dependency) {
+		}
 
-  private static class DefaultHandler implements DependencyHandler {
-
-    @Override
-    public void push(RefEntity dependency) {
-    }
-
-    @Override
-    public void push(Descriptor descriptor) {
-    }
-  }
+		@Override
+		public void push(Descriptor descriptor) {
+		}
+	}
 }

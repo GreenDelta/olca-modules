@@ -113,7 +113,7 @@ public class ProcessWriter {
 
       // default provider
       if (e.defaultProviderId > 0) {
-        var provider = new ProcessDao(config.db)
+        var provider = new ProcessDao(config.db())
           .getDescriptor(e.defaultProviderId);
         if (provider != null) {
           pe.setDefaultProvider(Refs.refOf(provider));

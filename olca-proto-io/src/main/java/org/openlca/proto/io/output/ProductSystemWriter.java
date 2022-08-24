@@ -79,8 +79,8 @@ public class ProductSystemWriter {
 
   private Map<Long, RootDescriptor> mapProcesses(
     ProductSystem system, ProtoProductSystem.Builder proto) {
-    var processes = new ProcessDao(config.db).descriptorMap();
-    var systems = new ProductSystemDao(config.db).descriptorMap();
+    var processes = new ProcessDao(config.db()).descriptorMap();
+    var systems = new ProductSystemDao(config.db()).descriptorMap();
     Map<Long, RootDescriptor> map = new HashMap<>();
     for (var id : system.processes) {
       RootDescriptor d = processes.get(id);
@@ -107,7 +107,7 @@ public class ProductSystemWriter {
       flowIDs.add(link.flowId);
       usedExchanges.add(link.exchangeId);
     }
-    var flows = new FlowDao(config.db)
+    var flows = new FlowDao(config.db())
       .getDescriptors(flowIDs)
       .stream()
       .collect(Collectors.toMap(d -> d.id, d -> d));
@@ -115,7 +115,7 @@ public class ProductSystemWriter {
     // collect the used exchanges
     var exchangeIDs = new TLongIntHashMap();
     String sql = "select id, internal_id from tbl_exchanges";
-    NativeSql.on(config.db).query(sql, r -> {
+    NativeSql.on(config.db()).query(sql, r -> {
       long id = r.getLong(1);
       if (usedExchanges.contains(id)) {
         exchangeIDs.put(id, r.getInt(2));
@@ -179,8 +179,8 @@ public class ProductSystemWriter {
         }
         if (redef.contextId != null) {
           var context = redef.contextType == ModelType.PROCESS
-            ? config.db.getDescriptor(Process.class, redef.contextId)
-            : config.db.getDescriptor(ImpactCategory.class, redef.contextId);
+            ? config.db().getDescriptor(Process.class, redef.contextId)
+            : config.db().getDescriptor(ImpactCategory.class, redef.contextId);
           if (context != null) {
             protoRedef.setContext(Refs.refOf(context));
           }

@@ -53,18 +53,16 @@ public final class Out {
 
 	static void dep(WriterConfig config, RefEntity e) {
 		if (config == null
-			|| config.dependencies == null
+			|| config.deps() == null
 			|| e == null)
 			return;
-		config.dependencies.push(e);
+		config.deps().push(e);
 	}
 
 	static void dep(WriterConfig config, Descriptor d) {
-		if (config == null
-			|| config.dependencies == null
-			|| d == null)
+		if (config == null 			|| config.deps() == null 			|| d == null)
 			return;
-		config.dependencies.push(d);
+		config.deps().push(d);
 	}
 
 	static String dateTimeOf(long time) {
@@ -234,7 +232,7 @@ public final class Out {
 	public static AbstractMessage toProto(IDatabase db, RefEntity e) {
 		var conf = WriterConfig.of(db);
 		if (e instanceof Actor actor)
-			return new ActorWriter(conf).write(actor);
+			return new ActorWriter().write(actor);
 		if (e instanceof Currency currency)
 			return new CurrencyWriter(conf).write(currency);
 		if (e instanceof DQSystem dqs)
