@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Unit;
 import org.openlca.io.maps.Maps;
 import org.openlca.util.Strings;
 
@@ -20,7 +21,7 @@ class UnitGroupImport extends AbstractImport {
 	protected boolean isValid(CSVRecord row) {
 		var refId = Maps.getString(row, 0);
 		return Strings.notEmpty(refId)
-			&& !seq.isInDatabase(ModelType.UNIT_GROUP, refId);
+			&& !seq.contains(ModelType.UNIT_GROUP, refId);
 	}
 
 	@Override
@@ -33,7 +34,7 @@ class UnitGroupImport extends AbstractImport {
 		stmt.setString(3, Maps.getString(row, 1));
 		setRef(stmt, 4, ModelType.CATEGORY, Maps.getString(row, 3));
 		stmt.setString(5, Maps.getString(row, 2));
-		stmt.setLong(6, seq.get(ModelType.UNIT, Maps.getString(row, 5)));
+		stmt.setLong(6, seq.get(Unit.class, Maps.getString(row, 5)));
 		setRef(stmt, 7, ModelType.FLOW_PROPERTY, Maps.getString(row, 4));
 	}
 }

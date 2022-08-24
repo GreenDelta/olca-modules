@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.NwSet;
 import org.openlca.io.maps.Maps;
 
 class NwSetImport extends AbstractImport {
@@ -23,7 +24,7 @@ class NwSetImport extends AbstractImport {
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
 		String refId = Maps.getString(row, 0);
-		stmt.setLong(1, seq.get(ModelType.NW_SET, refId));
+		stmt.setLong(1, seq.get(NwSet.class, refId));
 		stmt.setString(2, refId);
 		stmt.setString(3, Maps.getString(row, 2));
 		stmt.setString(4, Maps.getString(row, 1));

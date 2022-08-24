@@ -20,7 +20,7 @@ class ImpactCategoryImport extends AbstractImport {
 	protected boolean isValid(CSVRecord row) {
 		var refId = Maps.getString(row, 0);
 		return Strings.notEmpty(refId)
-			&& !seq.isInDatabase(ModelType.IMPACT_CATEGORY, refId);
+			&& !seq.contains(ModelType.IMPACT_CATEGORY, refId);
 	}
 
 	@Override

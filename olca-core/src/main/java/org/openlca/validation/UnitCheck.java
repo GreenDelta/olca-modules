@@ -51,7 +51,7 @@ class UnitCheck implements Runnable {
 
 			var groupID = r.getLong(5);
 			if (!v.ids.contains(ModelType.UNIT_GROUP, groupID)) {
-				v.error(id, ModelType.UNIT, "no unit group for unit @" + id);
+				v.error(id, ModelType.UNIT_GROUP, "no unit group for unit @" + id);
 				foundErrors = true;
 				return !v.wasCanceled();
 			}

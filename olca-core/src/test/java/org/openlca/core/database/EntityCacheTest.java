@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 
@@ -132,11 +133,11 @@ public class EntityCacheTest {
 	public void testAllModels() throws Exception{
 		for (var modelType : ModelType.values()) {
 			var type = modelType.getModelClass();
-			if (type == null)
+			if (type == null || !modelType.isRoot())
 				continue;
 
 			// create it
-			var m = type.getConstructor().newInstance();
+			var m = (RootEntity) type.getConstructor().newInstance();
 			m.name = modelType.name();
 			db.insert(m);
 			assertEquals(m, cache.get(type, m.id));

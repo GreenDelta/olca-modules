@@ -26,8 +26,6 @@ class Search {
 
 	static {
 		for (ModelType type : ModelType.values()) {
-			if (type == ModelType.UNKNOWN)
-				continue;
 			Class<?> mClass = type.getModelClass();
 			Table table = mClass.getDeclaredAnnotation(Table.class);
 			tableNames.put(type, table.name());

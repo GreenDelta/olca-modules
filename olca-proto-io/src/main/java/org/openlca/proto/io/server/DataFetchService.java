@@ -154,7 +154,7 @@ class DataFetchService extends
     var modelType = DataUtil.forceRootTypeOf(req.getType(), resp);
     if (modelType == null)
       return;
-    var dao = Daos.refDao(db, modelType);
+    var dao = Daos.root(db, modelType);
     if (dao == null) {
       resp.onCompleted();
       return;
@@ -180,8 +180,7 @@ class DataFetchService extends
       ? req.getAttributes().getCategory()
       : null;
     if (Strings.notEmpty(catId)) {
-      stream = stream.filter(
-        d -> d instanceof RootDescriptor);
+      stream = stream.filter(Objects::nonNull);
 
       // "/" identifies the root category or no
       // specific category

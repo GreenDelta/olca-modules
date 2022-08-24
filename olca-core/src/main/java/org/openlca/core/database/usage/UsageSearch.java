@@ -53,7 +53,7 @@ public interface UsageSearch {
 			case PARAMETER -> new ParameterUseSearch(db);
 			case DQ_SYSTEM -> new DQSystemUseSearch(db);
 			case RESULT -> new ResultUsageSearch(db);
-			case EPD, PROJECT, UNIT, NW_SET, UNKNOWN -> new EmptyUseSearch(); // TODO
+			case EPD, PROJECT -> new EmptyUseSearch();
 		};
 	}
 

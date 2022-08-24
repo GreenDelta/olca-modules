@@ -32,7 +32,7 @@ class SocialIndicatorCheck implements Runnable {
 				}
 
 				var unitID = r.getLong(3);
-				if (unitID != 0 && !v.ids.contains(ModelType.UNIT, unitID)) {
+				if (unitID != 0 && !v.ids.units().contains(unitID)) {
 					v.error(id, ModelType.SOCIAL_INDICATOR,
 						"invalid unit link @" + unitID);
 					foundErrors = true;

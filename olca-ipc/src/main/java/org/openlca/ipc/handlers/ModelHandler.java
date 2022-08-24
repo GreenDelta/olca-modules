@@ -14,7 +14,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.ipc.Responses;
@@ -74,7 +74,7 @@ public class ModelHandler {
 		try {
 			var store = new MemStore();
 			var exp = new JsonExport(db, store).withReferences(false);
-			Daos.refDao(db, type).getAll().forEach(exp::write);
+			Daos.root(db, type).getAll().forEach(exp::write);
 			var array = new JsonArray();
 			store.getAll(type).forEach(array::add);
 			return Responses.ok(array, req);
@@ -84,6 +84,7 @@ public class ModelHandler {
 	}
 
 	@Rpc("get/descriptors")
+	@SuppressWarnings("unchecked")
 	public RpcResponse getDescriptors(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
 			return Responses.invalidParams("params must be an object with"
@@ -94,7 +95,8 @@ public class ModelHandler {
 					+ " valid @type attribute", req);
 		try {
 			var refs = DbRefs.of(db);
-			var array = db.getDescriptors(type.getModelClass())
+			var clazz = (Class<? extends RootEntity>) type.getModelClass();
+			var array = db.getDescriptors(clazz)
 					.stream()
 					.map(d -> (RootDescriptor) d)
 					.map(refs::asRef)
@@ -211,7 +213,8 @@ public class ModelHandler {
 		}
 	}
 
-	private Pair<RefEntity, RpcResponse> getModelOrError(RpcRequest req) {
+	@SuppressWarnings("unchecked")
+	private Pair<RootEntity, RpcResponse> getModelOrError(RpcRequest req) {
 		var d = descriptorOf(req);
 		if (d == null || d.type == null) {
 			var err = Responses.invalidParams(
@@ -219,7 +222,7 @@ public class ModelHandler {
 			return Pair.of(null, err);
 		}
 		try {
-			var type = d.type.getModelClass();
+			var type = (Class<? extends RootEntity>) d.type.getModelClass();
 
 			// get by ID
 			if (Strings.notEmpty(d.refId)) {

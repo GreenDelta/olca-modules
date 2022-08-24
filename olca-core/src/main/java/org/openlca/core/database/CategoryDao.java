@@ -157,7 +157,7 @@ public class CategoryDao
 				if (type.getModelClass() == null || !RefEntity.class
 					.isAssignableFrom(type.getModelClass()))
 					continue;
-				String table = Daos.refDao(db, type).getEntityTable();
+				String table = Daos.root(db, type).getEntityTable();
 				tables.put(type, table);
 			}
 		}

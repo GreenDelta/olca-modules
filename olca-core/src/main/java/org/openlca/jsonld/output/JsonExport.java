@@ -97,7 +97,7 @@ public class JsonExport {
 		return this;
 	}
 
-	private void setVisited(RefEntity entity) {
+	private void setVisited(RootEntity entity) {
 		if (entity == null || entity.refId == null)
 			return;
 		var type = ModelType.of(entity);
@@ -152,11 +152,11 @@ public class JsonExport {
 		return Json.asRef(e);
 	}
 
-	public <T extends RefEntity> void write(T entity) {
+	public <T extends RootEntity> void write(T entity) {
 		write(entity, null);
 	}
 
-	public <T extends RefEntity> void write(T entity, Callback cb) {
+	public <T extends RootEntity> void write(T entity, Callback cb) {
 		if (entity == null)
 			return;
 		var type = ModelType.of(entity);
@@ -169,8 +169,7 @@ public class JsonExport {
 		setVisited(entity);
 
 		// check skip library data
-		if (skipLibraryData && entity instanceof RootEntity re
-			&& Strings.notEmpty(re.library)) {
+		if (skipLibraryData && Strings.notEmpty(entity.library)) {
 			return;
 		}
 

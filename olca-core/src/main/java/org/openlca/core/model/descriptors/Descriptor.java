@@ -52,7 +52,7 @@ public class Descriptor implements Copyable<Descriptor> {
 	 */
 	public String tags;
 
-	public ModelType type = ModelType.UNKNOWN;
+	public ModelType type;
 
 	@Override
 	public boolean equals(Object obj) {

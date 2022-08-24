@@ -20,7 +20,7 @@ public class FlowPropertyImport extends AbstractImport {
 	protected boolean isValid(CSVRecord row) {
 		var refId = Maps.getString(row, 0);
 		return Strings.notEmpty(refId)
-			&& !seq.isInDatabase(ModelType.FLOW_PROPERTY, refId);
+			&& !seq.contains(ModelType.FLOW_PROPERTY, refId);
 	}
 
 	@Override

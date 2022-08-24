@@ -31,7 +31,9 @@ class ImpactCategoryCheck implements Runnable {
 		if (v.wasCanceled())
 			return;
 
-		var propIDs = v.ids.flowPropertyFactors();
+		var propIds = v.ids.flowPropertyFactors();
+		var unitIds = v.ids.units();
+
 		var sql = "select " +
 			/* 1 */ "f_impact_category, " +
 			/* 2 */ "f_flow, " +
@@ -54,14 +56,14 @@ class ImpactCategoryCheck implements Runnable {
 			}
 
 			var propID = r.getLong(3);
-			if (!propIDs.contains(propID)) {
+			if (!propIds.contains(propID)) {
 				v.error(id, ModelType.IMPACT_CATEGORY,
 					"impact factor with invalid flow property ID @" + propID);
 				foundErrors = true;
 			}
 
 			var unitID = r.getLong(4);
-			if (!v.ids.contains(ModelType.UNIT, unitID)) {
+			if (!unitIds.contains(unitID)) {
 				v.error(id, ModelType.IMPACT_CATEGORY,
 					"impact factor with invalid unit ID @" + unitID);
 				foundErrors = true;

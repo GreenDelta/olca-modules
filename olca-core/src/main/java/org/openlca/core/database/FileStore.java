@@ -121,12 +121,10 @@ public class FileStore {
 			case IMPACT_CATEGORY -> "lcia_categories";
 			case IMPACT_METHOD -> "lcia_methods";
 			case LOCATION -> "locations";
-			case NW_SET -> "nw_sets";
 			case PRODUCT_SYSTEM -> "product_systems";
 			case PROJECT -> "projects";
 			case SOCIAL_INDICATOR -> "social_indicators";
 			case SOURCE -> "sources";
-			case UNIT -> "units";
 			case UNIT_GROUP -> "unit_groups";
 			case EPD -> "epds";
 			case RESULT -> "results";

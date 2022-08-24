@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
 import org.openlca.jsonld.output.JsonExport;
@@ -19,8 +19,8 @@ import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
 import org.thavam.util.concurrent.blockingMap.BlockingMap;
 
 /**
- * Multithread data conversion. Starts {config.converterThreads} simultaneous
- * threads to convert data sets to json and afterwards starts the next thread.
+ * Multithreaded data conversion. Starts {config.converterThreads} simultaneous
+ * threads to convert data sets to JSON and afterwards starts the next thread.
  * To avoid memory issues when conversion is faster than consummation
  * "startNext" checks if the queueSize is reached and returns otherwise.
  * queueSize considers elements that are still in conversion as already part of
@@ -69,11 +69,14 @@ class Converter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void convert(Change change) {
 		if (change.diffType == DiffType.DELETED)
 			return;
 		var path = change.path;
-		var type = ModelType.valueOf(path.substring(0, path.indexOf('/'))).getModelClass();
+		var type = (Class<? extends RootEntity>) ModelType
+				.valueOf(path.substring(0, path.indexOf('/')))
+				.getModelClass();
 		var name = path.substring(path.lastIndexOf('/') + 1);
 		var refId = name.substring(0, name.indexOf('.'));
 		try {
@@ -86,7 +89,7 @@ class Converter {
 		}
 	}
 
-	private byte[] convert(RefEntity entity) {
+	private byte[] convert(RootEntity entity) {
 		if (entity == null)
 			return null;
 		try {

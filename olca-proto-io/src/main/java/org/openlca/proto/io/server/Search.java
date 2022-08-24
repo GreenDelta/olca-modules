@@ -79,7 +79,7 @@ class Search {
   private List<? extends Descriptor> allOf(ModelType type) {
     if (type == ModelType.PARAMETER)
       return new ParameterDao(database).getGlobalDescriptors();
-    var dao = Daos.refDao(database, type);
+    var dao = Daos.root(database, type);
     return dao == null
       ? Collections.emptyList()
       : dao.getDescriptors();
