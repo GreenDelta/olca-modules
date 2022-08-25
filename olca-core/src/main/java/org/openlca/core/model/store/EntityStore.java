@@ -6,12 +6,24 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public interface EntityStore {
 
+	/**
+	 * Inserts the given entity in the data store. A new ID is allocated for
+	 * the entity be the data store. The returned instance is the same instance
+	 * as passed in as parameter but with an updated ID.
+	 *
+	 * @param e the entity that should be inserted into the data store
+	 * @return the same entity but with an updated ID.
+	 */
 	<T extends RootEntity> T insert(T e);
 
+	/**
+	 * Inserts multiple entities in the data store.
+	 */
 	default void insert(RootEntity e1, RootEntity e2, RootEntity... more) {
 		insert(e1);
 		insert(e2);
@@ -22,6 +34,14 @@ public interface EntityStore {
 		}
 	}
 
+	/**
+	 * Updates the given entity in the data store. The entity must already be
+	 * present in this data store. The returned instance may be a different
+	 * instance than the parameter instance and reflects the merged state.
+	 *
+	 * @param e the entity that should be updated
+	 * @return the updated entity, may be a different instance
+	 */
 	<T extends RootEntity> T update(T e);
 
 	<T extends RootEntity> void delete(T e);
@@ -39,6 +59,8 @@ public interface EntityStore {
 	<T extends RootEntity> T get(Class<T> type, long id);
 
 	default <T extends RootEntity> List<T> getAll(Class<T> type, TLongSet ids) {
+		if (type == null || ids == null || ids.isEmpty())
+			return Collections.emptyList();
 		var list = new ArrayList<T>(ids.size());
 		for (var it = ids.iterator(); it.hasNext(); ) {
 			long id = it.next();
