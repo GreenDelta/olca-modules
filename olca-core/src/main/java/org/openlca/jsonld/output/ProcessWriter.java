@@ -24,11 +24,14 @@ record ProcessWriter(JsonExport exp) implements Writer<Process> {
 		Json.put(obj, "isInfrastructureProcess", p.infrastructureProcess);
 		Json.put(obj, "location", exp.handleRef(p.location));
 		Json.put(obj, "processDocumentation", Util.mapDocOf(p, exp));
+		Json.put(obj, "lastInternalId", p.lastInternalId);
+
+		// DQ systems
 		Json.put(obj, "dqSystem", exp.handleRef(p.dqSystem));
 		Json.put(obj, "dqEntry", p.dqEntry);
 		Json.put(obj, "exchangeDqSystem", exp.handleRef(p.exchangeDqSystem));
 		Json.put(obj, "socialDqSystem", exp.handleRef(p.socialDqSystem));
-		Json.put(obj, "lastInternalId", p.lastInternalId);
+
 		mapParameters(p, obj);
 		mapExchanges(p, obj);
 		mapSocialAspects(p, obj);
@@ -120,9 +123,11 @@ record ProcessWriter(JsonExport exp) implements Writer<Process> {
 		Json.put(obj, "amountFormula", e.formula);
 		Json.put(obj, "dqEntry", e.dqEntry);
 		Json.put(obj, "description", e.description);
+
 		Json.put(obj, "costFormula", e.costFormula);
 		Json.put(obj, "costValue", e.costs);
 		Json.put(obj, "currency", exp.handleRef(e.currency));
+
 		Json.put(obj, "internalId", e.internalId);
 		Json.put(obj, "location", exp.handleRef(e.location));
 

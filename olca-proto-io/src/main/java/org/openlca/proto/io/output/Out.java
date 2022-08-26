@@ -3,6 +3,7 @@ package org.openlca.proto.io.output;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
@@ -36,6 +37,7 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.ProtoFlowType;
 import org.openlca.proto.ProtoProcessType;
+import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
 import org.openlca.proto.ProtoUncertaintyType;
@@ -49,14 +51,6 @@ import com.google.protobuf.Message;
 public final class Out {
 
 	private Out() {
-	}
-
-	static void dep(WriterConfig config, RefEntity e) {
-		if (config == null
-			|| config.deps() == null
-			|| e == null)
-			return;
-		config.deps().push(e);
 	}
 
 	static void dep(WriterConfig config, Descriptor d) {

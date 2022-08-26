@@ -30,36 +30,23 @@ public class ProcessWriter {
     var proto = ProtoProcess.newBuilder();
     if (process == null)
       return proto.build();
-    proto.setType(ProtoType.Process);
-    Out.map(process, proto);
-    Out.dep(config, process.category);
+
+		Out.map(process, proto);
+		proto.setType(ProtoType.Process);
 
     proto.setProcessType(Out.processTypeOf(process.processType));
     proto.setDefaultAllocationMethod(
       allocationType(process.defaultAllocationMethod));
     proto.setIsInfrastructureProcess(process.infrastructureProcess);
-    if (process.location != null) {
-      proto.setLocation(Refs.refOf(process.location));
-      Out.dep(config, process.location);
-    }
-    proto.setLastInternalId(process.lastInternalId);
+		config.dep(process.location, proto::setLocation);
+    // TODO: process documentation
+		proto.setLastInternalId(process.lastInternalId);
 
     // DQ systems
-    if (process.dqSystem != null) {
-      proto.setDqSystem(Refs.refOf(process.dqSystem));
-      Out.dep(config, process.dqSystem);
-    }
+		config.dep(process.dqSystem, proto::setDqSystem);
     proto.setDqEntry(Strings.orEmpty(process.dqEntry));
-    if (process.exchangeDqSystem != null) {
-      proto.setExchangeDqSystem(
-        Refs.refOf(process.exchangeDqSystem));
-      Out.dep(config, process.exchangeDqSystem);
-    }
-    if (process.socialDqSystem != null) {
-      proto.setSocialDqSystem(
-        Refs.refOf(process.socialDqSystem));
-      Out.dep(config, process.socialDqSystem);
-    }
+		config.dep(process.exchangeDqSystem, proto::setExchangeDqSystem);
+		config.dep(process.socialDqSystem, proto::setSocialDqSystem);
 
     // parameters
     var paramWriter = new ParameterWriter(config);
@@ -74,18 +61,6 @@ public class ProcessWriter {
     return proto.build();
   }
 
-  private ProtoAllocationType allocationType(AllocationMethod m) {
-    if (m == null)
-      return ProtoAllocationType.UNDEFINED_ALLOCATION_TYPE;
-    return switch (m) {
-      case CAUSAL -> ProtoAllocationType.CAUSAL_ALLOCATION;
-      case ECONOMIC -> ProtoAllocationType.ECONOMIC_ALLOCATION;
-      case PHYSICAL -> ProtoAllocationType.PHYSICAL_ALLOCATION;
-      case NONE -> ProtoAllocationType.NO_ALLOCATION;
-      case USE_DEFAULT -> ProtoAllocationType.USE_DEFAULT_ALLOCATION;
-    };
-  }
-
   private void writeExchanges(Process p, ProtoProcess.Builder proto) {
     for (var e : p.exchanges) {
       var pe = ProtoExchange.newBuilder();
@@ -98,42 +73,36 @@ public class ProcessWriter {
       pe.setAmountFormula(Strings.orEmpty(e.formula));
       pe.setDqEntry(Strings.orEmpty(e.dqEntry));
       pe.setDescription(Strings.orEmpty(e.description));
-      pe.setCostFormula(Strings.orEmpty(e.costFormula));
-      if (e.costs != null) {
+
+			pe.setCostFormula(Strings.orEmpty(e.costFormula));
+			if (e.costs != null) {
         pe.setCostValue(e.costs);
       }
-      if (e.currency != null) {
-        pe.setCurrency(Refs.refOf(e.currency));
-        Out.dep(config, e.currency);
-      }
+			config.dep(e.currency, pe::setCurrency);
+
       pe.setInternalId(e.internalId);
+			config.dep(e.location, pe::setLocation);
+
       if (e.uncertainty != null) {
         pe.setUncertainty(Out.uncertaintyOf(e.uncertainty));
       }
 
       // default provider
       if (e.defaultProviderId > 0) {
-        var provider = new ProcessDao(config.db())
-          .getDescriptor(e.defaultProviderId);
+        var provider = config.db()
+          .getDescriptor(Process.class, e.defaultProviderId);
         if (provider != null) {
           pe.setDefaultProvider(Refs.refOf(provider));
         }
       }
 
       // flow references
-      if (e.flow != null) {
-        pe.setFlow(Refs.refOf(e.flow));
-        Out.dep(config, e.flow);
-      }
+			config.dep(e.flow, pe::setFlow);
       if (e.flowPropertyFactor != null) {
         var fp = e.flowPropertyFactor.flowProperty;
-        if (fp != null) {
-          pe.setFlowProperty(Refs.refOf(fp));
-        }
+				config.dep(fp, pe::setFlowProperty);
       }
-      if (e.unit != null) {
-        pe.setUnit(Refs.refOf(e.unit));
-      }
+			config.dep(e.unit, pe::setUnit);
 
       if (Objects.equals(e, p.quantitativeReference)) {
         pe.setIsQuantitativeReference(true);
@@ -142,6 +111,18 @@ public class ProcessWriter {
       proto.addExchanges(pe);
     }
   }
+
+	private ProtoAllocationType allocationType(AllocationMethod m) {
+		if (m == null)
+			return ProtoAllocationType.UNDEFINED_ALLOCATION_TYPE;
+		return switch (m) {
+			case CAUSAL -> ProtoAllocationType.CAUSAL_ALLOCATION;
+			case ECONOMIC -> ProtoAllocationType.ECONOMIC_ALLOCATION;
+			case PHYSICAL -> ProtoAllocationType.PHYSICAL_ALLOCATION;
+			case NONE -> ProtoAllocationType.NO_ALLOCATION;
+			case USE_DEFAULT -> ProtoAllocationType.USE_DEFAULT_ALLOCATION;
+		};
+	}
 
   private void writeSocialAspects(Process p, ProtoProcess.Builder proto) {
     for (var aspect : p.socialAspects) {
@@ -155,6 +136,7 @@ public class ProcessWriter {
       pa.setRawAmount(Strings.orEmpty(aspect.rawAmount));
       pa.setActivityValue(aspect.activityValue);
       pa.setRiskLevel(riskLevel(aspect));
+
       if (aspect.source != null) {
         pa.setSource(Refs.refOf(aspect.source));
         Out.dep(config, aspect.source);
