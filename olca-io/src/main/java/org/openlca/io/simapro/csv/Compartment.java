@@ -137,7 +137,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 
 			if (match(path, "stratosphere", "troposhere"))
 				return Compartment.of(
-					type, SubCompartment.AIR_STRATOSPHERE_TROPOSHERE);
+					type, SubCompartment.AIR_STRATOSPHERE_TROPOSPHERE);
 
 			if (match(path, "stratosphere"))
 				return Compartment.of(
