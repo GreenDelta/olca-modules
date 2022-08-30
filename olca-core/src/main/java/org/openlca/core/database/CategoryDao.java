@@ -63,9 +63,9 @@ public class CategoryDao
 			}
 			d.library = r.getString(8);
 			d.tags = r.getString(9);
-			var mt = r.getString(10);
-			if (mt != null) {
-				d.categoryType = ModelType.valueOf(mt);
+			var modelType = r.getString(10);
+			if (modelType != null) {
+				d.categoryType = ModelType.valueOf(modelType);
 			}
 			list.add(d);
 			return true;
