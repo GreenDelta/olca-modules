@@ -57,13 +57,18 @@ public final class NativeSql {
 	 * @param params the parameters of the values
 	 * @param fn the result handler
 	 */
-	public void query(String sql, List<String> params, QueryResultHandler fn) {
+	public void query(String sql, List<Object> params, QueryResultHandler fn) {
+		if (params == null || params.isEmpty()) {
+			query(sql, fn);
+			return;
+		}
+
 		log.trace("execute parameterized query {}", sql);
 		try (var con = db.createConnection();
 				 var stmt = con.prepareStatement(sql)) {
 			int i = 1;
 			for (var param : params) {
-				stmt.setString(i, param);
+				stmt.setObject(i, param);
 				i++;
 			}
 			if (!stmt.execute())
