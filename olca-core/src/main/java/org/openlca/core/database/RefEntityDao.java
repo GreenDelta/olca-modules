@@ -107,12 +107,20 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	}
 
 	protected final List<V> queryDescriptors(String condition, Object param) {
-		return queryDescriptors(condition, List.of(param));
+		var params = param == null
+				? Collections.emptyList()
+				: List.of(param);
+		return queryDescriptors(condition, params);
 	}
 
 	protected List<V> queryDescriptors(String condition, List<Object> params) {
-		var sql = "select d.id, d.ref_id, d.name, description from "
-				+ getEntityTable() + " d";
+		var sql = """
+						select
+							d.id,
+							d.ref_id,
+							d.name,
+							d.description from
+				""" + getEntityTable() + " d";
 		if (condition != null) {
 			sql += " " + condition;
 		}

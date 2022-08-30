@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -30,21 +31,30 @@ public class NwSetDao extends RefEntityDao<NwSet, NwSetDescriptor> {
 	}
 
 	@Override
-	protected String[] getDescriptorFields() {
-		return new String[] {
-				"id",
-				"ref_id",
-				"name",
-				"description",
-				"weighted_score_unit",
-		};
+	protected List<NwSetDescriptor> queryDescriptors(String condition, List<Object> params) {
+		var sql = """
+						select
+							d.id,
+							d.ref_id,
+							d.name,
+							d.description,
+							d.weighted_score_unit from
+				""" + getEntityTable() + " d";
+		if (condition != null) {
+			sql += " " + condition;
+		}
+		var cons = descriptorConstructor();
+		var list = new ArrayList<NwSetDescriptor>();
+		NativeSql.on(db).query(sql, params, r -> {
+			var d = cons.get();
+			d.id = r.getLong(1);
+			d.refId = r.getString(2);
+			d.name = r.getString(3);
+			d.description = r.getString(4);
+			d.weightedScoreUnit = r.getString(5);
+			list.add(d);
+			return true;
+		});
+		return list;
 	}
-
-	@Override
-	protected NwSetDescriptor createDescriptor(Object[] record) {
-		var d = super.createDescriptor(record);
-		d.weightedScoreUnit = (String) record[4];
-		return d;
-	}
-
 }
