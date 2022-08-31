@@ -79,22 +79,6 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 				: list.get(0);
 	}
 
-	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
-		if (refIds == null || refIds.isEmpty())
-			return Collections.emptyList();
-		if (refIds.size() > MAX_LIST_SIZE)
-			return executeChunked(refIds, this::getDescriptorsForRefIds);
-		var buff = new StringBuilder().append('(');
-		for (String refId : refIds) {
-			if (buff.length() > 1) {
-				buff.append(',');
-			}
-			buff.append('\'').append(refId).append('\'');
-		}
-		buff.append(')');
-		return queryDescriptors("where d.ref_id in ?", buff.toString());
-	}
-
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */

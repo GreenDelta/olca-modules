@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class BlockFetch<T> {
 
-	private QueryFunction<T> func;
+	private final QueryFunction<T> func;
 
 	public BlockFetch(QueryFunction<T> func) {
 		this.func = func;
@@ -26,7 +26,7 @@ public class BlockFetch<T> {
 
 	/**
 	 * Split the given IDs into chunks with a size not greater than
-	 * {@link Dao#MAX_LIST_SIZE}, run the queries and return the results.
+	 * {@link BaseDao#MAX_LIST_SIZE}, run the queries and return the results.
 	 */
 	public List<T> doFetch(List<Long> ids) {
 		if (ids == null || ids.isEmpty())
@@ -34,8 +34,7 @@ public class BlockFetch<T> {
 		List<Long> restToLoad = new ArrayList<>(ids);
 		List<T> results = new ArrayList<>();
 		while (!restToLoad.isEmpty()) {
-			int toPos = restToLoad.size() > BaseDao.MAX_LIST_SIZE ? BaseDao.MAX_LIST_SIZE
-					: restToLoad.size();
+			int toPos = Math.min(restToLoad.size(), BaseDao.MAX_LIST_SIZE);
 			List<Long> nextChunk = restToLoad.subList(0, toPos);
 			List<T> chunkResults = func.fetchChunk(nextChunk);
 			results.addAll(chunkResults);

@@ -26,7 +26,7 @@ public class ParameterDao extends
 
 	public List<ParameterDescriptor> getGlobalDescriptors() {
 		return queryDescriptors(
-				"where d.scope = " + ParameterScope.GLOBAL.name(), List.of());
+				"where d.scope = '" + ParameterScope.GLOBAL.name() + "'", List.of()) ;
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class ParameterDao extends
 		var cond = category.isPresent()
 			? "where d.f_category = " + category.get().id
 			: "where d.f_category is null";
-		cond += " and d.scope = " + ParameterScope.GLOBAL.name();
+		cond += " and d.scope = '" + ParameterScope.GLOBAL.name() + "'";
 		return queryDescriptors(cond, List.of());
 	}
 

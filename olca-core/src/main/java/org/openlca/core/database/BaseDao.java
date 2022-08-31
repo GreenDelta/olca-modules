@@ -1,10 +1,5 @@
 package org.openlca.core.database;
 
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,7 +54,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			result.put(id, false);
 		var table = entityType.getDeclaredAnnotation(Table.class).name();
 		var query = "SELECT id FROM " + table
-								+ " WHERE id IN " + asSqlList(ids);
+				+ " WHERE id IN " + asSqlList(ids);
 		NativeSql.on(db).query(query, (entry) -> {
 			long id = entry.getLong(1);
 			result.put(id, true);
@@ -196,7 +191,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	// Executes the query method chunked, (for methods with List return value)
 	protected <X, Y> List<Y> executeChunked(Set<X> set,
-											Function<Set<X>, List<Y>> queryMethod) {
+			Function<Set<X>, List<Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		List<Y> all = new ArrayList<>();
 		for (Set<X> s : split) {
@@ -207,7 +202,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	// Executes the query method chunked, (for methods with Map return value)
 	protected <X, Y> Map<X, Y> executeChunked2(Set<X> set,
-											   Function<Set<X>, Map<X, Y>> queryMethod) {
+			Function<Set<X>, Map<X, Y>> queryMethod) {
 		List<Set<X>> split = split(set);
 		Map<X, Y> all = new HashMap<>();
 		for (Set<X> s : split) {
@@ -301,55 +296,6 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	protected Query query() {
 		return Query.on(db);
-	}
-
-	protected List<Object[]> selectAll(String sql, String[] fields,
-									   List<Object> parameters) {
-		try (var con = getDatabase().createConnection()) {
-			return execute(sql, fields, parameters, con, false);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to execute query: "
-					+ sql, e);
-			return Collections.emptyList();
-		}
-	}
-
-	protected Object[] selectFirst(String sql, String[] fields,
-								   List<Object> parameters) {
-		try (var conn = getDatabase().createConnection()) {
-			var results = execute(sql, fields, parameters, conn, true);
-			if (results.isEmpty())
-				return null;
-			return results.get(0);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log, "failed to execute query: " + sql, e);
-			return null;
-		}
-	}
-
-	private List<Object[]> execute(String sql, String[] fields,
-								   List<Object> parameters, Connection conn, boolean single)
-			throws SQLException {
-		List<Object[]> results = new ArrayList<>();
-		PreparedStatement statement = conn.prepareStatement(sql);
-		for (int i = 0; i < parameters.size(); i++)
-			statement.setObject(i + 1, parameters.get(i));
-		ResultSet resultSet = statement.executeQuery();
-		while (resultSet.next()) {
-			Object[] result = new Object[fields.length];
-			for (int i = 0; i < fields.length; i++) {
-				var value = resultSet.getObject(fields[i]);
-				result[i] = value instanceof Clob clob
-					? NativeSql.stringOf(clob)
-					: value;
-			}
-			results.add(result);
-			if (single)
-				break;
-		}
-		resultSet.close();
-		statement.close();
-		return results;
 	}
 
 	public void detach(T val) {
