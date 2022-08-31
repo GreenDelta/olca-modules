@@ -217,11 +217,14 @@ public class Descriptor implements Copyable<Descriptor> {
 		if (process == null)
 			return null;
 		var d = setBaseValues(process, new ProcessDescriptor());
-		if (process.location != null)
-			d.location = process.location.id;
-		if (process.quantitativeReference != null)
-			d.quantitativeReference = process.quantitativeReference.id;
 		d.processType = process.processType;
+		if (process.location != null) {
+			d.location = process.location.id;
+		}
+		var qRef = process.quantitativeReference;
+		if (qRef != null && qRef.flow != null) {
+			d.flowType = qRef.flow.flowType;
+		}
 		return d;
 	}
 

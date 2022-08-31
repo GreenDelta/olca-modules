@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.openlca.core.ListUtils;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
@@ -43,7 +44,7 @@ public class RefEntityDaoTest {
 		run(UnitGroup.class, new UnitGroupDao(db));
 		run(FlowProperty.class, new FlowPropertyDao(db));
 		run(Flow.class, new FlowDao(db));
-		run(org.openlca.core.model.Process.class, new ProcessDao(db));
+		run(Process.class, new ProcessDao(db));
 		run(ImpactMethod.class, new ImpactMethodDao(db));
 		run(ImpactCategory.class, new ImpactCategoryDao(db));
 		run(ProductSystem.class, new ProductSystemDao(db));

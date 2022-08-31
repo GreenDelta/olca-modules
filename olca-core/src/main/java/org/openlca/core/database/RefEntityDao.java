@@ -68,8 +68,8 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 			return Collections.emptyList();
 		if (ids.size() > MAX_LIST_SIZE)
 			return executeChunked(ids, this::getDescriptors);
-		return queryDescriptors(
-				"where d.id in ?", "(" + Strings.join(ids, ',') + ")");
+		var list = "(" + Strings.join(ids, ',') + ")";
+		return queryDescriptors("where d.id in " + list, List.of());
 	}
 
 	public V getDescriptorForRefId(String refId) {

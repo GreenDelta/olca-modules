@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
@@ -23,38 +25,69 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 	}
 
 	@Override
-	protected String[] getDescriptorFields() {
-		return new String[] {
-				"id",
-				"ref_id",
-				"name",
-				"description",
-				"version",
-				"last_change",
-				"f_category",
-				"library",
-				"tags",
-				"process_type",
-				"infrastructure_process",
-				"f_location",
-				"f_quantitative_reference",
-		};
-	}
+	protected List<ProcessDescriptor> queryDescriptors(
+			String condition, List<Object> params) {
+		var sql = """
+					select
+						d.id,
+						d.ref_id,
+						d.name,
+						d.description,
+						d.version,
+						d.last_change,
+						d.f_category,
+						d.library,
+						d.tags,
+						d.process_type,
+						d.infrastructure_process,
+						d.f_location,
+						f.flow_type
+				    from tbl_processes d
+				    left join tbl_exchanges e on e.id = d.f_quantitative_reference
+				    left  join tbl_flows f on e.f_flow = f.id
+				""";
+		if (condition != null) {
+			sql += " " + condition;
+		}
 
-	@Override
-	protected ProcessDescriptor createDescriptor(Object[] record) {
-		if (record == null)
-			return null;
-		var d = super.createDescriptor(record);
-		if (record[9] instanceof String) {
-			d.processType = ProcessType.valueOf((String) record[9]);
-		}
-		if (record[10] instanceof Integer) {
-			d.infrastructureProcess = (Integer) record[10] == 1;
-		}
-		d.location = (Long) record[11];
-		d.quantitativeReference = (Long) record[12];
-		return d;
+		var cons = descriptorConstructor();
+		var list = new ArrayList<ProcessDescriptor>();
+		NativeSql.on(db).query(sql, params, r -> {
+			var d = cons.get();
+			d.id = r.getLong(1);
+			d.refId = r.getString(2);
+			d.name = r.getString(3);
+			d.description = r.getString(4);
+			d.version = r.getLong(5);
+			d.lastChange = r.getLong(6);
+			var catId = r.getLong(7);
+			if (!r.wasNull()) {
+				d.category = catId;
+			}
+			d.library = r.getString(8);
+			d.tags = r.getString(9);
+
+			var processType = r.getString(10);
+			if (processType != null) {
+				d.processType = ProcessType.valueOf(processType);
+			}
+
+			d.infrastructureProcess = r.getBoolean(11);
+
+			var locId = r.getLong(12);
+			if (!r.wasNull()) {
+				d.location = locId;
+			}
+
+			var flowType = r.getString(13);
+			if (flowType != null) {
+				d.flowType = FlowType.valueOf(flowType);
+			}
+
+			list.add(d);
+			return true;
+		});
+		return list;
 	}
 
 	public List<FlowDescriptor> getTechnologyInputs(ProcessDescriptor descriptor) {
@@ -102,8 +135,8 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 				+ descriptor.id + " and is_input = " + (input ? 1 : 0);
 		Set<Long> ids = new HashSet<>();
 		try (Connection con = getDatabase().createConnection();
-				Statement s = con.createStatement();
-				ResultSet rs = s.executeQuery(sql)) {
+				 Statement s = con.createStatement();
+				 ResultSet rs = s.executeQuery(sql)) {
 			while (rs.next())
 				ids.add(rs.getLong("f_flow"));
 			return ids;

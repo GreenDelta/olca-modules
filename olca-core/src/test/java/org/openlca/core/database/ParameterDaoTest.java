@@ -17,20 +17,6 @@ public class ParameterDaoTest {
 	public void clearDb() {
 		new ParameterDao(Tests.getDb()).deleteAll();
 	}
-	
-	@Test
-	public void testGetDescriptorsByNames() {
-		ParameterDao dao = new ParameterDao(Tests.getDb());
-		insertParameter(dao, "p1");
-		insertParameter(dao, "p2");
-		insertParameter(dao, "p3");
-		insertParameter(dao, "p4");
-		String[] names = { "p2", "p3" };
-		List<ParameterDescriptor> results = dao.getDescriptors(names, ParameterScope.GLOBAL);
-		Assert.assertEquals(2, results.size());
-		Assert.assertNotNull(find(results, "p2"));
-		Assert.assertNotNull(find(results, "p3"));
-	}
 
 	private void insertParameter(ParameterDao dao, String name) {
 		Parameter p = new Parameter();
@@ -39,7 +25,7 @@ public class ParameterDaoTest {
 		p.scope = ParameterScope.GLOBAL;
 		dao.insert(p);
 	}
-	
+
 	private ParameterDescriptor find(List<ParameterDescriptor> list, String name) {
 		for (ParameterDescriptor d: list)
 			if (d.name.equals(name))
