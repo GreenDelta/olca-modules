@@ -130,7 +130,6 @@ public final class Refs {
 			switch (field.getName()) {
 				case "id" -> Out.set(proto, field, d.refId);
 				case "name" -> Out.set(proto, field, d.name);
-				case "description" -> Out.set(proto, field, d.description);
 				case "version" -> Out.set(proto, field, Version.asString(d.version));
 				case "last_change" ->
 					Out.set(proto, field, Out.dateTimeOf(d.lastChange));
