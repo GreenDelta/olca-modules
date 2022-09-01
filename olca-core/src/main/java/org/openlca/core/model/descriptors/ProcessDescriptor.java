@@ -13,7 +13,6 @@ public class ProcessDescriptor extends RootDescriptor {
 	 */
 	public FlowType flowType;
 
-	public boolean infrastructureProcess;
 	public Long location;
 
 	public ProcessDescriptor() {
@@ -25,7 +24,7 @@ public class ProcessDescriptor extends RootDescriptor {
 		var copy = new ProcessDescriptor();
 		copyFields(this, copy);
 		copy.processType = processType;
-		copy.infrastructureProcess = infrastructureProcess;
+		copy.flowType = flowType;
 		copy.location = location;
 		return copy;
 	}
@@ -45,8 +44,8 @@ public class ProcessDescriptor extends RootDescriptor {
 			return this;
 		}
 
-		public Builder infrastructureProcess(boolean infrastructureProcess) {
-			descriptor.infrastructureProcess = infrastructureProcess;
+		public Builder flowType(FlowType flowType) {
+			descriptor.flowType = flowType;
 			return this;
 		}
 
@@ -54,6 +53,5 @@ public class ProcessDescriptor extends RootDescriptor {
 			descriptor.location = location;
 			return this;
 		}
-
 	}
 }

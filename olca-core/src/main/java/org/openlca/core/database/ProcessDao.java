@@ -39,7 +39,6 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 						d.library,
 						d.tags,
 						d.process_type,
-						d.infrastructure_process,
 						d.f_location,
 						f.flow_type
 				    from tbl_processes d
@@ -72,14 +71,12 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 				d.processType = ProcessType.valueOf(processType);
 			}
 
-			d.infrastructureProcess = r.getBoolean(11);
-
-			var locId = r.getLong(12);
+			var locId = r.getLong(11);
 			if (!r.wasNull()) {
 				d.location = locId;
 			}
 
-			var flowType = r.getString(13);
+			var flowType = r.getString(12);
 			if (flowType != null) {
 				d.flowType = FlowType.valueOf(flowType);
 			}
