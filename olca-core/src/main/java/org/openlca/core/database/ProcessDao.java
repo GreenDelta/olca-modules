@@ -32,7 +32,6 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 						d.id,
 						d.ref_id,
 						d.name,
-						d.description,
 						d.version,
 						d.last_change,
 						d.f_category,
@@ -56,27 +55,26 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 			d.id = r.getLong(1);
 			d.refId = r.getString(2);
 			d.name = r.getString(3);
-			d.description = r.getString(4);
-			d.version = r.getLong(5);
-			d.lastChange = r.getLong(6);
-			var catId = r.getLong(7);
+			d.version = r.getLong(4);
+			d.lastChange = r.getLong(5);
+			var catId = r.getLong(6);
 			if (!r.wasNull()) {
 				d.category = catId;
 			}
-			d.library = r.getString(8);
-			d.tags = r.getString(9);
+			d.library = r.getString(7);
+			d.tags = r.getString(8);
 
-			var processType = r.getString(10);
+			var processType = r.getString(9);
 			if (processType != null) {
 				d.processType = ProcessType.valueOf(processType);
 			}
 
-			var locId = r.getLong(11);
+			var locId = r.getLong(10);
 			if (!r.wasNull()) {
 				d.location = locId;
 			}
 
-			var flowType = r.getString(12);
+			var flowType = r.getString(11);
 			if (flowType != null) {
 				d.flowType = FlowType.valueOf(flowType);
 			}

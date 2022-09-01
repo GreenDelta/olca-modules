@@ -50,7 +50,6 @@ public class DescriptorTest {
 		Consumer<RootDescriptor> test = d -> {
 			assertEquals(refId, d.refId);
 			assertEquals(d.type.name(), d.name);
-			assertEquals("description", d.description);
 			assertEquals("tags", d.tags);
 			assertEquals(version, d.version);
 			assertEquals(lastChange, d.lastChange);
@@ -67,7 +66,6 @@ public class DescriptorTest {
 			e.refId = refId;
 			e.name = type.name();
 			e.category = cat;
-			e.description = "description";
 			e.tags = "tags";
 			e.version = version;
 			e.lastChange = lastChange;

@@ -37,7 +37,6 @@ public class Descriptor implements Copyable<Descriptor> {
 	public String refId;
 	public long id;
 	public String name;
-	public String description;
 	public long version;
 	public long lastChange;
 
@@ -104,7 +103,6 @@ public class Descriptor implements Copyable<Descriptor> {
 		d.id = e.id;
 		d.refId = e.refId;
 		d.name = e.name;
-		d.description = e.description;
 		return d;
 	}
 
@@ -332,7 +330,6 @@ public class Descriptor implements Copyable<Descriptor> {
 	static void copyFields(Descriptor from, Descriptor to) {
 		if (from == null || to == null)
 			return;
-		to.description = from.description;
 		to.id = from.id;
 		to.lastChange = from.lastChange;
 		to.name = from.name;

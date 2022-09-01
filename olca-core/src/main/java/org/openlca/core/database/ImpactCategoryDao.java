@@ -22,7 +22,6 @@ public class ImpactCategoryDao extends
 						d.id,
 						d.ref_id,
 						d.name,
-						d.description,
 						d.version,
 						d.last_change,
 						d.f_category,
@@ -42,18 +41,17 @@ public class ImpactCategoryDao extends
 			d.id = r.getLong(1);
 			d.refId = r.getString(2);
 			d.name = r.getString(3);
-			d.description = r.getString(4);
-			d.version = r.getLong(5);
-			d.lastChange = r.getLong(6);
-			var catId = r.getLong(7);
+			d.version = r.getLong(4);
+			d.lastChange = r.getLong(5);
+			var catId = r.getLong(6);
 			if (!r.wasNull()) {
 				d.category = catId;
 			}
-			d.library = r.getString(8);
-			d.tags = r.getString(9);
-			d.referenceUnit = r.getString(10);
+			d.library = r.getString(7);
+			d.tags = r.getString(8);
+			d.referenceUnit = r.getString(9);
 
-			var direction = r.getString(11);
+			var direction = r.getString(10);
 			if (direction != null) {
 				d.direction = Direction.from(direction);
 			}

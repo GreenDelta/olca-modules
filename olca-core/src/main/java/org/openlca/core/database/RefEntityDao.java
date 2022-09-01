@@ -102,8 +102,7 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 						select
 							d.id,
 							d.ref_id,
-							d.name,
-							d.description from
+							d.name from
 				""" + getEntityTable() + " d";
 		if (condition != null) {
 			sql += " " + condition;
@@ -115,7 +114,6 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 			d.id = r.getLong(1);
 			d.refId = r.getString(2);
 			d.name = r.getString(3);
-			d.description = r.getString(4);
 			list.add(d);
 			return true;
 		});

@@ -37,7 +37,6 @@ public class NwSetDao extends RefEntityDao<NwSet, NwSetDescriptor> {
 							d.id,
 							d.ref_id,
 							d.name,
-							d.description,
 							d.weighted_score_unit from
 				""" + getEntityTable() + " d";
 		if (condition != null) {
@@ -50,8 +49,7 @@ public class NwSetDao extends RefEntityDao<NwSet, NwSetDescriptor> {
 			d.id = r.getLong(1);
 			d.refId = r.getString(2);
 			d.name = r.getString(3);
-			d.description = r.getString(4);
-			d.weightedScoreUnit = r.getString(5);
+			d.weightedScoreUnit = r.getString(4);
 			list.add(d);
 			return true;
 		});

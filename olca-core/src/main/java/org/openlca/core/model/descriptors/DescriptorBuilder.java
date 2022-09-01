@@ -25,11 +25,6 @@ public class DescriptorBuilder<T extends Descriptor>{
 		return this;
 	}
 
-	public DescriptorBuilder<T> description(String description) {
-		descriptor.description = description;
-		return this;
-	}
-
 	public DescriptorBuilder<T> version(long version) {
 		descriptor.version = version;
 		return this;
