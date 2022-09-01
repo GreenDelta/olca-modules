@@ -68,7 +68,8 @@ public class DbRefs {
 
 		if (d instanceof ProcessDescriptor pd) {
 			Json.put(ref, "processType", pd.processType);
-			Json.put(ref, "location", pd.location);
+			Json.put(ref, "flowType", pd.flowType);
+			Json.put(ref, "location", locationCodeOf(pd.location));
 		}
 
 		if (d instanceof FlowPropertyDescriptor prop) {
