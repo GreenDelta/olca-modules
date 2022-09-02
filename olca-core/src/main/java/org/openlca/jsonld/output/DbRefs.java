@@ -79,6 +79,11 @@ public class DbRefs {
 		return ref;
 	}
 
+	public JsonObject asRef(ModelType type, long id) {
+		var d = descriptorOf(type, id);
+		return asRef(d);
+	}
+
 	RootDescriptor descriptorOf(ModelType type, long id) {
 		if (type == null)
 			return null;

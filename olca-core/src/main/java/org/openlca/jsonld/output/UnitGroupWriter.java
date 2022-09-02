@@ -8,11 +8,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-record UnitGroupWriter(JsonExport exp) implements Writer<UnitGroup> {
+public record UnitGroupWriter(JsonExport exp) implements JsonWriter<UnitGroup> {
 
 	@Override
 	public JsonObject write(UnitGroup ug) {
-		var obj = Writer.init(ug);
+		var obj = Util.init(ug);
 		Json.put(obj, "defaultFlowProperty", exp.handleRef(ug.defaultFlowProperty));
 		mapUnits(ug, obj);
 		return obj;

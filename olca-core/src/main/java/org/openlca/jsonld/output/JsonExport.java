@@ -20,7 +20,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Epd;
@@ -173,7 +172,7 @@ public class JsonExport {
 			return;
 		}
 
-		Writer<T> w = getWriter(entity);
+		JsonWriter<T> w = getWriter(entity);
 		if (w == null) {
 			warn(cb, "no writer found for type " + type, entity);
 			return;
@@ -230,55 +229,52 @@ public class JsonExport {
 			return new JsonObject();
 		var exp = new JsonExport(null, new MemStore())
 			.withReferences(false);
-		Writer<T> writer = exp.getWriter(entity);
+		JsonWriter<T> writer = exp.getWriter(entity);
 		return writer.write(entity);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RefEntity> Writer<T> getWriter(T entity) {
+	public <T extends RefEntity> JsonWriter<T> getWriter(T entity) {
 		if (entity == null)
 			return null;
 		if (entity instanceof Actor)
-			return (Writer<T>) new ActorWriter(this);
-		if (entity instanceof Category)
-			return (Writer<T>) new CategoryWriter(this);
+			return (JsonWriter<T>) new ActorWriter();
 		if (entity instanceof Currency)
-			return (Writer<T>) new CurrencyWriter(this);
+			return (JsonWriter<T>) new CurrencyWriter(this);
 		if (entity instanceof Epd)
-			return (Writer<T>) new EpdWriter(this);
+			return (JsonWriter<T>) new EpdWriter(this);
 		if (entity instanceof FlowProperty)
-			return (Writer<T>) new FlowPropertyWriter(this);
+			return (JsonWriter<T>) new FlowPropertyWriter(this);
 		if (entity instanceof Flow)
-			return (Writer<T>) new FlowWriter(this);
+			return (JsonWriter<T>) new FlowWriter(this);
 		if (entity instanceof ImpactCategory)
-			return (Writer<T>) new ImpactCategoryWriter(this);
+			return (JsonWriter<T>) new ImpactCategoryWriter(this);
 		if (entity instanceof ImpactMethod)
-			return (Writer<T>) new ImpactMethodWriter(this);
+			return (JsonWriter<T>) new ImpactMethodWriter(this);
 		if (entity instanceof Location)
-			return (Writer<T>) new LocationWriter(this);
+			return (JsonWriter<T>) new LocationWriter(this);
 		if (entity instanceof Parameter)
-			return (Writer<T>) new ParameterWriter(this);
+			return (JsonWriter<T>) new ParameterWriter(this);
 		if (entity instanceof Process)
-			return (Writer<T>) new ProcessWriter(this);
+			return (JsonWriter<T>) new ProcessWriter(this);
 		if (entity instanceof Result)
-			return (Writer<T>) new ResultWriter(this);
+			return (JsonWriter<T>) new ResultWriter(this);
 		if (entity instanceof Source)
-			return (Writer<T>) new SourceWriter(this);
+			return (JsonWriter<T>) new SourceWriter(this);
 		if (entity instanceof UnitGroup)
-			return (Writer<T>) new UnitGroupWriter(this);
+			return (JsonWriter<T>) new UnitGroupWriter(this);
 		if (entity instanceof SocialIndicator)
-			return (Writer<T>) new SocialIndicatorWriter(this);
+			return (JsonWriter<T>) new SocialIndicatorWriter(this);
 		if (entity instanceof ProductSystem)
-			return (Writer<T>) new ProductSystemWriter(this);
+			return (JsonWriter<T>) new ProductSystemWriter(this);
 		if (entity instanceof Project)
-			return (Writer<T>) new ProjectWriter(this);
+			return (JsonWriter<T>) new ProjectWriter(this);
 		if (entity instanceof DQSystem)
-			return (Writer<T>) new DQSystemWriter(this);
+			return (JsonWriter<T>) new DQSystemWriter(this);
 		if (entity instanceof Unit)
-			return (Writer<T>) new UnitWriter(this);
+			return (JsonWriter<T>) new UnitWriter(this);
 		return null;
 	}
-
 
 	private class Copy extends SimpleFileVisitor<Path> {
 

@@ -13,11 +13,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-record ProcessWriter(JsonExport exp) implements Writer<Process> {
+public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 
 	@Override
 	public JsonObject write(Process p) {
-		var obj = Writer.init(p);
+		var obj = Util.init(p);
 		// AllocationCleanup.on(p);
 		Json.put(obj, "processType", p.processType);
 		Json.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);

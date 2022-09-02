@@ -8,11 +8,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-record ImpactCategoryWriter(JsonExport exp) implements Writer<ImpactCategory> {
+public record ImpactCategoryWriter(JsonExport exp)
+		implements JsonWriter<ImpactCategory> {
 
 	@Override
 	public JsonObject write(ImpactCategory impact) {
-		var obj = Writer.init(impact);
+		var obj = Util.init(impact);
 		Json.put(obj, "code", impact.code);
 		Json.put(obj, "refUnit", impact.referenceUnit);
 		Json.put(obj, "source", exp.handleRef(impact.source));

@@ -5,11 +5,11 @@ import org.openlca.core.model.Actor;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-record ActorWriter(JsonExport exp) implements Writer<Actor> {
+public class ActorWriter implements JsonWriter<Actor> {
 
 	@Override
 	public JsonObject write(Actor actor) {
-		var obj = Writer.init(actor);
+		var obj = Util.init(actor);
 		Json.put(obj, "address", actor.address);
 		Json.put(obj, "city", actor.city);
 		Json.put(obj, "country", actor.country);

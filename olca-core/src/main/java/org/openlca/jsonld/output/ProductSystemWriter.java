@@ -17,11 +17,12 @@ import com.google.gson.JsonObject;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 
-record ProductSystemWriter(JsonExport exp) implements Writer<ProductSystem> {
+public record ProductSystemWriter(JsonExport exp)
+		implements JsonWriter<ProductSystem> {
 
 	@Override
 	public JsonObject write(ProductSystem sys) {
-		var obj = Writer.init(sys);
+		var obj = Util.init(sys);
 		Json.put(obj, "refProcess", exp.handleRef(sys.referenceProcess));
 
 		// the reference exchange

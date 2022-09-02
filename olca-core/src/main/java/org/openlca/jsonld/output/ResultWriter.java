@@ -10,11 +10,11 @@ import org.openlca.jsonld.Json;
 
 import java.util.Objects;
 
-record ResultWriter(JsonExport exp) implements Writer<Result> {
+public record ResultWriter(JsonExport exp) implements JsonWriter<Result> {
 
 	@Override
 	public JsonObject write(Result result) {
-		var json = Writer.init(result);
+		var json = Util.init(result);
 		Json.put(json, "productSystem", exp.handleRef(result.productSystem));
 		Json.put(json, "impactMethod", exp.handleRef(result.impactMethod));
 		writeImpactResults(result, json);

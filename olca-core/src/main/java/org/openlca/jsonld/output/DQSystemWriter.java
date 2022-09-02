@@ -8,11 +8,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-record DQSystemWriter(JsonExport exp) implements Writer<DQSystem> {
+public record DQSystemWriter(JsonExport exp) implements JsonWriter<DQSystem> {
 
 	@Override
 	public JsonObject write(DQSystem system) {
-		var obj = Writer.init(system);
+		var obj = Util.init(system);
 		Json.put(obj, "hasUncertainties", system.hasUncertainties);
 		Json.put(obj, "source", exp.handleRef(system.source));
 		writeIndicators(system, obj);
