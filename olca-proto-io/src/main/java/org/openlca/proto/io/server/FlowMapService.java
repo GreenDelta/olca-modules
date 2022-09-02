@@ -133,7 +133,6 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       return FlowMap.empty();
     var flowMap = new FlowMap();
     flowMap.name = proto.getName();
-    flowMap.description = proto.getDescription();
     flowMap.refId = proto.getId();
     for (var protoEntry : proto.getMappingsList()) {
       var source = toModelRef(protoEntry.getFrom());

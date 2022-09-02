@@ -126,7 +126,6 @@ public class RefsTest {
 		if (ref.getType() == ProtoType.Process) {
 			assertEquals(process.refId, ref.getId());
 			assertEquals("Steel production", ref.getName());
-			assertEquals("an example process", ref.getDescription());
 			assertEquals(ProtoProcessType.UNIT_PROCESS, ref.getProcessType());
 		} else {
 			assertEquals(flow.refId, ref.getId());

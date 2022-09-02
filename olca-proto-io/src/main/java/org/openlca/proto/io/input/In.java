@@ -135,7 +135,6 @@ public final class In {
       return null;
     d.refId = proto.getId();
     d.name = proto.getName();
-    d.description = Strings.nullIfEmpty(proto.getDescription());
 
     if (d instanceof ProcessDescriptor) {
       ((ProcessDescriptor) d).processType = processTypeOf(
