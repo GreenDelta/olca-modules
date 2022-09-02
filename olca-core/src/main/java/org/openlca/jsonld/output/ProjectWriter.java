@@ -38,7 +38,7 @@ public record ProjectWriter(JsonExport exp) implements JsonWriter<Project> {
 				: null;
 			Json.put(obj, "flowProperty", exp.handleRef(prop));
 			if (!v.parameterRedefs.isEmpty()) {
-				var redefs = Util.mapRedefs(v.parameterRedefs, exp);
+				var redefs = ParameterWriter.mapRedefs(exp, v.parameterRedefs);
 				Json.put(obj, "parameterRedefs", redefs);
 			}
 		}

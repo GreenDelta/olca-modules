@@ -148,7 +148,7 @@ public record ProductSystemWriter(JsonExport exp)
 			Json.put(jsonSet, "description", set.description);
 			Json.put(jsonSet, "isBaseline", set.isBaseline);
 			if (!set.parameters.isEmpty()) {
-				var params = Util.mapRedefs(set.parameters, exp);
+				var params = ParameterWriter.mapRedefs(exp, set.parameters);
 				Json.put(jsonSet, "parameters", params);
 			}
 		}

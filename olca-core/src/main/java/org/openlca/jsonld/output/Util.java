@@ -5,9 +5,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-
-import org.openlca.core.model.ParameterRedef;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -19,27 +16,6 @@ import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
 class Util {
-
-	/**
-	 * Maps the given parameter redefinitions to a JSON array. If necessary, it
-	 * exports the respective parameter context (i.e. global parameters or LCIA
-	 * category parameters).
-	 */
-	static JsonArray mapRedefs(List<ParameterRedef> redefs, JsonExport exp) {
-		var array = new JsonArray();
-		for (var p : redefs) {
-			var obj = new JsonObject();
-			Json.put(obj, "name", p.name);
-			Json.put(obj, "value", p.value);
-			Json.put(obj, "uncertainty", Uncertainties.map(p.uncertainty));
-			Json.put(obj, "isProtected", p.isProtected);
-			if (p.contextId != null && p.contextType != null) {
-				Json.put(obj, "context", exp.handleRef(p.contextType, p.contextId));
-			}
-			array.add(obj);
-		}
-		return array;
-	}
 
 	static JsonObject mapDocOf(Process process, JsonExport exp) {
 		var d = process.documentation;
