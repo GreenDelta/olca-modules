@@ -134,7 +134,7 @@ public class ProductSystemReader implements EntityReader<ProductSystem> {
 			set.isBaseline = Json.getBool(obj, "isBaseline", false);
 			var redefs = Json.getArray(obj, "parameters");
 			if (redefs != null && redefs.size() > 0) {
-				set.parameters.addAll(ParameterRedefs.read(redefs, resolver));
+				set.parameters.addAll(ParameterReader.readRedefs(redefs, resolver));
 			}
 		});
 	}

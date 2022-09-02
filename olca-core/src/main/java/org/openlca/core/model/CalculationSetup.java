@@ -158,7 +158,7 @@ public class CalculationSetup extends AbstractEntity
 
 	/**
 	 * Optionally set the target amount for the reference flow of this setup.
-	 * By default it is the defined target amount of the product system or
+	 * By default, it is the defined target amount of the product system or
 	 * the quantitative reference in case of a process.
 	 */
 	public CalculationSetup withAmount(double amount) {

@@ -14,13 +14,13 @@ import org.openlca.util.Strings;
  * factors, or result values). This utility class holds the respective entries
  * of such an object.
  */
-record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
+public record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 
-	static Quantity of(Flow flow, JsonObject obj) {
+	public static Quantity of(Flow flow, JsonObject obj) {
 		return of(flow, obj, "flowProperty", "unit");
 	}
 
-	static Quantity of(
+	public static Quantity of(
 		Flow flow, JsonObject obj, String propertyField, String unitField) {
 		if (flow == null)
 			return new Quantity(null, null, null);

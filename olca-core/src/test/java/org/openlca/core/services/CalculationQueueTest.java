@@ -1,4 +1,4 @@
-package org.openlca.core.math;
+package org.openlca.core.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +18,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.services.CalculationQueue;
 
 public class CalculationQueueTest {
 

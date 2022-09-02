@@ -1,4 +1,4 @@
-package org.openlca.core.math;
+package org.openlca.core.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
 
