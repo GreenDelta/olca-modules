@@ -87,7 +87,7 @@ public class LibStrip implements Runnable {
 			var rawM = lib.getMatrix(LibMatrix.M).orElse(null);
 			if (rawM != null) {
 				var strippedB = new DenseMatrix(flowIdx.size(), n);
-				for (int col = 0; col < n; col++) {
+				for (int col = 0; col < idxMap.length; col++) {
 					int target = idxMap[col];
 					if (target < 0)
 						continue;
