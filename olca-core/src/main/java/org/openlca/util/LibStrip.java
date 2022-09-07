@@ -64,8 +64,7 @@ public class LibStrip implements Runnable {
 			return;
 		}
 
-
-		var stripped = LibraryDir.of(lib.folder())
+		var stripped = LibraryDir.of(lib.folder().getParentFile())
 				.create(lib.name() + "_stripped");
 		var ixCxt = IxContext.of(db);
 		int n = strippedIdx.size();
@@ -78,6 +77,7 @@ public class LibStrip implements Runnable {
 			matrixA.set(i, i, 1.0);
 		}
 		LibMatrix.A.write(stripped, matrixA);
+		LibMatrix.INV.write(stripped, matrixA);
 
 		// envi. index and matrix
 		var flowIdx = lib.readEnviIndex();
@@ -144,19 +144,18 @@ public class LibStrip implements Runnable {
 		var used = new HashSet<TechFlow>();
 
 		new ExchangeTable(db).each(e -> {
-			if (!e.isLinkable())
+			if (!e.isLinkable() || e.defaultProviderId == 0)
 				return;
-			for (var p : processes.getProviders(e.flowId)) {
-				if (Objects.equals(p.library(), lib.name())) {
-					used.add(p);
-				}
+			var techFlow = processes.getProvider(e.defaultProviderId, e.flowId);
+			if (techFlow != null && isLib(techFlow.library())) {
+				used.add(techFlow);
 			}
 		});
 
 		for (var system : db.getAll(ProductSystem.class)) {
 
 			var ref = system.referenceProcess;
-			if (ref != null && Objects.equals(ref.library, lib.name())) {
+			if (ref != null && isLib(ref.library)) {
 				used.add(TechFlow.of(ref));
 				continue;
 			}
@@ -165,13 +164,17 @@ public class LibStrip implements Runnable {
 				var p = processes.getProvider(link.providerId, link.flowId);
 				if (p == null)
 					continue;
-				if (Objects.equals(p.library(), lib.name())) {
+				if (isLib(p.library())) {
 					used.add(p);
 				}
 			}
 		}
 
 		return used;
+	}
+
+	private boolean isLib(String libId) {
+		return libId != null && libId.equals(lib.name());
 	}
 
 }
