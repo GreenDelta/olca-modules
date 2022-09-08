@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
@@ -21,11 +22,17 @@ public class CalculationQueue {
 	private final IDatabase db;
 	private final ConcurrentMap<String, State> states;
 	private final ExecutorService threads;
+	private LibraryDir libDir;
 
 	public CalculationQueue(IDatabase db, int threadCount) {
 		this.db = db;
 		threads = Executors.newFixedThreadPool(threadCount);
 		states = new ConcurrentHashMap<>();
+	}
+
+	public CalculationQueue withLibraryDir(LibraryDir libDir) {
+		this.libDir = libDir;
+		return this;
 	}
 
 	/**
@@ -93,7 +100,9 @@ public class CalculationQueue {
 			if (state == null || !state.isScheduled())
 				return;
 			try {
-				var result = new SystemCalculator(db).calculate(state.setup);
+				var result = new SystemCalculator(db)
+						.withLibraryDir(libDir)
+						.calculate(state.setup);
 				var resultState = state.toResult(result);
 				states.put(state.id, resultState);
 			} catch (Throwable err) {
