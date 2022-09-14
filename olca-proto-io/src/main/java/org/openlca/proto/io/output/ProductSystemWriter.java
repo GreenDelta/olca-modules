@@ -38,7 +38,6 @@ public class ProductSystemWriter {
       return proto.build();
     proto.setType(ProtoType.ProductSystem);
     Out.map(system, proto);
-    Out.dep(config, system.category);
     mapQRef(system, proto);
     var processes = mapProcesses(system, proto);
     mapLinks(system, proto, processes);
@@ -122,7 +121,6 @@ public class ProductSystemWriter {
       }
       return true;
     });
-
 
     // add the links
     for (var link : system.processLinks) {

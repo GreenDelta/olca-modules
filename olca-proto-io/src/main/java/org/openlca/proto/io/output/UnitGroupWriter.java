@@ -23,13 +23,7 @@ public class UnitGroupWriter {
       return proto.build();
     proto.setType(ProtoType.UnitGroup);
     Out.map(group, proto);
-    Out.dep(config, group.category);
-
-    if (group.defaultFlowProperty != null) {
-      proto.setDefaultFlowProperty(
-        Refs.refOf(group.defaultFlowProperty));
-      Out.dep(config, group.defaultFlowProperty);
-    }
+		config.dep(group.defaultFlowProperty, proto::setDefaultFlowProperty);
     writeUnits(group, proto);
     return proto.build();
   }

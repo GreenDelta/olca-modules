@@ -8,19 +8,12 @@ import org.openlca.util.Strings;
 
 public class ParameterWriter {
 
-  private final WriterConfig config;
-
-  public ParameterWriter(WriterConfig config) {
-    this.config = config;
-  }
-
   public ProtoParameter write(Parameter parameter) {
     var proto = ProtoParameter.newBuilder();
     if (parameter == null)
       return proto.build();
     proto.setType(ProtoType.Parameter);
     Out.map(parameter, proto);
-    Out.dep(config, parameter.category);
 
     proto.setFormula(Strings.orEmpty(parameter.formula));
     proto.setIsInputParameter(parameter.isInputParameter);

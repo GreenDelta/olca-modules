@@ -8,19 +8,12 @@ import org.openlca.util.Strings;
 
 public class LocationWriter {
 
-  private final WriterConfig config;
-
-  public LocationWriter(WriterConfig config) {
-    this.config = config;
-  }
-
   public ProtoLocation write(Location location) {
     var proto = ProtoLocation.newBuilder();
     if (location == null)
       return proto.build();
     proto.setType(ProtoType.Location);
     Out.map(location, proto);
-    Out.dep(config, location.category);
 
     proto.setCode(Strings.orEmpty(location.code));
     proto.setLatitude(location.latitude);

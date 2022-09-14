@@ -3,7 +3,6 @@ package org.openlca.proto.io.output;
 import java.util.Objects;
 import java.util.function.LongFunction;
 
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
@@ -49,7 +48,7 @@ public class ProcessWriter {
 		config.dep(process.socialDqSystem, proto::setSocialDqSystem);
 
     // parameters
-    var paramWriter = new ParameterWriter(config);
+    var paramWriter = new ParameterWriter();
     for (var param : process.parameters) {
       proto.addParameters(paramWriter.write(param));
     }
@@ -126,22 +125,15 @@ public class ProcessWriter {
 
   private void writeSocialAspects(Process p, ProtoProcess.Builder proto) {
     for (var aspect : p.socialAspects) {
-      var pa = ProtoSocialAspect.newBuilder();
-      if (aspect.indicator != null) {
-        pa.setSocialIndicator(Refs.refOf(aspect.indicator));
-        Out.dep(config, aspect.indicator);
-      }
-      pa.setComment(Strings.orEmpty(aspect.comment));
-      pa.setQuality(Strings.orEmpty(aspect.quality));
-      pa.setRawAmount(Strings.orEmpty(aspect.rawAmount));
-      pa.setActivityValue(aspect.activityValue);
-      pa.setRiskLevel(riskLevel(aspect));
-
-      if (aspect.source != null) {
-        pa.setSource(Refs.refOf(aspect.source));
-        Out.dep(config, aspect.source);
-      }
-      proto.addSocialAspects(pa);
+      var protoAspect = ProtoSocialAspect.newBuilder();
+			config.dep(aspect.indicator, protoAspect::setSocialIndicator);
+      protoAspect.setComment(Strings.orEmpty(aspect.comment));
+      protoAspect.setQuality(Strings.orEmpty(aspect.quality));
+      protoAspect.setRawAmount(Strings.orEmpty(aspect.rawAmount));
+      protoAspect.setActivityValue(aspect.activityValue);
+      protoAspect.setRiskLevel(riskLevel(aspect));
+			config.dep(aspect.source, protoAspect::setSource);
+      proto.addSocialAspects(protoAspect);
     }
   }
 

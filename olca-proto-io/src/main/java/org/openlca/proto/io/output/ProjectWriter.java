@@ -18,7 +18,6 @@ public class ProjectWriter {
       return proto.build();
     proto.setType(ProtoType.Project);
     Out.map(project, proto);
-    Out.dep(config, project.category);
 
     // model specific fields
     // TODO

@@ -19,24 +19,11 @@ public class SocialIndicatorWriter {
       return proto.build();
     proto.setType(ProtoType.SocialIndicator);
     Out.map(indicator, proto);
-    Out.dep(config, indicator.category);
-
-    if (indicator.activityQuantity != null) {
-      proto.setActivityQuantity(
-        Refs.refOf(indicator.activityQuantity));
-      Out.dep(config, indicator.activityQuantity);
-    }
-    if (indicator.activityUnit != null) {
-      proto.setActivityUnit(
-        Refs.refOf(indicator.activityUnit));
-    }
-    proto.setActivityVariable(
-      Strings.orEmpty(indicator.activityVariable));
-    proto.setEvaluationScheme(
-      Strings.orEmpty(indicator.evaluationScheme));
-    proto.setUnitOfMeasurement(
-      Strings.orEmpty(indicator.unitOfMeasurement));
-
+		config.dep(indicator.activityQuantity, proto::setActivityQuantity);
+    config.dep(indicator.activityUnit, proto::setActivityUnit);
+    proto.setActivityVariable(Strings.orEmpty(indicator.activityVariable));
+    proto.setEvaluationScheme(Strings.orEmpty(indicator.evaluationScheme));
+    proto.setUnitOfMeasurement(Strings.orEmpty(indicator.unitOfMeasurement));
     return proto.build();
   }
 }
