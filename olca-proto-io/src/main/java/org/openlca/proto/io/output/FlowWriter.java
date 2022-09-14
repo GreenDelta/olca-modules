@@ -22,17 +22,13 @@ public class FlowWriter {
       return proto.build();
     proto.setType(ProtoType.Flow);
     Out.map(flow, proto);
-    Out.dep(config, flow.category);
 
     proto.setCas(Strings.orEmpty(flow.casNumber));
     proto.setFormula(Strings.orEmpty(flow.formula));
     proto.setIsInfrastructureFlow(flow.infrastructureFlow);
     proto.setSynonyms(Strings.orEmpty(flow.synonyms));
     proto.setFlowType(Out.flowTypeOf(flow.flowType));
-    if (flow.location != null) {
-      proto.setLocation(Refs.refOf(flow.location));
-      Out.dep(config, flow.location);
-    }
+		config.dep(flow.location, proto::setLocation);
     writeFlowProperties(flow, proto);
 
     return proto.build();
@@ -40,15 +36,12 @@ public class FlowWriter {
 
   private void writeFlowProperties(Flow flow, ProtoFlow.Builder proto) {
     for (var f : flow.flowPropertyFactors) {
-      var protoF = ProtoFlowPropertyFactor.newBuilder();
-      protoF.setConversionFactor(f.conversionFactor);
-      if (f.flowProperty != null) {
-        protoF.setFlowProperty(Refs.refOf(f.flowProperty));
-        Out.dep(config, f.flowProperty);
-        protoF.setIsRefFlowProperty(
-          Objects.equals(f.flowProperty, flow.referenceFlowProperty));
-      }
-      proto.addFlowProperties(protoF.build());
+      var protoFac = ProtoFlowPropertyFactor.newBuilder();
+      protoFac.setConversionFactor(f.conversionFactor);
+			config.dep(f.flowProperty, protoFac::setFlowProperty);
+			protoFac.setIsRefFlowProperty(
+				Objects.equals(f.flowProperty, flow.referenceFlowProperty));
+      proto.addFlowProperties(protoFac.build());
     }
   }
 }

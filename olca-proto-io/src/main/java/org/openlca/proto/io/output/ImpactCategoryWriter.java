@@ -20,8 +20,6 @@ public class ImpactCategoryWriter {
       return proto.build();
     proto.setType(ProtoType.ImpactCategory);
     Out.map(impact, proto);
-    Out.dep(config, impact.category);
-
     proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
     writeFactors(impact, proto);
     var paramWriter = new ParameterWriter(config);
@@ -35,32 +33,17 @@ public class ImpactCategoryWriter {
     ImpactCategory impact, ProtoImpactCategory.Builder proto) {
     for (var factor : impact.impactFactors) {
       var protoFac = ProtoImpactFactor.newBuilder();
-
-      if (factor.flow != null) {
-        protoFac.setFlow(Refs.refOf(factor.flow));
-        Out.dep(config, factor.flow);
-      }
-
+			config.dep(factor.flow, protoFac::setFlow);
+			config.dep(factor.unit, protoFac::setUnit);
       var prop = factor.flowPropertyFactor;
-      if (prop != null && prop.flowProperty != null) {
-        protoFac.setFlowProperty(Refs.refOf(prop.flowProperty));
+      if (prop != null) {
+				config.dep(prop.flowProperty, protoFac::setFlowProperty);
       }
-
       protoFac.setFormula(Strings.orEmpty(factor.formula));
-
-      if (factor.location != null) {
-        protoFac.setLocation(Refs.refOf(factor.location));
-        Out.dep(config, factor.location);
-      }
-
+			config.dep(factor.location, protoFac::setLocation);
       if (factor.uncertainty != null) {
         protoFac.setUncertainty(Out.uncertaintyOf(factor.uncertainty));
       }
-
-      if (factor.unit != null) {
-        protoFac.setUnit(Refs.refOf(factor.unit));
-      }
-
       protoFac.setValue(factor.value);
       proto.addImpactFactors(protoFac.build());
     }

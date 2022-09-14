@@ -19,15 +19,8 @@ public class FlowPropertyWriter {
       return proto.build();
     proto.setType(ProtoType.FlowProperty);
     Out.map(property, proto);
-    Out.dep(config, property.category);
-
-    // model specific fields
     writeFlowPropertyType(property, proto);
-    if (property.unitGroup != null) {
-      proto.setUnitGroup(Refs.refOf(property.unitGroup));
-      Out.dep(config, property.unitGroup);
-    }
-
+		config.dep(property.unitGroup, proto::setUnitGroup);
     return proto.build();
   }
 

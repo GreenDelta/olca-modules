@@ -2,7 +2,8 @@ package org.openlca.proto.io.output;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.store.EntityStore;
 import org.openlca.proto.ProtoRef;
 
@@ -17,8 +18,8 @@ public record WriterConfig(EntityStore db, DependencyHandler deps) {
 	void dep(RefEntity e, Consumer<ProtoRef> ref) {
 		if (e == null)
 			return;
-		if (deps != null) {
-			deps.push(e);
+		if (deps != null && e instanceof RootEntity re) {
+			deps.push(re);
 		}
 		ref.accept(Refs.refOf(e).build());
 	}
@@ -26,11 +27,11 @@ public record WriterConfig(EntityStore db, DependencyHandler deps) {
 	private static class DefaultHandler implements DependencyHandler {
 
 		@Override
-		public void push(RefEntity dependency) {
+		public void push(RootEntity dependency) {
 		}
 
 		@Override
-		public void push(Descriptor descriptor) {
+		public void push(RootDescriptor descriptor) {
 		}
 	}
 }

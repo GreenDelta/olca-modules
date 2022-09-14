@@ -1,11 +1,11 @@
 package org.openlca.proto.io.output;
 
-import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public interface DependencyHandler {
 
-  void push(RefEntity entity);
+  void push(RootEntity entity);
 
-  void push(Descriptor descriptor);
+  void push(RootDescriptor descriptor);
 }

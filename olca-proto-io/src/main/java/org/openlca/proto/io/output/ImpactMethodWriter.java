@@ -21,14 +21,10 @@ public class ImpactMethodWriter {
       return proto.build();
     proto.setType(ProtoType.ImpactMethod);
     Out.map(method, proto);
-    Out.dep(config, method.category);
-
     for (var impact : method.impactCategories) {
-      proto.addImpactCategories(Refs.refOf(impact));
-      Out.dep(config, impact);
+			config.dep(impact, proto::addImpactCategories);
     }
     writeNwSets(method, proto);
-
     return proto.build();
   }
 
@@ -43,11 +39,7 @@ public class ImpactMethodWriter {
         Strings.orEmpty(nwSet.weightedScoreUnit));
       for (var nwFactor : nwSet.factors) {
         var protoFactor = ProtoNwFactor.newBuilder();
-        if (nwFactor.impactCategory != null) {
-          protoFactor.setImpactCategory(
-            Refs.refOf(nwFactor.impactCategory));
-          Out.dep(config, nwFactor.impactCategory);
-        }
+        config.dep(nwFactor.impactCategory, protoFactor::setImpactCategory);
         if (nwFactor.normalisationFactor != null) {
           protoFactor.setNormalisationFactor(
             nwFactor.normalisationFactor);
