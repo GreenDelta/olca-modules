@@ -30,7 +30,7 @@ class ImpactMethodExport extends AbstractExport {
 		Object[] line = new Object[4];
 		line[0] = method.refId;
 		line[1] = method.name;
-		line[2] = method.description;
+		line[2] = null; // TODO
 		if (method.category != null) {
 			Category category = categoryDao.getForId(method.category);
 			if (category != null)

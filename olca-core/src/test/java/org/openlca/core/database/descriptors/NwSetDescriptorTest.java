@@ -66,8 +66,8 @@ public class NwSetDescriptorTest {
 	}
 
 	private void checkDescriptor(NwSetDescriptor descriptor) {
+		Assert.assertNotNull(descriptor);
 		Assert.assertEquals(nwSet.name, descriptor.name);
-		Assert.assertEquals(nwSet.description, descriptor.description);
 		Assert.assertEquals(nwSet.refId, descriptor.refId);
 		Assert.assertEquals(nwSet.weightedScoreUnit,
 				descriptor.weightedScoreUnit);

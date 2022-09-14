@@ -451,4 +451,8 @@ public class Derby extends Notifiable implements IDatabase {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "Derby: " + name;
+	}
 }

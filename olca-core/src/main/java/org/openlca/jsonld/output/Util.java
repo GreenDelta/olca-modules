@@ -1,39 +1,21 @@
 package org.openlca.jsonld.output;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-
-import org.openlca.core.model.ParameterRedef;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Strings;
 
 class Util {
-
-	/**
-	 * Maps the given parameter redefinitions to a JSON array. If necessary, it
-	 * exports the respective parameter context (i.e. global parameters or LCIA
-	 * category parameters).
-	 */
-	static JsonArray mapRedefs(List<ParameterRedef> redefs, JsonExport exp) {
-		var array = new JsonArray();
-		for (var p : redefs) {
-			var obj = new JsonObject();
-			Json.put(obj, "name", p.name);
-			Json.put(obj, "value", p.value);
-			Json.put(obj, "uncertainty", Uncertainties.map(p.uncertainty));
-			Json.put(obj, "isProtected", p.isProtected);
-			if (p.contextId != null && p.contextType != null) {
-				Json.put(obj, "context", exp.handleRef(p.contextType, p.contextId));
-			}
-			array.add(obj);
-		}
-		return array;
-	}
 
 	static JsonObject mapDocOf(Process process, JsonExport exp) {
 		var d = process.documentation;
@@ -75,5 +57,44 @@ class Util {
 		var instant = date.toInstant();
 		var local = LocalDate.ofInstant(instant, ZoneId.systemDefault());
 		return local.toString();
+	}
+
+	public static <T extends RootEntity> JsonObject init(T entity) {
+		var obj = new JsonObject();
+		mapBasicAttributes(entity, obj);
+		return obj;
+	}
+
+	public static void mapBasicAttributes(RefEntity entity, JsonObject obj) {
+		if (entity == null || obj == null)
+			return;
+		var type = entity.getClass().getSimpleName();
+		Json.put(obj, "@type", type);
+		Json.put(obj, "@id", entity.refId);
+		Json.put(obj, "name", entity.name);
+		Json.put(obj, "description", entity.description);
+		if (entity instanceof RootEntity re) {
+
+			if (re.category != null) {
+				Json.put(obj, "category", re.category.toPath());
+			}
+			Json.put(obj, "version", Version.asString(re.version));
+			if (re.lastChange != 0) {
+				var instant = Instant.ofEpochMilli(re.lastChange);
+				Json.put(obj, "lastChange", instant.toString());
+			}
+
+			// tags
+			if (!Strings.nullOrEmpty(re.tags)) {
+				var tags = new JsonArray();
+				Arrays.stream(re.tags.split(","))
+					.map(String::trim)
+					.filter(tag -> !Strings.nullOrEmpty(tag))
+					.forEach(tags::add);
+				if (tags.size() > 0) {
+					obj.add("tags", tags);
+				}
+			}
+		}
 	}
 }

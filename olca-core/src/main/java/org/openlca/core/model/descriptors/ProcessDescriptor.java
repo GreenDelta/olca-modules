@@ -1,14 +1,19 @@
 package org.openlca.core.model.descriptors;
 
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
 
 public class ProcessDescriptor extends RootDescriptor {
 
 	public ProcessType processType;
-	public boolean infrastructureProcess;
+
+	/**
+	 * The flow type of the quantitative reference, if defined.
+	 */
+	public FlowType flowType;
+
 	public Long location;
-	public Long quantitativeReference; // TODO: is this field used?, why?
 
 	public ProcessDescriptor() {
 		this.type = ModelType.PROCESS;
@@ -19,9 +24,8 @@ public class ProcessDescriptor extends RootDescriptor {
 		var copy = new ProcessDescriptor();
 		copyFields(this, copy);
 		copy.processType = processType;
-		copy.infrastructureProcess = infrastructureProcess;
+		copy.flowType = flowType;
 		copy.location = location;
-		copy.quantitativeReference = quantitativeReference;
 		return copy;
 	}
 
@@ -40,18 +44,13 @@ public class ProcessDescriptor extends RootDescriptor {
 			return this;
 		}
 
-		public Builder infrastructureProcess(boolean infrastructureProcess) {
-			descriptor.infrastructureProcess = infrastructureProcess;
+		public Builder flowType(FlowType flowType) {
+			descriptor.flowType = flowType;
 			return this;
 		}
 
 		public Builder location(Long location) {
 			descriptor.location = location;
-			return this;
-		}
-
-		public Builder quantitativeReference(Long quantitativeReference) {
-			descriptor.quantitativeReference = quantitativeReference;
 			return this;
 		}
 	}

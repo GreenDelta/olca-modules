@@ -11,7 +11,7 @@ import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
-record UnitWriter(JsonExport exp) implements Writer<Unit> {
+public record UnitWriter(JsonExport exp) implements JsonWriter<Unit> {
 
 	@Override
 	public JsonObject write(Unit unit) {
@@ -45,7 +45,7 @@ record UnitWriter(JsonExport exp) implements Writer<Unit> {
 	static void map(Unit unit, JsonObject obj) {
 		if (unit == null || obj == null)
 			return;
-		Writer.mapBasicAttributes(unit, obj);
+		Util.mapBasicAttributes(unit, obj);
 		Json.put(obj, "conversionFactor", unit.conversionFactor);
 		var synonyms = unit.synonyms;
 		if (Strings.nullOrEmpty(synonyms))

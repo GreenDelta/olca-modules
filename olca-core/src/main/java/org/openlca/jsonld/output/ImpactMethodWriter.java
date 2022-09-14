@@ -5,11 +5,12 @@ import com.google.gson.JsonObject;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.jsonld.Json;
 
-record ImpactMethodWriter(JsonExport exp) implements Writer<ImpactMethod> {
+public record ImpactMethodWriter(JsonExport exp)
+		implements JsonWriter<ImpactMethod> {
 
 	@Override
 	public JsonObject write(ImpactMethod method) {
-		var obj = Writer.init(method);
+		var obj = Util.init(method);
 		Json.put(obj, "code", method.code);
 		Json.put(obj, "source", exp.handleRef(method.source));
 		Json.put(obj, "impactCategories", exp.handleRefs(method.impactCategories));
@@ -23,7 +24,7 @@ record ImpactMethodWriter(JsonExport exp) implements Writer<ImpactMethod> {
 		var nwSets = new JsonArray();
 		for (var nwSet : method.nwSets) {
 			var nwObj = new JsonObject();
-			Writer.mapBasicAttributes(nwSet, nwObj);
+			Util.mapBasicAttributes(nwSet, nwObj);
 			Json.put(nwObj, "weightedScoreUnit", nwSet.weightedScoreUnit);
 			var factors = new JsonArray();
 			nwSet.factors.stream()

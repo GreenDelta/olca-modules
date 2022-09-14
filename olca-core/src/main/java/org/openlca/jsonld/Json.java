@@ -285,6 +285,10 @@ public class Json {
 		// process
 		if (e instanceof Process process) {
 			put(obj, "processType", Enums.getLabel(process.processType));
+			var qRef = process.quantitativeReference;
+			if (qRef != null && qRef.flow != null) {
+				put(obj, "flowType", qRef.flow.flowType);
+			}
 			if (process.location != null) {
 				put(obj, "location", process.location.code);
 			}

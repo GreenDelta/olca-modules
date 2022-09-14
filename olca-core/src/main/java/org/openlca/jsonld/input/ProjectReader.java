@@ -84,7 +84,7 @@ public record ProjectReader(EntityResolver resolver)
 			// parameter redefinitions
 			var redefs = Json.getArray(obj, "parameterRedefs");
 			if (redefs != null && redefs.size() > 0) {
-				v.parameterRedefs.addAll(ParameterRedefs.read(redefs, resolver));
+				v.parameterRedefs.addAll(ParameterReader.readRedefs(redefs, resolver));
 			}
 
 			p.variants.add(v);

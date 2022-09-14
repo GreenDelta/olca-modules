@@ -9,11 +9,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 
-record FlowWriter(JsonExport exp) implements Writer<Flow> {
+public record FlowWriter(JsonExport exp) implements JsonWriter<Flow> {
 
 	@Override
 	public JsonObject write(Flow flow) {
-		var obj = Writer.init(flow);
+		var obj = Util.init(flow);
 		Json.put(obj, "flowType", flow.flowType);
 		Json.put(obj, "cas", flow.casNumber);
 		Json.put(obj, "formula", flow.formula);

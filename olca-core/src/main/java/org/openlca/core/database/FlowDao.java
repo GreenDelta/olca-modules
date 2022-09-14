@@ -1,6 +1,5 @@
 package org.openlca.core.database;
 
-import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,63 +19,77 @@ public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 	}
 
 	@Override
-	protected String[] getDescriptorFields() {
-		return new String[]{
-			"id",
-			"ref_id",
-			"name",
-			"description",
-			"version",
-			"last_change",
-			"f_category",
-			"library",
-			"tags",
-			"flow_type",
-			"f_location",
-			"f_reference_flow_property"
-		};
+	protected List<FlowDescriptor> queryDescriptors(
+			String condition, List<Object> params) {
+		var sql = """
+					select
+						d.id,
+				   	d.ref_id,
+				   	d.name,
+				   	d.version,
+				   	d.last_change,
+				   	d.f_category,
+				   	d.library,
+				   	d.tags,
+				   	d.flow_type,
+				    d.f_location,
+				    d.f_reference_flow_property	from
+				""" + getEntityTable() + " d";
+		if (condition != null) {
+			sql += " " + condition;
+		}
+
+		var cons = descriptorConstructor();
+		var list = new ArrayList<FlowDescriptor>();
+		NativeSql.on(db).query(sql, params, r -> {
+			var d = cons.get();
+			d.id = r.getLong(1);
+			d.refId = r.getString(2);
+			d.name = r.getString(3);
+			d.version = r.getLong(4);
+			d.lastChange = r.getLong(5);
+			var catId = r.getLong(6);
+			if (!r.wasNull()) {
+				d.category = catId;
+			}
+			d.library = r.getString(7);
+			d.tags = r.getString(8);
+
+			var flowType = r.getString(9);
+			if (flowType != null) {
+				d.flowType = FlowType.valueOf(flowType);
+			}
+
+			var locId = r.getLong(10);
+			if (!r.wasNull()) {
+				d.location = locId;
+			}
+
+			var refProp = r.getLong(11);
+			if (!r.wasNull()) {
+				d.refFlowPropertyId = refProp;
+			}
+
+			list.add(d);
+			return true;
+		});
+		return list;
 	}
 
 	public List<FlowDescriptor> getDescriptors(FlowType... flowTypes) {
 		if (flowTypes == null || flowTypes.length == 0)
 			return Collections.emptyList();
-		var query = getDescriptorQuery() + " where ";
+
+		var cond = new StringBuilder("where ");
 		for (int i = 0; i < flowTypes.length; i++) {
 			if (i > 0) {
-				query += " or ";
+				cond.append(" or ");
 			}
-			query += "flow_type = '" + flowTypes[i].name() + "'";
+			cond.append("d.flow_type = '")
+					.append(flowTypes[i].name())
+					.append('\'');
 		}
-		var descriptors = new ArrayList<FlowDescriptor>();
-		var fields = getDescriptorFields();
-		var mask = new Object[fields.length];
-		NativeSql.on(db).query(query, r -> {
-			for (var i = 0; i < fields.length; i++) {
-				var obj = r.getObject(i + 1);
-				mask[i] = obj instanceof Clob clob
-					? NativeSql.stringOf(clob)
-					: obj;
-			}
-			descriptors.add(createDescriptor(mask));
-			return true;
-		});
-		return descriptors;
-	}
-
-	@Override
-	protected FlowDescriptor createDescriptor(Object[] record) {
-		if (record == null)
-			return null;
-		var d = super.createDescriptor(record);
-		if (record[9] instanceof String) {
-			d.flowType = FlowType.valueOf((String) record[9]);
-		}
-		d.location = (Long) record[10];
-		Long refProp = (Long) record[11];
-		if (refProp != null) {
-			d.refFlowPropertyId = refProp;
-		}
-		return d;
+		return queryDescriptors(cond.toString(), List.of());
 	}
 
 	/**

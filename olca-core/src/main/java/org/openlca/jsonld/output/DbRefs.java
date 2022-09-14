@@ -68,7 +68,8 @@ public class DbRefs {
 
 		if (d instanceof ProcessDescriptor pd) {
 			Json.put(ref, "processType", pd.processType);
-			Json.put(ref, "location", pd.location);
+			Json.put(ref, "flowType", pd.flowType);
+			Json.put(ref, "location", locationCodeOf(pd.location));
 		}
 
 		if (d instanceof FlowPropertyDescriptor prop) {
@@ -76,6 +77,11 @@ public class DbRefs {
 		}
 
 		return ref;
+	}
+
+	public JsonObject asRef(ModelType type, long id) {
+		var d = descriptorOf(type, id);
+		return asRef(d);
 	}
 
 	RootDescriptor descriptorOf(ModelType type, long id) {

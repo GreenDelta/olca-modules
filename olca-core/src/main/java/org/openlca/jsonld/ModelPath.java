@@ -30,24 +30,24 @@ public final class ModelPath {
 		if (type == null)
 			return "unknown";
 		return switch (type) {
+			case ACTOR -> "actors";
 			case CATEGORY -> "categories";
 			case CURRENCY -> "currencies";
-			case PROCESS -> "processes";
+			case DQ_SYSTEM -> "dq_systems";
+			case EPD -> "epds";
 			case FLOW -> "flows";
 			case FLOW_PROPERTY -> "flow_properties";
-			case ACTOR -> "actors";
 			case IMPACT_CATEGORY -> "lcia_categories";
 			case IMPACT_METHOD -> "lcia_methods";
 			case LOCATION -> "locations";
 			case PARAMETER -> "parameters";
+			case PROCESS -> "processes";
 			case PRODUCT_SYSTEM -> "product_systems";
 			case PROJECT -> "projects";
+			case RESULT -> "results";
 			case SOCIAL_INDICATOR -> "social_indicators";
 			case SOURCE -> "sources";
 			case UNIT_GROUP -> "unit_groups";
-			case DQ_SYSTEM -> "dq_systems";
-			case RESULT -> "results";
-			case EPD -> "epds";
 		};
 	}
 

@@ -5,11 +5,11 @@ import com.google.gson.JsonObject;
 import org.openlca.core.model.Epd;
 import org.openlca.jsonld.Json;
 
-record EpdWriter(JsonExport exp) implements Writer<Epd> {
+public record EpdWriter(JsonExport exp) implements JsonWriter<Epd> {
 
 	@Override
 	public JsonObject write(Epd epd) {
-		var json = Writer.init(epd);
+		var json = Util.init(epd);
 
 		Json.put(json, "urn", epd.urn);
 		Json.put(json, "manufacturer", exp.handleRef(epd.manufacturer));

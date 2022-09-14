@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -328,7 +327,6 @@ public class FlowMap extends Descriptor {
 	public static FlowMap fromJson(JsonObject obj) {
 		FlowMap map = new FlowMap();
 		map.name = Json.getString(obj, "name");
-		map.description = Json.getString(obj, "name");
 
 		map.source = new Descriptor();
 		mapDescriptor(Json.getObject(obj, "source"), map.source);
@@ -380,7 +378,6 @@ public class FlowMap extends Descriptor {
 		if (obj == null || d == null)
 			return;
 		d.name = Json.getString(obj, "name");
-		d.description = Json.getString(obj, "description");
 		d.refId = Json.getString(obj, "@id");
 		if (d instanceof FlowDescriptor fd) {
 			fd.flowType = Json.getEnum(obj, "flowType", FlowType.class);

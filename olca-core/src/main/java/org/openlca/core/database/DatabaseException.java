@@ -1,5 +1,7 @@
 package org.openlca.core.database;
 
+import java.io.Serial;
+
 import org.slf4j.Logger;
 
 /**
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
  */
 public class DatabaseException extends RuntimeException {
 
+	@Serial
 	private static final long serialVersionUID = 6126554045860754115L;
 
 	static void logAndThrow(Logger log, String message, Throwable e) {

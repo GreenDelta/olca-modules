@@ -5,14 +5,12 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import jakarta.persistence.Table;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 
@@ -23,8 +21,8 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	private final Class<V> descriptorType;
 	private String entityTable;
 
-	protected RefEntityDao(Class<T> entityType, Class<V> descriptorType, IDatabase database) {
-		super(entityType, database);
+	protected RefEntityDao(Class<T> entityType, Class<V> descriptorType, IDatabase db) {
+		super(entityType, db);
 		this.descriptorType = descriptorType;
 	}
 
@@ -61,12 +59,8 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	}
 
 	public V getDescriptor(long id) {
-		String sql = getDescriptorQuery() + " where id = ?";
-		Object[] result = selectFirst(
-			sql, getDescriptorFields(), Collections.singletonList(id));
-		return result == null
-			? null
-			: createDescriptor(result);
+		var list = queryDescriptors("where d.id = ?", id);
+		return list.isEmpty() ? null : list.get(0);
 	}
 
 	public List<V> getDescriptors(Set<Long> ids) {
@@ -74,38 +68,71 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 			return Collections.emptyList();
 		if (ids.size() > MAX_LIST_SIZE)
 			return executeChunked(ids, this::getDescriptors);
-		String sql = getDescriptorQuery() + " where id in (" + Strings.join(ids, ',') + ")";
-		List<Object[]> results = selectAll(sql, getDescriptorFields(), Collections.emptyList());
-		return createDescriptors(results);
+		var list = "(" + Strings.join(ids, ',') + ")";
+		return queryDescriptors("where d.id in " + list, List.of());
 	}
 
 	public V getDescriptorForRefId(String refId) {
-		String sql = getDescriptorQuery() + " where ref_id = '" + refId + "'";
-		Object[] o = selectFirst(sql, getDescriptorFields(), Collections.emptyList());
-		return createDescriptor(o);
-	}
-
-	public List<V> getDescriptorsForRefIds(Set<String> refIds) {
-		if (refIds == null || refIds.isEmpty())
-			return Collections.emptyList();
-		if (refIds.size() > MAX_LIST_SIZE)
-			return executeChunked(refIds, this::getDescriptorsForRefIds);
-		Set<String> quotedIds = new HashSet<>();
-		for (String refId : refIds) {
-			quotedIds.add('\'' + refId + '\'');
-		}
-		String sql = getDescriptorQuery() + " where ref_id in (" + Strings.join(quotedIds, ',') + ")";
-		List<Object[]> results = selectAll(sql, getDescriptorFields(), Collections.emptyList());
-		return createDescriptors(results);
+		var list = queryDescriptors("where d.ref_id = ?", refId);
+		return list.isEmpty()
+				? null
+				: list.get(0);
 	}
 
 	/**
 	 * Returns all descriptors of the entity type of this DAO from the database.
 	 */
 	public List<V> getDescriptors() {
-		String sql = getDescriptorQuery();
-		List<Object[]> results = selectAll(sql, getDescriptorFields(), Collections.emptyList());
-		return createDescriptors(results);
+		return queryDescriptors();
+	}
+
+	protected final List<V> queryDescriptors() {
+		return queryDescriptors(null, List.of());
+	}
+
+	protected final List<V> queryDescriptors(String condition, Object param) {
+		var params = param == null
+				? Collections.emptyList()
+				: List.of(param);
+		return queryDescriptors(condition, params);
+	}
+
+	protected List<V> queryDescriptors(String condition, List<Object> params) {
+		var sql = """
+						select
+							d.id,
+							d.ref_id,
+							d.name from
+				""" + getEntityTable() + " d";
+		if (condition != null) {
+			sql += " " + condition;
+		}
+		var cons = descriptorConstructor();
+		var list = new ArrayList<V>();
+		NativeSql.on(db).query(sql, params, r -> {
+			var d = cons.get();
+			d.id = r.getLong(1);
+			d.refId = r.getString(2);
+			d.name = r.getString(3);
+			list.add(d);
+			return true;
+		});
+		return list;
+	}
+
+	protected Supplier<V> descriptorConstructor() {
+		try {
+			var cons = descriptorType.getDeclaredConstructor();
+			return () -> {
+				try {
+					return cons.newInstance();
+				} catch (Exception e) {
+					throw new RuntimeException("failed create constructor instance", e);
+				}
+			};
+		} catch (Exception e) {
+			throw new RuntimeException("failed create constructor instance", e);
+		}
 	}
 
 	/**
@@ -121,68 +148,11 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 		return map;
 	}
 
-	protected final String getDescriptorQuery() {
-		return "select " + Strings.join(getDescriptorFields(), ',') + " from " + getEntityTable();
-	}
-
 	String getEntityTable() {
-		if (entityTable == null)
+		if (entityTable == null) {
 			entityTable = entityType.getAnnotation(Table.class).name();
+		}
 		return entityTable;
-	}
-
-	/**
-	 * Creates a list of descriptors from a list of query results.
-	 */
-	protected List<V> createDescriptors(List<Object[]> results) {
-		if (results == null)
-			return Collections.emptyList();
-		List<V> descriptors = new ArrayList<>(results.size());
-		for (Object[] result : results) {
-			V descriptor = createDescriptor(result);
-			if (descriptor != null)
-				descriptors.add(descriptor);
-		}
-		return descriptors;
-	}
-
-	/**
-	 * Returns all fields that should be queried by the descriptor query. Subclass
-	 * may override to provide more information. Use sql column names !
-	 */
-	protected String[] getDescriptorFields() {
-		return new String[]{
-			"id",
-			"ref_id",
-			"name",
-			"description"
-		};
-	}
-
-	/**
-	 * Creates a descriptor from the given result of a descriptor query. This method
-	 * can be overwritten by subclasses but it must be implemented in a way that it
-	 * matches the respective descriptor query.
-	 */
-	@SuppressWarnings("unchecked")
-	protected V createDescriptor(Object[] record) {
-		if (record == null)
-			return null;
-		V d = null;
-		try {
-			d = descriptorType.getDeclaredConstructor().newInstance();
-			d.id = (Long) record[0];
-			d.refId = (String) record[1];
-			d.name = (String) record[2];
-			d.description = (String) record[3];
-			if (RootEntity.class.isAssignableFrom(entityType)) {
-				d.type = ModelType.of((Class<? extends RootEntity>) entityType);
-			}
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(
-				log, "failed to map query result to descriptor", e);
-		}
-		return d;
 	}
 
 	public T getForRefId(String refId) {

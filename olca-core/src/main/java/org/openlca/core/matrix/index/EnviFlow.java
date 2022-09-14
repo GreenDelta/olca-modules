@@ -88,7 +88,6 @@ public record EnviFlow(
 			flow = new FlowDescriptor();
 			flow.id = d.id;
 			flow.name = d.name;
-			flow.description = d.description;
 			flow.refId = d.refId;
 			if (d instanceof RootDescriptor cd) {
 				flow.category = cd.category;

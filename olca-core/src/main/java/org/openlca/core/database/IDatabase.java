@@ -15,7 +15,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.store.EntityStore;
 import org.openlca.util.TLongSets;
@@ -218,7 +217,7 @@ public interface IDatabase extends EntityStore, Closeable, INotifiable {
 	}
 
 	@Override
-	default <T extends RootEntity> List<? extends Descriptor> getDescriptors(
+	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
 			Class<T> type) {
 		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);

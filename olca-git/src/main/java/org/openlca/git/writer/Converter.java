@@ -69,7 +69,6 @@ class Converter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void convert(Change change) {
 		if (change.diffType == DiffType.DELETED)
 			return;
