@@ -21,13 +21,8 @@ public class DQSystemWriter {
       return proto.build();
     proto.setType(ProtoType.DQSystem);
     Out.map(dqSystem, proto);
-    Out.dep(config, dqSystem.category);
-
     proto.setHasUncertainties(dqSystem.hasUncertainties);
-    if (dqSystem.source != null) {
-      proto.setSource(Refs.refOf(dqSystem.source));
-      Out.dep(config, dqSystem.source);
-    }
+		config.dep(dqSystem.source, proto::setSource);
     writeIndicators(dqSystem, proto);
     return proto.build();
   }

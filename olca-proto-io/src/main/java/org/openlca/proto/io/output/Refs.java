@@ -66,6 +66,12 @@ public final class Refs {
 			if (process.processType != null) {
 				proto.setProcessType(Out.processTypeOf(process.processType));
 			}
+			if (process.quantitativeReference != null) {
+				var refFlow = process.quantitativeReference.flow;
+				if (refFlow != null) {
+					proto.setFlowType(Out.flowTypeOf(refFlow.flowType));
+				}
+			}
 			if (process.location != null) {
 				proto.setLocation(Strings.orEmpty(process.location.code));
 			}

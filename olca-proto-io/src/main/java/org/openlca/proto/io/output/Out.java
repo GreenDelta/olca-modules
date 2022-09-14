@@ -3,7 +3,6 @@ package org.openlca.proto.io.output;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
@@ -34,10 +33,8 @@ import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.ProtoFlowType;
 import org.openlca.proto.ProtoProcessType;
-import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
 import org.openlca.proto.ProtoUncertaintyType;
@@ -51,12 +48,6 @@ import com.google.protobuf.Message;
 public final class Out {
 
 	private Out() {
-	}
-
-	static void dep(WriterConfig config, Descriptor d) {
-		if (config == null 			|| config.deps() == null 			|| d == null)
-			return;
-		config.deps().push(d);
 	}
 
 	static String dateTimeOf(long time) {

@@ -19,15 +19,9 @@ public class CurrencyWriter {
       return proto.build();
     proto.setType(ProtoType.Currency);
     Out.map(c, proto);
-    Out.dep(config, c.category);
-
     proto.setCode(Strings.orEmpty(c.code));
     proto.setConversionFactor(c.conversionFactor);
-    if (c.referenceCurrency != null) {
-      proto.setRefCurrency(Refs.refOf(c.referenceCurrency));
-      Out.dep(config, c.referenceCurrency);
-    }
-
+		config.dep(c.referenceCurrency, proto::setRefCurrency);
     return proto.build();
   }
 }
