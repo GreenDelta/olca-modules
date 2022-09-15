@@ -107,7 +107,7 @@ public class ProductSystemWriter {
 			// flow
 			var flow = config.getDescriptor(ModelType.FLOW, link.flowId);
 			if (flow != null) {
-				protoLink.setFlow(Refs.tinyRefOf(flow));
+				protoLink.setFlow(Refs.refOf(flow));
 			}
 
 			// linked exchange

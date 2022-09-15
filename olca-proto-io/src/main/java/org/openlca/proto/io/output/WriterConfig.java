@@ -70,6 +70,8 @@ public class WriterConfig {
 	 */
 	TLongIntHashMap mapExchangeIdsOf(TLongHashSet ids) {
 		var map = new TLongIntHashMap(ids.size());
+		if (ids.isEmpty())
+			return map;
 		if (store instanceof IDatabase db) {
 			var sql = "select id, internal_id from tbl_exchanges";
 			if (ids.size() < 500) {

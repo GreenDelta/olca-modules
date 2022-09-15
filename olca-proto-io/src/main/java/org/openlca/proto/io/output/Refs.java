@@ -26,20 +26,6 @@ public final class Refs {
 	private Refs() {
 	}
 
-	/**
-	 * Creates a Ref that just contains the reference ID of the given descriptor.
-	 * This is useful when we have a huge amount of references, and we know what
-	 * type they contain.
-	 */
-	public static ProtoRef.Builder tinyRefOf(Descriptor d) {
-		var proto = ProtoRef.newBuilder();
-		if (d == null)
-			return proto;
-		proto.setType(Out.protoTypeOf(d.type));
-		proto.setId(Strings.orEmpty(d.refId));
-		return proto;
-	}
-
 	public static ProtoRef.Builder refOf(RefEntity e) {
 		var proto = ProtoRef.newBuilder();
 		if (e == null)

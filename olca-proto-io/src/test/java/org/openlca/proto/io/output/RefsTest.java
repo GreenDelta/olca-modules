@@ -87,30 +87,6 @@ public class RefsTest {
 		checkAllFields(Refs.refOf(Descriptor.of(flow), refData));
 	}
 
-	@Test
-	public void testTinyRefs() {
-		Consumer<Descriptor> fn = d -> {
-			var ref = Refs.tinyRefOf(d);
-			assertEquals(d.refId, ref.getId());
-			ProtoRef.getDescriptor()
-				.getFields()
-				.stream()
-				.filter(field -> {
-					var f = field.getName();
-					return !f.equals("id") && !f.equals("type");
-				})
-				.forEach(field -> {
-					if (field.isRepeated()) {
-						assertEquals(0, ref.getRepeatedFieldCount(field));
-					} else {
-						assertFalse(ref.hasField(field));
-					}
-				});
-		};
-		fn.accept(Descriptor.of(flow));
-		fn.accept(Descriptor.of(process));
-	}
-
 	private void checkAllFields(ProtoRef.Builder ref) {
 		checkBaseFields(ref);
 		assertEquals("DE", ref.getLocation());
@@ -131,7 +107,6 @@ public class RefsTest {
 			assertEquals(flow.refId, ref.getId());
 			assertEquals(ProtoType.Flow, ref.getType());
 			assertEquals("Steel", ref.getName());
-			assertEquals("an example product", ref.getDescription());
 			assertEquals(ProtoFlowType.PRODUCT_FLOW, ref.getFlowType());
 		}
 	}
