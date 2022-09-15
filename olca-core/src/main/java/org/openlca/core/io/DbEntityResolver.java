@@ -14,9 +14,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 /**
  * An entity resolver that directly queries the database for each request.
  */
-public class DbEntityResolver implements EntityResolver {
-
-	private final IDatabase db;
+public record DbEntityResolver(IDatabase db) implements EntityResolver {
 
 	public DbEntityResolver(IDatabase db) {
 		this.db = Objects.requireNonNull(db);
@@ -27,18 +25,13 @@ public class DbEntityResolver implements EntityResolver {
 	}
 
 	@Override
-	public IDatabase db() {
-		return db;
-	}
-
-	@Override
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
 		return db.get(type, refId);
 	}
 
 	@Override
 	public <T extends RootEntity> Descriptor getDescriptor(
-		Class<T> type, String refId) {
+			Class<T> type, String refId) {
 		return db.getDescriptor(type, refId);
 	}
 

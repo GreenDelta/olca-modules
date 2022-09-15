@@ -29,8 +29,8 @@ public class WriterConfig {
 		descriptors = new EnumMap<>(ModelType.class);
 	}
 
-	public static WriterConfig of(IDatabase db) {
-		return new WriterConfig(db, null);
+	public static WriterConfig of(EntityStore store) {
+		return new WriterConfig(store, null);
 	}
 
 	void dep(RefEntity e, Consumer<ProtoRef> ref) {
