@@ -5,10 +5,16 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.store.InMemoryStore;
+import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.store.EntityStore;
 import org.openlca.util.Strings;
 
-public record InMemoryResolver(InMemoryStore store) implements EntityResolver {
+record GenericStoreResolver(EntityStore store) implements EntityResolver {
+
+	@Override
+	public <T extends RootEntity> Descriptor getDescriptor(Class<T> type, String refId) {
+		return store.getDescriptor(type, refId);
+	}
 
 	@Override
 	public <T extends RootEntity> T get(Class<T> type, String refId) {

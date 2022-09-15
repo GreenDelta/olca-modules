@@ -6,6 +6,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.store.EntityStore;
 
 /**
  * This interface abstracts away the loading of entities from some data store.
@@ -14,9 +15,15 @@ import org.openlca.core.model.descriptors.Descriptor;
  */
 public interface EntityResolver {
 
+	static EntityResolver of(EntityStore store) {
+		return store instanceof IDatabase db
+				? DbEntityResolver.of(db)
+				: new GenericStoreResolver(store);
+	}
+
 	/**
 	 * Optionally returns the database of the resolver. Note that this method
-	 * returns {@code null} if there is no database attached to this resilver.
+	 * returns {@code null} if there is no database attached to this resolver.
 	 */
 	default IDatabase db() {
 		return null;
