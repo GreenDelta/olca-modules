@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.function.LongFunction;
 
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.proto.ProtoAllocationFactor;
@@ -88,8 +89,8 @@ public class ProcessWriter {
 
       // default provider
       if (e.defaultProviderId > 0) {
-        var provider = config.db()
-          .getDescriptor(Process.class, e.defaultProviderId);
+        var provider = config.getDescriptor(
+					ModelType.PROCESS, e.defaultProviderId);
         if (provider != null) {
           pe.setDefaultProvider(Refs.refOf(provider));
         }

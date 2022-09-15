@@ -122,6 +122,9 @@ public final class Refs {
 			if (pd.processType != null) {
 				proto.setProcessType(Out.processTypeOf(pd.processType));
 			}
+			if (pd.flowType != null) {
+				proto.setFlowType((Out.flowTypeOf(pd.flowType)));
+			}
 		} else if (d instanceof ImpactDescriptor id) {
 			proto.setRefUnit(Strings.orEmpty(id.referenceUnit));
 		}

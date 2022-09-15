@@ -90,7 +90,7 @@ public interface EntityStore {
 	/**
 	 * Get the descriptors of all entities of the given type from this data store.
 	 */
-	<T extends RootEntity> List<? extends Descriptor> getDescriptors(Class<T> type);
+	<T extends RootEntity> List<? extends RootDescriptor> getDescriptors(Class<T> type);
 
 	default <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
 			Class<T> type, TLongSet ids) {
