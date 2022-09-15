@@ -233,9 +233,9 @@ public final class Out {
 		if (e instanceof ImpactMethod method)
 			return new ImpactMethodWriter(conf).write(method);
 		if (e instanceof Location loc)
-			return new LocationWriter(conf).write(loc);
+			return new LocationWriter().write(loc);
 		if (e instanceof Parameter param)
-			return new ParameterWriter(conf).write(param);
+			return new ParameterWriter().write(param);
 		if (e instanceof Process process)
 			return new ProcessWriter(conf).write(process);
 		if (e instanceof ProductSystem sys)
@@ -247,7 +247,7 @@ public final class Out {
 		if (e instanceof SocialIndicator indicator)
 			return new SocialIndicatorWriter(conf).write(indicator);
 		if (e instanceof Source source)
-			return new SourceWriter(conf).write(source);
+			return new SourceWriter().write(source);
 		if (e instanceof UnitGroup group)
 			return new UnitGroupWriter(conf).write(group);
 		throw new RuntimeException(

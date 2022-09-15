@@ -128,10 +128,10 @@ class DataUtil {
       return ds.setImpactMethod(new ImpactMethodWriter(conf).write(m));
 
     if (e instanceof Location loc)
-      return ds.setLocation(new LocationWriter(conf).write(loc));
+      return ds.setLocation(new LocationWriter().write(loc));
 
     if (e instanceof Parameter param)
-      return ds.setParameter(new ParameterWriter(conf).write(param));
+      return ds.setParameter(new ParameterWriter().write(param));
 
     if (e instanceof Process proc)
       return ds.setProcess(new ProcessWriter(conf).write(proc));
@@ -146,7 +146,7 @@ class DataUtil {
       return ds.setSocialIndicator(new SocialIndicatorWriter(conf).write(ind));
 
     if (e instanceof Source s)
-      return ds.setSource(new SourceWriter(conf).write(s));
+      return ds.setSource(new SourceWriter().write(s));
 
     if (e instanceof UnitGroup group)
       return ds.setUnitGroup(new UnitGroupWriter(conf).write(group));

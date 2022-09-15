@@ -159,11 +159,11 @@ public class InMemoryStore implements EntityStore {
 	}
 
 	@Override
-	public <T extends RootEntity> List<? extends Descriptor> getDescriptors(
+	public <T extends RootEntity> List<? extends RootDescriptor> getDescriptors(
 			Class<T> type) {
 		var map = store.get(type);
 		var values = map.values();
-		var list = new ArrayList<Descriptor>(values.size());
+		var list = new ArrayList<RootDescriptor>(values.size());
 		for (var e : values) {
 			list.add(Descriptor.of(e));
 		}
