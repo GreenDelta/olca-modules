@@ -6,17 +6,21 @@ import java.util.function.LongFunction;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoAllocationFactor;
 import org.openlca.proto.ProtoAllocationType;
 import org.openlca.proto.ProtoExchange;
 import org.openlca.proto.ProtoExchangeRef;
 import org.openlca.proto.ProtoProcess;
+import org.openlca.proto.ProtoProcessDocumentation;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoRiskLevel;
 import org.openlca.proto.ProtoSocialAspect;
 import org.openlca.proto.ProtoType;
 import org.openlca.util.Strings;
+
 
 public class ProcessWriter {
 
@@ -39,7 +43,7 @@ public class ProcessWriter {
       allocationType(process.defaultAllocationMethod));
     proto.setIsInfrastructureProcess(process.infrastructureProcess);
 		config.dep(process.location, proto::setLocation);
-    // TODO: process documentation
+		proto.setProcessDocumentation(mapDocOf(process.documentation));
 		proto.setLastInternalId(process.lastInternalId);
 
     // DQ systems
@@ -60,6 +64,40 @@ public class ProcessWriter {
 
     return proto.build();
   }
+
+	private ProtoProcessDocumentation.Builder mapDocOf(ProcessDocumentation d) {
+		var proto = ProtoProcessDocumentation.newBuilder();
+		if (d == null)
+			return proto;
+
+		proto.setTimeDescription(Strings.orEmpty(d.time));
+		proto.setTechnologyDescription(Strings.orEmpty(d.technology));
+		proto.setDataCollectionDescription(Strings.orEmpty(d.dataCollectionPeriod));
+		proto.setCompletenessDescription(Strings.orEmpty(d.completeness));
+		proto.setDataSelectionDescription(Strings.orEmpty(d.dataSelection));
+		proto.setReviewDetails(Strings.orEmpty(d.reviewDetails));
+		proto.setDataTreatmentDescription(Strings.orEmpty(d.dataTreatment));
+		proto.setInventoryMethodDescription(Strings.orEmpty(d.inventoryMethod));
+		proto.setModelingConstantsDescription(Strings.orEmpty(d.modelingConstants));
+		proto.setSamplingDescription(Strings.orEmpty(d.sampling));
+		proto.setRestrictionsDescription(Strings.orEmpty(d.restrictions));
+		proto.setIsCopyrightProtected(d.copyright);
+		proto.setIntendedApplication(Strings.orEmpty(d.intendedApplication));
+		proto.setProjectDescription(Strings.orEmpty(d.project));
+		proto.setGeographyDescription(Strings.orEmpty(d.geography));
+		proto.setCreationDate(Strings.orEmpty(Json.asDateTime(d.creationDate)));
+		proto.setValidFrom(Strings.orEmpty(Json.asDate(d.validFrom)));
+		proto.setValidUntil(Strings.orEmpty(Json.asDate(d.validUntil)));
+
+		config.dep(d.reviewer, proto::setReviewer);
+		config.dep(d.dataDocumentor, proto::setDataDocumentor);
+		config.dep(d.dataGenerator, proto::setDataGenerator);
+		config.dep(d.dataSetOwner, proto::setDataSetOwner);
+		config.dep(d.publication, proto::setPublication);
+		d.sources.forEach(source -> config.dep(source, proto::addSources));
+
+		return proto;
+	}
 
   private void writeExchanges(Process p, ProtoProcess.Builder proto) {
     for (var e : p.exchanges) {
