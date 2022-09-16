@@ -45,8 +45,8 @@ public record ResultWriter(JsonExport exp) implements JsonWriter<Result> {
 
 			// object references
 			Json.put(obj, "flow", exp.handleRef(r.flow));
-			Json.put(obj, "flowProperty", exp.handleRef(propertyOf(r)));
-			Json.put(obj, "unit",Json.asRef(unitOf(r)));
+			Json.put(obj, "flowProperty", exp.handleRef(Json.propertyOf(r)));
+			Json.put(obj, "unit", Json.asRef(Json.unitOf(r)));
 			Json.put(obj, "location", exp.handleRef(r.location));
 
 			// other attributes
@@ -62,20 +62,4 @@ public record ResultWriter(JsonExport exp) implements JsonWriter<Result> {
 		json.add("flowResults", array);
 	}
 
-	private FlowProperty propertyOf(FlowResult r) {
-		var factor = r.flowPropertyFactor;
-		if (factor != null && factor.flowProperty != null)
-			return factor.flowProperty;
-		return r.flow != null
-			? r.flow.referenceFlowProperty
-			: null;
-	}
-
-	private Unit unitOf(FlowResult r) {
-		if (r.unit != null)
-			return r.unit;
-		return r.flow != null
-			? r.flow.getReferenceUnit()
-			: null;
-	}
 }
