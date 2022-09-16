@@ -1,8 +1,5 @@
 package org.openlca.jsonld.output;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.Objects;
 
 import org.openlca.core.database.ProcessDao;
@@ -64,9 +61,9 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(o, "intendedApplication", d.intendedApplication);
 		Json.put(o, "projectDescription", d.project);
 		Json.put(o, "geographyDescription", d.geography);
-		Json.put(o, "creationDate", d.creationDate);
-		Json.put(o, "validFrom", date(d.validFrom));
-		Json.put(o, "validUntil", date(d.validUntil));
+		Json.put(o, "creationDate", Json.asDateTime(d.creationDate));
+		Json.put(o, "validFrom", Json.asDate(d.validFrom));
+		Json.put(o, "validUntil", Json.asDate(d.validUntil));
 
 		Json.put(o, "reviewer", exp.handleRef(d.reviewer));
 		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
@@ -75,14 +72,6 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(o, "publication", exp.handleRef(d.publication));
 		Json.put(o, "sources", exp.handleRefs(d.sources));
 		return o;
-	}
-
-	private static String date(Date date) {
-		if (date == null)
-			return null;
-		var instant = date.toInstant();
-		var local = LocalDate.ofInstant(instant, ZoneId.systemDefault());
-		return local.toString();
 	}
 
 	private void mapParameters(Process p, JsonObject json) {

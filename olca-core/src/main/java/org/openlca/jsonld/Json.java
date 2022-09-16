@@ -12,8 +12,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
@@ -242,6 +244,22 @@ public class Json {
 			log.error("failed to parse date / time: " + str, e);
 			return null;
 		}
+	}
+
+	public static String asDateTime(Date date) {
+		if (date == null)
+			return null;
+		var instant = date.toInstant();
+		var local = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		return local.toString();
+	}
+
+	public static String asDate(Date date) {
+		if (date == null)
+			return null;
+		var instant = date.toInstant();
+		var local = LocalDate.ofInstant(instant, ZoneId.systemDefault());
+		return local.toString();
 	}
 
 	public static <T extends Enum<T>> T getEnum(

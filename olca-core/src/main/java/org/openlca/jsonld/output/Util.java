@@ -1,21 +1,17 @@
 package org.openlca.jsonld.output;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Date;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-class Util {
+public class Util {
 
 	public static <T extends RootEntity> JsonObject init(T entity) {
 		var obj = new JsonObject();
