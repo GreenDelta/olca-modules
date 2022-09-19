@@ -25,13 +25,11 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
@@ -353,23 +351,6 @@ public class Json {
 		put(obj, "@id", d.refId);
 		put(obj, "name", d.name);
 		return obj;
-	}
-
-	public static FlowProperty propertyOf(FlowResult r) {
-		var factor = r.flowPropertyFactor;
-		if (factor != null && factor.flowProperty != null)
-			return factor.flowProperty;
-		return r.flow != null
-				? r.flow.referenceFlowProperty
-				: null;
-	}
-
-	public static Unit unitOf(FlowResult r) {
-		if (r.unit != null)
-			return r.unit;
-		return r.flow != null
-				? r.flow.getReferenceUnit()
-				: null;
 	}
 
 	/**

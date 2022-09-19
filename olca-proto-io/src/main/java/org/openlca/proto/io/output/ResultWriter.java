@@ -3,7 +3,6 @@ package org.openlca.proto.io.output;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Result;
-import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoFlowResult;
 import org.openlca.proto.ProtoImpactResult;
 import org.openlca.proto.ProtoResult;
@@ -45,8 +44,12 @@ public class ResultWriter {
 
 		// object references
 		config.dep(result.flow, proto::setFlow);
-		config.dep(Json.propertyOf(result), proto::setFlowProperty);
-		config.dep(Json.unitOf(result), proto::setUnit);
+		if (result.flowPropertyFactor != null) {
+			config.dep(
+				result.flowPropertyFactor.flowProperty,
+				proto::setFlowProperty);
+		}
+		config.dep(result.unit, proto::setUnit);
 		config.dep(result.location, proto::setLocation);
 
 		// other attributes
