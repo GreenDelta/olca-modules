@@ -12,8 +12,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
@@ -23,11 +25,13 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
@@ -244,6 +248,22 @@ public class Json {
 		}
 	}
 
+	public static String asDateTime(Date date) {
+		if (date == null)
+			return null;
+		var instant = date.toInstant();
+		var local = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		return local.toString();
+	}
+
+	public static String asDate(Date date) {
+		if (date == null)
+			return null;
+		var instant = date.toInstant();
+		var local = LocalDate.ofInstant(instant, ZoneId.systemDefault());
+		return local.toString();
+	}
+
 	public static <T extends Enum<T>> T getEnum(
 		JsonObject obj, String property, Class<T> enumClass) {
 		String value = getString(obj, property);
@@ -333,6 +353,23 @@ public class Json {
 		put(obj, "@id", d.refId);
 		put(obj, "name", d.name);
 		return obj;
+	}
+
+	public static FlowProperty propertyOf(FlowResult r) {
+		var factor = r.flowPropertyFactor;
+		if (factor != null && factor.flowProperty != null)
+			return factor.flowProperty;
+		return r.flow != null
+				? r.flow.referenceFlowProperty
+				: null;
+	}
+
+	public static Unit unitOf(FlowResult r) {
+		if (r.unit != null)
+			return r.unit;
+		return r.flow != null
+				? r.flow.getReferenceUnit()
+				: null;
 	}
 
 	/**

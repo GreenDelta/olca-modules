@@ -1,8 +1,10 @@
 package org.openlca.jsonld;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -54,6 +56,19 @@ public class DatesTest {
 		Assert.assertEquals(2015, calendar.get(Calendar.YEAR));
 		Assert.assertEquals(4, calendar.get(Calendar.MONTH)); // starts with 0!
 		Assert.assertEquals(23, calendar.get(Calendar.DAY_OF_MONTH));
+	}
+
+	@Test
+	public void testAsDate() {
+		var date = new GregorianCalendar(2022, Calendar.SEPTEMBER, 16).getTime();
+		Assert.assertEquals("2022-09-16", Json.asDate(date));
+	}
+
+	@Test
+	public void testAsDateTime() {
+		var date = new GregorianCalendar(2022, Calendar.SEPTEMBER, 16, 15, 50, 20)
+				.getTime();
+		Assert.assertEquals("2022-09-16T15:50:20", Json.asDateTime(date));
 	}
 
 	@Test
