@@ -18,8 +18,7 @@ class ImpactMethodImport extends AbstractImport {
 	@Override
 	protected boolean isValid(CSVRecord row) {
 		var refId = Maps.getString(row, 0);
-		return Strings.notEmpty(refId)
-			&& !seq.contains(ModelType.IMPACT_METHOD, refId);
+		return Strings.notEmpty(refId);
 	}
 
 	@Override

@@ -19,8 +19,7 @@ class FlowImport extends AbstractImport {
 	@Override
 	protected boolean isValid(CSVRecord row) {
 		var refId = Maps.getString(row, 0);
-		return Strings.notEmpty(refId)
-			&& !seq.contains(ModelType.FLOW, refId);
+		return Strings.notEmpty(refId);
 	}
 
 	@Override

@@ -18,8 +18,7 @@ class CategoryImport extends AbstractImport {
 	@Override
 	protected boolean isValid(CSVRecord values) {
 		var refId = Maps.getString(values, 0);
-		return Strings.notEmpty(refId)
-			&& !seq.contains(ModelType.CATEGORY, refId);
+		return Strings.notEmpty(refId);
 	}
 
 	@Override

@@ -18,8 +18,7 @@ class LocationImport extends AbstractImport {
 	@Override
 	protected boolean isValid(CSVRecord row) {
 		var refId = Maps.getString(row, 0);
-		return Strings.notEmpty(refId)
-			&& !seq.contains(ModelType.LOCATION, refId);
+		return Strings.notEmpty(refId);
 	}
 
 	@Override

@@ -54,8 +54,7 @@ public class RefDataImport implements Runnable {
 			throws Exception {
 		File file = new File(dir, fileName);
 		if (!file.exists()) {
-			log.info("file {} does not exist in {} -> not imported", fileName,
-					dir);
+			log.info("file {} does not exist in {} -> not imported", fileName, dir);
 			return;
 		}
 		log.info("import file {}", file);
@@ -99,5 +98,4 @@ public class RefDataImport implements Runnable {
 			dao.insert(mapFile);
 		}
 	}
-
 }
