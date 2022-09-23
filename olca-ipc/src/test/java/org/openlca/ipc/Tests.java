@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
@@ -20,13 +19,10 @@ class Tests {
 	private static Server getServer() {
 		if (server == null) {
 			server = new Server(0);
-			var config = new ServerConfig(
-					DataDir.get(),
-					Derby.createInMemory(),
-					0,
-					false,
-					null,
-					Collections.emptyMap());
+			var config = ServerConfig.defaultOf(Derby.createInMemory())
+					.withDataDir(DataDir.get())
+					.withPort(0)
+					.get();
 			server.withDefaultHandlers(config);
 			server.start();
 		}
@@ -57,7 +53,7 @@ class Tests {
 			try (Reader in = new BufferedReader(
 					new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
 				StringBuilder sb = new StringBuilder();
-				for (int c; (c = in.read()) >= 0;)
+				for (int c; (c = in.read()) >= 0; )
 					sb.append((char) c);
 				return sb.toString();
 			}

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
@@ -71,6 +72,10 @@ public record ServerConfig(
 		File staticDir,
 		Map<String, String> args
 ) {
+
+	public static Builder defaultOf(IDatabase db) {
+		return new Builder(db);
+	}
 
 	public static ServerConfig parse(String[] args) {
 		var parser = new Parser(args);
@@ -183,6 +188,60 @@ public record ServerConfig(
 				flag = null;
 			}
 			return map;
+		}
+	}
+
+	public static class Builder {
+
+		private final IDatabase db;
+
+		private DataDir dataDir;
+		private int port = 8080;
+		private boolean isReadonly = false;
+		private File staticDir;
+		private Map<String, String> args;
+
+		private Builder(IDatabase db) {
+			this.db = Objects.requireNonNull(db);
+		}
+
+		public Builder withDataDir(DataDir dataDir) {
+			this.dataDir = dataDir;
+			return this;
+		}
+
+		public Builder withPort(int port) {
+			this.port = port;
+			return this;
+		}
+
+		public Builder withReadOnly(boolean isReadonly) {
+			this.isReadonly = isReadonly;
+			return this;
+		}
+
+		public Builder withStaticDir(File staticDir) {
+			this.staticDir = staticDir;
+			return this;
+		}
+
+		public Builder withArgs(Map<String, String> args) {
+			this.args = args;
+			return this;
+		}
+
+		public ServerConfig get() {
+			var dataDir = this.dataDir == null
+					? DataDir.get()
+					: this.dataDir;
+			if (!NativeLib.isLoaded()) {
+				NativeLib.loadFrom(dataDir.root());
+			}
+			Map<String, String> args = this.args == null
+					? Map.of()
+					: this.args;
+			return new ServerConfig(
+					dataDir, db, port, isReadonly, staticDir, args);
 		}
 	}
 }
