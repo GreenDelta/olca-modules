@@ -38,7 +38,7 @@ public class Calculator {
 			return p.second;
 		var setup = p.first;
 		var simulator = Simulator.create(setup, db)
-			.withSolver(context.solver());
+				.withLibraryDir(context.libDir());
 		var id = context.cache(CachedResult.of(context, setup, simulator));
 		var obj = new JsonObject();
 		obj.addProperty("@id", id);
@@ -94,7 +94,9 @@ public class Calculator {
 
 	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
 		try {
-			var r = new SystemCalculator(db).calculate(setup);
+			var r = new SystemCalculator(db)
+					.withLibraryDir(context.libDir())
+					.calculate(setup);
 			var cached = CachedResult.of(context, setup, r);
 			var id = context.cache(cached);
 			return Responses.ok(JsonRpc.encodeResult(r, id, cached.refs()), req);

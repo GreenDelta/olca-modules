@@ -1,7 +1,8 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.library.LibraryDir;
+import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.Cache;
 import org.openlca.ipc.Server;
 
@@ -9,12 +10,19 @@ import java.util.UUID;
 
 public record HandlerContext(
 	Server server,
-	IDatabase db,
-	MatrixSolver solver,
+	ServerConfig config,
 	Cache cache) {
 
 	public Object getCached(String id) {
 		return cache.get(id);
+	}
+
+	public IDatabase db() {
+		return config.db();
+	}
+
+	public LibraryDir libDir() {
+		return config.dataDir().getLibraryDir();
 	}
 
 	public <T> T getCached(Class<T> clazz, String id) {

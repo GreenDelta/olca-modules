@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
 import org.openlca.ipc.handlers.CostHandler;
@@ -33,10 +32,10 @@ public class Server extends NanoHTTPD {
 		super(port);
 	}
 
-	public Server withDefaultHandlers(IDatabase db, MatrixSolver solver) {
+	public Server withDefaultHandlers(ServerConfig config) {
 		log.info("Register default handlers");
 		var cache = new Cache();
-		var context = new HandlerContext(this, db, solver, cache);
+		var context = new HandlerContext(this, config, cache);
 		register(new ModelHandler(context));
 		register(new Calculator(context));
 		register(new InventoryHandler(context));
@@ -160,6 +159,36 @@ public class Server extends NanoHTTPD {
 				return Responses.error(500, "Failed to call method "
 						+ method + ": " + e.getMessage(), req);
 			}
+		}
+	}
+
+	public static void main(String[] args) {
+		var log = LoggerFactory.getLogger(Server.class);
+		try {
+			log.info("parse server configuration");
+			var config = ServerConfig.parse(args);
+			var server = new Server(config.port())
+					.withDefaultHandlers(config);
+
+			// register a shutdown hook
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				try {
+					if (server.isAlive()) {
+						log.info("shutdown server");
+						server.stop();
+						config.db().close();
+					}
+				} catch (Exception e) {
+					log.error("failed to shutdown server", e);
+				}
+			}));
+
+			log.info("start the server");
+			server.start();
+
+		} catch (Exception e) {
+			System.err.println("failed to start server: " + e.getMessage());
+			log.error("failed to start server", e);
 		}
 	}
 

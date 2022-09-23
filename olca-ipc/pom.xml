@@ -56,7 +56,7 @@
 							<outputDirectory>${project.build.directory}/dist</outputDirectory>
 							<archive>
 								<manifest>
-									<mainClass>org.openlca.ipc.Main</mainClass>
+									<mainClass>org.openlca.ipc.Server</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
@@ -121,8 +121,8 @@ set command=java
 if exist jre (
     set command=jre\bin\java.exe
 )
-echo %command% %java_args% org.openlca.ipc.Main -port %port% -db %database%
-%command% %java_args% org.openlca.ipc.Main -port %port% -db %database%
+echo %command% %java_args% org.openlca.ipc.Server -port %port% -db %database%
+%command% %java_args% org.openlca.ipc.Server -port %port% -db %database%
 ]]>
 										</echo>
 										<copy todir="${project.build.directory}/dist">
