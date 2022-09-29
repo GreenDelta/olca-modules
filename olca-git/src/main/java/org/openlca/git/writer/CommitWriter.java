@@ -178,7 +178,7 @@ public abstract class CommitWriter {
 		var treeCount = walk.getTreeCount();
 		var treeIds = new ObjectId[treeCount - 1];
 		for (var i = 0; i < treeCount - 1; i++) {
-			treeIds[i] = walk.getFileMode(0) != FileMode.MISSING ? walk.getObjectId(0) : null;
+			treeIds[i] = walk.getFileMode(i) != FileMode.MISSING ? walk.getObjectId(i) : null;
 		}
 		var subIterator = walk.getFileMode(treeCount - 1) != FileMode.MISSING ? iterator.createSubtreeIterator() : null;
 		if (subIterator != null) {
