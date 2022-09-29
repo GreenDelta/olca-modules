@@ -33,6 +33,12 @@ public class GitUtil {
 		for (Entry<String, String> entry : encodings.entrySet()) {
 			name = name.replace(entry.getKey(), entry.getValue());
 		}
+		if (name.charAt(0) == '.') {
+			name = "%2E" + name.substring(1);
+		}
+		if (name.charAt(name.length() - 1) == '.') {
+			name = name.substring(0, name.length() - 1) + "%2E";
+		}
 		return name;
 	}
 
@@ -41,6 +47,16 @@ public class GitUtil {
 			return null;
 		for (Entry<String, String> entry : encodings.entrySet()) {
 			name = name.replace(entry.getValue(), entry.getKey());
+		}
+		if (name.charAt(0) == '%'
+				&& name.charAt(1) == '2'
+				&& name.charAt(2) == 'E') {
+			name = "." + name.substring(3);
+		}
+		if (name.charAt(name.length() - 3) == '%'
+				&& name.charAt(name.length() - 2) == '2'
+				&& name.charAt(name.length() - 1) == 'E') {
+			name = name.substring(0, name.length() - 3) + ".";
 		}
 		return name;
 	}
