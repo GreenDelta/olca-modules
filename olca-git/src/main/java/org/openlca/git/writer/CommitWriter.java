@@ -112,10 +112,16 @@ public abstract class CommitWriter {
 		boolean appended = false;
 		var tree = new TreeFormatter();
 		try (var walk = createWalk(prefix, iterator, treeIds)) {
+			var previous = "";
+			var previousWasDeleted = false;
 			while (walk.next()) {
 				var name = walk.getNameString();
 				if (name.equals(PackageInfo.FILE_NAME))
 					continue;
+				if (previousWasDeleted && isBinaryOf(name, previous))
+					continue;
+				previous = name;
+				previousWasDeleted = false;
 				var mode = walk.getFileMode();
 				ObjectId id = null;
 				if (mode == FileMode.TREE) {
@@ -123,8 +129,10 @@ public abstract class CommitWriter {
 				} else if (mode == FileMode.REGULAR_FILE) {
 					id = handleFile(walk);
 				}
-				if (id == null || id.equals(ObjectId.zeroId()))
+				if (id == null || id.equals(ObjectId.zeroId())) {
+					previousWasDeleted = true;
 					continue;
+				}
 				tree.append(name, mode, id);
 				appended = true;
 			}
@@ -283,6 +291,11 @@ public abstract class CommitWriter {
 			update.setForceRefLog(true);
 			update.forceUpdate();
 		}
+	}
+
+	private boolean isBinaryOf(String current, String previous) {
+		return previous.endsWith(GitUtil.DATASET_SUFFIX)
+				&& current.equals(previous.substring(0, previous.length() - 5) + GitUtil.BIN_DIR_SUFFIX);
 	}
 
 	private boolean isCurrentSchemaVersion() {
