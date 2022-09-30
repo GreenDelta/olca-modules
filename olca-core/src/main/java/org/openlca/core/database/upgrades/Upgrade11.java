@@ -130,6 +130,11 @@ public class Upgrade11 implements IUpgrade {
 				    multiplier   DOUBLE
 				)"""
 		);
+
+		// the UNKNOWN model type was removed and there were cases where
+		// this was assigned as the content type for categories
+		NativeSql.on(db).runUpdate("update tbl_categories set " +
+				"model_type = null where model_type = 'UNKNOWN'");
 	}
 
 	/**

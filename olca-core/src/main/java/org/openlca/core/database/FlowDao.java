@@ -55,10 +55,8 @@ public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 			d.library = r.getString(7);
 			d.tags = r.getString(8);
 
-			var flowType = r.getString(9);
-			if (flowType != null) {
-				d.flowType = FlowType.valueOf(flowType);
-			}
+			d.flowType = NativeSql.enumItemOf(
+					FlowType.class, r.getString(9));
 
 			var locId = r.getLong(10);
 			if (!r.wasNull()) {

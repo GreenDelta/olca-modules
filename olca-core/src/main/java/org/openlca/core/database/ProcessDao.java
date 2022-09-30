@@ -64,20 +64,15 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 			d.library = r.getString(7);
 			d.tags = r.getString(8);
 
-			var processType = r.getString(9);
-			if (processType != null) {
-				d.processType = ProcessType.valueOf(processType);
-			}
+			d.processType = NativeSql.enumItemOf(
+					ProcessType.class, r.getString(9));
 
 			var locId = r.getLong(10);
 			if (!r.wasNull()) {
 				d.location = locId;
 			}
 
-			var flowType = r.getString(11);
-			if (flowType != null) {
-				d.flowType = FlowType.valueOf(flowType);
-			}
+			d.flowType = NativeSql.enumItemOf(FlowType.class, r.getString(11));
 
 			list.add(d);
 			return true;

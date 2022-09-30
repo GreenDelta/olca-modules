@@ -61,10 +61,8 @@ public class CategoryDao
 			}
 			d.library = r.getString(7);
 			d.tags = r.getString(8);
-			var modelType = r.getString(9);
-			if (modelType != null) {
-				d.categoryType = ModelType.valueOf(modelType);
-			}
+			d.categoryType =  NativeSql.enumItemOf(
+					ModelType.class, r.getString(9));
 			list.add(d);
 			return true;
 		});

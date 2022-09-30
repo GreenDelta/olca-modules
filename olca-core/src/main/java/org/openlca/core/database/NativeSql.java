@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,6 +184,18 @@ public final class NativeSql {
 			log.trace("{} statements executed", s.length);
 			con.commit();
 			db.clearCache();
+		}
+	}
+
+	static <T extends Enum<T>> T enumItemOf(Class<T> type, String str) {
+		if (str == null)
+			return null;
+		try {
+			return Enum.valueOf(type, str);
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(NativeSql.class);
+			log.warn("invalid item '{}' for enum '{}'", str, type);
+			return null;
 		}
 	}
 
