@@ -1,14 +1,9 @@
 package org.openlca.proto.io.input;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ActorDescriptor;
 import org.openlca.core.model.descriptors.EpdDescriptor;
 import org.openlca.core.model.descriptors.CurrencyDescriptor;
@@ -29,14 +24,11 @@ import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
-import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoFlowType;
-import org.openlca.proto.ProtoParameterRedef;
 import org.openlca.proto.ProtoProcessType;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
-import org.openlca.util.Strings;
 
 /**
  * Utility methods for converting incoming proto-objects to openLCA model
@@ -86,21 +78,6 @@ public final class In {
         proto.getMinimum(), proto.getMaximum());
       default -> null;
     };
-  }
-
-  public static long timeOf(String dateTime) {
-    if (Strings.nullOrEmpty(dateTime))
-      return 0;
-    var date = Json.parseDate(dateTime);
-    return date == null
-      ? 0
-      : date.getTime();
-  }
-
-  public static long versionOf(String version) {
-    return Strings.nullOrEmpty(version)
-      ? 0
-      : Version.fromString(version).getValue();
   }
 
   public static FlowType flowTypeOf(ProtoFlowType proto) {

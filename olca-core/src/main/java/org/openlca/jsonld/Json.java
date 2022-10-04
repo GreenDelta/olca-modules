@@ -13,15 +13,16 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -80,7 +81,7 @@ public class Json {
 	}
 
 	public static void forEachObject(
-		JsonObject obj, String property, Consumer<JsonObject> fn) {
+			JsonObject obj, String property, Consumer<JsonObject> fn) {
 		var array = getArray(obj, property);
 		if (array == null)
 			return;
@@ -108,7 +109,7 @@ public class Json {
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-		String property, double defaultVal) {
+			String property, double defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -137,8 +138,8 @@ public class Json {
 		var elem = obj.get(property);
 		try {
 			return elem == null || !elem.isJsonPrimitive()
-				? OptionalInt.empty()
-				: OptionalInt.of(elem.getAsInt());
+					? OptionalInt.empty()
+					: OptionalInt.of(elem.getAsInt());
 		} catch (Exception e) {
 			return OptionalInt.empty();
 		}
@@ -152,8 +153,8 @@ public class Json {
 			return defaultVal;
 		var prim = elem.getAsJsonPrimitive();
 		return prim.isNumber()
-			? prim.getAsLong()
-			: defaultVal;
+				? prim.getAsLong()
+				: defaultVal;
 	}
 
 	/**
@@ -186,7 +187,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> void put(
-		JsonObject json, String property, Enum<T> value) {
+			JsonObject json, String property, Enum<T> value) {
 		if (value == null)
 			return;
 		put(json, property, Enums.getLabel(value));
@@ -197,12 +198,12 @@ public class Json {
 			return OptionalDouble.empty();
 		var elem = obj.get(property);
 		return elem == null || !elem.isJsonPrimitive()
-			? OptionalDouble.empty()
-			: OptionalDouble.of(elem.getAsDouble());
+				? OptionalDouble.empty()
+				: OptionalDouble.of(elem.getAsDouble());
 	}
 
 	public static boolean getBool(
-		JsonObject obj, String property, boolean defaultVal) {
+			JsonObject obj, String property, boolean defaultVal) {
 		if (obj == null || property == null)
 			return defaultVal;
 		JsonElement elem = obj.get(property);
@@ -219,31 +220,85 @@ public class Json {
 	public static Date parseDate(String str) {
 		if (Strings.nullOrEmpty(str))
 			return null;
-		try {
-			if (str.length() < 18) {
-				// try to parse date strings like "2015-05-23"
-				if (str.length() > 10) {
-					// in older versions may have a zone offset
-					// like "2015-05-23+02:00"
-					str = str.substring(0, 10);
-				}
-				var date = LocalDate.parse(str);
-				var seconds = date.toEpochSecond(LocalTime.MIN, ZoneOffset.UTC);
-				return Date.from(Instant.ofEpochSecond(seconds));
+
+		Supplier<Date> forDate = () -> {
+			try {
+				var parsed = DateTimeFormatter.ISO_DATE.parse(str);
+				var time = LocalDate.from(parsed)
+						.atStartOfDay(ZoneId.systemDefault())
+						.toInstant();
+				return Date.from(time);
+			} catch (Exception e) {
+				return null;
 			}
-			if (str.endsWith("Z")) {
-				// assume UTC time input
-				var instant = Instant.parse(str);
-				return Date.from(instant);
+		};
+
+		Supplier<Date> forInstant = () -> {
+			try {
+				return Date.from(Instant.parse(str));
+			} catch (Exception e) {
+				return null;
 			}
-			// assume offset time
-			var offset = OffsetDateTime.parse(str);
-			return Date.from(offset.toInstant());
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(Json.class);
-			log.error("failed to parse date / time: " + str, e);
-			return null;
+		};
+
+		Supplier<Date> forZoned = () -> {
+			try {
+				var time = ZonedDateTime.parse(str).toInstant();
+				return Date.from(time);
+			} catch (Exception e) {
+				return null;
+			}
+		};
+
+		Supplier<Date> forLocal = () -> {
+			try {
+				var time = LocalDateTime.parse(str)
+						.atZone(ZoneId.systemDefault())
+						.toInstant();
+				return Date.from(time);
+			} catch (Exception e) {
+				return null;
+			}
+		};
+
+		// no time part: parse as ISO date
+		if (!str.contains("T")) {
+			var date = forDate.get();
+			if (date != null)
+				return date;
 		}
+
+		// try ISO instant
+		if (str.endsWith("Z")) {
+			var date = forInstant.get();
+			if (date != null)
+				return date;
+		}
+
+		// try local date-time without zone info
+		if (str.length() == 19) {
+			var date = forLocal.get();
+			if (date != null)
+				return date;
+		}
+
+		// try zoned date-time
+		var date = forZoned.get();
+		if (date != null)
+			return date;
+
+		// try all other options, again
+		var opts = List.of(
+				forDate, forInstant, forLocal, forZoned);
+		for (var opt : opts) {
+			var d = opt.get();
+			if (d != null)
+				return d;
+		}
+
+		var log = LoggerFactory.getLogger(Json.class);
+		log.error("failed to parse date / time: " + str);
+		return null;
 	}
 
 	public static String asDateTime(Date date) {
@@ -263,7 +318,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(
-		JsonObject obj, String property, Class<T> enumClass) {
+			JsonObject obj, String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
@@ -296,7 +351,7 @@ public class Json {
 		put(obj, "name", e.name);
 
 		if (e instanceof RootEntity ce
-			&& ce.category != null) {
+				&& ce.category != null) {
 			put(obj, "category", ce.category.toPath());
 		}
 
