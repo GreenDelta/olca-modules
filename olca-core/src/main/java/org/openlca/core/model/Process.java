@@ -76,9 +76,11 @@ public class Process extends ParameterizedEntity implements CalculationTarget {
 	public static Process of(String name, Flow refFlow) {
 		var process = new Process();
 		Entities.init(process, name);
-		process.quantitativeReference = refFlow.flowType == FlowType.WASTE_FLOW
-				? process.input(refFlow, 1.0)
-				: process.output(refFlow, 1.0);
+		if (refFlow != null) {
+			process.quantitativeReference = refFlow.flowType == FlowType.WASTE_FLOW
+					? process.input(refFlow, 1.0)
+					: process.output(refFlow, 1.0);
+		}
 		process.processType = ProcessType.UNIT_PROCESS;
 		return process;
 	}
