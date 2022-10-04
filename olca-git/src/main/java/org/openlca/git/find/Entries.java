@@ -34,6 +34,33 @@ public class Entries {
 		return new Find();
 	}
 
+	public Entry get(String path, String commitId) {
+		try {
+			var commits = Commits.of(repo);
+			var commit = commits.getRev(commitId);
+			if (commit == null)
+				return null;
+			var objectId = get(commit.getTree().getId(), path);
+			return new Entry(path, commitId, objectId);
+		} catch (IOException e) {
+			log.error("Error finding sub tree for " + path);
+			return null;
+		}
+	}
+
+	private ObjectId get(ObjectId treeId, String path) {
+		if (Strings.nullOrEmpty(path))
+			return treeId;
+		try (var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId)) {
+			if (walk == null)
+				return ObjectId.zeroId();
+			return walk.getObjectId(0);
+		} catch (IOException e) {
+			log.error("Error finding entry for " + path);
+			return null;
+		}
+	}
+
 	public class Find {
 
 		private String path;
@@ -54,13 +81,12 @@ public class Entries {
 			RevCommit commit = null;
 			try {
 				var commits = Commits.of(repo);
-				var ids = Ids.of(repo);
 				commit = commits.getRev(commitId);
 				if (commit == null)
 					return entries;
 				var treeId = Strings.nullOrEmpty(path)
 						? commit.getTree().getId()
-						: ids.get(commit.getTree().getId(), path);
+						: get(commit.getTree().getId(), path);
 				if (treeId.equals(ObjectId.zeroId()))
 					return entries;
 				try (var walk = new TreeWalk(repo)) {

@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.actions.ConflictResolver;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.find.Datasets;
 import org.openlca.git.find.Entries;
-import org.openlca.git.find.Ids;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.ModelRef;
@@ -28,7 +26,6 @@ public class GitStoreReader implements JsonStoreReader {
 	private static final Gson gson = new Gson();
 	private final References references;
 	private final Datasets datasets;
-	private final Ids ids;
 	private final Commit previousCommit;
 	private final Commit commit;
 	private final Categories categories;
@@ -37,6 +34,7 @@ public class GitStoreReader implements JsonStoreReader {
 	private final List<Reference> imported = new ArrayList<>();
 	private final List<ModelRef> merged = new ArrayList<>();
 	private final List<ModelRef> keepDeleted = new ArrayList<>();
+	private final byte[] packInfo;
 
 	public GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
@@ -47,40 +45,34 @@ public class GitStoreReader implements JsonStoreReader {
 		this.categories = Categories.of(Entries.of(repo), commit.id);
 		this.references = References.of(repo);
 		this.datasets = Datasets.of(repo);
-		this.ids = Ids.of(repo);
 		this.previousCommit = previousCommit;
 		this.commit = commit;
 		this.conflictResolver = conflictResolver;
 		this.changes = TypeRefIdMap.of(changes);
+		this.packInfo = datasets.getPackageInfo(commit);
+
 	}
 
 	@Override
 	public byte[] getBytes(String path) {
 		if (PackageInfo.FILE_NAME.equals(path))
-			return getPackInfo();
+			return packInfo;
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);
 		if (binDir == null)
 			return getDataset(path);
-		var objectId = ids.get(path, commit.id);
-		if (ObjectId.zeroId().equals(objectId))
-			return null;
-		return datasets.getBytes(objectId);
-	}
-
-	private byte[] getPackInfo() {
-		var objectId = ids.get(PackageInfo.FILE_NAME, commit.id);
-		return datasets.getBytes(objectId);
+		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
+		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+		var ref = references.get(type, refId, commit.id);
+		return datasets.getBytes(ref);
 	}
 
 	private byte[] getDataset(String path) {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
 		var ref = changes.get(type, refId);
-		if (ObjectId.zeroId().equals(ref.objectId))
-			return null;
-		return datasets.getBytes(ref.objectId);
+		return datasets.getBytes(ref);
 	}
 
 	@Override
@@ -92,7 +84,7 @@ public class GitStoreReader implements JsonStoreReader {
 		var ref = changes.get(type, refId);
 		if (ref == null)
 			return null;
-		var data = datasets.get(ref.objectId);
+		var data = datasets.get(ref);
 		var remote = parse(data);
 		if (conflictResolver == null || !conflictResolver.isConflict(ref)) {
 			imported.add(ref);

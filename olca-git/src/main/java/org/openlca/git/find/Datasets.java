@@ -9,9 +9,11 @@ import java.util.function.Function;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectStream;
 import org.eclipse.jgit.lib.Repository;
+import org.openlca.git.model.Commit;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.FieldDefinition;
 import org.openlca.git.util.MetaDataParser;
+import org.openlca.jsonld.PackageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,33 +30,39 @@ public class Datasets {
 		this.repo = repo;
 	}
 
-	public String getName(ObjectId id) {
-		var data = parse(id, "name");
+	public String getName(Reference ref) {
+		var data = parse(ref, "name");
 		var name = data.get("name");
 		return name != null ? name.toString() : null;
 	}
 
-	public Map<String, Object> parse(ObjectId id, String... fields) {
-		return stream(id, new HashMap<>(), stream -> MetaDataParser.parse(stream, fields));
+	public Map<String, Object> parse(Reference ref, String... fields) {
+		return stream(ref, new HashMap<>(), stream -> MetaDataParser.parse(stream, fields));
 	}
 
-	public Map<String, Object> parse(ObjectId id, List<FieldDefinition> defs) {
-		return stream(id, new HashMap<>(), stream -> MetaDataParser.parse(stream, defs));
+	public Map<String, Object> parse(Reference ref, List<FieldDefinition> defs) {
+		return stream(ref, new HashMap<>(), stream -> MetaDataParser.parse(stream, defs));
 	}
 
-	private <T> T stream(ObjectId id, T defaultValue, Function<ObjectStream, T> consumer) {
-		if (id == null)
+	private <T> T stream(Reference ref, T defaultValue, Function<ObjectStream, T> consumer) {
+		if (ref == null || ref.objectId == null)
 			return defaultValue;
 		try (var reader = repo.getObjectDatabase().newReader();
-				var stream = reader.open(id).openStream()) {
+				var stream = reader.open(ref.objectId).openStream()) {
 			return consumer.apply(stream);
 		} catch (IOException e) {
-			log.error("Error loading " + id);
+			log.error("Error loading " + ref.objectId);
 			return null;
 		}
 	}
 
-	public byte[] getBytes(ObjectId id) {
+	public byte[] getBytes(Reference ref) {
+		if (ref == null)
+			return null;
+		return getBytes(ref.objectId);
+	}
+
+	private byte[] getBytes(ObjectId id) {
 		if (id == null || id.equals(ObjectId.zeroId()))
 			return null;
 		try (var reader = repo.getObjectDatabase().newReader()) {
@@ -77,7 +85,7 @@ public class Datasets {
 		return get(ref.objectId);
 	}
 
-	public String get(ObjectId id) {
+	private String get(ObjectId id) {
 		var data = getBytes(id);
 		if (data == null)
 			return null;
@@ -92,8 +100,12 @@ public class Datasets {
 	public byte[] getBinary(Reference ref, String filepath) {
 		if (ref == null || filepath == null || filepath.isEmpty())
 			return null;
-		var id = Ids.of(repo).get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
+		var id = Entries.of(repo).get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
 		return getBytes(id);
+	}
+
+	public byte[] getPackageInfo(Commit commit) {
+		return getBytes(Entries.of(repo).get(PackageInfo.FILE_NAME, commit.id));
 	}
 
 }
