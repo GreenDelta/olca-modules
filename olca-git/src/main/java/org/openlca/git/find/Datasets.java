@@ -58,7 +58,13 @@ public class Datasets {
 		if (id == null || id.equals(ObjectId.zeroId()))
 			return null;
 		try (var reader = repo.getObjectDatabase().newReader()) {
-			return reader.open(id).getBytes();
+			var loader = reader.open(id);
+			// large objects will throw an exception if getBytes() is used
+			// so use getBytes(loader.getSize()) to circumvent this
+			if (loader.isLarge() && loader.getSize() <= Integer.MAX_VALUE)
+				return loader.getBytes((int) loader.getSize());
+			return loader.getBytes();
+			// will throw exception if file is bigger then 2147483647 bytes
 		} catch (IOException e) {
 			log.error("Error loading " + id);
 			return null;

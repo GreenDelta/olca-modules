@@ -16,6 +16,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.Datasets;
+import org.openlca.git.find.References;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.Repositories;
@@ -54,8 +55,8 @@ public class WriteReadTest {
 		var commitId = writer.write("initial commit", diffs);
 
 		// get the data set from the repo
-		var id = tmp.idStore().get(unitGroup);
-		var string = Datasets.of(tmp.repo()).get(id);
+		var ref = References.of(tmp.repo()).get(ModelType.UNIT_GROUP, unitGroup.refId, commitId);
+		var string = Datasets.of(tmp.repo()).get(ref);
 		var jsonObj = new Gson().fromJson(string, JsonObject.class);
 		assertEquals(unitGroup.refId, Json.getString(jsonObj, "@id"));
 
