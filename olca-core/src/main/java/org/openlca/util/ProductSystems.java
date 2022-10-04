@@ -90,4 +90,35 @@ public final class ProductSystems {
 				processRemovals, linkRemovals);
 	}
 
+	public static boolean isConnected(ProductSystem system) {
+		if (system.referenceProcess == null)
+			return false;
+		var inEdges = new HashMap<Long, List<ProcessLink>>();
+		for (var link : system.processLinks) {
+			inEdges.computeIfAbsent(link.processId, pid -> new ArrayList<>())
+					.add(link);
+		}
+
+		var visited = new HashSet<Long>();
+		var queue = new ArrayDeque<Long>();
+		queue.add(system.referenceProcess.id);
+		while (!queue.isEmpty()) {
+			var next = queue.poll();
+			if (visited.contains(next))
+				continue;
+			visited.add(next);
+			var inLinks = inEdges.get(next);
+			if (inLinks == null)
+				continue;
+			for (var link : inLinks) {
+				var provider = link.providerId;
+				if (!visited.contains(provider) && !queue.contains(provider)) {
+					queue.add(provider);
+				}
+			}
+		}
+
+		return visited.size() == system.processes.size()
+				&& visited.containsAll(system.processes);
+	}
 }
