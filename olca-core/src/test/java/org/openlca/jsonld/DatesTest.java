@@ -90,6 +90,7 @@ public class DatesTest {
 				"2011-12-03",
 				"2011-12-03+01:00",
 				"2011-12-03T10:15:30",
+				"2011-12-03T10:15:30.073876",
 				"2011-12-03T10:15:30+01:00",
 				"2011-12-03T10:15:30+01:00[Europe/Paris]",
 				"2011-12-03T10:15:30Z",
@@ -102,6 +103,24 @@ public class DatesTest {
 			assertEquals(2011, time.getYear());
 			assertEquals(Month.DECEMBER, time.getMonth());
 			assertEquals(3, time.getDayOfMonth());
+		}
+	}
+
+	@Test
+	public void testParseDateTime() {
+		var dates = new String[] {
+				"2011-12-03T10:15:30+01:00",
+				"2011-12-03T10:15:30.073876+01:00",
+				"2011-12-03T10:15:30+01:00[Europe/Paris]",
+				"2011-12-03T09:15:30Z",
+		};
+		for (var date : dates) {
+			var d = Json.parseDate(date);
+			assertNotNull(d);
+			var time = d.toInstant().atZone(ZoneId.of("UTC"));
+			assertEquals(9, time.getHour());
+			assertEquals(15, time.getMinute());
+			assertEquals(30, time.getSecond());
 		}
 	}
 
