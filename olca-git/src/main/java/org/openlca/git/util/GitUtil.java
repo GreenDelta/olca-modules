@@ -33,13 +33,19 @@ public class GitUtil {
 		for (Entry<String, String> entry : encodings.entrySet()) {
 			name = name.replace(entry.getKey(), entry.getValue());
 		}
-		if (name.charAt(0) == '.') {
-			name = "%2E" + name.substring(1);
-		}
-		if (name.charAt(name.length() - 1) == '.') {
-			name = name.substring(0, name.length() - 1) + "%2E";
+		for (var i = 0; i < name.length(); i++) {
+			if (name.charAt(i) == '.'
+					&& (i == 0 || i == name.length() - 1 || name.charAt(i - 1) == '/' || name.charAt(i + 1) == '/')) {
+				name = encodeDot(name, i);
+			}
 		}
 		return name;
+	}
+
+	private static String encodeDot(String name, int index) {
+		if (index == 0)
+			return "%2E" + name.substring(1);
+		return name.substring(0, index) + "%2E" + name.substring(index + 1);
 	}
 
 	public static String decode(String name) {
@@ -48,17 +54,19 @@ public class GitUtil {
 		for (Entry<String, String> entry : encodings.entrySet()) {
 			name = name.replace(entry.getValue(), entry.getKey());
 		}
-		if (name.charAt(0) == '%'
-				&& name.charAt(1) == '2'
-				&& name.charAt(2) == 'E') {
-			name = "." + name.substring(3);
-		}
-		if (name.charAt(name.length() - 3) == '%'
-				&& name.charAt(name.length() - 2) == '2'
-				&& name.charAt(name.length() - 1) == 'E') {
-			name = name.substring(0, name.length() - 3) + ".";
+		for (var i = 0; i < name.length() - 2; i++) {
+			if ((name.charAt(i) == '%' && name.charAt(i + 1) == '2' && name.charAt(i + 2) == 'E')
+					&& (i == 0 || i == name.length() - 3 || name.charAt(i - 1) == '/' || name.charAt(i + 3) == '/')) {
+				name = decodeDot(name, i);
+			}
 		}
 		return name;
+	}
+
+	private static String decodeDot(String name, int index) {
+		if (index == 0)
+			return "." + name.substring(3);
+		return name.substring(0, index) + "." + name.substring(index + 3);
 	}
 
 	public static String findBinDir(String path) {
