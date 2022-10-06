@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
+import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -213,6 +214,43 @@ public record JsonDataService(IDatabase db) {
 			var ref = Json.asRef(entity);
 			db.delete(entity);
 			return Response.of(ref);
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	/**
+	 * Get all process-flow pairs that can be linked to product inputs or waste
+	 * outputs from the database.
+	 */
+	public Response<JsonArray> getProviders() {
+		try {
+			var providers = ProcessTable.create(db).getProviders();
+			var array = new JsonArray();
+			var refs = DbRefs.of(db);
+			for (var p : providers) {
+				array.add(JsonUtil.toJson(p, refs));
+			}
+			return Response.of(array);
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	public Response<JsonArray> getProvidersOfFlow(String flowId) {
+		if (flowId == null)
+			return Response.error("no flow ID provided");
+		try {
+			var flow = db.getDescriptor(Flow.class, flowId);
+			if (flow == null)
+				return Response.empty();
+			var providers = ProcessTable.create(db).getProviders(flow.id);
+			var array = new JsonArray();
+			var refs = DbRefs.of(db);
+			for (var p : providers) {
+				array.add(JsonUtil.toJson(p, refs));
+			}
+			return Response.of(array);
 		} catch (Exception e) {
 			return Response.error(e);
 		}
