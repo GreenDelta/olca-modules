@@ -16,7 +16,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -116,15 +115,10 @@ public record JsonDataService(IDatabase db) {
 	public Response<JsonObject> put(JsonObject json) {
 		if (json == null)
 			return Response.error("no data set provided");
-		var typeStr = Json.getString(json, "@type");
-		if (Strings.nullOrEmpty(typeStr))
-			return Response.error("Json object not annotated with type");
-		for (var type : ModelType.values()) {
-			var clazz = type.getModelClass();
-			if (clazz.getSimpleName().equals(typeStr))
-				return put(clazz, json);
-		}
-		return Response.error("unknown model type: " + typeStr);
+		var type = JsonRef.typeOf(json);
+		if (type == null)
+			return Response.error("Json object is not annotated with a known type");
+		return put(type.getModelClass(), json);
 	}
 
 	/**

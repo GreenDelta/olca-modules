@@ -13,7 +13,7 @@ import org.openlca.core.model.Location;
 import org.openlca.jsonld.Json;
 
 public record FlowReader(EntityResolver resolver)
-	implements EntityReader<Flow> {
+		implements EntityReader<Flow> {
 
 	public FlowReader(EntityResolver resolver) {
 		this.resolver = Objects.requireNonNull(resolver);
@@ -46,7 +46,7 @@ public record FlowReader(EntityResolver resolver)
 		// sync with existing flow property factors. we identify
 		// them by their flow property ID.
 		var oldFactors = new HashMap<String, FlowPropertyFactor>(
-			flow.flowPropertyFactors.size());
+				flow.flowPropertyFactors.size());
 		for (var factor : flow.flowPropertyFactors) {
 			if (factor.flowProperty == null)
 				continue;
@@ -54,24 +54,18 @@ public record FlowReader(EntityResolver resolver)
 		}
 		flow.flowPropertyFactors.clear();
 
-		var array = Json.getArray(json, "flowProperties");
-		for (var e : array) {
-
-			// get the flow property
-			if (!e.isJsonObject())
-				continue;
-			var factorJson = e.getAsJsonObject();
+		Json.forEachObject(json, "flowProperties", factorJson -> {
 			var propId = Json.getRefId(factorJson, "flowProperty");
 			var property = resolver.get(FlowProperty.class, propId);
 			if (property == null)
-				continue;
+				return;
 
 			// create or update the factor
 			var factor = oldFactors.getOrDefault(
-				propId, new FlowPropertyFactor());
+					propId, new FlowPropertyFactor());
 			factor.flowProperty = property;
 			factor.conversionFactor = Json.getDouble(
-				factorJson, "conversionFactor", 1.0);
+					factorJson, "conversionFactor", 1.0);
 			flow.flowPropertyFactors.add(factor);
 
 			// check if it is the reference flow property
@@ -79,6 +73,6 @@ public record FlowReader(EntityResolver resolver)
 			if (isRef) {
 				flow.referenceFlowProperty = property;
 			}
-		}
+		});
 	}
 }
