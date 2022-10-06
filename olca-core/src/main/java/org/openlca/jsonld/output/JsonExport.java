@@ -77,10 +77,16 @@ public class JsonExport {
 		this.db = db;
 		this.writer = Objects.requireNonNull(writer);
 		this.dbRefs = db != null
-			? DbRefs.of(db)
-			: null;
+				? DbRefs.of(db)
+				: null;
 	}
 
+	/**
+	 * Configures whether default providers of product inputs or waste outputs
+	 * should be exported or not. This is set to {@code false} by default. Note
+	 * that if this is enabled, a large amount of processes could be exported
+	 * recursively if they are connected by their default providers.
+	 */
 	public JsonExport withDefaultProviders(boolean b) {
 		exportProviders = b;
 		return this;
@@ -127,8 +133,8 @@ public class JsonExport {
 			return dbRefs.asRef(d);
 		var dao = Daos.root(db, type);
 		return dao != null
-			? handleRef(dao.getForId(id))
-			: null;
+				? handleRef(dao.getForId(id))
+				: null;
 	}
 
 	JsonArray handleRefs(List<? extends RootEntity> list) {
@@ -136,9 +142,9 @@ public class JsonExport {
 			return null;
 		var array = new JsonArray();
 		list.stream()
-			.map(this::handleRef)
-			.filter(Objects::nonNull)
-			.forEach(array::add);
+				.map(this::handleRef)
+				.filter(Objects::nonNull)
+				.forEach(array::add);
 		return array;
 	}
 
@@ -196,10 +202,10 @@ public class JsonExport {
 	}
 
 	private void writeExternalFiles(
-		RootEntity entity, ModelType type, Callback cb) {
+			RootEntity entity, ModelType type, Callback cb) {
 		if (entity == null || db == null
-			|| db.getFileStorageLocation() == null
-			|| writer == null)
+				|| db.getFileStorageLocation() == null
+				|| writer == null)
 			return;
 		FileStore fs = new FileStore(db.getFileStorageLocation());
 		File dir = fs.getFolder(entity);
@@ -215,11 +221,11 @@ public class JsonExport {
 	}
 
 	public static <T extends RefEntity> JsonObject toJson(
-		T entity, IDatabase db) {
+			T entity, IDatabase db) {
 		if (entity == null)
 			return new JsonObject();
 		var exp = new JsonExport(db, new MemStore())
-			.withReferences(false);
+				.withReferences(false);
 		var writer = exp.getWriter(entity);
 		return writer.write(entity);
 	}
@@ -228,7 +234,7 @@ public class JsonExport {
 		if (entity == null)
 			return new JsonObject();
 		var exp = new JsonExport(null, new MemStore())
-			.withReferences(false);
+				.withReferences(false);
 		JsonWriter<T> writer = exp.getWriter(entity);
 		return writer.write(entity);
 	}
@@ -290,7 +296,7 @@ public class JsonExport {
 
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-			throws IOException {
+				throws IOException {
 			String path = dbDir.relativize(file).toString().replace('\\', '/');
 			byte[] data = Files.readAllBytes(file);
 			writer.putBin(type, refId, path, data);

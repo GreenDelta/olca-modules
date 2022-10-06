@@ -1,7 +1,9 @@
 package org.openlca.ipc;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.openlca.core.services.Response;
 
 /**
  * A rpc call is represented by sending a Request object to a Server.
@@ -36,5 +38,11 @@ public class RpcRequest {
 	 * SHOULD NOT contain fractional parts
 	 */
 	public JsonPrimitive id;
+
+	public Response<JsonObject> requireJsonObject() {
+		return params == null || ! params.isJsonObject()
+			? Response.error("the request parameter must be a Json object")
+			: Response.of(params.getAsJsonObject());
+	}
 
 }

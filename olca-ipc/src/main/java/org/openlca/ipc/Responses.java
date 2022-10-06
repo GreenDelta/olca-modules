@@ -2,6 +2,7 @@ package org.openlca.ipc;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import org.openlca.core.services.Response;
 
 /**
  * Utility methods for creating RPC responses.
@@ -34,6 +35,18 @@ public class Responses {
 		}
 		response.result = result;
 		return response;
+	}
+
+	public static RpcResponse of(Response<? extends JsonElement> r, RpcRequest req) {
+		if (r == null)
+			return internalServerError("failed to produced response", req);
+		if (r.isValue())
+			return ok(r.value(), req);
+		if (r.isEmpty())
+			return notFound("resource not found", req);
+		if (r.isError())
+			return internalServerError(r.error(), req);
+		return internalServerError("invalid response state", req);
 	}
 
 	public static RpcResponse badRequest(String message, RpcRequest req) {

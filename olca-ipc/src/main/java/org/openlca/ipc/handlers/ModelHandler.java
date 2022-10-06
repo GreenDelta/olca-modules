@@ -1,5 +1,7 @@
 package org.openlca.ipc.handlers;
 
+import java.util.function.BiFunction;
+
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
@@ -16,7 +18,8 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.services.JsonDataService;
+import org.openlca.core.services.JsonRef;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -36,105 +39,68 @@ import com.google.gson.JsonObject;
 public class ModelHandler {
 
 	private final IDatabase db;
+	private final JsonDataService jsonData;
 
 	public ModelHandler(HandlerContext context) {
 		this.db = context.db();
+		this.jsonData = new JsonDataService(db);
 	}
 
 	@Rpc("get/model")
 	public RpcResponse get(RpcRequest req) {
-		try {
-			var p = getModelOrError(req);
-			if (p.second != null)
-				return p.second;
-			var model = p.first;
-			var store = new MemStore();
-			new JsonExport(db, store)
-					.withReferences(false)
-					.write(model);
-			var modelType = ModelType.of(model.getClass());
-			var obj = store.get(modelType, model.refId);
-			if (obj == null)
-				return Responses.error(500, "Conversion to JSON failed", req);
-			return Responses.ok(obj, req);
-		} catch (Exception e) {
-			return Responses.serverError(e, req);
-		}
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.get(type.getModelClass(), JsonRef.idOf(json));
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("get/models")
 	public RpcResponse getAll(RpcRequest req) {
-		if (req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @type attribute", req);
-		var type = getType(req.params.getAsJsonObject());
-		if (type == null)
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @type attribute", req);
-		try {
-			var store = new MemStore();
-			var exp = new JsonExport(db, store).withReferences(false);
-			Daos.root(db, type).getAll().forEach(exp::write);
-			var array = new JsonArray();
-			store.getAll(type).forEach(array::add);
-			return Responses.ok(array, req);
-		} catch (Exception e) {
-			return Responses.serverError(e, req);
-		}
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.getAll(type.getModelClass());
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("get/descriptors")
 	public RpcResponse getDescriptors(RpcRequest req) {
-		if (req.params == null || !req.params.isJsonObject())
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @type attribute", req);
-		var type = getType(req.params.getAsJsonObject());
-		if (type == null)
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @type attribute", req);
-		try {
-			var refs = DbRefs.of(db);
-			var clazz = (Class<? extends RootEntity>) type.getModelClass();
-			var array = db.getDescriptors(clazz)
-					.stream()
-					.map(d -> (RootDescriptor) d)
-					.map(refs::asRef)
-					.collect(JsonRpc.toArray());
-			return Responses.ok(array, req);
-		} catch (Exception e) {
-			return Responses.serverError(e, req);
-		}
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.getDescriptors(type.getModelClass());
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("get/descriptor")
 	public RpcResponse getDescriptor(RpcRequest req) {
-		var p = getModelOrError(req);
-		return p.second == null
-				? Responses.ok(Json.asRef(p.first), req)
-				: p.second;
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.getDescriptor(
+					type.getModelClass(), JsonRef.idOf(json));
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("insert/model")
 	public RpcResponse insert(RpcRequest req) {
-		return saveModel(req, UpdateMode.NEVER);
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.put(type.getModelClass(), json);
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("update/model")
 	public RpcResponse update(RpcRequest req) {
-		return saveModel(req, UpdateMode.ALWAYS);
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.put(type.getModelClass(), json);
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("delete/model")
 	public RpcResponse delete(RpcRequest req) {
-		try {
-			var p = getModelOrError(req);
-			if (p.second != null)
-				return p.second;
-			db.delete(p.first);
-			return Responses.ok(req);
-		} catch (Exception e) {
-			return Responses.serverError(e, req);
-		}
+		return withTypedParam(req, (json, type) -> {
+			var resp = jsonData.delete(type.getModelClass(), JsonRef.idOf(json));
+			return Responses.of(resp, req);
+		});
 	}
 
 	@Rpc("get/providers")
@@ -194,64 +160,8 @@ public class ModelHandler {
 		return Responses.ok(res, req);
 	}
 
-	private RpcResponse saveModel(RpcRequest req, UpdateMode mode) {
-		Descriptor d = descriptorOf(req);
-		if (d == null)
-			return Responses.invalidParams("params must be an object with"
-					+ " valid @id and @type", req);
-		JsonObject obj = req.params.getAsJsonObject();
-		try {
-			MemStore store = new MemStore();
-			store.put(d.type, obj);
-			JsonImport imp = new JsonImport(store, db);
-			imp.setUpdateMode(mode);
-			imp.run(d.type, d.refId);
-			return Responses.ok(req);
-		} catch (Exception e) {
-			return Responses.serverError(e, req);
-		}
-	}
 
-	private Pair<RootEntity, RpcResponse> getModelOrError(RpcRequest req) {
-		var d = descriptorOf(req);
-		if (d == null || d.type == null) {
-			var err = Responses.invalidParams(
-					"could not identify model from request parameters", req);
-			return Pair.of(null, err);
-		}
-		try {
-			var type = (Class<? extends RootEntity>) d.type.getModelClass();
 
-			// get by ID
-			if (Strings.notEmpty(d.refId)) {
-				var e = db.get(type, d.refId);
-				if (e == null) {
-					var err = Responses.error(404, "No " + type
-							+ " with id='" + d.refId + "' found", req);
-					return Pair.of(null, err);
-				}
-				return Pair.of(e, null);
-			}
-
-			// get by name
-			if (Strings.notEmpty(d.name)) {
-				var e = db.getForName(type, d.name);
-				if (e == null) {
-					var err = Responses.error(404, "No " + type
-							+ " with name='" + d.name + "' found", req);
-					return Pair.of(null, err);
-				}
-				return Pair.of(e, null);
-			}
-
-			var err = Responses.invalidParams(
-					"No valid ID or name given", req);
-			return Pair.of(null, err);
-		} catch (Exception e) {
-			var err = Responses.serverError(e, req);
-			return Pair.of(null, err);
-		}
-	}
 
 	private Descriptor descriptorOf(RpcRequest req) {
 		if (req.params == null || !req.params.isJsonObject())
@@ -267,33 +177,16 @@ public class ModelHandler {
 		return d;
 	}
 
-	private ModelType getType(JsonObject obj) {
-		if (obj == null)
-			return null;
-		var s = Json.getString(obj, "@type");
-		if (s == null)
-			return null;
-		return switch (s) {
-			case "Project" -> ModelType.PROJECT;
-			case "ImpactMethod" -> ModelType.IMPACT_METHOD;
-			case "ImpactCategory" -> ModelType.IMPACT_CATEGORY;
-			case "ProductSystem" -> ModelType.PRODUCT_SYSTEM;
-			case "Process" -> ModelType.PROCESS;
-			case "Flow" -> ModelType.FLOW;
-			case "FlowProperty" -> ModelType.FLOW_PROPERTY;
-			case "UnitGroup" -> ModelType.UNIT_GROUP;
-			case "Actor" -> ModelType.ACTOR;
-			case "Source" -> ModelType.SOURCE;
-			case "Category" -> ModelType.CATEGORY;
-			case "Location" -> ModelType.LOCATION;
-			case "SocialIndicator" -> ModelType.SOCIAL_INDICATOR;
-			case "Currency" -> ModelType.CURRENCY;
-			case "Parameter" -> ModelType.PARAMETER;
-			case "DQSystem" -> ModelType.DQ_SYSTEM;
-			case "Result" -> ModelType.RESULT;
-			case "Epd" -> ModelType.EPD;
-			default -> null;
-		};
-
+	private RpcResponse withTypedParam(
+			RpcRequest req, BiFunction<JsonObject, ModelType, RpcResponse> fn) {
+		var r = req.requireJsonObject();
+		if (r.isError())
+			return Responses.badRequest(r.error(), req);
+		var type = JsonRef.typeOf(r.value());
+		if (type == null)
+			return Responses.invalidParams(
+					"no valid @type attribute present in request", req);
+		return fn.apply(r.value(), type);
 	}
+
 }

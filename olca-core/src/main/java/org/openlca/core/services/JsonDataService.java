@@ -47,6 +47,7 @@ import org.openlca.jsonld.input.SourceReader;
 import org.openlca.jsonld.input.UnitGroupReader;
 import org.openlca.jsonld.output.DbRefs;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.jsonld.output.JsonWriter;
 import org.openlca.util.Strings;
 
 public record JsonDataService(IDatabase db) {
@@ -67,6 +68,32 @@ public record JsonDataService(IDatabase db) {
 					.getWriter(entity)
 					.write(entity);
 			return Response.of(json);
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	/**
+	 * Get all data sets of the given type from the database. Note that this
+	 * function can produce a huge amount of data depending on the requested
+	 * type and database. So it needs to be carefully checked before exposing
+	 * this function to a service.
+	 */
+	public <T extends RootEntity> Response<JsonArray> getAll(Class<T> type) {
+		if (type == null)
+			return Response.error("type is missing");
+		try {
+			var export = new JsonExport(db, new MemStore())
+					.withReferences(false);
+			JsonWriter<T> writer = null;
+			var array = new JsonArray();
+			for (var entity : db.getAll(type)) {
+				if (writer == null) {
+					writer = export.getWriter(entity);
+				}
+				array.add(writer.write(entity));
+			}
+			return Response.of(array);
 		} catch (Exception e) {
 			return Response.error(e);
 		}
