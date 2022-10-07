@@ -25,14 +25,16 @@ import fi.iki.elonen.NanoHTTPD;
 
 public class Server extends NanoHTTPD {
 
+	private final ServerConfig config;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<String, Handler> handlers = new HashMap<>();
 
-	public Server(int port) {
-		super(port);
+	public Server(ServerConfig config) {
+		super(config.port());
+		this.config = config;
 	}
 
-	public Server withDefaultHandlers(ServerConfig config) {
+	public Server withDefaultHandlers() {
 		log.info("Register default handlers");
 		var cache = new Cache();
 		var context = new HandlerContext(this, config, cache);
@@ -167,8 +169,7 @@ public class Server extends NanoHTTPD {
 		try {
 			log.info("parse server configuration");
 			var config = ServerConfig.parse(args);
-			var server = new Server(config.port())
-					.withDefaultHandlers(config);
+			var server = new Server(config).withDefaultHandlers();
 
 			// register a shutdown hook
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {

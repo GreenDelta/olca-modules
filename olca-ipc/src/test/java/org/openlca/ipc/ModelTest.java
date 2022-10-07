@@ -1,14 +1,16 @@
 package org.openlca.ipc;
 
+import static org.junit.Assert.*;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.openlca.jsonld.Json;
 
 public class ModelTest {
 
@@ -18,48 +20,38 @@ public class ModelTest {
 	@Ignore
 	public void testCRUD() {
 
-		Gson gson = new Gson();
-
 		// insert a model
-		RpcRequest req = prepareRequest();
+		var req = prepareRequest();
 		req.method = "insert/model";
-		req.params.getAsJsonObject().addProperty("name", "a flow");
-		String json = Tests.post(gson.toJson(req));
-		RpcResponse resp = gson.fromJson(json, RpcResponse.class);
-		Assert.assertEquals("ok", resp.result.getAsString());
+		Json.put(req.params.getAsJsonObject(), "name", "a flow");
+		var result = Tests.post(req).result.getAsJsonObject();
+		assertEquals("a flow", Json.getString(result, "name"));
 
 		// get the model
 		req.method = "get/model";
-		json = Tests.post(gson.toJson(req));
-		resp = gson.fromJson(json, RpcResponse.class);
-		JsonObject flow = resp.result.getAsJsonObject();
-		Assert.assertEquals("a flow", flow.get("name").getAsString());
+		result = Tests.post(req).result.getAsJsonObject();
+		assertEquals("a flow", Json.getString(result, "name"));
 
 		// update the model
 		req.method = "update/model";
-		req.params.getAsJsonObject().addProperty("name", "a better flow");
-		json = Tests.post(gson.toJson(req));
-		resp = gson.fromJson(json, RpcResponse.class);
-		Assert.assertEquals("ok", resp.result.getAsString());
+		Json.put(req.params.getAsJsonObject(), "name", "a better flow");
+		result = Tests.post(req).result.getAsJsonObject();
+		assertEquals("a better flow", Json.getString(result, "name"));
 
 		// get the updated model
 		req.method = "get/model";
-		json = Tests.post(gson.toJson(req));
-		resp = gson.fromJson(json, RpcResponse.class);
-		flow = resp.result.getAsJsonObject();
-		Assert.assertEquals("a better flow", flow.get("name").getAsString());
+		result = Tests.post(req).result.getAsJsonObject();
+		assertEquals("a better flow", Json.getString(result, "name"));
 
 		// delete the model
 		req.method = "delete/model";
-		json = Tests.post(gson.toJson(req));
-		resp = gson.fromJson(json, RpcResponse.class);
-		Assert.assertEquals("ok", resp.result.getAsString());
+		result = Tests.post(req).result.getAsJsonObject();
+		assertEquals("a better flow", Json.getString(result, "name"));
 
 		// assert that the model does not exist
 		req.method = "get/model";
-		json = Tests.post(gson.toJson(req));
-		resp = gson.fromJson(json, RpcResponse.class);
-		Assert.assertEquals(404, resp.error.code); // = not found
+		var err = Tests.post(req);
+		Assert.assertEquals(404, err.error.code); // = not found
 	}
 
 	private RpcRequest prepareRequest() {
