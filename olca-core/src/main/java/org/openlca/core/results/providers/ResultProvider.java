@@ -86,8 +86,8 @@ public interface ResultProvider {
 	default double scalingFactorOf(int techFlow) {
 		var s = scalingVector();
 		return isEmpty(s)
-			? 0
-			: s[techFlow];
+				? 0
+				: s[techFlow];
 	}
 
 	/**
@@ -96,7 +96,7 @@ public interface ResultProvider {
 	 * (means rows and columns refer to the same technosphere flows) our product
 	 * amounts are on the diagonal of the `A` and the total requirements can be
 	 * calculated by the following equation where `s` is the scaling vector
-	 *  (`.*` denotes element-wise multiplication): `t = diag(A) .* s`
+	 * (`.*` denotes element-wise multiplication): `t = diag(A) .* s`
 	 */
 	default double[] totalRequirements() {
 		var index = techIndex();
@@ -115,8 +115,8 @@ public interface ResultProvider {
 	default double totalRequirementsOf(int techFlow) {
 		var t = totalRequirements();
 		return isEmpty(t)
-			? 0
-			: t[techFlow];
+				? 0
+				: t[techFlow];
 	}
 
 	/**
@@ -157,16 +157,77 @@ public interface ResultProvider {
 	double[] solutionOfOne(int techFlow);
 
 	/**
-	 * Get the loop factor for the given technosphere flow. The loop factor `lf`
+	 * Get the loop factor for the given technosphere flow. The loop factor `lf[j]`
 	 * describes the faction of the total requirements of a technosphere flow `j`
 	 * that is not related to loops. It is calculated in the following way:
-	 * `lf = 1 / (A[j,j] * INV[j,j]). A loop factor of 1 means that `j` is not
+	 * `lf[j] = 1 / (A[j,j] * INV[j,j]). A loop factor of 1 means that `j` is not
 	 * in a loop; otherwise a small loop factor `0 < lf < 1` means a high
 	 * contribution of loops. Loop factors are used to avoid double counting of
 	 * loops in some result views.
+	 * 
+	 * @see #totalFactorOf(int) 
 	 */
 	double loopFactorOf(int techFlow);
 
+	/**
+	 * The total factor `tf[j]` of a technosphere flow `j` are the total
+	 * requirements `t[j]` of `j` multiplied by the loop factor `lf[j]`:
+	 * `tf[j] = t[j] * lf[j]`. These are then the total requirements without the
+	 * fraction related to loops. This can be then used to calculate total
+	 * results related to any flow `j` in the supply chain.
+	 * <p>
+	 * For example, `M` is the intensity matrix calculated by `M = B * INV`. It
+	 * contains in the column `j` the total inventory result related to 1 unit of
+	 * the technosphere flow `j`. Now we want to scale it to the total
+	 * requirements of `j` that is used in the product system. Multiplying the
+	 * total requirements with `M[:,j]` would double count the loop contributions
+	 * because they are already contained in `M`.
+	 *
+	 * <pre>
+	 *   {@code
+	 * # example can be executed in Julia
+	 * using LinearAlgebra
+	 *
+	 * # the technology matrix
+	 * A = [ 0.9 -0.1 ;
+	 *      -0.6  0.8 ]
+	 *
+	 * # the intervention matrix
+	 * B = [ 0.0  3.0 ]
+	 *
+	 * # the final demand vector
+	 * f = [ 1.0 ; 0.0 ]
+	 *
+	 * # calculate the inverse and the scaling vector
+	 * INV = A^-1
+	 * s = INV[:,1]
+	 *
+	 * # the total inventory result
+	 * g = B * s  # 2.72727
+	 *
+	 * # the intensity matrix
+	 * M = B * INV  # [ 2.72727  4.09091]
+	 *
+	 * # total requirements
+	 * t = diag(A) .* s
+	 *
+	 * # results with double counting the loop
+	 * g1 = M[:,1] .* t[1]  # 2.9752
+	 * g2 = M[:,2] .* t[2]  # 2.9752
+	 *
+	 * # loop factor correction
+	 * lf = [1/(A[1,1]*INV[1,1]) ; 1/(A[2,2]*INV[2,2])]
+	 * g1 = M[:,1] .* t[1] .* lf[1]  # 2.72727
+	 * g2 = M[:,2] .* t[2] .* lf[2]  # 2.72727
+	 * }
+	 * </pre>
+	 *
+	 * @see #totalRequirementsOf(int)
+	 * @see #loopFactorOf(int)
+	 * @see #totalFlowOf(int, int)
+	 * @see #totalImpactOf(int, int)
+	 * @see #totalCostsOf(int)
+	 */
 	default double totalFactorOf(int techFlow) {
 		var t = totalRequirementsOf(techFlow);
 		var loop = loopFactorOf(techFlow);
@@ -192,7 +253,7 @@ public interface ResultProvider {
 	 * calculated via {@code s[j] * B[:, j]}.
 	 *
 	 * @param techFlow the product index {@code j >= 0} for which the direct flow
-	 *                results should be returned.
+	 *                 results should be returned.
 	 */
 	default double[] directFlowsOf(int techFlow) {
 		var flows = unscaledFlowsOf(techFlow);
@@ -229,8 +290,8 @@ public interface ResultProvider {
 	default double totalFlowOfOne(int flow, int techFlow) {
 		var totals = totalFlowsOfOne(techFlow);
 		return isEmpty(totals)
-			? 0
-			: totals[flow];
+				? 0
+				: totals[flow];
 	}
 
 	default double[] totalFlowsOf(int techFlow) {
@@ -279,8 +340,8 @@ public interface ResultProvider {
 	default double impactFactorOf(int indicator, int flow) {
 		var factors = impactFactorsOf(flow);
 		return isEmpty(factors)
-			? 0
-			: factors[indicator];
+				? 0
+				: factors[indicator];
 	}
 
 	/**
@@ -303,8 +364,8 @@ public interface ResultProvider {
 		var totals = totalFlows();
 		var factor = impactFactorOf(indicator, flow);
 		return isEmpty(totals)
-			? 0
-			: factor * totals[flow];
+				? 0
+				: factor * totals[flow];
 	}
 
 	/**
@@ -320,8 +381,8 @@ public interface ResultProvider {
 	default double directImpactOf(int indicator, int techFlow) {
 		var impacts = directImpactsOf(techFlow);
 		return isEmpty(impacts)
-			? 0
-			: impacts[indicator];
+				? 0
+				: impacts[indicator];
 	}
 
 	double[] totalImpactsOfOne(int techFlow);
@@ -329,8 +390,8 @@ public interface ResultProvider {
 	default double totalImpactOfOne(int indicator, int techFlow) {
 		var impacts = totalImpactsOfOne(techFlow);
 		return isEmpty(impacts)
-			? 0
-			: impacts[indicator];
+				? 0
+				: impacts[indicator];
 	}
 
 	default double[] totalImpactsOf(int techFlow) {
