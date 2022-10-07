@@ -162,8 +162,8 @@ public class LazyLibrarySolver implements ResultProvider {
 	}
 
 	@Override
-	public double scalingFactorOf(int product) {
-		return scalingVector[product];
+	public double scalingFactorOf(int techFlow) {
+		return scalingVector[techFlow];
 	}
 
 	@Override

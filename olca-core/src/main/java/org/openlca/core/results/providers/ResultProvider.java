@@ -9,14 +9,15 @@ import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.index.TechIndex;
 
 /**
- * Defines the general interface of a `ResultProvider`. The documentation is
- * based on matrix algebra but this does not mean that an implementation has
- * to be based on matrices. It just has to implement this protocol. A user of
- * a `ResultProvider` should treat the returned values as live views on the
- * data of the result provider and thus should **never** modify these values.
- * Because of this, the default implementations in this interface often have
- * copy-behaviour and it is often more efficient to overwrite them in a
- * specific implementation.
+ * The general interface of a result provider. The documentation is based on
+ * matrix algebra but this does not mean that an implementation has to be based
+ * on matrices; it just has to implement this protocol. The returned values of
+ * the methods should be treated as live views on the underlying data and thus,
+ * should be **never** modified. The default implementations often have
+ * copy-behaviour, and it is often much more efficient to overwrite them in a
+ * specific implementation. All returned results are given in the reference
+ * units of the respective result elements (e.g. for flows; for costs it is the
+ * reference currency).
  */
 public interface ResultProvider {
 
@@ -28,89 +29,74 @@ public interface ResultProvider {
 	Demand demand();
 
 	/**
-	 * The index $\mathit{Idx}_A$ of the technology matrix $\mathbf{A}$. It maps the
-	 * process-product pairs (or process-waste pairs) $\mathit{P}$ of the product
-	 * system to the respective $n$ rows and columns of $\mathbf{A}$. If the product
-	 * system contains other product systems as sub-systems, these systems are
-	 * handled like processes and are also mapped as pair with their quantitative
-	 * reference flow to that index:
-	 * <p>
-	 * $$
-	 * \mathit{Idx}_A: \mathit{P} \mapsto [0 \dots n-1]
-	 * $$
+	 * The index of the technology matrix `A`. It maps the technosphere flows
+	 * symmetrically to the rows and columns of the `A` matrix. A technosphere
+	 * flow is a pair of a provider and a flow, where the provider can be a
+	 * process, product system, or result.
 	 */
 	TechIndex techIndex();
 
 	/**
-	 * The row index $\mathit{Idx}_B$ of the intervention matrix $\mathbf{B}$. It
-	 * maps the (elementary) flows $\mathit{F}$ of the processes in the product
-	 * system to the $m$ rows of $\mathbf{B}$.
-	 * <p>
-	 * $$
-	 * \mathit{Idx}_B: \mathit{F} \mapsto [0 \dots m-1]
-	 * $$
+	 * The index of the rows of the intervention matrix `B` and the columns of the
+	 * characterization matrix `C`. It contains the flows that cross the boundary
+	 * of the system with the environment in the respective matrix order.
 	 */
 	EnviIndex enviIndex();
 
 	/**
-	 * The row index $\mathit{Idx}_C$ of the matrix with the characterization
-	 * factors $\mathbf{C}$ (the impact matrix). It maps the impact categories
-	 * $\mathit{C}$ to the $k$ rows of $\mathbf{C}$.
-	 * <p>
-	 * $$
-	 * \mathit{Idx}_C: \mathit{C} \mapsto [0 \dots k-1]
-	 * $$
+	 * The row index of the matrix with the characterization factors `C` (the
+	 * impact matrix). It contains the impact categories in the respective matrix
+	 * order.
 	 */
 	ImpactIndex impactIndex();
 
+	/**
+	 * Returns {@code true} when the result contains results for flows (has an
+	 * inventory result).
+	 */
 	default boolean hasFlows() {
 		return MatrixIndex.isPresent(enviIndex());
 	}
 
+	/**
+	 * Returns {@code true} when the result contains results for impact categories
+	 * (has an impact assessment result).
+	 */
 	default boolean hasImpacts() {
 		return MatrixIndex.isPresent(impactIndex());
 	}
 
+	/**
+	 * Returns {@code true} when the result contains results for costs.
+	 */
 	boolean hasCosts();
 
 	/**
-	 * The scaling vector $\mathbf{s}$ which is calculated by solving the
-	 * equation
-	 * <p>
-	 * $$\mathbf{A} \ \mathbf{s} = \mathbf{f}$$
-	 * <p>
-	 * where $\mathbf{A}$ is the technology matrix and $\mathbf{f}$ the final
+	 * The scaling vector `s` which is calculated by solving the equation
+	 * `A * s = f`, where `A` is the technology matrix and `f` the final
 	 * demand vector of the product system.
 	 */
 	double[] scalingVector();
 
 	/**
-	 * Returns the scaling factor $s_j$ for product $j$ from the scaling vector
-	 * $\mathbf{s}$:
-	 * <p>
-	 * $$
-	 * s_j = \mathbf{s}[j]
-	 * $$
+	 * Returns the scaling factor `s[j]` of the technosphere flow `j`.
+	 *
+	 * @see #scalingVector()
 	 */
-	default double scalingFactorOf(int product) {
+	default double scalingFactorOf(int techFlow) {
 		var s = scalingVector();
 		return isEmpty(s)
 			? 0
-			: s[product];
+			: s[techFlow];
 	}
 
 	/**
-	 * The total requirements of the products to fulfill the demand of the
-	 * product system. As our technology matrix $\mathbf{A}$ is indexed
-	 * symmetrically (means rows and columns refer to the same process-product
-	 * pair) our product amounts are on the diagonal of the technology matrix
-	 * $\mathbf{A}$ and the total requirements can be calculated by the
-	 * following equation where $\mathbf{s}$ is the scaling vector ($\odot$
-	 * denotes element-wise multiplication):
-	 * <p>
-	 * $$
-	 * \mathbf{t} = \text{diag}(\mathbf{A}) \odot \mathbf{s}
-	 * $$
+	 * The total requirements of the technosphere flow to fulfill the demand of
+	 * the product system. As our technology matrix `A` is indexed symmetrically
+	 * (means rows and columns refer to the same technosphere flows) our product
+	 * amounts are on the diagonal of the `A` and the total requirements can be
+	 * calculated by the following equation where `s` is the scaling vector
+	 *  (`.*` denotes element-wise multiplication): `t = diag(A) .* s`
 	 */
 	default double[] totalRequirements() {
 		var index = techIndex();
@@ -121,6 +107,11 @@ public interface ResultProvider {
 		return t;
 	}
 
+	/**
+	 * Returns the total requirements `t[j]` of the technosphere flow `j`.
+	 *
+	 * @see #totalRequirements()
+	 */
 	default double totalRequirementsOf(int techFlow) {
 		var t = totalRequirements();
 		return isEmpty(t)
@@ -129,42 +120,50 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * Get the unscaled column $j$ from the technology matrix $A$.
+	 * Get the unscaled column `A[:,j]` of the technosphere flow `j` from the
+	 * technology matrix `A`.
+	 *
+	 * @see #techValueOf(int, int)
 	 */
 	double[] techColumnOf(int techFlow);
 
 	/**
-	 * Get the unscaled value $a_{ij}$ from the technology matrix $A$.
+	 * Get the unscaled value `A[i,j]` from the technology matrix `A` for the
+	 * technosphere flows `i` and `j`. For non-zero values, `j` is a process
+	 * which is linked to the provider `i` by the amount `A[i,j]`.
 	 */
-	default double techValueOf(int row, int col) {
-		double[] column = techColumnOf(col);
-		return column[row];
+	default double techValueOf(int i, int j) {
+		double[] column = techColumnOf(j);
+		return column[i];
 	}
 
 	/**
-	 * Get the scaled value $s_j * a_{ij}$ of the technology matrix $A$. On
-	 * the diagonal of $A$ these are the total requirements of the system.
+	 * Get the scaled value `s[j] * A[i,j]` of the technology matrix `A`. On
+	 * the diagonal of `A`, these are the total requirements of the system,
+	 * otherwise a non-zero value is the scaled direct requirement of the provided
+	 * flow `i` in the process `j` (summing up all the scaled and negated direct
+	 * requirements and possible demand values of `i` gives the total requirements
+	 * of `i`).
 	 */
-	default double scaledTechValueOf(int row, int col) {
-		return scalingFactorOf(col) * techValueOf(row, col);
+	default double scaledTechValueOf(int i, int j) {
+		return scalingFactorOf(j) * techValueOf(i, j);
 	}
 
 	/**
-	 * Get the scaling vector of the product system for one unit of output (input)
-	 * of product (waste flow) j. This is equivalent with the jth column of the
-	 * inverse technology matrix $A^{-1}[:,j]$ in case of full in-memory matrices.
+	 * Get the scaling vector related to the demand of 1 unit of the given
+	 * technosphere flow `j`. This is equivalent to the column `j` of the
+	 * inverse technology matrix `INV[j]`.
 	 */
 	double[] solutionOfOne(int techFlow);
 
 	/**
-	 * The loop factor $loop_j$ of a product $i$ is calculated via:
-	 * <p>
-	 * $$
-	 * loop_j = \frac{1}{\mathbf{A}_{jj} \ \mathbf{A}^{-1}_{jj}}
-	 * $$
-	 * <p>
-	 * It is $1.0$ if the process of the product is not in a loop. Otherwise
-	 * it describes ...
+	 * Get the loop factor for the given technosphere flow. The loop factor `lf`
+	 * describes the faction of the total requirements of a technosphere flow `j`
+	 * that is not related to loops. It is calculated in the following way:
+	 * `lf = 1 / (A[j,j] * INV[j,j]). A loop factor of 1 means that `j` is not
+	 * in a loop; otherwise a small loop factor `0 < lf < 1` means a high
+	 * contribution of loops. Loop factors are used to avoid double counting of
+	 * loops in some result views.
 	 */
 	double loopFactorOf(int techFlow);
 
