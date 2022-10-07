@@ -150,7 +150,7 @@ public class SimpleResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] impactFactorsOf(int flow) {
+	public double[] impactFactorsOf(int enviFlow) {
 		return EMPTY_VECTOR;
 	}
 

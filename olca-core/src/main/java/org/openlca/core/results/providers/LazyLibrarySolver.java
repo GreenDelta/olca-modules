@@ -423,11 +423,11 @@ public class LazyLibrarySolver implements ResultProvider {
 	}
 
 	@Override
-	public double directFlowOf(int flow, int techFlow) {
+	public double directFlowOf(int enviFlow, int techFlow) {
 		var flows = directFlowsOf(techFlow);
 		return isEmpty(flows)
 				? 0
-				: flows[flow];
+				: flows[enviFlow];
 	}
 
 	@Override
@@ -582,19 +582,19 @@ public class LazyLibrarySolver implements ResultProvider {
 	}
 
 	@Override
-	public double[] impactFactorsOf(int flow) {
+	public double[] impactFactorsOf(int enviFlow) {
 		var matrix = impactFactors();
 		return matrix == null
 				? EMPTY_VECTOR
-				: matrix.getColumn(flow);
+				: matrix.getColumn(enviFlow);
 	}
 
 	@Override
-	public double impactFactorOf(int indicator, int flow) {
+	public double impactFactorOf(int indicator, int enviFlow) {
 		var matrix = impactFactors();
 		return matrix == null
 				? 0
-				: matrix.get(indicator, flow);
+				: matrix.get(indicator, enviFlow);
 	}
 
 	private MatrixReader flowImpacts() {
@@ -611,19 +611,19 @@ public class LazyLibrarySolver implements ResultProvider {
 	}
 
 	@Override
-	public double[] flowImpactsOf(int flow) {
+	public double[] flowImpactsOf(int enviFlow) {
 		var impacts = flowImpacts();
 		return impacts == null
 				? EMPTY_VECTOR
-				: impacts.getColumn(flow);
+				: impacts.getColumn(enviFlow);
 	}
 
 	@Override
-	public double flowImpactOf(int indicator, int flow) {
+	public double flowImpactOf(int indicator, int enviFlow) {
 		var impacts = flowImpacts();
 		return impacts == null
 				? 0
-				: impacts.get(indicator, flow);
+				: impacts.get(indicator, enviFlow);
 	}
 
 	@Override

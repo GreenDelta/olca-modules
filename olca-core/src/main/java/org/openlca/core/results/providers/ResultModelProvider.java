@@ -152,7 +152,7 @@ public class ResultModelProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] impactFactorsOf(int flow) {
+	public double[] impactFactorsOf(int enviFlow) {
 		// TODO: not yet implemented
 		return new double[impactIndex.size()];
 	}

@@ -17,7 +17,9 @@ import org.openlca.core.matrix.index.TechIndex;
  * copy-behaviour, and it is often much more efficient to overwrite them in a
  * specific implementation. All returned results are given in the reference
  * units of the respective result elements (e.g. for flows; for costs it is the
- * reference currency).
+ * reference currency). For flow results, input amounts have a negative sign.
+ * Also, characterization factors of impact categories where the impact
+ * direction is `input` have a negative sign.
  */
 public interface ResultProvider {
 
@@ -164,8 +166,8 @@ public interface ResultProvider {
 	 * in a loop; otherwise a small loop factor `0 < lf < 1` means a high
 	 * contribution of loops. Loop factors are used to avoid double counting of
 	 * loops in some result views.
-	 * 
-	 * @see #totalFactorOf(int) 
+	 *
+	 * @see #totalFactorOf(int)
 	 */
 	double loopFactorOf(int techFlow);
 
@@ -235,12 +237,14 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * Get the unscaled column $j$ from the intervention matrix $B$.
+	 * Get the unscaled column `B[:,j]` for the technosphere flow `j` from the
+	 * intervention matrix `B`.
 	 */
 	double[] unscaledFlowsOf(int techFlow);
 
 	/**
-	 * Get the unscaled value $b_{ij}$ from the intervention matrix $B$.
+	 * Get the unscaled value `B[i,j]` of the environmental flow `i` for the
+	 * technosphere flow `j` from the intervention matrix `B`.
 	 */
 	default double unscaledFlowOf(int flow, int product) {
 		double[] column = unscaledFlowsOf(product);
@@ -248,12 +252,10 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * Returns the direct flow results for the given product {@code j}. This is
-	 * the scaled column {@code j} from the intervention matrix {@code B}
-	 * calculated via {@code s[j] * B[:, j]}.
-	 *
-	 * @param techFlow the product index {@code j >= 0} for which the direct flow
-	 *                 results should be returned.
+	 * Returns the direct flow results for the given technosphere flow `j`. This
+	 * is the scaled column `j` of the intervention matrix `B`: `s[j] * B[:,j]`.
+	 * The sum of all direct flow results is the total inventory result of the
+	 * system.
 	 */
 	default double[] directFlowsOf(int techFlow) {
 		var flows = unscaledFlowsOf(techFlow);
@@ -264,36 +266,44 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * Get the direct result of the given flow and product related to the
-	 * final demand of the system. This is basically the element $g_{ij}$
-	 * of the column-wise scaled intervention matrix $B$:
-	 * <p>
-	 * $$ G = B \text{diag}(s) $$
+	 * Get the direct result of the environmental flow `i` related to the total
+	 * requirements of the technosphere flow `j` in the system: `s[j] * B[i,j]`.
+	 *
+	 * @see #directFlowsOf(int)
 	 */
-	default double directFlowOf(int flow, int techFlow) {
-		return scalingFactorOf(techFlow) * unscaledFlowOf(flow, techFlow);
+	default double directFlowOf(int enviFlow, int techFlow) {
+		return scalingFactorOf(techFlow) * unscaledFlowOf(enviFlow, techFlow);
 	}
 
 	/**
-	 * Returns the total flow results (direct + upstream) related to one unit of
-	 * the given product $j$ in the system. This is the respective column $j$
-	 * of the intensity matrix $M$:
-	 * <p>
-	 * $$M = B * A^{-1}$$
+	 * Returns the total flow results (direct + upstream) related to 1 unit of
+	 * the technosphere flow `j` in the system. This is the respective
+	 * column `M[:,j]` of the intensity matrix `M`, where `M = B * A^-1`.
 	 */
 	double[] totalFlowsOfOne(int techFlow);
 
 	/**
-	 * Returns the total result (direct + upstream) of the given flow related
-	 * to one unit of the given product in the system.
+	 * Returns the total result (direct + upstream) of the given environmental
+	 * flow `i` related to 1 unit of the technosphere flow `j` in the system. It
+	 * is the entry `M[i,j]` of the intensity matrix `M`.
+	 *
+	 * @see #totalFlowsOfOne(int)
 	 */
-	default double totalFlowOfOne(int flow, int techFlow) {
+	default double totalFlowOfOne(int enviFlow, int techFlow) {
 		var totals = totalFlowsOfOne(techFlow);
 		return isEmpty(totals)
 				? 0
-				: totals[flow];
+				: totals[enviFlow];
 	}
 
+	/**
+	 * Returns the total flow results (direct + upstream) related to the total
+	 * requirements of the technosphere flow `j` in the system. This is the
+	 * respective column `M[:,j]` of the intensity matrix `M` scaled by the
+	 * total factor `tf`: `M[:,j] * tf[j]`.
+	 *
+	 * @see #totalFactorOf(int)
+	 */
 	default double[] totalFlowsOf(int techFlow) {
 		var factor = totalFactorOf(techFlow);
 		var totals = totalFlowsOfOne(techFlow);
@@ -301,71 +311,67 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * Returns the total flow result (direct + upstream) of the given flow
-	 * and product related to the final demand of the system.
+	 * Returns the total result (direct + upstream) of the given environmental
+	 * flow `i` related to the total requirements of the technosphere flow `j`
+	 * in the system. This is the entry `M[i,j]` of the intensity matrix `M`
+	 * scaled by the total factor `tf`: `M[i,j] * tf[j]`.
+	 *
+	 * @see #totalFlowsOf(int)
 	 */
-	default double totalFlowOf(int flow, int techFlow) {
-		return totalFactorOf(techFlow) * totalFlowOfOne(flow, techFlow);
+	default double totalFlowOf(int enviFlow, int techFlow) {
+		return totalFactorOf(techFlow) * totalFlowOfOne(enviFlow, techFlow);
 	}
 
 	/**
-	 * The inventory result $\mathbf{g}$ of the product system:
-	 * <p>
-	 * $$\mathbf{g} = \mathbf{B} \ \mathbf{s}$$
-	 * <p>
-	 * Where $\mathbf{B}$ is the intervention matrix and $\mathbf{s}$ the
-	 * scaling vector. Note that inputs have negative values in this vector.
+	 * Returns the total environmental flow result `g` (inventory result, LCI
+	 * result) of the product system: `g = B * s`, where `B` is the intervention
+	 * matrix and `s` the scaling vector.
 	 */
 	double[] totalFlows();
 
 	/**
-	 * Get the impact factors $c_m$ for the given flow $m$ which is the $m$th
-	 * column of the impact matrix $C \in \mathbb{R}^{k \times m}$:
-	 * <p>
-	 * $$
-	 * c_m = C[:, m]
-	 * $$
+	 * Returns the impact factors (characterisation factors) for the environmental
+	 * flow `i`. This is the column `C[:,i]` of the impact matrix `C`.
 	 */
-	double[] impactFactorsOf(int flow);
+	double[] impactFactorsOf(int enviFlow);
 
 	/**
-	 * Get the impact factor $c_{km}$ for the given indicator $m$ and flow $m$
-	 * which is the respective entry in the impact matrix
-	 * $C \in \mathbb{R}^{k \times m}$:
-	 * <p>
-	 * $$
-	 * c_{km} = C[k, m]
-	 * $$
+	 * Returns the impact factor (characterisation factor) for the impact category
+	 * `k` and environmental  flow `i`. This is the entry `C[k,i] of the impact
+	 * matrix `C`.
 	 */
-	default double impactFactorOf(int indicator, int flow) {
-		var factors = impactFactorsOf(flow);
+	default double impactFactorOf(int indicator, int enviFlow) {
+		var factors = impactFactorsOf(enviFlow);
 		return isEmpty(factors)
 				? 0
 				: factors[indicator];
 	}
 
 	/**
-	 * A LCIA category * flow matrix that contains the direct contributions of the
-	 * elementary flows to the LCIA result. This matrix can be calculated by
-	 * column-wise scaling of the matrix with the characterization factors
-	 * $\mathbf{C}$ with the inventory result $\mathbf{g}$:
-	 * <p>
-	 * $$\mathbf{H} = \mathbf{C} \ \text{diag}(\mathbf{g})$$
+	 * Returns the impact results related to the total flow result of the
+	 * environmental flow `i`. This is the characterisation factors `C[:,i]`
+	 * multiplied with the total inventory result `g[i]`: `C[:,i] * g[i]`.
 	 */
-	default double[] flowImpactsOf(int flow) {
+	default double[] flowImpactsOf(int enviFlow) {
 		var totals = totalFlows();
-		var impacts = impactFactorsOf(flow);
-		if (isEmpty(totals) || isEmpty(impacts))
+		var factors = impactFactorsOf(enviFlow);
+		if (isEmpty(totals) || isEmpty(factors))
 			return EMPTY_VECTOR;
-		return scale(impacts, totals[flow]);
+		return scale(factors, totals[enviFlow]);
 	}
 
-	default double flowImpactOf(int indicator, int flow) {
+	/**
+	 * Returns the impact result of impact category `k` related to the total
+	 * flow result of the environmental flow `i`. This is the characterisation
+	 * factor `C[k:,i]` multiplied with the total inventory result `g[i]`:
+	 * `C[k,i] * g[i]`.
+	 */
+	default double flowImpactOf(int indicator, int enviFlow) {
 		var totals = totalFlows();
-		var factor = impactFactorOf(indicator, flow);
+		var factor = impactFactorOf(indicator, enviFlow);
 		return isEmpty(totals)
 				? 0
-				: factor * totals[flow];
+				: factor * totals[enviFlow];
 	}
 
 	/**

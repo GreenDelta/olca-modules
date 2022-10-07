@@ -196,10 +196,10 @@ public class FactorizationSolver implements ResultProvider {
 	}
 
 	@Override
-	public double directFlowOf(int flow, int techFlow) {
+	public double directFlowOf(int enviFlow, int techFlow) {
 		var m = directFlows();
 		return m != null
-			? m.get(flow, techFlow)
+			? m.get(enviFlow, techFlow)
 			: 0;
 	}
 
@@ -224,32 +224,32 @@ public class FactorizationSolver implements ResultProvider {
 	}
 
 	@Override
-	public double[] impactFactorsOf(int flow) {
+	public double[] impactFactorsOf(int enviFlow) {
 		return data.impactMatrix != null
-			? data.impactMatrix.getColumn(flow)
+			? data.impactMatrix.getColumn(enviFlow)
 			: new double[impactIndex().size()];
 	}
 
 	@Override
-	public double impactFactorOf(int indicator, int flow) {
+	public double impactFactorOf(int indicator, int enviFlow) {
 		return data.impactMatrix == null
 			? 0
-			: data.impactMatrix.get(indicator, flow);
+			: data.impactMatrix.get(indicator, enviFlow);
 	}
 
 	@Override
-	public double[] flowImpactsOf(int flow) {
+	public double[] flowImpactsOf(int enviFlow) {
 		if (totalFlows == null)
 			return EMPTY_VECTOR;
-		var impacts = impactFactorsOf(flow);
-		scaleInPlace(impacts, totalFlows[flow]);
+		var impacts = impactFactorsOf(enviFlow);
+		scaleInPlace(impacts, totalFlows[enviFlow]);
 		return impacts;
 	}
 
 	@Override
-	public double flowImpactOf(int indicator, int flow) {
+	public double flowImpactOf(int indicator, int enviFlow) {
 		return totalFlows != null
-			? totalFlows[flow] * impactFactorOf(indicator, flow)
+			? totalFlows[enviFlow] * impactFactorOf(indicator, enviFlow)
 			: 0;
 	}
 

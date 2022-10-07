@@ -108,9 +108,9 @@ public class InversionResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double directFlowOf(int flow, int techFlow) {
+	public double directFlowOf(int enviFlow, int techFlow) {
 		return r.directFlows() != null
-			? r.directFlows().get(flow, techFlow)
+			? r.directFlows().get(enviFlow, techFlow)
 			: 0;
 	}
 
@@ -122,9 +122,9 @@ public class InversionResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double totalFlowOfOne(int flow, int techFlow) {
+	public double totalFlowOfOne(int enviFlow, int techFlow) {
 		return r.flowIntensities() != null
-			? r.flowIntensities().get(flow, techFlow)
+			? r.flowIntensities().get(enviFlow, techFlow)
 			: 0;
 	}
 
@@ -137,9 +137,9 @@ public class InversionResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double totalFlowOf(int flow, int techFlow) {
+	public double totalFlowOf(int enviFlow, int techFlow) {
 		var factor = totalFactorOf(techFlow);
-		var intensity = totalFlowOfOne(flow, techFlow);
+		var intensity = totalFlowOfOne(enviFlow, techFlow);
 		return factor * intensity;
 	}
 
@@ -151,36 +151,36 @@ public class InversionResultProvider implements ResultProvider {
 	}
 
 	@Override
-	public double[] impactFactorsOf(int flow) {
+	public double[] impactFactorsOf(int enviFlow) {
 		return r.data().impactMatrix != null
-			? r.data().impactMatrix.getColumn(flow)
+			? r.data().impactMatrix.getColumn(enviFlow)
 			: EMPTY_VECTOR;
 	}
 
 	@Override
-	public double impactFactorOf(int indicator, int flow) {
+	public double impactFactorOf(int indicator, int enviFlow) {
 		return r.data().impactMatrix != null
-			? r.data().impactMatrix.get(indicator, flow)
+			? r.data().impactMatrix.get(indicator, enviFlow)
 			: 0;
 	}
 
 	@Override
-	public double[] flowImpactsOf(int flow) {
+	public double[] flowImpactsOf(int enviFlow) {
 		var totalInterventions = r.totalFlows();
 		if (totalInterventions == null)
 			return EMPTY_VECTOR;
-		var impacts = impactFactorsOf(flow);
-		scaleInPlace(impacts, totalInterventions[flow]);
+		var impacts = impactFactorsOf(enviFlow);
+		scaleInPlace(impacts, totalInterventions[enviFlow]);
 		return impacts;
 	}
 
 	@Override
-	public double flowImpactOf(int indicator, int flow) {
+	public double flowImpactOf(int indicator, int enviFlow) {
 		var totalInterventions = r.totalFlows();
 		if (totalInterventions == null)
 			return 0;
-		var factor = impactFactorOf(indicator, flow);
-		return factor * totalInterventions[flow];
+		var factor = impactFactorOf(indicator, enviFlow);
+		return factor * totalInterventions[enviFlow];
 	}
 
 	@Override
