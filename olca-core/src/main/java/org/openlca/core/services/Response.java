@@ -30,4 +30,8 @@ public record Response<T>(T value, String error) {
 		return error != null;
 	}
 
+	<Q> Response<Q> repack() {
+		return Response.error(error);
+	}
+
 }

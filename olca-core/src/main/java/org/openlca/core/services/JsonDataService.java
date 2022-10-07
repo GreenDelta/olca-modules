@@ -2,6 +2,7 @@ package org.openlca.core.services;
 
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -58,10 +59,21 @@ public record JsonDataService(IDatabase db) {
 	 * no such data set exists.
 	 */
 	public Response<JsonObject> get(Class<? extends RootEntity> type, String id) {
-		if (type == null || id == null)
-			return Response.error("type or ID missing");
+		return type == null || id == null
+				? Response.error("type or ID missing")
+				: fetchEntity(() -> db.get(type, id));
+	}
+
+	public Response<JsonObject> getForName(
+			Class<? extends RootEntity> type, String name) {
+		return type == null || name == null
+				? Response.error("type or name missing")
+				: fetchEntity(() -> db.getForName(type, name));
+	}
+
+	private Response<JsonObject> fetchEntity(Supplier<? extends RootEntity> fn) {
 		try {
-			var entity = db.get(type, id);
+			var entity = fn.get();
 			if (entity == null)
 				return Response.empty();
 			var json = new JsonExport(db, new MemStore())
@@ -229,7 +241,7 @@ public record JsonDataService(IDatabase db) {
 			var array = new JsonArray();
 			var refs = DbRefs.of(db);
 			for (var p : providers) {
-				array.add(JsonUtil.toJson(p, refs));
+				array.add(JsonUtil.encodeTechFlow(p, refs));
 			}
 			return Response.of(array);
 		} catch (Exception e) {
@@ -248,7 +260,7 @@ public record JsonDataService(IDatabase db) {
 			var array = new JsonArray();
 			var refs = DbRefs.of(db);
 			for (var p : providers) {
-				array.add(JsonUtil.toJson(p, refs));
+				array.add(JsonUtil.encodeTechFlow(p, refs));
 			}
 			return Response.of(array);
 		} catch (Exception e) {

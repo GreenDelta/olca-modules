@@ -18,6 +18,7 @@ import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
 import com.google.gson.JsonObject;
@@ -35,8 +36,13 @@ public class ModelHandler {
 	@Rpc("get/model")
 	public RpcResponse get(RpcRequest req) {
 		return withTypedParam(req, (json, type) -> {
-			var resp = service.get(type.getModelClass(), JsonRef.idOf(json));
-			return Responses.of(resp, req);
+			var id = JsonRef.idOf(json);
+			if (Strings.notEmpty(id))
+				return Responses.of(service.get(type.getModelClass(), id), req);
+			var name = Json.getString(json, "name");
+			if (Strings.notEmpty(name))
+				return Responses.of(service.getForName(type.getModelClass(), name), req);
+			return Responses.badRequest("no id or name provided", req);
 		});
 	}
 
