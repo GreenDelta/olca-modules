@@ -33,7 +33,7 @@ public class DBMatrixExample {
 				(end - start) / 1000.0);
 
 			System.out.println("done; flow count = " + r.enviIndex().size());
-			System.out.println(r.totalFlowResults()[0]);
+			System.out.println(r.totalFlows().get(0));
 
 		}
 

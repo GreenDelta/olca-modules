@@ -135,7 +135,7 @@ public class InventoryBuilder {
 			// add the LCI result
 			if (result.enviIndex() != null) {
 				result.enviIndex().each((i, f) -> {
-					double b = result.getTotalFlowResult(f);
+					double b = result.totalFlowOf(f);
 					if (f.isInput()) {
 						b = -b;
 					}

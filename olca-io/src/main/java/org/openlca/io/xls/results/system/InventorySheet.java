@@ -62,7 +62,7 @@ class InventorySheet {
 		int row = 3;
 		int startCol = ResultExport.FLOW_HEADER.length;
 		for (EnviFlow flow : flows) {
-			double value = result.getTotalFlowResult(flow);
+			double value = result.totalFlowOf(flow);
 			writer.flowRow(sheet, row, col, flow);
 			writer.cell(sheet, row, startCol + col, value);
 			if (!withDQ()) {

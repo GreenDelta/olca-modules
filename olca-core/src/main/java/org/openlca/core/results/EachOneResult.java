@@ -102,8 +102,8 @@ public class EachOneResult {
 			if (product.isWaste()) {
 				swapSign(result.provider().scalingVector());
 				swapSign(result.provider().totalRequirements());
-				swapSign(result.totalFlowResults());
-				swapSign(result.totalImpactResults());
+				swapSign(result.provider().totalFlows());
+				swapSign(result.provider().totalImpacts());
 			}
 
 			next++;

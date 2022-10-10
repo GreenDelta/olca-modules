@@ -52,7 +52,7 @@ public class LocationResult {
 			EnviFlow iFlow = flowIndex.at(idx);
 			if (iFlow == null)
 				return Collections.emptyList();
-			total = result.getTotalFlowResult(iFlow);
+			total = result.totalFlowOf(iFlow);
 			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
 				double v = result.getDirectFlowResult(product, iFlow);
@@ -71,7 +71,7 @@ public class LocationResult {
 				Location loc = iFlow.location() == null
 						? null
 						: getLocation(iFlow.location().id);
-				double v = result.getTotalFlowResult(iFlow);
+				double v = result.totalFlowOf(iFlow);
 				t.addAndGet(v);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);

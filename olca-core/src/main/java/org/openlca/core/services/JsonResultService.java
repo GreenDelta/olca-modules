@@ -111,7 +111,7 @@ public class JsonResultService {
 				return Response.of(new JsonArray());
 			var refs = DbRefs.of(db);
 			var array = JsonUtil.encodeArray(
-					result.getTotalFlowResults(),
+					result.totalFlows(),
 					value -> JsonUtil.encodeEnviFlowValue(value, refs));
 			return Response.of(array);
 		});

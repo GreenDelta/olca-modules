@@ -27,7 +27,7 @@ public class GroupingContribution {
 			EnviFlow flow) {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
-		double total = result.getTotalFlowResult(flow);
+		double total = result.totalFlowOf(flow);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
 			for (RootDescriptor p : grouping.processes) {

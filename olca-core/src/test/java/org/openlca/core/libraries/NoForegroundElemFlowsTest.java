@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.io.index.IxContext;
-import org.openlca.core.matrix.io.index.IxEnviIndex;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -18,6 +15,9 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.io.index.IxContext;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;
@@ -107,7 +107,7 @@ public class NoForegroundElemFlowsTest {
 
 		// check the result
 		var expected = matrixM.getColumn(1);
-		var totals = result.totalFlowResults();
+		var totals = result.provider().totalFlows();
 		for (int i = 0; i < expected.length; i++) {
 			Assert.assertEquals(expected[i], totals[i], 1e-16);
 		}

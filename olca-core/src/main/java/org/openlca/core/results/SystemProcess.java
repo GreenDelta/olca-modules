@@ -66,7 +66,7 @@ public class SystemProcess {
 
 	private void addElemFlows(Process p) {
 		result.enviIndex().each((i, f) -> {
-			double amount = result.getTotalFlowResult(f);
+			double amount = result.totalFlowOf(f);
 			if (amount == 0)
 				return;
 			Flow flow = flowDao.getForId(f.flow().id);

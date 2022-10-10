@@ -83,7 +83,7 @@ public class SolverTest {
 
 		var result = LcaResult.of(Tests.getDb(), data);
 		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
-				result.totalFlowResults(), 1e-14);
+				result.provider().totalFlows(), 1e-14);
 	}
 
 	@Theory

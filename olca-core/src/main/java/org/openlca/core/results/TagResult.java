@@ -25,7 +25,7 @@ public class TagResult {
 		this.tag = tag;
 		this.result = result;
 		inventory = result.hasEnviFlows()
-				? new double[result.totalFlowResults().length]
+				? new double[result.provider().totalFlows().length]
 				: null;
 		impacts = result.hasImpacts()
 				? new double[result.totalImpactResults().length]

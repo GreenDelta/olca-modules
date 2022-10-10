@@ -1,6 +1,5 @@
 package org.openlca.ipc.handlers;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -10,9 +9,10 @@ import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
-import org.openlca.jsonld.Json;
+import com.google.gson.JsonObject;
 
 public class InventoryHandler {
 
@@ -38,7 +38,7 @@ public class InventoryHandler {
 		var result = rr.result();
 		if (!result.hasEnviFlows())
 			return new JsonArray();
-		return result.getTotalFlowResults()
+		return result.totalFlows()
 				.stream()
 				.filter(r -> r.isInput() == input && r.value() != 0)
 				.map(v -> JsonRpc.encodeFlowValue(v, rr.refs()))
@@ -138,7 +138,7 @@ public class InventoryHandler {
 			for (var enviFlow : result.enviIndex()) {
 				if (enviFlow.isInput() != input)
 					continue;
-				double total = result.getTotalFlowResult(enviFlow);
+				double total = result.totalFlowOf(enviFlow);
 				var c = new Contribution<EnviFlow>();
 				c.item = enviFlow;
 				c.amount = result.getDirectFlowResult(techFlow, enviFlow);

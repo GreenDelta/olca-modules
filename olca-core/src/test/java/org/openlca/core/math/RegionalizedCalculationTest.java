@@ -344,7 +344,7 @@ public class RegionalizedCalculationTest {
 			Flow flow = (Flow) row[0];
 			int flowIdx = r.enviIndex().of(flow.id);
 			EnviFlow iFlow = r.enviIndex().at(flowIdx);
-			double v = r.getTotalFlowResult(iFlow);
+			double v = r.totalFlowOf(iFlow);
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}
@@ -359,7 +359,7 @@ public class RegionalizedCalculationTest {
 			int flowIdx = r.enviIndex().of(flow.id, loc != null ? loc.id : 0L);
 			double value = flowIdx < 0
 				? 0.0
-				: r.getTotalFlowResult(r.enviIndex().at(flowIdx));
+				: r.totalFlowOf(r.enviIndex().at(flowIdx));
 			Assert.assertEquals((Double) row[2], value, 1e-10);
 		}
 	}

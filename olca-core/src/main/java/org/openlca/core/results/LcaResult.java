@@ -106,23 +106,55 @@ public class LcaResult implements IResult {
 		var t = provider.totalRequirements();
 		for (int i = 0; i < index.size(); i++) {
 			var techFlow = index.at(i);
-			double value = techFlow.isWaste()
-					? -t[i]
-					: t[i];
+			var ti = t[i];
+			double value = techFlow.isWaste() && ti != 0
+					? -ti
+					: ti;
 			list.add(TechFlowValue.of(techFlow, value));
 		}
 		return list;
 	}
 
 	/**
-	 * Returns the total flow / inventory result of a product system.
-	 * <p>
-	 * The total inventory result {@code g} can be calculated via {@code g = B *
-	 * s} where {@code B} is the intervention matrix and {@code s} the scaling
-	 * vector. Note that inputs have negative values in this vector.
+	 * Returns the total requirements value for the given technosphere flow.
 	 */
-	public double[] totalFlowResults() {
-		return provider.totalFlows();
+	public double totalRequirementsOf(TechFlow techFlow) {
+		int idx = provider.indexOf(techFlow);
+		if (idx < 0)
+			return 0;
+		double value = provider.totalRequirementsOf(idx);
+		return techFlow.isWaste() && value != 0
+				? -value
+				: value;
+	}
+
+	/**
+	 * Returns the total flow / inventory result of a product system.
+	 */
+	public List<EnviFlowValue> totalFlows() {
+		var idx = enviIndex();
+		if (idx == null)
+			return Collections.emptyList();
+		var list = new ArrayList<EnviFlowValue>(idx.size());
+		var values = provider.totalFlows();
+		for (int i = 0; i < idx.size(); i++) {
+			var enviFlow = idx.at(i);
+			var value = ResultProvider.flowValueView(enviFlow, values[i]);
+			list.add(EnviFlowValue.of(enviFlow, value));
+		}
+		return list;
+	}
+
+	/**
+	 * Get the total inventory result of the given flow.
+	 */
+	public double totalFlowOf(EnviFlow flow) {
+		var idx = provider.indexOf(flow);
+		if (idx < 0)
+			return 0;
+		var values = provider.totalFlows();
+		var value = values[idx];
+		return ResultProvider.flowValueView(flow, value);
 	}
 
 	/**
@@ -158,33 +190,6 @@ public class LcaResult implements IResult {
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];
-	}
-
-	/**
-	 * Get the total inventory result $\mathbf{g}_i$ of the given flow $i$.
-	 */
-	public double getTotalFlowResult(EnviFlow flow) {
-		var flowIndex = enviIndex();
-		if (flowIndex == null)
-			return 0;
-		int idx = flowIndex.of(flow);
-		var totalFlows = totalFlowResults();
-		if (idx < 0 || idx >= totalFlows.length)
-			return 0;
-		return ResultProvider.flowValueView(flow, totalFlows[idx]);
-	}
-
-	/**
-	 * Returns the flow results of the inventory result $\mathbf{g}$.
-	 */
-	public List<EnviFlowValue> getTotalFlowResults() {
-		var flowIndex = enviIndex();
-		if (flowIndex == null)
-			return Collections.emptyList();
-		List<EnviFlowValue> results = new ArrayList<>(flowIndex.size());
-		flowIndex.each((i, f) -> results.add(
-				new EnviFlowValue(f, getTotalFlowResult(f))));
-		return results;
 	}
 
 	/**
@@ -298,7 +303,7 @@ public class LcaResult implements IResult {
 	public List<Contribution<TechFlow>> getProcessContributions(EnviFlow flow) {
 		return Contributions.calculate(
 				techIndex(),
-				getTotalFlowResult(flow),
+				totalFlowOf(flow),
 				d -> getDirectFlowResult(d, flow));
 	}
 
@@ -583,7 +588,7 @@ public class LcaResult implements IResult {
 	 */
 	public UpstreamTree getTree(EnviFlow flow) {
 		int i = enviIndex().of(flow);
-		double total = getTotalFlowResult(flow);
+		double total = totalFlowOf(flow);
 		return new UpstreamTree(flow, provider, total,
 				product -> provider.totalFlowOfOne(i, product));
 	}

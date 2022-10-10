@@ -12,8 +12,8 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.EnviFlowValue;
-import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ImpactValue;
+import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.DbRefs;
 
@@ -52,7 +52,7 @@ class JsonRpc {
 					r.enviIndex(),
 					enviFlow -> encodeEnviFlow(enviFlow, refs)));
 			obj.add("flowResults",
-					arrayOf(r.getTotalFlowResults(), v -> encodeFlowValue(v, refs)));
+					arrayOf(r.totalFlows(), v -> encodeFlowValue(v, refs)));
 		}
 
 		// impact categories and results

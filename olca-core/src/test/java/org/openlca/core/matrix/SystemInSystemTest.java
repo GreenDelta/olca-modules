@@ -50,7 +50,7 @@ public class SystemInSystemTest {
 		var setup = CalculationSetup.of(sysQ);
 		var result = new SystemCalculator(db).calculate(setup);
 		var ee = EnviFlow.outputOf(e);
-		assertEquals(42, result.getTotalFlowResult(ee), 1e-16);
+		assertEquals(42, result.totalFlowOf(ee), 1e-16);
 
 		db.delete(sysQ, sysP, procP, procQ, p, q, e, mass, units);
 

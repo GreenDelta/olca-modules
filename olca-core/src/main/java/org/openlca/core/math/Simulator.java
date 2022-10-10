@@ -212,7 +212,7 @@ public class Simulator {
 				if (col < 0)
 					continue;
 				sub.lastResult.enviIndex().each((i, f) -> {
-					double val = sub.lastResult.totalFlowResults()[i];
+					double val = sub.lastResult.provider().totalFlows()[i];
 					int row = node.data.enviIndex.of(f);
 					if (row >= 0) {
 						var fm = node.data.enviMatrix.asMutable();

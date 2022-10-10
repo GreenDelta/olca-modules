@@ -134,7 +134,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
 		var refData = Refs.dataOf(db);
 		for (var flow : flows) {
-			var value = result.getTotalFlowResult(flow);
+			var value = result.totalFlowOf(flow);
 			if (value == 0)
 				continue;
 			resp.onNext(Results.toProtoResult(flow, refData, value));

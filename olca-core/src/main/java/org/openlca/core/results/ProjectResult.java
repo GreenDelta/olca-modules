@@ -57,14 +57,14 @@ public class ProjectResult {
 		LcaResult r = results.get(variant);
 		if (r == null)
 			return 0;
-		return r.getTotalFlowResult(flow);
+		return r.totalFlowOf(flow);
 	}
 
 	public List<EnviFlowValue> getTotalFlowResults(ProjectVariant variant) {
-		LcaResult result = results.get(variant);
-		if (result == null)
-			return Collections.emptyList();
-		return result.getTotalFlowResults();
+		var result = results.get(variant);
+		return result != null
+				? result.totalFlows()
+				: Collections.emptyList();
 	}
 
 	public List<Contribution<ProjectVariant>> getContributions(EnviFlow flow) {

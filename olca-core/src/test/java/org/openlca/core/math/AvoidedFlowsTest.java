@@ -53,7 +53,7 @@ public class AvoidedFlowsTest {
 		LcaResult r = TestSystem.calculate(system);
 		assertEquals(1, r.enviIndex().size());
 		EnviFlow co2 = r.enviIndex().at(0);
-		assertEquals(1.0, r.getTotalFlowResult(co2), 1e-16);
+		assertEquals(1.0, r.totalFlowOf(co2), 1e-16);
 	}
 
 }
