@@ -581,7 +581,8 @@ public interface ResultProvider {
 	static double flowValueView(EnviFlow flow, double value) {
 		if (flow == null || !flow.isInput())
 			return value;
-		// avoid -0 in the results
+		// avoid -0 in the results; note that abs(value) is not correct because the
+		// original value could be negative ~> -(-(-v))
 		return value == 0 ? 0 : -value;
 	}
 }
