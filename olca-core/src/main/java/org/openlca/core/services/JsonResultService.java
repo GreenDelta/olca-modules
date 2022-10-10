@@ -50,6 +50,49 @@ public class JsonResultService {
 		}
 	}
 
+	public Response<JsonArray> getTechFlows(String resultId) {
+		return withResult(resultId, result -> {
+			var refs = DbRefs.of(db);
+			var array = JsonUtil.encodeArray(
+					result.techIndex(),
+					techFlow -> JsonUtil.encodeTechFlow(techFlow, refs));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getEnviFlows(String resultId) {
+		return withResult(resultId, result -> {
+			var index = result.enviIndex();
+			if (index == null)
+				return Response.of(new JsonArray());
+			var refs = DbRefs.of(db);
+			var array = JsonUtil.encodeArray(index,
+					enviFlow -> JsonUtil.encodeEnviFlow(enviFlow, refs));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getImpactCategories(String resultId) {
+		return withResult(resultId, result -> {
+			var index = result.impactIndex();
+			if (index == null)
+				return Response.of(new JsonArray());
+			var refs = DbRefs.of(db);
+			var array = JsonUtil.encodeArray(index, refs::asRef);
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getTotalRequirements(String resultId) {
+		return withResult(resultId, result -> {
+			var tr = result.totalRequirements();
+			var refs = DbRefs.of(db);
+			var array = JsonUtil.encodeArray(tr,
+					techValue -> JsonUtil.encodeTechFlowValue(techValue, refs));
+			return Response.of(array);
+		});
+	}
+
 	public Response<JsonArray> getTotalImpacts(String resultId) {
 		return withResult(resultId, result -> {
 			if (!result.hasImpacts())
@@ -69,7 +112,7 @@ public class JsonResultService {
 			var refs = DbRefs.of(db);
 			var array = JsonUtil.encodeArray(
 					result.getTotalFlowResults(),
-					value -> JsonUtil.encodeFlowValue(value, refs));
+					value -> JsonUtil.encodeEnviFlowValue(value, refs));
 			return Response.of(array);
 		});
 	}

@@ -97,18 +97,21 @@ public class LcaResult implements IResult {
 	}
 
 	/**
-	 * Returns the total requirements vector.
-	 * <p>
-	 * The total requirements are the respective product amounts fulfill the
-	 * demand of the product system. As our technology matrix {@code A} is indexed
-	 * symmetrically (means rows and columns refer to the same process-product
-	 * pair) our product amounts are on the diagonal of the technology matrix
-	 * {@code A} and the total requirements can be calculated by the following
-	 * equation where {@code s} is the scaling vector ({@code °} denotes
-	 * element-wise multiplication): {@code t = diag(A) ° s}
+	 * Returns the total requirements of the respective technosphere flows that
+	 * are required to fulfill the demand of the system.
 	 */
-	public double[] totalRequirements() {
-		return provider.totalRequirements();
+	public List<TechFlowValue> totalRequirements() {
+		var index = techIndex();
+		var list = new ArrayList<TechFlowValue>(index.size());
+		var t = provider.totalRequirements();
+		for (int i = 0; i < index.size(); i++) {
+			var techFlow = index.at(i);
+			double value = techFlow.isWaste()
+					? -t[i]
+					: t[i];
+			list.add(TechFlowValue.of(techFlow, value));
+		}
+		return list;
 	}
 
 	/**
@@ -239,8 +242,8 @@ public class LcaResult implements IResult {
 	public double getTotalRequirementsOf(TechFlow techFlow) {
 		int idx = techIndex().of(techFlow);
 		return idx >= 0
-			? provider.totalRequirementsOf(idx)
-			: 0;
+				? provider.totalRequirementsOf(idx)
+				: 0;
 	}
 
 	/**
@@ -264,7 +267,7 @@ public class LcaResult implements IResult {
 	 * of the contributions of all of these process-product pairs.
 	 */
 	public double getDirectFlowResult(
-		RootDescriptor process, EnviFlow flow) {
+			RootDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectFlowResult(p, flow);
@@ -277,7 +280,7 @@ public class LcaResult implements IResult {
 	 * of all elementary flows in the product system.
 	 */
 	public List<EnviFlowValue> getFlowContributions(
-		RootDescriptor process) {
+			RootDescriptor process) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
 		var results = new ArrayList<EnviFlowValue>();
@@ -294,9 +297,9 @@ public class LcaResult implements IResult {
 	 */
 	public List<Contribution<TechFlow>> getProcessContributions(EnviFlow flow) {
 		return Contributions.calculate(
-			techIndex(),
-			getTotalFlowResult(flow),
-			d -> getDirectFlowResult(d, flow));
+				techIndex(),
+				getTotalFlowResult(flow),
+				d -> getDirectFlowResult(d, flow));
 	}
 
 	/**
@@ -304,14 +307,14 @@ public class LcaResult implements IResult {
 	 * category result $j$: $\mathbf{D}[i,j]$.
 	 */
 	public double getDirectImpactResult(
-		TechFlow product, ImpactDescriptor impact) {
+			TechFlow product, ImpactDescriptor impact) {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
 		int productIdx = techIndex().of(product);
 		return impactIdx < 0 || productIdx < 0
-			? 0
-			: provider.directImpactOf(impactIdx, productIdx);
+				? 0
+				: provider.directImpactOf(impactIdx, productIdx);
 	}
 
 	/**
@@ -320,7 +323,7 @@ public class LcaResult implements IResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getDirectImpactResult(
-		RootDescriptor process, ImpactDescriptor impact) {
+			RootDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getDirectImpactResult(p, impact);
@@ -349,11 +352,11 @@ public class LcaResult implements IResult {
 	 * result of the given LCIA category.
 	 */
 	public List<Contribution<TechFlow>> getProcessContributions(
-		ImpactDescriptor impact) {
+			ImpactDescriptor impact) {
 		return Contributions.calculate(
-			techIndex(),
-			getTotalImpactResult(impact),
-			d -> getDirectImpactResult(d, impact));
+				techIndex(),
+				getTotalImpactResult(impact),
+				d -> getDirectImpactResult(d, impact));
 	}
 
 	/**
@@ -363,8 +366,8 @@ public class LcaResult implements IResult {
 	public double getDirectCostResult(TechFlow product) {
 		int col = techIndex().of(product);
 		return col < 0
-			? 0
-			: provider.directCostsOf(col);
+				? 0
+				: provider.directCostsOf(col);
 	}
 
 	/**
@@ -385,9 +388,9 @@ public class LcaResult implements IResult {
 	 */
 	public List<Contribution<TechFlow>> getProcessCostContributions() {
 		return Contributions.calculate(
-			techIndex(),
-			totalCosts(),
-			this::getDirectCostResult);
+				techIndex(),
+				totalCosts(),
+				this::getDirectCostResult);
 	}
 
 	/**
@@ -400,15 +403,15 @@ public class LcaResult implements IResult {
 		int impactIdx = impactIndex().of(impact);
 		int flowIdx = enviIndex().of(flow);
 		return impactIdx < 0 || flowIdx < 0
-			? 0
-			: provider.flowImpactOf(impactIdx, flowIdx);
+				? 0
+				: provider.flowImpactOf(impactIdx, flowIdx);
 	}
 
 	/**
 	 * Get the contributions of all elementary flows to the given LCA category.
 	 */
 	public List<EnviFlowValue> getFlowContributions(
-		ImpactDescriptor impact) {
+			ImpactDescriptor impact) {
 		var results = new ArrayList<EnviFlowValue>();
 		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
@@ -422,7 +425,7 @@ public class LcaResult implements IResult {
 	 * regionalized result).
 	 */
 	public double getImpactFactor(
-		ImpactDescriptor impact, EnviFlow flow) {
+			ImpactDescriptor impact, EnviFlow flow) {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
@@ -452,7 +455,7 @@ public class LcaResult implements IResult {
 	 * the sum of the contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamFlowResult(
-		RootDescriptor process, EnviFlow flow) {
+			RootDescriptor process, EnviFlow flow) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamFlowResult(p, flow);
@@ -465,7 +468,7 @@ public class LcaResult implements IResult {
 	 * result of all elementary flows in the product system.
 	 */
 	public List<EnviFlowValue> getUpstreamFlowResults(
-		RootDescriptor process) {
+			RootDescriptor process) {
 		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
@@ -482,14 +485,14 @@ public class LcaResult implements IResult {
 	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
 	 */
 	public double getUpstreamImpactResult(
-		TechFlow product, ImpactDescriptor impact) {
+			TechFlow product, ImpactDescriptor impact) {
 		if (!hasImpacts())
 			return 0;
 		int impactIdx = impactIndex().of(impact);
 		int productIdx = techIndex().of(product);
 		return impactIdx < 0 || productIdx < 0
-			? 0
-			: provider.totalImpactOf(impactIdx, productIdx);
+				? 0
+				: provider.totalImpactOf(impactIdx, productIdx);
 	}
 
 	/**
@@ -498,7 +501,7 @@ public class LcaResult implements IResult {
 	 * contributions of all of these process-product pairs.
 	 */
 	public double getUpstreamImpactResult(
-		RootDescriptor process, ImpactDescriptor impact) {
+			RootDescriptor process, ImpactDescriptor impact) {
 		double total = 0;
 		for (var p : techIndex().getProviders(process)) {
 			total += getUpstreamImpactResult(p, impact);
@@ -511,7 +514,7 @@ public class LcaResult implements IResult {
 	 * results.
 	 */
 	public List<ImpactValue> getUpstreamImpactResults(
-		RootDescriptor process) {
+			RootDescriptor process) {
 		var results = new ArrayList<ImpactValue>();
 		if (!hasImpacts())
 			return results;
@@ -531,8 +534,8 @@ public class LcaResult implements IResult {
 			return 0;
 		int productIdx = techIndex().of(product);
 		return productIdx < 0
-			? 0
-			: provider.totalCostsOf(productIdx);
+				? 0
+				: provider.totalCostsOf(productIdx);
 	}
 
 	/**
@@ -571,8 +574,8 @@ public class LcaResult implements IResult {
 
 		double total = this.provider.scaledTechValueOf(providerIdx, providerIdx);
 		return total == 0
-			? 0
-			: -amount / total;
+				? 0
+				: -amount / total;
 	}
 
 	/**
@@ -582,7 +585,7 @@ public class LcaResult implements IResult {
 		int i = enviIndex().of(flow);
 		double total = getTotalFlowResult(flow);
 		return new UpstreamTree(flow, provider, total,
-			product -> provider.totalFlowOfOne(i, product));
+				product -> provider.totalFlowOfOne(i, product));
 	}
 
 	/**
@@ -592,7 +595,7 @@ public class LcaResult implements IResult {
 		int i = impactIndex().of(impact.id);
 		double total = getTotalImpactResult(impact);
 		return new UpstreamTree(impact, provider, total,
-			product -> provider.totalImpactOfOne(i, product));
+				product -> provider.totalImpactOfOne(i, product));
 	}
 
 	/**
@@ -600,7 +603,7 @@ public class LcaResult implements IResult {
 	 */
 	public UpstreamTree getCostTree() {
 		return new UpstreamTree(provider, totalCosts(),
-			provider::totalCostsOfOne);
+				provider::totalCostsOfOne);
 	}
 
 	/**
@@ -608,6 +611,6 @@ public class LcaResult implements IResult {
 	 */
 	public UpstreamTree getAddedValueTree() {
 		return new UpstreamTree(provider, -totalCosts(),
-			product -> -provider.totalCostsOfOne(product));
+				product -> -provider.totalCostsOfOne(product));
 	}
 }

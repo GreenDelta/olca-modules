@@ -8,6 +8,10 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 
 public record TechFlowValue(TechFlow techFlow, double value) {
 
+	public static TechFlowValue of(TechFlow techFlow, double value) {
+		return new TechFlowValue(techFlow, value);
+	}
+
 	public TechFlowValue(TechFlow techFlow, double value) {
 		this.techFlow = Objects.requireNonNull(techFlow);
 		this.value = value;

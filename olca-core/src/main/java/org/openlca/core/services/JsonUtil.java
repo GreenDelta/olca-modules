@@ -7,6 +7,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
+import org.openlca.core.results.TechFlowValue;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.DbRefs;
 
@@ -61,6 +62,24 @@ final class JsonUtil {
 		return obj;
 	}
 
+	static JsonObject encodeTechFlowValue(TechFlowValue v, DbRefs refs) {
+		if (v == null)
+			return null;
+		var obj = new JsonObject();
+		Json.put(obj, "techFlow", encodeTechFlow(v.techFlow(), refs));
+		Json.put(obj, "value", v.value());
+		return obj;
+	}
+
+	static JsonObject encodeEnviFlowValue(EnviFlowValue v, DbRefs refs) {
+		if (v == null)
+			return null;
+		var obj = new JsonObject();
+		Json.put(obj, "enviFlow", encodeEnviFlow(v.enviFlow(), refs));
+		Json.put(obj, "value", v.value());
+		return obj;
+	}
+
 	static JsonObject encodeImpactValue(ImpactValue v, DbRefs refs) {
 		if (v == null)
 			return null;
@@ -70,16 +89,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeFlowValue(EnviFlowValue v, DbRefs refs) {
-		if (v == null)
-			return null;
-		var obj = new JsonObject();
-		Json.put(obj, "enviFlow", encodeEnviFlow(v.enviFlow(), refs));
-		Json.put(obj, "value", v.value());
-		return obj;
-	}
-
-	static  <T> JsonArray encodeArray(
+	static <T> JsonArray encodeArray(
 			Iterable<T> items, Function<T, JsonObject> fn) {
 		var array = new JsonArray();
 		for (var next : items) {

@@ -101,7 +101,7 @@ public class EachOneResult {
 			var product = data.techIndex.at(next);
 			if (product.isWaste()) {
 				swapSign(result.provider().scalingVector());
-				swapSign(result.totalRequirements());
+				swapSign(result.provider().totalRequirements());
 				swapSign(result.totalFlowResults());
 				swapSign(result.totalImpactResults());
 			}
