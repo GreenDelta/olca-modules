@@ -19,13 +19,17 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SolverContext;
 
+/**
+ * An LcaResult wraps a result provider and provides more friendly methods for
+ * retrieving results from that provider. For getting more low-level results,
+ * the provider can also be directly accessed.
+ */
 public class LcaResult implements IResult {
 
 	private final ResultProvider provider;
@@ -43,11 +47,6 @@ public class LcaResult implements IResult {
 	public static LcaResult of(SolverContext context) {
 		var provider = ResultProviders.solve(context);
 		return new LcaResult(provider);
-	}
-
-	public static LcaResult of(IDatabase db, ProductSystem system) {
-		var setup = CalculationSetup.of(system);
-		return of(db, setup);
 	}
 
 	public static LcaResult of(IDatabase db, CalculationSetup setup) {

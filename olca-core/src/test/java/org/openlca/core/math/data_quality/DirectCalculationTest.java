@@ -4,9 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -38,7 +38,7 @@ public class DirectCalculationTest {
 		// calculation
 		var setup = CalculationSetup.of(process);
 		var calculator = new SystemCalculator(Tests.getDb());
-		var result = calculator.calculate(setup);
+		var result = calculator.calculate(setup).provider();
 		var dqSetup = DQCalculationSetup.of(setup);
 		var dqResult = DQResult.of(db, dqSetup, result);
 

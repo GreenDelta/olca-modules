@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -83,7 +84,8 @@ public class DQDataTest {
 		var product1 = TechFlow.of(process1);
 		var product2 = TechFlow.of(process2);
 
-		var result = LcaResult.of(db, productSystem);
+		var result = LcaResult.of(db, CalculationSetup.of(productSystem))
+				.provider();
 		var iFlow = result.enviIndex().at(0);
 
 		// test process data

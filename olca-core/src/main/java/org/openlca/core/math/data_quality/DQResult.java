@@ -9,9 +9,9 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.LcaResult;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * Contains the raw data quality data of a setup and result in an efficient
@@ -27,7 +27,7 @@ public class DQResult {
 	/**
 	 * The LCA result on which this data quality result is based.
 	 */
-	private final LcaResult result;
+	private final ResultProvider result;
 
 	/**
 	 * We store the process data in a k*n byte matrix where the k data quality
@@ -79,7 +79,7 @@ public class DQResult {
 	private DenseByteMatrix[] processImpactResult;
 
 	public static DQResult of(IDatabase db, DQCalculationSetup setup,
-			LcaResult result) {
+			ResultProvider result) {
 		var r = new DQResult(setup, result);
 		r.loadProcessData(db);
 		r.loadExchangeData(db);
@@ -88,7 +88,7 @@ public class DQResult {
 		return r;
 	}
 
-	private DQResult(DQCalculationSetup setup, LcaResult result) {
+	private DQResult(DQCalculationSetup setup, ResultProvider result) {
 		this.setup = setup;
 		this.result = result;
 	}
@@ -339,8 +339,7 @@ public class DQResult {
 			for (int flow = 0; flow < m; flow++) {
 				byte[] dqs = b.getRow(flow);
 				for (int product = 0; product < n; product++) {
-					flowContributions[product] = result.provider()
-							.directFlowOf(flow, product);
+					flowContributions[product] = result.directFlowOf(flow, product);
 				}
 				flowResult.set(indicator, flow, acc.get(dqs, flowContributions));
 			}
@@ -356,7 +355,6 @@ public class DQResult {
 			return;
 
 		// initialize the results
-		var provider = result.provider();
 		var system = setup.exchangeSystem;
 		int k = system.indicators.size();
 		int m = result.enviIndex().size();
@@ -394,11 +392,11 @@ public class DQResult {
 
 					// get DQ data and calculate weights
 					byte[] dqs = b.getRow(flow);
-					double factor = provider.impactFactorOf(impact, flow);
+					double factor = result.impactFactorOf(impact, flow);
 
-					double[] weights = new double[provider.techIndex().size()];
+					double[] weights = new double[result.techIndex().size()];
 					for (int product = 0; product < weights.length; product++) {
-						weights[product] = factor * provider.directFlowOf(
+						weights[product] = factor * result.directFlowOf(
 								flow, product);
 					}
 
