@@ -11,7 +11,7 @@ import java.util.stream.Collector;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.Contribution;
-import org.openlca.core.results.FlowValue;
+import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.jsonld.Json;
@@ -80,12 +80,12 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encodeFlowValue(FlowValue r, DbRefs refs) {
+	static JsonObject encodeFlowValue(EnviFlowValue r, DbRefs refs) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
 		obj.addProperty("@type", "FlowResult");
-		obj.add("flow", encodeEnviFlow(r.indexFlow(), refs));
+		obj.add("flow", encodeEnviFlow(r.enviFlow(), refs));
 		obj.addProperty("value", r.value());
 		return obj;
 	}

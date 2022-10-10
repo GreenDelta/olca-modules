@@ -60,7 +60,7 @@ public class ProjectResult {
 		return r.getTotalFlowResult(flow);
 	}
 
-	public List<FlowValue> getTotalFlowResults(ProjectVariant variant) {
+	public List<EnviFlowValue> getTotalFlowResults(ProjectVariant variant) {
 		LcaResult result = results.get(variant);
 		if (result == null)
 			return Collections.emptyList();

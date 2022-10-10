@@ -97,17 +97,6 @@ public class LcaResult implements IResult {
 	}
 
 	/**
-	 * Returns the scaling vector of the result.
-	 * <p>
-	 * The scaling vector {@code s} is calculated by solving the equation {@code A
-	 * * s = f} where {@code A} is the technology matrix and {@code f} the final
-	 * demand vector of the product system.
-	 */
-	public double[] scalingVector() {
-		return provider().scalingVector();
-	}
-
-	/**
 	 * Returns the total requirements vector.
 	 * <p>
 	 * The total requirements are the respective product amounts fulfill the
@@ -162,23 +151,10 @@ public class LcaResult implements IResult {
 	 */
 	public double getScalingFactor(TechFlow product) {
 		int idx = techIndex().of(product);
-		var scalingVector = scalingVector();
+		var scalingVector = provider.scalingVector();
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];
-	}
-
-	/**
-	 * Get the scaling factor $\mathbf{s}_j$ of the given process $j$. When the
-	 * process has multiple products in the system it returns the sum of the
-	 * scaling factors of all of these process-product pairs.
-	 */
-	public double getScalingFactor(RootDescriptor process) {
-		double factor = 0;
-		for (TechFlow p : techIndex().getProviders(process)) {
-			factor += getScalingFactor(p);
-		}
-		return factor;
 	}
 
 	/**
@@ -198,13 +174,13 @@ public class LcaResult implements IResult {
 	/**
 	 * Returns the flow results of the inventory result $\mathbf{g}$.
 	 */
-	public List<FlowValue> getTotalFlowResults() {
+	public List<EnviFlowValue> getTotalFlowResults() {
 		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
-		List<FlowValue> results = new ArrayList<>(flowIndex.size());
+		List<EnviFlowValue> results = new ArrayList<>(flowIndex.size());
 		flowIndex.each((i, f) -> results.add(
-				new FlowValue(f, getTotalFlowResult(f))));
+				new EnviFlowValue(f, getTotalFlowResult(f))));
 		return results;
 	}
 
@@ -300,14 +276,14 @@ public class LcaResult implements IResult {
 	 * Get the direct contributions of the given process $j$ to the inventory result
 	 * of all elementary flows in the product system.
 	 */
-	public List<FlowValue> getFlowContributions(
+	public List<EnviFlowValue> getFlowContributions(
 		RootDescriptor process) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
-		var results = new ArrayList<FlowValue>();
+		var results = new ArrayList<EnviFlowValue>();
 		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowResult(process, flow);
-			results.add(new FlowValue(flow, value));
+			results.add(new EnviFlowValue(flow, value));
 		});
 		return results;
 	}
@@ -431,12 +407,12 @@ public class LcaResult implements IResult {
 	/**
 	 * Get the contributions of all elementary flows to the given LCA category.
 	 */
-	public List<FlowValue> getFlowContributions(
+	public List<EnviFlowValue> getFlowContributions(
 		ImpactDescriptor impact) {
-		var results = new ArrayList<FlowValue>();
+		var results = new ArrayList<EnviFlowValue>();
 		enviIndex().each((i, flow) -> {
 			double value = getDirectFlowImpact(flow, impact);
-			results.add(new FlowValue(flow, value));
+			results.add(new EnviFlowValue(flow, value));
 		});
 		return results;
 	}
@@ -488,15 +464,15 @@ public class LcaResult implements IResult {
 	 * Get the upstream contributions of the given process $j$ to the inventory
 	 * result of all elementary flows in the product system.
 	 */
-	public List<FlowValue> getUpstreamFlowResults(
+	public List<EnviFlowValue> getUpstreamFlowResults(
 		RootDescriptor process) {
 		var flowIndex = enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
-		var results = new ArrayList<FlowValue>();
+		var results = new ArrayList<EnviFlowValue>();
 		flowIndex.each((i, flow) -> {
 			double value = getUpstreamFlowResult(process, flow);
-			results.add(new FlowValue(flow, value));
+			results.add(new EnviFlowValue(flow, value));
 		});
 		return results;
 	}

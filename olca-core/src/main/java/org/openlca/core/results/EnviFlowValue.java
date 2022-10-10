@@ -6,30 +6,30 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 
-public record FlowValue(EnviFlow indexFlow, double value) {
+public record EnviFlowValue(EnviFlow enviFlow, double value) {
 
-	public FlowValue(EnviFlow indexFlow, double value) {
-		this.indexFlow = Objects.requireNonNull(indexFlow);
+	public EnviFlowValue(EnviFlow enviFlow, double value) {
+		this.enviFlow = Objects.requireNonNull(enviFlow);
 		this.value = value;
 	}
 
-	public static FlowValue of(EnviFlow indexFlow, double value) {
-		return new FlowValue(indexFlow, value);
+	public static EnviFlowValue of(EnviFlow indexFlow, double value) {
+		return new EnviFlowValue(indexFlow, value);
 	}
 
 	public boolean isInput() {
-		return indexFlow.isInput();
+		return enviFlow.isInput();
 	}
 
 	public FlowDescriptor flow() {
-		return indexFlow.flow();
+		return enviFlow.flow();
 	}
 
 	public LocationDescriptor location() {
-		return indexFlow.location();
+		return enviFlow.location();
 	}
 
 	public boolean hasLocation() {
-		return indexFlow.location() != null;
+		return enviFlow.location() != null;
 	}
 }

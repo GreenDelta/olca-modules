@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.results.FlowValue;
+import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.DbRefs;
@@ -70,11 +70,11 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeFlowValue(FlowValue v, DbRefs refs) {
+	static JsonObject encodeFlowValue(EnviFlowValue v, DbRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();
-		Json.put(obj, "enviFlow", encodeEnviFlow(v.indexFlow(), refs));
+		Json.put(obj, "enviFlow", encodeEnviFlow(v.enviFlow(), refs));
 		Json.put(obj, "value", v.value());
 		return obj;
 	}

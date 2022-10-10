@@ -9,6 +9,7 @@ import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.ImpactFactorRequest;
 import org.openlca.proto.grpc.ImpactFactorResponse;
@@ -274,7 +275,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 				var productIdx = result.techIndex().of(product);
 				var flowIdx = result.enviIndex().of(flow);
 				var value = result.provider().totalFlowOfOne(flowIdx, productIdx);
-				return result.adopt(flow, value);
+				return ResultProvider.flowValueView(flow, value);
 			})
 			.ifCosts((result, product) -> {
 				var productIdx = result.techIndex().of(product);

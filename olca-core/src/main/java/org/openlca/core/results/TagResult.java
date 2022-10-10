@@ -49,14 +49,14 @@ public class TagResult {
 		return hasCosts;
 	}
 
-	public FlowValue inventoryResultOf(EnviFlow flow) {
+	public EnviFlowValue inventoryResultOf(EnviFlow flow) {
 		if (!hasInventoryResults())
-			return new FlowValue(flow, 0);
+			return new EnviFlowValue(flow, 0);
 		var idx = result.enviIndex().of(flow);
 		double value = idx < 0
 				? 0
 				: ResultProvider.flowValueView(flow, inventory[idx]);
-		return new FlowValue(flow, value);
+		return new EnviFlowValue(flow, value);
 	}
 
 	public ImpactValue impactResultOf(ImpactDescriptor impact) {
