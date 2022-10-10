@@ -22,20 +22,20 @@ public class UpstreamTree {
 	public final Object ref;
 
 	private final IntToDoubleFunction intensity;
-	private final LcaResult r;
+	private final ResultProvider r;
 
-	public UpstreamTree(LcaResult r, double total, IntToDoubleFunction intensity) {
+	public UpstreamTree(ResultProvider r, double total, IntToDoubleFunction intensity) {
 		this(null, r, total, intensity);
 	}
 
 	public UpstreamTree(
-		Object ref, LcaResult r, double total, IntToDoubleFunction intensity) {
+		Object ref, ResultProvider r, double total, IntToDoubleFunction intensity) {
 		this.ref = ref;
 		this.r = r;
 		this.intensity = intensity;
 		root = UpstreamNode.rootOf( r.techIndex(), r.demand());
 		double demand = r.demand().value();
-		root.scaling = demand / r.provider().techValueOf(root.index, root.index);
+		root.scaling = demand / r.techValueOf(root.index, root.index);
 		setRequiredAmount(root, demand);
 		root.result = total;
 	}
@@ -47,7 +47,7 @@ public class UpstreamTree {
 		if (parent.scaling == 0)
 			return parent.childs;
 
-		var requirements = r.provider().techColumnOf(parent.index);
+		var requirements = r.techColumnOf(parent.index);
 		for (int i = 0; i < requirements.length; i++) {
 			if (i == parent.index)
 				continue;
@@ -55,7 +55,7 @@ public class UpstreamTree {
 			if (aij == 0)
 				continue;
 			aij *= parent.scaling;
-			double aii = r.provider().techValueOf(i, i);
+			double aii = r.techValueOf(i, i);
 			double scaling = -aij / aii;
 			double amount = aii * scaling;
 

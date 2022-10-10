@@ -453,17 +453,8 @@ public class LcaResult implements IResult {
 		int flowIdx = enviIndex().of(flow);
 		if (impactIdx < 0 || flowIdx < 0)
 			return 0;
-
 		double value = provider.impactFactorOf(impactIdx, flowIdx);
-		if (!flow.isInput())
-			return value;
-
-		// characterization factors for input flows are negative in the
-		// matrix. A simple abs() is not correct because the original
-		// characterization factor maybe was already negative (-(-(f))).
-		return value == 0
-			? 0 // avoid -0
-			: -value;
+		return ResultProvider.flowValueView(flow, value);
 	}
 
 	/**
@@ -614,7 +605,7 @@ public class LcaResult implements IResult {
 	public UpstreamTree getTree(EnviFlow flow) {
 		int i = enviIndex().of(flow);
 		double total = getTotalFlowResult(flow);
-		return new UpstreamTree(flow, this, total,
+		return new UpstreamTree(flow, provider, total,
 			product -> provider.totalFlowOfOne(i, product));
 	}
 
@@ -624,7 +615,7 @@ public class LcaResult implements IResult {
 	public UpstreamTree getTree(ImpactDescriptor impact) {
 		int i = impactIndex().of(impact.id);
 		double total = getTotalImpactResult(impact);
-		return new UpstreamTree(impact, this, total,
+		return new UpstreamTree(impact, provider, total,
 			product -> provider.totalImpactOfOne(i, product));
 	}
 
@@ -632,7 +623,7 @@ public class LcaResult implements IResult {
 	 * Calculate the upstream tree for the LCC result as costs.
 	 */
 	public UpstreamTree getCostTree() {
-		return new UpstreamTree(this, totalCosts(),
+		return new UpstreamTree(provider, totalCosts(),
 			provider::totalCostsOfOne);
 	}
 
@@ -640,7 +631,7 @@ public class LcaResult implements IResult {
 	 * Calculate the upstream tree for the LCC result as added value.
 	 */
 	public UpstreamTree getAddedValueTree() {
-		return new UpstreamTree(this, -totalCosts(),
+		return new UpstreamTree(provider, -totalCosts(),
 			product -> -provider.totalCostsOfOne(product));
 	}
 }
