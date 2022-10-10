@@ -54,11 +54,11 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 		// collect flows and IDs
 		var flows = new FlowDao(db).descriptorMap();
 		var directions = FlowTable.directionsOf(
-			db, flows.valueCollection());
+				db, flows.valueCollection());
 
 		// scan the factor table
 		var sql = "select f_impact_category, f_flow " +
-							"from tbl_impact_factors";
+				"from tbl_impact_factors";
 		NativeSql.on(db).query(sql, r -> {
 			var impact = r.getLong(1);
 			if (!impacts.contains(impact))
@@ -89,7 +89,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	 * that are used in the given impacts.
 	 */
 	public static EnviIndex createRegionalized(
-		IDatabase db, ImpactIndex impacts) {
+			IDatabase db, ImpactIndex impacts) {
 		var index = createRegionalized();
 		if (db == null || impacts == null)
 			return index;
@@ -97,12 +97,12 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 		// collect flows, locations and IDs
 		var flows = new FlowDao(db).descriptorMap();
 		var directions = FlowTable.directionsOf(
-			db, flows.valueCollection());
+				db, flows.valueCollection());
 		var locations = new LocationDao(db).descriptorMap();
 
 		// scan the factor table
 		var sql = "select f_impact_category, f_flow, f_location " +
-							"from tbl_impact_factors";
+				"from tbl_impact_factors";
 		NativeSql.on(db).query(sql, r -> {
 			var impact = r.getLong(1);
 			if (!impacts.contains(impact))
@@ -113,8 +113,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 				return true;
 			var locationID = r.getLong(3);
 			var location = locationID != 0
-				? locations.get(locationID)
-				: null;
+					? locations.get(locationID)
+					: null;
 			if (directions.get(flowID) < 0) {
 				index.add(EnviFlow.inputOf(flow, location));
 			} else {
@@ -151,9 +151,9 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 
 	@Override
 	public final int of(EnviFlow flow) {
-		if (flow == null)
-			return -1;
-		return of(flow.flow(), flow.location());
+		return flow != null
+				? of(flow.flow(), flow.location())
+				: -1;
 	}
 
 	public abstract int of(FlowDescriptor flow);
@@ -187,10 +187,10 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 	 * the locations into this method.
 	 */
 	public final int register(
-		TechFlow product,
-		CalcExchange e,
-		FlowTable flows,
-		TLongObjectHashMap<LocationDescriptor> locations) {
+			TechFlow product,
+			CalcExchange e,
+			FlowTable flows,
+			TLongObjectHashMap<LocationDescriptor> locations) {
 
 		int idx = of(e.flowId, e.locationId);
 		if (idx >= 0)
@@ -201,8 +201,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 
 		if (!isRegionalized()) {
 			return e.isInput
-				? add(EnviFlow.inputOf(flow))
-				: add(EnviFlow.outputOf(flow));
+					? add(EnviFlow.inputOf(flow))
+					: add(EnviFlow.outputOf(flow));
 		}
 
 		// Take the location from the exchange. If the exchange does not have a
@@ -219,8 +219,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 			}
 		}
 		return e.isInput
-			? add(EnviFlow.inputOf(flow, loc))
-			: add(EnviFlow.outputOf(flow, loc));
+				? add(EnviFlow.inputOf(flow, loc))
+				: add(EnviFlow.outputOf(flow, loc));
 	}
 
 	@Override
@@ -254,10 +254,10 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 
 		private NormalFlowIndex() {
 			index = new TLongIntHashMap(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1L, // no entry key
-				-1); // no entry value
+					Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR,
+					-1L, // no entry key
+					-1); // no entry value
 		}
 
 		@Override
@@ -268,8 +268,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 		@Override
 		public int of(FlowDescriptor flow) {
 			return flow == null
-				? -1
-				: index.get(flow.id);
+					? -1
+					: index.get(flow.id);
 		}
 
 		@Override
@@ -332,8 +332,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 		@Override
 		public int of(FlowDescriptor flow) {
 			return flow == null
-				? -1
-				: of(flow.id, 0L);
+					? -1
+					: of(flow.id, 0L);
 		}
 
 		@Override
@@ -341,8 +341,8 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 			if (flow == null)
 				return -1;
 			return loc == null
-				? of(flow.id, 0L)
-				: of(flow.id, loc.id);
+					? of(flow.id, 0L)
+					: of(flow.id, loc.id);
 		}
 
 		@Override

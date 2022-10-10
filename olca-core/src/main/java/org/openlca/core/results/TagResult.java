@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.util.Strings;
 
 public class TagResult {
@@ -54,7 +55,7 @@ public class TagResult {
 		var idx = result.enviIndex().of(flow);
 		double value = idx < 0
 				? 0
-				: result.adopt(flow, inventory[idx]);
+				: ResultProvider.flowValueView(flow, inventory[idx]);
 		return new FlowValue(flow, value);
 	}
 

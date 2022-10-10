@@ -53,7 +53,7 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 		if (db == null || method == null)
 			return empty();
 		var impacts = new ImpactMethodDao(db)
-			.getCategoryDescriptors(method.id);
+				.getCategoryDescriptors(method.id);
 		return of(impacts);
 	}
 
@@ -61,7 +61,7 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 		if (db == null)
 			return empty();
 		var impacts = new ImpactCategoryDao(db)
-			.getDescriptors();
+				.getDescriptors();
 		return of(impacts);
 	}
 
@@ -120,9 +120,9 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 	 */
 	@Override
 	public int of(ImpactDescriptor d) {
-		if (d == null)
-			return -1;
-		return index.get(d.id);
+		return d != null
+				? index.get(d.id)
+				: -1;
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 	public ImpactDescriptor getForId(long id) {
 		int pos = of(id);
 		return pos >= 0
-			? at(pos)
-			: null;
+				? at(pos)
+				: null;
 	}
 }

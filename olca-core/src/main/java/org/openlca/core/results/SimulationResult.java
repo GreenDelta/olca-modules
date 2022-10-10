@@ -13,6 +13,7 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * The results of a Monte-Carlo-Simulation. The single result values of the
@@ -94,7 +95,8 @@ public class SimulationResult implements IResult {
 		if (flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
-		return adopt(flow, val(flowResults, i, arrayIdx));
+		double value = val(flowResults, i, arrayIdx);
+		return ResultProvider.flowValueView(flow, value);
 	}
 
 	/**
@@ -106,7 +108,8 @@ public class SimulationResult implements IResult {
 		if (pc == null || flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
-		return adopt(flow, val(pc.directFlows, i, arrayIdx));
+		double value = val(pc.directFlows, i, arrayIdx);
+		return ResultProvider.flowValueView(flow, value);
 	}
 
 	/**
@@ -115,11 +118,11 @@ public class SimulationResult implements IResult {
 	 */
 	public double[] getAllDirect(TechFlow product, EnviFlow flow) {
 		int count = getNumberOfRuns();
-		double[] vals = new double[count];
+		double[] values = new double[count];
 		for (int i = 0; i < count; i++) {
-			vals[i] = getDirect(product, flow, i);
+			values[i] = getDirect(product, flow, i);
 		}
-		return vals;
+		return values;
 	}
 
 	/**
@@ -127,12 +130,13 @@ public class SimulationResult implements IResult {
 	 * the iteration i (zero based).
 	 */
 	public double getUpstream(
-		TechFlow product, EnviFlow flow, int i) {
+			TechFlow product, EnviFlow flow, int i) {
 		PinnedContributions pc = pinned.get(product);
 		if (pc == null || flowIndex == null)
 			return 0;
 		int arrayIdx = flowIndex.of(flow);
-		return adopt(flow, val(pc.upstreamFlows, i, arrayIdx));
+		double value = val(pc.upstreamFlows, i, arrayIdx);
+		return ResultProvider.flowValueView(flow, value);
 	}
 
 	/**
@@ -140,7 +144,7 @@ public class SimulationResult implements IResult {
 	 * all iterations.
 	 */
 	public double[] getAllUpstream(
-		TechFlow product, EnviFlow flow) {
+			TechFlow product, EnviFlow flow) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -176,7 +180,7 @@ public class SimulationResult implements IResult {
 	 * category in the iteration i (zero based).
 	 */
 	public double getDirect(
-		TechFlow product, ImpactDescriptor impact, int i) {
+			TechFlow product, ImpactDescriptor impact, int i) {
 		var pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
@@ -189,7 +193,7 @@ public class SimulationResult implements IResult {
 	 * category for all iterations.
 	 */
 	public double[] getAllDirect(
-		TechFlow product, ImpactDescriptor impact) {
+			TechFlow product, ImpactDescriptor impact) {
 		int count = getNumberOfRuns();
 		double[] vals = new double[count];
 		for (int i = 0; i < count; i++) {
@@ -203,7 +207,7 @@ public class SimulationResult implements IResult {
 	 * category in the iteration i (zero based).
 	 */
 	public double getUpstream(
-		TechFlow product, ImpactDescriptor impact, int i) {
+			TechFlow product, ImpactDescriptor impact, int i) {
 		var pc = pinned.get(product);
 		if (pc == null || impactIndex == null)
 			return 0;
@@ -276,8 +280,8 @@ public class SimulationResult implements IResult {
 		private double[] upstreamImpacts;
 
 		private PinnedContribution(
-			SimulationResult result,
-			TechFlow product) {
+				SimulationResult result,
+				TechFlow product) {
 			this.result = result;
 			this.product = product;
 		}
@@ -304,7 +308,7 @@ public class SimulationResult implements IResult {
 
 		public void add() {
 			var pinned = result.pinned.computeIfAbsent(
-				product, p -> new PinnedContributions());
+					product, p -> new PinnedContributions());
 			if (directFlows != null) {
 				pinned.directFlows.add(directFlows);
 			}

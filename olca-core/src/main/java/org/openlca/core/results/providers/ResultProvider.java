@@ -3,10 +3,13 @@ package org.openlca.core.results.providers;
 import java.util.Arrays;
 
 import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.MatrixIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * The general interface of a result provider. The documentation is based on
@@ -39,6 +42,14 @@ public interface ResultProvider {
 	TechIndex techIndex();
 
 	/**
+	 * Returns the matrix index of the given technosphere flow. Returns {@code -1}
+	 * if it is not part of the technosphere index of the system.
+	 */
+	default int indexOf(TechFlow techFlow) {
+		return techIndex().of(techFlow);
+	}
+
+	/**
 	 * The index of the rows of the intervention matrix `B` and the columns of the
 	 * characterization matrix `C`. It contains the flows that cross the boundary
 	 * of the system with the environment in the respective matrix order. In LCA,
@@ -51,11 +62,33 @@ public interface ResultProvider {
 	EnviIndex enviIndex();
 
 	/**
+	 * Returns the matrix index of the given elementary flow. Returns {@code -1}
+	 * if it is not contained in the elementary flow index of the system.
+	 */
+	default int indexOf(EnviFlow enviFlow) {
+		var idx = enviIndex();
+		return idx != null
+				? idx.of(enviFlow)
+				: -1;
+	}
+
+	/**
 	 * The row index of the matrix with the characterization factors `C` (the
 	 * impact matrix). It contains the impact categories in the respective matrix
 	 * order.
 	 */
 	ImpactIndex impactIndex();
+
+	/**
+	 * Returns the matrix index of the given impact category. Returns {@code -1}
+	 * if it is not contained in the impact category index of the system.
+	 */
+	default int indexOf(ImpactDescriptor indicator) {
+		var idx = impactIndex();
+		return idx != null
+				? idx.of(indicator)
+				: -1;
+	}
 
 	/**
 	 * Returns {@code true} when the result contains results for flows (has an
@@ -537,5 +570,18 @@ public interface ResultProvider {
 		return isEmpty(values)
 				? EMPTY_VECTOR
 				: Arrays.copyOf(values, values.length);
+	}
+
+	/**
+	 * Switches the sign for input-flows otherwise the value is returned
+	 * unchanged. Internally, values and characterization factors of input-flows
+	 * are stored as negative values in the underlying matrices of a result. For
+	 * user views of these results, we need to change the sign of these flows.
+	 */
+	static double flowValueView(EnviFlow flow, double value) {
+		if (flow == null || !flow.isInput())
+			return value;
+		// avoid -0 in the results
+		return value == 0 ? 0 : -value;
 	}
 }

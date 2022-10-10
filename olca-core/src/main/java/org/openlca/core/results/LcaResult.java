@@ -192,7 +192,7 @@ public class LcaResult implements IResult {
 		var totalFlows = totalFlowResults();
 		if (idx < 0 || idx >= totalFlows.length)
 			return 0;
-		return adopt(flow, totalFlows[idx]);
+		return ResultProvider.flowValueView(flow, totalFlows[idx]);
 	}
 
 	/**
@@ -279,7 +279,7 @@ public class LcaResult implements IResult {
 		if (flowIdx < 0 || productIdx < 0)
 			return 0;
 		double value = provider.directFlowOf(flowIdx, productIdx);
-		return adopt(flow, value);
+		return ResultProvider.flowValueView(flow, value);
 	}
 
 	/**
@@ -470,16 +470,13 @@ public class LcaResult implements IResult {
 	 * Get the upstream contribution of the given process-product pair $j$ to the
 	 * inventory result of elementary flow $i$: $\mathbf{U}[i,j]$.
 	 */
-	public double getUpstreamFlowResult(TechFlow product, EnviFlow flow) {
-		var flowIndex = enviIndex();
-		if (flowIndex == null)
+	public double getUpstreamFlowResult(TechFlow techFlow, EnviFlow enviFlow) {
+		int flowIdx = provider.indexOf(enviFlow);
+		int techIdx = provider.indexOf(techFlow);
+		if (flowIdx < 0 || techIdx < 0)
 			return 0;
-		int flowIdx = flowIndex.of(flow);
-		int productIdx = techIndex().of(product);
-		if (flowIdx < 0 || productIdx < 0)
-			return 0;
-		double amount = provider.totalFlowOf(flowIdx, productIdx);
-		return adopt(flow, amount);
+		double amount = provider.totalFlowOf(flowIdx, techIdx);
+		return ResultProvider.flowValueView(enviFlow, amount);
 	}
 
 	/**

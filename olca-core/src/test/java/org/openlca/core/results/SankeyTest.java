@@ -37,7 +37,7 @@ public class SankeyTest {
 		data.enviMatrix = JavaMatrix.of(new double[][]{
 				{1.0, 2.0, 3.0},
 		});
-		var result = LcaResult.of(Tests.getDb(), data);
+		var result = LcaResult.of(Tests.getDb(), data).provider();
 
 		var sankey = Sankey.of(data.enviIndex.at(0), result)
 				.build();

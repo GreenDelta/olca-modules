@@ -83,7 +83,7 @@ public class Sankey<T> {
 
 		/**
 		 * The nodes of the providers of products or waste treatment of this
-		 * node. Note that depending of the cutoffs when building the graph
+		 * node. Note that depending on the cutoffs, when building the graph
 		 * this list is often not complete.
 		 */
 		public List<Node> providers = new ArrayList<>();
@@ -115,7 +115,7 @@ public class Sankey<T> {
 	 * Creates a new builder of a graph for a Sankey diagram for the given
 	 * reference (flow or impact) and result.
 	 */
-	public static <T> Builder<T> of(T ref, LcaResult result) {
+	public static <T> Builder<T> of(T ref, ResultProvider result) {
 		return new Builder<>(ref, result);
 	}
 
@@ -165,8 +165,9 @@ public class Sankey<T> {
 	}
 
 	/**
-	 * Returns a string with the graph in DOT format (
-	 * https://en.wikipedia.org/wiki/DOT_(graph_description_language)).
+	 * Returns a string with the graph in
+	 * <a href="https://en.wikipedia.org/wiki/DOT_(graph_description_language)">
+	 * DOT format</a>.
 	 */
 	public String toDot() {
 		var buf = new StringBuilder();
@@ -197,7 +198,7 @@ public class Sankey<T> {
 	public static class Builder<T> {
 
 		private final Sankey<T> sankey;
-		private final LcaResult result;
+		private final ResultProvider result;
 
 		// result references
 		private EnviFlow flow;
@@ -210,8 +211,8 @@ public class Sankey<T> {
 		private final TIntObjectHashMap<Node> handled;
 		private PriorityQueue<Candidate> candidates;
 
-		private Builder(T ref, LcaResult result) {
-			this.sankey = new Sankey<>(ref, result.provider());
+		private Builder(T ref, ResultProvider result) {
+			this.sankey = new Sankey<>(ref, result);
 			this.result = result;
 			handled = new TIntObjectHashMap<>(
 					Constants.DEFAULT_CAPACITY,
@@ -269,19 +270,43 @@ public class Sankey<T> {
 			return sankey;
 		}
 
-		private double getTotal(TechFlow product) {
-			if (flow != null)
-				return result.getUpstreamFlowResult(product, flow);
-			if (impact != null)
-				return result.getUpstreamImpactResult(product, impact);
+		private double getTotal(TechFlow techFlow) {
+			int techIdx = result.indexOf(techFlow);
+			if (techIdx < 0)
+				return 0;
+			if (flow != null) {
+				int flowIdx = result.indexOf(flow);
+				if (flowIdx < 0)
+					return 0;
+				double total = result.totalFlowOf(flowIdx, techIdx);
+				return ResultProvider.flowValueView(flow, total);
+			}
+			if (impact != null) {
+				int impactIdx = result.indexOf(impact);
+				return impactIdx < 0
+						? 0
+						: result.totalImpactOf(impactIdx, techIdx);
+			}
 			return 0;
 		}
 
-		private double getDirect(TechFlow product) {
-			if (flow != null)
-				return result.getDirectFlowResult(product, flow);
-			if (impact != null)
-				return result.getDirectImpactResult(product, impact);
+		private double getDirect(TechFlow techFlow) {
+			int techIdx = result.indexOf(techFlow);
+			if (techIdx < 0)
+				return 0;
+			if (flow != null) {
+				int flowIdx = result.indexOf(flow);
+				if (flowIdx < 0)
+					return 0;
+				var direct = result.directFlowOf(flowIdx, techIdx);
+				return ResultProvider.flowValueView(flow, direct);
+			}
+			if (impact != null) {
+				int impactIdx = result.indexOf(impact);
+				return impactIdx < 0
+						? 0
+						: result.directImpactOf(impactIdx, techIdx);
+			}
 			return 0;
 		}
 
@@ -290,7 +315,7 @@ public class Sankey<T> {
 		 * added to the graph, according to the cutoff rules of this builder.
 		 */
 		private void expand(Node node) {
-			var colA = result.provider().techColumnOf(node.index);
+			var colA = result.techColumnOf(node.index);
 			for (int i = 0; i < colA.length; i++) {
 				if (i == node.index || colA[i] == 0)
 					continue;

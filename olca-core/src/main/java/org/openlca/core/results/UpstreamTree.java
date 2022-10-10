@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.IntToDoubleFunction;
 
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -77,7 +78,7 @@ public class UpstreamTree {
 		if (value == 0)
 			return 0;
 		return ref instanceof EnviFlow flow
-			? r.adopt(flow, value)
+			? ResultProvider.flowValueView(flow, value)
 			: value;
 	}
 

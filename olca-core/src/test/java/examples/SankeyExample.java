@@ -26,7 +26,7 @@ public class SankeyExample {
 		EnviFlow flow = result.enviIndex().at(42);
 
 		start = System.currentTimeMillis();
-		var sankey = Sankey.of(flow, result)
+		var sankey = Sankey.of(flow, result.provider())
 				.withMaximumNodeCount(50)
 				.withMinimumShare(0.00)
 				.build();

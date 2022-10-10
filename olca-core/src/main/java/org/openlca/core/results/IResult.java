@@ -3,7 +3,6 @@ package org.openlca.core.results;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechIndex;
 
 /**
@@ -66,14 +65,4 @@ public interface IResult {
 	 * Returns true when this result contains LCC results.
 	 */
 	boolean hasCosts();
-
-	/**
-	 * Switches the sign for input-flows.
-	 */
-	default double adopt(EnviFlow flow, double value) {
-		if (flow == null || !flow.isInput())
-			return value;
-		// avoid -0 in the results
-		return value == 0 ? 0 : -value;
-	}
 }
