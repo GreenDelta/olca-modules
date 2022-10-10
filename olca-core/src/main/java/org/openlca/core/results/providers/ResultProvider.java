@@ -410,8 +410,8 @@ public interface ResultProvider {
 	 * factors, with the inventory intensity matrix `M`: `N = C * M`. `M` is
 	 * calculated by multiplying the intervention matrix `B` with the inverse of
 	 * the technology matrix `A`: `M = B * A^-1`.
-	 * 
-	 * @see #totalFlowsOfOne(int) 
+	 *
+	 * @see #totalFlowsOfOne(int)
 	 */
 	double[] totalImpactsOfOne(int techFlow);
 
@@ -419,8 +419,8 @@ public interface ResultProvider {
 	 * Returns the total result (direct + upstream) of the impact category `k`
 	 * related to 1 unit of the technosphere flow `j` in the system. This is the
 	 * entry `N[k,j]` of the impact intensity matrix `N`.
-	 * 
-	 * @see #totalImpactsOfOne(int) 
+	 *
+	 * @see #totalImpactsOfOne(int)
 	 */
 	default double totalImpactOfOne(int indicator, int techFlow) {
 		var impacts = totalImpactsOfOne(techFlow);
@@ -429,32 +429,72 @@ public interface ResultProvider {
 				: impacts[indicator];
 	}
 
+	/**
+	 * Returns the total impact assessment results (direct + upstream) related to
+	 * the total requirements of the technosphere flow `j` in the system. This is
+	 * the respective column `N[:,j]` of the impact intensity matrix `N` scaled by
+	 * the total factor `tf[j]`: `N[:,j] * tf[j]`, where `N = C * M` is the impact
+	 * intensity matrix and `M = B * INV` the inventory intensity matrix.
+	 *
+	 * @see #totalFactorOf(int)
+	 */
 	default double[] totalImpactsOf(int techFlow) {
 		var impacts = totalImpactsOfOne(techFlow);
 		var factor = totalFactorOf(techFlow);
 		return scale(impacts, factor);
 	}
 
+	/**
+	 * Returns the total result (direct + upstream) of the given impact category
+	 * `k` related to the total requirements of the technosphere flow `j` in the
+	 * system. This is the entry `N[k,j]` of the impact intensity matrix `N`
+	 * scaled by the total factor `tf`: `N[k,j] * tf[j]`
+	 *
+	 * @see #totalFactorOf(int)
+	 * @see #totalImpactsOf(int)
+	 */
 	default double totalImpactOf(int indicator, int techFlow) {
 		return totalFactorOf(techFlow) * totalImpactOfOne(indicator, techFlow);
 	}
 
+	/**
+	 * Returns the total impact assessment result `h` (the LCIA result) of the
+	 * product system: `h = C * g`, where `C` is the impact matrix, which contains
+	 * the characterisation factors, and `g` is the inventory result of the system.
+	 */
 	double[] totalImpacts();
 
 	/**
-	 * Contains the direct contributions $\mathbf{k}_s$ of the process-product pairs
-	 * to the total net-costs ($\odot$ denotes element-wise multiplication):
-	 * <p>
-	 * $$\mathbf{k}_s = \mathbf{k} \odot \mathbf{s}$$
+	 * Returns the direct cost result for the given technosphere flow `j`. This is
+	 * the entry `k[j]` of the cost vector scaled by the scaling factor `s[j]`:
+	 * `k[j] * s[j]`.
 	 */
 	double directCostsOf(int techFlow);
 
+	/**
+	 * Returns the total cost result (direct + upstream) related to 1 unit of the
+	 * technosphere flow `j` in the system. This is the entry `o[j]` of the cost
+	 * intensity vector `o = k * INV`, where `k` is the cost vector of the system.
+	 */
 	double totalCostsOfOne(int techFlow);
 
+	/**
+	 * Returns the total cost result (direct + upstream) related to the total
+	 * requirements of the technosphere flow `j` in the system. This is the entry
+	 * `o[j]` of the cost intensity vector scaled by the total factor `tf[j]`:
+	 * `o[j] * tf[j]` where `o = k * INV` are the cost intensities.
+	 *
+	 * @see #totalFactorOf(int)
+	 */
 	default double totalCostsOf(int techFlow) {
 		return totalFactorOf(techFlow) * totalCostsOfOne(techFlow);
 	}
 
+	/**
+	 * Returns the total cost result (the LCC result) of the product system. This
+	 * is calculated by multiplying the cost vector `k`, which is a row vector,
+	 * with the scaling vector `s`: `k * s`.
+	 */
 	double totalCosts();
 
 	/**
