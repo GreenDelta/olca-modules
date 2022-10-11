@@ -377,12 +377,12 @@ public class RegionalizedCalculationTest {
 				// non-regionalized
 				int flowIdx = r.enviIndex().of(flow.id);
 				EnviFlow iFlow = r.enviIndex().at(flowIdx);
-				double v = r.getDirectFlowResult(product, iFlow);
+				double v = r.directFlowOf(iFlow, product);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
 				double v = orZero(flow, (Location) row[2], r.enviIndex(),
-					iFlow -> r.getDirectFlowResult(product, iFlow));
+					iFlow -> r.directFlowOf(iFlow, product));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}

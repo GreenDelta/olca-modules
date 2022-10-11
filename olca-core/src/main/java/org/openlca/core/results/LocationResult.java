@@ -55,7 +55,7 @@ public class LocationResult {
 			total = result.totalFlowOf(iFlow);
 			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
-				double v = result.getDirectFlowResult(product, iFlow);
+				double v = result.directFlowOf(iFlow, product);
 				cons.compute(loc, (_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});
 

@@ -45,11 +45,8 @@ public final class Contributions {
 			var c = new Contribution<T>();
 			c.isRest = item == null;
 			c.item = item;
-			double val = fn.applyAsDouble(item);
-			c.amount = val;
-			if (total != 0) {
-				c.share = val / total;
-			}
+			c.amount = fn.applyAsDouble(item);
+			c.computeShare(total);
 			contributions.add(c);
 		}
 		return contributions;
@@ -77,12 +74,7 @@ public final class Contributions {
 		if (contributions == null || contributions.isEmpty())
 			return;
 		double refVal = Math.abs(getRefValue(contributions));
-		for (Contribution<?> c : contributions) {
-			if (refVal == 0)
-				c.share = 0;
-			else
-				c.share = c.amount / refVal;
-		}
+		contributions.forEach(c -> c.computeShare(refVal));
 	}
 
 	private static double getRefValue(
@@ -111,7 +103,7 @@ public final class Contributions {
 	 * Returns the top-contributors of the given list ordered by their
 	 * contribution values in descending order. If there are more items than the
 	 * given number (maxItems) a rest-item is created at the bottom of the list
-	 * which gets the sum of the items not in the list. Thus the returned list
+	 * which gets the sum of the items not in the list. Thus, the returned list
 	 * has <code>maxItems</code> entries.
 	 */
 	public static <T> List<Contribution<T>> topWithRest(
@@ -137,13 +129,8 @@ public final class Contributions {
 		return list;
 	}
 
-	private static class Sorter implements Comparator<Contribution<?>> {
-
-		private final boolean ascending;
-
-		public Sorter(boolean ascending) {
-			this.ascending = ascending;
-		}
+	private record Sorter(boolean ascending)
+			implements Comparator<Contribution<?>> {
 
 		@Override
 		public int compare(Contribution<?> o1, Contribution<?> o2) {

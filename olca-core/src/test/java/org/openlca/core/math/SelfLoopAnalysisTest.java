@@ -8,9 +8,9 @@ import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.LcaResult;
 
 public class SelfLoopAnalysisTest {
@@ -69,8 +69,7 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private double direct(String processName, String flowName) {
-		return result.getDirectFlowResult(process(processName),
-				flow(flowName));
+		return result.directFlowOf(flow(flowName), process(processName));
 	}
 
 	private double upstream(String processName, String flowName) {
@@ -86,11 +85,11 @@ public class SelfLoopAnalysisTest {
 		return null;
 	}
 
-	private RootDescriptor process(String name) {
+	private TechFlow process(String name) {
 		for (var techFlow : result.techIndex()) {
 			var p = techFlow.provider();
 			if (name.equals(p.name))
-				return p;
+				return techFlow;
 		}
 		return null;
 	}

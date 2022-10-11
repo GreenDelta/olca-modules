@@ -221,46 +221,25 @@ public class LcaResult implements IResult {
 		subResults.put(product, result);
 	}
 
-	/**
-	 * Get the direct contribution of the given process-product pair $j$ to the
-	 * inventory result of elementary flow $i$: $\mathbf{G}[i,j]$.
-	 */
-	public double getDirectFlowResult(TechFlow product, EnviFlow flow) {
-		if (!hasEnviFlows())
+	public double directFlowOf(EnviFlow enviFlow, TechFlow techFlow) {
+		int flowIdx = provider.indexOf(enviFlow);
+		int techIdx = provider.indexOf(techFlow);
+		if (flowIdx < 0 || techIdx < 0)
 			return 0;
-		int flowIdx = enviIndex().of(flow);
-		int productIdx = techIndex().of(product);
-		if (flowIdx < 0 || productIdx < 0)
-			return 0;
-		double value = provider.directFlowOf(flowIdx, productIdx);
-		return ResultProvider.flowValueView(flow, value);
+		double value = provider.directFlowOf(flowIdx, techIdx);
+		return ResultProvider.flowValueView(enviFlow, value);
 	}
 
-	/**
-	 * Get the direct contribution of the given process $j$ to the inventory result
-	 * of elementary flow $i$. When the process has multiple products it is the sum
-	 * of the contributions of all of these process-product pairs.
-	 */
-	public double getDirectFlowResult(
-			RootDescriptor process, EnviFlow flow) {
-		double total = 0;
-		for (var p : techIndex().getProviders(process)) {
-			total += getDirectFlowResult(p, flow);
-		}
-		return total;
-	}
-
-	/**
-	 * Get the direct contributions of the given process $j$ to the inventory result
-	 * of all elementary flows in the product system.
-	 */
-	public List<EnviFlowValue> getFlowContributions(
-			RootDescriptor process) {
+	public List<EnviFlowValue> directFlowsOf(TechFlow techFlow) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
+		int pos = provider.indexOf(techFlow);
+		if (pos < 0)
+			return Collections.emptyList();
+		var values = provider.directFlowsOf(pos);
 		var results = new ArrayList<EnviFlowValue>();
 		enviIndex().each((i, flow) -> {
-			double value = getDirectFlowResult(process, flow);
+			double value = ResultProvider.flowValueView(flow, values[i]);
 			results.add(new EnviFlowValue(flow, value));
 		});
 		return results;
@@ -274,7 +253,7 @@ public class LcaResult implements IResult {
 		return Contributions.calculate(
 				techIndex(),
 				totalFlowOf(flow),
-				d -> getDirectFlowResult(d, flow));
+				techFlow -> directFlowOf(flow, techFlow));
 	}
 
 	/**
