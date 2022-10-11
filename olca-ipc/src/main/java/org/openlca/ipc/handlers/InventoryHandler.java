@@ -106,7 +106,7 @@ public class InventoryHandler {
 					.map(techFlow -> {
 						var obj = new JsonObject();
 						Json.put(obj, "provider", JsonRpc.encodeTechFlow(techFlow, rr.refs()));
-						Json.put(obj, "amount", rr.result().getTotalRequirementsOf(techFlow));
+						Json.put(obj, "amount", rr.result().totalRequirementsOf(techFlow));
 						return obj;
 					})
 					.collect(JsonRpc.toArray());

@@ -28,7 +28,7 @@ public class TagResult {
 				? new double[result.provider().totalFlows().length]
 				: null;
 		impacts = result.hasImpacts()
-				? new double[result.totalImpactResults().length]
+				? new double[result.provider().totalImpacts().length]
 				: null;
 		hasCosts = result.hasCosts();
 	}
@@ -137,7 +137,7 @@ public class TagResult {
 			if (techFlow.isProductSystem()) {
 				var subResult = result.subResultOf(techFlow);
 				var subTags = TagResult.of(tag, subResult);
-				var scaling = result.getScalingFactor(techFlow);
+				var scaling = result.scalingFactorOf(techFlow);
 				tagResult.addSubResult(scaling, subTags);
 				continue;
 			}

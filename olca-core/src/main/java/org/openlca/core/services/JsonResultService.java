@@ -1,15 +1,16 @@
 package org.openlca.core.services;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.Objects;
+import java.util.function.Function;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.DbRefs;
 
-import java.util.Objects;
-import java.util.function.Function;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class JsonResultService {
 
@@ -99,7 +100,7 @@ public class JsonResultService {
 				return Response.of(new JsonArray());
 			var refs = DbRefs.of(db);
 			var array = JsonUtil.encodeArray(
-					result.getTotalImpactResults(),
+					result.totalImpacts(),
 					value -> JsonUtil.encodeImpactValue(value, refs));
 			return Response.of(array);
 		});

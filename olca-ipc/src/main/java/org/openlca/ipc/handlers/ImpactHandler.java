@@ -11,9 +11,9 @@ import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
-import org.openlca.jsonld.Json;
 
 public class ImpactHandler {
 
@@ -29,7 +29,7 @@ public class ImpactHandler {
 			var result = rr.result();
 			if (!result.hasImpacts())
 				return Responses.ok(new JsonArray(), req);
-			var array = result.getTotalImpactResults().stream()
+			var array = result.totalImpacts().stream()
 					.filter(r -> r.value() != 0)
 					.map(r -> JsonRpc.encodeImpactValue(r, rr.refs()))
 					.collect(JsonRpc.toArray());
@@ -43,7 +43,7 @@ public class ImpactHandler {
 			if (rr.impact() == null)
 				return rr.impactMissing();
 			var contributions = new ArrayList<Contribution<EnviFlow>>();
-			double total = rr.result().getTotalImpactResult(rr.impact());
+			double total = rr.result().totalImpactOf(rr.impact());
 			for (var enviFlow : rr.result().enviIndex()) {
 				var amount = rr.result().getDirectFlowImpact(enviFlow, rr.impact());
 				if (amount == 0)
@@ -101,7 +101,7 @@ public class ImpactHandler {
 			if (rr.impact() == null)
 				return rr.impactMissing();
 			var result = rr.result();
-			double total = result.getTotalImpactResult(rr.impact());
+			double total = result.totalImpactOf(rr.impact());
 			var contributions = new ArrayList<Contribution<TechFlow>>();
 			for (var techFlow : result.techIndex()) {
 				var amount = result.getDirectImpactResult(techFlow, rr.impact());
@@ -150,7 +150,7 @@ public class ImpactHandler {
 				return Responses.ok(array, req);
 
 			for (var impact : result.impactIndex()) {
-				var total = result.getTotalImpactResult(impact);
+				var total = result.totalImpactOf(impact);
 				var c = new Contribution<ImpactDescriptor>();
 				c.item = impact;
 				c.amount = result.getDirectImpactResult(techFlow, impact);

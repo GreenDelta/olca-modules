@@ -97,6 +97,17 @@ public class LcaResult implements IResult {
 	}
 
 	/**
+	 * Get the scaling factor of the given technosphere flow.
+	 */
+	public double scalingFactorOf(TechFlow product) {
+		int idx = techIndex().of(product);
+		var scalingVector = provider.scalingVector();
+		if (idx < 0 || idx > scalingVector.length)
+			return 0;
+		return scalingVector[idx];
+	}
+
+	/**
 	 * Returns the total requirements of the respective technosphere flows that
 	 * are required to fulfill the demand of the system.
 	 */
@@ -158,18 +169,6 @@ public class LcaResult implements IResult {
 	}
 
 	/**
-	 * Returns the total impact assessment result vector of a product system.
-	 * <p>
-	 * The total impact assessment result {@code h} can be calculated via: {@code
-	 * h = C * g} where {@code C} is a {@code flow * impact category} matrix that
-	 * contains the characterization factors and {@code g} the total inventory
-	 * result of the system.
-	 */
-	public double[] totalImpactResults() {
-		return provider.totalImpacts();
-	}
-
-	/**
 	 * Returns the total net-life-cycle-costs of a product system.
 	 * <p>
 	 * These costs {@code k_t} can be calculated via {@code k_t = k ° s} where
@@ -180,46 +179,24 @@ public class LcaResult implements IResult {
 		return provider.totalCosts();
 	}
 
-	/**
-	 * Get the scaling factor $\mathbf{s}_j$ of the given process-product pair
-	 * $j$.
-	 */
-	public double getScalingFactor(TechFlow product) {
-		int idx = techIndex().of(product);
-		var scalingVector = provider.scalingVector();
-		if (idx < 0 || idx > scalingVector.length)
-			return 0;
-		return scalingVector[idx];
-	}
-
-	/**
-	 * Returns the total LCIA result $\mathbf{h}_i$ of the given LCIA category
-	 * $i$.
-	 */
-	public double getTotalImpactResult(ImpactDescriptor impact) {
-		var impactIndex = impactIndex();
-		if (impactIndex == null)
-			return 0;
-		int idx = impactIndex.of(impact);
-		var totalImpacts = totalImpactResults();
-		if (idx < 0 || idx >= totalImpacts.length)
-			return 0;
-		return totalImpacts[idx];
-	}
-
-	/**
-	 * Returns the impact category results for the given result.
-	 */
-	public List<ImpactValue> getTotalImpactResults() {
-		var impactIndex = impactIndex();
-		if (impactIndex == null)
+	public List<ImpactValue> totalImpacts() {
+		var idx = impactIndex();
+		if (idx == null)
 			return Collections.emptyList();
-		var results = new ArrayList<ImpactValue>();
-		impactIndex.each((i, d) -> {
-			double amount = getTotalImpactResult(d);
-			results.add(new ImpactValue(d, amount));
-		});
+		var values = provider.totalImpacts();
+		var results = new ArrayList<ImpactValue>(idx.size());
+		for (int i = 0; i < idx.size(); i++) {
+			results.add(ImpactValue.of(idx.at(i), values[i]));
+		}
 		return results;
+	}
+
+	public double totalImpactOf(ImpactDescriptor impact) {
+		int idx = provider.indexOf(impact);
+		if (idx < 0)
+			return 0;
+		var values = provider.totalImpacts();
+		return values[idx];
 	}
 
 	/**
@@ -242,13 +219,6 @@ public class LcaResult implements IResult {
 
 	public void addSubResult(TechFlow product, LcaResult result) {
 		subResults.put(product, result);
-	}
-
-	public double getTotalRequirementsOf(TechFlow techFlow) {
-		int idx = techIndex().of(techFlow);
-		return idx >= 0
-				? provider.totalRequirementsOf(idx)
-				: 0;
 	}
 
 	/**
@@ -360,7 +330,7 @@ public class LcaResult implements IResult {
 			ImpactDescriptor impact) {
 		return Contributions.calculate(
 				techIndex(),
-				getTotalImpactResult(impact),
+				totalImpactOf(impact),
 				d -> getDirectImpactResult(d, impact));
 	}
 
@@ -598,7 +568,7 @@ public class LcaResult implements IResult {
 	 */
 	public UpstreamTree getTree(ImpactDescriptor impact) {
 		int i = impactIndex().of(impact.id);
-		double total = getTotalImpactResult(impact);
+		double total = totalImpactOf(impact);
 		return new UpstreamTree(impact, provider, total,
 				product -> provider.totalImpactOfOne(i, product));
 	}

@@ -4,9 +4,9 @@ import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public class CostHandler {
 
@@ -25,7 +25,7 @@ public class CostHandler {
 			var array = JsonRpc.arrayOf(result.techIndex(), techFlow -> {
 				var obj = new JsonObject();
 				Json.put(obj, "provider", JsonRpc.encodeTechFlow(techFlow, rr.refs()));
-				Json.put(obj, "amount", result.getTotalRequirementsOf(techFlow));
+				Json.put(obj, "amount", result.totalRequirementsOf(techFlow));
 				Json.put(obj, "costs", result.getDirectCostResult(techFlow));
 				return obj;
 			});

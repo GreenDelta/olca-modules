@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * Calculates the contributions of single process results grouped by a given
@@ -42,7 +42,7 @@ public class GroupingContribution {
 			final ImpactDescriptor impact) {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
-		double total = result.getTotalImpactResult(impact);
+		double total = result.totalImpactOf(impact);
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
 			for (RootDescriptor p : grouping.processes) {

@@ -66,11 +66,11 @@ public class SimulationResult implements IResult {
 	public void append(LcaResult r) {
 		if (r == null)
 			return;
-		if (r.totalFlows() != null) {
+		if (r.hasEnviFlows()) {
 			flowResults.add(r.provider().totalFlows());
 		}
-		if (r.totalImpactResults() != null) {
-			impactResults.add(r.totalImpactResults());
+		if (r.hasImpacts()) {
+			impactResults.add(r.provider().totalImpacts());
 		}
 	}
 

@@ -17,10 +17,7 @@ public class ContributionsTest {
 		Set<Location> items = new HashSet<>();
 		items.add(loc);
 		items.add(null);
-		List<Contribution<Location>> set = Contributions.calculate(
-				items, 2, l -> {
-					return 1;
-				});
+		var set = Contributions.calculate(items, 2, l -> 1);
 		Contribution<?> item = Contributions.get(set, null);
 		Assert.assertNull(item.item);
 		Assert.assertEquals(1, item.amount, 1e-27);

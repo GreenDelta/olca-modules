@@ -59,7 +59,7 @@ class JsonRpc {
 		if (r.hasImpacts()) {
 			obj.add("impacts", arrayOf(r.impactIndex(), refs::asRef));
 			obj.add("impactResults", arrayOf(
-					r.getTotalImpactResults(), v -> encodeImpactValue(v, refs)));
+					r.totalImpacts(), v -> encodeImpactValue(v, refs)));
 		}
 
 		return obj;

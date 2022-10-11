@@ -55,7 +55,7 @@ public class SimulatorTest {
 		// check the simulation results
 		for (int i = 0; i < 100; i++) {
 			var r = simulator.nextRun();
-			double[] impacts = r.totalImpactResults();
+			double[] impacts = r.provider().totalImpacts();
 			Assert.assertEquals(1, impacts.length);
 			double val = impacts[0];
 			Assert.assertTrue(val >= 22 && val <= 26);

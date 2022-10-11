@@ -77,7 +77,7 @@ public class ProjectResult {
 		LcaResult result = results.get(variant);
 		if (result == null)
 			return 0;
-		return result.getTotalImpactResult(impact);
+		return result.totalImpactOf(impact);
 	}
 
 	public List<Contribution<ProjectVariant>> getContributions(

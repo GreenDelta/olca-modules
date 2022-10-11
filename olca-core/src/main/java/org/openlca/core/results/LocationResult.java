@@ -89,7 +89,7 @@ public class LocationResult {
 			return Collections.emptyList();
 
 		HashMap<Location, Double> cons = new HashMap<>();
-		double total = result.getTotalImpactResult(impact);
+		double total = result.totalImpactOf(impact);
 
 		if (!result.enviIndex().isRegionalized()) {
 			// non-regionalized calculation;
