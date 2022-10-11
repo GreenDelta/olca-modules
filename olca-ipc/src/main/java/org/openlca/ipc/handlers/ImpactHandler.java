@@ -51,7 +51,7 @@ public class ImpactHandler {
 				var c = new Contribution<EnviFlow>();
 				c.item = enviFlow;
 				c.amount = amount;
-				c.share = total != 0 ? c.amount / total : 0;
+				c.computeShare(total);
 				c.unit = rr.impact().referenceUnit;
 				contributions.add(c);
 			}
@@ -84,7 +84,7 @@ public class ImpactHandler {
 				var c = new Contribution<EnviFlow>();
 				c.item = enviFlow;
 				c.amount = amount;
-				c.share = total != 0 ? c.amount / total : 0;
+				c.computeShare(total);
 				c.unit = impact.referenceUnit;
 				contributions.add(c);
 			}
@@ -110,7 +110,7 @@ public class ImpactHandler {
 				var c = new Contribution<TechFlow>();
 				c.item = techFlow;
 				c.amount = amount;
-				c.share = total != 0 ? amount / total : 0;
+				c.computeShare(total);
 				c.unit = rr.impact().referenceUnit;
 				contributions.add(c);
 			}
@@ -154,7 +154,7 @@ public class ImpactHandler {
 				var c = new Contribution<ImpactDescriptor>();
 				c.item = impact;
 				c.amount = result.getDirectImpactResult(techFlow, impact);
-				c.share = total != 0 ? c.amount / total : 0;
+				c.computeShare(total);
 				c.unit = impact.referenceUnit;
 				var obj = JsonRpc.encodeContribution(c, rr.refs()::asRef);
 				Json.put(obj, "upstream",

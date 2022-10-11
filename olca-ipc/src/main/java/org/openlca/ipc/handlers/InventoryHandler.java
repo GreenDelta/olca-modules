@@ -142,7 +142,7 @@ public class InventoryHandler {
 				var c = new Contribution<EnviFlow>();
 				c.item = enviFlow;
 				c.amount = result.getDirectFlowResult(techFlow, enviFlow);
-				c.share = total != 0 ? c.amount / total : 0;
+				c.computeShare(total);
 				var obj = JsonRpc.encodeContribution(
 						c, ef -> JsonRpc.encodeEnviFlow(ef, rr.refs()));
 				Json.put(obj, "upstream",

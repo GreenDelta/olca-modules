@@ -45,10 +45,10 @@ public class ContributionsTest {
 		checkAmounts(items, 2, 2, 1, 1, 0);
 		items = Contributions.topWithRest(rawItems, 3);
 		checkAmounts(items, 2, 2, 2);
-		Assert.assertEquals(true, items.get(2).isRest);
+		Assert.assertTrue(items.get(2).isRest);
 		items = Contributions.topWithRest(rawItems, 1);
 		checkAmounts(items, 6);
-		Assert.assertEquals(true, items.get(0).isRest);
+		Assert.assertTrue(items.get(0).isRest);
 	}
 
 	private <T> void checkAmounts(List<Contribution<T>> items,

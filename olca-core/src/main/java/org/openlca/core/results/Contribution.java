@@ -70,7 +70,7 @@ public class Contribution<T> {
 			return;
 		}
 		if (total != 0) {
-			share = amount / total;
+			share = amount / Math.abs(total);
 		} else {
 			share = amount > 0 ? 1 : -1;
 		}

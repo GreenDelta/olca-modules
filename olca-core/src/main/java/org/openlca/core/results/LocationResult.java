@@ -41,7 +41,7 @@ public class LocationResult {
 			return Collections.emptyList();
 
 		var flowIndex = result.enviIndex();
-		HashMap<Location, Double> cons = new HashMap<>();
+		var cons = new HashMap<Location, Double>();
 		double total;
 		if (!flowIndex.isRegionalized()) {
 			// non-regionalized calculation;
@@ -56,8 +56,7 @@ public class LocationResult {
 			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
 				double v = result.getDirectFlowResult(product, iFlow);
-				cons.compute(loc,
-						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
+				cons.compute(loc, (_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});
 
 		} else {
@@ -73,8 +72,7 @@ public class LocationResult {
 						: getLocation(iFlow.location().id);
 				double v = result.totalFlowOf(iFlow);
 				t.addAndGet(v);
-				cons.compute(loc,
-						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
+				cons.compute(loc, (_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});
 			total = t.get();
 		}
@@ -163,14 +161,10 @@ public class LocationResult {
 	private List<Contribution<Location>> asContributions(
 			HashMap<Location, Double> cons, double total) {
 		return cons.entrySet().stream().map(e -> {
-			Contribution<Location> c = new Contribution<>();
+			var c = new Contribution<Location>();
 			c.amount = e.getValue() == null ? 0 : e.getValue();
 			c.item = e.getKey();
-			if (total != 0) {
-				c.share = c.amount / total;
-			} else {
-				c.share = c.amount < 0 ? -1 : 1;
-			}
+			c.computeShare(total);
 			return c;
 		}).collect(Collectors.toList());
 	}
