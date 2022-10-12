@@ -98,7 +98,7 @@ public class LocationResult {
 			// corresponding process contributions
 			result.techIndex().each((i, product) -> {
 				Location loc = getLocation(product);
-				double v = result.getDirectImpactResult(product, impact);
+				double v = result.directImpactOf(product, impact);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});
@@ -112,7 +112,7 @@ public class LocationResult {
 				Location loc = iFlow.location() == null
 						? null
 						: getLocation(iFlow.location().id);
-				double v = result.getDirectFlowImpact(iFlow, impact);
+				double v = result.flowImpactOf(impact, iFlow);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});
@@ -131,7 +131,7 @@ public class LocationResult {
 		HashMap<Location, Double> cons = new HashMap<>();
 		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
-			double costs = result.getDirectCostResult(product);
+			double costs = result.directCostsOf(product);
 			double v = costs == 0 ? 0 : -costs;
 			cons.compute(loc,
 					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
@@ -150,7 +150,7 @@ public class LocationResult {
 		HashMap<Location, Double> cons = new HashMap<>();
 		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
-			double v = result.getDirectCostResult(product);
+			double v = result.directCostsOf(product);
 			cons.compute(loc,
 					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 		});

@@ -45,7 +45,7 @@ public class ImpactHandler {
 			var contributions = new ArrayList<Contribution<EnviFlow>>();
 			double total = rr.result().totalImpactOf(rr.impact());
 			for (var enviFlow : rr.result().enviIndex()) {
-				var amount = rr.result().getDirectFlowImpact(enviFlow, rr.impact());
+				var amount = rr.result().flowImpactOf(rr.impact(), enviFlow);
 				if (amount == 0)
 					continue;
 				var c = new Contribution<EnviFlow>();
@@ -73,10 +73,10 @@ public class ImpactHandler {
 				return rr.impactMissing();
 
 			var result = rr.result();
-			double total = result.getDirectImpactResult(techFlow, impact);
+			double total = result.directImpactOf(techFlow, impact);
 			var contributions = new ArrayList<Contribution<EnviFlow>>();
 			for (var enviFlow : result.enviIndex()) {
-				var factor = result.getImpactFactor(impact, enviFlow);
+				var factor = result.impactFactorOf(impact, enviFlow);
 				var flowAmount = result.getDirectFlowResult(techFlow, enviFlow);
 				var amount = factor * flowAmount;
 				if (amount == 0)
@@ -104,7 +104,7 @@ public class ImpactHandler {
 			double total = result.totalImpactOf(rr.impact());
 			var contributions = new ArrayList<Contribution<TechFlow>>();
 			for (var techFlow : result.techIndex()) {
-				var amount = result.getDirectImpactResult(techFlow, rr.impact());
+				var amount = result.directImpactOf(techFlow, rr.impact());
 				if (amount == 0)
 					continue;
 				var c = new Contribution<TechFlow>();
@@ -153,7 +153,7 @@ public class ImpactHandler {
 				var total = result.totalImpactOf(impact);
 				var c = new Contribution<ImpactDescriptor>();
 				c.item = impact;
-				c.amount = result.getDirectImpactResult(techFlow, impact);
+				c.amount = result.directImpactOf(techFlow, impact);
 				c.computeShare(total);
 				c.unit = impact.referenceUnit;
 				var obj = JsonRpc.encodeContribution(c, rr.refs()::asRef);

@@ -14,108 +14,108 @@ import io.grpc.stub.StreamObserver;
 
 class TechFlowContribution {
 
-  private final StreamObserver<ResultValue> resp;
-  private final ResultService service;
+	private final StreamObserver<ResultValue> resp;
+	private final ResultService service;
 
-  private LcaResult result;
-  private TechFlow product;
-  private ImpactDescriptor impact;
-  private EnviFlow flow;
-  private boolean forCosts;
-  private boolean isClosed;
+	private LcaResult result;
+	private TechFlow product;
+	private ImpactDescriptor impact;
+	private EnviFlow flow;
+	private boolean forCosts;
+	private boolean isClosed;
 
-  static TechFlowContribution of(
-    ResultService service,
-    TechFlowContributionRequest req,
-    StreamObserver<ResultValue> resp) {
+	static TechFlowContribution of(
+		ResultService service,
+		TechFlowContributionRequest req,
+		StreamObserver<ResultValue> resp) {
 
-    var resolved = new TechFlowContribution(service, resp);
+		var resolved = new TechFlowContribution(service, resp);
 
-    // a valid result is required
-    if (!req.hasResult() || !req.hasTechFlow())
-      return resolved.error(
-        "A valid result and tech-flow are required");
-    var resultId = req.getResult().getId();
-    var result = service.results.get(resultId);
-    if (result == null)
-      return resolved.error("The result does not exist: " + resultId);
-    resolved.result = result;
+		// a valid result is required
+		if (!req.hasResult() || !req.hasTechFlow())
+			return resolved.error(
+				"A valid result and tech-flow are required");
+		var resultId = req.getResult().getId();
+		var result = service.results.get(resultId);
+		if (result == null)
+			return resolved.error("The result does not exist: " + resultId);
+		resolved.result = result;
 
-    // also, the product is required
-    resolved.product = Results.findProduct(result, req.getTechFlow());
-    if (resolved.product == null) {
-      return resolved.error("The product does not exist in the result");
-    }
+		// also, the product is required
+		resolved.product = Results.findProduct(result, req.getTechFlow());
+		if (resolved.product == null) {
+			return resolved.error("The product does not exist in the result");
+		}
 
-    // set the result selector
-    if (req.hasEnviFlow() && result.hasEnviFlows()) {
-      resolved.flow = Results.findFlow(result, req.getEnviFlow());
-    } else if (req.hasImpact() && result.hasImpacts()) {
-      resolved.impact = Results.findImpact(result, req.getImpact());
-    } else if (req.getCosts() && result.hasCosts()) {
-      resolved.forCosts = true;
-    }
+		// set the result selector
+		if (req.hasEnviFlow() && result.hasEnviFlows()) {
+			resolved.flow = Results.findFlow(result, req.getEnviFlow());
+		} else if (req.hasImpact() && result.hasImpacts()) {
+			resolved.impact = Results.findImpact(result, req.getImpact());
+		} else if (req.getCosts() && result.hasCosts()) {
+			resolved.forCosts = true;
+		}
 
-    return resolved;
-  }
+		return resolved;
+	}
 
-  private TechFlowContribution(
-    ResultService service, StreamObserver<ResultValue> resp) {
-    this.service = service;
-    this.resp = resp;
-  }
+	private TechFlowContribution(
+		ResultService service, StreamObserver<ResultValue> resp) {
+		this.service = service;
+		this.resp = resp;
+	}
 
-  TechFlowContribution ifImpact(
-    ToDoubleTriFunction<LcaResult, TechFlow, ImpactDescriptor> fn) {
-    if (isClosed || impact == null)
-      return this;
-    closeWith(fn.applyAsDouble(result, product, impact));
-    return this;
-  }
+	TechFlowContribution ifImpact(
+		ToDoubleTriFunction<LcaResult, TechFlow, ImpactDescriptor> fn) {
+		if (isClosed || impact == null)
+			return this;
+		closeWith(fn.applyAsDouble(result, product, impact));
+		return this;
+	}
 
-  TechFlowContribution ifFlow(
-    ToDoubleTriFunction<LcaResult, TechFlow, EnviFlow> fn) {
-    if (isClosed || flow == null)
-      return this;
-    closeWith(fn.applyAsDouble(result, product, flow));
-    return this;
-  }
+	TechFlowContribution ifFlow(
+		ToDoubleTriFunction<LcaResult, EnviFlow, TechFlow> fn) {
+		if (isClosed || flow == null)
+			return this;
+		closeWith(fn.applyAsDouble(result, flow, product));
+		return this;
+	}
 
-  TechFlowContribution ifCosts(
-    ToDoubleBiFunction<LcaResult, TechFlow> fn) {
-    if (isClosed || !forCosts)
-      return this;
-    closeWith(fn.applyAsDouble(result, product));
-    return this;
-  }
+	TechFlowContribution ifCosts(
+		ToDoubleBiFunction<LcaResult, TechFlow> fn) {
+		if (isClosed || !forCosts)
+			return this;
+		closeWith(fn.applyAsDouble(result, product));
+		return this;
+	}
 
-  private void closeWith(double value) {
-    if (isClosed)
-      return;
-    var refData = Refs.dataOf(service.db);
-    var proto = ResultValue.newBuilder()
-      .setTechFlow(Results.toProto(product, refData))
-      .setValue(value)
-      .build();
-    resp.onNext(proto);
-    resp.onCompleted();
-    isClosed = true;
-  }
+	private void closeWith(double value) {
+		if (isClosed)
+			return;
+		var refData = Refs.dataOf(service.db);
+		var proto = ResultValue.newBuilder()
+			.setTechFlow(Results.toProto(product, refData))
+			.setValue(value)
+			.build();
+		resp.onNext(proto);
+		resp.onCompleted();
+		isClosed = true;
+	}
 
-  private TechFlowContribution error(String message) {
-    Response.invalidArg(resp, message);
-    isClosed = true;
-    return this;
-  }
+	private TechFlowContribution error(String message) {
+		Response.invalidArg(resp, message);
+		isClosed = true;
+		return this;
+	}
 
-  void close() {
-    if (isClosed)
-      return;
-    closeWith(0);
-  }
+	void close() {
+		if (isClosed)
+			return;
+		closeWith(0);
+	}
 
-  @FunctionalInterface
-  interface ToDoubleTriFunction<T, U, V> {
-    double applyAsDouble(T t, U u, V v);
-  }
+	@FunctionalInterface
+	interface ToDoubleTriFunction<T, U, V> {
+		double applyAsDouble(T t, U u, V v);
+	}
 }

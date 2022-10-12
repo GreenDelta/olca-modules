@@ -204,7 +204,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 			var factor = ImpactFactorResponse.newBuilder()
 				.setIndicator(Refs.refOf(indicator))
 				.setFlow(Results.toProto(flow, refData))
-				.setValue(result.getImpactFactor(indicator, flow));
+				.setValue(result.impactFactorOf(indicator, flow));
 			resp.onNext(factor.build());
 			resp.onCompleted();
 			return;
@@ -214,7 +214,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		if (flow == null) {
 			var indicatorRef = Refs.refOf(indicator);
 			for (var iFlow : flowIndex) {
-				var value = result.getImpactFactor(indicator, iFlow);
+				var value = result.impactFactorOf(indicator, iFlow);
 				if (value == 0)
 					continue;
 				var factor = ImpactFactorResponse.newBuilder()
@@ -232,7 +232,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 			var factor = ImpactFactorResponse.newBuilder()
 				.setIndicator(Refs.refOf(impact))
 				.setFlow(Results.toProto(flow, refData))
-				.setValue(result.getImpactFactor(impact, flow));
+				.setValue(result.impactFactorOf(impact, flow));
 			resp.onNext(factor.build());
 		}
 		resp.onCompleted();
@@ -243,9 +243,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 
 		TechFlowContribution.of(this, req, resp)
-			.ifImpact(LcaResult::getDirectImpactResult)
-			.ifFlow(LcaResult::getDirectFlowResult)
-			.ifCosts(LcaResult::getDirectCostResult)
+			.ifImpact(LcaResult::directImpactOf)
+			.ifFlow(LcaResult::directFlowOf)
+			.ifCosts(LcaResult::directCostsOf)
 			.close();
 	}
 

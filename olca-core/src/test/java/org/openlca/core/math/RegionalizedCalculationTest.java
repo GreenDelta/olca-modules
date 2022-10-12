@@ -401,12 +401,12 @@ public class RegionalizedCalculationTest {
 				// non-regionalized
 				int flowIdx = r.enviIndex().of(flow.id);
 				var iFlow = r.enviIndex().at(flowIdx);
-				double v = r.getUpstreamFlowResult(product, iFlow);
+				double v = r.totalFlowOf(product, iFlow);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
 				double v = orZero(flow, (Location) row[2], r.enviIndex(),
-					iFlow -> r.getUpstreamFlowResult(product, iFlow));
+					iFlow -> r.totalFlowOf(product, iFlow));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}
@@ -428,7 +428,7 @@ public class RegionalizedCalculationTest {
 
 	private void checkDirectImpactResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			double v = r.getDirectImpactResult(
+			double v = r.directImpactOf(
 				product((Process) row[0]), des(impact));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}

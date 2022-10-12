@@ -66,10 +66,7 @@ public final class Contributions {
 		return contributions;
 	}
 
-	/**
-	 * Calculates the relative shares of the given contribution items.
-	 */
-	public static void calculateShares(
+	private static void calculateShares(
 			List<? extends Contribution<?>> contributions) {
 		if (contributions == null || contributions.isEmpty())
 			return;

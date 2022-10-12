@@ -146,7 +146,7 @@ public class InventoryHandler {
 				var obj = JsonRpc.encodeContribution(
 						c, ef -> JsonRpc.encodeEnviFlow(ef, rr.refs()));
 				Json.put(obj, "upstream",
-						result.getUpstreamFlowResult(techFlow, enviFlow));
+						result.totalFlowOf(techFlow, enviFlow));
 				array.add(obj);
 			}
 			return Responses.ok(array, req);

@@ -26,7 +26,7 @@ public class CostHandler {
 				var obj = new JsonObject();
 				Json.put(obj, "provider", JsonRpc.encodeTechFlow(techFlow, rr.refs()));
 				Json.put(obj, "amount", result.totalRequirementsOf(techFlow));
-				Json.put(obj, "costs", result.getDirectCostResult(techFlow));
+				Json.put(obj, "costs", result.directCostsOf(techFlow));
 				return obj;
 			});
 			return Responses.ok(array, req);
