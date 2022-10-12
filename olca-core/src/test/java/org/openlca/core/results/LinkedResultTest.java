@@ -48,14 +48,14 @@ public class LinkedResultTest {
 		result.impactResults.add(ImpactResult.of(impact, 21));
 
 		db.insert(
-			units,
-			mass,
-			product1,
-			product2,
-			process,
-			impact,
-			method,
-			result);
+				units,
+				mass,
+				product1,
+				product2,
+				process,
+				impact,
+				method,
+				result);
 
 		var system = ProductSystem.of(process);
 		system.processes.add(result.id);
@@ -65,15 +65,15 @@ public class LinkedResultTest {
 		link.flowId = product2.id;
 		link.processId = process.id;
 		link.exchangeId = process.exchanges.stream()
-			.filter(e -> e.isInput)
-			.mapToLong(e -> e.id)
-			.findAny()
-			.orElse(0);
+				.filter(e -> e.isInput)
+				.mapToLong(e -> e.id)
+				.findAny()
+				.orElse(0);
 		system.processLinks.add(link);
 		db.insert(system);
 
 		setup = CalculationSetup.of(system)
-			.withImpactMethod(method);
+				.withImpactMethod(method);
 		this.impact = Descriptor.of(impact);
 		this.resultFlow = TechFlow.of(result);
 	}
@@ -95,7 +95,7 @@ public class LinkedResultTest {
 		var calculator = new SystemCalculator(db);
 		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.totalImpactOf(impact), 1e-10);
-		assertEquals(42.0, r.directImpactOf(resultFlow, impact), 1e-10);
+		assertEquals(42.0, r.directImpactOf(impact, resultFlow), 1e-10);
 	}
 
 	@Test
@@ -103,11 +103,11 @@ public class LinkedResultTest {
 		var calculator = new SystemCalculator(db);
 		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.totalImpactOf(impact), 1e-10);
-		assertEquals(42.0, r.directImpactOf(resultFlow, impact), 1e-10);
-		assertEquals(42.0, r.getUpstreamImpactResult(resultFlow, impact), 1e-10);
+		assertEquals(42.0, r.directImpactOf(impact, resultFlow), 1e-10);
+		assertEquals(42.0, r.totalImpactOf(impact, resultFlow), 1e-10);
 
 		// test the upstream tree
-		var tree = r.getTree(impact);
+		var tree = UpstreamTree.of(r.provider(), impact);
 		assertEquals(42.0, tree.root.result, 1e-10);
 		assertEquals(42.0, tree.childs(tree.root).get(0).result, 1e-10);
 	}

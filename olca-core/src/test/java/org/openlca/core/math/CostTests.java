@@ -1,18 +1,19 @@
 package org.openlca.core.math;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.UpstreamTree;
 
 public class CostTests {
 
@@ -20,28 +21,29 @@ public class CostTests {
 
 	@Test
 	public void testSingleProcess() {
-		Process p1 = TestProcess
+		var process = TestProcess
 				.refProduct("p1", 1, "kg")
 				.addCosts("p1", 2, "EUR")
 				.elemIn("water", 1, "m3")
 				.addCosts("water", 5, "EUR")
 				.get();
-		ProductSystem system = TestSystem.of(p1).get();
-		var r = TestSystem.calculate(system);
+		var system = TestSystem.of(process).get();
+		var result = TestSystem.calculate(system);
 
-		Assert.assertEquals(3, r.totalCosts(), 1e-10);
-		ProcessDescriptor d1 = Descriptor.of(p1);
-		Assert.assertEquals(3, r.getUpstreamCostResult(d1), 1e-10);
-		Assert.assertEquals(3, r.getDirectCostResult(d1), 1e-10);
-		var tree = r.getCostTree();
+		var techFlow = TechFlow.of(process);
+
+		assertEquals(3, result.totalCosts(), 1e-10);
+		assertEquals(3, result.totalCostsOf(techFlow), 1e-10);
+		assertEquals(3, result.directCostsOf(techFlow), 1e-10);
+		var tree = UpstreamTree.costsOf(result.provider());
 		var root = tree.root;
-		Assert.assertTrue(tree.childs(root).isEmpty());
-		Assert.assertEquals(3, root.result(), 1e-10);
-		var contributions = r.getProcessCostContributions();
-		Assert.assertEquals(1, contributions.size());
+		assertTrue(tree.childs(root).isEmpty());
+		assertEquals(3, root.result(), 1e-10);
+		var contributions = result.getProcessCostContributions();
+		assertEquals(1, contributions.size());
 		var c = contributions.get(0);
-		Assert.assertEquals(3, c.amount, 1e-10);
-		Assert.assertEquals(1, c.share, 1e-10);
+		assertEquals(3, c.amount, 1e-10);
+		assertEquals(1, c.share, 1e-10);
 	}
 
 	@Test
@@ -54,7 +56,7 @@ public class CostTests {
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
 		LcaResult r = TestSystem.calculate(system);
-		Assert.assertEquals(3, r.totalCosts(), 1e-10);
+		assertEquals(3, r.totalCosts(), 1e-10);
 	}
 
 	@Test
@@ -74,13 +76,14 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p2).link(p1).get();
 		LcaResult r = TestSystem.calculate(system);
 
-		ProcessDescriptor d1 = Descriptor.of(p1);
-		ProcessDescriptor d2 = Descriptor.of(p2);
-		Assert.assertEquals(5, r.totalCosts(), 1e-10);
-		Assert.assertEquals(6, r.getDirectCostResult(d1), 1e-10);
-		Assert.assertEquals(-1, r.getDirectCostResult(d2), 1e-10);
-		Assert.assertEquals(6, r.getUpstreamCostResult(d1), 1e-10);
-		Assert.assertEquals(5, r.getUpstreamCostResult(d2), 1e-10);
+		var d1 = TechFlow.of(p1);
+		var d2 = TechFlow.of(p2);
+
+		assertEquals(5, r.totalCosts(), 1e-10);
+		assertEquals(6, r.directCostsOf(d1), 1e-10);
+		assertEquals(-1, r.directCostsOf(d2), 1e-10);
+		assertEquals(6, r.totalCostsOf(d1), 1e-10);
+		assertEquals(5, r.totalCostsOf(d2), 1e-10);
 	}
 
 	@Test
@@ -113,7 +116,7 @@ public class CostTests {
 		system = db.update(system);
 
 		LcaResult r = TestSystem.calculate(system);
-		Assert.assertEquals(-1.2, r.totalCosts(), 1e-10);
+		assertEquals(-1.2, r.totalCosts(), 1e-10);
 	}
 
 	@Test

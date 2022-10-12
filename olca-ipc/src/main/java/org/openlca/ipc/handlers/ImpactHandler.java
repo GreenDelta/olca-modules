@@ -158,7 +158,7 @@ public class ImpactHandler {
 				c.unit = impact.referenceUnit;
 				var obj = JsonRpc.encodeContribution(c, rr.refs()::asRef);
 				Json.put(obj, "upstream",
-						result.getUpstreamImpactResult(techFlow, impact));
+						result.totalImpactOf(techFlow, impact));
 				array.add(obj);
 			}
 			return Responses.ok(array, req);

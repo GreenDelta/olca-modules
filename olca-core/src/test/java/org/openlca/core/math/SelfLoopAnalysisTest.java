@@ -73,8 +73,7 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private double upstream(String processName, String flowName) {
-		return result.totalFlowOf(
-				process(processName), flow(flowName));
+		return result.totalFlowOf(flow(flowName), process(processName));
 	}
 
 	private EnviFlow flow(String name) {

@@ -47,10 +47,13 @@ public class GroupingContribution {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
 		double total = result.totalImpactOf(impact);
+		var techIdx = result.techIndex();
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
 			for (var p : grouping.processes) {
-				amount += result.getDirectImpactResult(p, impact);
+				for (var techFlow : techIdx.getProviders(p)) {
+					amount += result.directImpactOf(impact, techFlow);
+				}
 			}
 			return amount;
 		});

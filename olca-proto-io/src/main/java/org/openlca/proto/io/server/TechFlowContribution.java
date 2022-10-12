@@ -66,10 +66,10 @@ class TechFlowContribution {
 	}
 
 	TechFlowContribution ifImpact(
-		ToDoubleTriFunction<LcaResult, TechFlow, ImpactDescriptor> fn) {
+		ToDoubleTriFunction<LcaResult, ImpactDescriptor, TechFlow> fn) {
 		if (isClosed || impact == null)
 			return this;
-		closeWith(fn.applyAsDouble(result, product, impact));
+		closeWith(fn.applyAsDouble(result, impact, product));
 		return this;
 	}
 

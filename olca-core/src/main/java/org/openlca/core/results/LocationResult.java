@@ -96,9 +96,9 @@ public class LocationResult {
 			// we take the locations from the processes
 			// in the columns and the results from the
 			// corresponding process contributions
-			result.techIndex().each((i, product) -> {
-				Location loc = getLocation(product);
-				double v = result.directImpactOf(product, impact);
+			result.techIndex().each((i, techFlow) -> {
+				Location loc = getLocation(techFlow);
+				double v = result.directImpactOf(impact, techFlow);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});

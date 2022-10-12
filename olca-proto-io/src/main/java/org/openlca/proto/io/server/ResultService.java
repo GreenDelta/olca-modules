@@ -252,11 +252,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 	@Override
 	public void getTotalContribution(
 		TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
-
 		TechFlowContribution.of(this, req, resp)
-			.ifImpact(LcaResult::getUpstreamImpactResult)
-			.ifFlow(LcaResult::getUpstreamFlowResult)
-			.ifCosts(LcaResult::getUpstreamCostResult)
+			.ifImpact(LcaResult::totalImpactOf)
+			.ifFlow(LcaResult::totalFlowOf)
+			.ifCosts(LcaResult::totalCostsOf)
 			.close();
 	}
 
@@ -266,19 +265,19 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		StreamObserver<ResultValue> resp) {
 
 		TechFlowContribution.of(this, req, resp)
-			.ifImpact((result, product, impact) -> {
-				var productIdx = result.techIndex().of(product);
+			.ifImpact((result, impact, techFlow) -> {
+				var productIdx = result.techIndex().of(techFlow);
 				var impactIdx = result.impactIndex().of(impact);
 				return result.provider().totalImpactOfOne(impactIdx, productIdx);
 			})
-			.ifFlow((result, product, flow) -> {
-				var productIdx = result.techIndex().of(product);
+			.ifFlow((result, flow, techFlow) -> {
+				var productIdx = result.techIndex().of(techFlow);
 				var flowIdx = result.enviIndex().of(flow);
 				var value = result.provider().totalFlowOfOne(flowIdx, productIdx);
 				return ResultProvider.flowValueView(flow, value);
 			})
-			.ifCosts((result, product) -> {
-				var productIdx = result.techIndex().of(product);
+			.ifCosts((result, techFlow) -> {
+				var productIdx = result.techIndex().of(techFlow);
 				return result.provider().totalCostsOfOne(productIdx);
 			})
 			.close();

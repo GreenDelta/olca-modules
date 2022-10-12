@@ -19,7 +19,6 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProcessLink;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
@@ -322,92 +321,43 @@ public class LcaResult implements IResult {
 	}
 
 
-	/**
-	 * Get the upstream contributions of the given process $j$ to the inventory
-	 * result of all elementary flows in the product system.
-	 */
-	public List<EnviFlowValue> getUpstreamFlowResults(
-			RootDescriptor process) {
-		var flowIndex = enviIndex();
-		if (flowIndex == null)
+	public List<EnviFlowValue> totalFlowsOf(TechFlow techFlow) {
+		var enviIdx = enviIndex();
+		if (MatrixIndex.isAbsent(enviIdx))
 			return Collections.emptyList();
-		var results = new ArrayList<EnviFlowValue>();
-		flowIndex.each((i, flow) -> {
-			double value = getUpstreamFlowResult(process, flow);
-			results.add(new EnviFlowValue(flow, value));
+		var list = new ArrayList<EnviFlowValue>();
+		enviIdx.each((i, enviFlow) -> {
+			double value = totalFlowOf(enviFlow, techFlow);
+			list.add(new EnviFlowValue(enviFlow, value));
 		});
-		return results;
+		return list;
 	}
 
-	/**
-	 * Get the upstream contribution of the given process-product pair $j$ to the
-	 * LCIA category result $j$: $\mathbf{V}[i,j]$.
-	 */
-	public double getUpstreamImpactResult(
-			TechFlow product, ImpactDescriptor impact) {
-		if (!hasImpacts())
-			return 0;
-		int impactIdx = impactIndex().of(impact);
-		int productIdx = techIndex().of(product);
-		return impactIdx < 0 || productIdx < 0
+	public double totalImpactOf(ImpactDescriptor impact, TechFlow techFlow) {
+		int impactIdx = provider.indexOf(impact);
+		int techIdx = provider.indexOf(techFlow);
+		return impactIdx < 0 || techIdx < 0
 				? 0
-				: provider.totalImpactOf(impactIdx, productIdx);
+				: provider.totalImpactOf(impactIdx, techIdx);
 	}
 
-	/**
-	 * Get the upstream contribution of the given process $j$ to the LCIA category
-	 * result $i$. When the process has multiple products it is the sum of the
-	 * contributions of all of these process-product pairs.
-	 */
-	public double getUpstreamImpactResult(
-			RootDescriptor process, ImpactDescriptor impact) {
-		double total = 0;
-		for (var p : techIndex().getProviders(process)) {
-			total += getUpstreamImpactResult(p, impact);
-		}
-		return total;
-	}
-
-	/**
-	 * Get the upstream contributions of the given process $j$ to the LCIA category
-	 * results.
-	 */
-	public List<ImpactValue> getUpstreamImpactResults(
-			RootDescriptor process) {
-		var results = new ArrayList<ImpactValue>();
-		if (!hasImpacts())
-			return results;
+	public List<ImpactValue> totalImpactsOf(TechFlow techFlow) {
+		var impactIdx = impactIndex();
+		if (MatrixIndex.isAbsent(impactIdx))
+			return Collections.emptyList();
+		var list = new ArrayList<ImpactValue>();
 		impactIndex().each((i, impact) -> {
-			double amount = getUpstreamImpactResult(process, impact);
-			results.add(new ImpactValue(impact, amount));
+			double amount = totalImpactOf(impact, techFlow);
+			list.add(new ImpactValue(impact, amount));
 		});
-		return results;
+		return list;
 	}
 
-	/**
-	 * Get the upstream contribution of the given process-product pair $j$ to the
-	 * LCC result: $\mathbf{k}_u[j]$.
-	 */
-	public double getUpstreamCostResult(TechFlow product) {
+	public double totalCostsOf(TechFlow techFlow) {
 		if (!this.hasCosts())
 			return 0;
-		int productIdx = techIndex().of(product);
-		return productIdx < 0
-				? 0
-				: provider.totalCostsOf(productIdx);
-	}
-
-	/**
-	 * Get the upstream contribution of the given process $j$ to the LCC result.
-	 * When the process has multiple products it is the sum of the contributions of
-	 * all of these process-product pairs.
-	 */
-	public double getUpstreamCostResult(RootDescriptor process) {
-		double total = 0;
-		for (var p : techIndex().getProviders(process)) {
-			total += getUpstreamCostResult(p);
-		}
-		return total;
+		int techIdx = provider.indexOf(techFlow);
+		return techIdx < 0 ? 0 : provider.totalCostsOf(techIdx);
 	}
 
 	/**

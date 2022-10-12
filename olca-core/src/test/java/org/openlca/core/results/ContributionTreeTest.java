@@ -1,6 +1,7 @@
 package org.openlca.core.results;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.Demand;
@@ -48,13 +49,13 @@ public class ContributionTreeTest {
 
 		// calculate and check the result
 		var r = LcaResult.of(Tests.getDb(), data);
-		Assert.assertEquals(1.0, r.totalFlowOf(enviIndex.at(0)), 1e-16);
+		assertEquals(1.0, r.totalFlowOf(enviIndex.at(0)), 1e-16);
 
-		var tree = r.getTree(enviIndex.at(0));
-		Assert.assertEquals(2, tree.childs(tree.root).size());
-		Assert.assertEquals(1.0, tree.root.result, 1e-16);
-		Assert.assertEquals(0.5, tree.childs(tree.root).get(0).result, 1e-16);
-		Assert.assertEquals(0.5, tree.childs(tree.root).get(1).result, 1e-16);
+		var tree = UpstreamTree.of(r.provider(), enviIndex.at(0));
+		assertEquals(2, tree.childs(tree.root).size());
+		assertEquals(1.0, tree.root.result, 1e-16);
+		assertEquals(0.5, tree.childs(tree.root).get(0).result, 1e-16);
+		assertEquals(0.5, tree.childs(tree.root).get(1).result, 1e-16);
 
 	}
 
