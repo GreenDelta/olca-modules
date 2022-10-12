@@ -8,6 +8,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.TechFlowValue;
+import org.openlca.core.results.UpstreamNode;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
 
@@ -86,6 +87,16 @@ final class JsonUtil {
 		var obj = new JsonObject();
 		obj.add("impactCategory", refs.asRef(v.impact()));
 		obj.addProperty("value", v.value());
+		return obj;
+	}
+
+	static JsonObject encodeUpstreamNode(UpstreamNode node, JsonRefs refs) {
+		if (node == null)
+			return null;
+		var obj = new JsonObject();
+		Json.put(obj, "techFlow", encodeTechFlow(node.provider(), refs));
+		Json.put(obj, "result", node.result());
+		Json.put(obj, "requiredAmount", node.requiredAmount());
 		return obj;
 	}
 

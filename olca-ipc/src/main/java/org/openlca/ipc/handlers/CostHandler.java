@@ -1,6 +1,5 @@
 package org.openlca.ipc.handlers;
 
-import org.openlca.core.services.JsonResultService;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;

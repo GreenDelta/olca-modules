@@ -6,7 +6,10 @@ import java.util.function.Function;
 import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.UpstreamTree;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
 
@@ -119,6 +122,8 @@ public class JsonResultService {
 		});
 	}
 
+	// region: costs
+
 	public Response<JsonArray> getDirectCosts(String resultId) {
 		return withResult(resultId, result -> {
 			var refs = JsonRefs.of(db);
@@ -145,6 +150,44 @@ public class JsonResultService {
 			return Response.of(array);
 		});
 	}
+
+	// endregion
+
+	// region: upstream trees
+
+	public Response<JsonArray> getUpstreamNodes(
+			String resultId, String path, EnviFlow flow) {
+		return withResult(resultId, result -> {
+			var tree = UpstreamTree.of(result.provider(), flow);
+			return getUpstreamNodes(path, tree);
+		});
+	}
+
+	public Response<JsonArray> getUpstreamNodes(
+			String resultId, String path, ImpactDescriptor impact) {
+		return withResult(resultId, result -> {
+			var tree = UpstreamTree.of(result.provider(), impact);
+			return getUpstreamNodes(path, tree);
+		});
+	}
+
+	public Response<JsonArray> getUpstreamNodesForCosts(
+			String resultId, String path) {
+		return withResult(resultId, result -> {
+			var tree = UpstreamTree.costsOf(result.provider());
+			return getUpstreamNodes(path, tree);
+		});
+	}
+
+	private Response<JsonArray> getUpstreamNodes(String path, UpstreamTree tree) {
+		var nodes = UpstreamPath.parse(path).selectChilds(tree);
+		var refs = JsonRefs.of(db);
+		var array = JsonUtil.encodeArray(
+				nodes, node -> JsonUtil.encodeUpstreamNode(node, refs));
+		return Response.of(array);
+	}
+
+	// endregion
 
 	public Response<JsonObject> dispose(String resultId) {
 		try {
