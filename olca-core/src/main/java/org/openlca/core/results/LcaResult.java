@@ -436,40 +436,4 @@ public class LcaResult implements IResult {
 				? 0
 				: -amount / total;
 	}
-
-	/**
-	 * Calculate the upstream tree for the given flow.
-	 */
-	public UpstreamTree getTree(EnviFlow flow) {
-		int i = enviIndex().of(flow);
-		double total = totalFlowOf(flow);
-		return new UpstreamTree(flow, provider, total,
-				product -> provider.totalFlowOfOne(i, product));
-	}
-
-	/**
-	 * Calculate the upstream tree for the given LCIA category.
-	 */
-	public UpstreamTree getTree(ImpactDescriptor impact) {
-		int i = impactIndex().of(impact.id);
-		double total = totalImpactOf(impact);
-		return new UpstreamTree(impact, provider, total,
-				product -> provider.totalImpactOfOne(i, product));
-	}
-
-	/**
-	 * Calculate the upstream tree for the LCC result as costs.
-	 */
-	public UpstreamTree getCostTree() {
-		return new UpstreamTree(provider, totalCosts(),
-				provider::totalCostsOfOne);
-	}
-
-	/**
-	 * Calculate the upstream tree for the LCC result as added value.
-	 */
-	public UpstreamTree getAddedValueTree() {
-		return new UpstreamTree(provider, -totalCosts(),
-				product -> -provider.totalCostsOfOne(product));
-	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.IntToDoubleFunction;
 
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 
 /**
@@ -24,20 +25,40 @@ public class UpstreamTree {
 	private final IntToDoubleFunction intensity;
 	private final ResultProvider r;
 
-	public UpstreamTree(ResultProvider r, double total, IntToDoubleFunction intensity) {
-		this(null, r, total, intensity);
-	}
-
-	public UpstreamTree(
-		Object ref, ResultProvider r, double total, IntToDoubleFunction intensity) {
+	private UpstreamTree(
+			Object ref, ResultProvider r, double total, IntToDoubleFunction intensity) {
 		this.ref = ref;
 		this.r = r;
 		this.intensity = intensity;
-		root = UpstreamNode.rootOf( r.techIndex(), r.demand());
+		root = UpstreamNode.rootOf(r.techIndex(), r.demand());
 		double demand = r.demand().value();
 		root.scaling = demand / r.techValueOf(root.index, root.index);
 		setRequiredAmount(root, demand);
 		root.result = total;
+	}
+
+	public static UpstreamTree of(ResultProvider provider, EnviFlow flow) {
+		int flowIdx = provider.indexOf(flow);
+		double total = provider.totalFlows()[flowIdx];
+		return new UpstreamTree(flow, provider, total,
+				techIdx -> provider.totalFlowOfOne(flowIdx, techIdx));
+	}
+
+	public static UpstreamTree of(ResultProvider provider, ImpactDescriptor impact) {
+		int impactIdx = provider.indexOf(impact);
+		double total = provider.totalImpacts()[impactIdx];
+		return new UpstreamTree(impact, provider, total,
+				techIdx -> provider.totalImpactOfOne(impactIdx, techIdx));
+	}
+
+	public static UpstreamTree costsOf(ResultProvider provider) {
+		return new UpstreamTree(null, provider, provider.totalCosts(),
+				provider::totalCostsOfOne);
+	}
+
+	public static UpstreamTree addedValuesOf(ResultProvider provider) {
+		return new UpstreamTree(null, provider, -provider.totalCosts(),
+				techIdx -> -provider.totalCostsOfOne(techIdx));
 	}
 
 	public List<UpstreamNode> childs(UpstreamNode parent) {
@@ -78,15 +99,15 @@ public class UpstreamTree {
 		if (value == 0)
 			return 0;
 		return ref instanceof EnviFlow flow
-			? ResultProvider.flowValueView(flow, value)
-			: value;
+				? ResultProvider.flowValueView(flow, value)
+				: value;
 	}
 
 	private void setRequiredAmount(UpstreamNode child, double value) {
 		if (value == 0)
 			return;
 		child.requiredAmount = child.provider.isWaste()
-			? -value
-			: value;
+				? -value
+				: value;
 	}
 }
