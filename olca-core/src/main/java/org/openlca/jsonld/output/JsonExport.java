@@ -62,7 +62,7 @@ public class JsonExport {
 	boolean exportProviders = false;
 
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
-	final DbRefs dbRefs;
+	final JsonRefs dbRefs;
 
 	/**
 	 * Creates an export without database. This can be useful to convert specific
@@ -77,7 +77,7 @@ public class JsonExport {
 		this.db = db;
 		this.writer = Objects.requireNonNull(writer);
 		this.dbRefs = db != null
-				? DbRefs.of(db)
+				? JsonRefs.of(db)
 				: null;
 	}
 

@@ -47,7 +47,7 @@ import org.openlca.jsonld.input.ResultReader;
 import org.openlca.jsonld.input.SocialIndicatorReader;
 import org.openlca.jsonld.input.SourceReader;
 import org.openlca.jsonld.input.UnitGroupReader;
-import org.openlca.jsonld.output.DbRefs;
+import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.jsonld.output.JsonWriter;
 import org.openlca.util.Strings;
@@ -117,7 +117,7 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("type missing");
 		try {
 			var array = new JsonArray();
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var descriptors = db.getDescriptors(type);
 			for (var d : descriptors) {
 				var ref = refs.asRef(d);
@@ -141,7 +141,7 @@ public record JsonDataService(IDatabase db) {
 			var d = db.getDescriptor(type, id);
 			if (d == null)
 				return Response.empty();
-			var ref = DbRefs.of(db).asRef(d);
+			var ref = JsonRefs.of(db).asRef(d);
 			return Response.of(ref);
 		} catch (Exception e) {
 			return Response.error(e);
@@ -239,7 +239,7 @@ public record JsonDataService(IDatabase db) {
 		try {
 			var providers = ProcessTable.create(db).getProviders();
 			var array = new JsonArray();
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			for (var p : providers) {
 				array.add(JsonUtil.encodeTechFlow(p, refs));
 			}
@@ -258,7 +258,7 @@ public record JsonDataService(IDatabase db) {
 				return Response.empty();
 			var providers = ProcessTable.create(db).getProviders(flow.id);
 			var array = new JsonArray();
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			for (var p : providers) {
 				array.add(JsonUtil.encodeTechFlow(p, refs));
 			}

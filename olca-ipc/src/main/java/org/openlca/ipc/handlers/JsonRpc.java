@@ -15,7 +15,7 @@ import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.output.DbRefs;
+import org.openlca.jsonld.output.JsonRefs;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,7 +29,7 @@ class JsonRpc {
 	private JsonRpc() {
 	}
 
-	static JsonObject encodeResult(LcaResult r, String id, DbRefs refs) {
+	static JsonObject encodeResult(LcaResult r, String id, JsonRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "@id", id);
 		obj.addProperty("@id", id);
@@ -65,7 +65,7 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encodeEnviFlow(EnviFlow ef, DbRefs refs) {
+	static JsonObject encodeEnviFlow(EnviFlow ef, JsonRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "flow", refs.asRef(ef.flow()));
 		Json.put(obj, "location", refs.asRef(ef.location()));
@@ -73,14 +73,14 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encodeTechFlow(TechFlow techFlow, DbRefs refs) {
+	static JsonObject encodeTechFlow(TechFlow techFlow, JsonRefs refs) {
 		var obj = new JsonObject();
 		Json.put(obj, "provider", refs.asRef(techFlow.provider()));
 		Json.put(obj, "flow", refs.asRef(techFlow.flow()));
 		return obj;
 	}
 
-	static JsonObject encodeFlowValue(EnviFlowValue r, DbRefs refs) {
+	static JsonObject encodeFlowValue(EnviFlowValue r, JsonRefs refs) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();
@@ -90,7 +90,7 @@ class JsonRpc {
 		return obj;
 	}
 
-	static JsonObject encodeImpactValue(ImpactValue r, DbRefs refs) {
+	static JsonObject encodeImpactValue(ImpactValue r, JsonRefs refs) {
 		if (r == null)
 			return null;
 		JsonObject obj = new JsonObject();

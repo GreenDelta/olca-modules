@@ -9,7 +9,7 @@ import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.output.DbRefs;
+import org.openlca.jsonld.output.JsonRefs;
 
 import java.util.function.Function;
 
@@ -18,7 +18,7 @@ final class JsonUtil {
 	private JsonUtil() {
 	}
 
-	static JsonObject encodeTechFlow(TechFlow techFlow, DbRefs refs) {
+	static JsonObject encodeTechFlow(TechFlow techFlow, JsonRefs refs) {
 		if (techFlow == null)
 			return null;
 		var obj = new JsonObject();
@@ -27,7 +27,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeEnviFlow(EnviFlow enviFlow, DbRefs refs) {
+	static JsonObject encodeEnviFlow(EnviFlow enviFlow, JsonRefs refs) {
 		if (enviFlow == null)
 			return null;
 		var obj = new JsonObject();
@@ -62,7 +62,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeTechFlowValue(TechFlowValue v, DbRefs refs) {
+	static JsonObject encodeTechFlowValue(TechFlowValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();
@@ -71,7 +71,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeEnviFlowValue(EnviFlowValue v, DbRefs refs) {
+	static JsonObject encodeEnviFlowValue(EnviFlowValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();
@@ -80,7 +80,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeImpactValue(ImpactValue v, DbRefs refs) {
+	static JsonObject encodeImpactValue(ImpactValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();

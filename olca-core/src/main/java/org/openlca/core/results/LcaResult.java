@@ -242,6 +242,16 @@ public class LcaResult implements IResult {
 		return results;
 	}
 
+	public List<TechFlowValue> directCosts() {
+		if (!hasCosts())
+			return Collections.emptyList();
+		var list = new ArrayList<TechFlowValue>();
+		for (var techFlow : techIndex()) {
+			list.add(TechFlowValue.of(techFlow, directCostsOf(techFlow)));
+		}
+		return list;
+	}
+
 	public double directCostsOf(TechFlow techFlow) {
 		if (!hasCosts())
 			return 0;
@@ -358,6 +368,16 @@ public class LcaResult implements IResult {
 			return 0;
 		int techIdx = provider.indexOf(techFlow);
 		return techIdx < 0 ? 0 : provider.totalCostsOf(techIdx);
+	}
+
+	public List<TechFlowValue> totalCostsByTechFlow() {
+		if (!this.hasCosts())
+			return Collections.emptyList();
+		var list = new ArrayList<TechFlowValue>();
+		techIndex().each((i, techFlow) -> {
+			list.add(new TechFlowValue(techFlow, totalCostsOf(techFlow)));
+		});
+		return list;
 	}
 
 	/**

@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * DbRefs helps to create data set references when no full-entities are
+ * JsonRefs helps to create data set references when no full-entities are
  * available. An instance of this class maintains an internal cache and can be
  * reused when multiple references should be created. For full-entities,
- * {@code Json.asRef} should be used instead.
+ * {@code Json.asRef} could be used instead.
  */
-public class DbRefs {
+public class JsonRefs {
 
 	private final IDatabase db;
 	private final PathBuilder categories;
@@ -33,14 +33,14 @@ public class DbRefs {
 	private Map<Long, String> _locationCodes;
 	private Map<Long, String> _refUnits;
 
-	private DbRefs(IDatabase db) {
+	private JsonRefs(IDatabase db) {
 		this.db = db;
 		this.categories = Categories.pathsOf(db);
 		this.cache = new EnumMap<>(ModelType.class);
 	}
 
-	public static DbRefs of(IDatabase db) {
-		return new DbRefs(db);
+	public static JsonRefs of(IDatabase db) {
+		return new JsonRefs(db);
 	}
 
 	public JsonObject asRef(RootDescriptor d) {

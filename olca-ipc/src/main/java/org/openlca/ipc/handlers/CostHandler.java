@@ -1,5 +1,6 @@
 package org.openlca.ipc.handlers;
 
+import org.openlca.core.services.JsonResultService;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -16,7 +17,7 @@ public class CostHandler {
 		this.context = context;
 	}
 
-	@Rpc("get/costs/total_requirements")
+	@Rpc("get/costs/direct")
 	public RpcResponse getTotalRequirements(RpcRequest req) {
 		return ResultRequest.of(req, context, rr -> {
 			var result = rr.result();

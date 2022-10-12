@@ -9,7 +9,7 @@ import org.openlca.ipc.Responses;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.output.DbRefs;
+import org.openlca.jsonld.output.JsonRefs;
 
 import java.util.function.Function;
 
@@ -18,7 +18,7 @@ class ResultRequest {
 	private final RpcRequest req;
 	private final JsonObject reqParam;
 	private final LcaResult result;
-	private final DbRefs refs;
+	private final JsonRefs refs;
 
 	private TechFlow _techFlow;
 	private EnviFlow _enviFlow;
@@ -28,7 +28,7 @@ class ResultRequest {
 			RpcRequest req,
 			JsonObject reqParam,
 			LcaResult result,
-			DbRefs refs) {
+			JsonRefs refs) {
 		this.req = req;
 		this.reqParam = reqParam;
 		this.result = result;
@@ -79,7 +79,7 @@ class ResultRequest {
 		return req;
 	}
 
-	DbRefs refs() {
+	JsonRefs refs() {
 		return refs;
 	}
 

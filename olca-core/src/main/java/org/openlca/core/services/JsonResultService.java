@@ -3,11 +3,12 @@ package org.openlca.core.services;
 import java.util.Objects;
 import java.util.function.Function;
 
+import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.output.DbRefs;
+import org.openlca.jsonld.output.JsonRefs;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -53,7 +54,7 @@ public class JsonResultService {
 
 	public Response<JsonArray> getTechFlows(String resultId) {
 		return withResult(resultId, result -> {
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(
 					result.techIndex(),
 					techFlow -> JsonUtil.encodeTechFlow(techFlow, refs));
@@ -66,7 +67,7 @@ public class JsonResultService {
 			var index = result.enviIndex();
 			if (index == null)
 				return Response.of(new JsonArray());
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(index,
 					enviFlow -> JsonUtil.encodeEnviFlow(enviFlow, refs));
 			return Response.of(array);
@@ -78,7 +79,7 @@ public class JsonResultService {
 			var index = result.impactIndex();
 			if (index == null)
 				return Response.of(new JsonArray());
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(index, refs::asRef);
 			return Response.of(array);
 		});
@@ -87,7 +88,7 @@ public class JsonResultService {
 	public Response<JsonArray> getTotalRequirements(String resultId) {
 		return withResult(resultId, result -> {
 			var tr = result.totalRequirements();
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(tr,
 					techValue -> JsonUtil.encodeTechFlowValue(techValue, refs));
 			return Response.of(array);
@@ -98,7 +99,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			if (!result.hasImpacts())
 				return Response.of(new JsonArray());
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(
 					result.totalImpacts(),
 					value -> JsonUtil.encodeImpactValue(value, refs));
@@ -110,10 +111,37 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			if (!result.hasEnviFlows())
 				return Response.of(new JsonArray());
-			var refs = DbRefs.of(db);
+			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(
 					result.totalFlows(),
 					value -> JsonUtil.encodeEnviFlowValue(value, refs));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getDirectCosts(String resultId) {
+		return withResult(resultId, result -> {
+			var refs = JsonRefs.of(db);
+			var array = JsonUtil.encodeArray(
+					result.directCosts(),
+					value -> JsonUtil.encodeTechFlowValue(value, refs));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonPrimitive> getTotalCosts(String resultId) {
+		return withResult(resultId, result -> {
+			double costs = result.totalCosts();
+			return Response.of(new JsonPrimitive(costs));
+		});
+	}
+
+	public Response<JsonArray> getTotalCostsByTechFlow(String resultId) {
+		return withResult(resultId, result -> {
+			var refs = JsonRefs.of(db);
+			var array = JsonUtil.encodeArray(
+					result.totalCostsByTechFlow(),
+					value -> JsonUtil.encodeTechFlowValue(value, refs));
 			return Response.of(array);
 		});
 	}
