@@ -2,14 +2,14 @@ package org.openlca.io.xls.results.system;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
 class ProcessImpactContributionSheet
-		extends ContributionSheet<RootDescriptor, ImpactDescriptor> {
+		extends ContributionSheet<TechFlow, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
@@ -30,18 +30,18 @@ class ProcessImpactContributionSheet
 	private void write(Workbook wb) {
 		Sheet sheet = wb.createSheet("Process impact contributions");
 		header(sheet);
-		subHeaders(sheet, items.processes(), items.impacts());
-		data(sheet, items.processes(), items.impacts());
+		subHeaders(sheet, items.techFlows(), items.impacts());
+		data(sheet, items.techFlows(), items.impacts());
 	}
 
 	@Override
-	protected double getValue(RootDescriptor process, ImpactDescriptor impact) {
-		return r.getDirectImpactResult(process, impact);
+	protected double getValue(TechFlow techFlow, ImpactDescriptor impact) {
+		return r.directImpactOf(impact, techFlow);
 	}
 
 	@Override
-	protected void subHeaderCol(RootDescriptor process, Sheet sheet, int col) {
-		writer.processCol(sheet, 1, col, process);
+	protected void subHeaderCol(TechFlow techFlow, Sheet sheet, int col) {
+		writer.processCol(sheet, 1, col, techFlow);
 	}
 
 	@Override

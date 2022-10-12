@@ -30,7 +30,7 @@ public class ResultItemOrder {
 	private List<EnviFlow> enviFlows;
 	private List<ImpactDescriptor> impacts;
 	private List<TechFlow> techFlows;
-	private List<RootDescriptor> processes;
+	private List<RootDescriptor> providers;
 
 	private ResultItemOrder(List<? extends IResult> results) {
 		this.results = results;
@@ -81,15 +81,15 @@ public class ResultItemOrder {
 		return techFlows;
 	}
 
-	public List<RootDescriptor> processes() {
-		if (processes != null)
-			return processes;
+	public List<RootDescriptor> providers() {
+		if (providers != null)
+			return providers;
 		var set = new HashSet<RootDescriptor>();
 		for (var techFlow : techFlows()) {
 			set.add(techFlow.provider());
 		}
-		processes = new ArrayList<>(set);
-		return processes;
+		providers = new ArrayList<>(set);
+		return providers;
 	}
 
 	public List<EnviFlow> enviFlows() {

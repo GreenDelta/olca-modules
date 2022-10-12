@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
@@ -39,6 +40,10 @@ public class CellWriter {
 	public CellWriter(EntityCache cache, Workbook wb) {
 		this.cache = cache;
 		this.styles = new CellStyles(wb);
+	}
+
+	public void processCol(Sheet sheet, int row, int col, TechFlow techFlow) {
+		processCol(sheet, row, col, techFlow.provider());
 	}
 
 	/**

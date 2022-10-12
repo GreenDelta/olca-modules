@@ -3,13 +3,12 @@ package org.openlca.io.xls.results.system;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
-class ProcessFlowUpstreamSheet
-		extends ContributionSheet<RootDescriptor, EnviFlow> {
+class ProcessFlowUpstreamSheet extends ContributionSheet<TechFlow, EnviFlow> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
@@ -30,18 +29,17 @@ class ProcessFlowUpstreamSheet
 	private void write(Workbook workbook) {
 		Sheet sheet = workbook.createSheet("Process upstream flows");
 		header(sheet);
-		subHeaders(sheet, items.processes(), items.enviFlows());
-		data(sheet, items.processes(), items.enviFlows());
+		subHeaders(sheet, items.techFlows(), items.enviFlows());
+		data(sheet, items.techFlows(), items.enviFlows());
 	}
 
 	@Override
-	protected double getValue(RootDescriptor process, EnviFlow flow) {
-		return r.getUpstreamFlowResult(process, flow);
+	protected double getValue(TechFlow process, EnviFlow flow) {
+		return r.totalFlowOf(flow, process);
 	}
 
 	@Override
-	protected void subHeaderCol(RootDescriptor process, Sheet sheet,
-			int col) {
+	protected void subHeaderCol(TechFlow process, Sheet sheet, int col) {
 		writer.processCol(sheet, 1, col, process);
 	}
 
