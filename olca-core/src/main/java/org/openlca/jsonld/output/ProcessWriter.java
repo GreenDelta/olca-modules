@@ -168,8 +168,8 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(obj, "flow", exp.handleRef(e.flow));
 		Json.put(obj, "unit", Json.asRef(e.unit));
 		var property = e.flowPropertyFactor != null
-			? e.flowPropertyFactor.flowProperty
-			: null;
+				? e.flowPropertyFactor.flowProperty
+				: null;
 		Json.put(obj, "flowProperty", exp.handleRef(property));
 		Json.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
 
@@ -179,10 +179,10 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 
 		if (exp.exportProviders) {
 			Json.put(obj, "defaultProvider",
-				exp.handleRef(ModelType.PROCESS, e.defaultProviderId));
-		} else {
-			var d = new ProcessDao(exp.db).getDescriptor(e.defaultProviderId);
-			Json.put(obj, "defaultProvider", Json.asRef(d));
+					exp.handleRef(ModelType.PROCESS, e.defaultProviderId));
+		} else if (exp.dbRefs != null) {
+			Json.put(obj, "defaultProvider",
+					exp.dbRefs.asRef(ModelType.PROCESS, e.defaultProviderId));
 		}
 	}
 
