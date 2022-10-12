@@ -60,14 +60,15 @@ public class JsonExport {
 	boolean exportReferences = true;
 	boolean skipLibraryData = true;
 	boolean exportProviders = false;
+	boolean skipExternalFiles = false;
 
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
 	final DbRefs dbRefs;
 
 	/**
-	 * Creates an export without database. This can be useful to convert specific
-	 * objects into JSON but some data may not be convertible with such an export
-	 * (e.g. process links).
+	 * Creates an export without database. This can be useful to convert
+	 * specific objects into JSON but some data may not be convertible with such
+	 * an export (e.g. process links).
 	 */
 	public JsonExport(JsonStoreWriter writer) {
 		this(null, writer);
@@ -99,6 +100,11 @@ public class JsonExport {
 
 	public JsonExport skipLibraryData(boolean b) {
 		skipLibraryData = b;
+		return this;
+	}
+
+	public JsonExport skipExternalFiles(boolean b) {
+		skipExternalFiles = b;
 		return this;
 	}
 
@@ -186,7 +192,9 @@ public class JsonExport {
 		try {
 			var obj = w.write(entity);
 			writer.put(type, obj);
-			writeExternalFiles(entity, type, cb);
+			if (!skipExternalFiles) {
+				writeExternalFiles(entity, type, cb);
+			}
 			if (cb != null)
 				cb.apply(Message.info("data set exported"), entity);
 		} catch (Exception e) {
