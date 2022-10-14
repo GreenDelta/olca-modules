@@ -1,15 +1,16 @@
 package org.openlca.ipc.handlers;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.LcaResult;
+import org.openlca.core.services.Response;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.output.JsonRefs;
+import org.openlca.util.Strings;
 
 import java.util.function.Function;
 
@@ -17,78 +18,44 @@ class ResultRequest {
 
 	private final RpcRequest req;
 	private final JsonObject reqParam;
-	private final LcaResult result;
-	private final JsonRefs refs;
+	private final String resultId;
 
 	private TechFlow _techFlow;
 	private EnviFlow _enviFlow;
 	private ImpactDescriptor _impact;
 
-	private ResultRequest(
-			RpcRequest req,
-			JsonObject reqParam,
-			LcaResult result,
-			JsonRefs refs) {
+	private ResultRequest(RpcRequest req, JsonObject reqParam, String resultId) {
 		this.req = req;
 		this.reqParam = reqParam;
-		this.result = result;
-		this.refs = refs;
+		this.resultId = resultId;
 	}
 
-	static RpcResponse of(RpcRequest req, HandlerContext context,
-			Function<ResultRequest, RpcResponse> handler) {
-		var paramQ = parameterOf(req);
+	static RpcResponse of(RpcRequest req,
+			Function<ResultRequest, Response<? extends JsonElement>> handler) {
+		Effect<JsonObject> paramQ =
+				req == null || req.params == null || !req.params.isJsonObject()
+						? Effect.error(Responses.invalidParams(req))
+						: Effect.ok(req.params.getAsJsonObject());
 		if (paramQ.isError())
 			return paramQ.error();
 		var param = paramQ.value();
-		var cached = resultOf(context, req, param);
-		if (cached.isError())
-			return cached.error();
-		var cachedResult = cached.value();
-		if (!(cachedResult.result() instanceof LcaResult result))
-			return Responses.badRequest(
-					"method cannot be called on this type of result", req);
-
-		var reqData = new ResultRequest(
-				req,
-				param,
-				result,
-				cachedResult.refs());
-		return handler.apply(reqData);
-	}
-
-	private static Effect<JsonObject> parameterOf(RpcRequest req) {
-		return req == null || req.params == null || !req.params.isJsonObject()
-				? Effect.error(Responses.invalidParams(req))
-				: Effect.ok(req.params.getAsJsonObject());
-	}
-
-	private static Effect<CachedResult<?>> resultOf(
-			HandlerContext context, RpcRequest req, JsonObject param) {
-		var resultId = Json.getString(param, "resultId");
-		if (resultId == null)
-			return Effect.error(Responses.invalidParams("resultId is missing", req));
-		CachedResult<?> result = context.getCached(CachedResult.class, resultId);
-		return result != null
-				? Effect.ok(result)
-				: Effect.error(Responses.notFound(
-				"no such result exists; id=" + resultId, req));
+		var resultId = Json.getString(param, "@id");
+		if (Strings.nullOrEmpty(resultId))
+			return Responses.invalidParams("no result ID @id provided", req);
+		var reqData = new ResultRequest(req, param, resultId);
+		return Responses.of(handler.apply(reqData), req);
 	}
 
 	RpcRequest request() {
 		return req;
 	}
 
-	JsonRefs refs() {
-		return refs;
-	}
-
 	JsonObject requestParameter() {
 		return reqParam;
 	}
 
-	LcaResult result() {
-		return result;
+	String id() {
+		return resultId;
 	}
 
 	EnviFlow enviFlow() {

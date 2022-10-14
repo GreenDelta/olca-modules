@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openlca.core.services.CalculationQueue;
+import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
@@ -37,7 +39,8 @@ public class Server extends NanoHTTPD {
 	public Server withDefaultHandlers() {
 		log.info("Register default handlers");
 		var cache = new Cache();
-		var context = new HandlerContext(this, config, cache);
+		var results = JsonResultService.of(config.db());
+		var context = new HandlerContext(this, config, results, cache);
 		register(new ModelHandler(context));
 		register(new Calculator(context));
 		register(new InventoryHandler(context));
