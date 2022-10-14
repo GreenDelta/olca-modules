@@ -7,6 +7,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.LocationResult;
+import org.openlca.core.services.JsonResultService;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -17,49 +18,27 @@ import com.google.gson.JsonArray;
 
 public class ImpactHandler {
 
-	private final HandlerContext context;
+	private final JsonResultService results;
 
 	public ImpactHandler(HandlerContext context) {
-		this.context = context;
+		this.results = context.results();
 	}
 
-	@Rpc("get/impacts")
-	public RpcResponse getImpacts(RpcRequest req) {
-		return ResultRequest.of(req, context, rr -> {
-			var result = rr.result();
-			if (!result.hasImpacts())
-				return Responses.ok(new JsonArray(), req);
-			var array = result.totalImpacts().stream()
-					.filter(r -> r.value() != 0)
-					.map(r -> JsonRpc.encodeImpactValue(r, rr.refs()))
-					.collect(JsonRpc.toArray());
-			return Responses.ok(array, req);
-		});
+	@Rpc("result/impacts/total")
+	public RpcResponse getTotalImpacts(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.getTotalImpacts(rr.id()));
 	}
 
-	@Rpc("get/impacts/contributions/flows")
-	public RpcResponse getFlowContributions(RpcRequest req) {
-		return ResultRequest.of(req, context, rr -> {
-			if (rr.impact() == null)
-				return rr.impactMissing();
-			var contributions = new ArrayList<Contribution<EnviFlow>>();
-			double total = rr.result().totalImpactOf(rr.impact());
-			for (var enviFlow : rr.result().enviIndex()) {
-				var amount = rr.result().flowImpactOf(rr.impact(), enviFlow);
-				if (amount == 0)
-					continue;
-				var c = new Contribution<EnviFlow>();
-				c.item = enviFlow;
-				c.amount = amount;
-				c.computeShare(total);
-				c.unit = rr.impact().referenceUnit;
-				contributions.add(c);
-			}
-			var array = JsonRpc.encodeContributions(
-					contributions,
-					f -> JsonRpc.encodeEnviFlow(f, rr.refs()));
-			return Responses.ok(array, req);
-		});
+	@Rpc("result/impact/envi-flows")
+	public RpcResponse getImpactOfEnviFlows(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getImpactOfEnviFlows(rr.id(), rr.impactId()));
+	}
+
+	@Rpc("result/impact/tech-flows")
+	public RpcResponse getImpactOfTechFlows(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getImpactOfTechFlows(rr.id(), rr.impactId()));
 	}
 
 	@Rpc("get/impacts/contributions/process/flows")

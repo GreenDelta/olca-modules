@@ -112,7 +112,7 @@ public class LocationResult {
 				Location loc = iFlow.location() == null
 						? null
 						: getLocation(iFlow.location().id);
-				double v = result.flowImpactOf(impact, iFlow);
+				double v = result.impactOfEnviFlow(impact, iFlow);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});

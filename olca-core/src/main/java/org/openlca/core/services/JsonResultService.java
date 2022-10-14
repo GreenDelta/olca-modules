@@ -15,6 +15,7 @@ import org.openlca.jsonld.output.JsonRefs;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.openlca.util.Strings;
 
 public class JsonResultService {
 
@@ -98,6 +99,20 @@ public class JsonResultService {
 		});
 	}
 
+	public Response<JsonArray> getTotalFlows(String resultId) {
+		return withResult(resultId, result -> {
+			if (!result.hasEnviFlows())
+				return Response.of(new JsonArray());
+			var refs = JsonRefs.of(db);
+			var array = JsonUtil.encodeArray(
+					result.totalFlows(),
+					value -> JsonUtil.encodeEnviFlowValue(value, refs));
+			return Response.of(array);
+		});
+	}
+
+	// region: impacts
+
 	public Response<JsonArray> getTotalImpacts(String resultId) {
 		return withResult(resultId, result -> {
 			if (!result.hasImpacts())
@@ -110,17 +125,23 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getTotalFlows(String resultId) {
-		return withResult(resultId, result -> {
-			if (!result.hasEnviFlows())
-				return Response.of(new JsonArray());
-			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(
-					result.totalFlows(),
-					value -> JsonUtil.encodeEnviFlowValue(value, refs));
-			return Response.of(array);
-		});
+	public Response<JsonArray> getImpactOfEnviFlows(
+			String resultId, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> JsonUtil.encodeArray(
+						result.impactOfEnviFlows(impact),
+						value -> JsonUtil.encodeEnviFlowValue(value, JsonRefs.of(db)))));
 	}
+
+	public Response<JsonArray> getImpactOfTechFlows(
+			String resultId, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> JsonUtil.encodeArray(
+						result.impactOfTechFlows(impact),
+						value -> JsonUtil.encodeTechFlowValue(value, JsonRefs.of(db)))));
+	}
+
+	// endregion
 
 	// region: costs
 
@@ -215,4 +236,24 @@ public class JsonResultService {
 			return Response.error(e);
 		}
 	}
+
+	private Response<ImpactDescriptor> impactOf(
+			LcaResult result, String impactId) {
+		if (!result.hasImpacts())
+			return Response.error("not an LCIA result");
+		if (Strings.nullOrEmpty(impactId))
+			return Response.error("no ID of LCIA category given");
+		ImpactDescriptor impact = null;
+		for (var i : result.impactIndex()) {
+			if (Objects.equals(i.refId, impactId)) {
+				impact = i;
+				break;
+			}
+		}
+		return impact != null
+				? Response.of(impact)
+				: Response.error("no LCIA category exists for ID=" + impactId);
+	}
+
+
 }

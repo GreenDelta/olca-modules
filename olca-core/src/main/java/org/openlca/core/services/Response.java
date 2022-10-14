@@ -1,5 +1,7 @@
 package org.openlca.core.services;
 
+import java.util.function.Function;
+
 public record Response<T>(T value, String error) {
 
 	public static <T> Response<T> empty() {
@@ -30,8 +32,12 @@ public record Response<T>(T value, String error) {
 		return error != null;
 	}
 
-	<Q> Response<Q> repack() {
-		return Response.error(error);
+	public <Q> Response<Q> map(Function<T, Q> fn) {
+		if (isEmpty())
+			return Response.empty();
+		if (isError())
+			return Response.error(error);
+		return Response.of(fn.apply(value));
 	}
 
 }

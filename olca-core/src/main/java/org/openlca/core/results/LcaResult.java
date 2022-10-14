@@ -295,7 +295,7 @@ public class LcaResult implements IResult {
 				this::directCostsOf);
 	}
 
-	public double flowImpactOf(ImpactDescriptor impact, EnviFlow flow) {
+	public double impactOfEnviFlow(ImpactDescriptor impact, EnviFlow flow) {
 		int impactIdx = provider.indexOf(impact);
 		int flowIdx = provider.indexOf(flow);
 		return impactIdx < 0 || flowIdx < 0
@@ -303,13 +303,28 @@ public class LcaResult implements IResult {
 				: provider.flowImpactOf(impactIdx, flowIdx);
 	}
 
-	public List<EnviFlowValue> flowImpactsOf(ImpactDescriptor impact) {
-		var results = new ArrayList<EnviFlowValue>();
-		enviIndex().each((i, flow) -> {
-			double value = flowImpactOf(impact, flow);
-			results.add(new EnviFlowValue(flow, value));
-		});
-		return results;
+	public List<EnviFlowValue> impactOfEnviFlows(ImpactDescriptor impact) {
+		if (!hasEnviFlows())
+			return Collections.emptyList();
+		return enviIndex().stream().map(enviFlow -> {
+			double value = impactOfEnviFlow(impact, enviFlow);
+			return new EnviFlowValue(enviFlow, value);
+		}).toList();
+	}
+
+	public double impactOfTechFlow(ImpactDescriptor impact, TechFlow techFlow) {
+		int impactIdx = provider.indexOf(impact);
+		int techIdx = provider.indexOf(techFlow);
+		return impactIdx < 0 || techIdx < 0
+				? 0
+				: provider.directImpactOf(impactIdx, techIdx);
+	}
+
+	public List<TechFlowValue> impactOfTechFlows(ImpactDescriptor impact) {
+		return techIndex().stream().map(techFlow -> {
+			double value = directImpactOf(impact, techFlow);
+			return new TechFlowValue(techFlow, value);
+		}).toList();
 	}
 
 	public double impactFactorOf(ImpactDescriptor impact, EnviFlow flow) {

@@ -110,22 +110,8 @@ class ResultRequest {
 		return null;
 	}
 
-	ImpactDescriptor impact() {
-		if (_impact != null)
-			return _impact;
-		var idx = result.impactIndex();
-		if (idx == null)
-			return null;
-		var impactId = Json.getRefId(reqParam, "impactCategory");
-		if (impactId == null)
-			return null;
-		for (var impact : idx) {
-			if (impactId.equals(impact.refId)) {
-				_impact = impact;
-				return impact;
-			}
-		}
-		return null;
+	String impactId() {
+		return Json.getRefId(reqParam, "impactCategory");
 	}
 
 

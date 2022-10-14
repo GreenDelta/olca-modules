@@ -37,7 +37,7 @@ class FlowImpactContributionSheet
 
 	@Override
 	protected double getValue(EnviFlow flow, ImpactDescriptor impact) {
-		return r.flowImpactOf(impact, flow);
+		return r.impactOfEnviFlow(impact, flow);
 	}
 
 	@Override

@@ -8,11 +8,9 @@ import org.openlca.jsonld.Json;
 
 public class CostHandler {
 
-	private final HandlerContext context;
 	private final JsonResultService results;
 
 	public CostHandler(HandlerContext context) {
-		this.context = context;
 		this.results = context.results();
 	}
 
