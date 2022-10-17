@@ -1,10 +1,13 @@
 package org.openlca.core.services;
 
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
+import org.openlca.util.Strings;
 
 final class Util {
 
@@ -45,6 +48,21 @@ final class Util {
 		return enviFlow == null
 				? Response.error("invalid envi-flow ID: " + enviFlowId)
 				: Response.of(enviFlow);
+	}
+
+	static Response<ImpactDescriptor> impactCategoryOf(
+			LcaResult result, String impactId) {
+		if (result == null)
+			return Response.error("no result available");
+		if (!result.hasImpacts())
+			return Response.error("result has no LCIA results");
+		if (Strings.nullOrEmpty(impactId))
+			return Response.error("no LCIA category ID provided");
+		for (var impact : result.impactIndex()) {
+			if (Objects.equals(impactId, impact.refId))
+				return Response.of(impact);
+		}
+		return Response.error("invalid LCIA category ID: " + impactId);
 	}
 
 	static <T, U, R> Response<R> join(Response<T> rt, Response<U> ru,

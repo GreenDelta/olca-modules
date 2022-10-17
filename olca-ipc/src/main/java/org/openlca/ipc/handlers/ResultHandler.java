@@ -5,12 +5,17 @@ import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 
-public class InventoryHandler {
+public class ResultHandler {
 
 	private final JsonResultService results;
 
-	public InventoryHandler(HandlerContext context) {
+	public ResultHandler(HandlerContext context) {
 		this.results = context.results();
+	}
+
+	@Rpc("result/total-requirements")
+	public RpcResponse getTotalRequirements(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.getTotalRequirements(rr.id()));
 	}
 
 	@Rpc("result/total-flows")
@@ -60,15 +65,26 @@ public class InventoryHandler {
 				results.getTotalFlowOf(rr.id(), rr.enviFlow(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-requirements")
-	public RpcResponse getTotalRequirements(RpcRequest req) {
-		return ResultRequest.of(req, rr -> results.getTotalRequirements(rr.id()));
-	}
+	// region: upstream trees
 
-	@Rpc("get/inventory/upstream")
+	@Rpc("result/upstream-of-flow")
 	public RpcResponse getUpstream(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
 				results.getUpstreamOfEnviFlow(rr.id(), rr.path(), rr.enviFlow()));
 	}
+
+	@Rpc("result/upstream-of-impact-category")
+	public RpcResponse getUpstreamOfImpactCategory(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getUpstreamOfImpactCategory(rr.id(), rr.path(), rr.impact()));
+	}
+
+	@Rpc("result/upstream-of-costs")
+	public RpcResponse getUpstreamOfCosts(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getUpstreamOfCosts(rr.id(), rr.path()));
+	}
+
+	// endregion
 
 }

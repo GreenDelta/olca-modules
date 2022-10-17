@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openlca.core.services.CalculationQueue;
 import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.handlers.CacheHandler;
@@ -13,7 +12,7 @@ import org.openlca.ipc.handlers.CostHandler;
 import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
 import org.openlca.ipc.handlers.ImpactHandler;
-import org.openlca.ipc.handlers.InventoryHandler;
+import org.openlca.ipc.handlers.ResultHandler;
 import org.openlca.ipc.handlers.ModelHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
 import org.openlca.ipc.handlers.UpstreamTreeHandler;
@@ -43,7 +42,7 @@ public class Server extends NanoHTTPD {
 		var context = new HandlerContext(this, config, results, cache);
 		register(new ModelHandler(context));
 		register(new Calculator(context));
-		register(new InventoryHandler(context));
+		register(new ResultHandler(context));
 		register(new ImpactHandler(context));
 		register(new CostHandler(context));
 		register(new CacheHandler(cache));

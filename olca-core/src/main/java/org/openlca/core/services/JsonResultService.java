@@ -9,7 +9,6 @@ import java.util.function.Function;
 import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.EnviFlowValue;
@@ -280,19 +279,20 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonArray> getUpstreamNodes(
-			String resultId, String path, ImpactDescriptor impact) {
-		return withResult(resultId, result -> {
-			var tree = UpstreamTree.of(result.provider(), impact);
-			return getUpstreamNodes(path, tree);
-		});
+	public Response<JsonArray> getUpstreamOfImpactCategory(
+			String resultId, String path, String impactId) {
+		return withResult(resultId, result -> impactCategoryOf(result, impactId)
+				.map(impact -> {
+					var tree = UpstreamTree.of(result.provider(), impact);
+					return getUpstreamNodes(path, tree);
+				}));
 	}
 
-	public Response<JsonArray> getUpstreamNodesForCosts(
-			String resultId, String path) {
+	public Response<JsonArray> getUpstreamOfCosts(String resultId, String path) {
 		return withResult(resultId, result -> {
 			var tree = UpstreamTree.costsOf(result.provider());
-			return getUpstreamNodes(path, tree);
+			var nodes = getUpstreamNodes(path, tree);
+			return Response.of(nodes);
 		});
 	}
 
