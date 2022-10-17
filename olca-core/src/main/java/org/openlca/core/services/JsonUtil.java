@@ -14,6 +14,8 @@ import org.openlca.jsonld.output.JsonRefs;
 
 import java.util.function.Function;
 
+import javax.imageio.ImageTranscoder;
+
 final class JsonUtil {
 
 	private JsonUtil() {
@@ -63,7 +65,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeTechFlowValue(TechFlowValue v, JsonRefs refs) {
+	static JsonObject encodeTechValue(TechFlowValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();
@@ -72,7 +74,11 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeEnviFlowValue(EnviFlowValue v, JsonRefs refs) {
+	static JsonArray encodeTechValues(Iterable<TechFlowValue> vs, JsonRefs refs) {
+		return encodeArray(vs, v -> encodeTechValue(v, refs));
+	}
+
+	static JsonObject encodeEnviValue(EnviFlowValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();
@@ -81,7 +87,11 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeImpactValue(ImpactValue v, JsonRefs refs) {
+	static JsonArray encodeEnviValues(Iterable<EnviFlowValue> vs, JsonRefs refs) {
+		return encodeArray(vs, v -> encodeEnviValue(v, refs));
+	}
+
+	static JsonObject encodeImpact(ImpactValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();

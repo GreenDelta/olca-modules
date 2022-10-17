@@ -56,6 +56,10 @@ class ResultRequest {
 		return resultId;
 	}
 
+	String path() {
+		return Json.getString(reqParam, "path");
+	}
+
 	EnviFlowId enviFlow() {
 		if (_enviFlow != null)
 			return _enviFlow;
