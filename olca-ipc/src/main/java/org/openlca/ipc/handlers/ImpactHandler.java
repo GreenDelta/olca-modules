@@ -32,13 +32,13 @@ public class ImpactHandler {
 	@Rpc("result/impact/envi-flows")
 	public RpcResponse getImpactOfEnviFlows(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getImpactOfEnviFlows(rr.id(), rr.impactId()));
+				results.getImpactOfEnviFlows(rr.id(), rr.impact()));
 	}
 
 	@Rpc("result/impact/tech-flows")
 	public RpcResponse getImpactOfTechFlows(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getImpactOfTechFlows(rr.id(), rr.impactId()));
+				results.getImpactOfTechFlows(rr.id(), rr.impact()));
 	}
 
 	@Rpc("get/impacts/contributions/process/flows")

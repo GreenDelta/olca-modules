@@ -134,7 +134,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
 		var refData = Refs.dataOf(db);
 		for (var flow : flows) {
-			var value = result.totalFlowOf(flow);
+			var value = result.getTotalFlowValueOf(flow);
 			if (value == 0)
 				continue;
 			resp.onNext(Results.toProtoResult(flow, refData, value));
@@ -244,7 +244,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
 		TechFlowContribution.of(this, req, resp)
 			.ifImpact(LcaResult::directImpactOf)
-			.ifFlow(LcaResult::directFlowOf)
+			.ifFlow(LcaResult::getDirectFlowOf)
 			.ifCosts(LcaResult::directCostsOf)
 			.close();
 	}
@@ -254,7 +254,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 		TechFlowContribution.of(this, req, resp)
 			.ifImpact(LcaResult::totalImpactOf)
-			.ifFlow(LcaResult::totalFlowOf)
+			.ifFlow(LcaResult::getTotalFlowOf)
 			.ifCosts(LcaResult::totalCostsOf)
 			.close();
 	}

@@ -73,7 +73,7 @@ public class CalculationQueueTest {
 				assertTrue(state.isReady());
 				finished.add(id);
 				var result = state.result();
-				assertEquals(2, result.totalFlows().get(0).value(), 1e-10);
+				assertEquals(2, result.getTotalFlows().get(0).value(), 1e-10);
 			}
 
 			ids.removeAll(finished);

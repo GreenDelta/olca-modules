@@ -1,5 +1,7 @@
 package org.openlca.core.services;
 
+import static org.openlca.core.services.Util.*;
+
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -10,6 +12,7 @@ import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
@@ -122,21 +125,70 @@ public class JsonResultService {
 
 	// region: flows
 
-	public Response<JsonArray> getTotalFlowValues(String resultId) {
+	public Response<JsonArray> getTotalFlows(String resultId) {
 		return withResult(resultId, result -> {
 			if (!result.hasEnviFlows())
 				return Response.of(new JsonArray());
 			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(
-					result.totalFlows(),
+					result.getTotalFlows(),
 					value -> JsonUtil.encodeEnviFlowValue(value, refs));
 			return Response.of(array);
 		});
 	}
 
-	public Response<JsonArray> getUnscaledFlowsOf(
-		String resultId, TechFlowId techFlowId) {
-		
+	public Response<JsonObject> getTotalFlowValueOf(
+			String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(enviFlow -> {
+					var amount = result.getTotalFlowValueOf(enviFlow);
+					var value = EnviFlowValue.of(enviFlow, amount);
+					return JsonUtil.encodeEnviFlowValue(value, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonArray> getTotalFlowValuesOf(
+			String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(enviFlow -> {
+					var values = result.getTotalFlowValuesOf(enviFlow);
+					var refs = JsonRefs.of(db);
+					return JsonUtil.encodeArray(
+							values, v -> JsonUtil.encodeTechFlowValue(v, refs));
+				}));
+	}
+
+	public Response<JsonArray> getDirectFlowValuesOf(
+			String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(enviFlow -> {
+					var values = result.getDirectFlowValuesOf(enviFlow);
+					var refs = JsonRefs.of(db);
+					return JsonUtil.encodeArray(
+							values, v -> JsonUtil.encodeTechFlowValue(v, refs));
+				}));
+	}
+
+	public Response<JsonArray> getDirectFlowsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					var values = result.getDirectFlowsOf(techFlow);
+					var refs = JsonRefs.of(db);
+					return JsonUtil.encodeArray(
+							values, v -> JsonUtil.encodeEnviFlowValue(v, refs));
+				}));
+	}
+
+	public Response<JsonPrimitive> getDirectFlowOf(
+			String resultId, EnviFlowId enviFlowId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> join(
+				enviFlowOf(result, enviFlowId),
+				techFlowOf(result, techFlowId),
+				(enviFlow, techFlow) -> {
+					double amount = result.getDirectFlowOf(enviFlow, techFlow);
+					return Response.of(new JsonPrimitive(amount));
+				}));
 	}
 
 	// endregion
@@ -253,18 +305,12 @@ public class JsonResultService {
 
 	private <T> Response<T> withResult(
 			String resultId, Function<LcaResult, Response<T>> fn) {
-		try {
-			var state = queue.get(resultId);
-			if (state.isError())
-				return Response.error(state.error());
-			if (state.isEmpty())
-				return Response.empty();
-			if (state.isScheduled() || !state.isReady())
-				return Response.error("result not yet ready");
-			return fn.apply(state.result());
-		} catch (Exception e) {
-			return Response.error(e);
-		}
+		var res = resultOf(queue, resultId);
+		if (res.isEmpty())
+			return Response.empty();
+		return res.isError()
+				? Response.error(res.error())
+				: fn.apply(res.value());
 	}
 
 	private <T> Response<T> withResultOfTechFlow(
@@ -297,6 +343,5 @@ public class JsonResultService {
 				? Response.of(impact)
 				: Response.error("no LCIA category exists for ID=" + impactId);
 	}
-
 
 }

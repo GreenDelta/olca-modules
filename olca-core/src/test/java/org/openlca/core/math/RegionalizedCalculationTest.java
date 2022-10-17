@@ -344,7 +344,7 @@ public class RegionalizedCalculationTest {
 			Flow flow = (Flow) row[0];
 			int flowIdx = r.enviIndex().of(flow.id);
 			EnviFlow iFlow = r.enviIndex().at(flowIdx);
-			double v = r.totalFlowOf(iFlow);
+			double v = r.getTotalFlowValueOf(iFlow);
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}
@@ -359,7 +359,7 @@ public class RegionalizedCalculationTest {
 			int flowIdx = r.enviIndex().of(flow.id, loc != null ? loc.id : 0L);
 			double value = flowIdx < 0
 					? 0.0
-					: r.totalFlowOf(r.enviIndex().at(flowIdx));
+					: r.getTotalFlowValueOf(r.enviIndex().at(flowIdx));
 			Assert.assertEquals((Double) row[2], value, 1e-10);
 		}
 	}
@@ -377,12 +377,12 @@ public class RegionalizedCalculationTest {
 				// non-regionalized
 				int flowIdx = r.enviIndex().of(flow.id);
 				EnviFlow iFlow = r.enviIndex().at(flowIdx);
-				double v = r.directFlowOf(iFlow, product);
+				double v = r.getDirectFlowOf(iFlow, product);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
 				double v = orZero(flow, (Location) row[2], r.enviIndex(),
-						iFlow -> r.directFlowOf(iFlow, product));
+						iFlow -> r.getDirectFlowOf(iFlow, product));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}
@@ -401,12 +401,12 @@ public class RegionalizedCalculationTest {
 				// non-regionalized
 				int flowIdx = r.enviIndex().of(flow.id);
 				var iFlow = r.enviIndex().at(flowIdx);
-				double v = r.totalFlowOf(iFlow, product);
+				double v = r.getTotalFlowOf(iFlow, product);
 				Assert.assertEquals((Double) row[2], v, 1e-10);
 			} else {
 				// regionalized
 				double v = orZero(flow, (Location) row[2], r.enviIndex(),
-						iFlow -> r.totalFlowOf(iFlow, product));
+						iFlow -> r.getTotalFlowOf(iFlow, product));
 				Assert.assertEquals((Double) row[3], v, 1e-10);
 			}
 		}

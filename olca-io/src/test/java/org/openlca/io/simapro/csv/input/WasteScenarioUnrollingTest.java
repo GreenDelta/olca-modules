@@ -172,7 +172,7 @@ public class WasteScenarioUnrollingTest {
 		var setup = CalculationSetup.of(systems.get(0))
 			.withParameters(system.parameterSets.get(0).parameters);
 		var result = new SystemCalculator(db).calculate(setup);
-		var inventory = result.totalFlows();
+		var inventory = result.getTotalFlows();
 		assertEquals(1, inventory.size());
 		var co2Result = inventory.get(0);
 		assertEquals("Carbon dioxide", co2Result.flow().name);

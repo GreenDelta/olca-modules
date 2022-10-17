@@ -35,7 +35,7 @@ class ProcessFlowUpstreamSheet extends ContributionSheet<TechFlow, EnviFlow> {
 
 	@Override
 	protected double getValue(TechFlow process, EnviFlow flow) {
-		return r.totalFlowOf(flow, process);
+		return r.getTotalFlowOf(flow, process);
 	}
 
 	@Override

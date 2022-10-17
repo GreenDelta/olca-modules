@@ -27,13 +27,13 @@ public class GroupingContribution {
 	public List<Contribution<ProcessGrouping>> calculate(EnviFlow flow) {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
-		double total = result.totalFlowOf(flow);
+		double total = result.getTotalFlowValueOf(flow);
 		var techIdx = result.techIndex();
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;
 			for (var p : grouping.processes) {
 				for (var techFlow : techIdx.getProviders(p)) {
-					amount += result.directFlowOf(flow, techFlow);
+					amount += result.getDirectFlowOf(flow, techFlow);
 				}
 			}
 			return amount;

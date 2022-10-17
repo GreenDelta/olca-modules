@@ -35,7 +35,7 @@ class ProcessFlowContributionSheet
 
 	@Override
 	protected double getValue(TechFlow techFlow, EnviFlow flow) {
-		return r.directFlowOf(flow, techFlow);
+		return r.getDirectFlowOf(flow, techFlow);
 	}
 
 	@Override

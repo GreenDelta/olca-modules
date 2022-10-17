@@ -49,7 +49,7 @@ public class ContributionTreeTest {
 
 		// calculate and check the result
 		var r = LcaResult.of(Tests.getDb(), data);
-		assertEquals(1.0, r.totalFlowOf(enviIndex.at(0)), 1e-16);
+		assertEquals(1.0, r.getTotalFlowValueOf(enviIndex.at(0)), 1e-16);
 
 		var tree = UpstreamTree.of(r.provider(), enviIndex.at(0));
 		assertEquals(2, tree.childs(tree.root).size());

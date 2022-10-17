@@ -5,6 +5,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.Contribution;
 import org.openlca.core.results.LocationResult;
+import org.openlca.core.services.JsonResultService;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -16,86 +17,45 @@ import com.google.gson.JsonObject;
 
 public class InventoryHandler {
 
-	private final HandlerContext context;
+	private final JsonResultService results;
 
 	public InventoryHandler(HandlerContext context) {
-		this.context = context;
+		this.results = context.results();
 	}
 
-	@Rpc("get/inventory/inputs")
-	public RpcResponse getInputs(RpcRequest req) {
-		return ResultRequest.of(req, context,
-				rr -> Responses.ok(inventoryOf(rr, true), req));
+	@Rpc("result/total-flows")
+	public RpcResponse getTotalFlows(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.getTotalFlows(rr.id()));
 	}
 
-	@Rpc("get/inventory/outputs")
-	public RpcResponse getOutputs(RpcRequest req) {
-		return ResultRequest.of(req, context,
-				rr -> Responses.ok(inventoryOf(rr, false), req));
+	@Rpc("result/total-flow-value-of")
+	public RpcResponse getTotalFlowValueOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getTotalFlowValueOf(rr.id(), rr.enviFlow()));
 	}
 
-	private JsonArray inventoryOf(ResultRequest rr, boolean input) {
-		var result = rr.result();
-		if (!result.hasEnviFlows())
-			return new JsonArray();
-		return result.totalFlows()
-				.stream()
-				.filter(r -> r.isInput() == input && r.value() != 0)
-				.map(v -> JsonRpc.encodeFlowValue(v, rr.refs()))
-				.collect(JsonRpc.toArray());
+	@Rpc("result/total-flow-values-of")
+	public RpcResponse getTotalFlowValuesOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getTotalFlowValuesOf(rr.id(), rr.enviFlow()));
 	}
 
-	@Rpc("get/inventory/contributions/processes")
-	public RpcResponse getProcessContributions(RpcRequest req) {
-		return ResultRequest.of(req, context, rr -> {
-			if (rr.enviFlow() == null)
-				return rr.enviFlowMissing();
-			var array = rr.result().getProcessContributions(rr.enviFlow())
-					.stream()
-					.filter(c -> c.amount != 0)
-					.map(c -> JsonRpc.encodeContribution(c,
-							t -> JsonRpc.encodeTechFlow(t, rr.refs())))
-					.collect(JsonRpc.toArray());
-			return Responses.ok(array, req);
-		});
+	@Rpc("results/direct-flow-values-of")
+	public RpcResponse getDirectFlowValuesOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getDirectFlowValuesOf(rr.id(), rr.enviFlow()));
 	}
 
-	@Rpc("get/inventory/contributions/locations")
-	public RpcResponse getLocationContributions(RpcRequest req) {
-		return ResultRequest.of(req, context, rr -> {
-			if (rr.enviFlow() == null)
-				return rr.enviFlowMissing();
-			var r = new LocationResult(rr.result(), context.db());
-			var array = r.getContributions(rr.enviFlow().flow()).stream()
-					.filter(c -> c.amount != 0)
-					.map(c -> JsonRpc.encodeContribution(c, Json::asRef))
-					.collect(JsonRpc.toArray());
-			return Responses.ok(array, req);
-		});
+	@Rpc("result/direct-flows-of")
+	public RpcResponse getDirectFlowsOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getDirectFlowsOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("get/inventory/contributions/location/processes")
-	public RpcResponse getProcessContributionsForLocation(RpcRequest req) {
-		return ResultRequest.of(req, context, rr -> {
-			if (rr.enviFlow() == null)
-				return rr.enviFlowMissing();
-			var locRefId = Json.getRefId(rr.requestParameter(), "location");
-			var loc = locRefId != null
-					? context.db().getDescriptor(Location.class, locRefId)
-					: null;
-			var array = rr.result().getProcessContributions(rr.enviFlow())
-					.stream()
-					.filter(c -> {
-						if (!(c.item.provider() instanceof ProcessDescriptor p))
-							return false;
-						return (loc == null && p.location == null)
-								|| (loc != null && p.location != null && loc.id == p.location);
-					})
-					.map(c -> JsonRpc.encodeContribution(
-							c, t -> JsonRpc.encodeTechFlow(t, rr.refs())))
-					.collect(JsonRpc.toArray());
-			return Responses.ok(array, req);
-		});
+	@Rpc("result/direct-flow-of")
+	public RpcResponse getDirectFlowOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getDirectFlowOf(rr.id(), rr.enviFlow(), rr.techFlow()));
 	}
 
 	@Rpc("get/inventory/total_requirements")

@@ -52,7 +52,7 @@ class JsonRpc {
 					r.enviIndex(),
 					enviFlow -> encodeEnviFlow(enviFlow, refs)));
 			obj.add("flowResults",
-					arrayOf(r.totalFlows(), v -> encodeFlowValue(v, refs)));
+					arrayOf(r.getTotalFlows(), v -> encodeFlowValue(v, refs)));
 		}
 
 		// impact categories and results

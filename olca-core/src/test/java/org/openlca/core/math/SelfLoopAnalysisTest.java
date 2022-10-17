@@ -69,11 +69,11 @@ public class SelfLoopAnalysisTest {
 	}
 
 	private double direct(String processName, String flowName) {
-		return result.directFlowOf(flow(flowName), process(processName));
+		return result.getDirectFlowOf(flow(flowName), process(processName));
 	}
 
 	private double upstream(String processName, String flowName) {
-		return result.totalFlowOf(flow(flowName), process(processName));
+		return result.getTotalFlowOf(flow(flowName), process(processName));
 	}
 
 	private EnviFlow flow(String name) {

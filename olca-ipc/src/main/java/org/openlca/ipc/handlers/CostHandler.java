@@ -19,12 +19,12 @@ public class CostHandler {
 		return ResultRequest.of(req, rr -> results.getDirectCosts(rr.id()));
 	}
 
-	@Rpc("result/costs/total")
+	@Rpc("result/costs")
 	public RpcResponse getTotalCosts(RpcRequest req) {
 		return ResultRequest.of(req, rr -> results.getTotalCosts(rr.id()));
 	}
 
-	@Rpc("result/costs/totals-by-tech-flows")
+	@Rpc("result/costs/totals")
 	public RpcResponse getTotalCostsByTechFlow(RpcRequest req) {
 		return ResultRequest.of(req, rr -> results.getTotalCostsByTechFlow(rr.id()));
 	}

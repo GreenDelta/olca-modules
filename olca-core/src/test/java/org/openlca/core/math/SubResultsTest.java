@@ -90,23 +90,23 @@ public class SubResultsTest {
 		var co2Idx = resultC.enviIndex().at(0);
 
 		// check the total CO2 result: 13 kg
-		assertEquals(13, resultC.totalFlowOf(co2Idx), 1e-10);
+		assertEquals(13, resultC.getTotalFlowValueOf(co2Idx), 1e-10);
 
 		// check sub-result B
 		var techFlowB = TechFlow.of(sysB);
 		var resultB = resultC.subResultOf(techFlowB);
-		assertEquals(3, resultB.totalFlowOf(co2Idx), 1e-10);
+		assertEquals(3, resultB.getTotalFlowValueOf(co2Idx), 1e-10);
 		assertEquals(4, resultC.scalingFactorOf(techFlowB), 1e-10);
 
 		// check sub-result A
 		var techFlowA = TechFlow.of(sysA);
 		var resultA = resultB.subResultOf(techFlowA);
-		assertEquals(1, resultA.totalFlowOf(co2Idx), 1e-10);
+		assertEquals(1, resultA.getTotalFlowValueOf(co2Idx), 1e-10);
 		assertEquals(2, resultB.scalingFactorOf(techFlowA), 1e-10);
 
 		// scale a sub-result to get the full result
 		assertEquals(13, 1 + resultC.scalingFactorOf(techFlowB)
-				* resultB.totalFlowOf(co2Idx), 1e-10);
+				* resultB.getTotalFlowValueOf(co2Idx), 1e-10);
 
 		// test TagResult
 		var tagResults = TagResult.allOf(resultC);

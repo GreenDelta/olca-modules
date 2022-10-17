@@ -102,7 +102,7 @@ public class Results {
 			r.flow = flow;
 			r.flowPropertyFactor = flow.getReferenceFactor();
 			r.unit = flow.getReferenceUnit();
-			r.amount = result.totalFlowOf(enviFlow);
+			r.amount = result.getTotalFlowValueOf(enviFlow);
 			r.isInput = enviFlow.isInput();
 			var loc = enviFlow.location();
 			if (loc != null) {

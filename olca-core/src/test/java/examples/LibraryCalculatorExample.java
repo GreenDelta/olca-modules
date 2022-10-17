@@ -22,7 +22,7 @@ public class LibraryCalculatorExample {
 
 		var flow = result.enviIndex().at(0);
 		System.out.println(flow.flow().name
-				+ " => " + result.totalFlowOf(flow));
+				+ " => " + result.getTotalFlowValueOf(flow));
 
 		db.close();
 

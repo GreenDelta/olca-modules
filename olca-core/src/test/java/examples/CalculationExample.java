@@ -21,7 +21,7 @@ public class CalculationExample {
 			var calc = new SystemCalculator(db);
 			var r = calc.calculate(setup);
 			var f = r.enviIndex().at(0);
-			System.out.println(f.flow().name + "  -> " + r.totalFlowOf(f));
+			System.out.println(f.flow().name + "  -> " + r.getTotalFlowValueOf(f));
 			var impact =  r.impactIndex().at(0);
 			System.out.println(impact.name + "  -> " + r.totalImpactOf(impact));
 		}
