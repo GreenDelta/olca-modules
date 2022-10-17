@@ -1,14 +1,17 @@
 package org.openlca.core.services;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
@@ -56,6 +59,8 @@ public class JsonResultService {
 		}
 	}
 
+	// region: index elements
+
 	public Response<JsonArray> getTechFlows(String resultId) {
 		return withResult(resultId, result -> {
 			var refs = JsonRefs.of(db);
@@ -89,6 +94,10 @@ public class JsonResultService {
 		});
 	}
 
+	// endregion
+
+	// region: technosphere flows
+
 	public Response<JsonArray> getTotalRequirements(String resultId) {
 		return withResult(resultId, result -> {
 			var tr = result.totalRequirements();
@@ -96,6 +105,16 @@ public class JsonResultService {
 			var array = JsonUtil.encodeArray(tr,
 					techValue -> JsonUtil.encodeTechFlowValue(techValue, refs));
 			return Response.of(array);
+		});
+	}
+
+	public Response<JsonObject> getTotalRequirementsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
+			var value = result.totalRequirementsOf(techFlow);
+			var obj = JsonUtil.encodeTechFlowValue(
+					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
+			return Response.of(obj);
 		});
 	}
 
@@ -235,6 +254,19 @@ public class JsonResultService {
 		} catch (Exception e) {
 			return Response.error(e);
 		}
+	}
+
+	private <T> Response<T> withResultOfTechFlow(
+			String resultId, TechFlowId techFlowId,
+			BiFunction<LcaResult, TechFlow, Response<T>> fn) {
+		return withResult(resultId, result -> {
+			if (techFlowId == null)
+				return Response.error("no tech-flow ID provided");
+			var techFlow = techFlowId.findTechFlowOf(result).orElse(null);
+			return techFlow == null
+					? Response.error("invalid tech-flow ID: " + techFlowId)
+					: fn.apply(result, techFlow);
+		});
 	}
 
 	private Response<ImpactDescriptor> impactOf(

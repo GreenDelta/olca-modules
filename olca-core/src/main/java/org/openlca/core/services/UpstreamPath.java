@@ -3,7 +3,6 @@ package org.openlca.core.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
@@ -19,21 +18,18 @@ import org.openlca.util.Strings;
  */
 class UpstreamPath {
 
-	private final List<NodeId> segments;
+	private final List<TechFlowId> segments;
 
-	private UpstreamPath(List<NodeId> segments) {
+	private UpstreamPath(List<TechFlowId> segments) {
 		this.segments = segments;
 	}
 
 	static UpstreamPath parse(String path) {
 		if (Strings.nullOrEmpty(path))
 			return new UpstreamPath(Collections.emptyList());
-		var ids = new ArrayList<NodeId>();
+		var ids = new ArrayList<TechFlowId>();
 		for (var node : path.split("/")) {
-			var parts = node.split("::");
-			if (parts.length < 2)
-				break;
-			ids.add(new NodeId(parts[0], parts[1]));
+			ids.add(TechFlowId.fromString(node));
 		}
 		return new UpstreamPath(ids);
 	}
@@ -47,7 +43,7 @@ class UpstreamPath {
 		for (var nodeId : segments) {
 			UpstreamNode node = null;
 			for (var n : next) {
-				if (nodeId.matches(n)) {
+				if (nodeId.matches(n.provider())) {
 					node = n;
 					break;
 				}
@@ -60,18 +56,4 @@ class UpstreamPath {
 		}
 		return next;
 	}
-
-	private record NodeId(String providerId, String flowId) {
-
-		boolean matches(UpstreamNode node) {
-			if (node == null || node.provider() == null)
-				return false;
-			var p = node.provider();
-			if (p.provider() == null || p.flow() == null)
-				return false;
-			return Objects.equals(providerId, p.provider().refId)
-					&& Objects.equals(flowId, p.flow().refId);
-		}
-	}
-
 }
