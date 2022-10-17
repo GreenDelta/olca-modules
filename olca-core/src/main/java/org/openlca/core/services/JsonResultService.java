@@ -118,7 +118,11 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getTotalFlows(String resultId) {
+	// endregion
+
+	// region: flows
+
+	public Response<JsonArray> getTotalFlowValues(String resultId) {
 		return withResult(resultId, result -> {
 			if (!result.hasEnviFlows())
 				return Response.of(new JsonArray());
@@ -129,6 +133,13 @@ public class JsonResultService {
 			return Response.of(array);
 		});
 	}
+
+	public Response<JsonArray> getUnscaledFlowsOf(
+		String resultId, TechFlowId techFlowId) {
+		
+	}
+
+	// endregion
 
 	// region: impacts
 

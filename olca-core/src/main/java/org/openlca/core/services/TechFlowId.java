@@ -3,8 +3,10 @@ package org.openlca.core.services;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.LcaResult;
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
 public record TechFlowId(String providerId, String flowId) {
@@ -13,6 +15,27 @@ public record TechFlowId(String providerId, String flowId) {
 		return new TechFlowId(providerId, flowId);
 	}
 
+	/**
+	 * Extracts the identifiers of a technosphere flow from the given
+	 * Json object. The given Json must follow the specification of
+	 * a serialized technosphere flow, otherwise an empty option is
+	 * returned.
+	 */
+	public static Optional<TechFlowId> of(JsonObject json) {
+		if (json == null)
+			return Optional.empty();
+		var providerId = Json.getRefId(json, "provider");
+		var flowId = Json.getRefId(json, "flow");
+		return Strings.nullOrEmpty(providerId) || Strings.nullOrEmpty(flowId)
+				? Optional.empty()
+				: Optional.of(TechFlowId.of(providerId, flowId));
+	}
+
+	/**
+	 * Parses the identifier of a technosphere flow from a string. In
+	 * such a string, two colons are used to separate the provider ID
+	 * from the flow ID: {@code <provider-id>::<flow-id>}.
+	 */
 	public static TechFlowId fromString(String s) {
 		if (Strings.nullOrEmpty(s))
 			return new TechFlowId("", "");
