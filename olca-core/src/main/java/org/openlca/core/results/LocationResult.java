@@ -131,12 +131,12 @@ public class LocationResult {
 		HashMap<Location, Double> cons = new HashMap<>();
 		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
-			double costs = result.directCostsOf(product);
+			double costs = result.getDirectCostsOf(product);
 			double v = costs == 0 ? 0 : -costs;
 			cons.compute(loc,
 					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 		});
-		double total = result.totalCosts();
+		double total = result.getTotalCosts();
 		total = total == 0 ? 0 : -total;
 		return asContributions(cons, total);
 	}
@@ -150,11 +150,11 @@ public class LocationResult {
 		HashMap<Location, Double> cons = new HashMap<>();
 		result.techIndex().each((i, product) -> {
 			Location loc = getLocation(product);
-			double v = result.directCostsOf(product);
+			double v = result.getDirectCostsOf(product);
 			cons.compute(loc,
 					(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 		});
-		double total = result.totalCosts();
+		double total = result.getTotalCosts();
 		return asContributions(cons, total);
 	}
 

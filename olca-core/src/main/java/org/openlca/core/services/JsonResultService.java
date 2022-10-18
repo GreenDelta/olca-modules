@@ -263,7 +263,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(
-					result.directCosts(),
+					result.getDirectCostValues(),
 					value -> JsonUtil.encodeTechValue(value, refs));
 			return Response.of(array);
 		});
@@ -271,7 +271,7 @@ public class JsonResultService {
 
 	public Response<JsonPrimitive> getTotalCosts(String resultId) {
 		return withResult(resultId, result -> {
-			double costs = result.totalCosts();
+			double costs = result.getTotalCosts();
 			return Response.of(new JsonPrimitive(costs));
 		});
 	}

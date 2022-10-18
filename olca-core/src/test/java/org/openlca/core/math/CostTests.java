@@ -32,9 +32,9 @@ public class CostTests {
 
 		var techFlow = TechFlow.of(process);
 
-		assertEquals(3, result.totalCosts(), 1e-10);
-		assertEquals(3, result.totalCostsOf(techFlow), 1e-10);
-		assertEquals(3, result.directCostsOf(techFlow), 1e-10);
+		assertEquals(3, result.getTotalCosts(), 1e-10);
+		assertEquals(3, result.getTotalCostsOf(techFlow), 1e-10);
+		assertEquals(3, result.getDirectCostsOf(techFlow), 1e-10);
 		var tree = UpstreamTree.costsOf(result.provider());
 		var root = tree.root;
 		assertTrue(tree.childs(root).isEmpty());
@@ -56,7 +56,7 @@ public class CostTests {
 				.get();
 		ProductSystem system = TestSystem.of(p1).get();
 		LcaResult r = TestSystem.calculate(system);
-		assertEquals(3, r.totalCosts(), 1e-10);
+		assertEquals(3, r.getTotalCosts(), 1e-10);
 	}
 
 	@Test
@@ -79,11 +79,11 @@ public class CostTests {
 		var d1 = TechFlow.of(p1);
 		var d2 = TechFlow.of(p2);
 
-		assertEquals(5, r.totalCosts(), 1e-10);
-		assertEquals(6, r.directCostsOf(d1), 1e-10);
-		assertEquals(-1, r.directCostsOf(d2), 1e-10);
-		assertEquals(6, r.totalCostsOf(d1), 1e-10);
-		assertEquals(5, r.totalCostsOf(d2), 1e-10);
+		assertEquals(5, r.getTotalCosts(), 1e-10);
+		assertEquals(6, r.getDirectCostsOf(d1), 1e-10);
+		assertEquals(-1, r.getDirectCostsOf(d2), 1e-10);
+		assertEquals(6, r.getTotalCostsOf(d1), 1e-10);
+		assertEquals(5, r.getTotalCostsOf(d2), 1e-10);
 	}
 
 	@Test
@@ -116,7 +116,7 @@ public class CostTests {
 		system = db.update(system);
 
 		LcaResult r = TestSystem.calculate(system);
-		assertEquals(-1.2, r.totalCosts(), 1e-10);
+		assertEquals(-1.2, r.getTotalCosts(), 1e-10);
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class CostTests {
 
 		// TODO: test something here
 		LcaResult result = TestSystem.calculate(system);
-		System.out.println(result.totalCosts());
+		System.out.println(result.getTotalCosts());
 
 	}
 

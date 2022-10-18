@@ -345,9 +345,52 @@ public class LcaResult implements IResult {
 
 	// endregion
 
-	public double totalCosts() {
+	// region: costs
+
+	/* TODO: not yet supported by provider API
+	public List<TechFlowValue> getUnscaledCosts() {
+		return techValuesOf((techIdx, $) -> provider.unscaledCostsOf(techIdx));
+	}
+	*/
+
+	public double getTotalCosts() {
 		return provider.totalCosts();
 	}
+
+	public List<TechFlowValue> getDirectCostValues() {
+		if (!hasCosts())
+			return Collections.emptyList();
+		return techValuesOf((techIdx, $) -> provider.directCostsOf(techIdx));
+	}
+
+	public List<TechFlowValue> getTotalCostValues() {
+		if (!hasCosts())
+			return Collections.emptyList();
+		return techValuesOf((techIdx, $) -> provider.totalCostsOf(techIdx));
+	}
+
+	public double getDirectCostsOf(TechFlow techFlow) {
+		if (!hasCosts())
+			return 0;
+		int techIdx = provider.indexOf(techFlow);
+		return techIdx < 0 ? 0 : provider.directCostsOf(techIdx);
+	}
+
+	public double getTotalCostsOfOne(TechFlow techFlow) {
+		if (!this.hasCosts())
+			return 0;
+		int techIdx = provider.indexOf(techFlow);
+		return techIdx < 0 ? 0 : provider.totalCostsOfOne(techIdx);
+	}
+
+	public double getTotalCostsOf(TechFlow techFlow) {
+		if (!this.hasCosts())
+			return 0;
+		int techIdx = provider.indexOf(techFlow);
+		return techIdx < 0 ? 0 : provider.totalCostsOf(techIdx);
+	}
+
+	// endregion
 
 	// region: sub-results
 
@@ -374,26 +417,6 @@ public class LcaResult implements IResult {
 	}
 
 	// endregion
-
-
-	public List<TechFlowValue> directCosts() {
-		if (!hasCosts())
-			return Collections.emptyList();
-		var list = new ArrayList<TechFlowValue>();
-		for (var techFlow : techIndex()) {
-			list.add(TechFlowValue.of(techFlow, directCostsOf(techFlow)));
-		}
-		return list;
-	}
-
-	public double directCostsOf(TechFlow techFlow) {
-		if (!hasCosts())
-			return 0;
-		int col = provider.indexOf(techFlow);
-		return col < 0
-				? 0
-				: provider.directCostsOf(col);
-	}
 
 	/**
 	 * Get the direct contributions of the processes in the system to the inventory
@@ -427,25 +450,8 @@ public class LcaResult implements IResult {
 	public List<Contribution<TechFlow>> getProcessCostContributions() {
 		return Contributions.calculate(
 				techIndex(),
-				totalCosts(),
-				this::directCostsOf);
-	}
-
-	public double totalCostsOf(TechFlow techFlow) {
-		if (!this.hasCosts())
-			return 0;
-		int techIdx = provider.indexOf(techFlow);
-		return techIdx < 0 ? 0 : provider.totalCostsOf(techIdx);
-	}
-
-	public List<TechFlowValue> totalCostsByTechFlow() {
-		if (!this.hasCosts())
-			return Collections.emptyList();
-		var list = new ArrayList<TechFlowValue>();
-		techIndex().each((i, techFlow) -> {
-			list.add(new TechFlowValue(techFlow, totalCostsOf(techFlow)));
-		});
-		return list;
+				getTotalCosts(),
+				this::getDirectCostsOf);
 	}
 
 	/**

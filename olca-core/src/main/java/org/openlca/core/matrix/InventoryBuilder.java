@@ -145,7 +145,7 @@ public class InventoryBuilder {
 
 			// add costs
 			if (conf.withCosts) {
-				costs[col] = result.totalCosts();
+				costs[col] = result.getTotalCosts();
 			}
 		}
 	}

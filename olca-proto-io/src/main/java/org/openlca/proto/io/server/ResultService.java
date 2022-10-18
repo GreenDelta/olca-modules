@@ -245,7 +245,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		TechFlowContribution.of(this, req, resp)
 			.ifImpact(LcaResult::directImpactOf)
 			.ifFlow(LcaResult::getDirectFlowOf)
-			.ifCosts(LcaResult::directCostsOf)
+			.ifCosts(LcaResult::getDirectCostsOf)
 			.close();
 	}
 
@@ -255,7 +255,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		TechFlowContribution.of(this, req, resp)
 			.ifImpact(LcaResult::getTotalImpactOf)
 			.ifFlow(LcaResult::getTotalFlowOf)
-			.ifCosts(LcaResult::totalCostsOf)
+			.ifCosts(LcaResult::getTotalCostsOf)
 			.close();
 	}
 
