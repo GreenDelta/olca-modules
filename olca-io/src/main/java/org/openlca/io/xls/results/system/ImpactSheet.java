@@ -52,7 +52,7 @@ class ImpactSheet {
 	private void data() {
 		int row = 2;
 		for (var impact : items.impacts()) {
-			double value = result.totalImpactOf(impact);
+			double value = result.getTotalImpactValueOf(impact);
 			int col = writer.impactRow(sheet, row, 1, impact);
 			writer.cell(sheet, row, col++, value);
 			if (nwSet != null) {

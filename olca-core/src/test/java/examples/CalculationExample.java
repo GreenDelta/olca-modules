@@ -23,7 +23,7 @@ public class CalculationExample {
 			var f = r.enviIndex().at(0);
 			System.out.println(f.flow().name + "  -> " + r.getTotalFlowValueOf(f));
 			var impact =  r.impactIndex().at(0);
-			System.out.println(impact.name + "  -> " + r.totalImpactOf(impact));
+			System.out.println(impact.name + "  -> " + r.getTotalImpactValueOf(impact));
 		}
 	}
 }

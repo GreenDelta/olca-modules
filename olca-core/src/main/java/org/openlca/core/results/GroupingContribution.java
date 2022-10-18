@@ -46,7 +46,7 @@ public class GroupingContribution {
 	public List<Contribution<ProcessGrouping>> calculate(ImpactDescriptor impact) {
 		if (result == null || groupings == null)
 			return Collections.emptyList();
-		double total = result.totalImpactOf(impact);
+		double total = result.getTotalImpactValueOf(impact);
 		var techIdx = result.techIndex();
 		return Contributions.calculate(groupings, total, grouping -> {
 			double amount = 0;

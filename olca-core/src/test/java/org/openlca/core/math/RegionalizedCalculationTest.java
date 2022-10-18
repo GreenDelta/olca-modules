@@ -423,7 +423,7 @@ public class RegionalizedCalculationTest {
 	}
 
 	private void checkTotalImpactResult(LcaResult r, double val) {
-		Assert.assertEquals(val, r.totalImpactOf(des(impact)), 1e-10);
+		Assert.assertEquals(val, r.getTotalImpactValueOf(des(impact)), 1e-10);
 	}
 
 	private void checkDirectImpactResults(LcaResult r, Object[][] defs) {

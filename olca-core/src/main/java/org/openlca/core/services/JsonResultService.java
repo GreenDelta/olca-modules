@@ -233,7 +233,7 @@ public class JsonResultService {
 				return Response.of(new JsonArray());
 			var refs = JsonRefs.of(db);
 			var array = JsonUtil.encodeArray(
-					result.totalImpacts(),
+					result.getTotalImpacts(),
 					value -> JsonUtil.encodeImpact(value, refs));
 			return Response.of(array);
 		});
@@ -243,7 +243,7 @@ public class JsonResultService {
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> JsonUtil.encodeArray(
-						result.impactOfEnviFlows(impact),
+						result.getFlowImpactValues(impact),
 						value -> JsonUtil.encodeEnviValue(value, JsonRefs.of(db)))));
 	}
 

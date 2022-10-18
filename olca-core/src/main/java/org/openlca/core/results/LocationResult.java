@@ -89,7 +89,7 @@ public class LocationResult {
 			return Collections.emptyList();
 
 		HashMap<Location, Double> cons = new HashMap<>();
-		double total = result.totalImpactOf(impact);
+		double total = result.getTotalImpactValueOf(impact);
 
 		if (!result.enviIndex().isRegionalized()) {
 			// non-regionalized calculation;
@@ -112,7 +112,7 @@ public class LocationResult {
 				Location loc = iFlow.location() == null
 						? null
 						: getLocation(iFlow.location().id);
-				double v = result.impactOfEnviFlow(impact, iFlow);
+				double v = result.getFlowImpactOf(impact, iFlow);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});

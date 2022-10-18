@@ -117,7 +117,7 @@ public class Results {
 				return null;
 			var r = new ImpactResult();
 			r.indicator = impact;
-			r.amount = result.totalImpactOf(d);
+			r.amount = result.getTotalImpactValueOf(d);
 			return r;
 		}
 

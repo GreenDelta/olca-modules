@@ -160,7 +160,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
 		var refData = Refs.dataOf(db);
 		for (var impact : impacts) {
-			var value = result.totalImpactOf(impact);
+			var value = result.getTotalImpactValueOf(impact);
 			var proto = ResultValue.newBuilder()
 				.setImpact(Refs.refOf(impact, refData))
 				.setValue(value)

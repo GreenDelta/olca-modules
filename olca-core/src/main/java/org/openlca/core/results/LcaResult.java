@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.IntToDoubleFunction;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.SystemCalculator;
@@ -96,6 +97,12 @@ public class LcaResult implements IResult {
 	}
 
 	// region: tech-flows
+
+	public List<TechFlowValue> getScalingFactors() {
+		var s = provider.scalingVector();
+		return techValuesOf((i, techFlow) -> s[i]);
+	}
+
 	public double scalingFactorOf(TechFlow product) {
 		int idx = techIndex().of(product);
 		var scalingVector = provider.scalingVector();
@@ -105,18 +112,8 @@ public class LcaResult implements IResult {
 	}
 
 	public List<TechFlowValue> totalRequirements() {
-		var index = techIndex();
-		var list = new ArrayList<TechFlowValue>(index.size());
 		var t = provider.totalRequirements();
-		for (int i = 0; i < index.size(); i++) {
-			var techFlow = index.at(i);
-			var ti = t[i];
-			double value = techFlow.isWaste() && ti != 0
-					? -ti
-					: ti;
-			list.add(TechFlowValue.of(techFlow, value));
-		}
-		return list;
+		return techValuesOf((i, techFlow) -> t[i]);
 	}
 
 	public double totalRequirementsOf(TechFlow techFlow) {
@@ -134,142 +131,96 @@ public class LcaResult implements IResult {
 	// region: flows
 
 	public List<EnviFlowValue> getTotalFlows() {
-		var idx = enviIndex();
-		if (idx == null)
+		if (!hasEnviFlows())
 			return Collections.emptyList();
-		var list = new ArrayList<EnviFlowValue>(idx.size());
-		var values = provider.totalFlows();
-		for (int i = 0; i < idx.size(); i++) {
-			var enviFlow = idx.at(i);
-			var value = ResultProvider.flowValueView(enviFlow, values[i]);
-			list.add(EnviFlowValue.of(enviFlow, value));
-		}
-		return list;
+		var g = provider.totalFlows();
+		return enviValuesOf((i, $) -> g[i]);
 	}
 
 	public double getTotalFlowValueOf(EnviFlow flow) {
-		var idx = provider.indexOf(flow);
-		if (idx < 0)
-			return 0;
-		var values = provider.totalFlows();
-		var value = values[idx];
-		return ResultProvider.flowValueView(flow, value);
+		return enviValueOf(flow, i -> provider.totalFlows()[i]);
 	}
 
 	public List<TechFlowValue> getDirectFlowValuesOf(EnviFlow enviFlow) {
 		int flowIdx = provider.indexOf(enviFlow);
 		if (flowIdx < 0)
 			return Collections.emptyList();
-		var list = new ArrayList<TechFlowValue>(techIndex().size());
-		techIndex().each((techIdx, techFlow) -> {
+		return techValuesOf((techIdx, $) -> {
 			double raw = provider.directFlowOf(flowIdx, techIdx);
-			double value = ResultProvider.flowValueView(enviFlow, raw);
-			list.add(TechFlowValue.of(techFlow, value));
+			return ResultProvider.flowValueView(enviFlow, raw);
 		});
-		return list;
 	}
 
 	public List<TechFlowValue> getTotalFlowValuesOf(EnviFlow enviFlow) {
 		int flowIdx = provider.indexOf(enviFlow);
 		if (flowIdx < 0)
 			return Collections.emptyList();
-		var list = new ArrayList<TechFlowValue>(techIndex().size());
-		techIndex().each((techIdx, techFlow) -> {
+		return techValuesOf((techIdx, $) -> {
 			double raw = provider.totalFlowOf(flowIdx, techIdx);
-			double value = ResultProvider.flowValueView(enviFlow, raw);
-			list.add(TechFlowValue.of(techFlow, value));
+			return ResultProvider.flowValueView(enviFlow, raw);
 		});
-		return list;
 	}
 
 	public List<EnviFlowValue> getDirectFlowsOf(TechFlow techFlow) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
-		int pos = provider.indexOf(techFlow);
-		if (pos < 0)
-			return Collections.emptyList();
-		var values = provider.directFlowsOf(pos);
-		var results = new ArrayList<EnviFlowValue>();
-		enviIndex().each((i, flow) -> {
-			double value = ResultProvider.flowValueView(flow, values[i]);
-			results.add(new EnviFlowValue(flow, value));
-		});
-		return results;
+		var techIdx = provider.indexOf(techFlow);
+		var values = provider.directFlowsOf(techIdx);
+		return enviValuesOf((enviIdx, $) -> values[enviIdx]);
 	}
 
 	public double getDirectFlowOf(EnviFlow enviFlow, TechFlow techFlow) {
-		int flowIdx = provider.indexOf(enviFlow);
 		int techIdx = provider.indexOf(techFlow);
-		if (flowIdx < 0 || techIdx < 0)
+		if (techIdx < 0)
 			return 0;
-		double value = provider.directFlowOf(flowIdx, techIdx);
-		return ResultProvider.flowValueView(enviFlow, value);
+		return enviValueOf(enviFlow,
+				enviIdx -> provider.directFlowOf(enviIdx, techIdx));
 	}
 
 	public List<EnviFlowValue> getTotalFlowsOfOne(TechFlow techFlow) {
 		int techIdx = provider.indexOf(techFlow);
-		var enviIdx = enviIndex();
-		if (techIdx < 0 || MatrixIndex.isAbsent(enviIdx)) {
+		if (techIdx < 0 || !hasEnviFlows())
 			return Collections.emptyList();
-		}
 		var values = provider.totalFlowsOfOne(techIdx);
-		var list = new ArrayList<EnviFlowValue>(enviIdx.size());
-		enviIdx.each((i, enviFlow) -> {
-			double value = ResultProvider.flowValueView(enviFlow, values[i]);
-			list.add(EnviFlowValue.of(enviFlow, value));
-		});
-		return list;
+		return enviValuesOf((enviIdx, $) -> values[enviIdx]);
 	}
 
 	public double getTotalFlowOfOne(EnviFlow enviFlow, TechFlow techFlow) {
-		var enviIdx = provider.indexOf(enviFlow);
 		var techIdx = provider.indexOf(techFlow);
-		if (enviIdx < 0 || techIdx < 0)
+		if (techIdx < 0)
 			return 0;
-		var value = provider.totalFlowOfOne(enviIdx, techIdx);
-		return ResultProvider.flowValueView(enviFlow, value);
+		return enviValueOf(enviFlow,
+				enviIdx -> provider.totalFlowOfOne(enviIdx, techIdx));
 	}
 
 	public List<EnviFlowValue> getTotalFlowsOf(TechFlow techFlow) {
-		var enviIdx = enviIndex();
-		if (MatrixIndex.isAbsent(enviIdx))
+		var techIdx = provider.indexOf(techFlow);
+		if (techIdx < 0)
 			return Collections.emptyList();
-		var list = new ArrayList<EnviFlowValue>(enviIdx.size());
-		enviIdx.each((i, enviFlow) -> {
-			double value = getTotalFlowOf(enviFlow, techFlow);
-			list.add(new EnviFlowValue(enviFlow, value));
-		});
-		return list;
+		var values = provider.totalFlowsOf(techIdx);
+		return enviValuesOf((enviIdx, $) -> values[enviIdx]);
 	}
 
 	public double getTotalFlowOf(EnviFlow enviFlow, TechFlow techFlow) {
-		int flowIdx = provider.indexOf(enviFlow);
 		int techIdx = provider.indexOf(techFlow);
-		if (flowIdx < 0 || techIdx < 0)
+		if (techIdx < 0)
 			return 0;
-		double amount = provider.totalFlowOf(flowIdx, techIdx);
-		return ResultProvider.flowValueView(enviFlow, amount);
+		return enviValueOf(enviFlow,
+				enviIdx -> provider.totalFlowOf(enviIdx, techIdx));
 	}
 
 	// endregion
 
-	public double totalCosts() {
-		return provider.totalCosts();
-	}
+	// region: impact assessment results
 
-	public List<ImpactValue> totalImpacts() {
-		var idx = impactIndex();
-		if (idx == null)
+	public List<ImpactValue> getTotalImpacts() {
+		if (!hasImpacts())
 			return Collections.emptyList();
 		var values = provider.totalImpacts();
-		var results = new ArrayList<ImpactValue>(idx.size());
-		for (int i = 0; i < idx.size(); i++) {
-			results.add(ImpactValue.of(idx.at(i), values[i]));
-		}
-		return results;
+		return impactValuesOf((impactIdx, $) -> values[impactIdx]);
 	}
 
-	public double totalImpactOf(ImpactDescriptor impact) {
+	public double getTotalImpactValueOf(ImpactDescriptor impact) {
 		int idx = provider.indexOf(impact);
 		if (idx < 0)
 			return 0;
@@ -277,28 +228,21 @@ public class LcaResult implements IResult {
 		return values[idx];
 	}
 
-	/**
-	 * Returns the sub-result for the given product. Sub-results are typically
-	 * available for sub-systems of a product system.
-	 *
-	 * @param product the product for which the sub-result is requested
-	 * @return the sub-result of the product. This is {@code null} if there is
-	 * no such sub-result available in this result. Also, the returned result
-	 * can be a more specific result (e.g. contribution result) depending on how
-	 * the result was calculated.
-	 */
-	public LcaResult subResultOf(TechFlow product) {
-		return subResults.get(product);
+	public List<TechFlowValue> getDirectImpactValuesOf(ImpactDescriptor impact) {
+		int impactIdx = provider.indexOf(impact);
+		if (impactIdx < 0)
+			return Collections.emptyList();
+		return techValuesOf((techIdx, _techFlow) ->
+				provider.directImpactOf(impactIdx, techIdx));
 	}
 
-	public Map<TechFlow, LcaResult> subResults() {
-		return new HashMap<>(subResults);
+	public List<TechFlowValue> getTotalImpactValuesOf(ImpactDescriptor impact) {
+		int impactIdx = provider.indexOf(impact);
+		if (impactIdx < 0)
+			return Collections.emptyList();
+		return techValuesOf((techIdx, _techFlow) ->
+				provider.totalImpactOf(impactIdx, techIdx));
 	}
-
-	public void addSubResult(TechFlow product, LcaResult result) {
-		subResults.put(product, result);
-	}
-
 
 	public double directImpactOf(ImpactDescriptor impact, TechFlow techFlow) {
 		int impactIdx = provider.indexOf(impact);
@@ -307,7 +251,6 @@ public class LcaResult implements IResult {
 				? 0
 				: provider.directImpactOf(impactIdx, techIdx);
 	}
-
 
 	public List<ImpactValue> directImpactsOf(TechFlow techFlow) {
 		var impactIdx = impactIndex();
@@ -321,60 +264,8 @@ public class LcaResult implements IResult {
 		return results;
 	}
 
-	public List<TechFlowValue> directCosts() {
-		if (!hasCosts())
-			return Collections.emptyList();
-		var list = new ArrayList<TechFlowValue>();
-		for (var techFlow : techIndex()) {
-			list.add(TechFlowValue.of(techFlow, directCostsOf(techFlow)));
-		}
-		return list;
-	}
 
-	public double directCostsOf(TechFlow techFlow) {
-		if (!hasCosts())
-			return 0;
-		int col = provider.indexOf(techFlow);
-		return col < 0
-				? 0
-				: provider.directCostsOf(col);
-	}
-
-	/**
-	 * Get the direct contributions of the processes in the system to the inventory
-	 * result of the given flow.
-	 */
-	public List<Contribution<TechFlow>> getProcessContributions(EnviFlow flow) {
-		return Contributions.calculate(
-				techIndex(),
-				getTotalFlowValueOf(flow),
-				techFlow -> getDirectFlowOf(flow, techFlow));
-	}
-
-	/**
-	 * Get the direct contributions of the processes in the system to the LCIA
-	 * result of the given LCIA category.
-	 */
-	public List<Contribution<TechFlow>> getProcessContributions(
-			ImpactDescriptor impact) {
-		return Contributions.calculate(
-				techIndex(),
-				totalImpactOf(impact),
-				techFlow -> directImpactOf(impact, techFlow));
-	}
-
-
-	/**
-	 * Get the direct contributions of all processes to the LCC result.
-	 */
-	public List<Contribution<TechFlow>> getProcessCostContributions() {
-		return Contributions.calculate(
-				techIndex(),
-				totalCosts(),
-				this::directCostsOf);
-	}
-
-	public double impactOfEnviFlow(ImpactDescriptor impact, EnviFlow flow) {
+	public double getFlowImpactOf(ImpactDescriptor impact, EnviFlow flow) {
 		int impactIdx = provider.indexOf(impact);
 		int flowIdx = provider.indexOf(flow);
 		return impactIdx < 0 || flowIdx < 0
@@ -382,16 +273,16 @@ public class LcaResult implements IResult {
 				: provider.flowImpactOf(impactIdx, flowIdx);
 	}
 
-	public List<EnviFlowValue> impactOfEnviFlows(ImpactDescriptor impact) {
+	public List<EnviFlowValue> getFlowImpactValues(ImpactDescriptor impact) {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
 		return enviIndex().stream().map(enviFlow -> {
-			double value = impactOfEnviFlow(impact, enviFlow);
+			double value = getFlowImpactOf(impact, enviFlow);
 			return new EnviFlowValue(enviFlow, value);
 		}).toList();
 	}
 
-	public double impactOfTechFlow(ImpactDescriptor impact, TechFlow techFlow) {
+	public double getDirectImpactOf(ImpactDescriptor impact, TechFlow techFlow) {
 		int impactIdx = provider.indexOf(impact);
 		int techIdx = provider.indexOf(techFlow);
 		return impactIdx < 0 || techIdx < 0
@@ -433,6 +324,91 @@ public class LcaResult implements IResult {
 			list.add(new ImpactValue(impact, amount));
 		});
 		return list;
+	}
+
+	// endregion
+
+	public double totalCosts() {
+		return provider.totalCosts();
+	}
+
+	// region: sub-results
+
+	/**
+	 * Returns the sub-result for the given product. Sub-results are typically
+	 * available for sub-systems of a product system.
+	 *
+	 * @param product the product for which the sub-result is requested
+	 * @return the sub-result of the product. This is {@code null} if there is
+	 * no such sub-result available in this result. Also, the returned result
+	 * can be a more specific result (e.g. contribution result) depending on how
+	 * the result was calculated.
+	 */
+	public LcaResult subResultOf(TechFlow product) {
+		return subResults.get(product);
+	}
+
+	public Map<TechFlow, LcaResult> subResults() {
+		return new HashMap<>(subResults);
+	}
+
+	public void addSubResult(TechFlow product, LcaResult result) {
+		subResults.put(product, result);
+	}
+
+	// endregion
+
+
+	public List<TechFlowValue> directCosts() {
+		if (!hasCosts())
+			return Collections.emptyList();
+		var list = new ArrayList<TechFlowValue>();
+		for (var techFlow : techIndex()) {
+			list.add(TechFlowValue.of(techFlow, directCostsOf(techFlow)));
+		}
+		return list;
+	}
+
+	public double directCostsOf(TechFlow techFlow) {
+		if (!hasCosts())
+			return 0;
+		int col = provider.indexOf(techFlow);
+		return col < 0
+				? 0
+				: provider.directCostsOf(col);
+	}
+
+	/**
+	 * Get the direct contributions of the processes in the system to the inventory
+	 * result of the given flow.
+	 */
+	public List<Contribution<TechFlow>> getProcessContributions(EnviFlow flow) {
+		return Contributions.calculate(
+				techIndex(),
+				getTotalFlowValueOf(flow),
+				techFlow -> getDirectFlowOf(flow, techFlow));
+	}
+
+	/**
+	 * Get the direct contributions of the processes in the system to the LCIA
+	 * result of the given LCIA category.
+	 */
+	public List<Contribution<TechFlow>> getProcessContributions(
+			ImpactDescriptor impact) {
+		return Contributions.calculate(
+				techIndex(),
+				getTotalImpactValueOf(impact),
+				techFlow -> directImpactOf(impact, techFlow));
+	}
+
+	/**
+	 * Get the direct contributions of all processes to the LCC result.
+	 */
+	public List<Contribution<TechFlow>> getProcessCostContributions() {
+		return Contributions.calculate(
+				techIndex(),
+				totalCosts(),
+				this::directCostsOf);
 	}
 
 	public double totalCostsOf(TechFlow techFlow) {
@@ -478,4 +454,54 @@ public class LcaResult implements IResult {
 				? 0
 				: -amount / total;
 	}
+
+	// region utils
+
+	private List<TechFlowValue> techValuesOf(IxVal<TechFlow> fn) {
+		var list = new ArrayList<TechFlowValue>(techIndex().size());
+		techIndex().each((i, techFlow) -> {
+			double value = fn.call(i, techFlow);
+			list.add(new TechFlowValue(techFlow, value));
+		});
+		return list;
+	}
+
+	private List<EnviFlowValue> enviValuesOf(IxVal<EnviFlow> fn) {
+		var enviIdx = enviIndex();
+		if (MatrixIndex.isAbsent(enviIdx))
+			return Collections.emptyList();
+		var list = new ArrayList<EnviFlowValue>(enviIdx.size());
+		enviIdx.each((i, enviFlow) -> {
+			double raw = fn.call(i, enviFlow);
+			double value = ResultProvider.flowValueView(enviFlow, raw);
+			list.add(new EnviFlowValue(enviFlow, value));
+		});
+		return list;
+	}
+
+	private double enviValueOf(EnviFlow enviFlow, IntToDoubleFunction fn) {
+		int i = provider().indexOf(enviFlow);
+		return i >= 0
+				? ResultProvider.flowValueView(enviFlow, fn.applyAsDouble(i))
+				: 0;
+	}
+
+	private List<ImpactValue> impactValuesOf(IxVal<ImpactDescriptor> fn) {
+		var impactIdx = impactIndex();
+		if (MatrixIndex.isAbsent(impactIdx))
+			return Collections.emptyList();
+		var list = new ArrayList<ImpactValue>(impactIdx.size());
+		impactIdx.each((i, impact) -> {
+			double value = fn.call(i, impact);
+			list.add(new ImpactValue(impact, value));
+		});
+		return list;
+	}
+
+	@FunctionalInterface
+	interface IxVal<T> {
+		double call(int i, T elem);
+	}
+
+	// endregion
 }

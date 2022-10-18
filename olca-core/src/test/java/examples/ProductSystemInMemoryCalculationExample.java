@@ -54,7 +54,7 @@ public class ProductSystemInMemoryCalculationExample {
 		// print the LCIA results
 		for (ImpactDescriptor impact : r.impactIndex()) {
 			System.out.println(impact.name + "\t"
-					+ r.totalImpactOf(impact) + "\t"
+					+ r.getTotalImpactValueOf(impact) + "\t"
 					+ impact.referenceUnit);
 		}
 

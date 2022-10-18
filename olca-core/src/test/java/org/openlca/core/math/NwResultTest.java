@@ -52,7 +52,7 @@ public class NwResultTest {
 			.withImpactMethod(method)
 			.withNwSet(nwSet);
 		var result = LcaResult.of(db, setup);
-		var impacts = result.totalImpacts();
+		var impacts = result.getTotalImpacts();
 		assertEquals(4, impacts.get(0).value(), 1e-10);
 
 		// check nw results

@@ -38,7 +38,7 @@ public class SimulatorExample {
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 200; i++) {
 			var r = simulator.nextRun();
-			double val = r.totalImpactOf(gwp);
+			double val = r.getTotalImpactValueOf(gwp);
 			if (i == 0) {
 				min = val;
 				max = val;
