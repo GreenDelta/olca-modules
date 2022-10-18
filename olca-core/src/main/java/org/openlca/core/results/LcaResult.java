@@ -147,19 +147,6 @@ public class LcaResult implements IResult {
 		return list;
 	}
 
-	public List<TechFlowValue> getTotalFlowValuesOf(EnviFlow enviFlow) {
-		int flowIdx = provider.indexOf(enviFlow);
-		if (flowIdx < 0)
-			return Collections.emptyList();
-		var list = new ArrayList<TechFlowValue>(techIndex().size());
-		techIndex().each((techIdx, techFlow) -> {
-			double raw = provider.totalFlowOf(flowIdx, techIdx);
-			double value = ResultProvider.flowValueView(enviFlow, raw);
-			list.add(TechFlowValue.of(techFlow, value));
-		});
-		return list;
-	}
-
 	public double getTotalFlowValueOf(EnviFlow flow) {
 		var idx = provider.indexOf(flow);
 		if (idx < 0)
@@ -176,6 +163,19 @@ public class LcaResult implements IResult {
 		var list = new ArrayList<TechFlowValue>(techIndex().size());
 		techIndex().each((techIdx, techFlow) -> {
 			double raw = provider.directFlowOf(flowIdx, techIdx);
+			double value = ResultProvider.flowValueView(enviFlow, raw);
+			list.add(TechFlowValue.of(techFlow, value));
+		});
+		return list;
+	}
+
+	public List<TechFlowValue> getTotalFlowValuesOf(EnviFlow enviFlow) {
+		int flowIdx = provider.indexOf(enviFlow);
+		if (flowIdx < 0)
+			return Collections.emptyList();
+		var list = new ArrayList<TechFlowValue>(techIndex().size());
+		techIndex().each((techIdx, techFlow) -> {
+			double raw = provider.totalFlowOf(flowIdx, techIdx);
 			double value = ResultProvider.flowValueView(enviFlow, raw);
 			list.add(TechFlowValue.of(techFlow, value));
 		});
@@ -206,11 +206,35 @@ public class LcaResult implements IResult {
 		return ResultProvider.flowValueView(enviFlow, value);
 	}
 
+	public List<EnviFlowValue> getTotalFlowsOfOne(TechFlow techFlow) {
+		int techIdx = provider.indexOf(techFlow);
+		var enviIdx = enviIndex();
+		if (techIdx < 0 || MatrixIndex.isAbsent(enviIdx)) {
+			return Collections.emptyList();
+		}
+		var values = provider.totalFlowsOfOne(techIdx);
+		var list = new ArrayList<EnviFlowValue>(enviIdx.size());
+		enviIdx.each((i, enviFlow) -> {
+			double value = ResultProvider.flowValueView(enviFlow, values[i]);
+			list.add(EnviFlowValue.of(enviFlow, value));
+		});
+		return list;
+	}
+
+	public double getTotalFlowOfOne(EnviFlow enviFlow, TechFlow techFlow) {
+		var enviIdx = provider.indexOf(enviFlow);
+		var techIdx = provider.indexOf(techFlow);
+		if (enviIdx < 0 || techIdx < 0)
+			return 0;
+		var value = provider.totalFlowOfOne(enviIdx, techIdx);
+		return ResultProvider.flowValueView(enviFlow, value);
+	}
+
 	public List<EnviFlowValue> getTotalFlowsOf(TechFlow techFlow) {
 		var enviIdx = enviIndex();
 		if (MatrixIndex.isAbsent(enviIdx))
 			return Collections.emptyList();
-		var list = new ArrayList<EnviFlowValue>();
+		var list = new ArrayList<EnviFlowValue>(enviIdx.size());
 		enviIdx.each((i, enviFlow) -> {
 			double value = getTotalFlowOf(enviFlow, techFlow);
 			list.add(new EnviFlowValue(enviFlow, value));
@@ -274,9 +298,6 @@ public class LcaResult implements IResult {
 	public void addSubResult(TechFlow product, LcaResult result) {
 		subResults.put(product, result);
 	}
-
-
-
 
 
 	public double directImpactOf(ImpactDescriptor impact, TechFlow techFlow) {

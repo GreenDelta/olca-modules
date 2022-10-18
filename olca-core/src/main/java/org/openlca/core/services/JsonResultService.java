@@ -144,20 +144,20 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonArray> getTotalFlowValuesOf(
-			String resultId, EnviFlowId enviFlowId) {
-		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
-				.map(enviFlow -> {
-					var values = result.getTotalFlowValuesOf(enviFlow);
-					return JsonUtil.encodeTechValues(values, JsonRefs.of(db));
-				}));
-	}
-
 	public Response<JsonArray> getDirectFlowValuesOf(
 			String resultId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var values = result.getDirectFlowValuesOf(enviFlow);
+					return JsonUtil.encodeTechValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonArray> getTotalFlowValuesOf(
+			String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(enviFlow -> {
+					var values = result.getTotalFlowValuesOf(enviFlow);
 					return JsonUtil.encodeTechValues(values, JsonRefs.of(db));
 				}));
 	}
@@ -179,6 +179,26 @@ public class JsonResultService {
 				(enviFlow, techFlow) -> {
 					double amount = result.getDirectFlowOf(enviFlow, techFlow);
 					return Response.of(new JsonPrimitive(amount));
+				}));
+	}
+
+	public Response<JsonArray> getTotalFlowsOfOne(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					var values = result.getTotalFlowsOfOne(techFlow);
+					return JsonUtil.encodeEnviValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonPrimitive> getTotalFlowOfOne(
+			String resultId, EnviFlowId enviFlowId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> join(
+				enviFlowOf(result, enviFlowId),
+				techFlowOf(result, techFlowId),
+				(enviFlow, techFlow) -> {
+					var value = result.getTotalFlowOf(enviFlow, techFlow);
+					return Response.of(new JsonPrimitive(value));
 				}));
 	}
 
