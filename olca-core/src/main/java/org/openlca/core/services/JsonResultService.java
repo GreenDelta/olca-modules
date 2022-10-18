@@ -243,7 +243,7 @@ public class JsonResultService {
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> JsonUtil.encodeArray(
-						result.getFlowImpactValues(impact),
+						result.getFlowImpactValuesOf(impact),
 						value -> JsonUtil.encodeEnviValue(value, JsonRefs.of(db)))));
 	}
 

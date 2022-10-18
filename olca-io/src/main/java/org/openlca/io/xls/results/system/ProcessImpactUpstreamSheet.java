@@ -36,7 +36,7 @@ class ProcessImpactUpstreamSheet extends
 
 	@Override
 	protected double getValue(TechFlow techFlow, ImpactDescriptor impact) {
-		return r.totalImpactOf(impact, techFlow);
+		return r.getTotalImpactOf(impact, techFlow);
 	}
 
 	@Override

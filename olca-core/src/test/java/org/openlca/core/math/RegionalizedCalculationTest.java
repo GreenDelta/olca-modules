@@ -435,7 +435,7 @@ public class RegionalizedCalculationTest {
 
 	private void checkUpstreamImpactResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			double v = r.totalImpactOf(des(impact), product((Process) row[0]));
+			double v = r.getTotalImpactOf(des(impact), product((Process) row[0]));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}
