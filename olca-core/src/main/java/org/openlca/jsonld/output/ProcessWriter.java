@@ -2,16 +2,15 @@ package org.openlca.jsonld.output;
 
 import java.util.Objects;
 
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 

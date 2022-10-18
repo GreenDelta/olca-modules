@@ -44,6 +44,10 @@ public class Datasets {
 		return stream(ref, new HashMap<>(), stream -> MetaDataParser.parse(stream, defs));
 	}
 
+	public Map<String, Object> parse(Reference ref, FieldDefinition... defs) {
+		return stream(ref, new HashMap<>(), stream -> MetaDataParser.parse(stream, defs));
+	}
+
 	private <T> T stream(Reference ref, T defaultValue, Function<ObjectStream, T> consumer) {
 		if (ref == null || ref.objectId == null)
 			return defaultValue;
