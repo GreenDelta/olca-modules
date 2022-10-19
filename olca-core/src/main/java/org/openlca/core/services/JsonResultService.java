@@ -1,5 +1,6 @@
 package org.openlca.core.services;
 
+import static org.openlca.core.services.JsonUtil.*;
 import static org.openlca.core.services.Util.*;
 
 import java.util.Objects;
@@ -46,7 +47,7 @@ public class JsonResultService {
 			if (r.hasError())
 				return Response.error(r.error());
 			var state = queue.schedule(r.setup());
-			return Response.of(JsonUtil.encodeState(state));
+			return Response.of(encodeState(state));
 		} catch (Exception e) {
 			return Response.error(e);
 		}
@@ -55,7 +56,7 @@ public class JsonResultService {
 	public Response<JsonObject> getState(String resultId) {
 		try {
 			var state = queue.get(resultId);
-			return Response.of(JsonUtil.encodeState(state));
+			return Response.of(encodeState(state));
 		} catch (Exception e) {
 			return Response.error(e);
 		}
@@ -66,9 +67,9 @@ public class JsonResultService {
 	public Response<JsonArray> getTechFlows(String resultId) {
 		return withResult(resultId, result -> {
 			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(
+			var array = encodeArray(
 					result.techIndex(),
-					techFlow -> JsonUtil.encodeTechFlow(techFlow, refs));
+					techFlow -> encodeTechFlow(techFlow, refs));
 			return Response.of(array);
 		});
 	}
@@ -79,8 +80,8 @@ public class JsonResultService {
 			if (index == null)
 				return Response.of(new JsonArray());
 			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(index,
-					enviFlow -> JsonUtil.encodeEnviFlow(enviFlow, refs));
+			var array = encodeArray(index,
+					enviFlow -> encodeEnviFlow(enviFlow, refs));
 			return Response.of(array);
 		});
 	}
@@ -91,7 +92,7 @@ public class JsonResultService {
 			if (index == null)
 				return Response.of(new JsonArray());
 			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(index, refs::asRef);
+			var array = encodeArray(index, refs::asRef);
 			return Response.of(array);
 		});
 	}
@@ -104,8 +105,8 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			var tr = result.totalRequirements();
 			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(tr,
-					techValue -> JsonUtil.encodeTechValue(techValue, refs));
+			var array = encodeArray(tr,
+					techValue -> encodeTechValue(techValue, refs));
 			return Response.of(array);
 		});
 	}
@@ -114,7 +115,7 @@ public class JsonResultService {
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
 			var value = result.totalRequirementsOf(techFlow);
-			var obj = JsonUtil.encodeTechValue(
+			var obj = encodeTechValue(
 					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
 			return Response.of(obj);
 		});
@@ -128,7 +129,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			if (!result.hasEnviFlows())
 				return Response.of(new JsonArray());
-			var array = JsonUtil.encodeEnviValues(
+			var array = encodeEnviValues(
 					result.getTotalFlows(), JsonRefs.of(db));
 			return Response.of(array);
 		});
@@ -140,7 +141,7 @@ public class JsonResultService {
 				.map(enviFlow -> {
 					var amount = result.getTotalFlowValueOf(enviFlow);
 					var value = EnviFlowValue.of(enviFlow, amount);
-					return JsonUtil.encodeEnviValue(value, JsonRefs.of(db));
+					return encodeEnviValue(value, JsonRefs.of(db));
 				}));
 	}
 
@@ -149,7 +150,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var values = result.getDirectFlowValuesOf(enviFlow);
-					return JsonUtil.encodeTechValues(values, JsonRefs.of(db));
+					return encodeTechValues(values, JsonRefs.of(db));
 				}));
 	}
 
@@ -158,7 +159,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var values = result.getTotalFlowValuesOf(enviFlow);
-					return JsonUtil.encodeTechValues(values, JsonRefs.of(db));
+					return encodeTechValues(values, JsonRefs.of(db));
 				}));
 	}
 
@@ -167,7 +168,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getDirectFlowsOf(techFlow);
-					return JsonUtil.encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, JsonRefs.of(db));
 				}));
 	}
 
@@ -187,7 +188,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getTotalFlowsOfOne(techFlow);
-					return JsonUtil.encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, JsonRefs.of(db));
 				}));
 	}
 
@@ -207,7 +208,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getTotalFlowsOf(techFlow);
-					return JsonUtil.encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, JsonRefs.of(db));
 				}));
 	}
 
@@ -222,7 +223,6 @@ public class JsonResultService {
 				}));
 	}
 
-
 	// endregion
 
 	// region: impacts
@@ -231,60 +231,160 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			if (!result.hasImpacts())
 				return Response.of(new JsonArray());
-			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(
-					result.getTotalImpacts(),
-					value -> JsonUtil.encodeImpact(value, refs));
+			var array = encodeImpactValues(
+					result.getTotalImpacts(), JsonRefs.of(db));
 			return Response.of(array);
 		});
 	}
 
-	public Response<JsonArray> getImpactOfEnviFlows(
+	public Response<JsonPrimitive> getTotalImpactValueOf(
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
-				.map(impact -> JsonUtil.encodeArray(
-						result.getFlowImpactValuesOf(impact),
-						value -> JsonUtil.encodeEnviValue(value, JsonRefs.of(db)))));
+				.map(impact -> {
+					double value = result.getTotalImpactValueOf(impact);
+					return new JsonPrimitive(value);
+				})
+		);
 	}
 
-	public Response<JsonArray> getImpactOfTechFlows(
+	public Response<JsonArray> getDirectImpactValuesOf(
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
-				.map(impact -> JsonUtil.encodeArray(
-						result.impactOfTechFlows(impact),
-						value -> JsonUtil.encodeTechValue(value, JsonRefs.of(db)))));
+				.map(impact -> {
+					var values = result.getDirectImpactValuesOf(impact);
+					return encodeTechValues(values, JsonRefs.of(db));
+				})
+		);
+	}
+
+	public Response<JsonArray> getTotalImpactValuesOf(
+			String resultId, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> encodeTechValues(
+						result.getTotalImpactValuesOf(impact), JsonRefs.of(db))));
+	}
+
+	public Response<JsonArray> getDirectImpactsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> encodeImpactValues(
+						result.getDirectImpactsOf(techFlow), JsonRefs.of(db))));
+	}
+
+	public Response<JsonPrimitive> getDirectImpactOf(
+			String resultId, String impactId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> join(
+				impactOf(result, impactId),
+				techFlowOf(result, techFlowId),
+				(impact, techFlow) -> {
+					double value = result.getDirectImpactOf(impact, techFlow);
+					return Response.of(new JsonPrimitive(value));
+				}));
+	}
+
+	public Response<JsonArray> getTotalImpactsOfOne(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					var values = result.getTotalImpactsOfOne(techFlow);
+					return encodeImpactValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonPrimitive> getTotalImpactOfOne(
+			String resultId, String impactId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> join(
+				impactOf(result, impactId),
+				techFlowOf(result, techFlowId),
+				(impact, techFlow) -> {
+					double value = result.getTotalImpactOfOne(impact, techFlow);
+					return Response.of(new JsonPrimitive(value));
+				}));
+	}
+
+	public Response<JsonArray> getTotalImpactsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					var values = result.getTotalImpactsOf(techFlow);
+					return encodeImpactValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonPrimitive> getTotalImpactOf(
+			String resultId, String impactId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> join(
+				impactOf(result, impactId),
+				techFlowOf(result, techFlowId),
+				(impact, techFlow) -> {
+					double value = result.getTotalImpactOf(impact, techFlow);
+					return Response.of(new JsonPrimitive(value));
+				}));
+	}
+
+	public Response<JsonArray> getImpactFactorsOf(
+			String resultId, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> {
+					var values = result.getImpactFactorsOf(impact);
+					return encodeEnviValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonPrimitive> getImpactFactorOf(
+			String resultId, String impactId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> join(
+				impactOf(result, impactId),
+				enviFlowOf(result, enviFlowId),
+				(impact, enviFlow) -> {
+					double value = result.getImpactFactorOf(impact, enviFlow);
+					return Response.of(new JsonPrimitive(value));
+				}));
+	}
+
+	public Response<JsonArray> getFlowImpactsOfOne(
+			String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(enviFlow -> {
+					var values = result.getFlowImpactsOfOne(enviFlow);
+					return encodeImpactValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonArray> getFlowImpactsOf(
+			String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(enviFlow -> {
+					var values = result.getFlowImpactsOf(enviFlow);
+					return encodeImpactValues(values, JsonRefs.of(db));
+				}));
+	}
+
+	public Response<JsonPrimitive> getFlowImpactOf(
+			String resultId, String impactId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> join(
+				impactOf(result, impactId),
+				enviFlowOf(result, enviFlowId),
+				(impact, enviFlow) -> {
+					double value = result.getFlowImpactOf(impact, enviFlow);
+					return Response.of(new JsonPrimitive(value));
+				}));
+	}
+
+	public Response<JsonArray> getFlowImpactValuesOf(
+			String resultId, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> {
+					var values = result.getFlowImpactValuesOf(impact);
+					return encodeEnviValues(values, JsonRefs.of(db));
+				}));
 	}
 
 	// endregion
 
 	// region: costs
 
-	public Response<JsonArray> getDirectCosts(String resultId) {
-		return withResult(resultId, result -> {
-			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(
-					result.getDirectCostValues(),
-					value -> JsonUtil.encodeTechValue(value, refs));
-			return Response.of(array);
-		});
-	}
 
-	public Response<JsonPrimitive> getTotalCosts(String resultId) {
-		return withResult(resultId, result -> {
-			double costs = result.getTotalCosts();
-			return Response.of(new JsonPrimitive(costs));
-		});
-	}
-
-	public Response<JsonArray> getTotalCostsByTechFlow(String resultId) {
-		return withResult(resultId, result -> {
-			var refs = JsonRefs.of(db);
-			var array = JsonUtil.encodeArray(
-					result.totalCostsByTechFlow(),
-					value -> JsonUtil.encodeTechValue(value, refs));
-			return Response.of(array);
-		});
-	}
 
 	// endregion
 
@@ -319,8 +419,7 @@ public class JsonResultService {
 	private JsonArray getUpstreamNodes(String path, UpstreamTree tree) {
 		var nodes = UpstreamPath.parse(path).selectChilds(tree);
 		var refs = JsonRefs.of(db);
-		return JsonUtil.encodeArray(
-				nodes, node -> JsonUtil.encodeUpstreamNode(node, refs));
+		return encodeArray(nodes, node -> encodeUpstreamNode(node, refs));
 	}
 
 	// endregion

@@ -100,6 +100,10 @@ final class JsonUtil {
 		return obj;
 	}
 
+	static JsonArray encodeImpactValues(Iterable<ImpactValue> vs, JsonRefs refs) {
+		return encodeArray(vs, v -> encodeImpact(v, refs));
+	}
+
 	static JsonObject encodeUpstreamNode(UpstreamNode node, JsonRefs refs) {
 		if (node == null)
 			return null;
