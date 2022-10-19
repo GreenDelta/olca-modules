@@ -65,15 +65,7 @@ public class Contribution<T> {
 	 * given total amount.
 	 */
 	public void computeShare(double total) {
-		if (amount == 0) {
-			share = 0;
-			return;
-		}
-		if (total != 0) {
-			share = amount / Math.abs(total);
-		} else {
-			share = amount > 0 ? 1 : -1;
-		}
+		share = shareOf(amount, total);
 	}
 
 	/**
@@ -87,6 +79,14 @@ public class Contribution<T> {
 		for (Contribution<?> child : childs) {
 			child.computeSharesRecursively(total);
 		}
+	}
+
+	public static double shareOf(double value, double total) {
+		if (value == 0)
+			return 0;
+		if (total == 0)
+			return value > 0 ? 1 : -1;
+		return value / Math.abs(total);
 	}
 
 	@Override
