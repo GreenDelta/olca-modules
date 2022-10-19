@@ -384,7 +384,55 @@ public class JsonResultService {
 
 	// region: costs
 
+	public Response<JsonPrimitive> getTotalCosts(String resultId) {
+		return withResult(resultId, result -> {
+			double value = result.getTotalCosts();
+			return Response.of(new JsonPrimitive(value));
+		});
+	}
 
+	public Response<JsonArray> getDirectCostValues(String resultId) {
+		return withResult(resultId, result -> {
+			var values = result.getDirectCostValues();
+			var array = encodeTechValues(values, JsonRefs.of(db));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getTotalCostValues(String resultId) {
+		return withResult(resultId, result -> {
+			var values = result.getTotalCostValues();
+			var array = encodeTechValues(values, JsonRefs.of(db));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonPrimitive> getDirectCostsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					double value = result.getDirectCostsOf(techFlow);
+					return new JsonPrimitive(value);
+				}));
+	}
+
+	public Response<JsonPrimitive> getTotalCostsOfOne(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					double value = result.getTotalCostsOfOne(techFlow);
+					return new JsonPrimitive(value);
+				}));
+	}
+
+	public Response<JsonPrimitive> getTotalCostsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResult(resultId, result -> techFlowOf(result, techFlowId)
+				.map(techFlow -> {
+					double value = result.getTotalCostsOf(techFlow);
+					return new JsonPrimitive(value);
+				}));
+	}
 
 	// endregion
 
