@@ -243,7 +243,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		TechFlowContributionRequest req, StreamObserver<ResultValue> resp) {
 
 		TechFlowContribution.of(this, req, resp)
-			.ifImpact(LcaResult::directImpactOf)
+			.ifImpact(LcaResult::getDirectImpactOf)
 			.ifFlow(LcaResult::getDirectFlowOf)
 			.ifCosts(LcaResult::getDirectCostsOf)
 			.close();

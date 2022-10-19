@@ -36,7 +36,7 @@ class ProcessImpactContributionSheet
 
 	@Override
 	protected double getValue(TechFlow techFlow, ImpactDescriptor impact) {
-		return r.directImpactOf(impact, techFlow);
+		return r.getDirectImpactOf(impact, techFlow);
 	}
 
 	@Override

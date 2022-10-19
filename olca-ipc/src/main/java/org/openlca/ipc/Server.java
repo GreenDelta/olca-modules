@@ -8,14 +8,11 @@ import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.Calculator;
-import org.openlca.ipc.handlers.CostHandler;
 import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
-import org.openlca.ipc.handlers.ImpactHandler;
-import org.openlca.ipc.handlers.ResultHandler;
 import org.openlca.ipc.handlers.ModelHandler;
+import org.openlca.ipc.handlers.ResultHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
-import org.openlca.ipc.handlers.UpstreamTreeHandler;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,12 +40,9 @@ public class Server extends NanoHTTPD {
 		register(new ModelHandler(context));
 		register(new Calculator(context));
 		register(new ResultHandler(context));
-		register(new ImpactHandler(context));
-		register(new CostHandler(context));
 		register(new CacheHandler(cache));
 		register(new RuntimeHandler(context));
 		register(new ExportHandler(context));
-		register(new UpstreamTreeHandler(context));
 		return this;
 	}
 

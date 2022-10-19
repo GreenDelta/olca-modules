@@ -1,14 +1,13 @@
 package org.openlca.ipc.handlers;
 
+import java.util.UUID;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.services.CalculationQueue;
 import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.Cache;
 import org.openlca.ipc.Server;
-
-import java.util.UUID;
 
 public record HandlerContext(
 	Server server,

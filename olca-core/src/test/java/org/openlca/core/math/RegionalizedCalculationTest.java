@@ -428,7 +428,7 @@ public class RegionalizedCalculationTest {
 
 	private void checkDirectImpactResults(LcaResult r, Object[][] defs) {
 		for (Object[] row : defs) {
-			double v = r.directImpactOf(des(impact), product((Process) row[0]));
+			double v = r.getDirectImpactOf(des(impact), product((Process) row[0]));
 			Assert.assertEquals((Double) row[1], v, 1e-10);
 		}
 	}

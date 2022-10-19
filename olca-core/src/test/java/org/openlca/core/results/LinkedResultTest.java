@@ -95,7 +95,7 @@ public class LinkedResultTest {
 		var calculator = new SystemCalculator(db);
 		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactValueOf(impact), 1e-10);
-		assertEquals(42.0, r.directImpactOf(impact, resultFlow), 1e-10);
+		assertEquals(42.0, r.getDirectImpactOf(impact, resultFlow), 1e-10);
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class LinkedResultTest {
 		var calculator = new SystemCalculator(db);
 		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactValueOf(impact), 1e-10);
-		assertEquals(42.0, r.directImpactOf(impact, resultFlow), 1e-10);
+		assertEquals(42.0, r.getDirectImpactOf(impact, resultFlow), 1e-10);
 		assertEquals(42.0, r.getTotalImpactOf(impact, resultFlow), 1e-10);
 
 		// test the upstream tree

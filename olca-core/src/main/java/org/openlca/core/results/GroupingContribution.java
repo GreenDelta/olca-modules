@@ -52,7 +52,7 @@ public class GroupingContribution {
 			double amount = 0;
 			for (var p : grouping.processes) {
 				for (var techFlow : techIdx.getProviders(p)) {
-					amount += result.directImpactOf(impact, techFlow);
+					amount += result.getDirectImpactOf(impact, techFlow);
 				}
 			}
 			return amount;

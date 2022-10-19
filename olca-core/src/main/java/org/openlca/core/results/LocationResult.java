@@ -98,7 +98,7 @@ public class LocationResult {
 			// corresponding process contributions
 			result.techIndex().each((i, techFlow) -> {
 				Location loc = getLocation(techFlow);
-				double v = result.directImpactOf(impact, techFlow);
+				double v = result.getDirectImpactOf(impact, techFlow);
 				cons.compute(loc,
 						(_loc, oldVal) -> oldVal == null ? v : oldVal + v);
 			});
