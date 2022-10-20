@@ -107,12 +107,11 @@ public class NativeSolver implements MatrixSolver {
 	public Factorization factorize(MatrixReader matrix) {
 		if (!matrix.isSquare())
 			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
-		if (matrix instanceof HashPointMatrix) {
-			var csc = ((HashPointMatrix) matrix).compress();
-			return SparseFactorization.of(csc);
-		}
-		if (matrix instanceof CSCMatrix) {
-			return SparseFactorization.of((CSCMatrix) matrix);
+		if (hasSparseSupport()) {
+			if (matrix instanceof HashPointMatrix hpm)
+				return SparseFactorization.of(hpm.compress());
+			if (matrix instanceof CSCMatrix csc)
+				return SparseFactorization.of(csc);
 		}
 		return DenseFactorization.of(matrix);
 	}
