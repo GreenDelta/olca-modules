@@ -1,5 +1,7 @@
 package org.openlca.core.services;
 
+import java.util.Objects;
+
 import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AllocationMethod;
@@ -86,6 +88,20 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 		}
 
 		private CalculationTarget resolveTarget() {
+			var ref = Json.getObject(json, "target");
+			if (ref != null) {
+				var refId = Json.getString(ref, "@id");
+				if (Strings.nullOrEmpty(refId)) {
+					return null;
+				}
+				var type = Json.getString(json, "@type");
+				if (Objects.equals(type, "Process")) {
+					var process = resolver.get(Process.class, refId);
+					if (process != null)
+						return process;
+				}
+				return resolver.get(ProductSystem.class, refId);
+			}
 			var systemId = Json.getRefId(json, "productSystem");
 			if (Strings.notEmpty(systemId))
 				return resolver.get(ProductSystem.class, systemId);
