@@ -3,7 +3,6 @@ package org.openlca.ipc.handlers;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.math.Simulator;
-import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.services.JsonCalculationSetup;
 import org.openlca.ipc.Responses;
@@ -12,18 +11,15 @@ import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-public class Calculator {
+public class SimulationHandler {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final HandlerContext context;
 	private final IDatabase db;
 
-	public Calculator(HandlerContext context) {
+	public SimulationHandler(HandlerContext context) {
 		this.context = context;
 		this.db = context.db();
 	}
@@ -69,15 +65,6 @@ public class Calculator {
 		return Responses.ok(JsonRpc.encodeResult(next, id, cached.refs()), req);
 	}
 
-	@Rpc("calculate")
-	public RpcResponse calculate(RpcRequest req) {
-		var p = setupOf(req);
-		if (p.second != null)
-			return p.second;
-		var setup = p.first;
-		return calculate(req, setup);
-	}
-
 	private Pair<CalculationSetup, RpcResponse> setupOf(RpcRequest req) {
 		if (req == null || req.params == null || !req.params.isJsonObject()) {
 			var err = Responses.invalidParams("No calculation setup given", req);
@@ -90,19 +77,5 @@ public class Calculator {
 			return Pair.of(null, err);
 		}
 		return Pair.of(setup.setup(), null);
-	}
-
-	private RpcResponse calculate(RpcRequest req, CalculationSetup setup) {
-		try {
-			var r = new SystemCalculator(db)
-					.withLibraryDir(context.libDir())
-					.calculate(setup);
-			var cached = CachedResult.of(context, setup, r);
-			var id = context.cache(cached);
-			return Responses.ok(JsonRpc.encodeResult(r, id, cached.refs()), req);
-		} catch (Exception e) {
-			log.error("Calculation failed", e);
-			return Responses.serverError(e, req);
-		}
 	}
 }

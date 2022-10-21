@@ -1,6 +1,7 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.services.JsonResultService;
+import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
@@ -11,6 +12,20 @@ public class ResultHandler {
 
 	public ResultHandler(HandlerContext context) {
 		this.results = context.results();
+	}
+
+	@Rpc("result/calculate")
+	public RpcResponse calculate(RpcRequest req) {
+		var resp = req.requireJsonObject();
+		if (!resp.isValue())
+			return Responses.of(resp, req);
+		var result = results.calculate(resp.value());
+		return Responses.of(result, req);
+	}
+
+	@Rpc("result/state")
+	public RpcResponse getState(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.getState(rr.id()));
 	}
 
 	// region: index elements
