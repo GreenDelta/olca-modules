@@ -12,7 +12,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
@@ -135,13 +134,12 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonObject> getTotalFlowValueOf(
+	public Response<JsonPrimitive> getTotalFlowValueOf(
 			String resultId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
-					var amount = result.getTotalFlowValueOf(enviFlow);
-					var value = EnviFlowValue.of(enviFlow, amount);
-					return encodeEnviValue(value, JsonRefs.of(db));
+					var value = result.getTotalFlowValueOf(enviFlow);
+					return new JsonPrimitive(value);
 				}));
 	}
 

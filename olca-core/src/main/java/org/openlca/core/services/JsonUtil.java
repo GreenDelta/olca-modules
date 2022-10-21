@@ -70,7 +70,7 @@ final class JsonUtil {
 			return null;
 		var obj = new JsonObject();
 		Json.put(obj, "techFlow", encodeTechFlow(v.techFlow(), refs));
-		Json.put(obj, "value", v.value());
+		Json.put(obj, "amount", v.value());
 		return obj;
 	}
 
@@ -83,7 +83,7 @@ final class JsonUtil {
 			return null;
 		var obj = new JsonObject();
 		Json.put(obj, "enviFlow", encodeEnviFlow(v.enviFlow(), refs));
-		Json.put(obj, "value", v.value());
+		Json.put(obj, "amount", v.value());
 		return obj;
 	}
 
@@ -96,7 +96,7 @@ final class JsonUtil {
 			return null;
 		var obj = new JsonObject();
 		obj.add("impactCategory", refs.asRef(v.impact()));
-		obj.addProperty("value", v.value());
+		obj.addProperty("amount", v.value());
 		return obj;
 	}
 

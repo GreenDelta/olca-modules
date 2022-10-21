@@ -28,6 +28,11 @@ public class ResultHandler {
 		return ResultRequest.of(req, rr -> results.getState(rr.id()));
 	}
 
+	@Rpc("result/dispose")
+	public RpcResponse dispose(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.dispose(rr.id()));
+	}
+
 	// region: index elements
 
 	@Rpc("result/tech-flows")

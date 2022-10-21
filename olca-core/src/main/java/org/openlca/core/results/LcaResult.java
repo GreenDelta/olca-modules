@@ -503,8 +503,7 @@ public class LcaResult implements IResult {
 			return Collections.emptyList();
 		var list = new ArrayList<EnviFlowValue>(enviIdx.size());
 		enviIdx.each((i, enviFlow) -> {
-			double raw = fn.call(i, enviFlow);
-			double value = ResultProvider.flowValueView(enviFlow, raw);
+			double value = fn.call(i, enviFlow);
 			list.add(new EnviFlowValue(enviFlow, value));
 		});
 		return list;
