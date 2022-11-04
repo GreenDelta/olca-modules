@@ -93,7 +93,7 @@ class UnitCheck implements Runnable {
 						if (Strings.notEmpty(syn)) {
 							if (names.contains(syn)) {
 								v.warning(groupID, ModelType.UNIT_GROUP,
-									"duplicate unit name or synonym: " + name);
+									"duplicate unit name or synonym: " + syn);
 								foundErrors = true;
 							}
 							names.add(syn);
