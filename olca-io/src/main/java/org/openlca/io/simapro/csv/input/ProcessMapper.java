@@ -17,7 +17,6 @@ import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.process.ExchangeRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
-import org.slf4j.LoggerFactory;
 
 interface ProcessMapper {
 
@@ -62,7 +61,7 @@ interface ProcessMapper {
 		}
 		for (var row : calculatedParameterRows()) {
 			var p = Parameters.create(
-				context().dataSet(), row, ParameterScope.PROCESS);
+					context().dataSet(), row, ParameterScope.PROCESS);
 			process().parameters.add(p);
 			scope.bind(p.name, p.formula);
 		}
@@ -74,9 +73,9 @@ interface ProcessMapper {
 			try {
 				param.value = scope.eval(param.name);
 			} catch (Exception e) {
-				var log = LoggerFactory.getLogger(getClass());
-				log.error("failed to evaluate process parameter " + param
-					+ "; set it as an input parameter with value 1", e);
+				context().log().error("failed to evaluate process parameter '"
+						+ param + "' in process id='" + process().refId
+						+ "'; set it as an input parameter with value 1", e);
 				param.formula = null;
 				param.value = 1;
 				param.isInputParameter = true;
@@ -114,7 +113,7 @@ interface ProcessMapper {
 		if (path.isEmpty())
 			return;
 		process().category = CategoryDao.sync(
-			db(), ModelType.PROCESS, path.toArray(String[]::new));
+				db(), ModelType.PROCESS, path.toArray(String[]::new));
 	}
 
 	default double eval(Numeric numeric) {
@@ -126,18 +125,17 @@ interface ProcessMapper {
 			var formula = formulaOf(numeric.formula());
 			return formulaScope().eval(formula);
 		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to evaluate formula " + numeric.formula()
-				+ "; set value to " + numeric.value(), e);
+			context().log().error("failed to evaluate formula '" + numeric.formula()
+					+ "' in process id='" + process().refId
+					+ "'; set value to:" + numeric.value(), e);
 			return numeric.value();
 		}
 	}
 
 	default Exchange exchangeOf(SyncFlow f, ExchangeRow row) {
 		if (f == null || f.flow() == null) {
-			var log = context().log();
-			log.error("could not create exchange " +
-				"as there was now flow found for: "+  row.name());
+			context().log().error("could not create exchange " +
+					"as there was now flow found for: " + row.name());
 			return null;
 		}
 
