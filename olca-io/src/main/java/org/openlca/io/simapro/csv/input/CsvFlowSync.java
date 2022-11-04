@@ -54,10 +54,10 @@ class CsvFlowSync {
 			for (var type : ElementaryFlowType.values()) {
 				for (var row : dataSet.getElementaryFlows(type)) {
 					var name = Strings.orEmpty(row.name())
-						.trim()
-						.toLowerCase();
+							.trim()
+							.toLowerCase();
 					flowInfos.computeIfAbsent(type, t -> new HashMap<>())
-						.put(name, row);
+							.put(name, row);
 				}
 			}
 
@@ -65,8 +65,8 @@ class CsvFlowSync {
 			// synced on demand
 			for (var process : dataSet.processes()) {
 				var topCategory = process.category() != null
-					? process.category().toString()
-					: null;
+						? process.category().toString()
+						: null;
 				for (var product : process.products()) {
 					techFlow(product, topCategory, false);
 				}
@@ -80,8 +80,8 @@ class CsvFlowSync {
 
 			for (var stage : dataSet.productStages()) {
 				var topCategory = stage.category() != null
-					? stage.category().toString()
-					: null;
+						? stage.category().toString()
+						: null;
 				for (var product : stage.products()) {
 					techFlow(product, topCategory, false);
 				}
@@ -111,10 +111,10 @@ class CsvFlowSync {
 		// calculate the key
 		var quantity = refData.quantityOf(unit);
 		if (quantity == null) {
-			log.error("unknown unit '" + unit + "' in flow: " +  name);
+			log.error("unknown unit '" + unit + "' in flow: " + name);
 			return SyncFlow.empty();
 		}
-		var key = FlowKey.elementary(comp, name, unit);
+		var key = FlowKey.elementary(comp, name, unit, quantity);
 
 		// get or create the flow
 		return key.getOrCreate(flowSync, () -> {
@@ -124,8 +124,8 @@ class CsvFlowSync {
 			var infos = flowInfos.get(comp.type());
 			if (infos != null) {
 				var infoKey = Strings.orEmpty(name)
-					.trim()
-					.toLowerCase();
+						.trim()
+						.toLowerCase();
 				var info = infos.get(infoKey);
 				if (info != null) {
 					flow.casNumber = info.cas();
@@ -134,7 +134,7 @@ class CsvFlowSync {
 					flow.description = info.comment();
 				}
 			}
-			flow =  db.insert(flow);
+			flow = db.insert(flow);
 			log.imported(flow);
 			return flow;
 		});
@@ -144,10 +144,10 @@ class CsvFlowSync {
 		if (comp == null || comp.type() == null)
 			return null;
 		var sub = comp.sub() == null
-			? SubCompartment.UNSPECIFIED.toString()
-			: comp.sub().toString();
+				? SubCompartment.UNSPECIFIED.toString()
+				: comp.sub().toString();
 		return CategoryDao.sync(db, ModelType.FLOW,
-			comp.type().exchangeHeader(), sub);
+				comp.type().exchangeHeader(), sub);
 	}
 
 	SyncFlow product(ExchangeRow row) {
@@ -159,17 +159,17 @@ class CsvFlowSync {
 	}
 
 	private SyncFlow techFlow(
-		ExchangeRow row, String topCategory, boolean isWaste) {
+			ExchangeRow row, String topCategory, boolean isWaste) {
 
 		// calculate the key
 		var quantity = refData.quantityOf(row.unit());
 		if (quantity == null) {
-			log.error("unknown unit '"+ row.unit() + "' in flow: " + row.name());
+			log.error("unknown unit '" + row.unit() + "' in flow: " + row.name());
 			return SyncFlow.empty();
 		}
 		var key = isWaste
-			? FlowKey.waste(row.name(), row.unit())
-			:FlowKey.product(row.name(), row.unit());
+				? FlowKey.waste(row.name(), row.unit(), quantity)
+				: FlowKey.product(row.name(), row.unit(), quantity);
 
 		// get or create the flow
 		return key.getOrCreate(flowSync, () -> {
@@ -190,7 +190,7 @@ class CsvFlowSync {
 			}
 			if (!categoryPath.isEmpty()) {
 				flow.category = CategoryDao.sync(
-					db, ModelType.FLOW, categoryPath.toArray(String[]::new));
+						db, ModelType.FLOW, categoryPath.toArray(String[]::new));
 			}
 
 			// description and tags
@@ -203,7 +203,7 @@ class CsvFlowSync {
 				}
 			}
 
-			flow =  db.insert(flow);
+			flow = db.insert(flow);
 			log.imported(flow);
 			return flow;
 		});
