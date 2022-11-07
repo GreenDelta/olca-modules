@@ -118,12 +118,9 @@ public class LcaResult implements IResult {
 
 	public double totalRequirementsOf(TechFlow techFlow) {
 		int idx = provider.indexOf(techFlow);
-		if (idx < 0)
-			return 0;
-		double value = provider.totalRequirementsOf(idx);
-		return techFlow.isWaste() && value != 0
-				? -value
-				: value;
+		return idx >= 0
+				? provider.totalRequirementsOf(idx)
+				: 0;
 	}
 
 	// endregion
