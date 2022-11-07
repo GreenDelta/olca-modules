@@ -122,9 +122,9 @@ class Processes implements ProcessMapper {
 			var f = new AllocationFactor();
 			f.productId = flow.flow().id;
 			var value = output.allocation();
-			f.value = eval(value);
+			f.value = eval(value) / 100;
 			if (value.hasFormula()) {
-				f.formula = formulaOf(value.formula());
+				f.formula = "(" + formulaOf(value.formula()) + ") / 100";
 			}
 
 			// add the physical factor
