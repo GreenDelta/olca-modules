@@ -1,8 +1,15 @@
 package org.openlca.core.database.upgrades;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ProcessLink;
+import org.openlca.util.KeyGen;
 
 import gnu.trove.set.hash.TLongHashSet;
 
@@ -135,6 +142,8 @@ public class Upgrade11 implements IUpgrade {
 		// this was assigned as the content type for categories
 		NativeSql.on(db).runUpdate("update tbl_categories set " +
 				"model_type = null where model_type = 'UNKNOWN'");
+
+		updateCategoryNames(u);
 	}
 
 	/**
@@ -165,7 +174,48 @@ public class Upgrade11 implements IUpgrade {
 				r.updateRow();
 				return true;
 			});
-
 	}
+	
+	private void updateCategoryNames(DbUtil u) {
+		var sql = NativeSql.on(u.db);
+		Map<Long, String> names = new HashMap<>();
+		Map<Long, Long> parents = new HashMap<>();
+		sql.query(
+			"select id, name, f_category from tbl_categories",
+			r -> {
+				long id = r.getLong(1);
+				String name = r.getString(2).replace('/', '|');
+				long parent = r.getLong(3);
+				names.put(id, name);
+				if (parent != 0) {
+					parents.put(id, parent);
+				}
+				return true;
+			});
+		sql.updateRows(
+			"select id, model_type, ref_id, name from tbl_categories",
+			r-> {
+				long id = r.getLong(1);
+				String type = r.getString(2);
+				String refId = getCategoryRefId(id, type, names, parents);
+				String name = names.get(id);
+				r.updateString(3, refId);
+				r.updateString(4, name);
+				r.updateRow();
+				return true;
+			});
+	}
+	
+	private String getCategoryRefId(Long id, String type, Map<Long, String> names, Map<Long, Long> parents) {
+		List<String> path = new ArrayList<>();
+		while (id != null) {
+			path.add(names.get(id));
+			id = parents.get(id);
+		}
+		path.add(type);
+		Collections.reverse(path);
+		return KeyGen.get(path.toArray(x -> new String[x]));
+	}
+	
 }
 
