@@ -74,8 +74,8 @@ public class DQSetup {
 		var procRef = new SysRef();
 		var exchRef = new SysRef();
 		NativeSql.on(db).query(sql, r -> {
-			var procSys = systems.get(r.getLong(0));
-			var exchSys = systems.get(r.getLong(1));
+			var procSys = systems.get(r.getLong(1));
+			var exchSys = systems.get(r.getLong(2));
 			return procRef.apply(procSys) && exchRef.apply(exchSys);
 		});
 
