@@ -131,7 +131,7 @@ public class DQResultTest {
 			.withAmount(1)
 			.withImpactMethod(method);
 		var result = LcaResult.of(db, setup).provider();
-		var dqSetup = DQCalculationSetup.of(system);
+		var dqSetup = DQSetup.of(system);
 		var dqResult = DQResult.of(db, dqSetup, result);
 
 		assertArrayEquals(a(1, 2, 3, 4, 5), r(dqResult, process1));

@@ -11,7 +11,7 @@ public class AccumulatorTest {
 
 	@Test
 	public void testNoCeilingExcludeNA() {
-		var setup = new DQCalculationSetup();
+		var setup = new DQSetup();
 		setup.ceiling = false;
 		setup.naHandling = NAHandling.EXCLUDE;
 		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
@@ -20,7 +20,7 @@ public class AccumulatorTest {
 
 	@Test
 	public void testCeilingExcludeNA() {
-		var setup = new DQCalculationSetup();
+		var setup = new DQSetup();
 		setup.ceiling = true;
 		setup.naHandling = NAHandling.EXCLUDE;
 		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
@@ -29,7 +29,7 @@ public class AccumulatorTest {
 
 	@Test
 	public void testNoCeilingNaToMax() {
-		var setup = new DQCalculationSetup();
+		var setup = new DQSetup();
 		setup.ceiling = false;
 		setup.naHandling = NAHandling.USE_MAX;
 		setup.aggregationType = AggregationType.WEIGHTED_AVERAGE;
@@ -38,7 +38,7 @@ public class AccumulatorTest {
 
 	@Test
 	public void testAggTypeMax() {
-		var setup = new DQCalculationSetup();
+		var setup = new DQSetup();
 		setup.ceiling = false;
 		setup.naHandling = NAHandling.EXCLUDE;
 		setup.aggregationType = AggregationType.MAXIMUM;
@@ -51,7 +51,7 @@ public class AccumulatorTest {
 
 	@Test
 	public void testAggTypeSquaredWeights() {
-		var setup = new DQCalculationSetup();
+		var setup = new DQSetup();
 		setup.ceiling = false;
 		setup.naHandling = NAHandling.EXCLUDE;
 		setup.aggregationType = AggregationType.WEIGHTED_SQUARED_AVERAGE;
@@ -62,7 +62,7 @@ public class AccumulatorTest {
 		check(setup, 2);
 	}
 
-	private void check(DQCalculationSetup setup, int result) {
+	private void check(DQSetup setup, int result) {
 		var acc = new Accumulator(setup, (byte) 5);
 		assertEquals(result, acc.get(dqs, weights));
 

@@ -80,7 +80,7 @@ public class DQDataTest {
 
 	@Test
 	public void testGetData() {
-		var setup = DQCalculationSetup.of(productSystem);
+		var setup = DQSetup.of(productSystem);
 		var product1 = TechFlow.of(process1);
 		var product2 = TechFlow.of(process2);
 

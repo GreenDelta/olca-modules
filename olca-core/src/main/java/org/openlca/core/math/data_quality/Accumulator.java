@@ -11,7 +11,7 @@ class Accumulator {
 	private double accSum;
 	private double accTotalWeight;
 
-	Accumulator(DQCalculationSetup setup, byte max) {
+	Accumulator(DQSetup setup, byte max) {
 		this.aggType = setup.aggregationType;
 		this.ceiling = setup.ceiling;
 		this.zeroToMax = setup.naHandling == NAHandling.USE_MAX;

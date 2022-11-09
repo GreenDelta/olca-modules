@@ -10,7 +10,7 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 
-public class DqiData {
+public class DQData {
 
 	/**
 	 * Contains the data quality indicators of the processes in a {@code k*n} byte
@@ -32,22 +32,22 @@ public class DqiData {
 	 */
 	public DenseByteMatrix[] exchangeData;
 
-	public static Builder of(DQCalculationSetup setup, IDatabase db) {
+	public static Builder of(DQSetup setup, IDatabase db) {
 			return new Builder(setup, db);
 	}
 
 	public static class Builder {
 
-		private final DQCalculationSetup setup;
+		private final DQSetup setup;
 		private final IDatabase db;
 
-		private Builder(DQCalculationSetup setup, IDatabase db) {
+		private Builder(DQSetup setup, IDatabase db) {
 			this.setup = setup;
 			this.db = db;
 		}
 
-		public DqiData build(TechIndex techIndex, EnviIndex enviIndex) {
-			var data = new DqiData();
+		public DQData build(TechIndex techIndex, EnviIndex enviIndex) {
+			var data = new DQData();
 			if (setup == null || db == null || techIndex == null)
 				return data;
 			if (setup.processSystem != null) {

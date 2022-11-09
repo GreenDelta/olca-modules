@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.data_quality.DQCalculationSetup;
+import org.openlca.core.math.data_quality.DQSetup;
 import org.openlca.core.math.data_quality.DQResult;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
@@ -65,7 +65,7 @@ public class ResultExport implements Runnable {
 		try {
 			workbook = new SXSSFWorkbook(-1);
 			writer = new CellWriter(cache, workbook);
-			DQCalculationSetup dqSetup = dqResult != null
+			DQSetup dqSetup = dqResult != null
 					? dqResult.setup
 					: null;
 			InfoSheet.write(workbook, writer, setup, dqSetup, "Result information");

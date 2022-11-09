@@ -6,7 +6,7 @@ import java.util.Date;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.math.data_quality.DQCalculationSetup;
+import org.openlca.core.math.data_quality.DQSetup;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
@@ -36,7 +36,7 @@ public class InfoSheet {
 			"n.a. value handling:"
 	};
 
-	public static void write(Workbook workbook, CellWriter writer, CalculationSetup setup, DQCalculationSetup dqSetup,
+	public static void write(Workbook workbook, CellWriter writer, CalculationSetup setup, DQSetup dqSetup,
 			String title) {
 		Sheet sheet = workbook.createSheet("Calculation setup");
 		Excel.trackSize(sheet, 1, 2);
@@ -82,7 +82,7 @@ public class InfoSheet {
 	}
 
 	private static void dataQualityInfo(
-		CellWriter writer, Sheet sheet, int row, DQCalculationSetup setup) {
+		CellWriter writer, Sheet sheet, int row, DQSetup setup) {
 		writer.cell(sheet, row++, 2, dqSystem(setup.exchangeSystem));
 		writer.cell(sheet, row++, 2, aggregation(setup));
 		writer.cell(sheet, row++, 2, setup.ceiling ? "up" : "half up");
@@ -91,7 +91,7 @@ public class InfoSheet {
 	}
 
 	private static void legend(
-		CellWriter writer, Sheet sheet, int row, DQCalculationSetup setup) {
+		CellWriter writer, Sheet sheet, int row, DQSetup setup) {
 		for (DQIndicator indicator : setup.exchangeSystem.indicators) {
 			writer.cell(sheet, row, 1 + indicator.position, indicator(indicator), true);
 		}
@@ -183,7 +183,7 @@ public class InfoSheet {
 		return system.name;
 	}
 
-	private static String aggregation(DQCalculationSetup setup) {
+	private static String aggregation(DQSetup setup) {
 		var type = setup.aggregationType;
 		if (type == null)
 			return "none";
@@ -195,7 +195,7 @@ public class InfoSheet {
 		};
 	}
 
-	private static String naHandling(DQCalculationSetup setup) {
+	private static String naHandling(DQSetup setup) {
 		var type = setup.naHandling;
 		if (type == null)
 			return "none";

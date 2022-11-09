@@ -22,7 +22,7 @@ public class DQResult {
 	/**
 	 * The calculation setup of this data quality result.
 	 */
-	public final DQCalculationSetup setup;
+	public final DQSetup setup;
 
 	/**
 	 * The LCA result on which this data quality result is based.
@@ -78,7 +78,7 @@ public class DQResult {
 	 */
 	private DenseByteMatrix[] processImpactResult;
 
-	public static DQResult of(IDatabase db, DQCalculationSetup setup,
+	public static DQResult of(IDatabase db, DQSetup setup,
 			ResultProvider result) {
 		var r = new DQResult(setup, result);
 		r.loadProcessData(db);
@@ -88,7 +88,7 @@ public class DQResult {
 		return r;
 	}
 
-	private DQResult(DQCalculationSetup setup, ResultProvider result) {
+	private DQResult(DQSetup setup, ResultProvider result) {
 		this.setup = setup;
 		this.result = result;
 	}
