@@ -79,3 +79,67 @@ and unit of the respective flows as defined in the respective systems.
 
 Finally, it is possible to link a flow `t` in exchanges to a provider process
 during an import when it is a product or waste flow.
+
+
+## Mapping IDs of EcoSpold 1 flows
+
+There are no flow IDs in the EcoSpold 1 format. We generate hash based IDs
+based on flow attributes when importing flows from EcoSpold 1 data sets. These
+IDs are also used in the mapping files. The script below explains in plain
+Python how these IDs are generated:
+
+```py
+import hashlib
+import uuid
+import types
+
+# for elementary flows, the mapping key is calculated
+# from the following attributes
+category = "air"
+sub_category = "unspecified"
+name = "Carbon dioxide"
+unit = "kg"
+
+# first, we combine these attributes to a lower-case path
+# with a defined order
+segments = [category, sub_category, name, unit]
+path = '/'.join([s.strip().lower() for s in segments])
+print(f'path: {path}')  # air/unspecified/carbon dioxide/kg
+
+# we generate a version 3 UUID (MD5 based UUID) with
+# an empty namespace
+ns = types.SimpleNamespace(bytes=b'')
+uid = uuid.uuid3(ns, path)
+print(f'uuid: {uid}')  # 5e738bf0-6bfe-3acd-8dcb-c74fe4f18b53
+
+# you may ignore the following; it shows how the
+# UUID is constructed internally
+hash = hashlib.md5(path.encode('utf-8')).digest()
+uuid_bytes = []
+for i in range(0, len(hash)):
+    b: int
+    match i:
+        case 6:
+            # clear version and set it to 3
+            b = (hash[i] & 0x0f) | 0x30
+        case 8:
+            # clear variant and set it to IETF
+            b = (hash[i] & 0x3f) | 0x80
+        case _:
+            b = hash[i]
+    uuid_bytes.append(b)
+
+uid2 = uuid.UUID(bytes=bytes(uuid_bytes))
+assert uid == uid2
+print(f'home brewed uuid: {uid}')  # 5e738bf0-6bfe-3acd-8dcb-c74fe4f18b53
+```
+
+In the openLCA, there is a `KeyGen` utility for generating such UUIDs, e.g.
+this can be executed in the P/Jython environment in openLCA:
+
+```py
+uid1 = KeyGen.get('air/unspecified/Carbon dioxide/kg')
+uid2 = KeyGen.get('air', 'unspecified', 'Carbon dioxide', 'kg')
+assert uid1 == uid2  # 5e738bf0-6bfe-3acd-8dcb-c74fe4f18b53
+print(uid1)
+```

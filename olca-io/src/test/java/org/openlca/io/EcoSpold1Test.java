@@ -16,6 +16,8 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.ecospold.io.DataSetType;
+import org.openlca.io.ecospold1.input.ES1KeyGen;
 import org.openlca.io.ecospold1.input.EcoSpold01Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
@@ -24,6 +26,19 @@ import org.openlca.util.Dirs;
 public class EcoSpold1Test {
 
 	private final IDatabase db = Tests.getDb();
+
+	@Test
+	public void testFlowKey() {
+		var factory = DataSetType.PROCESS.getFactory();
+		var exchange = factory.createExchange();
+		exchange.setOutputGroup(4);
+		exchange.setCategory("air");
+		exchange.setSubCategory("unspecified");
+		exchange.setName("Carbon dioxide");
+		exchange.setUnit("kg");
+		var key = ES1KeyGen.forElementaryFlow(exchange);
+		assertEquals("5e738bf0-6bfe-3acd-8dcb-c74fe4f18b53", key);
+	}
 
 	@Test
 	public void testProcessIO() {

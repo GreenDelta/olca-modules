@@ -31,10 +31,10 @@ import org.openlca.io.Xml;
 
 class ProcessConverter {
 
-	private Process process;
-	private ExportConfig config;
-	private IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
-	private ActorSourceMapper actorSourceMapper;
+	private final Process process;
+	private final ExportConfig config;
+	private final IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
+	private final ActorSourceMapper actorSourceMapper;
 
 	static IDataSet convert(Process process, ExportConfig config) {
 		return new ProcessConverter(process, config).doIt();
