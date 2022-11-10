@@ -26,7 +26,7 @@ public class EcoSpold1Test {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
-	public void testProcessIO() throws Exception {
+	public void testProcessIO() {
 
 		// create the process model
 		var units = UnitGroup.of("Mass units", "kg");

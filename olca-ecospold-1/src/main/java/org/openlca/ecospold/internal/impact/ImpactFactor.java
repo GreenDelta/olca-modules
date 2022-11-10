@@ -81,11 +81,9 @@ import jakarta.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TExchange", propOrder = { "inputGroup", "outputGroup" })
+@XmlType(name = "TExchange", propOrder = {"inputGroup", "outputGroup"})
 class ImpactFactor implements Serializable, IExchange {
 
 	private final static long serialVersionUID = 1L;
@@ -138,7 +136,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the casNumber property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -150,7 +147,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the category property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -162,7 +158,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the formula property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -174,7 +169,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the generalComment property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -186,7 +180,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the inputGroup property.
 	 *
 	 * @return possible object is {@link Integer }
-	 *
 	 */
 
 	@Override
@@ -198,7 +191,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the localCategory property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -210,7 +202,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the localName property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -222,7 +213,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the localSubCategory property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -234,7 +224,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the location property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -246,7 +235,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the maxValue property.
 	 *
 	 * @return possible object is {@link Double }
-	 *
 	 */
 
 	@Override
@@ -256,7 +244,6 @@ class ImpactFactor implements Serializable, IExchange {
 
 	/**
 	 * Gets the value of the meanValue property.
-	 *
 	 */
 
 	@Override
@@ -268,7 +255,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the minValue property.
 	 *
 	 * @return possible object is {@link Double }
-	 *
 	 */
 
 	@Override
@@ -280,7 +266,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the mostLikelyValue property.
 	 *
 	 * @return possible object is {@link Double }
-	 *
 	 */
 
 	@Override
@@ -292,7 +277,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the name property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -302,7 +286,6 @@ class ImpactFactor implements Serializable, IExchange {
 
 	/**
 	 * Gets the value of the number property.
-	 *
 	 */
 
 	@Override
@@ -314,7 +297,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the outputGroup property.
 	 *
 	 * @return possible object is {@link Integer }
-	 *
 	 */
 
 	@Override
@@ -326,7 +308,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the pageNumbers property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -338,7 +319,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the referenceToSource property.
 	 *
 	 * @return possible object is {@link Integer }
-	 *
 	 */
 
 	@Override
@@ -350,7 +330,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the standardDeviation95 property.
 	 *
 	 * @return possible object is {@link Double }
-	 *
 	 */
 
 	@Override
@@ -362,7 +341,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the subCategory property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -374,7 +352,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the uncertaintyType property.
 	 *
 	 * @return possible object is {@link Integer }
-	 *
 	 */
 
 	@Override
@@ -386,7 +363,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the unit property.
 	 *
 	 * @return possible object is {@link String }
-	 *
 	 */
 
 	@Override
@@ -398,7 +374,6 @@ class ImpactFactor implements Serializable, IExchange {
 	 * Gets the value of the infrastructureProcess property.
 	 *
 	 * @return possible object is {@link Boolean }
-	 *
 	 */
 
 	@Override
@@ -409,9 +384,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the casNumber property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -422,9 +395,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the category property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -435,9 +406,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the formula property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -448,9 +417,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the generalComment property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -461,9 +428,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the infrastructureProcess property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Boolean }
-	 *
+	 * @param value allowed object is {@link Boolean }
 	 */
 
 	@Override
@@ -474,9 +439,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the inputGroup property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Integer }
-	 *
+	 * @param value allowed object is {@link Integer }
 	 */
 
 	@Override
@@ -487,9 +450,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the localCategory property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -500,9 +461,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the localName property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -513,9 +472,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the localSubCategory property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -526,9 +483,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the location property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -539,9 +494,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the maxValue property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Double }
-	 *
+	 * @param value allowed object is {@link Double }
 	 */
 
 	@Override
@@ -551,7 +504,6 @@ class ImpactFactor implements Serializable, IExchange {
 
 	/**
 	 * Sets the value of the meanValue property.
-	 *
 	 */
 
 	@Override
@@ -562,9 +514,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the minValue property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Double }
-	 *
+	 * @param value allowed object is {@link Double }
 	 */
 
 	@Override
@@ -575,9 +525,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the mostLikelyValue property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Double }
-	 *
+	 * @param value allowed object is {@link Double }
 	 */
 
 	@Override
@@ -588,9 +536,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the name property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -600,7 +546,6 @@ class ImpactFactor implements Serializable, IExchange {
 
 	/**
 	 * Sets the value of the number property.
-	 *
 	 */
 
 	@Override
@@ -611,9 +556,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the outputGroup property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Integer }
-	 *
+	 * @param value allowed object is {@link Integer }
 	 */
 
 	@Override
@@ -624,9 +567,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the pageNumbers property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -637,9 +578,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the referenceToSource property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Integer }
-	 *
+	 * @param value allowed object is {@link Integer }
 	 */
 
 	@Override
@@ -650,9 +589,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the standardDeviation95 property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Double }
-	 *
+	 * @param value allowed object is {@link Double }
 	 */
 
 	@Override
@@ -663,9 +600,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the subCategory property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
@@ -676,9 +611,7 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the uncertaintyType property.
 	 *
-	 * @param value
-	 *            allowed object is {@link Integer }
-	 *
+	 * @param value allowed object is {@link Integer }
 	 */
 
 	@Override
@@ -689,25 +622,11 @@ class ImpactFactor implements Serializable, IExchange {
 	/**
 	 * Sets the value of the unit property.
 	 *
-	 * @param value
-	 *            allowed object is {@link String }
-	 *
+	 * @param value allowed object is {@link String }
 	 */
 
 	@Override
 	public void setUnit(final String value) {
 		this.unit = value;
 	}
-
-	@Override
-	public boolean isElementaryFlow() {
-		if (inputGroup == null && outputGroup == null)
-			return true;
-		if (inputGroup != null && inputGroup == 4)
-			return true;
-		if (outputGroup != null && outputGroup == 4)
-			return true;
-		return false;
-	}
-
 }
