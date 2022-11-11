@@ -9,31 +9,64 @@ import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.model.DQSystem;
 
-public class DQData {
-
-	/**
-	 * Contains the data quality indicators of the processes in a {@code k*n} byte
-	 * matrix. The {@code k} data quality indicators of the corresponding data
-	 * quality system of the processes are mapped to the rows of this matrix.
-	 * The matrix is related to a technosphere index with {@code n} entries which
-	 * are mapped to the columns of this matrix.
-	 */
-	public DenseByteMatrix processData;
-
-
-	/**
-	 * Contains the data quality indicators of the process exchanges. This is
-	 * an array of {@code k} byte matrices for each of the {@code k} data quality
-	 * indicators of the corresponding data quality system for exchanges that is
-	 * applied. Each matrix is then a {@code m*n} byte matrix that contains the
-	 * indicator values for the respective data quality indicator for the {@code
-	 * m} environmental flows in the {@code n} provider flows.
-	 */
-	public DenseByteMatrix[] exchangeData;
+/**
+ * Contains the data quality data of a system. In general a data quality system
+ * (DQS) has `q` data quality indicators (DQIs). The possible DQI values  range
+ * from 1 to the number of scores defined in the respective DQS. A value of 0
+ * means that no DQI value is available. All fields in this data structure can
+ * be {@code null} when the respective data are not available.
+ *
+ * @param techDQS  the DQ system of the DQI values that are directly attached
+ *                 to the technosphere flows (derived from processes entries)
+ *                 of the system.
+ * @param techData the DQI values directly attached to technosphere flows
+ *                 (derived from processes entries). It is a `q*n` matrix,
+ *                 with `q` the number of data quality indicators and `n` the
+ *                 number of technosphere flows in the system.
+ * @param enviDQS  the DQ system of the DQI values for the intervention flows
+ *                 of the system.
+ * @param enviData the DQI values for the intervention flows of the system.
+ *                 This is an array of `q` matrices for the `q` data quality
+ *                 indicators of the respective DQS. Each matrix has a `m*n`
+ *                 shape where `m` is the number of intervention flows and `n`
+ *                 the number of technosphere flows in the system.
+ */
+public record DQData(
+		DQSystem techDQS,
+		DenseByteMatrix techData,
+		DQSystem enviDQS,
+		DenseByteMatrix[] enviData) {
 
 	public static Builder of(DQSetup setup, IDatabase db) {
-			return new Builder(setup, db);
+		return new Builder(setup, db);
+	}
+
+	public boolean hasTechData() {
+		return techDQS != null && techData != null;
+	}
+
+	public boolean hasEnviData() {
+		return enviDQS != null && enviData != null;
+	}
+
+	public int techIndicatorCount() {
+		return hasTechData()
+				? techDQS.indicators.size()
+				: 0;
+	}
+
+	public int enviIndicatorCount() {
+		return hasEnviData()
+				? enviDQS.indicators.size()
+				: 0;
+	}
+
+	public DenseByteMatrix enviData(int i) {
+		return enviData != null && enviData.length > i
+				? enviData[i]
+				: null;
 	}
 
 	public static class Builder {
@@ -47,16 +80,16 @@ public class DQData {
 		}
 
 		public DQData build(TechIndex techIndex, EnviIndex enviIndex) {
-			var data = new DQData();
 			if (setup == null || db == null || techIndex == null)
-				return data;
-			if (setup.processSystem != null) {
-				data.processData = loadProcessData(techIndex);
-			}
-			if (setup.exchangeSystem != null && enviIndex != null) {
-				data.exchangeData = loadExchangeData(techIndex, enviIndex);
-			}
-			return data;
+				return new DQData(null, null, null, null);
+			var techData = setup.processSystem != null
+					? loadProcessData(techIndex)
+					: null;
+			var enviData = setup.exchangeSystem != null && enviIndex != null
+					? loadExchangeData(techIndex, enviIndex)
+					: null;
+			return new DQData(
+					setup.processSystem, techData, setup.exchangeSystem, enviData);
 		}
 
 		private DenseByteMatrix loadProcessData(TechIndex techIndex) {
