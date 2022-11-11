@@ -2,7 +2,6 @@ package org.openlca.core.math.data_quality;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.format.ByteMatrix;
-import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -10,8 +9,8 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
 
 /**
- * Contains the raw data quality data of a setup and result in an efficient
- * data structure.
+ * The data quality result of a system. It provides views to raw DQI values and
+ * aggregated DQI values related to different result aspects.
  */
 public class DQResult {
 
@@ -28,39 +27,35 @@ public class DQResult {
 	private final DQData dqData;
 
 	/**
-	 * A k*m matrix that holds the aggregated flow results for the k
-	 * indicators and m flows of the setup. It is calculated by
-	 * aggregating the exchange data with the direct flow contribution
-	 * result.
+	 * The aggregated DQI values for the inventory results of the system. These
+	 * are q vectors for each of the q data quality indicators. Each vector has a
+	 * size of m for the m elementary flows in the system. This field is
+	 * {@code null} if the system has no inventory result.
 	 */
 	private ByteMatrix[] enviAgg;
 
 	/**
-	 * A k*q matrix that holds the aggregated impact results for the k
-	 * indicators and q impact categories of the setup. It is calculated
-	 * by aggregating the exchange data with the direct flow results and
-	 * impact factors.
+	 * The aggregated DQI values for the impact results of the system. These are q
+	 * vectors for each of the q data quality indicators. Each vector has a size
+	 * of k for the k impact categories of the calculation setup. This field is
+	 * {@code null} if the system has no impact assessment result.
 	 */
 	private ByteMatrix[] impactAgg;
 
 	/**
-	 * If there is an impact result, this field contains for each of the k
-	 * data quality indicators a q*n matrix with the q impact categories
-	 * mapped to the rows and the n process products of the setup mapped
-	 * to the columns that contains the aggregated data quality values per
-	 * impact category and process product for the respective data quality
-	 * indicator.
+	 * The aggregated DQI values for the impact contributions of the technosphere
+	 * flows in the system. These are q matrices for each of the q data quality
+	 * indicators. Each matrix has a `k*n` shape for the k impact categories of
+	 * the calculation setup and `n` technosphere flows of the system. This field
+	 * is {@code null} if the system has no impact assessment result.
 	 */
-	private ByteMatrix[] processAgg;
+	private ByteMatrix[] techImpactAgg;
 
-	public static DQResult of(IDatabase db, DQSetup setup,
-			ResultProvider result) {
+	public static DQResult of(IDatabase db, DQSetup setup, ResultProvider result) {
 		var data = DQData.of(setup, db).build(
 				result.techIndex(), result.enviIndex());
 		var r = new DQResult(setup, data, result);
 		r.aggregate();
-		// r.calculateFlowResults();
-		// r.calculateImpactResults();
 		return r;
 	}
 
@@ -71,19 +66,25 @@ public class DQResult {
 	}
 
 	/**
-	 * Get the process data quality entry for the given product.
+	 * Get the process-level data quality entry for the given tech.-flow.
 	 */
-	public int[] get(TechFlow product) {
+	public int[] get(TechFlow techFlow) {
 		if (!dqData.hasTechData())
 			return null;
-		int col = result.techIndex().of(product);
-		return col < 0
-				? null
-				: toInt(dqData.techData().getColumn(col));
+		int j = result.indexOf(techFlow);
+		if (j < 0)
+			return null;
+		int dqiCount = dqData.techIndicatorCount();
+		var values = new int[dqiCount];
+		for (var dqi = 0; dqi < dqiCount; dqi++) {
+			values[dqi] = dqData.techData().get(dqi, j);
+		}
+		return values;
 	}
 
 	/**
-	 * Get the exchange data quality entry for the given product and flow.
+	 * Get the raw exchange DQI values for the given tech.- and intervention
+	 * flow.
 	 */
 	public int[] get(TechFlow techFlow, EnviFlow enviFlow) {
 		if (!dqData.hasEnviData())
@@ -92,7 +93,7 @@ public class DQResult {
 		int col = result.indexOf(techFlow);
 		if (row < 0 || col < 0)
 			return null;
-		var dqiCount = dqData.enviIndicatorCount();
+		int dqiCount = dqData.enviIndicatorCount();
 		int[] values = new int[dqiCount];
 		for (int dqi = 0; dqi < dqiCount; dqi++) {
 			var b = dqData.enviData(dqi);
@@ -104,7 +105,7 @@ public class DQResult {
 	}
 
 	/**
-	 * Get the aggregated result for the given flow.
+	 * Get the aggregated DQI values for the given intervention flow.
 	 */
 	public int[] get(EnviFlow flow) {
 		if (enviAgg == null)
@@ -120,7 +121,7 @@ public class DQResult {
 	}
 
 	/**
-	 * Get the aggregated result for the given impact category.
+	 * Get the aggregated DQI values for the given impact category.
 	 */
 	public int[] get(ImpactDescriptor impact) {
 		if (impactAgg == null)
@@ -135,16 +136,20 @@ public class DQResult {
 		return values;
 	}
 
-	public int[] get(ImpactDescriptor impact, TechFlow product) {
-		if (processAgg == null)
+	/**
+	 * Get the aggregated DQI values for the impact contribution of the given
+	 * tech.-flow to the given impact category.
+	 */
+	public int[] get(ImpactDescriptor impact, TechFlow techFlow) {
+		if (techImpactAgg == null)
 			return null;
 		int row = result.indexOf(impact);
-		int col = result.indexOf(product);
+		int col = result.indexOf(techFlow);
 		if (row < 0 || col < 0)
 			return null;
-		int[] values = new int[processAgg.length];
-		for (int dqi = 0; dqi < processAgg.length; dqi++) {
-			values[dqi] = processAgg[dqi].get(row, col);
+		int[] values = new int[techImpactAgg.length];
+		for (int dqi = 0; dqi < techImpactAgg.length; dqi++) {
+			values[dqi] = techImpactAgg[dqi].get(row, col);
 		}
 		return values;
 	}
@@ -209,18 +214,8 @@ public class DQResult {
 		impactAgg = impactAcc != null
 				? impactAcc.finish()
 				: null;
-		processAgg = processAcc != null
+		techImpactAgg = processAcc != null
 				? processAcc.finish()
 				: null;
-	}
-
-	private static int[] toInt(byte[] bytes) {
-		if (bytes == null)
-			return null;
-		var ints = new int[bytes.length];
-		for (int i = 0; i < bytes.length; i++) {
-			ints[i] = bytes[i];
-		}
-		return ints;
 	}
 }
