@@ -44,15 +44,6 @@ public class DQResult {
 
 	/**
 	 * If there is an impact result, this field contains for each of the k
-	 * data quality indicators a q*m matrix with the q impact categories
-	 * mapped to the rows and the m elementary flows of the setup mapped
-	 * to the columns that contains the aggregated data quality values per
-	 * impact category and flow for the respective data quality indicator.
-	 */
-	private DenseByteMatrix[] flowImpactResult;
-
-	/**
-	 * If there is an impact result, this field contains for each of the k
 	 * data quality indicators a q*n matrix with the q impact categories
 	 * mapped to the rows and the n process products of the setup mapped
 	 * to the columns that contains the aggregated data quality values per
@@ -134,21 +125,6 @@ public class DQResult {
 				: toInt(impactResult.getColumn(col));
 	}
 
-	public int[] get(ImpactDescriptor impact, EnviFlow flow) {
-		if (flowImpactResult == null)
-			return null;
-		int row = result.impactIndex().of(impact);
-		int col = result.enviIndex().of(flow);
-		if (row < 0 || col < 0)
-			return null;
-		int k = flowImpactResult.length;
-		int[] values = new int[k];
-		for (int i = 0; i < k; i++) {
-			values[i] = flowImpactResult[i].get(row, col);
-		}
-		return values;
-	}
-
 	public int[] get(ImpactDescriptor impact, TechFlow product) {
 		if (processImpactResult == null)
 			return null;
@@ -212,16 +188,13 @@ public class DQResult {
 		int q = result.impactIndex().size();
 		byte max = (byte) system.getScoreCount();
 		impactResult = new DenseByteMatrix(k, q);
-		flowImpactResult = new DenseByteMatrix[k];
 		processImpactResult = new DenseByteMatrix[k];
 		for (int i = 0; i < k; i++) {
-			flowImpactResult[i] = new DenseByteMatrix(q, m);
 			processImpactResult[i] = new DenseByteMatrix(q, n);
 		}
 
 		// initialize the accumulators
 		var totalImpactAcc = new Accumulator(setup, max);
-		var flowImpactAcc = new Accumulator(setup, max);
 		var processAccs = new Accumulator[n];
 		for (int j = 0; j < n; j++) {
 			processAccs[j] = new Accumulator(setup, max);
@@ -254,8 +227,6 @@ public class DQResult {
 
 					// add data
 					totalImpactAcc.addAll(dqs, weights);
-					flowImpactResult[dqi].set(
-							impact, flow, flowImpactAcc.get(dqs, weights));
 					for (int process = 0; process < n; process++) {
 						processAccs[process].add(dqs[process], weights[process]);
 					}
