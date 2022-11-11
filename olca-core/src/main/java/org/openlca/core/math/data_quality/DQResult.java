@@ -140,6 +140,61 @@ public class DQResult {
 		return values;
 	}
 
+	private void aggregate() {
+		if (setup.aggregationType == AggregationType.NONE
+				|| !dqData.hasEnviData())
+			return;
+
+		int n = result.techIndex().size();
+		int m = result.enviIndex().size();
+		int k = result.hasImpacts()
+				? result.impactIndex().size()
+				: 0;
+		boolean hasImpacts = k != 0;
+		int q = dqData.enviIndicatorCount();
+
+		var enviAcc = new Accu(setup, m);
+		var impactAcc = hasImpacts
+				? new Accu(setup, k)
+				: null;
+		var processAcc = hasImpacts
+				? new Accu(setup, k, n)
+				: null;
+
+		byte[] dqiValues = new byte[q];
+		for (int techFlow = 0; techFlow < n; techFlow++) {
+			for (int enviFlow = 0; enviFlow < m; enviFlow++) {
+
+				double enviVal = result.directFlowOf(enviFlow, techFlow);
+				if (enviVal == 0)
+					continue;
+
+				// fill the DQI values
+				for (int dqi = 0; dqi < q; dqi++) {
+					var dqMatrix = dqData.enviData(dqi);
+					if (dqMatrix == null)
+						continue;
+					dqiValues[dqi] = dqMatrix.get(enviFlow, techFlow);
+				}
+
+				// add the intervention DQI values
+				enviAcc.add(enviFlow, dqiValues, enviVal);
+
+				// add the impact values
+				if (hasImpacts ) {
+					for (int impact = 0; impact < k; impact++) {
+						double factor = result.impactFactorOf(impact, enviFlow);
+						if (factor == 0)
+							continue;
+						double impactVal = factor * enviVal;
+						impactAcc.add(impact, dqiValues, impactVal);
+						processAcc.add(impact, techFlow, dqiValues, impactVal);
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Aggregate the raw exchange DQ values with the direct flow contribution
 	 * results if applicable.

@@ -18,10 +18,10 @@ class Accu {
 	private final Matrix totalWeights;
 
 	Accu(DQSetup setup, int rows) {
-		this(setup, rows, 1, false);
+		this(setup, rows, 1);
 	}
 
-	Accu(DQSetup setup, int rows, int cols, boolean sparse) {
+	Accu(DQSetup setup, int rows, int cols) {
 		this.aggType = setup.aggregationType != null
 				? setup.aggregationType
 				: AggregationType.MAXIMUM;
@@ -32,12 +32,10 @@ class Accu {
 
 		accuValues = new Matrix[dqiCount];
 		for (int dqi = 0; dqi < dqiCount; dqi++) {
-			accuValues[dqi] = sparse
-					? new HashPointMatrix(rows, cols)
-					: new DenseMatrix(rows, cols);
+			accuValues[dqi] = new DenseMatrix(rows, cols);
 		}
 		totalWeights = aggType != AggregationType.MAXIMUM
-				? sparse ? new HashPointMatrix(rows, cols) : new DenseMatrix(rows, cols)
+				? new DenseMatrix(rows, cols)
 				: null;
 	}
 
