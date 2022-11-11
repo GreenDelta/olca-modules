@@ -1,6 +1,7 @@
 package org.openlca.core.math.data_quality;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.format.ByteMatrix;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
@@ -32,7 +33,7 @@ public class DQResult {
 	 * aggregating the exchange data with the direct flow contribution
 	 * result.
 	 */
-	private DenseByteMatrix flowResult;
+	private ByteMatrix[] enviAgg;
 
 	/**
 	 * A k*q matrix that holds the aggregated impact results for the k
@@ -40,7 +41,7 @@ public class DQResult {
 	 * by aggregating the exchange data with the direct flow results and
 	 * impact factors.
 	 */
-	private DenseByteMatrix impactResult;
+	private ByteMatrix[] impactAgg;
 
 	/**
 	 * If there is an impact result, this field contains for each of the k
@@ -50,15 +51,16 @@ public class DQResult {
 	 * impact category and process product for the respective data quality
 	 * indicator.
 	 */
-	private DenseByteMatrix[] processImpactResult;
+	private ByteMatrix[] processAgg;
 
 	public static DQResult of(IDatabase db, DQSetup setup,
 			ResultProvider result) {
 		var data = DQData.of(setup, db).build(
 				result.techIndex(), result.enviIndex());
 		var r = new DQResult(setup, data, result);
-		r.calculateFlowResults();
-		r.calculateImpactResults();
+		r.aggregate();
+		// r.calculateFlowResults();
+		// r.calculateImpactResults();
 		return r;
 	}
 
@@ -105,37 +107,44 @@ public class DQResult {
 	 * Get the aggregated result for the given flow.
 	 */
 	public int[] get(EnviFlow flow) {
-		if (flowResult == null)
+		if (enviAgg == null)
 			return null;
-		int col = result.enviIndex().of(flow);
-		return col < 0
-				? null
-				: toInt(flowResult.getColumn(col));
+		int row = result.indexOf(flow);
+		if (row < 0)
+			return null;
+		int[] values = new int[enviAgg.length];
+		for (var dqi = 0; dqi < enviAgg.length; dqi++) {
+			values[dqi] = enviAgg[dqi].get(row, 0);
+		}
+		return values;
 	}
 
 	/**
 	 * Get the aggregated result for the given impact category.
 	 */
 	public int[] get(ImpactDescriptor impact) {
-		if (impactResult == null)
+		if (impactAgg == null)
 			return null;
-		int col = result.impactIndex().of(impact);
-		return col < 0
-				? null
-				: toInt(impactResult.getColumn(col));
+		int row = result.indexOf(impact);
+		if (row < 0)
+			return null;
+		int[] values = new int[impactAgg.length];
+		for (var dqi = 0; dqi < impactAgg.length; dqi++) {
+			values[dqi] = impactAgg[dqi].get(row, 0);
+		}
+		return values;
 	}
 
 	public int[] get(ImpactDescriptor impact, TechFlow product) {
-		if (processImpactResult == null)
+		if (processAgg == null)
 			return null;
-		int row = result.impactIndex().of(impact);
-		int col = result.techIndex().of(product);
+		int row = result.indexOf(impact);
+		int col = result.indexOf(product);
 		if (row < 0 || col < 0)
 			return null;
-		int k = processImpactResult.length;
-		int[] values = new int[k];
-		for (int i = 0; i < k; i++) {
-			values[i] = processImpactResult[i].get(row, col);
+		int[] values = new int[processAgg.length];
+		for (int dqi = 0; dqi < processAgg.length; dqi++) {
+			values[dqi] = processAgg[dqi].get(row, col);
 		}
 		return values;
 	}
@@ -172,8 +181,10 @@ public class DQResult {
 				// fill the DQI values
 				for (int dqi = 0; dqi < q; dqi++) {
 					var dqMatrix = dqData.enviData(dqi);
-					if (dqMatrix == null)
+					if (dqMatrix == null) {
+						dqiValues[dqi] = 0;
 						continue;
+					}
 					dqiValues[dqi] = dqMatrix.get(enviFlow, techFlow);
 				}
 
@@ -181,7 +192,7 @@ public class DQResult {
 				enviAcc.add(enviFlow, dqiValues, enviVal);
 
 				// add the impact values
-				if (hasImpacts ) {
+				if (hasImpacts) {
 					for (int impact = 0; impact < k; impact++) {
 						double factor = result.impactFactorOf(impact, enviFlow);
 						if (factor == 0)
@@ -193,108 +204,14 @@ public class DQResult {
 				}
 			}
 		}
-	}
 
-	/**
-	 * Aggregate the raw exchange DQ values with the direct flow contribution
-	 * results if applicable.
-	 */
-	private void calculateFlowResults() {
-		if (setup.aggregationType == AggregationType.NONE
-				|| !dqData.hasEnviData())
-			return;
-
-		var system = setup.exchangeSystem;
-		int n = result.techIndex().size();
-		int k = dqData.enviIndicatorCount();
-		int m = result.enviIndex().size();
-		flowResult = new DenseByteMatrix(k, m);
-		byte max = (byte) system.getScoreCount();
-
-		var acc = new Accumulator(setup, max);
-		var flowContributions = new double[n];
-		for (int dqi = 0; dqi < k; dqi++) {
-			var b = dqData.enviData(dqi);
-			if (b == null)
-				continue;
-			for (int flow = 0; flow < m; flow++) {
-				byte[] dqs = b.getRow(flow);
-				for (int product = 0; product < n; product++) {
-					flowContributions[product] = result.directFlowOf(flow, product);
-				}
-				flowResult.set(dqi, flow, acc.get(dqs, flowContributions));
-			}
-		}
-	}
-
-	private void calculateImpactResults() {
-		if (setup.aggregationType == AggregationType.NONE
-				|| !dqData.hasEnviData()
-				|| !result.hasImpacts())
-			return;
-		if (!result.hasImpacts())
-			return;
-
-		// initialize the results
-		var system = setup.exchangeSystem;
-		int k = dqData.enviIndicatorCount();
-		int m = result.enviIndex().size();
-		int n = result.techIndex().size();
-		int q = result.impactIndex().size();
-		byte max = (byte) system.getScoreCount();
-		impactResult = new DenseByteMatrix(k, q);
-		processImpactResult = new DenseByteMatrix[k];
-		for (int i = 0; i < k; i++) {
-			processImpactResult[i] = new DenseByteMatrix(q, n);
-		}
-
-		// initialize the accumulators
-		var totalImpactAcc = new Accumulator(setup, max);
-		var processAccs = new Accumulator[n];
-		for (int j = 0; j < n; j++) {
-			processAccs[j] = new Accumulator(setup, max);
-		}
-
-		for (int dqi = 0; dqi < k; dqi++) {
-			var b = dqData.enviData(dqi);
-			if (b == null)
-				continue;
-
-			for (int impact = 0; impact < q; impact++) {
-
-				// reset the accumulators
-				totalImpactAcc.reset();
-				for (var acc : processAccs) {
-					acc.reset();
-				}
-
-				for (int flow = 0; flow < m; flow++) {
-
-					// get DQ data and calculate weights
-					byte[] dqs = b.getRow(flow);
-					double factor = result.impactFactorOf(impact, flow);
-
-					double[] weights = new double[result.techIndex().size()];
-					for (int product = 0; product < weights.length; product++) {
-						weights[product] = factor * result.directFlowOf(
-								flow, product);
-					}
-
-					// add data
-					totalImpactAcc.addAll(dqs, weights);
-					for (int process = 0; process < n; process++) {
-						processAccs[process].add(dqs[process], weights[process]);
-					}
-
-				} // each flow
-
-				impactResult.set(dqi, impact, totalImpactAcc.get());
-				for (int process = 0; process < n; process++) {
-					processImpactResult[dqi].set(
-							impact, process, processAccs[process].get());
-				}
-			} // each impact
-		} // each indicator
+		enviAgg = enviAcc.finish();
+		impactAgg = impactAcc != null
+				? impactAcc.finish()
+				: null;
+		processAgg = processAcc != null
+				? processAcc.finish()
+				: null;
 	}
 
 	private static int[] toInt(byte[] bytes) {

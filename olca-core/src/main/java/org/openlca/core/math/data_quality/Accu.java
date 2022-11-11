@@ -4,7 +4,6 @@ import org.openlca.core.matrix.format.ByteMatrix;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
-import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 
 class Accu {
