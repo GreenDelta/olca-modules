@@ -15,15 +15,13 @@ import java.util.function.Function;
 
 class ResultRequest {
 
-	private final RpcRequest req;
 	private final JsonObject reqParam;
 	private final String resultId;
 
 	private TechFlowId _techFlow;
 	private EnviFlowId _enviFlow;
 
-	private ResultRequest(RpcRequest req, JsonObject reqParam, String resultId) {
-		this.req = req;
+	private ResultRequest(JsonObject reqParam, String resultId) {
 		this.reqParam = reqParam;
 		this.resultId = resultId;
 	}
@@ -40,16 +38,8 @@ class ResultRequest {
 		var resultId = Json.getString(param, "@id");
 		if (Strings.nullOrEmpty(resultId))
 			return Responses.invalidParams("no result ID @id provided", req);
-		var reqData = new ResultRequest(req, param, resultId);
+		var reqData = new ResultRequest(param, resultId);
 		return Responses.of(handler.apply(reqData), req);
-	}
-
-	RpcRequest request() {
-		return req;
-	}
-
-	JsonObject requestParameter() {
-		return reqParam;
 	}
 
 	String id() {
