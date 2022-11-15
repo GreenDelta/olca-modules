@@ -106,10 +106,10 @@ public record IxTechIndex(List<IxTechItem> items) {
 
 			printer.printRecord(
 				"index",
-				"process ID",
-				"process name",
-				"process category",
-				"process location",
+				"provider ID",
+				"provider name",
+				"provider category",
+				"provider location",
 				"flow ID",
 				"flow name",
 				"flow category",

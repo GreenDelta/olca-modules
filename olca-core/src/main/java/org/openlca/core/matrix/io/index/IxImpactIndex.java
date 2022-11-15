@@ -102,9 +102,9 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 
 			printer.printRecord(
 				"index",
-				"impact ID",
-				"impact name",
-				"impact unit");
+				"indicator ID",
+				"indicator name",
+				"indicator unit");
 
 			var buffer = new ArrayList<String>(9);
 			for (var item : items) {
