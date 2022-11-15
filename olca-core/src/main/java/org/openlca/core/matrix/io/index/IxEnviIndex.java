@@ -106,6 +106,7 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 
 			printer.printRecord(
 				"index",
+				"is input",
 				"flow ID",
 				"flow name",
 				"flow category",
@@ -115,7 +116,7 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 				"location name",
 				"location code");
 
-			var buffer = new ArrayList<String>(9);
+			var buffer = new ArrayList<String>(10);
 			for (var item : items) {
 				item.toCsv(buffer);
 				printer.printRecord(buffer);

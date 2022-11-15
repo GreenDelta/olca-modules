@@ -11,32 +11,31 @@ import java.util.List;
  * An item of an intervention index.
  */
 public record IxEnviItem(
-	int index,
-	IxFlow flow,
-	IxLocation location,
-	boolean isInput
-) {
+		int index,
+		boolean isInput,
+		IxFlow flow,
+		IxLocation location) {
 
 	public static IxEnviItem of(int idx, EnviFlow item, IxContext ctx) {
 		return new IxEnviItem(
-			idx,
-			IxFlow.of(item.flow(), ctx),
-			IxLocation.of(item.location()),
-			item.isInput());
+				idx,
+				item.isInput(),
+				IxFlow.of(item.flow(), ctx),
+				IxLocation.of(item.location()));
 	}
 
 	public static IxEnviItem output(int idx, Flow flow) {
-		return new IxEnviItem(idx, IxFlow.of(flow), null, false);
+		return new IxEnviItem(idx, false, IxFlow.of(flow), null);
 	}
 
 	public static IxEnviItem input(int idx, Flow flow) {
-		return new IxEnviItem(idx, IxFlow.of(flow), null, true);
+		return new IxEnviItem(idx, true, IxFlow.of(flow), null);
 	}
 
 	ElemFlowEntry toProto() {
 		var proto = IxProto.ElemFlowEntry.newBuilder()
-			.setIndex(index)
-			.setIsInput(isInput);
+				.setIndex(index)
+				.setIsInput(isInput);
 		if (flow != null) {
 			proto.setFlow(flow.toProto());
 		}
@@ -48,18 +47,19 @@ public record IxEnviItem(
 
 	static IxEnviItem fromProto(IxProto.ElemFlowEntry proto) {
 		return new IxEnviItem(
-			proto.getIndex(),
-			proto.hasFlow()
-				? IxFlow.fromProto(proto.getFlow())
-				: IxFlow.empty(),
-			proto.hasLocation()
-				? IxLocation.fromProto(proto.getLocation())
-				: IxLocation.empty(),
-			proto.getIsInput());
+				proto.getIndex(),
+				proto.getIsInput(),
+				proto.hasFlow()
+						? IxFlow.fromProto(proto.getFlow())
+						: IxFlow.empty(),
+				proto.hasLocation()
+						? IxLocation.fromProto(proto.getLocation())
+						: IxLocation.empty());
 	}
 
 	void toCsv(List<String> buffer) {
 		buffer.add(Integer.toString(index));
+		buffer.add(Boolean.toString(isInput));
 		if (flow == null) {
 			IxFlow.empty().toCsv(buffer);
 		} else {
@@ -74,10 +74,10 @@ public record IxEnviItem(
 
 	static IxEnviItem fromCsv(CSVRecord row) {
 		return new IxEnviItem(
-			Csv.readInt(row, 0),
-			IxFlow.fromCsv(row, 1),
-			IxLocation.fromCsv(row, 1 + Csv.FLOW_COLS),
-			Csv.readBool(row, 1 + Csv.FLOW_COLS + Csv.LOCATION_COLS));
+				Csv.readInt(row, 0),
+				Csv.readBool(row, 1 + Csv.FLOW_COLS + Csv.LOCATION_COLS),
+				IxFlow.fromCsv(row, 1),
+				IxLocation.fromCsv(row, 1 + Csv.FLOW_COLS));
 	}
 
 }
