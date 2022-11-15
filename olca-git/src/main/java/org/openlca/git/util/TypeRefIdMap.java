@@ -85,4 +85,21 @@ public class TypeRefIdMap<T> {
 		return true;
 	}
 
+	public void forEach(ForEach<T> consumer) {
+		map.keySet().forEach(type -> {
+			var refIds = map.get(type);
+			if (refIds == null || refIds.isEmpty())
+				return;
+			refIds.keySet().forEach(refId -> {
+				consumer.accept(type, refId, refIds.get(refId));
+			});
+		});
+	}
+
+	public interface ForEach<T> {
+
+		void accept(ModelType type, String refId, T value);
+
+	}
+
 }
