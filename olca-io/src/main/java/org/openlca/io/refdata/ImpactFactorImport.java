@@ -34,16 +34,16 @@ class ImpactFactorImport extends AbstractImport {
 		throws Exception {
 		if (propertyTable == null)
 			loadPropertyTable();
-		long flowId = seq.get(ModelType.FLOW, Csv.getString(row, 1));
-		long propId = seq.get(ModelType.FLOW_PROPERTY, Csv.getString(row, 2));
+		long flowId = seq.get(ModelType.FLOW, Csv.get(row, 1));
+		long propId = seq.get(ModelType.FLOW_PROPERTY, Csv.get(row, 2));
 		long factorId = getFactorId(flowId, propId);
 		stmt.setLong(1, seq.next());
-		stmt.setLong(2, seq.get(ModelType.IMPACT_CATEGORY, Csv.getString(row, 0)));
+		stmt.setLong(2, seq.get(ModelType.IMPACT_CATEGORY, Csv.get(row, 0)));
 		stmt.setLong(3, flowId);
 		stmt.setLong(4, factorId);
-		stmt.setLong(5, seq.get(Unit.class, Csv.getString(row, 3)));
+		stmt.setLong(5, seq.get(Unit.class, Csv.get(row, 3)));
 		stmt.setDouble(6, Csv.getDouble(row, 4));
-		stmt.setString(7, Csv.getString(row, 5));
+		stmt.setString(7, Csv.get(row, 5));
 	}
 
 	private void loadPropertyTable() {

@@ -21,14 +21,14 @@ class Csv {
 			.build();
 	}
 
-	static String getString(CSVRecord row, int i) {
+	static String get(CSVRecord row, int i) {
 		return row == null || i >= row.size()
 			? null
 			: row.get(i);
 	}
 
 	static Double getOptionalDouble(CSVRecord row, int i) {
-		var s = getString(row, i);
+		var s = get(row, i);
 		if (Strings.nullOrEmpty(s))
 			return null;
 		try {
@@ -43,7 +43,7 @@ class Csv {
 	static double getDouble(CSVRecord row, int i) {
 		if (row == null || i >= row.size())
 			return 0;
-		var s = getString(row, i);
+		var s = get(row, i);
 		if (s == null)
 			return 0;
 		try {
@@ -56,7 +56,7 @@ class Csv {
 	}
 
 	static int getInt(CSVRecord row, int i) {
-		var s = getString(row, i);
+		var s = get(row, i);
 		if (s == null)
 			return 0;
 		try {

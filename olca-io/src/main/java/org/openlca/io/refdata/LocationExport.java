@@ -1,25 +1,21 @@
 package org.openlca.io.refdata;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 
-class LocationExport extends AbstractExport {
+class LocationExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		log.trace("write locations");
-		LocationDao dao = new LocationDao(db);
-		List<Location> locations = dao.getAll();
-		for (Location location : locations) {
-			Object[] line = createLine(location);
+	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
+		var dao = new LocationDao(db);
+		for (var location : dao.getAll()) {
+			var line = createLine(location);
 			printer.printRecord(line);
 		}
-		log.trace("{} locations written", locations.size());
 	}
 
 	private Object[] createLine(Location location) {

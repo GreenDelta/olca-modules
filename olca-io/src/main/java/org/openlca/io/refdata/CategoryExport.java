@@ -1,26 +1,21 @@
 package org.openlca.io.refdata;
 
-import java.util.List;
+import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 
-class CategoryExport extends AbstractExport {
+class CategoryExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter writer, IDatabase database)
-			throws Exception {
-		log.trace("write categories");
-		CategoryDao dao = new CategoryDao(database);
-		List<Category> categories = dao.getAll();
-		for (Category category : categories) {
-			Object[] line = createLine(category);
+	public void doIt(CSVPrinter writer, IDatabase db) throws IOException {
+		var dao = new CategoryDao(db);
+		for (var category :  dao.getAll()) {
+			var line = createLine(category);
 			writer.printRecord(line);
 		}
-		log.trace("{} categories written", categories.size());
-
 	}
 
 	private Object[] createLine(Category category) {

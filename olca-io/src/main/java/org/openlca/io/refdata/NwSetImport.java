@@ -22,13 +22,13 @@ class NwSetImport extends AbstractImport {
 	@Override
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
-		String refId = Csv.getString(row, 0);
+		String refId = Csv.get(row, 0);
 		stmt.setLong(1, seq.get(NwSet.class, refId));
 		stmt.setString(2, refId);
-		stmt.setString(3, Csv.getString(row, 2));
-		stmt.setString(4, Csv.getString(row, 1));
-		setRef(stmt, 5, ModelType.IMPACT_METHOD, Csv.getString(row, 4));
-		stmt.setString(6, Csv.getString(row, 3));
+		stmt.setString(3, Csv.get(row, 2));
+		stmt.setString(4, Csv.get(row, 1));
+		setRef(stmt, 5, ModelType.IMPACT_METHOD, Csv.get(row, 4));
+		stmt.setString(6, Csv.get(row, 3));
 	}
 
 }

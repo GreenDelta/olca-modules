@@ -8,21 +8,17 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
-class UnitExport extends AbstractExport {
+class UnitExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		log.trace("write units");
-		UnitGroupDao dao = new UnitGroupDao(db);
-		int count = 0;
-		for (UnitGroup unitGroup : dao.getAll()) {
-			for (Unit unit : unitGroup.units) {
-				Object[] line = createLine(unitGroup, unit);
+	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
+		var dao = new UnitGroupDao(db);
+		for (var group : dao.getAll()) {
+			for (var unit : group.units) {
+				var line = createLine(group, unit);
 				printer.printRecord(line);
 			}
-			count++;
 		}
-		log.trace("{} units written", count);
 	}
 
 	private Object[] createLine(UnitGroup group, Unit unit) {

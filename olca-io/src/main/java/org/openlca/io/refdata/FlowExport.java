@@ -8,18 +8,16 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 
-class FlowExport extends AbstractExport {
+class FlowExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		log.trace("write flows");
+	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
 		FlowDao dao = new FlowDao(db);
 		List<Flow> flows = dao.getAll();
 		for (Flow flow : flows) {
 			Object[] line = createLine(flow);
 			printer.printRecord(line);
 		}
-		log.trace("{} flows written", flows.size());
 	}
 
 	private Object[] createLine(Flow flow) {

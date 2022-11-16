@@ -44,10 +44,10 @@ public class RefDataExport implements Runnable {
 		}
 	}
 
-	private void export(String fileName, AbstractExport export) {
+	private void export(String fileName, Export export) {
 		var file = new File(dir, fileName);
 		if (file.exists()) {
-			log.warn("the file already exists; did not changed it");
+			log.warn("the file already exists; skipped it");
 		} else {
 			export.run(file, database);
 		}

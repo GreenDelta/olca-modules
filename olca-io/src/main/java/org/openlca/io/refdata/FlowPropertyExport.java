@@ -1,25 +1,21 @@
 package org.openlca.io.refdata;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
 
-class FlowPropertyExport extends AbstractExport {
+class FlowPropertyExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		log.trace("write flow properties");
-		FlowPropertyDao dao = new FlowPropertyDao(db);
-		List<FlowProperty> properties = dao.getAll();
-		for (FlowProperty property : properties) {
-			Object[] line = createLine(property);
+	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
+		var dao = new FlowPropertyDao(db);
+		for (var property : dao.getAll()) {
+			var line = createLine(property);
 			printer.printRecord(line);
 		}
-		log.trace("{} flow properties written", properties.size());
 	}
 
 	private Object[] createLine(FlowProperty property) {

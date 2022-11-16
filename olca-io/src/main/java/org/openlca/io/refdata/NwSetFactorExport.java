@@ -2,10 +2,12 @@ package org.openlca.io.refdata;
 
 import java.sql.ResultSet;
 
-class NwSetFactorExport extends AbstractSqlExport {
+import org.slf4j.LoggerFactory;
+
+class NwSetFactorExport implements SqlExport {
 
 	@Override
-	protected String getQuery() {
+	public String getQuery() {
 		return "select nw.ref_id, cat.ref_id, fac.normalisation_factor, "
 				+ "fac.weighting_factor from tbl_nw_factors fac "
 				+ "inner join tbl_nw_sets nw on  fac.f_nw_set = nw.id "
@@ -14,12 +16,13 @@ class NwSetFactorExport extends AbstractSqlExport {
 	}
 
 	@Override
-	protected void logWrittenCount(int count) {
+	public void logWrittenCount(int count) {
+		var log = LoggerFactory.getLogger(getClass());
 		log.trace("{} nw-set factors written", count);
 	}
 
 	@Override
-	protected Object[] createLine(ResultSet resultSet) throws Exception {
+	public Object[] createLine(ResultSet resultSet) throws Exception {
 		Object[] line = new Object[4];
 		line[0] = resultSet.getString(1);
 		line[1] = resultSet.getString(2);

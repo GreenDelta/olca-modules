@@ -24,8 +24,8 @@ class NwSetFactorImport extends AbstractImport {
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
 		stmt.setLong(1, seq.next());
-		setRef(stmt, 2, NwSet.class, Csv.getString(row, 0));
-		setRef(stmt, 3, ModelType.IMPACT_CATEGORY, Csv.getString(row, 1));
+		setRef(stmt, 2, NwSet.class, Csv.get(row, 0));
+		setRef(stmt, 3, ModelType.IMPACT_CATEGORY, Csv.get(row, 1));
 		Double nf = Csv.getOptionalDouble(row, 2);
 		if (nf != null)
 			stmt.setDouble(4, nf);

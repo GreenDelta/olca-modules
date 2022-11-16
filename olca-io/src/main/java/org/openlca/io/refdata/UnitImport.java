@@ -18,21 +18,21 @@ class UnitImport extends AbstractImport {
 
 	@Override
 	protected boolean isValid(CSVRecord row) {
-		var refId = Csv.getString(row, 0);
+		var refId = Csv.get(row, 0);
 		return Strings.notEmpty(refId);
 	}
 
 	@Override
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 			throws Exception {
-		String refId = Csv.getString(row, 0);
+		String refId = Csv.get(row, 0);
 		long id = seq.get(Unit.class, refId);
 		stmt.setLong(1, id); // id
 		stmt.setString(2, refId); // refId
 		stmt.setDouble(3, Csv.getDouble(row, 3)); // conversion factor
-		stmt.setString(4, Csv.getString(row, 2)); // description
-		stmt.setString(5, Csv.getString(row, 1)); // name
-		stmt.setString(6, Csv.getString(row, 4)); // synonyms
-		setRef(stmt, 7, ModelType.UNIT_GROUP, Csv.getString(row, 5));
+		stmt.setString(4, Csv.get(row, 2)); // description
+		stmt.setString(5, Csv.get(row, 1)); // name
+		stmt.setString(6, Csv.get(row, 4)); // synonyms
+		setRef(stmt, 7, ModelType.UNIT_GROUP, Csv.get(row, 5));
 	}
 }

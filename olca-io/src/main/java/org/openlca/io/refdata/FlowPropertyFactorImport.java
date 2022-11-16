@@ -22,8 +22,8 @@ class FlowPropertyFactorImport extends AbstractImport {
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
 		stmt.setLong(1, seq.next());
-		setRef(stmt, 2, ModelType.FLOW, Csv.getString(row, 0));
-		setRef(stmt, 3, ModelType.FLOW_PROPERTY, Csv.getString(row, 1));
+		setRef(stmt, 2, ModelType.FLOW, Csv.get(row, 0));
+		setRef(stmt, 3, ModelType.FLOW_PROPERTY, Csv.get(row, 1));
 		stmt.setDouble(4, Csv.getDouble(row, 2));
 	}
 }

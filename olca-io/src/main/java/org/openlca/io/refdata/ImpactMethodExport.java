@@ -1,7 +1,6 @@
 package org.openlca.io.refdata;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.CategoryDao;
@@ -10,19 +9,16 @@ import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 
-class ImpactMethodExport extends AbstractExport {
+class ImpactMethodExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		log.trace("write impact methods");
-		ImpactMethodDao dao = new ImpactMethodDao(db);
-		CategoryDao categoryDao = new CategoryDao(db);
-		List<ImpactMethodDescriptor> methods = dao.getDescriptors();
-		for (ImpactMethodDescriptor method : methods) {
+	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
+		var dao = new ImpactMethodDao(db);
+		var categoryDao = new CategoryDao(db);
+		for (var method : dao.getDescriptors()) {
 			Object[] line = createLine(method, categoryDao);
 			printer.printRecord(line);
 		}
-		log.trace("{} impact methods written", methods.size());
 	}
 
 	private Object[] createLine(ImpactMethodDescriptor method,

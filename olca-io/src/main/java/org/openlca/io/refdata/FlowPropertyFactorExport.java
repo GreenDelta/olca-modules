@@ -8,21 +8,17 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 
-class FlowPropertyFactorExport extends AbstractExport {
+class FlowPropertyFactorExport implements Export {
 
 	@Override
-	protected void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		log.trace("write flow property factors");
-		FlowDao dao = new FlowDao(db);
-		int count = 0;
-		for (Flow flow : dao.getAll()) {
-			for (FlowPropertyFactor factor : flow.flowPropertyFactors) {
-				Object[] line = createLine(flow, factor);
+	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
+		var dao = new FlowDao(db);
+		for (var flow : dao.getAll()) {
+			for (var factor : flow.flowPropertyFactors) {
+				var line = createLine(flow, factor);
 				printer.printRecord(line);
-				count++;
 			}
 		}
-		log.trace("{} flow property factors written", count);
 	}
 
 	private Object[] createLine(Flow flow, FlowPropertyFactor factor) {

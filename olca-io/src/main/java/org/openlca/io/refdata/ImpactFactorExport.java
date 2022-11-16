@@ -3,10 +3,12 @@ package org.openlca.io.refdata;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-class ImpactFactorExport extends AbstractSqlExport {
+import org.slf4j.LoggerFactory;
+
+class ImpactFactorExport implements SqlExport {
 
 	@Override
-	protected String getQuery() {
+	public String getQuery() {
 		return "select cat.ref_id, flow.ref_id, prop.ref_id, unit.ref_id, "
 				+ " fac.value, fac.formula from tbl_impact_factors fac "
 				+ " inner join tbl_impact_categories cat on fac.f_impact_category = cat.id"
@@ -17,12 +19,13 @@ class ImpactFactorExport extends AbstractSqlExport {
 	}
 
 	@Override
-	protected void logWrittenCount(int count) {
+	public void logWrittenCount(int count) {
+		var log = LoggerFactory.getLogger(getClass());
 		log.trace("{} impact factors written", count);
 	}
 
 	@Override
-	protected Object[] createLine(ResultSet r) throws SQLException {
+	public Object[] createLine(ResultSet r) throws SQLException {
 		Object[] line = new Object[6];
 		line[0] = r.getString(1);
 		line[1] = r.getString(2);
