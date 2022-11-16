@@ -66,6 +66,10 @@ class ImportConfig {
 		}
 	}
 
+	void insert(RootEntity e) {
+		insert(List.of(e));
+	}
+
 	void insert(List<? extends RootEntity> entities) {
 		if (entities.isEmpty())
 			return;

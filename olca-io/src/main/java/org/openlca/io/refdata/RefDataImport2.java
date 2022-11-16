@@ -17,5 +17,6 @@ public class RefDataImport2 implements Runnable {
 		new UnitGroupImport2(config).run();
 		new FlowPropertyImport2(config).run();
 		new FlowImport2(config).run();
+		new CurrencyImport2(config).run();
 	}
 }

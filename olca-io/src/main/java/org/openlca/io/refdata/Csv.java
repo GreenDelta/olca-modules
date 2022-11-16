@@ -13,7 +13,7 @@ class Csv {
 
 	static CSVFormat format() {
 		return CSVFormat.Builder.create()
-			.setDelimiter(';')
+			.setDelimiter(',')
 			.setTrim(true)
 			.setIgnoreEmptyLines(true)
 			.setQuote('"')
