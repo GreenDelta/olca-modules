@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.commons.csv.CSVParser;
-import org.apache.poi.ss.formula.functions.T;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.CategorySync;
 import org.openlca.core.io.ImportLog;
