@@ -8,11 +8,11 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 
-class UnitGroupImport2 implements Runnable {
+class UnitGroupImport implements Runnable {
 
 	private final ImportConfig config;
 
-	UnitGroupImport2(ImportConfig config) {
+	UnitGroupImport(ImportConfig config) {
 		this.config = config;
 	}
 

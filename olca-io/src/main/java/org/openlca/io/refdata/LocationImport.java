@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 
-class LocationImport2 implements Runnable {
+class LocationImport implements Runnable {
 
 	private final ImportConfig config;
 
-	LocationImport2(ImportConfig config) {
+	LocationImport(ImportConfig config) {
 		this.config = config;
 	}
 

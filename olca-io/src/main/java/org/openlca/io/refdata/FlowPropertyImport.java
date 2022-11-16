@@ -8,11 +8,11 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.util.Strings;
 
-class FlowPropertyImport2 implements Runnable {
+class FlowPropertyImport implements Runnable {
 
 	private final ImportConfig config;
 
-	FlowPropertyImport2(ImportConfig config) {
+	FlowPropertyImport(ImportConfig config) {
 		this.config = config;
 	}
 

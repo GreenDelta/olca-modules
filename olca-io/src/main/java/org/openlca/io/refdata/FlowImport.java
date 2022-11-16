@@ -11,11 +11,11 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
-class FlowImport2 implements Runnable {
+class FlowImport implements Runnable {
 
 	private final ImportConfig config;
 
-	FlowImport2(ImportConfig config) {
+	FlowImport(ImportConfig config) {
 		this.config = config;
 	}
 

@@ -8,11 +8,11 @@ import org.openlca.core.model.Currency;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
 
-class CurrencyImport2 implements Runnable {
+class CurrencyImport implements Runnable {
 
 	private final ImportConfig config;
 
-	CurrencyImport2(ImportConfig config) {
+	CurrencyImport(ImportConfig config) {
 		this.config = config;
 	}
 
