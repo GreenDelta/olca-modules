@@ -64,30 +64,33 @@ Columns:
    "IMPACT_METHOD", "PROCESS", "FLOW", "FLOW_PROPERTY", "UNIT_GROUP"; required)
 4. reference ID of the parent category (UUID, optional)
 
-Units
------
+
+## Units
+
 File:       `units.csv`
-Columns:
 
-0. reference ID (UUID; required)
-1. name (string; required)
-2. description (string; optional)
-3. conversion factor (double; required)
-4. synonyms (string: list separated by semicolon; optional)
-5. reference ID of unit group (UUID, required)
+```
+0 | uuid               | required | string
+1 | name               | required | string
+2 | description        | optional | string
+3 | conversion factor  | required | double
+4 | synonyms           | optional | string list separated by semicolons
+5 | unit group         | required | uuid or name
+```
 
 
-Unit groups
------------
+## Unit groups
+
 File:       `unit_groups.csv`
-Columns:
 
-0. reference ID (UUID, required)
-1. name (string, required)
-2. description (string, optional)
-3. category ID (UUID, optional)
-4. default flow property ID (UUID, optional)
-5. reference unit ID (UUID, required)
+```
+0  | uuid                  | required | string
+1  | name                  | required | string
+2  | description           | optional | string
+3  | category              | optional | path
+4  | default flow property | optional | uuid or name
+5  | reference unit        | required | uuid or name
+```
 
 
 Flow properties
