@@ -6,7 +6,6 @@ import java.sql.Types;
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwSet;
-import org.openlca.io.maps.Maps;
 
 class NwSetFactorImport extends AbstractImport {
 
@@ -25,14 +24,14 @@ class NwSetFactorImport extends AbstractImport {
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
 		stmt.setLong(1, seq.next());
-		setRef(stmt, 2, NwSet.class, Maps.getString(row, 0));
-		setRef(stmt, 3, ModelType.IMPACT_CATEGORY, Maps.getString(row, 1));
-		Double nf = Maps.getOptionalDouble(row, 2);
+		setRef(stmt, 2, NwSet.class, Csv.getString(row, 0));
+		setRef(stmt, 3, ModelType.IMPACT_CATEGORY, Csv.getString(row, 1));
+		Double nf = Csv.getOptionalDouble(row, 2);
 		if (nf != null)
 			stmt.setDouble(4, nf);
 		else
 			stmt.setNull(4, Types.DOUBLE);
-		Double wf = Maps.getOptionalDouble(row, 3);
+		Double wf = Csv.getOptionalDouble(row, 3);
 		if (wf != null)
 			stmt.setDouble(5, wf);
 		else

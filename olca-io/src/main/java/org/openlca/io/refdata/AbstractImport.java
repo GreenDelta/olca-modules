@@ -15,7 +15,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
-import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ abstract class AbstractImport {
 		this.seq = seq;
 		this.database = db;
 		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
-				 var parser = new CSVParser(reader, Maps.format())) {
+				 var parser = new CSVParser(reader, Csv.format())) {
 			for (var row : parser) {
 				if (isValid(row)) {
 					nextBatch.add(row);

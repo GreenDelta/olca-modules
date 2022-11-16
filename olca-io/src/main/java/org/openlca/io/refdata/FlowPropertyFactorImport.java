@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.maps.Maps;
 
 class FlowPropertyFactorImport extends AbstractImport {
 
@@ -23,8 +22,8 @@ class FlowPropertyFactorImport extends AbstractImport {
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
 		stmt.setLong(1, seq.next());
-		setRef(stmt, 2, ModelType.FLOW, Maps.getString(row, 0));
-		setRef(stmt, 3, ModelType.FLOW_PROPERTY, Maps.getString(row, 1));
-		stmt.setDouble(4, Maps.getDouble(row, 2));
+		setRef(stmt, 2, ModelType.FLOW, Csv.getString(row, 0));
+		setRef(stmt, 3, ModelType.FLOW_PROPERTY, Csv.getString(row, 1));
+		stmt.setDouble(4, Csv.getDouble(row, 2));
 	}
 }

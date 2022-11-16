@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.maps.Maps;
 import org.openlca.util.Strings;
 
 class CategoryImport extends AbstractImport {
@@ -17,20 +16,20 @@ class CategoryImport extends AbstractImport {
 
 	@Override
 	protected boolean isValid(CSVRecord values) {
-		var refId = Maps.getString(values, 0);
+		var refId = Csv.getString(values, 0);
 		return Strings.notEmpty(refId);
 	}
 
 	@Override
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
-		var refId = Maps.getString(row, 0);
+		var refId = Csv.getString(row, 0);
 		stmt.setLong(1, seq.get(ModelType.CATEGORY, refId)); // id
 		stmt.setString(2, refId); // refId
-		stmt.setString(3, Maps.getString(row, 1)); // name
-		stmt.setString(4, Maps.getString(row, 2)); // description
-		stmt.setString(5, Maps.getString(row, 3)); // model type
-		setRef(stmt, 6, ModelType.CATEGORY, Maps.getString(row, 4)); // parent
+		stmt.setString(3, Csv.getString(row, 1)); // name
+		stmt.setString(4, Csv.getString(row, 2)); // description
+		stmt.setString(5, Csv.getString(row, 3)); // model type
+		setRef(stmt, 6, ModelType.CATEGORY, Csv.getString(row, 4)); // parent
 	}
 
 }

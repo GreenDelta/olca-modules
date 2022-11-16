@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.ModelType;
-import org.openlca.io.maps.Maps;
 import org.openlca.util.Strings;
 
 class FlowImport extends AbstractImport {
@@ -18,23 +17,23 @@ class FlowImport extends AbstractImport {
 
 	@Override
 	protected boolean isValid(CSVRecord row) {
-		var refId = Maps.getString(row, 0);
+		var refId = Csv.getString(row, 0);
 		return Strings.notEmpty(refId);
 	}
 
 	@Override
 	protected void setValues(PreparedStatement stmt, CSVRecord row)
 		throws Exception {
-		String refId = Maps.getString(row, 0);
+		String refId = Csv.getString(row, 0);
 		long id = seq.get(ModelType.FLOW, refId);
 		stmt.setLong(1, id);
 		stmt.setString(2, refId);
-		stmt.setString(3, Maps.getString(row, 1));
-		stmt.setString(4, Maps.getString(row, 2));
-		setRef(stmt, 5, ModelType.CATEGORY, Maps.getString(row, 3));
-		stmt.setString(6, Maps.getString(row, 4));
-		stmt.setString(7, Maps.getString(row, 5));
-		stmt.setString(8, Maps.getString(row, 6));
-		setRef(stmt, 9, ModelType.FLOW_PROPERTY, Maps.getString(row, 7));
+		stmt.setString(3, Csv.getString(row, 1));
+		stmt.setString(4, Csv.getString(row, 2));
+		setRef(stmt, 5, ModelType.CATEGORY, Csv.getString(row, 3));
+		stmt.setString(6, Csv.getString(row, 4));
+		stmt.setString(7, Csv.getString(row, 5));
+		stmt.setString(8, Csv.getString(row, 6));
+		setRef(stmt, 9, ModelType.FLOW_PROPERTY, Csv.getString(row, 7));
 	}
 }

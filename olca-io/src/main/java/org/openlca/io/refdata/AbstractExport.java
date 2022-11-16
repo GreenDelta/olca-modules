@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.IDatabase;
-import org.openlca.io.maps.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,7 @@ abstract class AbstractExport {
 
 	public void run(File file, IDatabase database) {
 		try (var writer = new FileWriter(file, StandardCharsets.UTF_8);
-				 var printer = new CSVPrinter(writer, Maps.format())) {
+				 var printer = new CSVPrinter(writer, Csv.format())) {
 			doIt(printer, database);
 		} catch (Exception e) {
 			log.error("failed to write file " + file, e);

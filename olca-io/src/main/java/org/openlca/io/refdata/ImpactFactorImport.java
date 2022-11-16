@@ -8,7 +8,6 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.openlca.io.maps.Maps;
 
 class ImpactFactorImport extends AbstractImport {
 
@@ -35,16 +34,16 @@ class ImpactFactorImport extends AbstractImport {
 		throws Exception {
 		if (propertyTable == null)
 			loadPropertyTable();
-		long flowId = seq.get(ModelType.FLOW, Maps.getString(row, 1));
-		long propId = seq.get(ModelType.FLOW_PROPERTY, Maps.getString(row, 2));
+		long flowId = seq.get(ModelType.FLOW, Csv.getString(row, 1));
+		long propId = seq.get(ModelType.FLOW_PROPERTY, Csv.getString(row, 2));
 		long factorId = getFactorId(flowId, propId);
 		stmt.setLong(1, seq.next());
-		stmt.setLong(2, seq.get(ModelType.IMPACT_CATEGORY, Maps.getString(row, 0)));
+		stmt.setLong(2, seq.get(ModelType.IMPACT_CATEGORY, Csv.getString(row, 0)));
 		stmt.setLong(3, flowId);
 		stmt.setLong(4, factorId);
-		stmt.setLong(5, seq.get(Unit.class, Maps.getString(row, 3)));
-		stmt.setDouble(6, Maps.getDouble(row, 4));
-		stmt.setString(7, Maps.getString(row, 5));
+		stmt.setLong(5, seq.get(Unit.class, Csv.getString(row, 3)));
+		stmt.setDouble(6, Csv.getDouble(row, 4));
+		stmt.setString(7, Csv.getString(row, 5));
 	}
 
 	private void loadPropertyTable() {
