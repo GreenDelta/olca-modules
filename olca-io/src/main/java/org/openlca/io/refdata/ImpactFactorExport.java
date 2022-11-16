@@ -3,8 +3,6 @@ package org.openlca.io.refdata;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.slf4j.LoggerFactory;
-
 class ImpactFactorExport implements SqlExport {
 
 	@Override
@@ -19,14 +17,8 @@ class ImpactFactorExport implements SqlExport {
 	}
 
 	@Override
-	public void logWrittenCount(int count) {
-		var log = LoggerFactory.getLogger(getClass());
-		log.trace("{} impact factors written", count);
-	}
-
-	@Override
 	public Object[] createLine(ResultSet r) throws SQLException {
-		Object[] line = new Object[6];
+		var line = new Object[6];
 		line[0] = r.getString(1);
 		line[1] = r.getString(2);
 		line[2] = r.getString(3);

@@ -1,7 +1,7 @@
 package org.openlca.io.refdata;
 
 import java.sql.ResultSet;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.sql.SQLException;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.IDatabase;
@@ -15,12 +15,10 @@ interface SqlExport extends Export {
 
 	@Override
 	default void doIt(CSVPrinter printer, IDatabase db) {
-		final AtomicInteger count = new AtomicInteger(0);
 		NativeSql.on(db).query(getQuery(), r -> {
 			try {
-				Object[] line = createLine(r);
+				var line = createLine(r);
 				printer.printRecord(line);
-				count.incrementAndGet();
 				return true;
 			} catch (Exception e) {
 				var log = LoggerFactory.getLogger(getClass());
@@ -28,13 +26,10 @@ interface SqlExport extends Export {
 				return false;
 			}
 		});
-		logWrittenCount(count.get());
 	}
 
 	String getQuery();
 
-	Object[] createLine(ResultSet resultSet) throws Exception;
-
-	void logWrittenCount(int count);
+	Object[] createLine(ResultSet rs) throws SQLException;
 
 }

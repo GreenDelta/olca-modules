@@ -3,8 +3,6 @@ package org.openlca.io.refdata;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.slf4j.LoggerFactory;
-
 class NwSetExport implements SqlExport {
 
 	@Override
@@ -16,19 +14,13 @@ class NwSetExport implements SqlExport {
 	}
 
 	@Override
-	public void logWrittenCount(int count) {
-		var log = LoggerFactory.getLogger(getClass());
-		log.trace("{} nw-sets written", count);
-	}
-
-	@Override
-	public Object[] createLine(ResultSet resultSet) throws SQLException {
-		Object[] line = new Object[5];
-		line[0] = resultSet.getString(1);
-		line[1] = resultSet.getString(2);
-		line[2] = resultSet.getString(3);
-		line[3] = resultSet.getString(4);
-		line[4] = resultSet.getString(5);
+	public Object[] createLine(ResultSet rs) throws SQLException {
+		var line = new Object[5];
+		line[0] = rs.getString(1);
+		line[1] = rs.getString(2);
+		line[2] = rs.getString(3);
+		line[3] = rs.getString(4);
+		line[4] = rs.getString(5);
 		return line;
 	}
 

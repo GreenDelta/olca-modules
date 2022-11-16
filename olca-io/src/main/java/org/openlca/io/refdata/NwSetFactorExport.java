@@ -1,8 +1,7 @@
 package org.openlca.io.refdata;
 
 import java.sql.ResultSet;
-
-import org.slf4j.LoggerFactory;
+import java.sql.SQLException;
 
 class NwSetFactorExport implements SqlExport {
 
@@ -16,20 +15,14 @@ class NwSetFactorExport implements SqlExport {
 	}
 
 	@Override
-	public void logWrittenCount(int count) {
-		var log = LoggerFactory.getLogger(getClass());
-		log.trace("{} nw-set factors written", count);
-	}
-
-	@Override
-	public Object[] createLine(ResultSet resultSet) throws Exception {
-		Object[] line = new Object[4];
-		line[0] = resultSet.getString(1);
-		line[1] = resultSet.getString(2);
-		double n = resultSet.getDouble(3);
-		if (!resultSet.wasNull())
+	public Object[] createLine(ResultSet rs) throws SQLException {
+		var line = new Object[4];
+		line[0] = rs.getString(1);
+		line[1] = rs.getString(2);
+		double n = rs.getDouble(3);
+		if (!rs.wasNull())
 			line[2] = n;
-		double w = resultSet.getDouble(4);
+		double w = rs.getDouble(4);
 		line[3] = w;
 		return line;
 	}
