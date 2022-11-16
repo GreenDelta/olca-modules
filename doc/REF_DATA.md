@@ -70,7 +70,7 @@ Columns:
 File: `units.csv`
 
 ```
-0 | uuid               | required | string
+0 | uuid               | required | uuid
 1 | name               | required | string
 2 | description        | optional | string
 3 | conversion factor  | required | double
@@ -84,7 +84,7 @@ File: `units.csv`
 File: `unit_groups.csv`
 
 ```
-0  | uuid                  | required | string
+0  | uuid                  | required | uuid
 1  | name                  | required | string
 2  | description           | optional | string
 3  | category              | optional | path
@@ -98,7 +98,7 @@ File: `unit_groups.csv`
 File: `flow_properties.csv`
 
 ```
-0  | uuid          | required | string
+0  | uuid          | required | uuid
 1  | name          | required | string
 2  | description   | optional | string
 3  | category      | optional | path
@@ -107,30 +107,34 @@ File: `flow_properties.csv`
 ```
 
 
-Flows
------
-File:       `flows.csv`
-Columns:
+## Flows
 
-0. reference ID (UUID, required)
-1. name (string, required)
-2. description (string, optional)
-3. category ID (UUID, optional)
-4. flow type (enumeration: 'ELEMENTARY_FLOW', 'PRODUCT_FLOW', 'WASTE_FLOW'; required)
-5. CAS number (string, optional)
-6. formula (string, optional)
-7. reference flow property (UUID, required)
+File: `flows.csv`
+
+```
+0  | uuid                    | required | uuid
+1  | name                    | required | string
+2  | description             | optional | string
+3  | category                | optional | path
+4  | flow type               | required | "elementary" or "product" or "waste"
+5  | CAS number              | optional | string
+6  | chem. formula           | optional | string
+7  | reference flow property | required | uuid or name
+```
 
 
-Flow property factors
----------------------
-(relations between flows and flow properties)
-File:       `flow_property_factors.csv`
-Columns:
+## Flow property factors
 
-0. flow ID (UUID, required)
-1. flow property ID (UUID, required)
-2. factor (double, required) (1 if it is the reference flow property)
+File: `flow_property_factors.csv`
+
+This file is optional and only required, if additional flow properties than the
+reference flow properties should be added to a flow.
+
+```
+0 | flow              | required | uuid
+1 | flow property     | required | uuid or name
+2 | conversion factor | required | double
+```
 
 
 Currencies

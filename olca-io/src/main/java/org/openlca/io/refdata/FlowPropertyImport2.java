@@ -22,18 +22,16 @@ class FlowPropertyImport2 implements Runnable {
 		// collect and insert flow properties
 		var props = new ArrayList<FlowProperty>();
 		config.eachRow("flow_properties.csv", row -> {
-			var group = config.get(UnitGroup.class, row.get(4));
-			if (group == null) {
-				config.log().error("unknown unit group: " + row.get(4));
-				return;
-			}
 			var prop = new FlowProperty();
 			prop.refId = row.get(0);
 			prop.name = row.get(1);
 			prop.description = row.get(2);
 			prop.category = config.category(ModelType.FLOW_PROPERTY, row.get(3));
-			prop.unitGroup = group;
 			prop.flowPropertyType = typeOf(row.get(5));
+			prop.unitGroup = config.get(UnitGroup.class, row.get(4));
+			if (prop.unitGroup == null) {
+				config.log().error("unknown unit group: " + row.get(4));
+			}
 			props.add(prop);
 		});
 		config.insert(props);
