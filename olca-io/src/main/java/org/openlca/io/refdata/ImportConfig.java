@@ -3,17 +3,24 @@ package org.openlca.io.refdata;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.commons.csv.CSVParser;
+import org.apache.poi.ss.formula.functions.T;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.CategorySync;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.util.Strings;
 
 class ImportConfig {
 
@@ -22,13 +29,13 @@ class ImportConfig {
 	private final File folder;
 	private final IDatabase db;
 	private final CategorySync categories;
-	private final EnumMap<ModelType, Map<String, RootEntity>> entities;
+	private final Map<Class<?>, Map<String, RootEntity>> cache;
 
 	private ImportConfig(File folder, IDatabase db) {
 		this.folder = folder;
 		this.db	 = db;
 		this.categories = CategorySync.of(db);
-		this.entities = new EnumMap<>(ModelType.class);
+		this.cache = new HashMap<>();
 	}
 
 	static ImportConfig of(File folder, IDatabase db) {
@@ -37,10 +44,6 @@ class ImportConfig {
 
 	ImportLog log() {
 		return log;
-	}
-
-	IDatabase db() {
-		return db;
 	}
 
 	Category category(ModelType type, String path) {
@@ -63,12 +66,63 @@ class ImportConfig {
 		}
 	}
 
-	void insert(Iterable<? extends RootEntity> entities) {
+	void insert(List<? extends RootEntity> entities) {
+		if (entities.isEmpty())
+			return;
+		var type = entities.get(0).getClass();
+		var map = cache.computeIfAbsent(type, t -> new HashMap<>());
+		boolean refByName = supportRefByName(type);
+
 		db.transaction(em -> {
 			for (var entity : entities) {
 				em.persist(entity);
+				map.put(entity.refId, entity);
+				if (refByName && Strings.notEmpty(entity.name)) {
+					map.put(entity.name, entity);
+				}
 			}
 		});
+	}
+
+	void update(RootEntity e) {
+		if (e == null)
+			return;
+		db.update(e);
+		cache(e);
+	}
+
+	void reload(RootEntity e) {
+		if (e == null)
+			return;
+		var reloaded = db.get(e.getClass(), e.id);
+		cache(reloaded);
+	}
+
+	private void cache(RootEntity e) {
+		if (e == null)
+			return;
+		var type = e.getClass();
+		var map = cache.computeIfAbsent(type, t -> new HashMap<>());
+		if (supportRefByName(type) && Strings.notEmpty(e.name)) {
+			map.put(e.name, e);
+		}
+	}
+
+	<T extends RootEntity> T get(Class<T> type, String id) {
+		var map = cache.get(type);
+		if (map == null)
+			return null;
+		var obj = map.get(id);
+		return obj != null
+				? type.cast(obj)
+				: null;
+	}
+
+	private boolean supportRefByName(Class<? extends  RootEntity> type) {
+		return type.equals(UnitGroup.class)
+				|| type.equals(FlowProperty.class)
+				|| type.equals(Currency.class)
+				|| type.equals(Location.class);
 	}
 
 }

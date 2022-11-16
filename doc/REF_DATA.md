@@ -67,7 +67,7 @@ Columns:
 
 ## Units
 
-File:       `units.csv`
+File: `units.csv`
 
 ```
 0 | uuid               | required | string
@@ -81,7 +81,7 @@ File:       `units.csv`
 
 ## Unit groups
 
-File:       `unit_groups.csv`
+File: `unit_groups.csv`
 
 ```
 0  | uuid                  | required | string
@@ -93,17 +93,18 @@ File:       `unit_groups.csv`
 ```
 
 
-Flow properties
----------------
-File:       `flow_properties.csv`
-Columns:
+## Flow properties
 
-0. reference ID (UUID, required)
-1. name (string, required)
-2. description (string, optional)
-3. category ID (UUID, optional)
-4. unit group ID (UUID, required)
-5. flow property type (integer enum: 0=economic, 1=physical; required)
+File: `flow_properties.csv`
+
+```
+0  | uuid          | required | string
+1  | name          | required | string
+2  | description   | optional | string
+3  | category      | optional | path
+4  | unit group    | required | uuid or name
+5  | property type | optional | "economic" else "physical"
+```
 
 
 Flows
