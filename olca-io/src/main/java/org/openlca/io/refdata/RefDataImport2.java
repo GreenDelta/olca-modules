@@ -18,5 +18,6 @@ public class RefDataImport2 implements Runnable {
 		new FlowPropertyImport2(config).run();
 		new FlowImport2(config).run();
 		new CurrencyImport2(config).run();
+		new LocationImport2(config).run();
 	}
 }

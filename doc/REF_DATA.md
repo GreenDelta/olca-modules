@@ -1,4 +1,4 @@
-# openLCA Reference Data and Mapping Format
+# openLCA reference data
 
 The openLCA reference data format defines a simple CSV format for exchanging
 reference data like flows, units, categories etc. and mappings to entities of
@@ -6,24 +6,25 @@ other formats and databases. In general all CSV files should have the following
 properties:
 
 * files should be utf-8 encoded
-* columns should be separated by semicolons: `;`
+* columns should be separated by semicolons: `,`
 * strings should be enclosed in double quotes if it is necessary: `"`
 * the decimal separator of numbers should be a decimal point: `.`
 * the files should __not__ contain column headers
 
 
-Locations
----------
-File:       `locations.csv`
-Columns:
+## Locations
 
-0. reference ID (UUID, required)
-1. name (string, required)
-2. description (string, optional)
-3. code (string, required)
-4. latitude (double, required)
-5. longitude (double, required)
+File: `locations.csv`
 
+```
+0  | uuid        | required | uuid
+1  | name        | required | string
+2  | description | optional | string
+3  | category    | optional | path
+4  | code        | required | string
+5  | latitude    | required | double
+6  | longitude   | required | double
+```
 
 ## Units
 
