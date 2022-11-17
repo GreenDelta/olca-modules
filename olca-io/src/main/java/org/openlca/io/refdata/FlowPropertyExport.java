@@ -1,36 +1,45 @@
 package org.openlca.io.refdata;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
-import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.database.FlowPropertyDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowPropertyType;
 
-class FlowPropertyExport implements Export {
+class FlowPropertyExport implements Runnable {
+
+	private final ExportConfig config;
+
+	FlowPropertyExport(ExportConfig config) {
+		this.config = config;
+	}
 
 	@Override
-	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		var dao = new FlowPropertyDao(db);
-		for (var property : dao.getAll()) {
-			var line = createLine(property);
-			printer.printRecord(line);
-		}
+	public void run() {
+		var properties = config.db().getAll(FlowProperty.class);
+		config.sort(properties);
+		var buffer = new ArrayList<>(6);
+
+		config.writeTo("flow_properties.csv", csv -> {
+			for (var property : properties) {
+				buffer.add(property.refId);
+				buffer.add(property.name);
+				buffer.add(property.description);
+				buffer.add(config.toPath(property.category));
+
+				var unitGroup = property.unitGroup != null
+						? property.unitGroup.name
+						: "";
+				buffer.add(unitGroup);
+
+				var propType = property.flowPropertyType == FlowPropertyType.ECONOMIC
+						? "economic"
+						: "physical";
+				buffer.add(propType);
+
+				csv.printRecord(buffer);
+				buffer.clear();
+			}
+		});
 	}
 
-	private Object[] createLine(FlowProperty property) {
-		Object[] line = new Object[6];
-		line[0] = property.refId;
-		line[1] = property.name;
-		line[2] = property.description;
-		if (property.category != null)
-			line[3] = property.category.refId;
-		if (property.unitGroup != null)
-			line[4] = property.unitGroup.refId;
-		if (property.flowPropertyType != null) {
-			int type = property.flowPropertyType.ordinal();
-			line[5] = type;
-		}
-		return line;
-	}
 }

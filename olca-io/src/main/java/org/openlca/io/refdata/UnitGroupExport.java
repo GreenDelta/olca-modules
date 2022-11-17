@@ -16,7 +16,7 @@ class UnitGroupExport implements Runnable {
 	public void run() {
 		var groups = config.db().getAll(UnitGroup.class);
 		config.sort(groups);
-		var buffer = new ArrayList<>();
+		var buffer = new ArrayList<>(6);
 
 		// write unit groups
 		config.writeTo("unit_groups.csv", csv -> {

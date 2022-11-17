@@ -30,11 +30,9 @@ public class RefDataExport implements Runnable {
 				Files.createDirectories(dir.toPath());
 			}
 			new UnitGroupExport(config).run();
+			new FlowPropertyExport(config).run();
 
 			export("locations.csv", new LocationExport());
-			export("categories.csv", new CategoryExport());
-			export("units.csv", new UnitExport());
-			export("flow_properties.csv", new FlowPropertyExport());
 			export("flows.csv", new FlowExport());
 			export("flow_property_factors.csv", new FlowPropertyFactorExport());
 			export("lcia_methods.csv", new ImpactMethodExport());
