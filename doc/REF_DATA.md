@@ -6,11 +6,11 @@ files in order to create reference data packages from scratch; it shouldn't be
 used as a general data exchange format. All CSV files need to have the following
 format:
 
+* the first row contains the column headers
 * the file encoding must be [utf-8](https://en.wikipedia.org/wiki/UTF-8)
 * the column separator is a comma: `,`
 * strings should be enclosed in double quotes, but only if necessary: `"`
 * the decimal separator of numbers is a decimal point: `.`
-* the files should __not__ contain column headers
 
 
 ## Locations
@@ -18,13 +18,13 @@ format:
 **File**:`locations.csv`
 
 ```
-0  | uuid        | required | uuid
-1  | name        | required | string
-2  | description | optional | string
-3  | category    | optional | path
-4  | code        | required | string
-5  | latitude    | required | double
-6  | longitude   | required | double
+0  | ID          | required | uuid
+1  | Name        | required | string
+2  | Description | optional | string
+3  | Category    | optional | path
+4  | Code        | required | string
+5  | Latitude    | required | double
+6  | Longitude   | required | double
 ```
 
 ## Unit groups
@@ -32,23 +32,23 @@ format:
 **File**:`unit_groups.csv`
 
 ```
-0  | uuid                  | required | uuid
-1  | name                  | required | string
-2  | description           | optional | string
-3  | category              | optional | path
-4  | default flow property | optional | uuid or name
-5  | reference unit        | required | uuid or name
+0  | ID                    | required | uuid
+1  | Name                  | required | string
+2  | Description           | optional | string
+3  | Category              | optional | path
+4  | Default flow property | optional | uuid or name
+5  | Reference unit        | required | uuid or name
 ```
 
 **File**:`units.csv`
 
 ```
-0 | uuid               | required | uuid
-1 | name               | required | string
-2 | description        | optional | string
-3 | conversion factor  | required | double
-4 | synonyms           | optional | string list separated by semicolons
-5 | unit group         | required | uuid or name
+0 | ID                 | required | uuid
+1 | Name               | required | string
+2 | Description        | optional | string
+3 | Conversion factor  | required | double
+4 | Synonyms           | optional | string list separated by semicolons
+5 | Unit group         | required | uuid or name
 ```
 
 ## Flow properties
@@ -56,12 +56,12 @@ format:
 **File**:`flow_properties.csv`
 
 ```
-0  | uuid          | required | uuid
-1  | name          | required | string
-2  | description   | optional | string
-3  | category      | optional | path
-4  | unit group    | required | uuid or name
-5  | property type | optional | "economic" else "physical"
+0  | ID            | required | uuid
+1  | Name          | required | string
+2  | Description   | optional | string
+3  | Category      | optional | path
+4  | Unit group    | required | uuid or name
+5  | Property type | optional | "economic" else "physical"
 ```
 
 
@@ -70,14 +70,14 @@ format:
 **File**:`flows.csv`
 
 ```
-0  | uuid                    | required | uuid
-1  | name                    | required | string
-2  | description             | optional | string
-3  | category                | optional | path
-4  | flow type               | required | "elementary" or "product" or "waste"
+0  | ID                      | required | uuid
+1  | Name                    | required | string
+2  | Description             | optional | string
+3  | Category                | optional | path
+4  | Flow type               | required | "elementary" or "product" or "waste"
 5  | CAS number              | optional | string
-6  | chem. formula           | optional | string
-7  | reference flow property | required | uuid or name
+6  | Chem. formula           | optional | string
+7  | Reference flow property | required | uuid or name
 ```
 
 **File**:`flow_property_factors.csv`
@@ -86,9 +86,9 @@ This file is optional and only required, if additional flow properties than the
 reference flow properties should be added to a flow.
 
 ```
-0 | flow              | required | uuid
-1 | flow property     | required | uuid or name
-2 | conversion factor | required | double
+0 | Flow              | required | uuid
+1 | Flow property     | required | uuid or name
+2 | Conversion factor | required | double
 ```
 
 
@@ -99,13 +99,13 @@ reference flow properties should be added to a flow.
 Note that all currencies should have the same reference currency.
 
 ```
-0  | uuid               | required | uuid
-1  | name               | required | string
-2  | description        | optional | string
-3  | category           | optional | path
-4  | reference currency | required | name or uuid
-5  | currency code      | required | string
-6  | conversion factor  | required | double
+0  | ID                 | required | uuid
+1  | Name               | required | string
+2  | Description        | optional | string
+3  | Category           | optional | path
+4  | Reference currency | required | name or uuid
+5  | Currency code      | required | string
+6  | Conversion factor  | required | double
 ```
 
 ## LCIA categories
@@ -113,11 +113,11 @@ Note that all currencies should have the same reference currency.
 **File**: `lcia_categories.csv`
 
 ```
-0  | uuid               | required | uuid
-1  | name               | required | string
-2  | description        | optional | string
-3  | category           | optional | path
-4  | reference unit     | optional | string
+0  | ID                 | required | uuid
+1  | Name               | required | string
+2  | Description        | optional | string
+3  | Category           | optional | path
+4  | Reference unit     | optional | string
 ```
 
 **Files**: `lcia_factors/{short-id}.csv`
@@ -130,11 +130,11 @@ we typically take the first part of the uuid of an LCIA category for this.
 
 ```
 0 | LCIA category | required | uuid
-1 | flow          | required | uuid
-2 | flow property | required | uuid or name
-3 | flow unit     | required | uuid or name
-4 | location      | required | uuid or name
-5 | factor        | required | double or formula
+1 | Flow          | required | uuid
+2 | Flow property | required | uuid or name
+3 | Flow unit     | required | uuid or name
+4 | Location      | required | uuid or name
+5 | Factor        | required | double or formula
 ```
 
 **File**: `lcia_parameters_{short-id}.csv`
@@ -143,8 +143,8 @@ This file is **not** handled yet in the openLCA import and export.
 
 ```
 0 | LCIA category | required | uuid
-1 | parameter     | required | string
-2 | value         | required | double or formula
+1 | Parameter     | required | string
+2 | Value         | required | double or formula
 ```
 
 ## LCIA methods
@@ -152,10 +152,10 @@ This file is **not** handled yet in the openLCA import and export.
 **File**:`lcia_methods.csv`
 
 ```
-0 | uuid         | required | uuid
-1 | name         | required | string
-2 | description  | optional | string
-3 | category     | optional | path
+0 | ID           | required | uuid
+1 | Name         | required | string
+2 | Description  | optional | string
+3 | Category     | optional | path
 ```
 
 **File**:`lcia_method_categories.csv`
@@ -175,7 +175,7 @@ methods.
 1 | NW set - ID          | required | uuid
 2 | NW set - name        | required | string
 3 | LCIA category        | required | uuid
-4 | nomalisation factor  | optional | double
-5 | weighting factor     | optional | double
-6 | weighting score unit | optional | string
+4 | Nomalisation factor  | optional | double
+5 | Weighting factor     | optional | double
+6 | Weighting score unit | optional | string
 ```
