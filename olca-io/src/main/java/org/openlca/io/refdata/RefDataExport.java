@@ -29,12 +29,13 @@ public class RefDataExport implements Runnable {
 			if (!dir.exists()) {
 				Files.createDirectories(dir.toPath());
 			}
+			new LocationExport(config).run();
 			new UnitGroupExport(config).run();
 			new FlowPropertyExport(config).run();
 
-			export("locations.csv", new LocationExport());
 			export("flows.csv", new FlowExport());
 			export("flow_property_factors.csv", new FlowPropertyFactorExport());
+
 			export("lcia_methods.csv", new ImpactMethodExport());
 			export("lcia_categories.csv", new ImpactCategoryExport());
 			export("lcia_factors.csv", new ImpactFactorExport());

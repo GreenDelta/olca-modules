@@ -25,13 +25,13 @@ class ImportConfig {
 
 	private final ImportLog log = new ImportLog();
 
-	private final File folder;
+	private final File dir;
 	private final IDatabase db;
 	private final CategorySync categories;
 	private final Map<Class<?>, Map<String, RootEntity>> cache;
 
 	private ImportConfig(File folder, IDatabase db) {
-		this.folder = folder;
+		this.dir = folder;
 		this.db	 = db;
 		this.categories = CategorySync.of(db);
 		this.cache = new HashMap<>();
@@ -39,6 +39,14 @@ class ImportConfig {
 
 	static ImportConfig of(File folder, IDatabase db) {
 		return new ImportConfig(folder, db);
+	}
+
+	IDatabase db() {
+		return db;
+	}
+
+	File dir() {
+		return dir;
 	}
 
 	ImportLog log() {
@@ -50,7 +58,7 @@ class ImportConfig {
 	}
 
 	void eachRowOf(String file, Consumer<CsvRow> fn) {
-		var f = new File(folder, file);
+		var f = new File(dir, file);
 		if (!f.exists()) {
 			log.info("file " + f + " does not exist; skipped");
 			return;

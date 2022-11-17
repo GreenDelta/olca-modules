@@ -15,6 +15,8 @@ class UnitGroupExport implements Runnable {
 	@Override
 	public void run() {
 		var groups = config.db().getAll(UnitGroup.class);
+		if(groups.isEmpty())
+			return;
 		config.sort(groups);
 		var buffer = new ArrayList<>(6);
 

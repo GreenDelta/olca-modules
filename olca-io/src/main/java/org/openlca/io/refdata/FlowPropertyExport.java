@@ -16,6 +16,8 @@ class FlowPropertyExport implements Runnable {
 	@Override
 	public void run() {
 		var properties = config.db().getAll(FlowProperty.class);
+		if (properties.isEmpty())
+			return;
 		config.sort(properties);
 		var buffer = new ArrayList<>(6);
 

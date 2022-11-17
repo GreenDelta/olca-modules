@@ -1,32 +1,37 @@
 package org.openlca.io.refdata;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
-import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
 
-class LocationExport implements Export {
+class LocationExport implements Runnable {
+
+	private final ExportConfig config;
+
+	LocationExport(ExportConfig config) {
+		this.config = config;
+	}
 
 	@Override
-	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		var dao = new LocationDao(db);
-		for (var location : dao.getAll()) {
-			var line = createLine(location);
-			printer.printRecord(line);
-		}
-	}
+	public void run() {
+		var locations = config.db().getAll(Location.class);
+		if (locations.isEmpty())
+			return;
+		config.sort(locations);
+		var buffer = new ArrayList<>(7);
 
-	private Object[] createLine(Location location) {
-		Object[] line = new Object[6];
-		line[0] = location.refId;
-		line[1] = location.name;
-		line[2] = location.description;
-		line[3] = location.code;
-		line[4] = location.latitude;
-		line[5] = location.longitude;
-		return line;
+		config.writeTo("locations.csv", csv -> {
+			for (var location : locations) {
+				buffer.add(location.refId);
+				buffer.add(location.name);
+				buffer.add(location.description);
+				buffer.add(config.toPath(location.category));
+				buffer.add(location.code);
+				buffer.add(location.latitude);
+				buffer.add(location.longitude);
+				csv.printRecord(buffer);
+				buffer.clear();
+			}
+		});
 	}
-
 }
