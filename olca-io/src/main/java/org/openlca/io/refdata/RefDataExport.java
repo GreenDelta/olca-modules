@@ -11,13 +11,16 @@ import org.slf4j.LoggerFactory;
 
 public class RefDataExport implements Runnable {
 
-	private final IDatabase database;
+	private final IDatabase db;
 	private final File dir;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	public RefDataExport(File dir, IDatabase database) {
+	private final ExportConfig config;
+
+	public RefDataExport(File dir, IDatabase db) {
 		this.dir = dir;
-		this.database = database;
+		this.db = db;
+		this.config = ExportConfig.of(dir, db);
 	}
 
 	@Override
@@ -26,10 +29,11 @@ public class RefDataExport implements Runnable {
 			if (!dir.exists()) {
 				Files.createDirectories(dir.toPath());
 			}
+			new UnitGroupExport(config).run();
+
 			export("locations.csv", new LocationExport());
 			export("categories.csv", new CategoryExport());
 			export("units.csv", new UnitExport());
-			export("unit_groups.csv", new UnitGroupExport());
 			export("flow_properties.csv", new FlowPropertyExport());
 			export("flows.csv", new FlowExport());
 			export("flow_property_factors.csv", new FlowPropertyFactorExport());
@@ -49,12 +53,12 @@ public class RefDataExport implements Runnable {
 		if (file.exists()) {
 			log.warn("the file already exists; skipped it");
 		} else {
-			export.run(file, database);
+			export.run(file, db);
 		}
 	}
 
 	private void exportMappingFiles() throws Exception {
-		var dao = new MappingFileDao(database);
+		var dao = new MappingFileDao(db);
 		var names = dao.getNames();
 		if (names.isEmpty())
 			return;

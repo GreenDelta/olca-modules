@@ -21,7 +21,7 @@ class CurrencyImport implements Runnable {
 
 		var currencies = new ArrayList<Currency>();
 		var ref = new AtomicReference<String>();
-		config.eachRow("currencies.csv", row -> {
+		config.eachRowOf("currencies.csv", row -> {
 			var c = new Currency();
 			c.refId = row.get(0);
 			c.name = row.get(1);

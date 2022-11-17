@@ -49,7 +49,7 @@ class ImportConfig {
 		return categories.get(type, path);
 	}
 
-	void eachRow(String file, Consumer<CsvRow> fn) {
+	void eachRowOf(String file, Consumer<CsvRow> fn) {
 		var f = new File(folder, file);
 		if (!f.exists()) {
 			log.info("file " + f + " does not exist; skipped");

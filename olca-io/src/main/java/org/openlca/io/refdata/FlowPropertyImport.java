@@ -21,7 +21,7 @@ class FlowPropertyImport implements Runnable {
 
 		// collect and insert flow properties
 		var props = new ArrayList<FlowProperty>();
-		config.eachRow("flow_properties.csv", row -> {
+		config.eachRowOf("flow_properties.csv", row -> {
 			var prop = new FlowProperty();
 			prop.refId = row.get(0);
 			prop.name = row.get(1);
@@ -37,7 +37,7 @@ class FlowPropertyImport implements Runnable {
 		config.insert(props);
 
 		// update possible default flow properties in unit groups
-		config.eachRow("unit_groups.csv", row -> {
+		config.eachRowOf("unit_groups.csv", row -> {
 			var group = config.get(UnitGroup.class, row.get(0));
 			var prop = config.get(FlowProperty.class, row.get(4));
 			if (group == null || prop == null)

@@ -1,34 +1,61 @@
 package org.openlca.io.refdata;
 
-import java.io.IOException;
+import java.util.ArrayList;
 
-import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.UnitGroup;
 
-class UnitGroupExport implements Export {
+class UnitGroupExport implements Runnable {
 
-	@Override
-	public void doIt(CSVPrinter printer, IDatabase db) throws IOException {
-		var dao = new UnitGroupDao(db);
-		for (var group : dao.getAll()) {
-			var line = createLine(group);
-			printer.printRecord(line);
-		}
+	private final ExportConfig config;
+
+	UnitGroupExport(ExportConfig config) {
+		this.config = config;
 	}
 
-	private Object[] createLine(UnitGroup group) {
-		Object[] line = new Object[6];
-		line[0] = group.refId;
-		line[1] = group.name;
-		line[2] = group.description;
-		if (group.category != null)
-			line[3] = group.category.refId;
-		if (group.defaultFlowProperty != null)
-			line[4] = group.defaultFlowProperty.refId;
-		if (group.referenceUnit != null)
-			line[5] = group.referenceUnit.refId;
-		return line;
+	@Override
+	public void run() {
+		var groups = config.db().getAll(UnitGroup.class);
+		config.sort(groups);
+		var buffer = new ArrayList<>();
+
+		// write unit groups
+		config.writeTo("unit_groups.csv", csv -> {
+			for (var group : groups) {
+				buffer.add(group.refId);
+				buffer.add(group.name);
+				buffer.add(group.description);
+				buffer.add(config.toPath(group.category));
+
+				var defaultProp = group.defaultFlowProperty != null
+						? group.defaultFlowProperty.name
+						: "";
+				buffer.add(defaultProp);
+
+				var refUnit = group.referenceUnit != null
+						? group.referenceUnit.name
+						: "";
+				buffer.add(refUnit);
+
+				csv.printRecord(buffer);
+				buffer.clear();
+			}
+		});
+
+		// write units
+		config.writeTo("units.csv", csv -> {
+			for (var group : groups) {
+				config.sort(group.units);
+				for (var unit : group.units) {
+					buffer.add(unit.refId);
+					buffer.add(unit.name);
+					buffer.add(unit.description);
+					buffer.add(unit.conversionFactor);
+					buffer.add(unit.synonyms);
+					buffer.add(group.name);
+					csv.printRecord(buffer);
+					buffer.clear();
+				}
+			}
+		});
 	}
 }

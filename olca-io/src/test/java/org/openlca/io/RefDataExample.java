@@ -9,7 +9,8 @@ import org.openlca.util.Dirs;
 public class RefDataExample {
 
 	public static void main(String[] args) {
-		var refDir = new File("C:/Users/ms/Desktop/rems/refdata2");
+		var home = new File(System.getProperty("user.home"));
+		var refDir = new File(home, "Desktop/rems/refdata2");
 		var dataDir = DataDir.get();
 		Dirs.delete(dataDir.getDatabaseDir("refdata"));
 		try (var db = dataDir.openDatabase("refdata")) {

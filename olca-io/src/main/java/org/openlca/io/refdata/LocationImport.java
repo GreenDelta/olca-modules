@@ -16,7 +16,7 @@ class LocationImport implements Runnable {
 	@Override
 	public void run() {
 		var locations = new ArrayList<Location>();
-		config.eachRow("locations.csv", row -> {
+		config.eachRowOf("locations.csv", row -> {
 			var loc = new Location();
 			loc.refId = row.get(0);
 			loc.name = row.get(1);

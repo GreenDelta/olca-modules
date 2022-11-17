@@ -22,7 +22,7 @@ class UnitGroupImport implements Runnable {
 		// prepare the unit groups
 		var groupRefs = new HashMap<String, GroupRef>();
 
-		config.eachRow("unit_groups.csv", row -> {
+		config.eachRowOf("unit_groups.csv", row -> {
 			var group = new UnitGroup();
 			group.refId = row.get(0);
 			group.name = row.get(1);
@@ -34,7 +34,7 @@ class UnitGroupImport implements Runnable {
 		});
 
 		// add units
-		config.eachRow("units.csv", row -> {
+		config.eachRowOf("units.csv", row -> {
 			var ref = groupRefs.get(row.get(5));
 			if (ref == null) {
 				config.log().error("unknown unit group: " + row.get(5));

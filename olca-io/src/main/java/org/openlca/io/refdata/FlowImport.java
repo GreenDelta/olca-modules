@@ -23,7 +23,7 @@ class FlowImport implements Runnable {
 	public void run() {
 
 		var flows = new HashMap<String, Flow>();
-		config.eachRow("flows.csv", row -> {
+		config.eachRowOf("flows.csv", row -> {
 			var flow = new Flow();
 			flow.refId = row.get(0);
 			flow.name = row.get(1);
@@ -47,7 +47,7 @@ class FlowImport implements Runnable {
 
 
 		// add more flow properties if present
-		config.eachRow("flow_property_factors.csv", row -> {
+		config.eachRowOf("flow_property_factors.csv", row -> {
 			var flow = flows.get(row.get(0));
 			if (flow == null) {
 				config.log().error("unknown flow: " + row.get(0));
