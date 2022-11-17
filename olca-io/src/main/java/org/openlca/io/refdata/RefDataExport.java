@@ -32,15 +32,16 @@ public class RefDataExport implements Runnable {
 			new LocationExport(config).run();
 			new UnitGroupExport(config).run();
 			new FlowPropertyExport(config).run();
+			new FlowExport(config).run();
+			new CurrencyExport(config).run();
 
-			export("flows.csv", new FlowExport());
-			export("flow_property_factors.csv", new FlowPropertyFactorExport());
 
 			export("lcia_methods.csv", new ImpactMethodExport());
 			export("lcia_categories.csv", new ImpactCategoryExport());
 			export("lcia_factors.csv", new ImpactFactorExport());
 			export("nw_sets.csv", new NwSetExport());
 			export("nw_set_factors.csv", new NwSetFactorExport());
+
 			exportMappingFiles();
 		} catch (Exception e) {
 			log.error("Reference data export failed", e);
