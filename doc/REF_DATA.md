@@ -167,6 +167,9 @@ This file is **not** handled yet in the openLCA import and export.
 
 **File**:`lcia_method_nw_sets.csv`
 
+This file contains the normalization and weighting sets (NW sets) of the LCIA
+methods.
+
 ```
 0 | LCIA method          | required | uuid or name
 1 | NW set - ID          | required | uuid

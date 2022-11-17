@@ -12,4 +12,8 @@ record CsvRow(CSVRecord record) {
 		return Csv.getDouble(record, i);
 	}
 
+	Double getOptionalDouble(int i) {
+		return Csv.getOptionalDouble(record, i);
+	}
+
 }

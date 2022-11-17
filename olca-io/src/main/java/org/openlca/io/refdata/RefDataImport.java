@@ -32,6 +32,7 @@ public class RefDataImport implements Runnable {
 			new CurrencyImport(config).run();
 			new LocationImport(config).run();
 			new ImpactCategoryImport(config).run();
+			new ImpactMethodImport(config).run();
 			importMappingFiles();
 		} catch (Exception e) {
 			config.log().error("ref. data import failed", e);
