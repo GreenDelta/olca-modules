@@ -34,6 +34,7 @@ public class RefDataExport implements Runnable {
 			new FlowPropertyExport(config).run();
 			new FlowExport(config).run();
 			new CurrencyExport(config).run();
+			new ImpactCategoryExport(config).run();
 			new ImpactMethodExport(config).run();
 
 			exportMappingFiles();
