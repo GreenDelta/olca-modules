@@ -15,6 +15,7 @@ import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
@@ -133,7 +134,8 @@ class ImportConfig {
 		return type.equals(UnitGroup.class)
 				|| type.equals(FlowProperty.class)
 				|| type.equals(Currency.class)
-				|| type.equals(Location.class);
+				|| type.equals(Location.class)
+				|| type.equals(ImpactMethod.class);
 	}
 
 }

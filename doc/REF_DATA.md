@@ -137,7 +137,7 @@ File: `lcia_factors_{short-id}.csv`
 5 | factor        | required | double or formula
 ```
 
-File: `lcia_parameters_{short-id}.csv`
+File: `lcia_parameters_{short-id}.csv`; **not yet implemented**
 
 ```
 0 | LCIA category | required | uuid
