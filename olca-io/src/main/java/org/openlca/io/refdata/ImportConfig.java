@@ -59,18 +59,22 @@ class ImportConfig {
 	}
 
 	void eachRowOf(String file, Consumer<CsvRow> fn) {
-		var f = new File(dir, file);
-		if (!f.exists()) {
-			log.info("file " + f + " does not exist; skipped");
+		eachRowOf(new File(dir, file), fn);
+	}
+
+	void eachRowOf(File file, Consumer<CsvRow> fn) {
+		if (!file.exists()) {
+			log.info("file " + file + " does not exist; skipped");
 			return;
 		}
-		try (var reader = new FileReader(f, StandardCharsets.UTF_8);
+		log.info("read file: " + file);
+		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
 				 var parser = new CSVParser(reader, Csv.format())) {
 			for (var row : parser) {
 				fn.accept(new CsvRow(row));
 			}
 		} catch (Exception e) {
-			log.error("failed to parse file " + f, e);
+			log.error("failed to parse file " + file, e);
 		}
 	}
 

@@ -45,7 +45,7 @@ class ImpactCategoryExport implements Runnable {
 		// files, otherwise put everything into one big file
 		var shortIds = shortIdsOf(indicators);
 		if (shortIds.isEmpty()) {
-			config.writeTo("lcia_factors_all.csv", csv -> {
+			config.writeTo("lcia_factors/all.csv", csv -> {
 				for (var indicator : indicators) {
 					writeFactors(csv, buffer, indicator);
 				}
@@ -55,7 +55,7 @@ class ImpactCategoryExport implements Runnable {
 				if (indicator.impactFactors.isEmpty())
 					continue;
 				var shortId = shortIds.get(indicator.id);
-				config.writeTo("lcia_factors_" + shortId + ".csv", csv -> {
+				config.writeTo("lcia_factors/" + shortId + ".csv", csv -> {
 					writeFactors(csv, buffer, indicator);
 				});
 			}
@@ -130,6 +130,4 @@ class ImpactCategoryExport implements Runnable {
 		}
 		return map;
 	}
-
-
 }

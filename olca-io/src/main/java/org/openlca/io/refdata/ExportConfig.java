@@ -4,6 +4,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.RefEntity;
+import org.openlca.util.Dirs;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ record ExportConfig(File dir, IDatabase db) {
 
 	void writeTo(String file, CsvWriter writer) {
 		var f = new File(dir, file);
+		Dirs.createIfAbsent(f.getParentFile());
 		try (var w = new FileWriter(f, StandardCharsets.UTF_8);
 				 var p = new CSVPrinter(w, Csv.format())) {
 			writer.writeTo(p);

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.MappingFile;
 import org.openlca.util.BinUtils;
 
@@ -18,6 +19,10 @@ public class RefDataImport implements Runnable {
 		this.config = ImportConfig.of(dir, db);
 	}
 
+	public ImportLog log() {
+		return config.log();
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -26,6 +31,7 @@ public class RefDataImport implements Runnable {
 			new FlowImport(config).run();
 			new CurrencyImport(config).run();
 			new LocationImport(config).run();
+			new ImpactCategoryImport(config).run();
 			importMappingFiles();
 		} catch (Exception e) {
 			config.log().error("ref. data import failed", e);

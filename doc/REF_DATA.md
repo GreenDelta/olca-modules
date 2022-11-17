@@ -1,20 +1,21 @@
-# openLCA reference data
+# CSV format for openLCA reference data
 
-The openLCA reference data format defines a simple CSV format for exchanging
-reference data like flows, units, categories etc. and mappings to entities of
-other formats and databases. In general all CSV files should have the following
-properties:
+Reference data are common units, flow properties, flows, locations, LCIA
+categories etc. for different databases. We store these data in simple CSV
+files in order to create reference data packages from scratch; it shouldn't be
+used as a general data exchange format. All CSV files need to have the following
+format:
 
-* files should be utf-8 encoded
-* columns should be separated by semicolons: `,`
-* strings should be enclosed in double quotes if it is necessary: `"`
-* the decimal separator of numbers should be a decimal point: `.`
+* the file encoding must be [utf-8](https://en.wikipedia.org/wiki/UTF-8)
+* the column separator is a comma: `,`
+* strings should be enclosed in double quotes, but only if necessary: `"`
+* the decimal separator of numbers is a decimal point: `.`
 * the files should __not__ contain column headers
 
 
 ## Locations
 
-File: `locations.csv`
+**File**:`locations.csv`
 
 ```
 0  | uuid        | required | uuid
@@ -26,23 +27,9 @@ File: `locations.csv`
 6  | longitude   | required | double
 ```
 
-## Units
-
-File: `units.csv`
-
-```
-0 | uuid               | required | uuid
-1 | name               | required | string
-2 | description        | optional | string
-3 | conversion factor  | required | double
-4 | synonyms           | optional | string list separated by semicolons
-5 | unit group         | required | uuid or name
-```
-
-
 ## Unit groups
 
-File: `unit_groups.csv`
+**File**:`unit_groups.csv`
 
 ```
 0  | uuid                  | required | uuid
@@ -53,10 +40,20 @@ File: `unit_groups.csv`
 5  | reference unit        | required | uuid or name
 ```
 
+**File**:`units.csv`
+
+```
+0 | uuid               | required | uuid
+1 | name               | required | string
+2 | description        | optional | string
+3 | conversion factor  | required | double
+4 | synonyms           | optional | string list separated by semicolons
+5 | unit group         | required | uuid or name
+```
 
 ## Flow properties
 
-File: `flow_properties.csv`
+**File**:`flow_properties.csv`
 
 ```
 0  | uuid          | required | uuid
@@ -70,7 +67,7 @@ File: `flow_properties.csv`
 
 ## Flows
 
-File: `flows.csv`
+**File**:`flows.csv`
 
 ```
 0  | uuid                    | required | uuid
@@ -83,10 +80,7 @@ File: `flows.csv`
 7  | reference flow property | required | uuid or name
 ```
 
-
-## Flow property factors
-
-File: `flow_property_factors.csv`
+**File**:`flow_property_factors.csv`
 
 This file is optional and only required, if additional flow properties than the
 reference flow properties should be added to a flow.
@@ -100,7 +94,7 @@ reference flow properties should be added to a flow.
 
 ## Currencies
 
-File: `currencies.csv`
+**File**:`currencies.csv`
 
 Note that all currencies should have the same reference currency.
 
@@ -116,7 +110,7 @@ Note that all currencies should have the same reference currency.
 
 ## LCIA categories
 
-File: `lcia_categories.csv`
+**File**: `lcia_categories.csv`
 
 ```
 0  | uuid               | required | uuid
@@ -126,7 +120,13 @@ File: `lcia_categories.csv`
 4  | reference unit     | optional | string
 ```
 
-File: `lcia_factors_{short-id}.csv`
+**Files**: `lcia_factors/{short-id}.csv`
+
+A reference database can contain many LCIA categories and each LCIA category can
+contain many characterization factors. We therefore write the characterization
+factors of each LCIA category into a separate file. These files are located in a
+`lcia_factors` sub-folder. Anything can be used as name of file in this folder,
+we typically take the first part of the uuid of an LCIA category for this.
 
 ```
 0 | LCIA category | required | uuid
@@ -137,7 +137,9 @@ File: `lcia_factors_{short-id}.csv`
 5 | factor        | required | double or formula
 ```
 
-File: `lcia_parameters_{short-id}.csv`; **not yet implemented**
+**File**: `lcia_parameters_{short-id}.csv`
+
+This file is **not** handled yet in the openLCA import and export.
 
 ```
 0 | LCIA category | required | uuid
@@ -147,7 +149,7 @@ File: `lcia_parameters_{short-id}.csv`; **not yet implemented**
 
 ## LCIA methods
 
-File: `lcia_methods.csv`
+**File**:`lcia_methods.csv`
 
 ```
 0 | uuid         | required | uuid
@@ -156,14 +158,14 @@ File: `lcia_methods.csv`
 3 | category     | optional | path
 ```
 
-File: `lcia_method_categories.csv`
+**File**:`lcia_method_categories.csv`
 
 ```
 0 | LCIA method   | required | uuid or name
 1 | LCIA category | required | uuid
 ```
 
-File: `lcia_method_nw_sets.csv`
+**File**:`lcia_method_nw_sets.csv`
 
 ```
 0 | LCIA method          | required | uuid or name

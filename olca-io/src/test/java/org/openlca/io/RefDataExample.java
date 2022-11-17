@@ -3,6 +3,7 @@ package org.openlca.io;
 import java.io.File;
 
 import org.openlca.core.DataDir;
+import org.openlca.core.io.ImportLog.Message;
 import org.openlca.io.refdata.RefDataExport;
 import org.openlca.io.refdata.RefDataImport;
 import org.openlca.util.Dirs;
@@ -10,8 +11,8 @@ import org.openlca.util.Dirs;
 public class RefDataExample {
 
 	public static void main(String[] args) {
-		runExport();
-		// runImport();
+		// runExport();
+		runImport();
 	}
 
 	private static void runExport() {
@@ -34,7 +35,9 @@ public class RefDataExample {
 		Dirs.delete(dataDir.getDatabaseDir("refdata"));
 		try (var db = dataDir.openDatabase("refdata")) {
 			var start = System.nanoTime();
-			new RefDataImport(refDir, db).run();
+			var imp = new RefDataImport(refDir, db);
+			imp.log().listen(Message::log);
+			imp.run();
 			var ns = System.nanoTime() - start;
 			var seconds = ((double) ns) / 1e9;
 			System.out.printf("imported in %.3f seconds%n", seconds);
