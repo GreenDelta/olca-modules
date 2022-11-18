@@ -25,6 +25,18 @@ class FlowExport implements Runnable {
 		// a flow property factor file
 		var multiProps = new AtomicBoolean(false);
 		config.writeTo("flows.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category",
+					"Flow type",
+					"CAS number",
+					"Chem. formula",
+					"Reference flow property");
+
 			for (var flow : flows) {
 				buffer.add(flow.refId);
 				buffer.add(flow.name);
@@ -51,6 +63,13 @@ class FlowExport implements Runnable {
 		if (!multiProps.get())
 			return;
 		config.writeTo("flow_property_factors.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"Flow",
+					"Flow property",
+					"Conversion factor");
+
 			for (var flow : flows) {
 				if (flow.flowPropertyFactors.size() <= 1)
 					continue;

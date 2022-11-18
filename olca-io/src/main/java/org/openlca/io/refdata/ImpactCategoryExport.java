@@ -30,6 +30,15 @@ class ImpactCategoryExport implements Runnable {
 
 		// write LCIA category meta-data
 		config.writeTo("lcia_categories.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category",
+					"Reference unit");
+
 			for (var indicator : indicators) {
 				buffer.add(indicator.refId);
 				buffer.add(indicator.name);
@@ -46,6 +55,7 @@ class ImpactCategoryExport implements Runnable {
 		var shortIds = shortIdsOf(indicators);
 		if (shortIds.isEmpty()) {
 			config.writeTo("lcia_factors/all.csv", csv -> {
+				writeFactorHeaders(csv);
 				for (var indicator : indicators) {
 					writeFactors(csv, buffer, indicator);
 				}
@@ -56,6 +66,7 @@ class ImpactCategoryExport implements Runnable {
 					continue;
 				var shortId = shortIds.get(indicator.id);
 				config.writeTo("lcia_factors/" + shortId + ".csv", csv -> {
+					writeFactorHeaders(csv);
 					writeFactors(csv, buffer, indicator);
 				});
 			}
@@ -63,9 +74,18 @@ class ImpactCategoryExport implements Runnable {
 
 	}
 
-	private static void writeFactors(
-			CSVPrinter csv, ArrayList<Object> buffer, ImpactCategory indicator)
-			throws IOException {
+	private void writeFactorHeaders(CSVPrinter csv) throws IOException {
+		csv.printRecord(
+				"LCIA category",
+				"Flow",
+				"Flow property",
+				"Flow unit",
+				"Location",
+				"Factor");
+	}
+
+	private void writeFactors(CSVPrinter csv, ArrayList<Object> buffer,
+			ImpactCategory indicator) throws IOException {
 		for (var factor : indicator.impactFactors) {
 			buffer.add(indicator.refId);
 

@@ -22,6 +22,16 @@ class FlowPropertyExport implements Runnable {
 		var buffer = new ArrayList<>(6);
 
 		config.writeTo("flow_properties.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category",
+					"Unit group",
+					"Property type");
+
 			for (var property : properties) {
 				buffer.add(property.refId);
 				buffer.add(property.name);

@@ -21,6 +21,14 @@ class ImpactMethodExport implements Runnable {
 		var buffer = new ArrayList<>(7);
 
 		config.writeTo("lcia_methods.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category");
+
 			for (var method : methods) {
 				buffer.add(method.refId);
 				buffer.add(method.name);
@@ -32,6 +40,10 @@ class ImpactMethodExport implements Runnable {
 		});
 
 		config.writeTo("lcia_method_categories.csv", csv -> {
+
+			// write column headers
+			csv.printRecord("LCIA method", "LCIA category");
+
 			for (var method : methods) {
 				config.sort(method.impactCategories);
 				for (var indicator : method.impactCategories) {
@@ -44,6 +56,17 @@ class ImpactMethodExport implements Runnable {
 		});
 
 		config.writeTo("lcia_method_nw_sets.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"LCIA method",
+					"NW set - ID",
+					"NW set - name",
+					"LCIA category",
+					"Nomalisation factor",
+					"Weighting factor",
+					"Weighting score unit");
+
 			for (var method : methods) {
 				config.sort(method.nwSets);
 				for (var nwSet : method.nwSets) {

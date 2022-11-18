@@ -21,6 +21,17 @@ class LocationExport implements Runnable {
 		var buffer = new ArrayList<>(7);
 
 		config.writeTo("locations.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category",
+					"Code",
+					"Latitude",
+					"Longitude");
+
 			for (var location : locations) {
 				buffer.add(location.refId);
 				buffer.add(location.name);

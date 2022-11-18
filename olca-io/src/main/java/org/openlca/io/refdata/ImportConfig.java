@@ -70,7 +70,13 @@ class ImportConfig {
 		log.info("read file: " + file);
 		try (var reader = new FileReader(file, StandardCharsets.UTF_8);
 				 var parser = new CSVParser(reader, Csv.format())) {
+			boolean first = true;
 			for (var row : parser) {
+				if (first) {
+					// skip header
+					first = false;
+					continue;
+				}
 				fn.accept(new CsvRow(row));
 			}
 		} catch (Exception e) {

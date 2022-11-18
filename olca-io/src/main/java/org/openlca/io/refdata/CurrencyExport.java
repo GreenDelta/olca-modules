@@ -21,6 +21,17 @@ class CurrencyExport implements Runnable {
 		var buffer = new ArrayList<>(7);
 
 		config.writeTo("currencies.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category",
+					"Reference currency",
+					"Currency code",
+					"Conversion factor");
+
 			for (var currency : currencies) {
 				buffer.add(currency.refId);
 				buffer.add(currency.name);

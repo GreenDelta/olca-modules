@@ -15,13 +15,23 @@ class UnitGroupExport implements Runnable {
 	@Override
 	public void run() {
 		var groups = config.db().getAll(UnitGroup.class);
-		if(groups.isEmpty())
+		if (groups.isEmpty())
 			return;
 		config.sort(groups);
 		var buffer = new ArrayList<>(6);
 
 		// write unit groups
 		config.writeTo("unit_groups.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Category",
+					"Default flow property",
+					"Reference unit");
+
 			for (var group : groups) {
 				buffer.add(group.refId);
 				buffer.add(group.name);
@@ -45,6 +55,16 @@ class UnitGroupExport implements Runnable {
 
 		// write units
 		config.writeTo("units.csv", csv -> {
+
+			// write column headers
+			csv.printRecord(
+					"ID",
+					"Name",
+					"Description",
+					"Conversion factor",
+					"Synonyms",
+					"Unit group");
+
 			for (var group : groups) {
 				config.sort(group.units);
 				for (var unit : group.units) {
