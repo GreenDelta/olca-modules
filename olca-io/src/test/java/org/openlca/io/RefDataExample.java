@@ -19,7 +19,7 @@ public class RefDataExample {
 		var home = new File(System.getProperty("user.home"));
 		var refDir = new File(home, "Desktop/rems/refdata2");
 		var dataDir = DataDir.get();
-		try (var db = dataDir.openDatabase("lciapack")) {
+		try (var db = dataDir.openDatabase("lcia_pack")) {
 			var start = System.nanoTime();
 			new RefDataExport(refDir, db).run();
 			var ns = System.nanoTime() - start;

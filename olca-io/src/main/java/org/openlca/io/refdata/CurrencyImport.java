@@ -49,6 +49,7 @@ class CurrencyImport implements Runnable {
 			config.log().error("unknown reference currency: " + refId);
 			return;
 		}
+		refCurrency.referenceCurrency = refCurrency;
 		config.insert(refCurrency);
 
 		var others = currencies.stream()
