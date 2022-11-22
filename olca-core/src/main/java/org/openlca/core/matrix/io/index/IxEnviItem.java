@@ -75,9 +75,9 @@ public record IxEnviItem(
 	static IxEnviItem fromCsv(CSVRecord row) {
 		return new IxEnviItem(
 				Csv.readInt(row, 0),
-				Csv.readBool(row, 1 + Csv.FLOW_COLS + Csv.LOCATION_COLS),
-				IxFlow.fromCsv(row, 1),
-				IxLocation.fromCsv(row, 1 + Csv.FLOW_COLS));
+				Csv.readBool(row, 1),
+				IxFlow.fromCsv(row, 2),
+				IxLocation.fromCsv(row, 2 + Csv.FLOW_COLS));
 	}
 
 }
