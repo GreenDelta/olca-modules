@@ -14,12 +14,11 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
+import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.ModelRef;
-import org.openlca.git.model.Reference;
-import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
@@ -31,7 +30,7 @@ class ImportHelper {
 	final IDatabase database;
 	final ObjectIdStore workspaceIds;
 	final ProgressMonitor progressMonitor;
-	ConflictResolver conflictResolver;
+	ConflictResolver conflictResolver = ConflictResolver.NULL;
 
 	ImportHelper(Repository repo, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
 		this.references = References.of(repo);
@@ -61,14 +60,28 @@ class ImportHelper {
 			ModelType.EPD
 	};
 
+	private String getLabel(ModelType type) {
+		if (type == ModelType.PROCESS)
+			return "processes";
+		if (type == ModelType.IMPACT_CATEGORY)
+			return "impact categories";
+		if (type == ModelType.FLOW_PROPERTY)
+			return "flow properties";
+		return type.name().toLowerCase().replace("_", " ") + "s";
+	}
+
 	void runImport(GitStoreReader gitStore) {
 		var jsonImport = new JsonImport(gitStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		for (var type : ImportHelper.TYPE_ORDER) {
 			var changes = gitStore.getChanges(type);
+			if (changes.isEmpty())
+				continue;
+			progressMonitor.subTask("Importing " + getLabel(type));
 			for (var change : changes) {
-				progressMonitor.subTask("Importing", change);
-				jsonImport.run(type, change.refId);
+				if (change != null) {
+					jsonImport.run(type, change.refId);
+				}
 				progressMonitor.worked(1);
 			}
 		}
@@ -87,7 +100,7 @@ class ImportHelper {
 	}
 
 	private boolean keepLocal(ModelRef ref) {
-		if (conflictResolver == null || !conflictResolver.isConflict(ref))
+		if (!conflictResolver.isConflict(ref))
 			return false;
 		var resolution = conflictResolver.resolveConflict(ref, null);
 		return resolution.type == ConflictResolutionType.KEEP;
@@ -100,17 +113,17 @@ class ImportHelper {
 		dao.delete(dao.getForRefId(refId));
 	}
 
-	void updateWorkspaceIds(String commitId, ImportResult result, boolean applyStash) throws IOException {
+	void updateWorkspaceIds(String commitId, ImportResults result, boolean applyStash) throws IOException {
 		if (workspaceIds == null)
 			return;
-		result.imported().forEach(ref -> {
+		result.get(ImportState.UPDATED).forEach(ref -> {
 			if (applyStash) {
-				workspaceIds.remove(ref.path);
+				workspaceIds.invalidate(ref.path);
 			} else {
 				workspaceIds.put(ref.path, ref.objectId);
 			}
 		});
-		result.deleted().forEach(ref -> workspaceIds.remove(ref.path));
+		result.get(ImportState.DELETED).forEach(ref -> workspaceIds.remove(ref.path));
 		updateCategoryIds(commitId, "");
 		workspaceIds.putRoot(ObjectId.fromString(commitId));
 		workspaceIds.save();
@@ -123,18 +136,5 @@ class ImportHelper {
 			workspaceIds.put(entry.path, entry.objectId);
 			updateCategoryIds(remoteCommitId, entry.path);
 		});
-	}
-
-	static record ImportResult(List<Reference> imported, List<ModelRef> merged,
-			List<ModelRef> keepDeleted, List<? extends ModelRef> deleted) {
-
-		ImportResult(GitStoreReader store, List<? extends ModelRef> deleted) {
-			this(store.getImported(), store.getMerged(), store.getKeepDeleted(), deleted);
-		}
-
-		int count() {
-			return imported.size() + merged.size() + deleted.size() + keepDeleted.size();
-		}
-
 	}
 }

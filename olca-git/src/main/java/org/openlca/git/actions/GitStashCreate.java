@@ -13,13 +13,14 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.git.ObjectIdStore;
-import org.openlca.git.actions.ImportHelper.ImportResult;
+import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
+import org.openlca.git.find.References;
 import org.openlca.git.model.Change;
+import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.Diffs;
-import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.writer.DbCommitWriter;
 
 public class GitStashCreate extends GitProgressAction<Void> {
@@ -29,8 +30,10 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	private List<Change> changes;
 	private Repository repo;
 	private Commits commits;
+	private References references;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
+	private Commit reference;
 	private boolean discard;
 
 	private GitStashCreate(IDatabase database) {
@@ -50,11 +53,17 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	public GitStashCreate to(Repository repo) {
 		this.repo = repo;
 		this.commits = Commits.of(repo);
+		this.references = References.of(repo);
 		return this;
 	}
 
 	public GitStashCreate as(PersonIdent committer) {
 		this.committer = committer;
+		return this;
+	}
+
+	public GitStashCreate reference(Commit reference) {
+		this.reference = reference;
 		return this;
 	}
 
@@ -70,8 +79,10 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	@Override
 	public Void run() throws IOException {
-		if (repo == null || database == null || workspaceIds == null)
-			throw new IllegalStateException("Git repository, database and workspace ids must be set");
+		if (repo == null || database == null)
+			throw new IllegalStateException("Git repository and database must be set");
+		if (changes == null && workspaceIds == null)
+			throw new IllegalStateException("Either changes or workspaceIds must be set");
 		if (!discard && committer == null)
 			throw new IllegalStateException("Committer must be set");
 		if (changes == null) {
@@ -81,14 +92,14 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
-		var headCommit = commits.head();
+		var commit = reference == null ? commits.head() : reference;
 		var toDelete = changes.stream()
 				.filter(c -> c.diffType == DiffType.ADDED)
 				.collect(Collectors.toList());
-		var toImport = headCommit != null
+		var toImport = commit != null
 				? changes.stream()
 						.filter(c -> c.diffType != DiffType.ADDED)
-						.map(c -> new Reference(c.path, headCommit.id, workspaceIds.getHead(c.path)))
+						.map(c -> references.get(c.type, c.refId, commit.id))
 						.collect(Collectors.toList())
 				: new ArrayList<Reference>();
 		progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
@@ -97,20 +108,26 @@ public class GitStashCreate extends GitProgressAction<Void> {
 					.ref(Constants.R_STASH)
 					.saveIdsIn(workspaceIds)
 					.as(committer)
+					.reference(reference)
 					.with(progressMonitor);
 			writer.write("Stashed changes", changes);
 		}
 		var importHelper = new ImportHelper(repo, database, workspaceIds, progressMonitor);
-		if (headCommit == null) {
+		if (commit == null) {
 			importHelper.delete(toDelete);
-			workspaceIds.clear();
+			if (workspaceIds != null) {
+				workspaceIds.clear();
+			}
 		} else {
-			var gitStore = new GitStoreReader(repo, headCommit, toImport);
+			var gitStore = new GitStoreReader(repo, commit, toImport);
 			importHelper.runImport(gitStore);
 			importHelper.delete(toDelete);
-			var result = new ImportResult(gitStore, toDelete);
-			importHelper.updateWorkspaceIds(headCommit.id, result, false);
+			var result = gitStore.getResults();
+			toDelete.forEach(ref -> result.add(ref, ImportState.DELETED));
+			importHelper.updateWorkspaceIds(commit.id, result, false);
 		}
+		if (workspaceIds == null)
+			return null;
 		for (var category : categoryDao.getRootCategories()) {
 			deleteIfAdded(category);
 		}

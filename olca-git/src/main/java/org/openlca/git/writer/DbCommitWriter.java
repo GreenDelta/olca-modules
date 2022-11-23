@@ -19,6 +19,7 @@ import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.model.Change;
+import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.ProgressMonitor;
@@ -35,6 +36,7 @@ public class DbCommitWriter extends CommitWriter {
 	private String localCommitId;
 	private String remoteCommitId;
 	private Converter converter;
+	private Commit reference;
 	private ExecutorService threads;
 
 	public DbCommitWriter(Repository repo, IDatabase database) {
@@ -64,6 +66,11 @@ public class DbCommitWriter extends CommitWriter {
 		this.idStore = idStore;
 		return this;
 	}
+	
+	public DbCommitWriter reference(Commit reference) {
+		this.reference = reference;
+		return this;
+	}
 
 	public DbCommitWriter merge(String localCommitId, String remoteCommitId) {
 		this.localCommitId = localCommitId;
@@ -73,7 +80,7 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Change> changes) throws IOException {
 		try {
-			var previousCommit = Repositories.headCommitOf(repo);
+			var previousCommit = reference == null ? Repositories.headCommitOf(repo) : repo.parseCommit(ObjectId.fromString(reference.id));
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
 			threads = Executors.newCachedThreadPool();

@@ -1,4 +1,4 @@
-package org.openlca.git.util;
+package org.openlca.git.actions;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;

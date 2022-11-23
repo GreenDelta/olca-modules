@@ -32,28 +32,24 @@ public class ObjectIdStore {
 		this.file = storeFile;
 	}
 
-	public static ObjectIdStore fromFile(File storeFile) throws IOException {
-		var store = new ObjectIdStore(storeFile);
-		store.load();
+	public static ObjectIdStore fromFile(File file) throws IOException {
+		var store = new ObjectIdStore(file);
+		if (file == null || !file.exists())
+			return store;
+		try (var fis = new FileInputStream(file);
+				var ois = new ObjectInputStream(fis)) {
+			@SuppressWarnings("unchecked")
+			var stores = (List<HashMap<String, byte[]>>) ois.readObject();
+			store.workspace = stores.get(0);
+			store.head = stores.get(1);
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		}
 		return store;
 	}
 
 	public static ObjectIdStore inMemory() {
 		return new ObjectIdStore(null);
-	}
-
-	@SuppressWarnings("unchecked")
-	private void load() throws IOException {
-		if (file == null || !file.exists())
-			return;
-		try (var fis = new FileInputStream(file);
-				var ois = new ObjectInputStream(fis)) {
-			var stores = (List<HashMap<String, byte[]>>) ois.readObject();
-			workspace = stores.get(0);
-			head = stores.get(1);
-		} catch (ClassNotFoundException e) {
-			throw new IOException(e);
-		}
 	}
 
 	public void save() throws IOException {

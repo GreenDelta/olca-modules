@@ -19,14 +19,13 @@ import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
 import org.openlca.git.ObjectIdStore;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.actions.ImportHelper.ImportResult;
+import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.Diffs;
-import org.openlca.git.util.GitStoreReader;
 import org.openlca.git.util.History;
 import org.openlca.git.util.Repositories;
 import org.openlca.git.writer.DbCommitWriter;
@@ -39,7 +38,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private IDatabase database;
 	private ObjectIdStore workspaceIds;
 	private PersonIdent committer;
-	private ConflictResolver conflictResolver;
+	private ConflictResolver conflictResolver = ConflictResolver.NULL;
 	private LibraryResolver libraryResolver;
 	private boolean applyStash;
 
@@ -69,7 +68,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	}
 
 	public GitMerge resolveConflictsWith(ConflictResolver conflictResolver) {
-		this.conflictResolver = conflictResolver;
+		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		return this;
 	}
 
@@ -120,7 +119,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
 		// TODO unmount libs removed from package info; not yet supported
-		var result = new ImportResult(gitStore, deleted);
+		var result = gitStore.getResults();
+		deleted.forEach(ref -> result.add(ref, ImportState.DELETED));
 		String commitId = remoteCommit.id;
 		if (!applyStash) {
 			if (ahead.isEmpty()) {
@@ -130,7 +130,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			}
 		}
 		importHelper.updateWorkspaceIds(commitId, result, applyStash);
-		return result.count() > 0;
+		return result.size() > 0;
 	}
 
 	private Commit getRemoteCommit() throws GitAPIException {
@@ -146,15 +146,14 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return applyStash ? org.eclipse.jgit.lib.Constants.R_STASH : Constants.REMOTE_REF;
 	}
 
-	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResult result)
+	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResults result)
 			throws IOException {
-		var diffs = result.merged().stream()
+		var diffs = result.get(ImportState.MERGED).stream()
 				.map(r -> new Change(DiffType.MODIFIED, r))
 				.collect(Collectors.toList());
-		result.keepDeleted().forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
-		result.deleted().forEach(r -> {
-			if (conflictResolver != null
-					&& conflictResolver.isConflict(r)
+		result.get(ImportState.KEPT_DELETED).forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
+		result.get(ImportState.DELETED).forEach(r -> {
+			if (conflictResolver.isConflict(r)
 					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE) {
 				diffs.add(new Change(DiffType.DELETED, r));
 			}

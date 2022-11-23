@@ -1,19 +1,21 @@
-package org.openlca.git.util;
+package org.openlca.git.actions;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.actions.ConflictResolver;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
+import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Datasets;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
+import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.TypeRefIdMap;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
@@ -21,7 +23,7 @@ import org.openlca.util.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class GitStoreReader implements JsonStoreReader {
+class GitStoreReader implements JsonStoreReader {
 
 	private static final Gson gson = new Gson();
 	private final References references;
@@ -31,23 +33,21 @@ public class GitStoreReader implements JsonStoreReader {
 	private final Categories categories;
 	private final TypeRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
-	private final List<Reference> imported = new ArrayList<>();
-	private final List<ModelRef> merged = new ArrayList<>();
-	private final List<ModelRef> keepDeleted = new ArrayList<>();
+	private final ImportResults results = new ImportResults();
 	private final byte[] packInfo;
 
-	public GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
+	GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
 	}
 
-	public GitStoreReader(Repository repo, Commit previousCommit, Commit commit, List<Reference> changes,
+	GitStoreReader(Repository repo, Commit previousCommit, Commit commit, List<Reference> changes,
 			ConflictResolver conflictResolver) {
 		this.categories = Categories.of(Entries.of(repo), commit.id);
 		this.references = References.of(repo);
 		this.datasets = Datasets.of(repo);
 		this.previousCommit = previousCommit;
 		this.commit = commit;
-		this.conflictResolver = conflictResolver;
+		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = TypeRefIdMap.of(changes);
 		this.packInfo = datasets.getPackageInfo(commit);
 
@@ -84,24 +84,32 @@ public class GitStoreReader implements JsonStoreReader {
 		var ref = changes.get(type, refId);
 		if (ref == null)
 			return null;
+		if (conflictResolver.peekConflictResolution(ref) == ConflictResolutionType.IS_EQUAL) {
+			results.add(ref, ImportState.UPDATED);
+			return null;
+		}
 		var data = datasets.get(ref);
 		var remote = parse(data);
-		if (conflictResolver == null || !conflictResolver.isConflict(ref)) {
-			imported.add(ref);
+		if (!conflictResolver.isConflict(ref)) {
+			results.add(ref, ImportState.UPDATED);
 			return remote;
 		}
 		var resolution = conflictResolver.resolveConflict(ref, remote);
+		if (resolution.type == ConflictResolutionType.IS_EQUAL) {
+			results.add(ref, ImportState.UPDATED);
+			return null;
+		}
 		if (resolution.type == ConflictResolutionType.OVERWRITE) {
-			imported.add(ref);
+			results.add(ref, ImportState.UPDATED);
 			return remote;
 		}
 		if (resolution.type == ConflictResolutionType.KEEP && previousCommit != null) {
 			if (references.get(type, refId, previousCommit.id) == null) {
-				keepDeleted.add(new ModelRef(ref));
+				results.add(ref, ImportState.KEPT_DELETED);
 			}
 			return null;
 		}
-		merged.add(ref);
+		results.add(ref, ImportState.MERGED);
 		return resolution.data;
 	}
 
@@ -133,10 +141,28 @@ public class GitStoreReader implements JsonStoreReader {
 				.toList();
 	}
 
-	public List<? extends ModelRef> getChanges(ModelType type) {
+	List<? extends ModelRef> getChanges(ModelType type) {
 		if (type == ModelType.CATEGORY)
 			return Collections.emptyList();
-		return changes.get(type);
+		return changes.get(type).stream().map(ref -> {
+			// performance improvement: JsonImport will load model from
+			// database. If ref will not be imported and conflict resolver can
+			// determine resolution without json data we can skip that.
+			// ObjectIds need still to be updated so refs need to be added to
+			// results. Returning null values to count worked refs in ImportHelper
+			var resolution = conflictResolver.peekConflictResolution(ref);
+			if (resolution == ConflictResolutionType.IS_EQUAL) {
+				results.add(ref, ImportState.UPDATED);
+				return null;
+			}
+			if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
+				if (references.get(type, ref.refId, previousCommit.id) == null) {
+					results.add(ref, ImportState.KEPT_DELETED);
+				}
+				return null;
+			}
+			return ref;
+		}).collect(Collectors.toList());
 	}
 
 	private JsonObject parse(String data) {
@@ -145,16 +171,8 @@ public class GitStoreReader implements JsonStoreReader {
 		return gson.fromJson(data, JsonObject.class);
 	}
 
-	public List<Reference> getImported() {
-		return imported;
-	}
-
-	public List<ModelRef> getMerged() {
-		return merged;
-	}
-
-	public List<ModelRef> getKeepDeleted() {
-		return keepDeleted;
+	ImportResults getResults() {
+		return results;
 	}
 
 }
