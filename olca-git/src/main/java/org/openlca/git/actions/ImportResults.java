@@ -22,7 +22,7 @@ class ImportResults {
 
 	List<ImportResult> get(ImportState state) {
 		return list.stream()
-				.filter(ref -> ref.state == ImportState.UPDATED)
+				.filter(ref -> ref.state == state)
 				.collect(Collectors.toList());
 	}
 
