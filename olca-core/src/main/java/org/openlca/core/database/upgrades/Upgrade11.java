@@ -3,8 +3,8 @@ package org.openlca.core.database.upgrades;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -39,103 +39,103 @@ public class Upgrade11 implements IUpgrade {
 		u.createColumn("tbl_impact_categories", "direction VARCHAR(255)");
 
 		u.createTable(
-			"tbl_results",
-			"""
-				CREATE TABLE tbl_results (
+				"tbl_results",
+				"""
+						CREATE TABLE tbl_results (
 
-				    id                   BIGINT NOT NULL,
-				    ref_id               VARCHAR(36),
-				    name                 VARCHAR(2048),
-				    version              BIGINT,
-				    last_change          BIGINT,
-				    f_category           BIGINT,
-				    tags                 VARCHAR(255),
-				    library              VARCHAR(255),
-				    description          CLOB(64 K),
+						    id                   BIGINT NOT NULL,
+						    ref_id               VARCHAR(36),
+						    name                 VARCHAR(2048),
+						    version              BIGINT,
+						    last_change          BIGINT,
+						    f_category           BIGINT,
+						    tags                 VARCHAR(255),
+						    library              VARCHAR(255),
+						    description          CLOB(64 K),
 
-				    f_product_system     BIGINT,
-				    f_impact_method      BIGINT,
-				    f_reference_flow     BIGINT,
+						    f_product_system     BIGINT,
+						    f_impact_method      BIGINT,
+						    f_reference_flow     BIGINT,
 
-				    PRIMARY KEY (id)
-				)"""
+						    PRIMARY KEY (id)
+						)"""
 		);
 
 		u.createTable(
-			"tbl_flow_results",
-			"""
-				CREATE TABLE tbl_flow_results (
+				"tbl_flow_results",
+				"""
+						CREATE TABLE tbl_flow_results (
 
-				    id                        BIGINT NOT NULL,
-				    f_result                  BIGINT,
-				    f_flow                    BIGINT,
-				    f_unit                    BIGINT,
-				    is_input                  SMALLINT default 0,
-				    f_flow_property_factor    BIGINT,
-				    resulting_amount_value    DOUBLE,
-				    f_location                BIGINT,
-				    description               CLOB(64 K),
+						    id                        BIGINT NOT NULL,
+						    f_result                  BIGINT,
+						    f_flow                    BIGINT,
+						    f_unit                    BIGINT,
+						    is_input                  SMALLINT default 0,
+						    f_flow_property_factor    BIGINT,
+						    resulting_amount_value    DOUBLE,
+						    f_location                BIGINT,
+						    description               CLOB(64 K),
 
-				    PRIMARY KEY (id)
-				)"""
+						    PRIMARY KEY (id)
+						)"""
 		);
 
 		u.createTable(
-			"tbl_impact_results",
-			"""
-				CREATE TABLE tbl_impact_results (
+				"tbl_impact_results",
+				"""
+						CREATE TABLE tbl_impact_results (
 
-				     id                 BIGINT NOT NULL,
-				     f_result           BIGINT,
-				     f_impact_category  BIGINT,
-				     amount             DOUBLE,
-				     description        CLOB(64 K),
+						     id                 BIGINT NOT NULL,
+						     f_result           BIGINT,
+						     f_impact_category  BIGINT,
+						     amount             DOUBLE,
+						     description        CLOB(64 K),
 
-				     PRIMARY KEY (id)
-				 )"""
+						     PRIMARY KEY (id)
+						 )"""
 		);
 
 		u.createTable(
-			"tbl_epds",
-			"""
-				CREATE TABLE tbl_epds (
+				"tbl_epds",
+				"""
+						CREATE TABLE tbl_epds (
 
-				    id                   BIGINT NOT NULL,
-				    ref_id               VARCHAR(36),
-				    name                 VARCHAR(2048),
-				    version              BIGINT,
-				    last_change          BIGINT,
-				    f_category           BIGINT,
-				    tags                 VARCHAR(255),
-				    library              VARCHAR(255),
-				    description          CLOB(64 K),
+						    id                   BIGINT NOT NULL,
+						    ref_id               VARCHAR(36),
+						    name                 VARCHAR(2048),
+						    version              BIGINT,
+						    last_change          BIGINT,
+						    f_category           BIGINT,
+						    tags                 VARCHAR(255),
+						    library              VARCHAR(255),
+						    description          CLOB(64 K),
 
-				    f_flow               BIGINT,
-				    f_flow_property      BIGINT,
-				    f_unit               BIGINT,
-				    amount               DOUBLE,
+						    f_flow               BIGINT,
+						    f_flow_property      BIGINT,
+						    f_unit               BIGINT,
+						    amount               DOUBLE,
 
-				    urn                  VARCHAR(2048),
-				    f_manufacturer       BIGINT,
-				    f_verifier           BIGINT,
-				    f_pcr                BIGINT,
-				    f_program_operator   BIGINT,
+						    urn                  VARCHAR(2048),
+						    f_manufacturer       BIGINT,
+						    f_verifier           BIGINT,
+						    f_pcr                BIGINT,
+						    f_program_operator   BIGINT,
 
-				    PRIMARY KEY (id)
-				)"""
+						    PRIMARY KEY (id)
+						)"""
 		);
 
 		u.createTable(
-			"tbl_epd_modules",
-			"""
-				CREATE TABLE tbl_epd_modules (
+				"tbl_epd_modules",
+				"""
+						CREATE TABLE tbl_epd_modules (
 
-				    id           BIGINT NOT NULL,
-				    f_epd        BIGINT,
-				    name         VARCHAR(2048),
-				    f_result     BIGINT,
-				    multiplier   DOUBLE
-				)"""
+						    id           BIGINT NOT NULL,
+						    f_epd        BIGINT,
+						    name         VARCHAR(2048),
+						    f_result     BIGINT,
+						    multiplier   DOUBLE
+						)"""
 		);
 
 		// the UNKNOWN model type was removed and there were cases where
@@ -164,58 +164,75 @@ public class Upgrade11 implements IUpgrade {
 
 		// set the provider types
 		sql.updateRows(
-			"select f_provider, provider_type from tbl_process_links",
-			r -> {
-				long providerId = r.getLong(1);
-				byte type = systemIds.contains(providerId)
-					? ProcessLink.ProviderType.SUB_SYSTEM
-					: ProcessLink.ProviderType.PROCESS;
-				r.updateByte(2, type);
-				r.updateRow();
-				return true;
-			});
+				"select f_provider, provider_type from tbl_process_links",
+				r -> {
+					long providerId = r.getLong(1);
+					byte type = systemIds.contains(providerId)
+							? ProcessLink.ProviderType.SUB_SYSTEM
+							: ProcessLink.ProviderType.PROCESS;
+					r.updateByte(2, type);
+					r.updateRow();
+					return true;
+				});
 	}
-	
+
 	private void updateCategoryNames(DbUtil u) {
+		// category names must not contain the '/' character because
+		// it is used as the path separator. we replace it with '|'
+		// and then also update the reference IDs of the categories
+		// if necessary
+
 		var sql = NativeSql.on(u.db);
-		Map<Long, String> names = new HashMap<>();
-		Map<Long, Long> parents = new HashMap<>();
+		var needsUpdate = new AtomicBoolean(false);
+		var names = new HashMap<Long, String>();
+		var parents = new HashMap<Long, Long>();
 		sql.query(
-			"select id, name, f_category from tbl_categories",
-			r -> {
-				long id = r.getLong(1);
-				String name = r.getString(2).replace('/', '|');
-				long parent = r.getLong(3);
-				names.put(id, name);
-				if (parent != 0) {
-					parents.put(id, parent);
-				}
-				return true;
-			});
+				"select id, name, f_category from tbl_categories",
+				r -> {
+					long id = r.getLong(1);
+					var name = r.getString(2);
+					if (name != null && name.contains("/")) {
+						name = name.replace('/', '|');
+						needsUpdate.set(true);
+					}
+					names.put(id, name);
+					long parent = r.getLong(3);
+					if (parent != 0) {
+						parents.put(id, parent);
+					}
+					return true;
+				});
+
+		if (!needsUpdate.get())
+			return;
+
 		sql.updateRows(
-			"select id, model_type, ref_id, name from tbl_categories",
-			r-> {
-				long id = r.getLong(1);
-				String type = r.getString(2);
-				String refId = getCategoryRefId(id, type, names, parents);
-				String name = names.get(id);
-				r.updateString(3, refId);
-				r.updateString(4, name);
-				r.updateRow();
-				return true;
-			});
+				"select id, model_type, ref_id, name from tbl_categories",
+				r -> {
+					long id = r.getLong(1);
+					var type = r.getString(2);
+					var refId = getCategoryRefId(id, type, names, parents);
+					var name = names.get(id);
+					r.updateString(3, refId);
+					r.updateString(4, name);
+					r.updateRow();
+					return true;
+				});
 	}
-	
-	private String getCategoryRefId(Long id, String type, Map<Long, String> names, Map<Long, Long> parents) {
-		List<String> path = new ArrayList<>();
-		while (id != null) {
-			path.add(names.get(id));
-			id = parents.get(id);
+
+	private String getCategoryRefId(
+			long id, String type, Map<Long, String> names, Map<Long, Long> parents) {
+		var path = new ArrayList<String>();
+		Long next = id;
+		while (next != null) {
+			path.add(names.get(next));
+			next = parents.get(next);
 		}
 		path.add(type);
 		Collections.reverse(path);
-		return KeyGen.get(path.toArray(x -> new String[x]));
+		return KeyGen.get(path.toArray(String[]::new));
 	}
-	
+
+
 }
 
