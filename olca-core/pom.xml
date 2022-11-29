@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.jpa</artifactId>
-			<version>3.0.2</version>
+			<version>3.0.3</version>
 		</dependency>
 
 		<dependency>
@@ -43,13 +43,13 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-native</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
-			<version>10.15.2.0</version>
+			<version>10.16.1.1</version>
 		</dependency>
 
 		<dependency>
@@ -73,13 +73,13 @@
 		<dependency>
 			<groupId>org.locationtech.jts</groupId>
       <artifactId>jts-core</artifactId>
-      <version>1.18.2</version>
+      <version>1.19.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.9.0</version>
+			<version>2.10</version>
 		</dependency>
 
 		<dependency>

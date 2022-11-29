@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.DataDir;
+import org.openlca.nativelib.LibDownload;
+import org.openlca.nativelib.LibDownload.Repo;
 import org.openlca.nativelib.Module;
 import org.openlca.nativelib.NativeLib;
 
@@ -19,9 +21,9 @@ public class LibraryDownloadTest {
 	 */
 	@Test
 	@Ignore
-	public void testFetchSparseLibs() throws Exception {
+	public void testFetchSparseLibs() {
 		assertFalse(NativeLib.isLoaded());
-		NativeLib.download(DataDir.get().root(), Module.UMFPACK);
+		LibDownload.fetch(Repo.GITHUB, Module.UMFPACK, DataDir.get().root());
 		NativeLib.loadFrom(DataDir.get().root());
 		assertTrue(NativeLib.isLoaded());
 		assertTrue(NativeLib.isLoaded(Module.BLAS));
