@@ -6,7 +6,7 @@ import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 
-public class UnitIdSet {
+class UnitIdSet {
 
 	private final TLongObjectHashMap<TLongHashSet> flowFactors;
 	private final TLongLongHashMap factorProps;
@@ -60,9 +60,9 @@ public class UnitIdSet {
 
 	boolean isFlowUnit(long flowId, long factorId, long unitId) {
 		var factors = flowFactors.get(flowId);
-		return factors == null || !factors.contains(factorId)
-				? false
-				: isFactorUnit(flowId, unitId);
+		return factors != null
+				&& factors.contains(factorId)
+				&& isFactorUnit(factorId, unitId);
 	}
 
 	boolean isFactorUnit(long factorId, long unitId) {
