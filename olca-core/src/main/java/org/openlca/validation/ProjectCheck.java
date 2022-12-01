@@ -38,14 +38,14 @@ class ProjectCheck implements Runnable {
 			var projectId = r.getLong(1);
 
 			var methodId = r.getLong(2);
-			if (!v.ids.containsOrZero(ModelType.IMPACT_METHOD, methodId)) {
+			if (methodId != 0 && !v.ids.contains(ModelType.IMPACT_METHOD, methodId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to impact method @" + methodId);
 				foundErrors = true;
 			}
 
 			var nwSetId = r.getLong(3);
-			if (!v.ids.nwSets().contains(nwSetId)) {
+			if (nwSetId != 0 && !v.ids.nwSets().contains(nwSetId)) {
 				v.error(projectId, ModelType.PROJECT,
 					"invalid reference to nw-set @" + nwSetId);
 				foundErrors = true;
@@ -82,19 +82,12 @@ class ProjectCheck implements Runnable {
 				return !v.wasCanceled();
 			}
 
-			long unitId = r.getLong(4);
-			if (!v.ids.units().contains(unitId)) {
-				v.error(projectId, ModelType.PROJECT,
-					"invalid reference to unit @" + unitId
-						+ " in variant @" + variantId);
-				foundErrors = true;
-			}
-
 			long propId = r.getLong(5);
-			if (!v.ids.flowPropertyFactors().contains(propId)) {
+			long unitId = r.getLong(4);
+			if (!v.ids.units().isFactorUnit(propId, unitId)) {
 				v.error(projectId, ModelType.PROJECT,
-					"invalid reference to flow property fact. @" + propId
-						+ " in variant @" + variantId);
+						"invalid reference to unit=" + unitId + " property=" +propId
+								+ " in variant @" + variantId);
 				foundErrors = true;
 			}
 
