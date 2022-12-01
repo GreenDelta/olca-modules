@@ -22,19 +22,20 @@ class SocialIndicatorCheck implements Runnable {
 				/* 2 */ "f_activity_quantity, " +
 				/* 3 */ "f_activity_unit from tbl_social_indicators";
 			NativeSql.on(v.db).query(sql, r -> {
-				var id = r.getLong(1);
+				var indicatorId = r.getLong(1);
 
 				var propID = r.getLong(2);
+				var unitID = r.getLong(3);
+
 				if (propID != 0 && !v.ids.contains(ModelType.FLOW_PROPERTY, propID)) {
-					v.error(id, ModelType.SOCIAL_INDICATOR,
+					v.error(indicatorId, ModelType.SOCIAL_INDICATOR,
 						"invalid flow property link @" + propID);
 					foundErrors = true;
 				}
 
-				var unitID = r.getLong(3);
-				if (unitID != 0 && !v.ids.units().contains(unitID)) {
-					v.error(id, ModelType.SOCIAL_INDICATOR,
-						"invalid unit link @" + unitID);
+				if (!v.ids.units().isPropertyUnit(propID, unitID)) {
+					v.error(indicatorId, ModelType.SOCIAL_INDICATOR,
+						"invalid unit=" + unitID + " property=" + propID);
 					foundErrors = true;
 				}
 

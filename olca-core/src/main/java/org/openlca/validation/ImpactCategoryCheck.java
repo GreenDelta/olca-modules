@@ -31,9 +31,6 @@ class ImpactCategoryCheck implements Runnable {
 		if (v.wasCanceled())
 			return;
 
-		var propIds = v.ids.flowPropertyFactors();
-		var unitIds = v.ids.units();
-
 		var sql = "select " +
 			/* 1 */ "f_impact_category, " +
 			/* 2 */ "f_flow, " +
@@ -41,37 +38,33 @@ class ImpactCategoryCheck implements Runnable {
 			/* 4 */ "f_unit, " +
 			/* 5 */ "f_location from tbl_impact_factors";
 		NativeSql.on(v.db).query(sql, r -> {
-			var id = r.getLong(1);
-			if (!v.ids.contains(ModelType.IMPACT_CATEGORY, id)) {
-				v.warning("impact factor with invalid impact category ID @" + id);
+
+			var impactId = r.getLong(1);
+			if (!v.ids.contains(ModelType.IMPACT_CATEGORY, impactId)) {
+				v.warning("impact factor with invalid impact category ID @" + impactId);
 				foundErrors = true;
 				return !v.wasCanceled();
 			}
 
 			var flowID = r.getLong(2);
 			if (!v.ids.contains(ModelType.FLOW, flowID)) {
-				v.error(id, ModelType.IMPACT_CATEGORY,
+				v.error(impactId, ModelType.IMPACT_CATEGORY,
 					"impact factor with invalid flow ID @" + flowID);
 				foundErrors = true;
 			}
 
 			var propID = r.getLong(3);
-			if (!propIds.contains(propID)) {
-				v.error(id, ModelType.IMPACT_CATEGORY,
-					"impact factor with invalid flow property ID @" + propID);
-				foundErrors = true;
-			}
-
 			var unitID = r.getLong(4);
-			if (!unitIds.contains(unitID)) {
-				v.error(id, ModelType.IMPACT_CATEGORY,
-					"impact factor with invalid unit ID @" + unitID);
+			if (!v.ids.units().isFlowUnit(flowID, propID, unitID)) {
+				v.error(impactId, ModelType.IMPACT_CATEGORY,
+						"impact factor with invalid flow property or unit; "
+								+"flow=" + flowID + " property="+ propID + " unit=" + unitID);
 				foundErrors = true;
 			}
 
 			var locID = r.getLong(5);
 			if (locID != 0 && !v.ids.contains(ModelType.LOCATION, locID)) {
-				v.error(id, ModelType.IMPACT_CATEGORY,
+				v.error(impactId, ModelType.IMPACT_CATEGORY,
 					"impact factor with invalid location ID @" + locID);
 				foundErrors = true;
 			}
