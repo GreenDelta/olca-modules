@@ -79,6 +79,7 @@ class ImpactMethods {
 		damageMethod.description = block.comment();
 		var damageCategories = addDamageCategories(damageMethod, impacts);
 		addNwSets(damageMethod, damageCategories);
+		context.insert(damageMethod);
 	}
 
 	private HashMap<String, ImpactCategory> addDamageCategories(
