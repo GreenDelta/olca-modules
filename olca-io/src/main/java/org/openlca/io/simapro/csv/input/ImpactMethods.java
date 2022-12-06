@@ -90,7 +90,7 @@ class ImpactMethods {
 				continue;
 			var damageCategory = initImpact(method, info.name());
 			damageCategory.referenceUnit = info.unit();
-			addFactors(impacts, damageBlock, damageCategory);
+			addDamageFactors(impacts, damageBlock, damageCategory);
 			damageCategory = context.insert(damageCategory);
 			damageCategories.put(info.name(), damageCategory);
 			method.impactCategories.add(damageCategory);
@@ -98,42 +98,30 @@ class ImpactMethods {
 		return damageCategories;
 	}
 
-	private void addFactors(
+	private void addDamageFactors(
 			Map<String, ImpactCategory> impacts,
 			DamageCategoryBlock damageBlock,
 			ImpactCategory damageCategory) {
 		var factors = new TLongObjectHashMap<ImpactFactor>();
-		for (var df : damageBlock.factors()) {
-			var impact = impacts.get(df.impactCategory());
-			if (impact == null || df.factor() == 0) {
+		for (var blockFactor : damageBlock.factors()) {
+			var impact = impacts.get(blockFactor.impactCategory());
+			if (impact == null || blockFactor.factor() == 0) {
 				continue;
 			}
 			for (var f : impact.impactFactors) {
-				double refVal = refValueOf(f, df.factor());
-				if (f.flow == null)
+				var df = DamageFactor.of(f);
+				if(df.isError)
 					continue;
 				var factor = factors.get(f.flow.id);
-				if (factor == null) {
-					factor = f.copy();
-					factor.value = 0;
-					factors.put(f.flow.id, factor);
-					damageCategory.impactFactors.add(factor);
+				if (factor != null) {
+					factor.value += df.scaledAmount(blockFactor.factor());
+					continue;
 				}
-				factor.value += df.factor() * f.value;
+				factor = df.scaledCopy(blockFactor.factor());
+				factors.put(f.flow.id, factor);
+				damageCategory.impactFactors.add(factor);
 			}
 		}
-	}
-
-	private double refValueOf(ImpactFactor f, double factor) {
-		if (f.flow == null)
-			return 0;
-		var refUnit = f.flow.getReferenceUnit();
-		var refProp = f.flow.getReferenceFactor();
-		if (Objects.equals(f.unit, refUnit)
-				&& Objects.equals(refProp, f.flowPropertyFactor))
-			return factor * f.value;
-
-		// TODO: apply conversion
 	}
 
 	private HashMap<String, ImpactCategory> addImpactCategories(
@@ -219,6 +207,43 @@ class ImpactMethods {
 						wf.impactCategory(), makeNwFactor);
 				factor.weightingFactor = wf.factor();
 			}
+		}
+	}
+
+	private record DamageFactor(
+			ImpactFactor origin,
+			boolean isError,
+			boolean hasRefUnit) {
+
+		static DamageFactor of(ImpactFactor f) {
+			if (f == null
+					|| f.flow == null
+					|| f.unit == null
+					|| f.flowPropertyFactor == null)
+				return new DamageFactor(null, true, false);
+			boolean hasRefUnit = Objects.equals(f.unit, f.flow.getReferenceUnit())
+					&& Objects.equals(f.flowPropertyFactor, f.flow.getReferenceFactor());
+			return new DamageFactor(f, false, hasRefUnit);
+		}
+
+		ImpactFactor scaledCopy(double factor) {
+			var copy = origin.copy();
+			copy.value = scaledAmount(factor);
+			if (hasRefUnit)
+				return copy;
+			copy.unit = copy.flow.getReferenceUnit();
+			copy.flowPropertyFactor = copy.flow.getReferenceFactor();
+			return copy;
+		}
+
+		double scaledAmount(double factor) {
+			if (hasRefUnit)
+				return factor * origin.value;
+			var unitFactor = origin.unit.conversionFactor;
+			if (unitFactor == 0)
+				return 0;
+			var propFactor = origin.flowPropertyFactor.conversionFactor;
+			return factor * propFactor * origin.value / unitFactor;
 		}
 	}
 }
