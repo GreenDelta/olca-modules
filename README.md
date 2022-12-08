@@ -6,7 +6,7 @@ top of these components.
 
 
 ## Installation
-In order to install the modules, you need to have a [JDK >=13](https://adoptopenjdk.net/)
+In order to install the modules, you need to have a [JDK >=17](https://adoptium.net)
 and [Maven 3](https://maven.apache.org/install.html) installed.
 [Download](https://github.com/GreenDelta/olca-modules/archive/master.zip) the
 repository (or get it via git), navigate to the root folder and type the
@@ -26,18 +26,18 @@ mvn install -DskipTests=true
 ```
 
 ## Content
-* olca-cloud: a client API to communicate with remote data repositories of the
-  [openLCA Collaboration Server](http://www.openlca.org/collaboration-server/)
 * olca-core: the openLCA kernel with the openLCA model, the database layer,
   LCA calculations, [JSON-LD](https://github.com/GreenDelta/olca-schema) data
   exchange etc.
 * olca-ecospold-1: an API for reading and writing EcoSpold 01 files.
 * olca-ecospold-2: an API for reading and writing EcoSpold 02 files.
 * olca-formula: the openLCA formula interpreter
+* olca-git: a client API to communicate with data repositories using Git
 * olca-ilcd: an API for reading and writing ILCD data sets with an
   implementation of the ILCD network interface
 * olca-io: the import-export API of openLCA
-
+* olca-ipc: inter-process communication with openLCA over JSON-RPC/HTTP
+* olca-proto-io: data exchange via Protocol Buffers and gRPC
 
 ## License
 Unless stated otherwise, all source code of the openLCA project is licensed
