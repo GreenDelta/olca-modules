@@ -36,7 +36,7 @@ public record TechFlowId(String providerId, String flowId) {
 	 * such a string, two colons are used to separate the provider ID
 	 * from the flow ID: {@code <provider-id>::<flow-id>}.
 	 */
-	public static TechFlowId fromString(String s) {
+	public static TechFlowId parse(String s) {
 		if (Strings.nullOrEmpty(s))
 			return new TechFlowId("", "");
 		var parts = s.split("::");

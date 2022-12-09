@@ -29,7 +29,7 @@ class UpstreamPath {
 			return new UpstreamPath(Collections.emptyList());
 		var ids = new ArrayList<TechFlowId>();
 		for (var node : path.split("/")) {
-			ids.add(TechFlowId.fromString(node));
+			ids.add(TechFlowId.parse(node));
 		}
 		return new UpstreamPath(ids);
 	}

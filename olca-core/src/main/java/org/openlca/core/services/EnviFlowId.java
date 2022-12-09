@@ -42,7 +42,7 @@ public record EnviFlowId(String flowId, String locationId) {
 	 * such a string, two colons are used to separate the flow ID
 	 * from an optional location ID: {@code <provider-id>(::<flow-id>)?}.
 	 */
-	public static EnviFlowId fromString(String s) {
+	public static EnviFlowId parse(String s) {
 		if (Strings.nullOrEmpty(s))
 			return new EnviFlowId("", "");
 		var parts = s.split("::");
