@@ -59,6 +59,12 @@ public class ResultHandler {
 		return ResultRequest.of(req, rr -> results.getTotalRequirements(rr.id()));
 	}
 
+	@Rpc("result/total-requirements-of")
+	public RpcResponse getTotalRequirementsOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getTotalRequirementsOf(rr.id(), rr.techFlow()));
+	}
+
 	// endregion
 
 	// region: flow results

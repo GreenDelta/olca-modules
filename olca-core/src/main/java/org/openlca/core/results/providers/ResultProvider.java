@@ -131,12 +131,12 @@ public interface ResultProvider {
 	}
 
 	/**
-	 * The total requirements of the technosphere flow to fulfill the demand of
-	 * the product system. As our technology matrix `A` is indexed symmetrically
+	 * The total requirements of technosphere flows to fulfill the demand of the
+	 * product system. As our technology matrix `A` is indexed symmetrically
 	 * (means rows and columns refer to the same technosphere flows) our product
-	 * amounts are on the diagonal of the `A` and the total requirements can be
-	 * calculated by the following equation where `s` is the scaling vector
-	 * (`.*` denotes element-wise multiplication): `t = diag(A) .* s`
+	 * amounts are on the diagonal of the technology matrix `A` and the total
+	 * requirements can be calculated by the following equation where `s` is the
+	 * scaling vector: `t = diag(s) * diag(A)`.
 	 */
 	default double[] totalRequirements() {
 		var index = techIndex();

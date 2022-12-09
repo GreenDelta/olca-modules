@@ -19,6 +19,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -266,6 +267,29 @@ public record JsonDataService(IDatabase db) {
 		} catch (Exception e) {
 			return Response.error(e);
 		}
+	}
+
+	public <T extends RootEntity> Response<JsonArray> getParametersOf(
+			Class<T> type, String id) {
+		if (type == null || id == null)
+			return Response.error("no type or ID provided");
+		var entity = db.get(type, id);
+		if (entity == null)
+			return Response.empty();
+
+		if (entity instanceof ParameterizedEntity pe) {
+			var exp = new JsonExport(db, new MemStore())
+					.withReferences(false);
+			var array = JsonParameters.of(exp, pe);
+			return Response.of(array);
+		}
+		if (entity instanceof ProductSystem sys) {
+			var array = JsonParameters.of(db, sys);
+			return Response.of(array);
+		}
+
+		return Response.error(
+				"unsupported parameter container: type=" + type + " id=" + id);
 	}
 
 	@SuppressWarnings("unchecked")
