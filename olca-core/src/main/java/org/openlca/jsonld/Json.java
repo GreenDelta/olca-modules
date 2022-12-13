@@ -26,12 +26,14 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
@@ -387,6 +389,11 @@ public class Json {
 			}
 		}
 
+		// impact categories
+		if (e instanceof ImpactCategory impact) {
+			put(obj, "refUnit", impact.referenceUnit);
+		}
+
 		return obj;
 	}
 
@@ -405,6 +412,9 @@ public class Json {
 		}
 		put(obj, "@id", d.refId);
 		put(obj, "name", d.name);
+		if (d instanceof ImpactDescriptor impact) {
+			put(obj, "refUnit", impact.referenceUnit);
+		}
 		return obj;
 	}
 

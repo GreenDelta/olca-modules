@@ -8,6 +8,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -74,6 +75,10 @@ public class JsonRefs {
 
 		if (d instanceof FlowPropertyDescriptor prop) {
 			Json.put(ref, "refUnit", refUnitOf(prop.id));
+		}
+
+		if (d instanceof ImpactDescriptor impact) {
+			Json.put(ref, "refUnit", impact.referenceUnit);
 		}
 
 		return ref;
