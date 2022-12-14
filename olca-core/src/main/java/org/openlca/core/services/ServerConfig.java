@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
  *  structure. Defaults to the default openLCA workspace.
  *
  *  -db
- *  required; the name of the database in the data folder (only the name, not a
- *  full file path, must be provided).
+ *  optional; the name of the database in the data folder (only the name, not a
+ *  full file path, must be provided); defaults to 'database'
  *
  *  -port
  *  optional; the port of the server; defaults to 8080.
@@ -115,8 +115,8 @@ public record ServerConfig(
 				name = args.get("-database");
 			}
 			if (name == null) {
-				log.error("no database provided");
-				throw new IllegalArgumentException("no database name provided");
+				log.info("no database provided; took 'database' as default");
+				name = "database";
 			}
 			log.info("use database {}", name);
 			var db = dataDir.openDatabase(name);
