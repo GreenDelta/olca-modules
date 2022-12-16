@@ -10,7 +10,7 @@ import org.openlca.ipc.handlers.CacheHandler;
 import org.openlca.ipc.handlers.SimulationHandler;
 import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
-import org.openlca.ipc.handlers.ModelHandler;
+import org.openlca.ipc.handlers.DataHandler;
 import org.openlca.ipc.handlers.ResultHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
 import org.openlca.util.Strings;
@@ -37,7 +37,7 @@ public class Server extends NanoHTTPD {
 		var cache = new Cache();
 		var results = JsonResultService.of(config.db());
 		var context = new HandlerContext(this, config, results, cache);
-		register(new ModelHandler(context));
+		register(new DataHandler(context));
 		register(new SimulationHandler(context));
 		register(new ResultHandler(context));
 		register(new CacheHandler(cache));
