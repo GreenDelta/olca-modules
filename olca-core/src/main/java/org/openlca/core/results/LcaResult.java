@@ -123,6 +123,20 @@ public class LcaResult implements IResult {
 				: 0;
 	}
 
+	public List<TechFlowValue> directRequirementsOf(TechFlow techFlow) {
+		int j = techIndex().of(techFlow);
+		if (j < 0)
+			return Collections.emptyList();
+		return techValuesOf((i, other) -> provider.scaledTechValueOf(i, j));
+	}
+
+	public List<TechFlowValue> unscaledRequirementsOf(TechFlow techFlow) {
+		int j = techIndex().of(techFlow);
+		if (j < 0)
+			return Collections.emptyList();
+		return techValuesOf((i, other) -> provider.techValueOf(i, j));
+	}
+
 	// endregion
 
 	// region: flows

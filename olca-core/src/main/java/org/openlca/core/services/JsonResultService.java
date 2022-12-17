@@ -100,6 +100,16 @@ public class JsonResultService {
 
 	// region: technosphere flows
 
+	public Response<JsonArray> getScalingFactors(String resultId) {
+		return withResult(resultId, result -> {
+			var s = result.getScalingFactors();
+			var refs = JsonRefs.of(db);
+			var array = encodeArray(s,
+					techValue -> encodeTechValue(techValue, refs));
+			return Response.of(array);
+		});
+	}
+
 	public Response<JsonArray> getTotalRequirements(String resultId) {
 		return withResult(resultId, result -> {
 			var tr = result.totalRequirements();
@@ -117,6 +127,28 @@ public class JsonResultService {
 			var obj = encodeTechValue(
 					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
 			return Response.of(obj);
+		});
+	}
+
+	public Response<JsonArray> getDirectRequirementsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
+			var values = result.directRequirementsOf(techFlow);
+			var refs = JsonRefs.of(db);
+			var array = encodeArray(values,
+					techValue -> encodeTechValue(techValue, refs));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getUnscaledRequirementsOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
+			var values = result.unscaledRequirementsOf(techFlow);
+			var refs = JsonRefs.of(db);
+			var array = encodeArray(values,
+					techValue -> encodeTechValue(techValue, refs));
+			return Response.of(array);
 		});
 	}
 
