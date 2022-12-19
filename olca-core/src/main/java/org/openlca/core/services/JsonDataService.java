@@ -136,7 +136,7 @@ public record JsonDataService(IDatabase db) {
 	 */
 	public Response<JsonObject> getDescriptor(
 			Class<? extends RootEntity> type, String id) {
-		if (type == null || id == null)
+		if (type == null || Strings.nullOrEmpty(id))
 			return Response.error("type or ID missing");
 		try {
 			var d = db.getDescriptor(type, id);
@@ -144,6 +144,20 @@ public record JsonDataService(IDatabase db) {
 				return Response.empty();
 			var ref = JsonRefs.of(db).asRef(d);
 			return Response.of(ref);
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	public Response<JsonObject> getDescriptorForName(
+			Class<? extends RootEntity> type, String name) {
+		if (type == null || Strings.nullOrEmpty(name))
+			return Response.error("type or name missing");
+		try {
+			var e = db.getForName(type, name);
+			return e != null
+					? Response.of(Json.asRef(e))
+					: Response.empty();
 		} catch (Exception e) {
 			return Response.error(e);
 		}

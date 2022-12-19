@@ -57,9 +57,18 @@ public class DataHandler {
 	@Rpc("data/get/descriptor")
 	public RpcResponse getDescriptor(RpcRequest req) {
 		return withTypedParam(req, (json, type) -> {
-			var resp = service.getDescriptor(
-					type.getModelClass(), JsonRef.idOf(json));
-			return Responses.of(resp, req);
+			var clazz = type.getModelClass();
+			var id = JsonRef.idOf(json);
+			if (Strings.notEmpty(id)) {
+				var resp = service.getDescriptor(clazz, id);
+				return Responses.of(resp, req);
+			}
+			var name = Json.getString(json, "name");
+			if (Strings.notEmpty(name)) {
+				var resp = service.getDescriptorForName(clazz, name);
+				return Responses.of(resp, req);
+			}
+			return Responses.invalidParams("@id or name must be provided", req);
 		});
 	}
 
