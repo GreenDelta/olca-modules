@@ -155,6 +155,18 @@ public class ResultHandler {
 				results.getTotalImpacts(rr.id()));
 	}
 
+	@Rpc("result/total-impacts/normalized")
+	public RpcResponse getNormalizedImpacts(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getNormalizedImpacts(rr.id()));
+	}
+
+	@Rpc("result/total-impacts/weighted")
+	public RpcResponse getWeightedImpacts(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getWeightedImpacts(rr.id()));
+	}
+
 	@Rpc("result/total-impact-value-of")
 	public RpcResponse getTotalImpactValueOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->

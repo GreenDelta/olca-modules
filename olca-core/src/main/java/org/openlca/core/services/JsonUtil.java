@@ -14,8 +14,6 @@ import org.openlca.jsonld.output.JsonRefs;
 
 import java.util.function.Function;
 
-import javax.imageio.ImageTranscoder;
-
 final class JsonUtil {
 
 	private JsonUtil() {
@@ -48,7 +46,7 @@ final class JsonUtil {
 		return obj;
 	}
 
-	static JsonObject encodeState(CalculationQueue.State state) {
+	static JsonObject encodeState(ResultState state) {
 		var obj = new JsonObject();
 		if (state == null || state.isEmpty()) {
 			Json.put(obj, "error", "does not exist");

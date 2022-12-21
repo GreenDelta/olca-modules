@@ -10,6 +10,7 @@ import java.util.function.Function;
 import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
+import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
@@ -275,6 +276,40 @@ public class JsonResultService {
 					return new JsonPrimitive(value);
 				})
 		);
+	}
+
+	public Response<JsonArray> getNormalizedImpacts(String resultId) {
+		return withResult(resultId, result -> {
+			var impacts = result.getTotalImpacts();
+			if (impacts.isEmpty())
+				return Response.empty();
+			var state = queue.get(resultId);
+			if (!state.isReady())
+				return Response.error("no result ready");
+			var setup = state.setup();
+			if (setup.nwSet() == null)
+				return Response.error("no nw-set was defined");
+			var factors = NwSetTable.of(db, setup.nwSet());
+			var normalized = factors.normalize(impacts);
+			return Response.of(encodeImpactValues(normalized, JsonRefs.of(db)));
+		});
+	}
+
+	public Response<JsonArray> getWeightedImpacts(String resultId) {
+		return withResult(resultId, result -> {
+			var impacts = result.getTotalImpacts();
+			if (impacts.isEmpty())
+				return Response.empty();
+			var state = queue.get(resultId);
+			if (!state.isReady())
+				return Response.error("no result ready");
+			var setup = state.setup();
+			if (setup.nwSet() == null)
+				return Response.error("no nw-set was defined");
+			var factors = NwSetTable.of(db, setup.nwSet());
+			var weighted = factors.weight(impacts);
+			return Response.of(encodeImpactValues(weighted, JsonRefs.of(db)));
+		});
 	}
 
 	public Response<JsonArray> getDirectImpactValuesOf(
