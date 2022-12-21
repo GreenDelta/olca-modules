@@ -31,16 +31,16 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 			return error("setup object is empty");
 		if (resolver == null)
 			return error("no resolver provided");
-		return new Reader(obj, resolver).read();
-	}
+			return new JsonCalculationSetup.Reader(obj, resolver).read();
+		}
 
-	public boolean hasError() {
-		return error != null;
-	}
+		public boolean hasError() {
+			return error != null;
+		}
 
-	private record Reader(JsonObject json, EntityResolver resolver) {
+		private record Reader(JsonObject json, EntityResolver resolver) {
 
-		JsonCalculationSetup read() {
+			JsonCalculationSetup read() {
 			var target = resolveTarget();
 			if (target == null)
 				return error("invalid calculation target");

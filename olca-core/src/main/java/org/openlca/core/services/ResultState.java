@@ -21,7 +21,7 @@ record ResultState(
 	}
 
 	public boolean isScheduled() {
-		return setup != null;
+		return setup != null && result == null;
 	}
 
 	public boolean isError() {
@@ -41,7 +41,7 @@ record ResultState(
 
 	ResultState toResult(LcaResult result) {
 		long time = System.currentTimeMillis();
-		return new ResultState(id, time, null, result, null);
+		return new ResultState(id, time, setup, result, null);
 	}
 
 	ResultState toError(String error) {
