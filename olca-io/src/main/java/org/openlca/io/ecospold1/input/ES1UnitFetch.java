@@ -1,4 +1,4 @@
-package org.openlca.io;
+package org.openlca.io.ecospold1.input;
 
 import java.io.File;
 import java.io.InputStream;
@@ -18,13 +18,13 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * Get the list of units from a set of EcoSpold 01 files.
  */
-public class EcoSpoldUnitFetch {
+public class ES1UnitFetch {
 
 	private final TreeSet<String> units = new TreeSet<>();
 	private final Handler handler = new Handler();
 	private final SAXParser parser;
 
-	public EcoSpoldUnitFetch() {
+	public ES1UnitFetch() {
 		try {
 			var factory = SAXParserFactory.newInstance();
 			factory.setNamespaceAware(true);
