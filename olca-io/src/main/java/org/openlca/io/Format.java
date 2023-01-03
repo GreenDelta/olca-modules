@@ -17,6 +17,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.openlca.util.Strings;
+import org.openlca.util.ZipFiles;
 
 /**
  * A set of import formats that openLCA understands and that can be determined
@@ -299,7 +300,7 @@ public enum Format {
 	 * true.
 	 */
 	private static void scanZip(File zipFile, BiPredicate<ZipFile, ZipEntry> fn) {
-		try (var zip = new ZipFile(zipFile)) {
+		try (var zip = ZipFiles.open(zipFile)) {
 			var entries = zip.entries();
 			while (entries.hasMoreElements()) {
 				var entry = entries.nextElement();
