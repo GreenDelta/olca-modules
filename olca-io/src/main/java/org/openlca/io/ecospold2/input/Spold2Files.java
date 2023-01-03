@@ -1,15 +1,12 @@
 package org.openlca.io.ecospold2.input;
 
+import org.openlca.util.ZipFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spold2.EcoSpold2;
 
 import java.io.File;
-import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public final class Spold2Files {
 
@@ -53,15 +50,15 @@ public final class Spold2Files {
 
 	private void parseZip(File file) {
 		log.info("parse entries in zip file {}", file);
-		try (ZipFile zip = new ZipFile(file)) {
-			Enumeration<? extends ZipEntry> entries = zip.entries();
+		try (var zip = ZipFiles.open(file)) {
+			var entries = zip.entries();
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = entries.nextElement();
+				var entry = entries.nextElement();
 				if (entry.isDirectory() || !isValidFileName(entry.getName())) {
 					continue;
 				}
-				try (InputStream stream = zip.getInputStream(entry)) {
-					EcoSpold2 es2 = EcoSpold2.read(stream);
+				try (var stream = zip.getInputStream(entry)) {
+					var es2 = EcoSpold2.read(stream);
 					if (es2 != null) {
 						handler.accept(es2);
 					}
@@ -77,7 +74,7 @@ public final class Spold2Files {
 	private void parseFile(File file) {
 		log.trace("parse file {}", file);
 		try {
-			EcoSpold2 es2 = EcoSpold2.read(file);
+			var es2 = EcoSpold2.read(file);
 			if (es2 != null) {
 				handler.accept(es2);
 			}

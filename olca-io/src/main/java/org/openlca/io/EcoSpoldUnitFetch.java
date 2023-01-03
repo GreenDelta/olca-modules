@@ -1,12 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2007 - 2010 GreenDeltaTC. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Mozilla
- * Public License v1.1 which accompanies this distribution, and is available at
- * http://www.openlca.org/uploads/media/MPL-1.1.html
- * 
- * Contributors: GreenDeltaTC - initial API and implementation
- * www.greendeltatc.com tel.: +49 30 4849 6030 mail: gdtc@greendeltatc.com
- ******************************************************************************/
 package org.openlca.io;
 
 import java.io.File;
@@ -20,8 +11,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openlca.util.ZipFiles;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -29,13 +20,13 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class EcoSpoldUnitFetch {
 
-	private TreeSet<String> units = new TreeSet<>();
-	private Handler handler = new Handler();
-	private SAXParser parser;
+	private final TreeSet<String> units = new TreeSet<>();
+	private final Handler handler = new Handler();
+	private final SAXParser parser;
 
 	public EcoSpoldUnitFetch() {
 		try {
-			SAXParserFactory factory = SAXParserFactory.newInstance();
+			var factory = SAXParserFactory.newInstance();
 			factory.setNamespaceAware(true);
 			parser = factory.newSAXParser();
 		} catch (Exception e) {
@@ -52,12 +43,12 @@ public class EcoSpoldUnitFetch {
 			if (StringUtils.endsWithIgnoreCase(file.getName(), ".xml"))
 				parser.parse(file, handler);
 			else if (StringUtils.endsWithIgnoreCase(file.getName(), ".zip")) {
-				try (ZipFile zip = new ZipFile(file)) {
+				try (var zip = ZipFiles.open(file)) {
 					parseZip(zip);
 				}
 			}
 		}
-		return units.toArray(new String[units.size()]);
+		return units.toArray(new String[0]);
 	}
 
 	private void parseZip(ZipFile zipFile) throws Exception {
@@ -80,16 +71,17 @@ public class EcoSpoldUnitFetch {
 		private boolean impactMethod = false;
 
 		@Override
-		public void startElement(String uri, String localName, String qName,
-				Attributes attributes) throws SAXException {
-			if ("ecoSpold".equals(qName) || "ecoSpold".equals(uri))
+		public void startElement(
+				String uri, String localName, String qName, Attributes attributes) {
+			if ("ecoSpold".equals(qName) || "ecoSpold".equals(uri)) {
 				impactMethod = IMPACT_NS.equals(uri);
+			}
 			if (impactMethod
-					&& ("referenceFunction".equals(qName) || "referenceFunction"
-							.equals(localName)))
+					&& ("referenceFunction".equals(qName)
+					|| "referenceFunction".equals(localName)))
 				return; // do not fetch units from impact assessment categories
 			String val = attributes.getValue("unit");
-			if (val != null && !units.contains(val)) {
+			if (val != null) {
 				units.add(val);
 			}
 		}

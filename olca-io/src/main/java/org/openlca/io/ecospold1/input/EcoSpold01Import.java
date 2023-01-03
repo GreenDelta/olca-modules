@@ -39,6 +39,7 @@ import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
+import org.openlca.util.ZipFiles;
 
 /**
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
@@ -91,20 +92,21 @@ public class EcoSpold01Import implements Import {
 	 */
 	@Override
 	public void run() {
-		if (files == null || files.length == 0)
+		if (files == null)
 			return;
-		for (File file : files) {
+		for (var file : files) {
 			if (canceled)
 				break;
 			if (file.isDirectory())
 				continue;
-			String fileName = file.getName().toLowerCase();
-			if (fileName.endsWith(".xml"))
+			var fileName = file.getName().toLowerCase();
+			if (fileName.endsWith(".xml")) {
 				importXml(file);
-			else if (fileName.endsWith(".zip"))
+			} else if (fileName.endsWith(".zip")) {
 				importZip(file);
-			else
+			} else {
 				log.warn("unexpected file for import: " + file);
+			}
 		}
 	}
 
@@ -123,23 +125,33 @@ public class EcoSpold01Import implements Import {
 	}
 
 	private void importZip(File file) {
-		try (var zip = new ZipFile(file)) {
+		try (var zip = ZipFiles.open(file)) {
 			var entries = zip.entries();
 			while (entries.hasMoreElements() && !canceled) {
-				ZipEntry entry = entries.nextElement();
+				var entry = entries.nextElement();
 				if (entry.isDirectory())
 					continue;
-				String name = entry.getName().toLowerCase();
-				if (!name.endsWith(".xml"))
+				var type = typeOf(zip, entry);
+				if (type == null)
 					continue;
-				log.info("import file: " + name);
-				var type = EcoSpold.typeOf(zip.getInputStream(entry));
-				if (type.isEmpty())
-					continue;
-				run(zip.getInputStream(entry), type.get());
+				try (var stream = zip.getInputStream(entry)) {
+					run(stream, type);
+				}
 			}
 		} catch (Exception e) {
 			log.error("failed to import ZIP file " + file, e);
+		}
+	}
+
+	private DataSetType typeOf(ZipFile zip, ZipEntry entry) {
+		var name = entry.getName().toLowerCase();
+		if (!name.endsWith(".xml"))
+			return null;
+		try (var stream = zip.getInputStream(entry)) {
+			return EcoSpold.typeOf(stream).orElse(null);
+		} catch (Exception e) {
+			log.error("failed to parse entry: " + entry.getName(), e);
+			return null;
 		}
 	}
 
@@ -248,9 +260,9 @@ public class EcoSpold01Import implements Import {
 		mapTimeAndGeography(ds, p, doc);
 
 		if (ds.getTechnology() != null
-			&& ds.getTechnology().getText() != null) {
+				&& ds.getTechnology().getText() != null) {
 			doc.technology = Strings.cut(
-				(ds.getTechnology().getText()), 65500);
+					(ds.getTechnology().getText()), 65500);
 		}
 
 		mapExchanges(ds.getExchanges(), p);
@@ -258,7 +270,7 @@ public class EcoSpold01Import implements Import {
 			createProductFromRefFun(ds, p);
 
 		if (ds.getAllocations() != null
-			&& ds.getAllocations().size() > 0) {
+				&& ds.getAllocations().size() > 0) {
 			mapAllocations(p, ds.getAllocations());
 			p.defaultAllocationMethod = AllocationMethod.CAUSAL;
 		}
@@ -274,7 +286,7 @@ public class EcoSpold01Import implements Import {
 	}
 
 	private void mapTimeAndGeography(DataSet ds, Process p,
-																	 ProcessDocumentation doc) {
+			ProcessDocumentation doc) {
 		ProcessTime time = new ProcessTime(ds.getTimePeriod());
 		time.map(doc);
 		if (ds.getGeography() != null) {
@@ -296,27 +308,27 @@ public class EcoSpold01Import implements Import {
 		}
 		if (ds.getDataGeneratorAndPublication() != null)
 			doc.dataGenerator = actors.get(ds
-				.getDataGeneratorAndPublication().getPerson());
+					.getDataGeneratorAndPublication().getPerson());
 		if (ds.getValidation() != null)
 			doc.reviewer = actors.get(ds.getValidation()
-				.getProofReadingValidator());
+					.getProofReadingValidator());
 		if (ds.getDataEntryBy() != null)
 			doc.dataDocumentor = actors.get(ds.getDataEntryBy()
-				.getPerson());
+					.getPerson());
 	}
 
 	private void mapAllocations(Process process,
-															List<IAllocation> allocations) {
+			List<IAllocation> allocations) {
 		for (IAllocation allocation : allocations) {
 			double factor = Math.round(allocation.getFraction() * 10000d)
-				/ 1000000d;
+					/ 1000000d;
 			Exchange product = localExchangeCache.get(allocation
-				.getReferenceToCoProduct());
+					.getReferenceToCoProduct());
 			for (Integer i : allocation.getReferenceToInputOutput()) {
 				Exchange e = localExchangeCache.get(i);
 				if (e == null) {
 					log.warn("allocation factor points to an exchange that "
-						+ "does not exist: " + i);
+							+ "does not exist: " + i);
 					continue;
 				}
 				AllocationFactor af = new AllocationFactor();
@@ -337,24 +349,24 @@ public class EcoSpold01Import implements Import {
 				continue;
 			}
 			Exchange outExchange = ioProcess.add(Exchange.of(flow.flow,
-				flow.flowProperty, flow.unit));
+					flow.flowProperty, flow.unit));
 			outExchange.isInput = inExchange.getInputGroup() != null;
 			ExchangeAmount exchangeAmount = new ExchangeAmount(outExchange,
-				inExchange);
+					inExchange);
 			outExchange.description = inExchange.getGeneralComment();
 			exchangeAmount.map(flow.conversionFactor);
 			localExchangeCache.put(inExchange.getNumber(), outExchange);
 			if (ioProcess.quantitativeReference == null
-				&& inExchange.getOutputGroup() != null
-				&& (inExchange.getOutputGroup() == 0
-				|| inExchange.getOutputGroup() == 2)) {
+					&& inExchange.getOutputGroup() != null
+					&& (inExchange.getOutputGroup() == 0
+					|| inExchange.getOutputGroup() == 2)) {
 				ioProcess.quantitativeReference = outExchange;
 			}
 		}
 	}
 
 	private void mapFactors(List<IExchange> inFactors,
-													ImpactCategory ioCategory) {
+			ImpactCategory ioCategory) {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
 			if (flow == null || !flow.isValid()) {
@@ -377,21 +389,21 @@ public class EcoSpold01Import implements Import {
 		String topCategory = refFun.getCategory();
 		String subCategory = refFun.getSubCategory();
 		ioProcess.category = processCategory != null
-			? db.getPutCategory(processCategory, topCategory, subCategory)
-			: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
+				? db.getPutCategory(processCategory, topCategory, subCategory)
+				: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
 	}
 
 	private void createProductFromRefFun(DataSet dataSet, Process process) {
 		FlowBucket flow = flowImport.handleProcessProduct(dataSet);
 		if (flow == null || !flow.isValid()) {
-			log.warn("Could not create reference flow: "  + dataSet);
+			log.warn("Could not create reference flow: " + dataSet);
 			return;
 		}
 		var exchange = process.add(
-			Exchange.of(flow.flow, flow.flowProperty, flow.unit));
+				Exchange.of(flow.flow, flow.flowProperty, flow.unit));
 		exchange.isInput = false;
 		exchange.amount = dataSet.getReferenceFunction().getAmount()
-			* flow.conversionFactor;
+				* flow.conversionFactor;
 		process.quantitativeReference = exchange;
 	}
 
@@ -405,11 +417,11 @@ public class EcoSpold01Import implements Import {
 			}
 		}
 		if (dataSet.getDataGeneratorAndPublication() != null
-			&& dataSet.getDataGeneratorAndPublication()
-			.getReferenceToPublishedSource() != null)
+				&& dataSet.getDataGeneratorAndPublication()
+				.getReferenceToPublishedSource() != null)
 			doc.publication = sources.get(dataSet
-				.getDataGeneratorAndPublication()
-				.getReferenceToPublishedSource());
+					.getDataGeneratorAndPublication()
+					.getReferenceToPublishedSource());
 	}
 
 	private void importImpacts(IEcoSpold es) {
@@ -418,7 +430,7 @@ public class EcoSpold01Import implements Import {
 		var db = this.db.database;
 		for (var ds : es.getDataset()) {
 			var wrap = new DataSet(
-				ds, DataSetType.IMPACT_METHOD.getFactory());
+					ds, DataSetType.IMPACT_METHOD.getFactory());
 			var ref = wrap.getReferenceFunction();
 			if (ref == null)
 				continue;
@@ -449,7 +461,7 @@ public class EcoSpold01Import implements Import {
 			}
 
 			var alreadyExists = method.impactCategories.stream()
-				.anyMatch(i -> Objects.equals(i.refId, impactID));
+					.anyMatch(i -> Objects.equals(i.refId, impactID));
 			if (alreadyExists)
 				continue;
 			method.impactCategories.add(impact);

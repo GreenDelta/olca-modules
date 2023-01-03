@@ -1,5 +1,6 @@
 package org.openlca.io.ecospold2.input;
 
+import org.openlca.util.ZipFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spold2.DataSet;
@@ -8,15 +9,13 @@ import spold2.EcoSpold2;
 import java.io.Closeable;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 class DataSetIterator implements Iterator<DataSet>, Closeable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private DataSet next;
 	private File[] files;
 	private int currentFile;
@@ -92,11 +91,11 @@ class DataSetIterator implements Iterator<DataSet>, Closeable {
 		log.trace("open zip file {}", file);
 		try {
 			currentZipEntry = 0;
-			zipFile = new ZipFile(file);
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-			List<ZipEntry> spoldEntries = new ArrayList<>();
+			zipFile = ZipFiles.open(file);
+			var entries = zipFile.entries();
+			var spoldEntries = new ArrayList<ZipEntry>();
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = entries.nextElement();
+				var entry = entries.nextElement();
 				if (entry.isDirectory())
 					continue;
 				if (isSpoldFile(entry.getName()))
