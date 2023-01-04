@@ -11,18 +11,18 @@ import org.openlca.io.xls.Excel;
 class ModelingSheet {
 
 	private final ProcessDocumentation doc;
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private ModelingSheet(Config config) {
+	private ModelingSheet(ProcessWorkbook config) {
 		this.config = config;
 		doc = config.process.documentation;
 		sheet = config.workbook.createSheet("Modeling and validation");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new ModelingSheet(config).write();
 	}
 
@@ -41,8 +41,9 @@ class ModelingSheet {
 
 	private void writeModelingSection() {
 		config.header(sheet, row++, 0, "Modeling and validation");
-		String type = config.process.processType == ProcessType.LCI_RESULT ?
-				"LCI result" : "Unit process";
+		String type = config.process.processType == ProcessType.LCI_RESULT
+				? "LCI result"
+				: "Unit process";
 		pair("Process type", type);
 		pair("LCI method", doc.inventoryMethod);
 		pair("Modeling constants", doc.modelingConstants);

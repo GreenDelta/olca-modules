@@ -53,9 +53,9 @@ public class ExcelExport implements Runnable {
 					p.documentation =new ProcessDocumentation();
 				}
 				var wb = new SXSSFWorkbook();
-				Config config = new Config(wb, db, p);
-				writeSheets(config);
-				File f = exportFile(p);
+				var pwb = new ProcessWorkbook(wb, db, p);
+				writeSheets(pwb);
+				File f = exportFileOf(p);
 				try (FileOutputStream fos = new FileOutputStream(f)) {
 					wb.write(fos);
 				}
@@ -66,7 +66,7 @@ public class ExcelExport implements Runnable {
 		}
 	}
 
-	private File exportFile(Process p) {
+	private File exportFileOf(Process p) {
 		if (p == null)
 			return null;
 		if (!file.isDirectory()
@@ -78,22 +78,22 @@ public class ExcelExport implements Runnable {
 		return new File(file, name);
 	}
 
-	private void writeSheets(Config config) {
-		InfoSheet.write(config);
-		IOSheet.writeInputs(config);
-		IOSheet.writeOutputs(config);
-		ParameterSheet.write(config);
-		AllocationSheet.write(config);
-		ModelingSheet.write(config);
-		AdminInfoSheet.write(config);
+	private void writeSheets(ProcessWorkbook wb) {
+		InfoSheet.write(wb);
+		IOSheet.writeInputs(wb);
+		IOSheet.writeOutputs(wb);
+		ParameterSheet.write(wb);
+		AllocationSheet.write(wb);
+		ModelingSheet.write(wb);
+		AdminInfoSheet.write(wb);
 
 		// reference data
-		FlowSheets.write(config);
-		UnitSheet.write(config);
-		UnitGroupSheet.write(config);
-		FlowPropertySheet.write(config);
-		ActorSheet.write(config);
-		SourceSheet.write(config);
-		LocationSheet.write(config);
+		FlowSheets.write(wb);
+		UnitSheet.write(wb);
+		UnitGroupSheet.write(wb);
+		FlowPropertySheet.write(wb);
+		ActorSheet.write(wb);
+		SourceSheet.write(wb);
+		LocationSheet.write(wb);
 	}
 }

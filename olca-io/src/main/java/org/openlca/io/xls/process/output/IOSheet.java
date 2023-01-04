@@ -15,23 +15,22 @@ import org.openlca.util.Strings;
 
 class IOSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 	private final boolean forInputs;
 	private int row = 0;
 
-	private IOSheet(Config config, boolean forInputs) {
+	private IOSheet(ProcessWorkbook config, boolean forInputs) {
 		this.config = config;
 		this.forInputs = forInputs;
-		String sheetName = forInputs ? "Inputs" : "Outputs";
-		sheet = config.workbook.createSheet(sheetName);
+		sheet = config.workbook.createSheet(forInputs ? "Inputs" : "Outputs");
 	}
 
-	public static void writeInputs(Config config) {
+	public static void writeInputs(ProcessWorkbook config) {
 		new IOSheet(config, true).write();
 	}
 
-	public static void writeOutputs(Config config) {
+	public static void writeOutputs(ProcessWorkbook config) {
 		new IOSheet(config, false).write();
 	}
 

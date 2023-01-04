@@ -9,24 +9,24 @@ import org.openlca.io.xls.Excel;
 
 class SourceSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private SourceSheet(Config config) {
+	private SourceSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Sources");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new SourceSheet(config).write();
 	}
 
 	private void write() {
 		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
-		var sources = new SourceDao(config.database).getAll();
+		var sources = new SourceDao(config.db).getAll();
 		sources.sort(new EntitySorter());
 		for (Source source : sources) {
 			row++;

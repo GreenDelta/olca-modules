@@ -9,24 +9,24 @@ import org.openlca.io.xls.Excel;
 
 class UnitGroupSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private UnitGroupSheet(Config config) {
+	private UnitGroupSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Unit groups");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new UnitGroupSheet(config).write();
 	}
 
 	private void write() {
 		Excel.trackSize(sheet, 0, 7);
 		writeHeader();
-		var groups = new UnitGroupDao(config.database).getAll();
+		var groups = new UnitGroupDao(config.db).getAll();
 		groups.sort(new EntitySorter());
 		for (UnitGroup group : groups) {
 			row++;

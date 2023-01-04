@@ -16,16 +16,16 @@ import org.openlca.util.Strings;
 
 class AllocationSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 	private int row = 0;
 
-	private AllocationSheet(Config config) {
+	private AllocationSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Allocation");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new AllocationSheet(config).write();
 	}
 

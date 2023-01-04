@@ -11,17 +11,17 @@ import org.openlca.util.Strings;
 
 class ParameterSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private ParameterSheet(Config config) {
+	private ParameterSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Parameters");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new ParameterSheet(config).write();
 	}
 
@@ -36,7 +36,7 @@ class ParameterSheet {
 	}
 
 	private void writeGlobalParams() {
-		ParameterDao dao = new ParameterDao(config.database);
+		ParameterDao dao = new ParameterDao(config.db);
 		List<Parameter> all = dao.getGlobalParameters();
 		all.sort((p1, p2) -> Strings.compare(p1.name, p2.name));
 		List<Parameter> inputParams = new ArrayList<>();

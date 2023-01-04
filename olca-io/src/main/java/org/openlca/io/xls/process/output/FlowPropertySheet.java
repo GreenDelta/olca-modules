@@ -10,23 +10,23 @@ import org.openlca.io.xls.Excel;
 
 class FlowPropertySheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 	private int row = 0;
 
-	private FlowPropertySheet(Config config) {
+	private FlowPropertySheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Flow properties");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new FlowPropertySheet(config).write();
 	}
 
 	private void write() {
 		Excel.trackSize(sheet, 0, 7);
 		writeHeader();
-		var dao = new FlowPropertyDao(config.database);
+		var dao = new FlowPropertyDao(config.db);
 		var properties = dao.getAll();
 		properties.sort(new EntitySorter());
 		for (FlowProperty property : properties) {

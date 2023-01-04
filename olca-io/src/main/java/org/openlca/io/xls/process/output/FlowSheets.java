@@ -15,19 +15,19 @@ import org.openlca.io.xls.Excel;
  */
 class FlowSheets {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet flowSheet;
 	private final Sheet factorSheet;
 	private int flowRow = 0;
 	private int factorRow = 0;
 
-	private FlowSheets(Config config) {
+	private FlowSheets(ProcessWorkbook config) {
 		this.config = config;
 		flowSheet = config.workbook.createSheet("Flows");
 		factorSheet = config.workbook.createSheet("Flow property factors");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new FlowSheets(config).write();
 	}
 
@@ -36,7 +36,7 @@ class FlowSheets {
 		Excel.trackSize(factorSheet, 0, 4);
 		writeFlowHeader();
 		writeFactorHeader();
-		var flows = new FlowDao(config.database).getAll();
+		var flows = new FlowDao(config.db).getAll();
 		flows.sort(new EntitySorter());
 		for (Flow flow : flows) {
 			flowRow++;

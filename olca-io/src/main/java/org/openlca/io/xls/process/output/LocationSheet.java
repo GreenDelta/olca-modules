@@ -7,24 +7,24 @@ import org.openlca.io.xls.Excel;
 
 class LocationSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private LocationSheet(Config config) {
+	private LocationSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Locations");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new LocationSheet(config).write();
 	}
 
 	private void write() {
 		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
-		var locations = new LocationDao(config.database).getAll();
+		var locations = new LocationDao(config.db).getAll();
 		locations.sort(new EntitySorter());
 		for (Location location : locations) {
 			row++;

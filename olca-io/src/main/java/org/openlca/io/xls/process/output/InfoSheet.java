@@ -13,21 +13,21 @@ import org.openlca.io.xls.Excel;
 
 class InfoSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Process process;
 	private final ProcessDocumentation doc;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private InfoSheet(Config config) {
+	private InfoSheet(ProcessWorkbook config) {
 		this.config = config;
 		process = config.process;
 		doc = config.process.documentation;
 		sheet = config.workbook.createSheet("General information");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new InfoSheet(config).write();
 	}
 

@@ -11,17 +11,17 @@ import org.openlca.io.xls.Excel;
 class AdminInfoSheet {
 
 	private final ProcessDocumentation doc;
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 	private int row = 0;
 
-	private AdminInfoSheet(Config config) {
+	private AdminInfoSheet(ProcessWorkbook config) {
 		this.config = config;
 		doc = config.process.documentation;
 		sheet = config.workbook.createSheet("Administrative information");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new AdminInfoSheet(config).write();
 	}
 

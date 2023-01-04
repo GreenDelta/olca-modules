@@ -17,10 +17,10 @@ import java.util.Set;
  */
 class FlowPropertyFactorSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Set<Flow> flows = new HashSet<>();
 
-	FlowPropertyFactorSheet(Config config) {
+	FlowPropertyFactorSheet(ProcessWorkbook config) {
 		this.config = config;
 	}
 
@@ -36,7 +36,7 @@ class FlowPropertyFactorSheet {
 		var sheet = config.workbook.createSheet("Flow property factors");
 		writeHeader(sheet);
 		var list = new ArrayList<>(flows);
-		Config.sort(list);
+		Util.sort(list);
 		int row = 0;
 		for (var flow : flows) {
 			for (var factor : flow.flowPropertyFactors) {

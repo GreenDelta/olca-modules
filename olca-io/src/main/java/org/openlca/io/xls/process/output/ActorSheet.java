@@ -9,23 +9,23 @@ import org.openlca.io.xls.Excel;
 
 class ActorSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 	private int row = 0;
 
-	private ActorSheet(Config config) {
+	private ActorSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Actors");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new ActorSheet(config).write();
 	}
 
 	private void write() {
 		Excel.trackSize(sheet, 0, 5);
 		writeHeader();
-		var actors = new ActorDao(config.database).getAll();
+		var actors = new ActorDao(config.db).getAll();
 		actors.sort(new EntitySorter());
 		for (Actor actor : actors) {
 			row++;

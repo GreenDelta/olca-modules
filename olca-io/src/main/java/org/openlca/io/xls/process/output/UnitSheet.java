@@ -14,16 +14,16 @@ import org.openlca.util.Strings;
 
 class UnitSheet {
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 	private int row = 0;
 
-	private UnitSheet(Config config) {
+	private UnitSheet(ProcessWorkbook config) {
 		this.config = config;
 		sheet = config.workbook.createSheet("Units");
 	}
 
-	public static void write(Config config) {
+	public static void write(ProcessWorkbook config) {
 		new UnitSheet(config).write();
 	}
 
@@ -66,7 +66,7 @@ class UnitSheet {
 	}
 
 	private List<Record> getRecords() {
-		UnitGroupDao dao = new UnitGroupDao(config.database);
+		UnitGroupDao dao = new UnitGroupDao(config.db);
 		List<Record> records = new ArrayList<>();
 		for (UnitGroup group : dao.getAll()) {
 			for (Unit unit : group.units) {
