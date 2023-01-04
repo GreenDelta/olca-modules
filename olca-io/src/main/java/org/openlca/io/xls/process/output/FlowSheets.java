@@ -84,14 +84,11 @@ class FlowSheets {
 	private String getType(Flow flow) {
 		if (flow.flowType == null)
 			return "Elementary flow";
-		switch (flow.flowType) {
-			case PRODUCT_FLOW:
-				return "Product flow";
-			case WASTE_FLOW:
-				return "Waste flow";
-			default:
-				return "Elementary flow";
-		}
+		return switch (flow.flowType) {
+			case PRODUCT_FLOW -> "Product flow";
+			case WASTE_FLOW -> "Waste flow";
+			default -> "Elementary flow";
+		};
 	}
 
 	private void writeFactorHeader() {

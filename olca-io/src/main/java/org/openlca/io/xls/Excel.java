@@ -118,9 +118,8 @@ public class Excel {
 	 * of these columns need to be tracked.
 	 */
 	public static void trackSize(Sheet sheet, int from, int to) {
-		if (!(sheet instanceof SXSSFSheet))
+		if (!(sheet instanceof SXSSFSheet sxssf))
 			return;
-		var sxssf = (SXSSFSheet) sheet;
 		for (int col = from; col <= to; col++) {
 			sxssf.trackColumnForAutoSizing(col);
 		}
@@ -137,8 +136,7 @@ public class Excel {
 		// in case of an SXSSF sheet we make sure that the columns
 		// of the given range have been tracked, otherwise calling
 		// auto-size on them will crash with an exception.
-		if (sheet instanceof SXSSFSheet) {
-			var sxssf = (SXSSFSheet) sheet;
+		if (sheet instanceof SXSSFSheet sxssf) {
 			var tracked = sxssf.getTrackedColumnsForAutoSizing();
 			for (int col = from; col <= to; col++) {
 				if (!tracked.contains(col))

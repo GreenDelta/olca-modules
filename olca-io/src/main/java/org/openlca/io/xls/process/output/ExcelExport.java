@@ -11,6 +11,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.util.Dirs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,11 +73,8 @@ public class ExcelExport implements Runnable {
 				&& file.getName().toLowerCase().endsWith(".xlsx")
 				&& descriptors.size() == 1)
 			return file;
-		if (!file.exists()) {
-			file.mkdirs();
-		}
-		String name = p.refId + "_"
-				+ Version.asString(p.version) + ".xlsx";
+		Dirs.createIfAbsent(file);
+		var name = p.refId + "_" + Version.asString(p.version) + ".xlsx";
 		return new File(file, name);
 	}
 
@@ -88,6 +86,7 @@ public class ExcelExport implements Runnable {
 		AllocationSheet.write(config);
 		ModelingSheet.write(config);
 		AdminInfoSheet.write(config);
+
 		// reference data
 		FlowSheets.write(config);
 		UnitSheet.write(config);

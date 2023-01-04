@@ -1,6 +1,7 @@
 package org.openlca.io.xls.process.output;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -9,9 +10,13 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UncertaintyType;
+import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
+import org.openlca.util.Strings;
 
 class Config {
 
@@ -101,5 +106,25 @@ class Config {
 		if (value != null) {
 			Excel.cell(sheet, row, col, value);
 		}
+	}
+
+	static void sort(List<? extends RefEntity> list) {
+		list.sort((e1, e2) -> {
+			if (e1 == null && e2 == null)
+				return 0;
+			if (e1 == null)
+				return -1;
+			if (e2 == null)
+				return 1;
+			int c = Strings.compare(e1.name, e2.name);
+			if (c != 0)
+				return c;
+			if (e1 instanceof RootEntity re1 && e2 instanceof RootEntity re2) {
+				var c1 = CategoryPath.getFull(re1.category);
+				var c2 = CategoryPath.getFull(re2.category);
+				return Strings.compare(c1, c2);
+			}
+			return 0;
+		});
 	}
 }

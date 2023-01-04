@@ -8,20 +8,10 @@ public class CategoryPath {
 	private CategoryPath() {
 	}
 
-	/**
-	 * Returns the full category path from the root category to this category,
-	 * or an empty string if the given category is null.
-	 */
 	public static String getFull(Category category) {
-		if (category == null)
-			return "";
-		String path = category.name;
-		Category parent = category.category;
-		while (parent != null) {
-			path = parent.name + "/" + path;
-			parent = parent.category;
-		}
-		return path;
+		return category != null
+				? category.toPath()
+				: "";
 	}
 
 	/**
