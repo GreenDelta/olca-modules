@@ -101,13 +101,41 @@ public class JsonResultService {
 
 	// region: technosphere flows
 
+	public Response<JsonObject> getDemand(String resultId) {
+		return withResult(resultId, result -> {
+			var d = result.demand();
+			var v = TechFlowValue.of(d.techFlow(), d.value());
+			var json = encodeTechValue(v, JsonRefs.of(db));
+			return Response.of(json);
+		});
+	}
+
 	public Response<JsonArray> getScalingFactors(String resultId) {
 		return withResult(resultId, result -> {
-			var s = result.getScalingFactors();
+			var s = result.scalingFactors();
 			var refs = JsonRefs.of(db);
 			var array = encodeArray(s,
 					techValue -> encodeTechValue(techValue, refs));
 			return Response.of(array);
+		});
+	}
+
+	public Response<JsonArray> getTotalityFactors(String resultId) {
+		return withResult(resultId, result -> {
+			var tf = result.totalityFactors();
+			var refs = JsonRefs.of(db);
+			var array = encodeArray(tf, techVal -> encodeTechValue(techVal, refs));
+			return Response.of(array);
+		});
+	}
+
+	public Response<JsonObject> getTotalityFactorOf(
+			String resultId, TechFlowId techFlowId) {
+		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
+			var value = result.totalityFactorOf(techFlow);
+			var obj = encodeTechValue(
+					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
+			return Response.of(obj);
 		});
 	}
 

@@ -54,9 +54,26 @@ public class ResultHandler {
 
 	// region: tech flows
 
+	@Rpc("result/demand")
+	public RpcResponse getDemand(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.getDemand(rr.id()));
+	}
+
 	@Rpc("result/scaling-factors")
 	public RpcResponse getScalingFactors(RpcRequest req) {
 		return ResultRequest.of(req, rr -> results.getScalingFactors(rr.id()));
+	}
+
+	@Rpc("result/totality-factors")
+	public RpcResponse getTotalityFactors(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getTotalityFactors(rr.id()));
+	}
+
+	@Rpc("result/totality-factor-of")
+	public RpcResponse getTotalityFactorOf(RpcRequest req) {
+		return ResultRequest.of(req,
+				rr -> results.getTotalityFactorOf(rr.id(), rr.techFlow()));
 	}
 
 	@Rpc("result/total-requirements")

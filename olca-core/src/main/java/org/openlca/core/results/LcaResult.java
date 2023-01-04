@@ -98,7 +98,7 @@ public class LcaResult implements IResult {
 
 	// region: tech-flows
 
-	public List<TechFlowValue> getScalingFactors() {
+	public List<TechFlowValue> scalingFactors() {
 		var s = provider.scalingVector();
 		return techValuesOf((i, techFlow) -> s[i]);
 	}
@@ -109,6 +109,17 @@ public class LcaResult implements IResult {
 		if (idx < 0 || idx > scalingVector.length)
 			return 0;
 		return scalingVector[idx];
+	}
+
+	public List<TechFlowValue> totalityFactors() {
+		return techValuesOf((i, techFlow) -> provider.totalFactorOf(i));
+	}
+
+	public double totalityFactorOf(TechFlow techFlow) {
+		int idx = techIndex().of(techFlow);
+		return  idx >= 0
+				? provider.totalFactorOf(idx)
+				: 0;
 	}
 
 	public List<TechFlowValue> totalRequirements() {
