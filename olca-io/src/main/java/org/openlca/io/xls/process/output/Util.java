@@ -9,7 +9,9 @@ import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Strings;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 class Util {
 
@@ -51,8 +53,8 @@ class Util {
 		}
 	}
 
-	static void sort(List<? extends RefEntity> list) {
-		list.sort((e1, e2) -> {
+	static <T extends RefEntity> List<T> sort(Collection<T> set) {
+		return set.stream().sorted((e1, e2) -> {
 			if (e1 == null && e2 == null)
 				return 0;
 			if (e1 == null)
@@ -68,6 +70,6 @@ class Util {
 				return Strings.compare(c1, c2);
 			}
 			return 0;
-		});
+		}).toList();
 	}
 }

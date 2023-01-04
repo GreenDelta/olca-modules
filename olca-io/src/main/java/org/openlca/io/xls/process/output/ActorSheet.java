@@ -7,57 +7,62 @@ import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
+import java.util.HashSet;
+import java.util.Set;
+
 class ActorSheet {
 
-	private final ProcessWorkbook config;
-	private final Sheet sheet;
-	private int row = 0;
+	private final ProcessWorkbook wb;
+	private final Set<Actor> actors = new HashSet<>();
 
-	private ActorSheet(ProcessWorkbook config) {
-		this.config = config;
-		sheet = config.workbook.createSheet("Actors");
+	ActorSheet(ProcessWorkbook wb) {
+		this.wb = wb;
 	}
 
-	public static void write(ProcessWorkbook config) {
-		new ActorSheet(config).write();
+	void put(Actor actor) {
+		if (actor == null)
+			return;
+		actors.add(actor);
 	}
 
-	private void write() {
+	void flush() {
+		if (actors.isEmpty())
+			return;
+		var sheet = wb.createSheet("Actors");
 		Excel.trackSize(sheet, 0, 5);
-		writeHeader();
-		var actors = new ActorDao(config.db).getAll();
-		actors.sort(new EntitySorter());
-		for (Actor actor : actors) {
+		writeHeader(sheet);
+		int row = 0;
+		for (var actor : Util.sort(actors)) {
 			row++;
-			write(actor);
+			write(sheet, row, actor);
 		}
 		Excel.autoSize(sheet, 0, 5);
 	}
 
-	private void writeHeader() {
-		config.header(sheet, row, 0, "UUID");
-		config.header(sheet, row, 1, "Name");
-		config.header(sheet, row, 2, "Description");
-		config.header(sheet, row, 3, "Category");
-		config.header(sheet, row, 4, "Version");
-		config.header(sheet, row, 5, "Last change");
-		config.header(sheet, row, 6, "Address");
-		config.header(sheet, row, 7, "City");
-		config.header(sheet, row, 8, "Zip code");
-		config.header(sheet, row, 9, "Country");
-		config.header(sheet, row, 10, "E-mail");
-		config.header(sheet, row, 11, "Telefax");
-		config.header(sheet, row, 12, "Telephone");
-		config.header(sheet, row, 13, "Website");
+	private void writeHeader(Sheet sheet) {
+		wb.header(sheet, 0, 0, "UUID");
+		wb.header(sheet, 0, 1, "Name");
+		wb.header(sheet, 0, 2, "Description");
+		wb.header(sheet, 0, 3, "Category");
+		wb.header(sheet, 0, 4, "Version");
+		wb.header(sheet, 0, 5, "Last change");
+		wb.header(sheet, 0, 6, "Address");
+		wb.header(sheet, 0, 7, "City");
+		wb.header(sheet, 0, 8, "Zip code");
+		wb.header(sheet, 0, 9, "Country");
+		wb.header(sheet, 0, 10, "E-mail");
+		wb.header(sheet, 0, 11, "Telefax");
+		wb.header(sheet, 0, 12, "Telephone");
+		wb.header(sheet, 0, 13, "Website");
 	}
 
-	private void write(Actor actor) {
+	private void write(Sheet sheet, int row, Actor actor) {
 		Excel.cell(sheet, row, 0, actor.refId);
 		Excel.cell(sheet, row, 1, actor.name);
 		Excel.cell(sheet, row, 2, actor.description);
 		Excel.cell(sheet, row, 3, CategoryPath.getFull(actor.category));
 		Excel.cell(sheet, row, 4, Version.asString(actor.version));
-		config.date(sheet, row, 5, actor.lastChange);
+		wb.date(sheet, row, 5, actor.lastChange);
 		Excel.cell(sheet, row, 6, actor.address);
 		Excel.cell(sheet, row, 7, actor.city);
 		Excel.cell(sheet, row, 8, actor.zipCode);

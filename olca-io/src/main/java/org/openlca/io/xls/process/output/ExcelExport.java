@@ -55,6 +55,7 @@ public class ExcelExport implements Runnable {
 				var wb = new SXSSFWorkbook();
 				var pwb = new ProcessWorkbook(wb, db, p);
 				writeSheets(pwb);
+				pwb.write();
 				File f = exportFileOf(p);
 				try (FileOutputStream fos = new FileOutputStream(f)) {
 					wb.write(fos);
@@ -85,14 +86,12 @@ public class ExcelExport implements Runnable {
 		ParameterSheet.write(wb);
 		AllocationSheet.write(wb);
 		ModelingSheet.write(wb);
-		AdminInfoSheet.write(wb);
 
 		// reference data
 		FlowSheets.write(wb);
 		UnitSheet.write(wb);
 		UnitGroupSheet.write(wb);
 		FlowPropertySheet.write(wb);
-		ActorSheet.write(wb);
 		SourceSheet.write(wb);
 		LocationSheet.write(wb);
 	}

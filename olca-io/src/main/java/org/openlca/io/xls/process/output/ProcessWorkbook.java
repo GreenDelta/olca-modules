@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
@@ -25,6 +26,7 @@ class ProcessWorkbook {
 	private final CellStyle pairValue;
 
 	private final FlowPropertyFactorSheet propFactorSheet;
+	private final ActorSheet actorSheet;
 
 	ProcessWorkbook(Workbook wb, IDatabase db, Process process) {
 		this.workbook = wb;
@@ -37,16 +39,28 @@ class ProcessWorkbook {
 		pairHeader.setVerticalAlignment(VerticalAlignment.TOP);
 		pairValue = wb.createCellStyle();
 		pairValue.setWrapText(true);
+
+		actorSheet = new ActorSheet(this);
 		propFactorSheet = new FlowPropertyFactorSheet(this);
 	}
 
 	void write() {
+		new AdminInfoSheet(this).write();
 
+		actorSheet.flush();
+		propFactorSheet.flush();
+	}
+
+	Sheet createSheet(String name) {
+		return workbook.createSheet(name);
 	}
 
 	void put(RootEntity e) {
 		if (e instanceof Flow flow) {
 			propFactorSheet.put(flow);
+		}
+		if (e instanceof Actor actor) {
+			actorSheet.put(actor);
 		}
 	}
 

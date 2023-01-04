@@ -1,63 +1,59 @@
 package org.openlca.io.xls.process.output;
 
-import java.util.Date;
-
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
 class AdminInfoSheet {
 
-	private final ProcessDocumentation doc;
-	private final ProcessWorkbook config;
+	private final ProcessWorkbook wb;
 	private final Sheet sheet;
 	private int row = 0;
 
-	private AdminInfoSheet(ProcessWorkbook config) {
-		this.config = config;
-		doc = config.process.documentation;
-		sheet = config.workbook.createSheet("Administrative information");
+	AdminInfoSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		sheet = wb.workbook.createSheet("Administrative information");
 	}
 
-	public static void write(ProcessWorkbook config) {
-		new AdminInfoSheet(config).write();
-	}
-
-	private void write() {
+	void write() {
+		var doc = wb.process.documentation;
+		if (doc == null)
+			return;
 		Excel.trackSize(sheet, 0, 0);
-		config.header(sheet, row++, 0, "Administrative information");
+		wb.header(sheet, row++, 0, "Administrative information");
+
 		pair("Intended application", doc.intendedApplication);
-		pair("Data set owner", doc.dataSetOwner);
-		pair("Data set generator", doc.dataGenerator);
-		pair("Data set documentor", doc.dataDocumentor);
-		pair("Publication", doc.publication);
+		writeEntity("Data set owner", doc.dataSetOwner);
+		writeEntity("Data set generator", doc.dataGenerator);
+		writeEntity("Data set documentor", doc.dataDocumentor);
+		writeEntity("Publication", doc.publication);
+
 		pair("Access and use restrictions", doc.restrictions);
 		pair("Project", doc.project);
-		pair("Creation date", doc.creationDate);
+
+		Excel.cell(sheet, row, 0, "Creation date");
+		wb.date(sheet, row++, 1, doc.creationDate);
+
 		Excel.cell(sheet, row, 0, "Copyright");
 		Excel.cell(sheet, row++, 1, doc.copyright);
+
 		Excel.autoSize(sheet, 0, 0);
 		sheet.setColumnWidth(1, 100 * 256);
 	}
 
-	private void pair(String header, RootEntity entity) {
+	private void writeEntity(String header, RootEntity entity) {
 		if (entity == null) {
 			Excel.cell(sheet, row++, 0, header);
 			return;
 		}
+		wb.put(entity);
 		Excel.cell(sheet, row, 0, header);
 		Excel.cell(sheet, row, 1, entity.name);
 		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.category));
 	}
 
 	private void pair(String header, String value) {
-		config.pair(sheet, row++, header, value);
-	}
-
-	private void pair(String header, Date value) {
-		Excel.cell(sheet, row, 0, header);
-		config.date(sheet, row++, 1, value);
+		wb.pair(sheet, row++, header, value);
 	}
 }
