@@ -47,7 +47,8 @@ class ProcessWorkbook {
 				new LocationSheet(this),
 				new FlowPropertySheet(this),
 				new FlowPropertyFactorSheet(this),
-				new UnitGroupSheet(this));
+				new UnitGroupSheet(this),
+				new UnitSheet(this));
 	}
 
 	void write() {

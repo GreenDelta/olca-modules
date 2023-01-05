@@ -1,10 +1,8 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
@@ -24,16 +22,7 @@ class FlowPropertySheet implements EntitySheet {
 
 	@Override
 	public void visit(RootEntity entity) {
-		if (entity instanceof Flow flow) {
-			for (var f : flow.flowPropertyFactors) {
-				if (f.flowProperty != null) {
-					properties.add(f.flowProperty);
-				}
-			}
-		}
-		if (entity instanceof FlowProperty prop) {
-			properties.add(prop);
-		}
+		Util.flowPropertiesOf(entity, properties::add);
 	}
 
 	@Override

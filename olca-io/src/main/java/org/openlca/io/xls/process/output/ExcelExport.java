@@ -81,9 +81,7 @@ public class ExcelExport implements Runnable {
 
 	private void writeSheets(ProcessWorkbook wb) {
 
-
 		// reference data
 		FlowSheets.write(wb);
-		UnitSheet.write(wb);
 	}
 }

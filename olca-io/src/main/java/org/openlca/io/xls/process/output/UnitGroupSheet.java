@@ -1,9 +1,6 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
@@ -24,19 +21,7 @@ class UnitGroupSheet implements EntitySheet {
 
 	@Override
 	public void visit(RootEntity entity) {
-		if (entity instanceof UnitGroup group) {
-			groups.add(group);
-		} else if (entity instanceof FlowProperty property) {
-			if (property.unitGroup != null) {
-				groups.add(property.unitGroup);
-			}
-		} else if (entity instanceof Flow flow) {
-			for (var f : flow.flowPropertyFactors) {
-				if (f.flowProperty != null && f.flowProperty.unitGroup != null) {
-					groups.add(f.flowProperty.unitGroup);
-				}
-			}
-		}
+		Util.unitGroupsOf(entity, groups::add);
 	}
 
 	@Override
