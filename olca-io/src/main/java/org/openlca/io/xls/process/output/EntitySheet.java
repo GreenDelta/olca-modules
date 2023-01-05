@@ -1,11 +1,11 @@
 package org.openlca.io.xls.process.output;
 
-import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 
 interface EntitySheet {
 
 	void flush();
 
-	void visit(RefEntity entity);
+	void visit(RootEntity entity);
 
 }

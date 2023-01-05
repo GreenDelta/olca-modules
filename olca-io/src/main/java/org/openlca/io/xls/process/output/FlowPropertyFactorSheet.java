@@ -3,6 +3,7 @@ package org.openlca.io.xls.process.output;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
@@ -26,7 +27,7 @@ class FlowPropertyFactorSheet implements EntitySheet {
 	}
 
 	@Override
-	public void visit(RefEntity entity) {
+	public void visit(RootEntity entity) {
 		if (!(entity instanceof Flow flow))
 			return;
 		if (flow.flowPropertyFactors.size() < 2)

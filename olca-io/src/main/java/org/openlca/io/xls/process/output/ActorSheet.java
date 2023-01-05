@@ -3,6 +3,7 @@ package org.openlca.io.xls.process.output;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
@@ -20,7 +21,7 @@ class ActorSheet implements EntitySheet {
 	}
 
 	@Override
-	public void visit(RefEntity entity) {
+	public void visit(RootEntity entity) {
 		if (entity instanceof Actor actor) {
 			actors.add(actor);
 		}

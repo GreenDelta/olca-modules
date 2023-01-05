@@ -1,60 +1,81 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
-class UnitGroupSheet {
+import java.util.HashSet;
+import java.util.Set;
+
+class UnitGroupSheet implements EntitySheet {
 
 	private final ProcessWorkbook config;
-	private final Sheet sheet;
+	private final Set<UnitGroup> groups = new HashSet<>();
 
-	private int row = 0;
-
-	private UnitGroupSheet(ProcessWorkbook config) {
+	UnitGroupSheet(ProcessWorkbook config) {
 		this.config = config;
-		sheet = config.workbook.createSheet("Unit groups");
 	}
 
-	public static void write(ProcessWorkbook config) {
-		new UnitGroupSheet(config).write();
+	@Override
+	public void visit(RootEntity entity) {
+		if (entity instanceof UnitGroup group) {
+			groups.add(group);
+		} else if (entity instanceof FlowProperty property) {
+			if (property.unitGroup != null) {
+				groups.add(property.unitGroup);
+			}
+		} else if (entity instanceof Flow flow) {
+			for (var f : flow.flowPropertyFactors) {
+				if (f.flowProperty != null && f.flowProperty.unitGroup != null) {
+					groups.add(f.flowProperty.unitGroup);
+				}
+			}
+		}
 	}
 
-	private void write() {
+	@Override
+	public void flush() {
+		if (groups.isEmpty())
+			return;
+		var sheet = config.workbook.createSheet("Unit groups");
 		Excel.trackSize(sheet, 0, 7);
-		writeHeader();
-		var groups = new UnitGroupDao(config.db).getAll();
-		groups.sort(new EntitySorter());
-		for (UnitGroup group : groups) {
+		writeHeader(sheet);
+		int row = 0;
+		for (var group : Util.sort(groups)) {
 			row++;
-			write(group);
+			write(sheet, row, group);
 		}
 		Excel.autoSize(sheet, 0, 7);
 	}
 
-	private void writeHeader() {
-		config.header(sheet, row, 0, "UUID");
-		config.header(sheet, row, 1, "Name");
-		config.header(sheet, row, 2, "Description");
-		config.header(sheet, row, 3, "Category");
-		config.header(sheet, row, 4, "Reference unit");
-		config.header(sheet, row, 5, "Default flow property");
-		config.header(sheet, row, 6, "Version");
-		config.header(sheet, row, 7, "Last change");
+	private void writeHeader(Sheet sheet) {
+		config.header(sheet, 0, 0, "UUID");
+		config.header(sheet, 0, 1, "Name");
+		config.header(sheet, 0, 2, "Description");
+		config.header(sheet, 0, 3, "Category");
+		config.header(sheet, 0, 4, "Reference unit");
+		config.header(sheet, 0, 5, "Default flow property");
+		config.header(sheet, 0, 6, "Version");
+		config.header(sheet, 0, 7, "Last change");
 	}
 
-	private void write(UnitGroup group) {
+	private void write(Sheet sheet, int row, UnitGroup group) {
 		Excel.cell(sheet, row, 0, group.refId);
 		Excel.cell(sheet, row, 1, group.name);
 		Excel.cell(sheet, row, 2, group.description);
 		Excel.cell(sheet, row, 3, CategoryPath.getFull(group.category));
-		if (group.referenceUnit != null)
+		if (group.referenceUnit != null) {
 			Excel.cell(sheet, row, 4, group.referenceUnit.name);
-		if (group.defaultFlowProperty != null)
+		}
+		if (group.defaultFlowProperty != null) {
 			Excel.cell(sheet, row, 5, group.defaultFlowProperty.name);
+		}
 		Excel.cell(sheet, row, 6, Version.asString(group.version));
 		config.date(sheet, row, 7, group.lastChange);
 	}

@@ -85,8 +85,5 @@ public class ExcelExport implements Runnable {
 		// reference data
 		FlowSheets.write(wb);
 		UnitSheet.write(wb);
-		UnitGroupSheet.write(wb);
-		FlowPropertySheet.write(wb);
-		LocationSheet.write(wb);
 	}
 }

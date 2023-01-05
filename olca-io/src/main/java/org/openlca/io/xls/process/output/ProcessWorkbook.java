@@ -40,11 +40,14 @@ class ProcessWorkbook {
 		pairValue = wb.createCellStyle();
 		pairValue.setWrapText(true);
 
-		// sheets for referenced dependencies
+		// sheets for referenced entities
 		entitySheets = List.of(
 				new ActorSheet(this),
 				new SourceSheet(this),
-				new FlowPropertyFactorSheet(this));
+				new LocationSheet(this),
+				new FlowPropertySheet(this),
+				new FlowPropertyFactorSheet(this),
+				new UnitGroupSheet(this));
 	}
 
 	void write() {

@@ -1,64 +1,81 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.database.FlowPropertyDao;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
+import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
-class FlowPropertySheet {
+import java.util.HashSet;
+import java.util.Set;
 
-	private final ProcessWorkbook config;
-	private final Sheet sheet;
-	private int row = 0;
+class FlowPropertySheet implements EntitySheet {
 
-	private FlowPropertySheet(ProcessWorkbook config) {
-		this.config = config;
-		sheet = config.workbook.createSheet("Flow properties");
+	private final ProcessWorkbook wb;
+	private final Set<FlowProperty> properties = new HashSet<>();
+
+	FlowPropertySheet(ProcessWorkbook wb) {
+		this.wb = wb;
 	}
 
-	public static void write(ProcessWorkbook config) {
-		new FlowPropertySheet(config).write();
+	@Override
+	public void visit(RootEntity entity) {
+		if (entity instanceof Flow flow) {
+			for (var f : flow.flowPropertyFactors) {
+				if (f.flowProperty != null) {
+					properties.add(f.flowProperty);
+				}
+			}
+		}
+		if (entity instanceof FlowProperty prop) {
+			properties.add(prop);
+		}
 	}
 
-	private void write() {
+	@Override
+	public void flush() {
+		if (properties.isEmpty())
+			return;
+		var sheet = wb.workbook.createSheet("Flow properties");
 		Excel.trackSize(sheet, 0, 7);
-		writeHeader();
-		var dao = new FlowPropertyDao(config.db);
-		var properties = dao.getAll();
-		properties.sort(new EntitySorter());
-		for (FlowProperty property : properties) {
+		writeHeader(sheet);
+		int row = 0;
+		for (var property : properties) {
 			row++;
-			write(property);
+			write(sheet, row, property);
 		}
 		Excel.autoSize(sheet, 0, 7);
 	}
 
-	private void writeHeader() {
-		config.header(sheet, row, 0, "UUID");
-		config.header(sheet, row, 1, "Name");
-		config.header(sheet, row, 2, "Description");
-		config.header(sheet, row, 3, "Category");
-		config.header(sheet, row, 4, "Unit group");
-		config.header(sheet, row, 5, "Type");
-		config.header(sheet, row, 6, "Version");
-		config.header(sheet, row, 7, "Last change");
+	private void writeHeader(Sheet sheet) {
+		wb.header(sheet, 0, 0, "UUID");
+		wb.header(sheet, 0, 1, "Name");
+		wb.header(sheet, 0, 2, "Description");
+		wb.header(sheet, 0, 3, "Category");
+		wb.header(sheet, 0, 4, "Unit group");
+		wb.header(sheet, 0, 5, "Type");
+		wb.header(sheet, 0, 6, "Version");
+		wb.header(sheet, 0, 7, "Last change");
 	}
 
-	private void write(FlowProperty property) {
-		Excel.cell(sheet, row, 0, property.refId);
-		Excel.cell(sheet, row, 1, property.name);
-		Excel.cell(sheet, row, 2, property.description);
-		Excel.cell(sheet, row, 3, CategoryPath.getFull(property.category));
-		if(property.unitGroup != null)
-			Excel.cell(sheet, row, 4, property.unitGroup.name);
-		String type = property.flowPropertyType == FlowPropertyType.ECONOMIC ?
-				"Economic" : "Physical";
+	private void write(Sheet sheet, int row, FlowProperty p) {
+		Excel.cell(sheet, row, 0, p.refId);
+		Excel.cell(sheet, row, 1, p.name);
+		Excel.cell(sheet, row, 2, p.description);
+		Excel.cell(sheet, row, 3, CategoryPath.getFull(p.category));
+		if (p.unitGroup != null) {
+			Excel.cell(sheet, row, 4, p.unitGroup.name);
+		}
+		var type = p.flowPropertyType == FlowPropertyType.ECONOMIC
+				? "Economic"
+				: "Physical";
 		Excel.cell(sheet, row, 5, type);
-		Excel.cell(sheet, row, 6, Version.asString(property.version));
-		config.date(sheet, row, 7, property.lastChange);
+		Excel.cell(sheet, row, 6, Version.asString(p.version));
+		wb.date(sheet, row, 7, p.lastChange);
 	}
 
 }
