@@ -2,6 +2,7 @@ package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
@@ -15,7 +16,7 @@ import java.util.Set;
  * Flow property factors are only written when required, which is the case
  * when a flow has more properties than its reference flow property.
  */
-class FlowPropertyFactorSheet {
+class FlowPropertyFactorSheet implements EntitySheet {
 
 	private final ProcessWorkbook config;
 	private final Set<Flow> flows = new HashSet<>();
@@ -24,13 +25,17 @@ class FlowPropertyFactorSheet {
 		this.config = config;
 	}
 
-	void put(Flow flow) {
-		if (flow == null || flow.flowPropertyFactors.size() < 2)
+	@Override
+	public void visit(RefEntity entity) {
+		if (!(entity instanceof Flow flow))
+			return;
+		if (flow.flowPropertyFactors.size() < 2)
 			return;
 		flows.add(flow);
 	}
 
-	void flush() {
+	@Override
+	public void flush() {
 		if (flows.isEmpty())
 			return;
 		var sheet = config.workbook.createSheet("Flow property factors");

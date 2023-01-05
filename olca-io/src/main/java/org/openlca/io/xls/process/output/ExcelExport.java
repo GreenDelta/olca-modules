@@ -40,9 +40,9 @@ public class ExcelExport implements Runnable {
 	@Override
 	public void run() {
 		try {
-			ProcessDao dao = new ProcessDao(db);
-			for (ProcessDescriptor d : descriptors) {
-				Process p = dao.getForId(d.id);
+			var dao = new ProcessDao(db);
+			for (var d : descriptors) {
+				var p = dao.getForId(d.id);
 				if (p == null) {
 					log.warn("process {} was null; not exported", d);
 					continue;
@@ -50,7 +50,7 @@ public class ExcelExport implements Runnable {
 				if (p.documentation == null) {
 					// append a default documentation to avoid
 					// null pointers later
-					p.documentation =new ProcessDocumentation();
+					p.documentation = new ProcessDocumentation();
 				}
 				var wb = new SXSSFWorkbook();
 				var pwb = new ProcessWorkbook(wb, db, p);
@@ -80,19 +80,13 @@ public class ExcelExport implements Runnable {
 	}
 
 	private void writeSheets(ProcessWorkbook wb) {
-		InfoSheet.write(wb);
-		IOSheet.writeInputs(wb);
-		IOSheet.writeOutputs(wb);
-		ParameterSheet.write(wb);
-		AllocationSheet.write(wb);
-		ModelingSheet.write(wb);
+
 
 		// reference data
 		FlowSheets.write(wb);
 		UnitSheet.write(wb);
 		UnitGroupSheet.write(wb);
 		FlowPropertySheet.write(wb);
-		SourceSheet.write(wb);
 		LocationSheet.write(wb);
 	}
 }

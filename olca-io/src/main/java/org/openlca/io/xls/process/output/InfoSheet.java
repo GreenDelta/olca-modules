@@ -20,18 +20,14 @@ class InfoSheet {
 
 	private int row = 0;
 
-	private InfoSheet(ProcessWorkbook config) {
-		this.config = config;
-		process = config.process;
-		doc = config.process.documentation;
-		sheet = config.workbook.createSheet("General information");
+	InfoSheet(ProcessWorkbook wb) {
+		this.config = wb;
+		process = wb.process;
+		doc = wb.process.documentation;
+		sheet = wb.workbook.createSheet("General information");
 	}
 
-	public static void write(ProcessWorkbook config) {
-		new InfoSheet(config).write();
-	}
-
-	private void write() {
+	void write() {
 		Excel.trackSize(sheet, 0, 0);
 		infoSection();
 		row++;

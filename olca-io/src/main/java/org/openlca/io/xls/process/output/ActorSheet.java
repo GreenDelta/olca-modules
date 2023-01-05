@@ -1,8 +1,8 @@
 package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
@@ -10,7 +10,7 @@ import org.openlca.io.xls.Excel;
 import java.util.HashSet;
 import java.util.Set;
 
-class ActorSheet {
+class ActorSheet implements EntitySheet {
 
 	private final ProcessWorkbook wb;
 	private final Set<Actor> actors = new HashSet<>();
@@ -19,13 +19,15 @@ class ActorSheet {
 		this.wb = wb;
 	}
 
-	void put(Actor actor) {
-		if (actor == null)
-			return;
-		actors.add(actor);
+	@Override
+	public void visit(RefEntity entity) {
+		if (entity instanceof Actor actor) {
+			actors.add(actor);
+		}
 	}
 
-	void flush() {
+	@Override
+	public void flush() {
 		if (actors.isEmpty())
 			return;
 		var sheet = wb.createSheet("Actors");

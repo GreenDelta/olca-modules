@@ -11,7 +11,6 @@ import org.openlca.util.Strings;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 class Util {
 

@@ -1,6 +1,7 @@
 package org.openlca.io.xls.process.output;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -8,8 +9,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.io.xls.Excel;
@@ -25,13 +24,14 @@ class ProcessWorkbook {
 	private final CellStyle pairHeader;
 	private final CellStyle pairValue;
 
-	private final FlowPropertyFactorSheet propFactorSheet;
-	private final ActorSheet actorSheet;
+	private final List<EntitySheet> entitySheets;
 
 	ProcessWorkbook(Workbook wb, IDatabase db, Process process) {
 		this.workbook = wb;
 		this.db = db;
 		this.process = process;
+
+		// styles
 		headerStyle = Excel.headerStyle(wb);
 		dateStyle = Excel.dateStyle(wb);
 		dateStyle.setAlignment(HorizontalAlignment.LEFT);
@@ -40,28 +40,35 @@ class ProcessWorkbook {
 		pairValue = wb.createCellStyle();
 		pairValue.setWrapText(true);
 
-		actorSheet = new ActorSheet(this);
-		propFactorSheet = new FlowPropertyFactorSheet(this);
+		// sheets for referenced dependencies
+		entitySheets = List.of(
+				new ActorSheet(this),
+				new SourceSheet(this),
+				new FlowPropertyFactorSheet(this));
 	}
 
 	void write() {
+		new InfoSheet(this).write();
 		new AdminInfoSheet(this).write();
+		IOSheet.writeInputs(this);
+		IOSheet.writeOutputs(this);
+		ParameterSheet.write(this);
+		AllocationSheet.write(this);
+		ModelingSheet.write(this);
 
-		actorSheet.flush();
-		propFactorSheet.flush();
+		for (var sheet : entitySheets) {
+			sheet.flush();
+		}
+	}
+
+	void visit(RootEntity e) {
+		for (var sheet : entitySheets) {
+			sheet.visit(e);
+		}
 	}
 
 	Sheet createSheet(String name) {
 		return workbook.createSheet(name);
-	}
-
-	void put(RootEntity e) {
-		if (e instanceof Flow flow) {
-			propFactorSheet.put(flow);
-		}
-		if (e instanceof Actor actor) {
-			actorSheet.put(actor);
-		}
 	}
 
 	void header(Sheet sheet, int row, int col, String val) {
@@ -87,8 +94,8 @@ class ProcessWorkbook {
 
 	void pair(Sheet sheet, int row, String header, String value) {
 		Excel.cell(sheet, row, 0, header)
-			.ifPresent(c -> c.setCellStyle(pairHeader));
+				.ifPresent(c -> c.setCellStyle(pairHeader));
 		Excel.cell(sheet, row, 1, value)
-			.ifPresent(c -> c.setCellStyle(pairValue));
+				.ifPresent(c -> c.setCellStyle(pairValue));
 	}
 }
