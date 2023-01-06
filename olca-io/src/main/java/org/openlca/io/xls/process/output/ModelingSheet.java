@@ -1,21 +1,19 @@
 package org.openlca.io.xls.process.output;
 
-import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 
 class ModelingSheet {
 
-	private final ProcessDocumentation doc;
 	private final ProcessWorkbook wb;
-	private final ProcessWorkbook.SheetCursor cursor;
 
 	ModelingSheet(ProcessWorkbook wb) {
 		this.wb = wb;
-		doc = wb.process.documentation;
-		cursor = wb.createCursor("Modeling and validation");
 	}
 
 	void write() {
+		var cursor = wb.createCursor("Modeling and validation");
+		var doc = wb.process.documentation;
+
 		cursor.header("Modeling and validation")
 				.pair("Process type", wb.process.processType == ProcessType.LCI_RESULT
 						? "LCI result"

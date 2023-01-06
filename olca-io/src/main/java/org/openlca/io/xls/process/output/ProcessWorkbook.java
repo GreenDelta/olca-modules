@@ -155,6 +155,15 @@ class ProcessWorkbook {
 			return this;
 		}
 
+		SheetCursor pair(String header, boolean value) {
+			Excel.cell(sheet, row, 0, header)
+					.ifPresent(c -> c.setCellStyle(pairHeader));
+			Excel.cell(sheet, row, 1, value)
+					.ifPresent(c -> c.setCellStyle(pairValue));
+			row++;
+			return this;
+		}
+
 		SheetCursor pair(String header, Date date) {
 			Excel.cell(sheet, row, 0, header)
 					.ifPresent(c -> c.setCellStyle(pairHeader));
