@@ -55,12 +55,12 @@ class ProcessWorkbook {
 
 	void write() {
 		new InfoSheet(this).write();
-		new AdminInfoSheet(this).write();
 		IOSheet.writeInputs(this);
 		IOSheet.writeOutputs(this);
+		new AdminInfoSheet(this).write();
+		new ModelingSheet(this).write();
 		ParameterSheet.write(this);
 		AllocationSheet.write(this);
-		ModelingSheet.write(this);
 
 		for (var sheet : entitySheets) {
 			sheet.flush();
@@ -132,6 +132,16 @@ class ProcessWorkbook {
 				Excel.cell(sheet, row, 2, CategoryPath.getFull(e.category))
 						.ifPresent(c -> c.setCellStyle(pairValue));
 			}
+			row++;
+			return this;
+		}
+
+		SheetCursor next(RootEntity e) {
+			if (e == null)
+				return this;
+			visit(e);
+			Excel.cell(sheet, row, 0, e.name);
+			Excel.cell(sheet, row, 1, CategoryPath.getFull(e.category));
 			row++;
 			return this;
 		}
