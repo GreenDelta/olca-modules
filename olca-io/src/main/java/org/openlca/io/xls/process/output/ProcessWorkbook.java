@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
+import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
 
 class ProcessWorkbook {
@@ -104,5 +105,75 @@ class ProcessWorkbook {
 				.ifPresent(c -> c.setCellStyle(pairHeader));
 		Excel.cell(sheet, row, 1, value)
 				.ifPresent(c -> c.setCellStyle(pairValue));
+	}
+
+	SheetCursor createCursor(String name) {
+		var sheet = createSheet(name);
+		sheet.setColumnWidth(1, 20 * 256);
+		sheet.setColumnWidth(1, 50 * 256);
+		return new SheetCursor(sheet);
+	}
+
+	class SheetCursor {
+		private final Sheet sheet;
+		private int row;
+
+		private SheetCursor(Sheet sheet) {
+			this.sheet = sheet;
+		}
+
+		SheetCursor pair(String header, RootEntity e) {
+			Excel.cell(sheet, row, 0, header)
+					.ifPresent(c -> c.setCellStyle(pairHeader));
+			if (e != null) {
+				visit(e);
+				Excel.cell(sheet, row, 1, e.name)
+						.ifPresent(c -> c.setCellStyle(pairValue));
+				Excel.cell(sheet, row, 2, CategoryPath.getFull(e.category))
+						.ifPresent(c -> c.setCellStyle(pairValue));
+			}
+			row++;
+			return this;
+		}
+
+		SheetCursor pair(String header, String value) {
+			Excel.cell(sheet, row, 0, header)
+					.ifPresent(c -> c.setCellStyle(pairHeader));
+			Excel.cell(sheet, row, 1, value)
+					.ifPresent(c -> c.setCellStyle(pairValue));
+			row++;
+			return this;
+		}
+
+		SheetCursor pair(String header, Date date) {
+			Excel.cell(sheet, row, 0, header)
+					.ifPresent(c -> c.setCellStyle(pairHeader));
+			if (date != null) {
+				Excel.cell(sheet, row, 1)
+						.ifPresent(c -> {
+							c.setCellValue(date);
+							c.setCellStyle(dateStyle);
+						});
+			}
+			row++;
+			return this;
+		}
+
+		SheetCursor pairDate(String header, long time) {
+			return pair(header, time != 0 ? new Date(time) : null);
+		}
+
+		SheetCursor header(String header) {
+			Excel.cell(sheet, row, 0, header)
+					.ifPresent(cell -> cell.setCellStyle(headerStyle));
+			row++;
+			return this;
+		}
+
+		SheetCursor empty() {
+			row++;
+			return this;
+		}
+
 	}
 }
