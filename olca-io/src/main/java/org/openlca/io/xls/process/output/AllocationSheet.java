@@ -41,19 +41,15 @@ class AllocationSheet {
 	}
 
 	private String getAllocationMethod() {
-		AllocationMethod method = config.process.defaultAllocationMethod;
+		var method = config.process.defaultAllocationMethod;
 		if (method == null)
 			return "none";
-		switch (method) {
-			case CAUSAL:
-				return "causal";
-			case ECONOMIC:
-				return "economic";
-			case PHYSICAL:
-				return "physical";
-			default:
-				return "none";
-		}
+		return switch (method) {
+			case CAUSAL -> "causal";
+			case ECONOMIC -> "economic";
+			case PHYSICAL -> "physical";
+			default -> "none";
+		};
 	}
 
 	private void writeFactorSection(List<Exchange> outputs) {
@@ -71,12 +67,9 @@ class AllocationSheet {
 
 	private void writeFactors(Exchange product) {
 		Excel.cell(sheet, row, 0, product.flow.name);
-		Excel.cell(sheet, row, 1, CategoryPath.getFull(
-				product.flow.category));
-		Excel.cell(sheet, row, 2, getFactor(product,
-				AllocationMethod.PHYSICAL));
-		Excel.cell(sheet, row, 3, getFactor(product,
-				AllocationMethod.ECONOMIC));
+		Excel.cell(sheet, row, 1, CategoryPath.getFull(product.flow.category));
+		Excel.cell(sheet, row, 2, getFactor(product, AllocationMethod.PHYSICAL));
+		Excel.cell(sheet, row, 3, getFactor(product, AllocationMethod.ECONOMIC));
 	}
 
 	private void writeCausalFactorSection(List<Exchange> outputs) {
@@ -86,8 +79,9 @@ class AllocationSheet {
 		config.header(sheet, row, 1, "Category");
 		config.header(sheet, row, 2, "Direction");
 		config.header(sheet, row, 3, "Amount");
-		for (int i = 0; i < outputs.size(); i++)
+		for (int i = 0; i < outputs.size(); i++) {
 			config.header(sheet, row, 4 + i, outputs.get(i).flow.name);
+		}
 		for (Exchange flow : getNonProducts()) {
 			row++;
 			writeCausalRowInfo(flow);
@@ -99,14 +93,14 @@ class AllocationSheet {
 	}
 
 	private void writeCausalRowInfo(Exchange e) {
-		if(e.flow == null)
+		if (e.flow == null)
 			return;
 		Excel.cell(sheet, row, 0, e.flow.name);
 		Excel.cell(sheet, row, 1, CategoryPath.getFull(e.flow.category));
 		String direction = e.isInput ? "Input" : "Output";
 		Excel.cell(sheet, row, 2, direction);
 		String amount = Double.toString(e.amount);
-		if(e.unit != null)
+		if (e.unit != null)
 			amount += " " + e.unit.name;
 		Excel.cell(sheet, row, 3, amount);
 	}
@@ -162,9 +156,7 @@ class AllocationSheet {
 	private static class ExchangeSorter implements Comparator<Exchange> {
 		@Override
 		public int compare(Exchange e1, Exchange e2) {
-			return Strings.compare(
-					e1.flow.name,
-					e2.flow.name);
+			return Strings.compare(e1.flow.name, e2.flow.name);
 		}
 	}
 }

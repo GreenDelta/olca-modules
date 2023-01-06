@@ -59,7 +59,7 @@ class ParameterSheet {
 			row++;
 			Excel.cell(sheet, row, 0, param.name);
 			Excel.cell(sheet, row, 1, param.value);
-			config.uncertainty(sheet, row, 2, param.uncertainty);
+			Util.write(sheet, row, 2, param.uncertainty);
 			Excel.cell(sheet, row, 7, param.description);
 		}
 		row += 2;

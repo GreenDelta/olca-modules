@@ -11,15 +11,15 @@ import org.openlca.io.xls.Excel;
 class ModelingSheet {
 
 	private final ProcessDocumentation doc;
-	private final ProcessWorkbook config;
+	private final ProcessWorkbook wb;
 	private final Sheet sheet;
 
 	private int row = 0;
 
-	private ModelingSheet(ProcessWorkbook config) {
-		this.config = config;
-		doc = config.process.documentation;
-		sheet = config.workbook.createSheet("Modeling and validation");
+	private ModelingSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		doc = wb.process.documentation;
+		sheet = wb.workbook.createSheet("Modeling and validation");
 	}
 
 	public static void write(ProcessWorkbook config) {
@@ -40,8 +40,8 @@ class ModelingSheet {
 	}
 
 	private void writeModelingSection() {
-		config.header(sheet, row++, 0, "Modeling and validation");
-		String type = config.process.processType == ProcessType.LCI_RESULT
+		wb.header(sheet, row++, 0, "Modeling and validation");
+		var type = wb.process.processType == ProcessType.LCI_RESULT
 				? "LCI result"
 				: "Unit process";
 		pair("Process type", type);
@@ -53,19 +53,19 @@ class ModelingSheet {
 	}
 
 	private void writeDataSourceSection() {
-		config.header(sheet, row++, 0, "Data source information");
+		wb.header(sheet, row++, 0, "Data source information");
 		pair("Sampling procedure", doc.sampling);
 		pair("Data collection period", doc.dataCollectionPeriod);
 	}
 
 	private void writeReviewSection() {
-		config.header(sheet, row++, 0, "Process evaluation and validation");
+		wb.header(sheet, row++, 0, "Process evaluation and validation");
 		pair("Reviewer", doc.reviewer);
 		pair("Review details", doc.reviewDetails);
 	}
 
 	private void writeSources() {
-		config.header(sheet, row++, 0, "Sources");
+		wb.header(sheet, row++, 0, "Sources");
 		for (Source source : doc.sources) {
 			Excel.cell(sheet, row, 0, source.name);
 			Excel.cell(sheet, row++, 1, CategoryPath.getFull(source.category));
@@ -77,12 +77,13 @@ class ModelingSheet {
 			Excel.cell(sheet, row++, 0, header);
 			return;
 		}
+		wb.visit(entity);
 		Excel.cell(sheet, row, 0, header);
 		Excel.cell(sheet, row, 1, entity.name);
 		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.category));
 	}
 
 	private void pair(String header, String value) {
-		config.pair(sheet, row++, header, value);
+		wb.pair(sheet, row++, header, value);
 	}
 }

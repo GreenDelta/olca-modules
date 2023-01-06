@@ -2,7 +2,6 @@ package org.openlca.io.xls.process.output;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.io.xls.Excel;
 

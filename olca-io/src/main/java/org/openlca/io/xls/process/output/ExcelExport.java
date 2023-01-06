@@ -43,21 +43,15 @@ public class ExcelExport implements Runnable {
 			var dao = new ProcessDao(db);
 			for (var d : descriptors) {
 				var p = dao.getForId(d.id);
-				if (p == null) {
-					log.warn("process {} was null; not exported", d);
+				if (p == null)
 					continue;
-				}
 				if (p.documentation == null) {
-					// append a default documentation to avoid
-					// null pointers later
 					p.documentation = new ProcessDocumentation();
 				}
 				var wb = new SXSSFWorkbook();
 				var pwb = new ProcessWorkbook(wb, db, p);
-				writeSheets(pwb);
 				pwb.write();
-				File f = exportFileOf(p);
-				try (FileOutputStream fos = new FileOutputStream(f)) {
+				try (var fos = new FileOutputStream(exportFileOf(p))) {
 					wb.write(fos);
 				}
 				wb.dispose();
@@ -68,8 +62,6 @@ public class ExcelExport implements Runnable {
 	}
 
 	private File exportFileOf(Process p) {
-		if (p == null)
-			return null;
 		if (!file.isDirectory()
 				&& file.getName().toLowerCase().endsWith(".xlsx")
 				&& descriptors.size() == 1)
@@ -79,9 +71,4 @@ public class ExcelExport implements Runnable {
 		return new File(file, name);
 	}
 
-	private void writeSheets(ProcessWorkbook wb) {
-
-		// reference data
-		FlowSheets.write(wb);
-	}
 }

@@ -47,7 +47,7 @@ class AdminInfoSheet {
 			Excel.cell(sheet, row++, 0, header);
 			return;
 		}
-		wb.put(entity);
+		wb.visit(entity);
 		Excel.cell(sheet, row, 0, header);
 		Excel.cell(sheet, row, 1, entity.name);
 		Excel.cell(sheet, row++, 2, CategoryPath.getFull(entity.category));

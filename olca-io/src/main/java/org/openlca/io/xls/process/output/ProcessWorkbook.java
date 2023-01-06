@@ -45,6 +45,7 @@ class ProcessWorkbook {
 				new ActorSheet(this),
 				new SourceSheet(this),
 				new LocationSheet(this),
+				new FlowSheet(this),
 				new FlowPropertySheet(this),
 				new FlowPropertyFactorSheet(this),
 				new UnitGroupSheet(this),
@@ -66,6 +67,8 @@ class ProcessWorkbook {
 	}
 
 	void visit(RootEntity e) {
+		if (e == null)
+			return;
 		for (var sheet : entitySheets) {
 			sheet.visit(e);
 		}
