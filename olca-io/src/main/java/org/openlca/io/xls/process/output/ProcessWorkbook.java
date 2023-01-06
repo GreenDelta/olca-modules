@@ -2,9 +2,11 @@ package org.openlca.io.xls.process.output;
 
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -115,6 +117,7 @@ class ProcessWorkbook {
 	}
 
 	class SheetCursor {
+
 		private final Sheet sheet;
 		private int row;
 
@@ -122,7 +125,15 @@ class ProcessWorkbook {
 			this.sheet = sheet;
 		}
 
-		SheetCursor pair(String header, RootEntity e) {
+		Sheet sheet() {
+			return sheet;
+		}
+
+		int row() {
+			return row;
+		}
+
+		SheetCursor next(String header, RootEntity e) {
 			Excel.cell(sheet, row, 0, header)
 					.ifPresent(c -> c.setCellStyle(pairHeader));
 			if (e != null) {
@@ -146,7 +157,7 @@ class ProcessWorkbook {
 			return this;
 		}
 
-		SheetCursor pair(String header, String value) {
+		SheetCursor next(String header, String value) {
 			Excel.cell(sheet, row, 0, header)
 					.ifPresent(c -> c.setCellStyle(pairHeader));
 			Excel.cell(sheet, row, 1, value)
@@ -155,7 +166,7 @@ class ProcessWorkbook {
 			return this;
 		}
 
-		SheetCursor pair(String header, boolean value) {
+		SheetCursor next(String header, boolean value) {
 			Excel.cell(sheet, row, 0, header)
 					.ifPresent(c -> c.setCellStyle(pairHeader));
 			Excel.cell(sheet, row, 1, value)
@@ -164,7 +175,7 @@ class ProcessWorkbook {
 			return this;
 		}
 
-		SheetCursor pair(String header, Date date) {
+		SheetCursor next(String header, Date date) {
 			Excel.cell(sheet, row, 0, header)
 					.ifPresent(c -> c.setCellStyle(pairHeader));
 			if (date != null) {
@@ -178,18 +189,32 @@ class ProcessWorkbook {
 			return this;
 		}
 
-		SheetCursor pairDate(String header, long time) {
-			return pair(header, time != 0 ? new Date(time) : null);
-		}
-
 		SheetCursor header(String header) {
 			Excel.cell(sheet, row, 0, header)
-					.ifPresent(cell -> cell.setCellStyle(headerStyle));
+					.ifPresent(c -> c.setCellStyle(headerStyle));
 			row++;
 			return this;
 		}
 
-		SheetCursor empty() {
+		SheetCursor header(String first, String...more) {
+			Excel.cell(sheet, row, 0, first)
+					.ifPresent(c -> c.setCellStyle(headerStyle));
+			for (int i = 0; i < more.length; i++) {
+				Excel.cell(sheet, row, i + 1, more[i])
+						.ifPresent(c -> c.setCellStyle(headerStyle));
+			}
+			row++;
+			return this;
+		}
+
+		SheetCursor next(Consumer<Row> fn) {
+			var n = Excel.row(sheet, row);
+			fn.accept(n);
+			row++;
+			return this;
+		}
+
+		SheetCursor next() {
 			row++;
 			return this;
 		}

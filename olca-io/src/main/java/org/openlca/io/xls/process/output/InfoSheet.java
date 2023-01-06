@@ -1,5 +1,7 @@
 package org.openlca.io.xls.process.output;
 
+import java.util.Date;
+
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
@@ -19,36 +21,38 @@ class InfoSheet {
 		var doc = wb.process.documentation;
 
 		cursor.header("General information")
-				.pair("UUID", process.refId)
-				.pair("Name", process.name)
-				.pair("Category", CategoryPath.getFull(process.category))
-				.pair("Description", process.description)
-				.pair("Version", Version.asString(process.version))
-				.pairDate("Last change", process.lastChange)
-				.pair("Tags", process.tags)
-				.empty();
+				.next("UUID", process.refId)
+				.next("Name", process.name)
+				.next("Category", CategoryPath.getFull(process.category))
+				.next("Description", process.description)
+				.next("Version", Version.asString(process.version))
+				.next("Last change", process.lastChange > 0
+						? new Date(process.lastChange)
+						: null)
+				.next("Tags", process.tags)
+				.next();
 
 		cursor.header("Time")
-				.pair("Valid from", doc.validFrom)
-				.pair("Valid until", doc.validUntil)
-				.pair("Description", doc.time)
-				.empty();
+				.next("Valid from", doc.validFrom)
+				.next("Valid until", doc.validUntil)
+				.next("Description", doc.time)
+				.next();
 
 		cursor.header("Geography")
-				.pair("Location", process.location)
-				.pair("Description", doc.geography)
-				.empty();
+				.next("Location", process.location)
+				.next("Description", doc.geography)
+				.next();
 
 		cursor.header("Technology")
-				.pair("Description", doc.technology)
-				.empty();
+				.next("Description", doc.technology)
+				.next();
 
 		cursor.header("Data quality")
-				.pair("Process schema", process.dqSystem)
-				.pair("Data quality entry", process.dqEntry)
-				.pair("Flow schema", process.exchangeDqSystem)
-				.pair("Social schema", process.socialDqSystem)
-				.empty();
+				.next("Process schema", process.dqSystem)
+				.next("Data quality entry", process.dqEntry)
+				.next("Flow schema", process.exchangeDqSystem)
+				.next("Social schema", process.socialDqSystem)
+				.next();
 	}
 
 }

@@ -3,7 +3,6 @@ package org.openlca.io.xls.process.output;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -14,14 +13,13 @@ import org.openlca.util.Strings;
 class IOSheet {
 
 	private final ProcessWorkbook wb;
-	private final Sheet sheet;
+	private final ProcessWorkbook.SheetCursor cursor;
 	private final boolean forInputs;
-	private int row = 0;
 
 	private IOSheet(ProcessWorkbook wb, boolean forInputs) {
 		this.wb = wb;
 		this.forInputs = forInputs;
-		sheet = wb.workbook.createSheet(forInputs ? "Inputs" : "Outputs");
+		cursor = wb.createCursor(forInputs ? "Inputs" : "Outputs");
 	}
 
 	public static void writeInputs(ProcessWorkbook config) {
@@ -33,33 +31,33 @@ class IOSheet {
 	}
 
 	private void write() {
-		Excel.trackSize(sheet, 0, 12);
-		witeHeader();
-		row++;
-		for (Exchange exchange : getExchanges()) {
+		writeHeader();
+		for (var exchange : getExchanges()) {
 			if (exchange.flow == null)
 				continue;
 			write(exchange);
-			row++;
 		}
-		Excel.autoSize(sheet, 0, 12);
 	}
 
-	private void witeHeader() {
-		wb.header(sheet, row, 0, "Flow");
-		wb.header(sheet, row, 1, "Category");
-		wb.header(sheet, row, 2, "Flow property");
-		wb.header(sheet, row, 3, "Unit");
-		wb.header(sheet, row, 4, "Amount");
-		wb.header(sheet, row, 5, "Formula");
-		wb.header(sheet, row, 6, "Description");
-		wb.header(sheet, row, 7, "Uncertainty");
-		wb.header(sheet, row, 8, "(g)mean | mode");
-		wb.header(sheet, row, 9, "SD | GSD");
-		wb.header(sheet, row, 10, "Minimum");
-		wb.header(sheet, row, 11, "Maximum");
-		if (!forInputs)
-			wb.header(sheet, row, 12, "Is avoided product?");
+	private void writeHeader() {
+		cursor.header(
+				"Is reference?",
+				"Flow",
+				"Category",
+				"Amount",
+				"Unit",
+				"Costs/Revenues",
+				"Currency",
+				"Uncertainty",
+				"(G)Mean | Mode",
+				"SD | GSD",
+				"Minimum",
+				"Maximum",
+				"Is avoided?",
+				"Provider",
+				"Data quality entry",
+				"Location",
+				"Description");
 	}
 
 	private void write(Exchange e) {
@@ -71,16 +69,18 @@ class IOSheet {
 		wb.visit(e.currency);
 		wb.visit(e.location);
 
-		Excel.cell(sheet, row, 0, e.flow.name);
-		Excel.cell(sheet, row, 1, CategoryPath.getFull(e.flow.category));
-		Excel.cell(sheet, row, 2, getFlowProperty(e));
-		Excel.cell(sheet, row, 3, e.unit != null ? e.unit.name : null);
-		Excel.cell(sheet, row, 4, e.amount);
-		Excel.cell(sheet, row, 5, e.formula);
-		Excel.cell(sheet, row, 6, e.description);
-		Util.write(sheet, row, 7, e.uncertainty);
-		if (!forInputs)
-			Excel.cell(sheet, row, 12, e.isAvoided ? "Yes": "");
+		cursor.next(row -> {
+			Excel.cell(row, 0, e.flow.name);
+			Excel.cell(row, 1, CategoryPath.getFull(e.flow.category));
+			Excel.cell(row, 2, getFlowProperty(e));
+			Excel.cell(row, 3, e.unit != null ? e.unit.name : null);
+			Excel.cell(row, 4, e.amount);
+			Excel.cell(row, 5, e.formula);
+			Excel.cell(row, 6, e.description);
+			Util.write(row, 7, e.uncertainty);
+			Excel.cell(row, 12, e.isAvoided ? "Yes" : "");
+		});
+
 	}
 
 	private String getFlowProperty(Exchange exchange) {

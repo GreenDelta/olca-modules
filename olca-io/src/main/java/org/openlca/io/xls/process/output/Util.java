@@ -1,5 +1,6 @@
 package org.openlca.io.xls.process.output;
 
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -18,41 +19,47 @@ import java.util.function.Consumer;
 
 class Util {
 
-	static void write(Sheet sheet, int row, int col, Uncertainty u) {
+	static void write(Sheet sheet, int row, int offset, Uncertainty u) {
+		var r = Excel.row(sheet, row);
+		write(r, offset, u);
+	}
+
+	static void write(Row row, int offset, Uncertainty u) {
 		if (u == null || u.distributionType == UncertaintyType.NONE) {
-			Excel.cell(sheet, row, col, "");
+			Excel.cell(row, offset, "");
 			return;
 		}
+
 		switch (u.distributionType) {
 			case LOG_NORMAL -> {
-				Excel.cell(sheet, row, col, "log-normal");
-				param(sheet, u.parameter1,  row, col + 1);
-				param(sheet, u.parameter2,  row, col + 2);
+				Excel.cell(row, offset, "log-normal");
+				param(row, u.parameter1, offset + 1);
+				param(row, u.parameter2, offset + 2);
 			}
 			case NORMAL -> {
-				Excel.cell(sheet, row, col, "normal");
-				param(sheet, u.parameter1,  row, col + 1);
-				param(sheet, u.parameter2,  row, col + 2);
+				Excel.cell(row, offset, "normal");
+				param(row, u.parameter1, offset + 1);
+				param(row, u.parameter2, offset + 2);
 			}
 			case TRIANGLE -> {
-				Excel.cell(sheet, row, col, "triangular");
-				param(sheet, u.parameter1,  row, col + 3);
-				param(sheet, u.parameter2,  row, col + 1);
-				param(sheet, u.parameter3,  row, col + 4);
+				Excel.cell(row, offset, "triangular");
+				param(row, u.parameter1, offset + 3);
+				param(row, u.parameter2, offset + 1);
+				param(row, u.parameter3, offset + 4);
 			}
 			case UNIFORM -> {
-				Excel.cell(sheet, row, col, "uniform");
-				param(sheet, u.parameter1,  row, col + 3);
-				param(sheet, u.parameter2,  row, col + 4);
+				Excel.cell(row, offset, "uniform");
+				param(row, u.parameter1, offset + 3);
+				param(row, u.parameter2, offset + 4);
 			}
 			default -> {
 			}
 		}
 	}
 
-	private static void param(Sheet sheet, Double value, int row, int col) {
+	private static void param(Row row, Double value, int col) {
 		if (value != null) {
-			Excel.cell(sheet, row, col, value);
+			Excel.cell(row, col, value);
 		}
 	}
 

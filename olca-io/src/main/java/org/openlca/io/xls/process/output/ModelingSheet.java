@@ -15,25 +15,25 @@ class ModelingSheet {
 		var doc = wb.process.documentation;
 
 		cursor.header("Modeling and validation")
-				.pair("Process type", wb.process.processType == ProcessType.LCI_RESULT
+				.next("Process type", wb.process.processType == ProcessType.LCI_RESULT
 						? "LCI result"
 						: "Unit process")
-				.pair("LCI method", doc.inventoryMethod)
-				.pair("Modeling constants", doc.modelingConstants)
-				.pair("Data completeness", doc.completeness)
-				.pair("Data selection", doc.dataSelection)
-				.pair("Data treatment", doc.dataTreatment)
-				.empty();
+				.next("LCI method", doc.inventoryMethod)
+				.next("Modeling constants", doc.modelingConstants)
+				.next("Data completeness", doc.completeness)
+				.next("Data selection", doc.dataSelection)
+				.next("Data treatment", doc.dataTreatment)
+				.next();
 
 		cursor.header("Data source information")
-				.pair("Sampling procedure", doc.sampling)
-				.pair("Data collection period", doc.dataCollectionPeriod)
-				.empty();
+				.next("Sampling procedure", doc.sampling)
+				.next("Data collection period", doc.dataCollectionPeriod)
+				.next();
 
 		cursor.header("Process evaluation and validation")
-				.pair("Reviewer", doc.reviewer)
-				.pair("Review details", doc.reviewDetails)
-				.empty();
+				.next("Reviewer", doc.reviewer)
+				.next("Review details", doc.reviewDetails)
+				.next();
 
 		cursor.header("Sources");
 		for (var source : doc.sources) {
