@@ -13,11 +13,20 @@ public class Exchanges {
 	 * (which is not tagged as avoided flow).
 	 */
 	public static boolean isProviderFlow(Exchange e) {
-		if (e.isAvoided || e.flow == null)
+		if (e == null || e.isAvoided || e.flow == null)
 			return false;
 		var type = e.flow.flowType;
 		if (type == null || type == FlowType.ELEMENTARY_FLOW)
 			return false;
 		return (type == FlowType.PRODUCT_FLOW) != e.isInput;
+	}
+
+	public static boolean isLinkable(Exchange e) {
+		if (e == null || e.flow == null)
+			return false;
+		var type = e.flow.flowType;
+		if (type == null || type == FlowType.ELEMENTARY_FLOW)
+			return false;
+		return (type == FlowType.PRODUCT_FLOW) == e.isInput;
 	}
 }

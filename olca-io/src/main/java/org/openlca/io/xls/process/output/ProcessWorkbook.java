@@ -52,7 +52,8 @@ class ProcessWorkbook {
 				new FlowPropertySheet(this),
 				new FlowPropertyFactorSheet(this),
 				new UnitGroupSheet(this),
-				new UnitSheet(this));
+				new UnitSheet(this),
+				new ProviderSheet(this));
 	}
 
 	void write() {
@@ -92,10 +93,22 @@ class ProcessWorkbook {
 		date(sheet, row, col, new Date(time));
 	}
 
+	void date(Row row, int col, long time) {
+		if (time > 0) {
+			date(row, col, new Date(time));
+		}
+	}
+
 	void date(Sheet sheet, int row, int col, Date date) {
+		if (date != null) {
+			date(sheet.getRow(row), col, date);
+		}
+	}
+
+	void date(Row row, int col, Date date) {
 		if (date == null)
 			return;
-		var cell = Excel.cell(sheet, row, col);
+		var cell = Excel.cell(row, col);
 		cell.ifPresent(c -> {
 			c.setCellValue(date);
 			c.setCellStyle(dateStyle);
@@ -111,8 +124,6 @@ class ProcessWorkbook {
 
 	SheetCursor createCursor(String name) {
 		var sheet = createSheet(name);
-		sheet.setColumnWidth(1, 20 * 256);
-		sheet.setColumnWidth(1, 50 * 256);
 		return new SheetCursor(sheet);
 	}
 
@@ -125,12 +136,14 @@ class ProcessWorkbook {
 			this.sheet = sheet;
 		}
 
-		Sheet sheet() {
-			return sheet;
-		}
-
-		int row() {
-			return row;
+		/**
+		 * Set the column widths of the sheet in number of characters.
+		 */
+		SheetCursor withColumnWidths(int... widths) {
+			for (int i = 0; i < widths.length; i++) {
+				sheet.setColumnWidth(i, widths[i] * 256);
+			}
+			return this;
 		}
 
 		SheetCursor next(String header, RootEntity e) {
@@ -196,7 +209,7 @@ class ProcessWorkbook {
 			return this;
 		}
 
-		SheetCursor header(String first, String...more) {
+		void header(String first, String... more) {
 			Excel.cell(sheet, row, 0, first)
 					.ifPresent(c -> c.setCellStyle(boldFont));
 			for (int i = 0; i < more.length; i++) {
@@ -204,19 +217,16 @@ class ProcessWorkbook {
 						.ifPresent(c -> c.setCellStyle(boldFont));
 			}
 			row++;
-			return this;
 		}
 
-		SheetCursor next(Consumer<Row> fn) {
+		void next(Consumer<Row> fn) {
 			var n = Excel.row(sheet, row);
 			fn.accept(n);
 			row++;
-			return this;
 		}
 
-		SheetCursor next() {
+		void next() {
 			row++;
-			return this;
 		}
 
 	}

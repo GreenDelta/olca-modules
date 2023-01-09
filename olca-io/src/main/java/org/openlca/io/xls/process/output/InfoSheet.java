@@ -17,7 +17,8 @@ class InfoSheet {
 	}
 
 	void write() {
-		var cursor = wb.createCursor("General information");
+		var cursor = wb.createCursor("General information")
+				.withColumnWidths(35, 80);
 		var doc = wb.process.documentation;
 
 		cursor.header("General information")

@@ -100,7 +100,7 @@ class IOSheet {
 			}
 
 			// provider
-			if (e.defaultProviderId > 0 && Exchanges.isProviderFlow(e)) {
+			if (e.defaultProviderId > 0 && Exchanges.isLinkable(e)) {
 				var provider = wb.db.get(Process.class, e.defaultProviderId);
 				if (provider != null) {
 					wb.visit(provider);
