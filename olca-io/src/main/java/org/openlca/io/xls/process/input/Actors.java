@@ -13,8 +13,8 @@ class Actors {
 		this.wb = wb;
 	}
 
-	public static void sync(ProcessWorkbook config) {
-		new Actors(config).sync();
+	static void sync(ProcessWorkbook wb) {
+		new Actors(wb).sync();
 	}
 
 	private void sync() {

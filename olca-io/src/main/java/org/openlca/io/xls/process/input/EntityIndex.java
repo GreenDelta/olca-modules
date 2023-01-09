@@ -109,7 +109,7 @@ class EntityIndex {
 				: null;
 	}
 
-	private <T extends RootEntity> T put(T e) {
+	<T extends RootEntity> T put(T e) {
 		if (e == null)
 			return null;
 		if (e instanceof Flow flow) {
@@ -121,7 +121,7 @@ class EntityIndex {
 		return e;
 	}
 
-	private String keyOf(String label) {
+	static String keyOf(String label) {
 		return label != null
 				? label.trim().toLowerCase()
 				: "";
