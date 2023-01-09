@@ -11,35 +11,28 @@ import org.openlca.core.model.Version;
 class ActorSheet {
 
 	private final ProcessWorkbook wb;
-	private final ActorDao dao;
-	private final Sheet sheet;
 
 	private ActorSheet(ProcessWorkbook wb) {
 		this.wb = wb;
-		this.dao = new ActorDao(wb.db);
-		sheet = wb.wb.getSheet("Actors");
 	}
 
-	public static void read(ProcessWorkbook config) {
-		new ActorSheet(config).read();
+	public static void sync(ProcessWorkbook config) {
+		new ActorSheet(config).sync();
 	}
 
-	private void read() {
-		if (sheet == null) {
+	private void sync() {
+		var sheet = wb.getSheet("Actors");
+		if (sheet == null)
 			return;
-		}
-		try {
-			int row = 1;
-			while (true) {
-				String uuid = wb.getString(sheet, row, 0);
-				if (uuid == null || uuid.trim().isEmpty()) {
-					break;
-				}
-				readActor(uuid, row);
-				row++;
+
+		int row = 1;
+		while (true) {
+			String uuid = wb.getString(sheet, row, 0);
+			if (uuid == null || uuid.trim().isEmpty()) {
+				break;
 			}
-		} catch (Exception e) {
-			log.error("failed to read actor sheet", e);
+			readActor(uuid, row);
+			row++;
 		}
 	}
 

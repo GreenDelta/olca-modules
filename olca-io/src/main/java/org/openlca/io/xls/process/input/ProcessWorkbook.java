@@ -24,9 +24,10 @@ class ProcessWorkbook {
 	final Process process;
 	final EntityIndex index;
 	final ImportLog log;
-	final Workbook wb;
 
-	private ProcessWorkbook(ImportConfig config, Workbook wb, Process process) {
+	private final Workbook wb;
+
+	private ProcessWorkbook(ExcelImport config, Workbook wb, Process process) {
 		this.wb = wb;
 		this.db = config.db();
 		this.log = config.log();
@@ -34,23 +35,27 @@ class ProcessWorkbook {
 		this.index = new EntityIndex(db, config.log());
 	}
 
-	static Process read(File file, ImportConfig config) {
+	static Process read(File file, ExcelImport imp) {
 		try (var fis = new FileInputStream(file)) {
 			var wb = WorkbookFactory.create(fis);
 			var process = new Process();
 			process.documentation = new ProcessDocumentation();
-			new ProcessWorkbook(config, wb, process).readSheets();
+			new ProcessWorkbook(imp, wb, process).readSheets();
 			return process;
 		} catch (Exception e) {
-			config.log().error("failed to import file", e);
+			imp.log().error("failed to import file", e);
 			return null;
 		}
+	}
+
+	Sheet getSheet(String name) {
+		return wb.getSheet(name);
 	}
 
 	private void readSheets() {
 		// reference data
 		LocationSheet.read(this);
-		ActorSheet.read(this);
+		ActorSheet.sync(this);
 		SourceSheet.read(this);
 		UnitSheets.read(this);
 		FlowSheets.read(this);

@@ -151,17 +151,35 @@ public class Excel {
 	}
 
 	public static String getString(Sheet sheet, int row, int col) {
+		return sheet != null
+				? getString(sheet.getRow(row), col)
+				: null;
+	}
+
+	public static String getString(Row row, int col) {
+		return row != null
+				? getString(row.getCell(col))
+				: null;
+	}
+
+	public static String getString(Cell cell) {
+		if (cell == null)
+			return null;
 		try {
-			Row _row = sheet.getRow(row);
-			if (_row == null)
+			var type = cell.getCellType();
+			if (type == null)
 				return null;
-			Cell cell = _row.getCell(col);
-			if (cell == null)
-				return null;
-			return cell.getStringCellValue();
+			return switch (type) {
+				case STRING -> cell.getStringCellValue();
+				case ERROR -> "Error: " + cell.getErrorCellValue();
+				case BOOLEAN -> cell.getBooleanCellValue()
+						? "true"
+						: "false";
+				case FORMULA -> cell.getCellFormula();
+				case NUMERIC -> Double.toString(cell.getNumericCellValue());
+				case BLANK, _NONE -> null;
+			};
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Excel.class);
-			log.error("Failed to get string", e);
 			return null;
 		}
 	}
