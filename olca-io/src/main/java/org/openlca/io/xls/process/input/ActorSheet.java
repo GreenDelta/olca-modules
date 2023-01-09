@@ -3,6 +3,7 @@ package org.openlca.io.xls.process.input;
 import org.apache.poi.ss.usermodel.Row;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
+import org.openlca.io.xls.process.Field;
 
 class ActorSheet {
 

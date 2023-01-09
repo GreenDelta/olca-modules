@@ -7,6 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.xls.Excel;
+import org.openlca.io.xls.process.Field;
 import org.openlca.util.Strings;
 
 import java.util.Date;

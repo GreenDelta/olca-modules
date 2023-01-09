@@ -1,23 +1,13 @@
 package org.openlca.io.xls.process.input;
 
-import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class LocationSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final ProcessWorkbook wb;
 
-	private final ProcessWorkbook config;
-	private final LocationDao dao;
-	private final Sheet sheet;
-
-	private LocationSheet(ProcessWorkbook config) {
-		this.config = config;
-		dao = new LocationDao(config.db);
-		sheet = config.wb.getSheet("Locations");
+	private LocationSheet(ProcessWorkbook wb) {
+		this.wb = wb;
 	}
 
 	public static void read(ProcessWorkbook config) {
@@ -25,14 +15,17 @@ class LocationSheet {
 	}
 
 	private void read() {
+		var sheet = wb.getSheet("Locations");
 		if (sheet == null) {
 			return;
 		}
+
+
 		try {
 			log.trace("import locations");
 			int row = 1;
 			while (true) {
-				String uuid = config.getString(sheet, row, 0);
+				String uuid = wb.getString(sheet, row, 0);
 				if (uuid == null || uuid.trim().isEmpty()) {
 					break;
 				}
@@ -45,21 +38,21 @@ class LocationSheet {
 	}
 
 	private void readLocation(String uuid, int row) throws Exception {
-		String code = config.getString(sheet, row, 1);
+		String code = wb.getString(sheet, row, 1);
 		Location location = dao.getForRefId(uuid);
 		if (location != null) {
-			config.refData.putLocation(code, location);
+			wb.refData.putLocation(code, location);
 			return;
 		}
 		location = new Location();
 		location.refId = uuid;
 		location.code = code;
-		location.name = config.getString(sheet, row, 2);
-		location.description = config.getString(sheet, row, 3);
-		location.latitude = config.getDouble(sheet, row, 4);
-		location.longitude = config.getDouble(sheet, row, 5);
+		location.name = wb.getString(sheet, row, 2);
+		location.description = wb.getString(sheet, row, 3);
+		location.latitude = wb.getDouble(sheet, row, 4);
+		location.longitude = wb.getDouble(sheet, row, 5);
 		location = dao.insert(location);
-		config.refData.putLocation(code, location);
+		wb.refData.putLocation(code, location);
 	}
 
 }

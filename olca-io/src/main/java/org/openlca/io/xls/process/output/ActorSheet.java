@@ -30,8 +30,8 @@ class ActorSheet implements EntitySheet {
 	public void flush() {
 		if (actors.isEmpty())
 			return;
-		var sheet = wb.createSheet("Actors");
-		Excel.trackSize(sheet, 0, 5);
+		var cursor = wb.createCursor("Actors");
+
 		writeHeader(sheet);
 		int row = 0;
 		for (var actor : Util.sort(actors)) {

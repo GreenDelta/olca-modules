@@ -15,6 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
+import org.openlca.io.xls.process.Field;
 
 class ProcessWorkbook {
 
@@ -136,12 +137,9 @@ class ProcessWorkbook {
 			this.sheet = sheet;
 		}
 
-		/**
-		 * Set the column widths of the sheet in number of characters.
-		 */
-		SheetCursor withColumnWidths(int... widths) {
-			for (int i = 0; i < widths.length; i++) {
-				sheet.setColumnWidth(i, widths[i] * 256);
+		SheetCursor withColumnWidths(int count, int width) {
+			for (int i = 0; i < count; i++) {
+				sheet.setColumnWidth(i, width * 256);
 			}
 			return this;
 		}
@@ -214,6 +212,14 @@ class ProcessWorkbook {
 					.ifPresent(c -> c.setCellStyle(boldFont));
 			for (int i = 0; i < more.length; i++) {
 				Excel.cell(sheet, row, i + 1, more[i])
+						.ifPresent(c -> c.setCellStyle(boldFont));
+			}
+			row++;
+		}
+
+		void header(Field... fields) {
+			for (var i = 0; i < fields.length; i++) {
+				Excel.cell(sheet, row, i, fields[i].label())
 						.ifPresent(c -> c.setCellStyle(boldFont));
 			}
 			row++;

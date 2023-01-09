@@ -5,6 +5,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
+import org.openlca.io.xls.process.Field;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,17 +30,16 @@ class UnitGroupSheet implements EntitySheet {
 			return;
 
 		var cursor = wb.createCursor("Unit groups")
-				.withColumnWidths(40, 40, 40);
+				.withColumnWidths(8, 40);
 		cursor.header(
-				"UUID",
-				"Name",
-				"Category",
-				"Description",
-				"Reference unit",
-				"Default flow property",
-				"Version",
-				"Last change"
-		);
+				Field.UUID,
+				Field.NAME,
+				Field.CATEGORY,
+				Field.DESCRIPTION,
+				Field.REFERENCE_UNIT,
+				Field.DEFAULT_FLOW_PROPERTY,
+				Field.VERSION,
+				Field.LAST_CHANGE);
 
 		for (var group : Util.sort(groups)) {
 			cursor.next(row -> {
