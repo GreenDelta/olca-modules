@@ -5,16 +5,16 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.xls.process.Field;
 
-class ActorSheet {
+class Actors {
 
 	private final ProcessWorkbook wb;
 
-	private ActorSheet(ProcessWorkbook wb) {
+	private Actors(ProcessWorkbook wb) {
 		this.wb = wb;
 	}
 
 	public static void sync(ProcessWorkbook config) {
-		new ActorSheet(config).sync();
+		new Actors(config).sync();
 	}
 
 	private void sync() {

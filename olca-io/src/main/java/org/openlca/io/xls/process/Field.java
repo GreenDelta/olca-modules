@@ -26,10 +26,14 @@ public enum Field {
 	TAGS("Tags"),
 	TELEFAX("Telefax"),
 	TELEPHONE("Telephone"),
+	TEXT_REFERENCE("Text reference"),
 
+	URL("URL"),
 	UUID("UUID"),
+
 	VERSION("Version"),
 	WEBSITE("Website"),
+	YEAR("Year"),
 	ZIP_CODE("Zip code"),
 	;
 
@@ -59,9 +63,12 @@ public enum Field {
 			case "tags" -> TAGS;
 			case "telefax" -> TELEFAX;
 			case "telephone" -> TELEPHONE;
+			case "text reference" -> TEXT_REFERENCE;
+			case "url" -> URL;
 			case "uuid", "id", "ref_id" -> UUID;
 			case "version" -> VERSION;
 			case "website" -> WEBSITE;
+			case "year" -> YEAR;
 			case "zip code" -> ZIP_CODE;
 			default -> null;
 		};

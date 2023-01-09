@@ -13,11 +13,11 @@ class LocationSheet {
 		this.wb = wb;
 	}
 
-	public static void read(ProcessWorkbook config) {
-		new LocationSheet(config).read();
+	public static void sync(ProcessWorkbook config) {
+		new LocationSheet(config).sync();
 	}
 
-	private void read() {
+	private void sync() {
 		var sheet = wb.getSheet("Locations");
 		if (sheet == null)
 			return;

@@ -54,9 +54,9 @@ class ProcessWorkbook {
 
 	private void readSheets() {
 		// reference data
-		LocationSheet.read(this);
-		ActorSheet.sync(this);
-		SourceSheet.read(this);
+		LocationSheet.sync(this);
+		Actors.sync(this);
+		Sources.sync(this);
 		UnitSheets.read(this);
 		FlowSheets.read(this);
 		// process sheets
