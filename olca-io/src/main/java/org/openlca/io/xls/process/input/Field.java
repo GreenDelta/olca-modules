@@ -12,6 +12,7 @@ enum Field {
 	E_MAIL,
 	LAST_CHANGE,
 	NAME,
+	TAGS,
 	TELEFAX,
 	TELEPHONE,
 	UUID,
@@ -32,6 +33,7 @@ enum Field {
 			case "e-mail", "email" -> E_MAIL;
 			case "name" -> NAME;
 			case "last change" -> LAST_CHANGE;
+			case "tags" -> TAGS;
 			case "telefax" -> TELEFAX;
 			case "telephone" -> TELEPHONE;
 			case "uuid", "id", "ref_id" -> UUID;

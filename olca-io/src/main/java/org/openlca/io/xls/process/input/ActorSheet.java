@@ -1,12 +1,8 @@
 package org.openlca.io.xls.process.input;
 
-import java.util.Date;
-
-import org.apache.poi.ss.usermodel.Sheet;
-import org.openlca.core.database.ActorDao;
+import org.apache.poi.ss.usermodel.Row;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 
 class ActorSheet {
 
@@ -24,51 +20,29 @@ class ActorSheet {
 		var sheet = wb.getSheet("Actors");
 		if (sheet == null)
 			return;
-
-		int row = 1;
-		while (true) {
-			String uuid = wb.getString(sheet, row, 0);
-			if (uuid == null || uuid.trim().isEmpty()) {
-				break;
-			}
-			readActor(uuid, row);
-			row++;
-		}
-	}
-
-	private void readActor(String uuid, int row) {
-		String name = wb.getString(sheet, row, 1);
-		String category = wb.getString(sheet, row, 3);
-		Actor actor = dao.getForRefId(uuid);
-		if (actor != null) {
-			wb.refData.putActor(name, category, actor);
+		var fields = FieldMap.parse(sheet.getRow(0));
+		if (fields.isEmpty())
 			return;
-		}
-		actor = new Actor();
-		actor.refId = uuid;
-		actor.name = name;
-		actor.description = wb.getString(sheet, row, 2);
-		actor.category = wb.getCategory(category, ModelType.ACTOR);
-		setAttributes(row, actor);
-		actor = dao.insert(actor);
-		wb.refData.putActor(name, category, actor);
+		sheet.rowIterator().forEachRemaining(row -> {
+			if (row.getRowNum() == 0)
+				return;
+			var refId = fields.str(row, Field.UUID);
+			wb.index.sync(Actor.class, refId, () -> createActor(row, fields));
+		});
 	}
 
-	private void setAttributes(int row, Actor actor) {
-		String version = wb.getString(sheet, row, 4);
-		actor.version = Version.fromString(version).getValue();
-		Date lastChange = wb.getDate(sheet, row, 5);
-		if (lastChange != null) {
-			actor.lastChange = lastChange.getTime();
-		}
-		actor.address = wb.getString(sheet, row, 6);
-		actor.city = wb.getString(sheet, row, 7);
-		actor.zipCode = wb.getString(sheet, row, 8);
-		actor.country = wb.getString(sheet, row, 9);
-		actor.email = wb.getString(sheet, row, 10);
-		actor.telefax = wb.getString(sheet, row, 11);
-		actor.telephone = wb.getString(sheet, row, 12);
-		actor.website = wb.getString(sheet, row, 13);
+	private Actor createActor(Row row, FieldMap fields) {
+		var actor = new Actor();
+		Util.mapBase(row, fields, actor);
+		actor.category = fields.category(row, ModelType.ACTOR, wb.db);
+		actor.address = fields.str(row, Field.ADDRESS);
+		actor.city = fields.str(row, Field.CITY);
+		actor.zipCode = fields.str(row, Field.ZIP_CODE);
+		actor.country = fields.str(row, Field.COUNTRY);
+		actor.email = fields.str(row, Field.E_MAIL);
+		actor.telefax = fields.str(row, Field.TELEFAX);
+		actor.telephone = fields.str(row, Field.TELEPHONE);
+		actor.website = fields.str(row, Field.WEBSITE);
+		return actor;
 	}
-
 }

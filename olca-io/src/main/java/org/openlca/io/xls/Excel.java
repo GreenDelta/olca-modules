@@ -1,10 +1,12 @@
 package org.openlca.io.xls;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,7 +16,9 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Helper methods for Excel exports. */
+/**
+ * Helper methods for Excel exports.
+ */
 public class Excel {
 
 	public static final int MAX_COLUMN_INDEX = SpreadsheetVersion.EXCEL2007.getLastColumnIndex();
@@ -23,7 +27,7 @@ public class Excel {
 	}
 
 	public static int width(int pixel) {
-		int[] offsetMap = { 0, 36, 73, 109, 146, 182, 219 };
+		int[] offsetMap = {0, 36, 73, 109, 146, 182, 219};
 		short widthUnits = (short) (256 * (pixel / 7));
 		widthUnits += offsetMap[(pixel % 7)];
 		return widthUnits;
@@ -179,6 +183,31 @@ public class Excel {
 				case NUMERIC -> Double.toString(cell.getNumericCellValue());
 				case BLANK, _NONE -> null;
 			};
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static Date getDate(Sheet sheet, int row, int col) {
+		return sheet != null
+				? getDate(sheet.getRow(row), col)
+				: null;
+	}
+
+	public static Date getDate(Row row, int col) {
+		return row != null
+				? getDate(row.getCell(col))
+				: null;
+	}
+
+	public static Date getDate(Cell cell) {
+		if (cell == null)
+			return null;
+		try {
+			var type = cell.getCellType();
+			if (type != CellType.NUMERIC)
+				return null;
+			return cell.getDateCellValue();
 		} catch (Exception e) {
 			return null;
 		}
