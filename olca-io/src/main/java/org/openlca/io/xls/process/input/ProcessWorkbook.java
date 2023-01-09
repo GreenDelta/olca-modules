@@ -1,30 +1,67 @@
 package org.openlca.io.xls.process.input;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.io.Categories;
 
-class Config {
+class ProcessWorkbook {
 
-	final IDatabase database;
+	final IDatabase db;
 	final Process process;
-	final RefData refData;
-	final Workbook workbook;
+	final EntityIndex index;
+	final ImportLog log;
+	final Workbook wb;
 
-	Config(Workbook workbook, IDatabase database, Process process) {
-		this.workbook = workbook;
-		this.database = database;
+	private ProcessWorkbook(ImportConfig config, Workbook wb, Process process) {
+		this.wb = wb;
+		this.db = config.db();
+		this.log = config.log();
 		this.process = process;
-		this.refData = new RefData();
+		this.index = new EntityIndex(db, config.log());
+	}
+
+	static Process read(File file, ImportConfig config) {
+		try (var fis = new FileInputStream(file)) {
+			var wb = WorkbookFactory.create(fis);
+			var process = new Process();
+			process.documentation = new ProcessDocumentation();
+			new ProcessWorkbook(config, wb, process).readSheets();
+			return process;
+		} catch (Exception e) {
+			config.log().error("failed to import file", e);
+			return null;
+		}
+	}
+
+	private void readSheets() {
+		// reference data
+		LocationSheet.read(this);
+		ActorSheet.read(this);
+		SourceSheet.read(this);
+		UnitSheets.read(this);
+		FlowSheets.read(this);
+		// process sheets
+		IOSheet.readInputs(this);
+		IOSheet.readOutputs(this);
+		InfoSheet.read(this); // after exchanges! find qRef
+		AdminInfoSheet.read(this);
+		ModelingSheet.read(this);
+		ParameterSheet.read(this);
+		AllocationSheet.read(this);
 	}
 
 	Category getCategory(String string, ModelType type) {
@@ -36,7 +73,7 @@ class Config {
 			return null;
 		}
 		String[] elems = path.split("/");
-		return Categories.findOrAdd(database, type, elems);
+		return Categories.findOrAdd(db, type, elems);
 	}
 
 	Cell getCell(Sheet sheet, int row, int col) {

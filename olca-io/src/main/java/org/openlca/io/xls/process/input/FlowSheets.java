@@ -25,21 +25,21 @@ class FlowSheets {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final FlowDao dao;
 	private final Sheet factorSheet;
 	private final Sheet flowSheet;
 
 	private HashMap<String, List<Factor>> factors = new HashMap<>();
 
-	private FlowSheets(Config config) {
+	private FlowSheets(ProcessWorkbook config) {
 		this.config = config;
-		this.dao = new FlowDao(config.database);
-		this.factorSheet = config.workbook.getSheet("Flow property factors");
-		this.flowSheet = config.workbook.getSheet("Flows");
+		this.dao = new FlowDao(config.db);
+		this.factorSheet = config.wb.getSheet("Flow property factors");
+		this.flowSheet = config.wb.getSheet("Flows");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new FlowSheets(config).read();
 	}
 

@@ -10,17 +10,17 @@ class LocationSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final LocationDao dao;
 	private final Sheet sheet;
 
-	private LocationSheet(Config config) {
+	private LocationSheet(ProcessWorkbook config) {
 		this.config = config;
-		dao = new LocationDao(config.database);
-		sheet = config.workbook.getSheet("Locations");
+		dao = new LocationDao(config.db);
+		sheet = config.wb.getSheet("Locations");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new LocationSheet(config).read();
 	}
 

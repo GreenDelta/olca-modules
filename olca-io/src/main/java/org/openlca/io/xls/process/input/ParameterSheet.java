@@ -23,15 +23,15 @@ class ParameterSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Sheet sheet;
 
-	private ParameterSheet(Config config) {
+	private ParameterSheet(ProcessWorkbook config) {
 		this.config = config;
-		sheet = config.workbook.getSheet("Parameters");
+		sheet = config.wb.getSheet("Parameters");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new ParameterSheet(config).read();
 	}
 
@@ -63,7 +63,7 @@ class ParameterSheet {
 	}
 
 	private void syncGlobals(List<Parameter> sheetParams) {
-		ParameterDao dao = new ParameterDao(config.database);
+		ParameterDao dao = new ParameterDao(config.db);
 		List<Parameter> globals = new ArrayList<>();
 		globals.addAll(dao.getGlobalParameters());
 		for (Parameter p : sheetParams) {

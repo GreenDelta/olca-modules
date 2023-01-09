@@ -16,19 +16,19 @@ class InfoSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final ProcessDocumentation doc;
 	private final Process process;
 	private final Sheet sheet;
 
-	private InfoSheet(Config config) {
+	private InfoSheet(ProcessWorkbook config) {
 		this.config = config;
 		this.process = config.process;
 		this.doc = config.process.documentation;
-		sheet = config.workbook.getSheet("General information");
+		sheet = config.wb.getSheet("General information");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new InfoSheet(config).read();
 	}
 

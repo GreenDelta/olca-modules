@@ -16,17 +16,17 @@ class SourceSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final SourceDao dao;
 	private final Sheet sheet;
 
-	private SourceSheet(Config config) {
+	private SourceSheet(ProcessWorkbook config) {
 		this.config = config;
-		sheet = config.workbook.getSheet("Sources");
-		dao = new SourceDao(config.database);
+		sheet = config.wb.getSheet("Sources");
+		dao = new SourceDao(config.db);
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new SourceSheet(config).read();
 	}
 

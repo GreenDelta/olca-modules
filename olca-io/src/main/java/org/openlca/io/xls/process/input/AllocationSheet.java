@@ -19,17 +19,17 @@ class AllocationSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final Process process;
 	private final Sheet sheet;
 
-	private AllocationSheet(Config config) {
+	private AllocationSheet(ProcessWorkbook config) {
 		this.config = config;
 		this.process = config.process;
-		this.sheet = config.workbook.getSheet("Allocation");
+		this.sheet = config.wb.getSheet("Allocation");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new AllocationSheet(config).read();
 	}
 

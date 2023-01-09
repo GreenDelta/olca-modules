@@ -13,22 +13,22 @@ class IOSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final boolean forInputs;
 	private final Sheet sheet;
 
-	private IOSheet(Config config, boolean forInputs) {
+	private IOSheet(ProcessWorkbook config, boolean forInputs) {
 		this.config = config;
 		this.forInputs = forInputs;
 		String sheetName = forInputs ? "Inputs" : "Outputs";
-		sheet = config.workbook.getSheet(sheetName);
+		sheet = config.wb.getSheet(sheetName);
 	}
 
-	public static void readInputs(Config config) {
+	public static void readInputs(ProcessWorkbook config) {
 		new IOSheet(config, true).read();
 	}
 
-	public static void readOutputs(Config config) {
+	public static void readOutputs(ProcessWorkbook config) {
 		new IOSheet(config, false).read();
 	}
 

@@ -16,19 +16,19 @@ class ModelingSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final ProcessDocumentation doc;
 	private final Process process;
 	private final Sheet sheet;
 
-	private ModelingSheet(Config config) {
+	private ModelingSheet(ProcessWorkbook config) {
 		this.config = config;
 		process = config.process;
 		doc = config.process.documentation;
-		sheet = config.workbook.getSheet("Modeling and validation");
+		sheet = config.wb.getSheet("Modeling and validation");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new ModelingSheet(config).read();
 	}
 

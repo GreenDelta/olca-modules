@@ -13,17 +13,17 @@ class AdminInfoSheet {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final ProcessDocumentation doc;
 	private final Sheet sheet;
 
-	private AdminInfoSheet(Config config) {
+	private AdminInfoSheet(ProcessWorkbook config) {
 		this.config = config;
 		doc = config.process.documentation;
-		sheet = config.workbook.getSheet("Administrative information");
+		sheet = config.wb.getSheet("Administrative information");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new AdminInfoSheet(config).read();
 	}
 

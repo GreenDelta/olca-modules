@@ -7,24 +7,20 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ActorSheet {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Config config;
+	private final ProcessWorkbook wb;
 	private final ActorDao dao;
 	private final Sheet sheet;
 
-	private ActorSheet(Config config) {
-		this.config = config;
-		this.dao = new ActorDao(config.database);
-		sheet = config.workbook.getSheet("Actors");
+	private ActorSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		this.dao = new ActorDao(wb.db);
+		sheet = wb.wb.getSheet("Actors");
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new ActorSheet(config).read();
 	}
 
@@ -33,10 +29,9 @@ class ActorSheet {
 			return;
 		}
 		try {
-			log.trace("import actors");
 			int row = 1;
 			while (true) {
-				String uuid = config.getString(sheet, row, 0);
+				String uuid = wb.getString(sheet, row, 0);
 				if (uuid == null || uuid.trim().isEmpty()) {
 					break;
 				}
@@ -49,38 +44,38 @@ class ActorSheet {
 	}
 
 	private void readActor(String uuid, int row) {
-		String name = config.getString(sheet, row, 1);
-		String category = config.getString(sheet, row, 3);
+		String name = wb.getString(sheet, row, 1);
+		String category = wb.getString(sheet, row, 3);
 		Actor actor = dao.getForRefId(uuid);
 		if (actor != null) {
-			config.refData.putActor(name, category, actor);
+			wb.refData.putActor(name, category, actor);
 			return;
 		}
 		actor = new Actor();
 		actor.refId = uuid;
 		actor.name = name;
-		actor.description = config.getString(sheet, row, 2);
-		actor.category = config.getCategory(category, ModelType.ACTOR);
+		actor.description = wb.getString(sheet, row, 2);
+		actor.category = wb.getCategory(category, ModelType.ACTOR);
 		setAttributes(row, actor);
 		actor = dao.insert(actor);
-		config.refData.putActor(name, category, actor);
+		wb.refData.putActor(name, category, actor);
 	}
 
 	private void setAttributes(int row, Actor actor) {
-		String version = config.getString(sheet, row, 4);
+		String version = wb.getString(sheet, row, 4);
 		actor.version = Version.fromString(version).getValue();
-		Date lastChange = config.getDate(sheet, row, 5);
+		Date lastChange = wb.getDate(sheet, row, 5);
 		if (lastChange != null) {
 			actor.lastChange = lastChange.getTime();
 		}
-		actor.address = config.getString(sheet, row, 6);
-		actor.city = config.getString(sheet, row, 7);
-		actor.zipCode = config.getString(sheet, row, 8);
-		actor.country = config.getString(sheet, row, 9);
-		actor.email = config.getString(sheet, row, 10);
-		actor.telefax = config.getString(sheet, row, 11);
-		actor.telephone = config.getString(sheet, row, 12);
-		actor.website = config.getString(sheet, row, 13);
+		actor.address = wb.getString(sheet, row, 6);
+		actor.city = wb.getString(sheet, row, 7);
+		actor.zipCode = wb.getString(sheet, row, 8);
+		actor.country = wb.getString(sheet, row, 9);
+		actor.email = wb.getString(sheet, row, 10);
+		actor.telefax = wb.getString(sheet, row, 11);
+		actor.telephone = wb.getString(sheet, row, 12);
+		actor.website = wb.getString(sheet, row, 13);
 	}
 
 }

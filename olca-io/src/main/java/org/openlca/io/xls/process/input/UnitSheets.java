@@ -28,7 +28,7 @@ class UnitSheets {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config config;
+	private final ProcessWorkbook config;
 	private final UnitGroupDao groupDao;
 	private final FlowPropertyDao propertyDao;
 
@@ -41,30 +41,30 @@ class UnitSheets {
 	private List<Pair<PropertyRecord, FlowProperty>> createdProperties = new ArrayList<>();
 	private List<FlowProperty> syncedProperties = new ArrayList<>();
 
-	private UnitSheets(Config config) {
+	private UnitSheets(ProcessWorkbook config) {
 		this.config = config;
-		this.groupDao = new UnitGroupDao(config.database);
-		this.propertyDao = new FlowPropertyDao(config.database);
+		this.groupDao = new UnitGroupDao(config.db);
+		this.propertyDao = new FlowPropertyDao(config.db);
 	}
 
-	public static void read(Config config) {
+	public static void read(ProcessWorkbook config) {
 		new UnitSheets(config).read();
 	}
 
 	private void read() {
 		try {
 			log.trace("import units and flow properties");
-			Sheet unitSheet = config.workbook.getSheet("Units");
+			Sheet unitSheet = config.wb.getSheet("Units");
 			unitRecords = readRecords(UnitRecord.class, unitSheet);
-			Sheet groupSheet = config.workbook.getSheet("Unit groups");
+			Sheet groupSheet = config.wb.getSheet("Unit groups");
 			groupRecords = readRecords(UnitGroupRecord.class, groupSheet);
-			Sheet propertySheet = config.workbook.getSheet("Flow properties");
+			Sheet propertySheet = config.wb.getSheet("Flow properties");
 			propertyRecords = readRecords(PropertyRecord.class, propertySheet);
 			importUnitGroups();
 			importFlowProperties();
 			linkFlowProperties();
 			linkUnitGroups();
-			config.refData.loadUnits(config.database);
+			config.refData.loadUnits(config.db);
 		} catch (Exception e) {
 			log.error("failed to read unit records", e);
 		}
