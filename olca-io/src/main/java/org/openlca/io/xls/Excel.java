@@ -29,12 +29,12 @@ public class Excel {
 		return widthUnits;
 	}
 
-	public static void headerStyle(Workbook workbook, Sheet sheet, int row,
-			int column) {
-		var cell = cell(sheet, row, column);
+	public static void bold(Workbook wb, Sheet sheet, int row, int col) {
+		var cell = cell(sheet, row, col);
 		if (cell.isEmpty())
 			return;
-		cell.get().setCellStyle(headerStyle(workbook));
+		var bold = createBoldStyle(wb);
+		cell.get().setCellStyle(bold);
 	}
 
 	public static Optional<Cell> cell(Sheet sheet, int row, int column) {
@@ -42,8 +42,8 @@ public class Excel {
 		return cell(_row, column);
 	}
 
-	public static CellStyle headerStyle(Workbook workbook) {
-		CellStyle headerStyle = workbook.createCellStyle();
+	public static CellStyle createBoldStyle(Workbook workbook) {
+		var headerStyle = workbook.createCellStyle();
 		Font font = workbook.createFont();
 		font.setBold(true);
 		headerStyle.setFont(font);

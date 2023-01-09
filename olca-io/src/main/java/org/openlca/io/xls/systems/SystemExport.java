@@ -280,7 +280,7 @@ class SystemExport {
 		Sheet sheet = export.writeTo(workbook);
 		int columnOffSet = rowHeader.getHeaderSize() + 1;
 		for (int i = 0; i < columnHeader.getHeaderSize(); i++) {
-			Excel.headerStyle(workbook, sheet, i, columnOffSet);
+			Excel.bold(workbook, sheet, i, columnOffSet);
 		}
 	}
 

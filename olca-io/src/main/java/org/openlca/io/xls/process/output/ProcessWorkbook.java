@@ -21,7 +21,7 @@ class ProcessWorkbook {
 	final IDatabase db;
 	final Workbook workbook;
 	final Process process;
-	final CellStyle headerStyle;
+	final CellStyle boldFont;
 	final CellStyle dateStyle;
 
 	private final CellStyle pairHeader;
@@ -35,7 +35,7 @@ class ProcessWorkbook {
 		this.process = process;
 
 		// styles
-		headerStyle = Excel.headerStyle(wb);
+		boldFont = Excel.createBoldStyle(wb);
 		dateStyle = Excel.dateStyle(wb);
 		dateStyle.setAlignment(HorizontalAlignment.LEFT);
 		pairHeader = wb.createCellStyle();
@@ -83,7 +83,7 @@ class ProcessWorkbook {
 
 	void header(Sheet sheet, int row, int col, String val) {
 		var cell = Excel.cell(sheet, row, col, val);
-		cell.ifPresent(value -> value.setCellStyle(headerStyle));
+		cell.ifPresent(value -> value.setCellStyle(boldFont));
 	}
 
 	void date(Sheet sheet, int row, int col, long time) {
@@ -191,17 +191,17 @@ class ProcessWorkbook {
 
 		SheetCursor header(String header) {
 			Excel.cell(sheet, row, 0, header)
-					.ifPresent(c -> c.setCellStyle(headerStyle));
+					.ifPresent(c -> c.setCellStyle(boldFont));
 			row++;
 			return this;
 		}
 
 		SheetCursor header(String first, String...more) {
 			Excel.cell(sheet, row, 0, first)
-					.ifPresent(c -> c.setCellStyle(headerStyle));
+					.ifPresent(c -> c.setCellStyle(boldFont));
 			for (int i = 0; i < more.length; i++) {
 				Excel.cell(sheet, row, i + 1, more[i])
-						.ifPresent(c -> c.setCellStyle(headerStyle));
+						.ifPresent(c -> c.setCellStyle(boldFont));
 			}
 			row++;
 			return this;

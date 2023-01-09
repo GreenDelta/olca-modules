@@ -46,7 +46,7 @@ public class ProjectResultExport {
 
 	public void writeTo(File file) throws IOException {
 		var wb = new XSSFWorkbook();
-		headerStyle = Excel.headerStyle(wb);
+		headerStyle = Excel.createBoldStyle(wb);
 		writeInfoSheet(wb);
 		if (variants.length != 0) {
 			if (result.hasEnviFlows()) {

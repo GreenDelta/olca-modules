@@ -9,7 +9,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.io.xls.Excel;
 
@@ -59,7 +58,7 @@ class MatrixExcelExport {
 				: columnHeader.getHeaderSize();
 		ExcelHeader header = headerType == COLUMN ? columnHeader : rowHeader;
 
-		CellStyle bold = Excel.headerStyle(workbook);
+		CellStyle bold = Excel.createBoldStyle(workbook);
 		for (int i = 0; i < header.getHeaderSize(); i++) {
 			for (int j = 0; j <= header.getEntryCount(); j++) {
 				int row = headerType == COLUMN ? i : j + offSet;

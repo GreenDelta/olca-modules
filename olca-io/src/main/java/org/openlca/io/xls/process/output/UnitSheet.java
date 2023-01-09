@@ -64,7 +64,7 @@ class UnitSheet implements EntitySheet {
 		if (Objects.equals(item.unit, item.group.referenceUnit)) {
 			for (int i = 0; i < 6; i++) {
 				Excel.cell(sheet, row, i)
-						.ifPresent(c -> c.setCellStyle(config.headerStyle));
+						.ifPresent(c -> c.setCellStyle(config.boldFont));
 			}
 		}
 	}
