@@ -37,8 +37,8 @@ class RefData {
 		load(new FlowPropertyDao(database), flowProperties);
 	}
 
-	private <T extends RefEntity> void load(RefEntityDao<T, ?> dao,
-                                            HashMap<String, T> map) throws Exception {
+	private <T extends RefEntity> void load(
+			RefEntityDao<T, ?> dao, HashMap<String, T> map) {
 		for (T entity : dao.getAll()) {
 			map.put(entity.name, entity);
 		}

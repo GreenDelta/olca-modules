@@ -96,18 +96,13 @@ class Config {
 			return null;
 		}
 		type = type.trim().toLowerCase();
-		switch (type) {
-		case "log-normal":
-			return logNormal(sheet, row, col);
-		case "normal":
-			return normal(sheet, row, col);
-		case "triangular":
-			return triangular(sheet, row, col);
-		case "uniform":
-			return uniform(sheet, row, col);
-		default:
-			return null;
-		}
+		return switch (type) {
+			case "log-normal" -> logNormal(sheet, row, col);
+			case "normal" -> normal(sheet, row, col);
+			case "triangular" -> triangular(sheet, row, col);
+			case "uniform" -> uniform(sheet, row, col);
+			default -> null;
+		};
 	}
 
 	private Uncertainty logNormal(Sheet sheet, int row, int col) {

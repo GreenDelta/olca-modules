@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 class ActorSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Config config;
 	private final ActorDao dao;

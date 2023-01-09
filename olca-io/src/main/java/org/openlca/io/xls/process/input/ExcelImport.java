@@ -7,37 +7,32 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ExcelImport implements Runnable {
+public class ExcelImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase db;
+	private final ImportLog log;
 
-	private final IDatabase database;
-	private final File xlsFile;
-
-	public ExcelImport(File xlsFile, IDatabase database) {
-		this.xlsFile = xlsFile;
-		this.database = database;
+	public ExcelImport(IDatabase db) {
+		this.db = db;
+		this.log = new ImportLog();
 	}
 
-	@Override
-	public void run() {
-		log.trace("import file {}", xlsFile);
-		try (FileInputStream fis = new FileInputStream(xlsFile)) {
-			Workbook workbook = WorkbookFactory.create(fis);
+	public void next(File file) {
+		try (var fis = new FileInputStream(file)) {
+			var workbook = WorkbookFactory.create(fis);
 			Process process = new Process();
 			ProcessDocumentation doc = new ProcessDocumentation();
 			process.documentation = doc;
-			Config config = new Config(workbook, database, process);
+			Config config = new Config(workbook, db, process);
 			readSheets(config);
-			ProcessDao dao = new ProcessDao(database);
+			ProcessDao dao = new ProcessDao(db);
 			dao.insert(process);
 		} catch (Exception e) {
-			log.error("failed to import file " + xlsFile, e);
+			log.error("failed to import file");
 		}
 	}
 
