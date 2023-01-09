@@ -46,6 +46,10 @@ class FieldMap {
 		return Excel.getDate(cellOf(row, field));
 	}
 
+	double num(Row row, Field field) {
+		return Excel.getDouble(cellOf(row, field));
+	}
+
 	Category category(Row row, ModelType type, IDatabase db) {
 		var path = str(row, Field.CATEGORY);
 		if (Strings.nullOrEmpty(path))

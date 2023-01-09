@@ -214,18 +214,19 @@ public class Excel {
 	}
 
 	public static double getDouble(Sheet sheet, int row, int col) {
+		var _row = sheet.getRow(row);
+		if (_row == null)
+			return 0d;
+		return getDouble(_row.getCell(col));
+	}
+
+	public static double getDouble(Cell cell) {
+		if (cell == null)
+			return 0;
 		try {
-			Row _row = sheet.getRow(row);
-			if (_row == null)
-				return 0d;
-			Cell cell = _row.getCell(col);
-			if (cell == null)
-				return 0d;
 			return cell.getNumericCellValue();
 		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(Excel.class);
-			log.error("Failed to get double", e);
-			return 0d;
+			return 0;
 		}
 	}
 

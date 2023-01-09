@@ -28,11 +28,11 @@ class ActorSheet {
 			if (row.getRowNum() == 0)
 				return;
 			var refId = fields.str(row, Field.UUID);
-			wb.index.sync(Actor.class, refId, () -> createActor(row, fields));
+			wb.index.sync(Actor.class, refId, () -> create(row, fields));
 		});
 	}
 
-	private Actor createActor(Row row, FieldMap fields) {
+	private Actor create(Row row, FieldMap fields) {
 		var actor = new Actor();
 		Util.mapBase(row, fields, actor);
 		actor.category = fields.category(row, ModelType.ACTOR, wb.db);

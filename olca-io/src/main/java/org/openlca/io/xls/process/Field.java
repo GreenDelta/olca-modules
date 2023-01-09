@@ -5,18 +5,28 @@ import org.openlca.util.Strings;
 public enum Field {
 
 	ADDRESS("Address"),
+
 	CATEGORY("Category"),
 	CITY("City"),
+	CODE("Code"),
 	COUNTRY("Country"),
+
 	DEFAULT_FLOW_PROPERTY("Default flow property"),
 	DESCRIPTION("Description"),
+
 	E_MAIL("E-Mail"),
+
 	LAST_CHANGE("Last change"),
+	LATITUDE("Latitude"),
+	LONGITUDE("Longitude"),
+
 	NAME("Name"),
 	REFERENCE_UNIT("Reference unit"),
+
 	TAGS("Tags"),
 	TELEFAX("Telefax"),
 	TELEPHONE("Telephone"),
+
 	UUID("UUID"),
 	VERSION("Version"),
 	WEBSITE("Website"),
@@ -36,12 +46,15 @@ public enum Field {
 			case "address" -> ADDRESS;
 			case "category" -> CATEGORY;
 			case "city" -> CITY;
+			case "code" -> CODE;
 			case "country" -> COUNTRY;
 			case "default flow property" -> DEFAULT_FLOW_PROPERTY;
 			case "description" -> DESCRIPTION;
 			case "e-mail", "email" -> E_MAIL;
 			case "name" -> NAME;
 			case "last change" -> LAST_CHANGE;
+			case "latitude" -> LATITUDE;
+			case "longitude" -> LONGITUDE;
 			case "reference unit" -> REFERENCE_UNIT;
 			case "tags" -> TAGS;
 			case "telefax" -> TELEFAX;

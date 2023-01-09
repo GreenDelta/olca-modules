@@ -1,9 +1,11 @@
 package org.openlca.io.xls.process.output;
 
-import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
+import org.openlca.io.CategoryPath;
 import org.openlca.io.xls.Excel;
+import org.openlca.io.xls.process.Field;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,33 +30,32 @@ class LocationSheet implements EntitySheet {
 	public void flush() {
 		if (locations.isEmpty())
 			return;
-		var sheet = wb.workbook.createSheet("Locations");
-		Excel.trackSize(sheet, 0, 5);
-		writeHeader(sheet);
-		int row = 0;
+		var cursor = wb.createCursor("Locations")
+				.withColumnWidths(5, 25);
+		cursor.header(
+				Field.UUID, // 0
+				Field.CODE, // 1
+				Field.NAME, // 2
+				Field.CATEGORY, // 3
+				Field.DESCRIPTION, // 4
+				Field.LATITUDE, // 5
+				Field.LONGITUDE, // 6
+				Field.LAST_CHANGE, // 7
+				Field.VERSION // 8
+		);
+
 		for (var location : Util.sort(locations)) {
-			row++;
-			write(sheet, row, location);
+			cursor.next(row -> {
+				Excel.cell(row, 0, location.refId);
+				Excel.cell(row, 1, location.code);
+				Excel.cell(row, 2, location.name);
+				Excel.cell(row, 3, CategoryPath.getFull(location.category));
+				Excel.cell(row, 4, location.description);
+				Excel.cell(row, 5, location.latitude);
+				Excel.cell(row, 6, location.longitude);
+				wb.date(row, 7, location.lastChange);
+				Excel.cell(row, 8, new Version(location.version).toString());
+			});
 		}
-		Excel.autoSize(sheet, 0, 5);
 	}
-
-	private void writeHeader(Sheet sheet) {
-		wb.header(sheet, 0, 0, "UUID");
-		wb.header(sheet, 0, 1, "Code");
-		wb.header(sheet, 0, 2, "Name");
-		wb.header(sheet, 0, 3, "Description");
-		wb.header(sheet, 0, 4, "Latitude");
-		wb.header(sheet, 0, 5, "Longitude");
-	}
-
-	private void write(Sheet sheet, int row, Location location) {
-		Excel.cell(sheet, row, 0, location.refId);
-		Excel.cell(sheet, row, 1, location.code);
-		Excel.cell(sheet, row, 2, location.name);
-		Excel.cell(sheet, row, 3, location.description);
-		Excel.cell(sheet, row, 4, location.latitude);
-		Excel.cell(sheet, row, 5, location.longitude);
-	}
-
 }
