@@ -57,8 +57,9 @@ class ProcessWorkbook {
 		LocationSheet.sync(this);
 		Actors.sync(this);
 		Sources.sync(this);
-		UnitSheets.read(this);
+		Units.sync(this);
 		FlowSheets.read(this);
+
 		// process sheets
 		IOSheet.readInputs(this);
 		IOSheet.readOutputs(this);

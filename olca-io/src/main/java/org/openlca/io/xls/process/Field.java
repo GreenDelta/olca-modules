@@ -29,6 +29,7 @@ public enum Field {
 	TELEFAX("Telefax"),
 	TELEPHONE("Telephone"),
 	TEXT_REFERENCE("Text reference"),
+	TYPE("Type"),
 
 	UNIT_GROUP("Unit group"),
 	URL("URL"),
@@ -69,6 +70,7 @@ public enum Field {
 			case "telefax" -> TELEFAX;
 			case "telephone" -> TELEPHONE;
 			case "text reference" -> TEXT_REFERENCE;
+			case "type" -> TYPE;
 			case "unit group" -> UNIT_GROUP;
 			case "url" -> URL;
 			case "uuid", "id", "ref_id" -> UUID;
