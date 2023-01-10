@@ -7,6 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 import org.openlca.io.CategoryPath;
@@ -64,7 +65,7 @@ class EntityIndex {
 
 		var candidates = new FlowDao(db).getForName(name)
 				.stream()
-				.filter(f -> keyOf(f).equals(key) && flowPropertyOf(f, unit) != null)
+				.filter(f -> flowKeyOf(f).equals(key) && flowPropertyOf(f, unit) != null)
 				.toList();
 
 		if (candidates.isEmpty()) {
@@ -113,10 +114,15 @@ class EntityIndex {
 		if (e == null)
 			return null;
 		if (e instanceof Flow flow) {
-			flows.put(keyOf(flow), flow);
+			flows.put(flowKeyOf(flow), flow);
 		} else {
 			var map = index.computeIfAbsent(e.getClass(), clazz -> new HashMap<>());
 			map.put(keyOf(e.name), e);
+			if (e instanceof Location loc) {
+				if (Strings.notEmpty(loc.code)) {
+					map.put(keyOf(loc.code), loc);
+				}
+			}
 		}
 		return e;
 	}
@@ -127,7 +133,11 @@ class EntityIndex {
 				: "";
 	}
 
-	private String keyOf(Flow flow) {
+	static String flowKeyOf(String name, String category) {
+		return keyOf(category) + "/" + keyOf(name);
+	}
+
+	static String flowKeyOf(Flow flow) {
 		return keyOf(CategoryPath.getFull(flow.category))
 				+ "/" + keyOf(flow.name);
 	}

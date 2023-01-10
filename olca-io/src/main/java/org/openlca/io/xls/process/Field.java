@@ -6,6 +6,7 @@ public enum Field {
 
 	ADDRESS("Address"),
 
+	CAS("CAS"),
 	CATEGORY("Category"),
 	CITY("City"),
 	CODE("Code"),
@@ -17,12 +18,20 @@ public enum Field {
 
 	E_MAIL("E-Mail"),
 
+	FLOW("Flow"),
+	FLOW_PROPERTY("Flow property"),
+	FORMULA("Formula"),
+
 	LAST_CHANGE("Last change"),
 	LATITUDE("Latitude"),
+	LOCATION("Location"),
 	LONGITUDE("Longitude"),
 
 	NAME("Name"),
+
+	REFERENCE_FLOW_PROPERTY("Reference flow property"),
 	REFERENCE_UNIT("Reference unit"),
+
 	SYNONYMS("Synonyms"),
 
 	TAGS("Tags"),
@@ -52,6 +61,7 @@ public enum Field {
 			return null;
 		return switch (label.trim().toLowerCase()) {
 			case "address" -> ADDRESS;
+			case "cas", "cas number" -> CAS;
 			case "category" -> CATEGORY;
 			case "city" -> CITY;
 			case "code" -> CODE;
@@ -60,10 +70,15 @@ public enum Field {
 			case "default flow property" -> DEFAULT_FLOW_PROPERTY;
 			case "description" -> DESCRIPTION;
 			case "e-mail", "email" -> E_MAIL;
+			case "flow" -> FLOW;
+			case "flow property" -> FLOW_PROPERTY;
+			case "formula", "chemical formula" -> FORMULA;
 			case "name" -> NAME;
 			case "last change" -> LAST_CHANGE;
 			case "latitude" -> LATITUDE;
+			case "location" -> LOCATION;
 			case "longitude" -> LONGITUDE;
+			case "reference flow property" -> REFERENCE_FLOW_PROPERTY;
 			case "reference unit" -> REFERENCE_UNIT;
 			case "synonyms" -> SYNONYMS;
 			case "tags" -> TAGS;

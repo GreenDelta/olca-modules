@@ -5,16 +5,16 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.xls.process.Field;
 
-class LocationSheet {
+class Locations {
 
 	private final ProcessWorkbook wb;
 
-	private LocationSheet(ProcessWorkbook wb) {
+	private Locations(ProcessWorkbook wb) {
 		this.wb = wb;
 	}
 
 	public static void sync(ProcessWorkbook config) {
-		new LocationSheet(config).sync();
+		new Locations(config).sync();
 	}
 
 	private void sync() {

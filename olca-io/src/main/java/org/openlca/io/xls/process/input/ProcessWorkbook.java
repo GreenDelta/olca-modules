@@ -54,11 +54,11 @@ class ProcessWorkbook {
 
 	private void readSheets() {
 		// reference data
-		LocationSheet.sync(this);
+		Locations.sync(this);
 		Actors.sync(this);
 		Sources.sync(this);
 		Units.sync(this);
-		FlowSheets.read(this);
+		Flows.sync(this);
 
 		// process sheets
 		IOSheet.readInputs(this);
