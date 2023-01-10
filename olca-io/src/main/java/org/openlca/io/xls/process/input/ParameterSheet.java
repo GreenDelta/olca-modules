@@ -8,8 +8,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
@@ -21,35 +19,28 @@ class ParameterSheet {
 	 */
 	private final int MAX_ROWS = 5000;
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private final ProcessWorkbook config;
+	private final ProcessWorkbook wb;
 	private final Sheet sheet;
 
-	private ParameterSheet(ProcessWorkbook config) {
-		this.config = config;
-		sheet = config.wb.getSheet("Parameters");
+	private ParameterSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		sheet = wb.getSheet("Parameters");
 	}
 
-	public static void read(ProcessWorkbook config) {
-		new ParameterSheet(config).read();
+	public static void read(ProcessWorkbook wb) {
+		new ParameterSheet(wb).read();
 	}
 
 	private void read() {
 		if (sheet == null) {
 			return;
 		}
-		try {
-			log.trace("read parameters");
-			readGlobals();
-			List<Parameter> params = config.process.parameters;
-			params.addAll(readParams("Input parameters",
-					ParameterScope.PROCESS, true));
-			params.addAll(readParams("Calculated parameters",
-					ParameterScope.PROCESS, false));
-		} catch (Exception e) {
-			log.error("failed to read parameter sheet", e);
-		}
+		readGlobals();
+		List<Parameter> params = wb.process.parameters;
+		params.addAll(readParams("Input parameters",
+				ParameterScope.PROCESS, true));
+		params.addAll(readParams("Calculated parameters",
+				ParameterScope.PROCESS, false));
 	}
 
 	private void readGlobals() {
@@ -63,9 +54,8 @@ class ParameterSheet {
 	}
 
 	private void syncGlobals(List<Parameter> sheetParams) {
-		ParameterDao dao = new ParameterDao(config.db);
-		List<Parameter> globals = new ArrayList<>();
-		globals.addAll(dao.getGlobalParameters());
+		ParameterDao dao = new ParameterDao(wb.db);
+		List<Parameter> globals = new ArrayList<>(dao.getGlobalParameters());
 		for (Parameter p : sheetParams) {
 			boolean found = false;
 			for (Parameter global : globals) {
@@ -90,7 +80,7 @@ class ParameterSheet {
 		List<Parameter> list = new ArrayList<>();
 		row += 2;
 		while (true) {
-			String name = config.getString(sheet, row, 0);
+			String name = wb.getString(sheet, row, 0);
 			if (Strings.isNullOrEmpty(name))
 				break;
 			Parameter p = input ? readInputParam(row, name, scope)
@@ -107,9 +97,9 @@ class ParameterSheet {
 		p.name = name;
 		p.isInputParameter = false;
 		p.scope = scope;
-		p.formula = config.getString(sheet, row, 1);
-		p.value = config.getDouble(sheet, row, 2);
-		p.description = config.getString(sheet, row, 3);
+		p.formula = wb.getString(sheet, row, 1);
+		p.value = wb.getDouble(sheet, row, 2);
+		p.description = wb.getString(sheet, row, 3);
 		return p;
 	}
 
@@ -119,9 +109,9 @@ class ParameterSheet {
 		p.name = name;
 		p.isInputParameter = true;
 		p.scope = scope;
-		p.value = config.getDouble(sheet, row, 1);
-		p.uncertainty = config.getUncertainty(sheet, row, 2);
-		p.description = config.getString(sheet, row, 7);
+		p.value = wb.getDouble(sheet, row, 1);
+		p.uncertainty = wb.getUncertainty(sheet, row, 2);
+		p.description = wb.getString(sheet, row, 7);
 		return p;
 	}
 
@@ -129,7 +119,7 @@ class ParameterSheet {
 		if (section == null)
 			return -1;
 		for (int i = 0; i < MAX_ROWS; i++) {
-			String s = config.getString(sheet, i, 0);
+			String s = wb.getString(sheet, i, 0);
 			if (s == null)
 				continue;
 			if (section.equalsIgnoreCase(s.trim()))

@@ -12,21 +12,17 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class AllocationSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private final ProcessWorkbook config;
+	private final ProcessWorkbook wb;
 	private final Process process;
 	private final Sheet sheet;
 
-	private AllocationSheet(ProcessWorkbook config) {
-		this.config = config;
-		this.process = config.process;
-		this.sheet = config.wb.getSheet("Allocation");
+	private AllocationSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		this.process = wb.process;
+		this.sheet = wb.getSheet("Allocation");
 	}
 
 	public static void read(ProcessWorkbook config) {
@@ -36,36 +32,24 @@ class AllocationSheet {
 	private void read() {
 		if (sheet == null || process == null)
 			return;
-		try {
-			AllocationMethod m = getMethod(config.getString(sheet, 0, 1));
-			process.defaultAllocationMethod = m;
-			List<Exchange> products = selectProducts();
-			if (products.size() <= 1) {
-				log.trace("process is not a multi-output process "
-						+ "-> no allocation factors imported");
-				return;
-			}
-			log.trace("read allocation factors");
-			readFactors(products);
-			readCausalFactors(products);
-		} catch (Exception e) {
-			log.error("failed to read allocation factors", e);
+		process.defaultAllocationMethod = getMethod(wb.getString(sheet, 0, 1));
+		List<Exchange> products = selectProducts();
+		if (products.size() <= 1) {
+			return;
 		}
+		readFactors(products);
+		readCausalFactors(products);
 	}
 
 	private AllocationMethod getMethod(String string) {
 		if (string == null)
 			return AllocationMethod.NONE;
-		switch (string.trim().toLowerCase()) {
-		case "causal":
-			return AllocationMethod.CAUSAL;
-		case "economic":
-			return AllocationMethod.ECONOMIC;
-		case "physical":
-			return AllocationMethod.PHYSICAL;
-		default:
-			return AllocationMethod.NONE;
-		}
+		return switch (string.trim().toLowerCase()) {
+			case "causal" -> AllocationMethod.CAUSAL;
+			case "economic" -> AllocationMethod.ECONOMIC;
+			case "physical" -> AllocationMethod.PHYSICAL;
+			default -> AllocationMethod.NONE;
+		};
 	}
 
 	private void readFactors(List<Exchange> products) {
@@ -82,18 +66,18 @@ class AllocationSheet {
 
 	private AllocationFactor[] readRowFactors(int row,
 			List<Exchange> products) {
-		String name = config.getString(sheet, row, 0);
+		String name = wb.getString(sheet, row, 0);
 		Exchange product = getProduct(name, products);
 		if (product == null)
 			return null;
 		AllocationFactor[] factors = new AllocationFactor[2];
 		factors[0] = new AllocationFactor();
 		factors[0].productId = product.flow.id;
-		factors[0].value = config.getDouble(sheet, row, 2);
+		factors[0].value = wb.getDouble(sheet, row, 2);
 		factors[0].method = AllocationMethod.PHYSICAL;
 		factors[1] = new AllocationFactor();
 		factors[1].productId = product.flow.id;
-		factors[1].value = config.getDouble(sheet, row, 3);
+		factors[1].value = wb.getDouble(sheet, row, 3);
 		factors[1].method = AllocationMethod.ECONOMIC;
 		return factors;
 	}
@@ -123,19 +107,19 @@ class AllocationSheet {
 			AllocationFactor factor = new AllocationFactor();
 			factor.method = AllocationMethod.CAUSAL;
 			factor.productId = productId;
-			factor.value = config.getDouble(sheet, row, col);
+			factor.value = wb.getDouble(sheet, row, col);
 			factor.exchange = exchange;
 			process.allocationFactors.add(factor);
 		}
 	}
 
 	private Exchange getFactorExchange(int row) {
-		String name = config.getString(sheet, row, 0);
+		String name = wb.getString(sheet, row, 0);
 		if (name == null)
 			return null;
-		String category = config.getString(sheet, row, 1);
-		Flow flow = config.refData.getFlow(name, category);
-		String direction = config.getString(sheet, row, 2);
+		String category = wb.getString(sheet, row, 1);
+		Flow flow = wb.index.getFlow(name, category);
+		String direction = wb.getString(sheet, row, 2);
 		if (flow == null || direction == null)
 			return null;
 		boolean input = direction.equalsIgnoreCase("Input");
@@ -150,7 +134,7 @@ class AllocationSheet {
 	private int findCausalStartRow() {
 		int row = 5;
 		while (row < 500) {
-			String s = config.getString(sheet, row, 0);
+			String s = wb.getString(sheet, row, 0);
 			if (s != null && s.equalsIgnoreCase("Causal allocation"))
 				return row;
 			row++;
@@ -164,7 +148,7 @@ class AllocationSheet {
 		int row = causalStartRow + 1;
 		int col = 4;
 		while (col < 500) {
-			String name = config.getString(sheet, row, col);
+			String name = wb.getString(sheet, row, col);
 			Exchange product = getProduct(name, products);
 			if (product == null)
 				break;
@@ -176,7 +160,7 @@ class AllocationSheet {
 
 	private List<Exchange> selectProducts() {
 		List<Exchange> products = new ArrayList<>();
-		for (Exchange exchange : config.process.exchanges) {
+		for (Exchange exchange : wb.process.exchanges) {
 			if (exchange.isInput || exchange.flow == null)
 				continue;
 			if (exchange.flow.flowType == FlowType.PRODUCT_FLOW)
@@ -195,7 +179,7 @@ class AllocationSheet {
 			if (name.equalsIgnoreCase(flowName))
 				return exchange;
 		}
-		log.warn("no output product found for name {}", name);
+		wb.log.warn("no output product found for name: " + name);
 		return null;
 	}
 }

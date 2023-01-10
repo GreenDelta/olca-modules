@@ -56,31 +56,30 @@ class EntityIndex {
 		return put(all.get(0));
 	}
 
-	Flow getFlow(String name, String category, String unit) {
-		var key = keyOf(category) + "/" + keyOf(name);
+	Flow getFlow(String name, String category) {
+		var key = flowKeyOf(name, category);
 		var flow = flows.get(key);
-		if (flow != null) {
+		if (flow != null)
 			return flow;
-		}
 
 		var candidates = new FlowDao(db).getForName(name)
 				.stream()
-				.filter(f -> flowKeyOf(f).equals(key) && flowPropertyOf(f, unit) != null)
+				.filter(f -> flowKeyOf(f).equals(key))
 				.toList();
 
 		if (candidates.isEmpty()) {
-			log.error("no flow name='" + name + "' category='" + category
-					+ "' unit='" + unit + "' could be found");
+			log.error("no flow name='" + name
+					+ "' category='" + category + "' could be found");
 			return null;
 		}
 		if (candidates.size() > 1) {
 			log.warn("there are multiple options for flow name='" + name
-					+ "' category='" + category + "' unit='" + unit + "' in the database");
+					+ "' category='" + category + "' in the database");
 		}
 		return put(candidates.get(0));
 	}
 
-	private FlowPropertyFactor flowPropertyOf(Flow flow, String unit) {
+	FlowPropertyFactor flowPropertyOf(Flow flow, String unit) {
 		if (flow == null)
 			return null;
 		for (var f : flow.flowPropertyFactors) {
@@ -90,7 +89,7 @@ class EntityIndex {
 		return null;
 	}
 
-	private Unit unitOf(FlowPropertyFactor f, String unit) {
+	Unit unitOf(FlowPropertyFactor f, String unit) {
 		if (f == null
 				|| f.flowProperty == null
 				|| f.flowProperty.unitGroup == null)

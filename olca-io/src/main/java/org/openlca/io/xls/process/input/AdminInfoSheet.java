@@ -6,73 +6,60 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.util.Strings;
 
 class AdminInfoSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-
-	private final ProcessWorkbook config;
+	private final ProcessWorkbook wb;
 	private final ProcessDocumentation doc;
 	private final Sheet sheet;
 
-	private AdminInfoSheet(ProcessWorkbook config) {
-		this.config = config;
-		doc = config.process.documentation;
-		sheet = config.wb.getSheet("Administrative information");
+	private AdminInfoSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		doc = wb.process.documentation;
+		sheet = wb.getSheet("Administrative information");
 	}
 
-	public static void read(ProcessWorkbook config) {
-		new AdminInfoSheet(config).read();
+	public static void read(ProcessWorkbook wb) {
+		new AdminInfoSheet(wb).read();
 	}
 
 	private void read() {
-		if (sheet == null) {
+		if (sheet == null)
 			return;
-		}
-		try {
-			log.trace("read administrative information");
-			doc.intendedApplication = config.getString(sheet, 1, 1);
-			doc.dataSetOwner = readActor(2);
-			doc.dataGenerator = readActor(3);
-			doc.dataDocumentor = readActor(4);
-			doc.publication = readSource(5);
-			doc.restrictions = config.getString(sheet, 6, 1);
-			doc.project = config.getString(sheet, 7, 1);
-			doc.creationDate = config.getDate(sheet, 8, 1);
-			readCopyright();
-		} catch (Exception e) {
-			log.error("failed to read administrative information", e);
-		}
+		doc.intendedApplication = wb.getString(sheet, 1, 1);
+		doc.dataSetOwner = readActor(2);
+		doc.dataGenerator = readActor(3);
+		doc.dataDocumentor = readActor(4);
+		doc.publication = readSource(5);
+		doc.restrictions = wb.getString(sheet, 6, 1);
+		doc.project = wb.getString(sheet, 7, 1);
+		doc.creationDate = wb.getDate(sheet, 8, 1);
+		readCopyright();
 	}
 
 	private Actor readActor(int row) {
-		String name = config.getString(sheet, row, 1);
-		if (name == null) {
-			return null;
-		}
-		String category = config.getString(sheet, row, 2);
-		return config.refData.getActor(name, category);
+		var name = wb.getString(sheet, row, 1);
+		return Strings.notEmpty(name)
+				? wb.index.get(Actor.class, name)
+				: null;
 	}
 
 	private Source readSource(int row) {
-		String name = config.getString(sheet, row, 1);
-		if (name == null) {
-			return null;
-		}
-		String category = config.getString(sheet, row, 2);
-		return config.refData.getSource(name, category);
+		var name = wb.getString(sheet, row, 1);
+		return Strings.notEmpty(name)
+				? wb.index.get(Source.class, name)
+				: null;
 	}
 
 	private void readCopyright() {
 		try {
-			Cell cell = config.getCell(sheet, 9, 1);
+			Cell cell = wb.getCell(sheet, 9, 1);
 			if (cell != null && cell.getCellType() == CellType.BOOLEAN) {
 				doc.copyright = cell.getBooleanCellValue();
 			}
 		} catch (Exception e) {
-			log.error("failed to read copyright cell", e);
+			wb.log.error("failed to read copyright cell", e);
 		}
 	}
 }

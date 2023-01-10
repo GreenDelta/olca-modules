@@ -5,27 +5,26 @@ import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openlca.util.Strings;
 
 class InfoSheet {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
 
-	private final ProcessWorkbook config;
+	private final ProcessWorkbook wb;
 	private final ProcessDocumentation doc;
 	private final Process process;
 	private final Sheet sheet;
 
-	private InfoSheet(ProcessWorkbook config) {
-		this.config = config;
-		this.process = config.process;
-		this.doc = config.process.documentation;
-		sheet = config.wb.getSheet("General information");
+	private InfoSheet(ProcessWorkbook wb) {
+		this.wb = wb;
+		this.process = wb.process;
+		this.doc = wb.process.documentation;
+		sheet = wb.getSheet("General information");
 	}
 
 	public static void read(ProcessWorkbook config) {
@@ -36,27 +35,22 @@ class InfoSheet {
 		if (sheet == null) {
 			return;
 		}
-		try {
-			log.trace("read information sheet");
-			readInfoSection();
-			readQuanRef();
-			readTime();
-			readGeography();
-			doc.technology = config.getString(sheet, 21, 1);
-		} catch (Exception e) {
-			log.error("failed to read information sheet", e);
-		}
+		readInfoSection();
+		readQuanRef();
+		readTime();
+		readGeography();
+		doc.technology = wb.getString(sheet, 21, 1);
 	}
 
 	private void readInfoSection() {
-		process.refId = config.getString(sheet, 1, 1);
-		process.name = config.getString(sheet, 2, 1);
-		process.description = config.getString(sheet, 3, 1);
-		String categoryPath = config.getString(sheet, 4, 1);
-		process.category = config.getCategory(categoryPath, ModelType.PROCESS);
-		String version = config.getString(sheet, 5, 1);
+		process.refId = wb.getString(sheet, 1, 1);
+		process.name = wb.getString(sheet, 2, 1);
+		process.description = wb.getString(sheet, 3, 1);
+		var categoryPath = wb.getString(sheet, 4, 1);
+		process.category = wb.getCategory(categoryPath, ModelType.PROCESS);
+		String version = wb.getString(sheet, 5, 1);
 		process.version = Version.fromString(version).getValue();
-		Date lastChange = config.getDate(sheet, 6, 1);
+		Date lastChange = wb.getDate(sheet, 6, 1);
 		if (lastChange == null) {
 			process.lastChange = 0L;
 		} else {
@@ -66,7 +60,7 @@ class InfoSheet {
 
 	private void readQuanRef() {
 		// the outputs must be already imported
-		String qRefName = config.getString(sheet, 9, 1);
+		String qRefName = wb.getString(sheet, 9, 1);
 		Exchange qRef = null;
 		for (Exchange exchange : process.exchanges) {
 			if (exchange.isInput || exchange.flow == null) {
@@ -78,24 +72,24 @@ class InfoSheet {
 			}
 		}
 		if (qRef == null) {
-			log.warn("could not find quantitative reference {}", qRefName);
+			wb.log.warn("could not find quantitative reference " + qRefName);
 		} else {
 			process.quantitativeReference = qRef;
 		}
 	}
 
 	private void readTime() {
-		doc.validFrom = config.getDate(sheet, 12, 1);
-		doc.validUntil = config.getDate(sheet, 13, 1);
-		doc.time = config.getString(sheet, 14, 1);
+		doc.validFrom = wb.getDate(sheet, 12, 1);
+		doc.validUntil = wb.getDate(sheet, 13, 1);
+		doc.time = wb.getString(sheet, 14, 1);
 	}
 
 	private void readGeography() {
-		String code = config.getString(sheet, 17, 1);
-		if (code != null) {
-			process.location = config.refData.getLocation(code);
+		String code = wb.getString(sheet, 17, 1);
+		if (Strings.notEmpty(code)) {
+			process.location = wb.index.get(Location.class, code);
 		}
-		doc.geography = config.getString(sheet, 18, 1);
+		doc.geography = wb.getString(sheet, 18, 1);
 	}
 
 }

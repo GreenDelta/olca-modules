@@ -38,7 +38,7 @@ public class ProcessIOTest {
 		db.delete(process);
 
 		// import and check it
-		new ExcelImport(file, db).run();
+		new ExcelImport(db).next(file);
 		var clone = db.get(Process.class, process.refId);
 		Assert.assertNotEquals(process.id, clone.id);
 		Assert.assertEquals(2, process.exchanges.size());
