@@ -50,6 +50,10 @@ class FieldMap {
 		return Excel.getDouble(cellOf(row, field));
 	}
 
+	Object value(Row row, Field field) {
+		return Excel.getValue(cellOf(row, field));
+	}
+
 	Category category(Row row, ModelType type, IDatabase db) {
 		var path = str(row, Field.CATEGORY);
 		if (Strings.nullOrEmpty(path))

@@ -27,12 +27,12 @@ class ProcessWorkbook {
 
 	private final Workbook wb;
 
-	private ProcessWorkbook(ExcelImport config, Workbook wb, Process process) {
+	private ProcessWorkbook(ExcelImport imp, Workbook wb, Process process) {
 		this.wb = wb;
-		this.db = config.db();
-		this.log = config.log();
+		this.db = imp.db();
+		this.log = imp.log();
 		this.process = process;
-		this.index = new EntityIndex(db, config.log());
+		this.index = new EntityIndex(db, imp.log());
 	}
 
 	static Process read(File file, ExcelImport imp) {

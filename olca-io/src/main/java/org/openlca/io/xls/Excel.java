@@ -230,4 +230,28 @@ public class Excel {
 		}
 	}
 
+	/**
+	 * Returns the value of the given cell which might be {@code null} when this
+	 * is a blank cell.
+	 */
+	public static Object getValue(Cell cell) {
+		if (cell == null)
+			return null;
+		var type = cell.getCellType();
+		if (type == null)
+			return null;
+		try {
+			return switch (type) {
+				case ERROR -> "error: " + cell.getErrorCellValue();
+				case STRING -> cell.getStringCellValue();
+				case BOOLEAN -> cell.getBooleanCellValue();
+				case FORMULA -> cell.getCellFormula();
+				case NUMERIC -> cell.getNumericCellValue();
+				case BLANK, _NONE -> null;
+			};
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 }
