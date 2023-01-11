@@ -6,6 +6,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.RootEntity;
@@ -79,18 +80,19 @@ class EntityIndex {
 		return put(candidates.get(0));
 	}
 
-	FlowPropertyFactor flowPropertyOf(Flow flow, String unit) {
+	FlowProperty flowPropertyOf(Flow flow, String unit) {
 		if (flow == null)
 			return null;
 		for (var f : flow.flowPropertyFactors) {
 			if (unitOf(f, unit) != null)
-				return f;
+				return f.flowProperty;
 		}
 		return null;
 	}
 
 	Unit unitOf(FlowPropertyFactor f, String unit) {
 		if (f == null
+				|| Strings.nullOrEmpty(unit)
 				|| f.flowProperty == null
 				|| f.flowProperty.unitGroup == null)
 			return null;

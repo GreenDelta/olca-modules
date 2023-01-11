@@ -1,23 +1,23 @@
 package org.openlca.io.xls.process.input;
 
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.Unit;
+import org.openlca.io.xls.process.Field;
+import org.openlca.io.xls.process.Tab;
 import org.openlca.util.Strings;
 
 class IOSheet {
 
 	private final ProcessWorkbook wb;
 	private final boolean forInputs;
-	private final Sheet sheet;
+	private final SheetReader sheet;
 
 	private IOSheet(ProcessWorkbook wb, boolean forInputs) {
 		this.wb = wb;
 		this.forInputs = forInputs;
-		String sheetName = forInputs ? "Inputs" : "Outputs";
-		sheet = wb.getSheet(sheetName);
+		sheet = wb.reader()
+				.getSheet(forInputs ? Tab.INPUTS : Tab.OUTPUTS )
+				.orElse(null);
 	}
 
 	public static void readInputs(ProcessWorkbook wb) {
@@ -29,54 +29,36 @@ class IOSheet {
 	}
 
 	private void read() {
-		if (sheet == null) {
+		if (sheet == null)
 			return;
-		}
-		try {
-			int row = 1;
-			while (true) {
-				Exchange exchange = readExchange(row);
-				if (exchange == null) {
-					break;
-				}
-				row++;
-			}
-		} catch (Exception e) {
-			wb.log.error("failed to read exchanges", e);
-		}
+		sheet.eachRow(this::nextExchange);
 	}
 
-	private Exchange readExchange(int row) {
-		String name = wb.getString(sheet, row, 0);
-		if (name == null) {
-			return null;
-		}
+	private void nextExchange(FieldMap fields, Row row) {
+		var name = fields.str(row, Field.NAME);
+		if (name == null)
+			return;
 
-		String category = wb.getString(sheet, row, 1);
-		Flow flow = wb.index.getFlow(name, category);
+		var category = fields.str(row, Field.CATEGORY);
+		var flow = wb.index.getFlow(name, category);
 		if (flow == null) {
-			return refDataError(row, "flow: " + name + "/" + category);
+			logErr(row, "flow: " + name + "/" + category);
+			return;
 		}
 
-		String propName = wb.getString(sheet, row, 2);
-		FlowProperty property = wb.index.get(FlowProperty.class, propName);
-		if (property == null) {
-			return refDataError(row, "flow property: " + propName);
-		}
-
-		var factor = flow.getFactor(property);
-		if (factor == null) {
-			return refDataError(row, "flow property factor: " + propName);
-		}
-		String unitName = wb.getString(sheet, row, 3);
-		Unit unit = wb.index.unitOf(factor, unitName);
+		var unitName = fields.str(row, Field.UNIT);
+		var prop = wb.index.flowPropertyOf(flow, unitName);
+		var unit = wb.index.unitOf(factor, unitName);
 		if (unit == null) {
-			return refDataError(row, "unit: " + unitName);
+			logErr(row, "unit: " + unitName);
+			return;
 		}
 
-		var exchange = wb.process.add(Exchange.of(flow, property, unit));
+		var exchange = wb.process.add(Exchange.of(flow, prop, unit));
 		exchange.isInput = forInputs;
-		exchange.amount = wb.getDouble(sheet, row, 4);
+
+		exchange.amount = fields.num(row, Field.AMOUNT);
+
 		String formula = wb.getString(sheet, row, 5);
 		if (!Strings.nullOrEmpty(formula)) {
 			exchange.formula = formula;
@@ -88,13 +70,14 @@ class IOSheet {
 		exchange.uncertainty = wb.getUncertainty(sheet, row, 7);
 		if ("Yes".equals(wb.getString(sheet, row, 12)))
 			exchange.isAvoided = true;
-		return exchange;
 	}
 
-	private Exchange refDataError(int row, String m) {
+
+	private void logErr(Row row, String m) {
 		wb.log.error("could not create an exchange because of missing reference "
-				+ "datum: " + m + "; forInputs=" + forInputs + " row=" + row);
-		return null;
+				+ "datum: " + m + "; forInputs=" + forInputs + " row=" + row.getRowNum());
 	}
+
+
 
 }

@@ -25,10 +25,14 @@ class ProcessWorkbook {
 	final EntityIndex index;
 	final ImportLog log;
 
+	@Deprecated
 	private final Workbook wb;
+
+	private final WorkbookReader reader;
 
 	private ProcessWorkbook(ExcelImport imp, Workbook wb, Process process) {
 		this.wb = wb;
+		this.reader = new WorkbookReader(wb);
 		this.db = imp.db();
 		this.log = imp.log();
 		this.process = process;
@@ -46,6 +50,10 @@ class ProcessWorkbook {
 			imp.log().error("failed to import file", e);
 			return null;
 		}
+	}
+
+	WorkbookReader reader() {
+		return reader;
 	}
 
 	Sheet getSheet(String name) {

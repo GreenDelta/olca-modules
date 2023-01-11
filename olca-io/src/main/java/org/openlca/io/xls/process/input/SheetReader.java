@@ -17,8 +17,11 @@ class SheetReader {
 		var fields = FieldMap.parse(sheet.getRow(0));
 		if (fields.isEmpty())
 			return;
-		sheet.rowIterator()
-				.forEachRemaining(row -> fn.accept(fields, row));
+		sheet.rowIterator().forEachRemaining(row -> {
+			if (row.getRowNum() == 0)
+				return;
+			fn.accept(fields, row);
+		});
 	}
 
 }
