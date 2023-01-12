@@ -45,7 +45,7 @@ class Units {
 		var sheet = wb.getSheet("Unit groups");
 		if (sheet == null)
 			return Collections.emptyMap();
-		var fields = FieldMap.parse(sheet.getRow(0));
+		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return Collections.emptyMap();
 
@@ -86,7 +86,7 @@ class Units {
 		var sheet = wb.getSheet("Units");
 		if (sheet == null)
 			return Collections.emptyMap();
-		var fields = FieldMap.parse(sheet.getRow(0));
+		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return Collections.emptyMap();
 		var map = new HashMap<String, List<Unit>>();
@@ -108,7 +108,7 @@ class Units {
 		var sheet = wb.getSheet("Flow properties");
 		if (sheet == null)
 			return;
-		var fields = FieldMap.parse(sheet.getRow(0));
+		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return;
 

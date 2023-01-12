@@ -34,7 +34,7 @@ class Flows {
 		var sheet = wb.getSheet("Flows");
 		if (sheet == null)
 			return;
-		var fields = FieldMap.parse(sheet.getRow(0));
+		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return;
 
@@ -101,7 +101,7 @@ class Flows {
 		var sheet = wb.getSheet("Flow property factors");
 		if (sheet == null)
 			return Collections.emptyMap();
-		var fields = FieldMap.parse(sheet.getRow(0));
+		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return Collections.emptyMap();
 

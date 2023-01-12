@@ -1,5 +1,8 @@
 package org.openlca.io.xls.process;
 
+/**
+ * A tab (sheet) in a process workbook.
+ */
 public enum Tab {
 
 	ACTORS("Actors"),

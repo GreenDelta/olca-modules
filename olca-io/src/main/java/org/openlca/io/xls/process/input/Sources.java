@@ -21,7 +21,7 @@ class Sources {
 		var sheet = wb.getSheet("Sources");
 		if (sheet == null)
 			return;
-		var fields = FieldMap.parse(sheet.getRow(0));
+		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return;
 		sheet.rowIterator().forEachRemaining(row -> {

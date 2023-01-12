@@ -12,15 +12,16 @@ import org.openlca.util.Strings;
 
 import java.util.Date;
 import java.util.EnumMap;
+import java.util.OptionalInt;
 
 class FieldMap {
 
 	private final EnumMap<Field, Integer> map = new EnumMap<>(Field.class);
 
-	private FieldMap() {
+	FieldMap() {
 	}
 
-	static FieldMap parse(Row row) {
+	static FieldMap of(Row row) {
 		var fm = new FieldMap();
 		if (row == null)
 			return fm;
@@ -36,6 +37,22 @@ class FieldMap {
 
 	boolean isEmpty() {
 		return map.isEmpty();
+	}
+
+	void put(String fieldId, int pos) {
+		var field = Field.of(fieldId);
+		if (field != null) {
+			map.put(field, pos);
+		}
+	}
+
+	OptionalInt posOf(Field field) {
+		if (field == null)
+			return OptionalInt.empty();
+		var i = map.get(field);
+		return i != null
+				? OptionalInt.of(i)
+				: OptionalInt.empty();
 	}
 
 	String str(Row row, Field field) {
