@@ -34,19 +34,19 @@ class IOSheet {
 		sheet.eachRow(this::nextExchange);
 	}
 
-	private void nextExchange(FieldMap fields, Row row) {
-		var name = fields.str(row, Field.NAME);
+	private void nextExchange(RowReader row) {
+		var name = row.str(Field.NAME);
 		if (name == null)
 			return;
 
-		var category = fields.str(row, Field.CATEGORY);
+		var category = row.str(Field.CATEGORY);
 		var flow = wb.index.getFlow(name, category);
 		if (flow == null) {
 			logErr(row, "flow: " + name + "/" + category);
 			return;
 		}
 
-		var unitName = fields.str(row, Field.UNIT);
+		var unitName = row.str(Field.UNIT);
 		var prop = wb.index.flowPropertyOf(flow, unitName);
 		var unit = wb.index.unitOf(factor, unitName);
 		if (unit == null) {
@@ -57,7 +57,7 @@ class IOSheet {
 		var exchange = wb.process.add(Exchange.of(flow, prop, unit));
 		exchange.isInput = forInputs;
 
-		exchange.amount = fields.num(row, Field.AMOUNT);
+		exchange.amount = row.num(Field.AMOUNT);
 
 		String formula = wb.getString(sheet, row, 5);
 		if (!Strings.nullOrEmpty(formula)) {

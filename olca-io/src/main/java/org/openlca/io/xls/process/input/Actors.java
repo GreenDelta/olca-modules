@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.xls.process.Field;
+import org.openlca.io.xls.process.Tab;
 
 class Actors {
 

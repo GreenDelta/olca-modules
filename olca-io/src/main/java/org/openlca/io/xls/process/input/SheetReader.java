@@ -18,14 +18,14 @@ class SheetReader {
 		this.sheet = sheet;
 	}
 
-	void eachRow(BiConsumer<FieldMap, Row> fn) {
+	void eachRow(Consumer<RowReader> fn) {
 		var fields = FieldMap.of(sheet.getRow(0));
 		if (fields.isEmpty())
 			return;
 		sheet.rowIterator().forEachRemaining(row -> {
 			if (row.getRowNum() == 0)
 				return;
-			fn.accept(fields, row);
+			fn.accept(RowReader.of(row, fields));
 		});
 	}
 
