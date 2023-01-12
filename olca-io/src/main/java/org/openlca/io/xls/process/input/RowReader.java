@@ -19,6 +19,10 @@ class RowReader implements CellReader {
 		return new RowReader(row, fields);
 	}
 
+	int getRowNum() {
+		return row.getRowNum();
+	}
+
 	@Override
 	public Cell cellOf(Field field) {
 		var col = fields.posOf(field);

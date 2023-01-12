@@ -2,9 +2,13 @@ package org.openlca.io.xls.process.input;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Unit;
 import org.openlca.io.xls.process.Field;
 import org.openlca.io.xls.process.Tab;
 import org.openlca.util.Strings;
+
+import java.util.function.Consumer;
 
 class IOSheet {
 
@@ -42,7 +46,7 @@ class IOSheet {
 		var category = row.str(Field.CATEGORY);
 		var flow = wb.index.getFlow(name, category);
 		if (flow == null) {
-			logErr(row, "flow: " + name + "/" + category);
+			wb.log.error("unknown flow: " + category + "/" + name);
 			return;
 		}
 
@@ -78,6 +82,44 @@ class IOSheet {
 				+ "datum: " + m + "; forInputs=" + forInputs + " row=" + row.getRowNum());
 	}
 
+	private void setUnit(Exchange e, RowReader row) {
+		Consumer<String> err = message -> {
+			wb.log.error(message + " in row " + row.getRowNum());
+			e.unit = null;
+			e.flowPropertyFactor = null;
+		};
+		if (e.flow == null) {
+			err.accept("no flow -> no units");
+			return;
+		}
+		var unitName = row.str(Field.UNIT);
+		if (Strings.nullOrEmpty(unitName)) {
+			err.accept("no unit defined");
+			return;
+		}
 
+		Unit unit = null;
+		FlowPropertyFactor factor = null;
+		for (var f : e.flow.flowPropertyFactors) {
+			if (f.flowProperty == null
+					|| f.flowProperty.unitGroup == null)
+				continue;
+			var group = f.flowProperty.unitGroup;
+			var u = group.getUnit(unitName);
+			if (u != null) {
+				unit = u;
+				factor = f;
+				break;
+			}
+		}
+
+		if (unit == null) {
+			err.accept("unknown unit " + unitName
+					+ " for flow " + EntityIndex.flowKeyOf(e.flow));
+			return;
+		}
+		e.unit = unit;
+		e.flowPropertyFactor = factor;
+	}
 
 }
