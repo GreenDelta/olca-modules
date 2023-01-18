@@ -20,4 +20,13 @@ public class Exchanges {
 			return false;
 		return (type == FlowType.PRODUCT_FLOW) != e.isInput;
 	}
+
+	public static boolean isLinkable(Exchange e) {
+		if (e == null || e.flow == null)
+			return false;
+		var type = e.flow.flowType;
+		if (type == null || type == FlowType.ELEMENTARY_FLOW)
+			return false;
+		return (type == FlowType.PRODUCT_FLOW) == e.isInput;
+	}
 }
