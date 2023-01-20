@@ -69,8 +69,8 @@ class ProcessWorkbook {
 		Flows.sync(this);
 
 		// process sheets
-		IOSheet.readInputs(this);
-		IOSheet.readOutputs(this);
+		Exchanges.readInputs(this);
+		Exchanges.readOutputs(this);
 		InfoSheet.read(this); // after exchanges! find qRef
 		AdminInfoSheet.read(this);
 		ModelingSheet.read(this);

@@ -8,34 +8,32 @@ import org.openlca.io.xls.process.Field;
 import org.openlca.io.xls.process.Tab;
 import org.openlca.util.Strings;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-class IOSheet {
+class Exchanges {
 
 	private final ProcessWorkbook wb;
-	private final boolean forInputs;
-	private final SheetReader sheet;
 
-	private IOSheet(ProcessWorkbook wb, boolean forInputs) {
+	private Exchanges(ProcessWorkbook wb) {
 		this.wb = wb;
-		this.forInputs = forInputs;
-		sheet = wb.reader()
-				.getSheet(forInputs ? Tab.INPUTS : Tab.OUTPUTS )
-				.orElse(null);
 	}
 
-	public static void readInputs(ProcessWorkbook wb) {
-		new IOSheet(wb, true).read();
+	static void sync(ProcessWorkbook wb) {
+		new Exchanges(wb).sync();
 	}
 
-	public static void readOutputs(ProcessWorkbook wb) {
-		new IOSheet(wb, false).read();
-	}
-
-	private void read() {
+	private void sync() {
+		List.of(Tab.INPUTS, Tab.OUTPUTS).forEach(
+				tab -> wb.reader().getSheet(tab).ifPresent(
+						sheet -> sync(tab, sheet)));
 		if (sheet == null)
 			return;
 		sheet.eachRow(this::nextExchange);
+	}
+
+	private void sync(Tab tab, SheetReader sheet) {
+
 	}
 
 	private void nextExchange(RowReader row) {
@@ -49,6 +47,9 @@ class IOSheet {
 			wb.log.error("unknown flow: " + category + "/" + name);
 			return;
 		}
+
+		var exchange = new Exchange();
+		exchange.flow = flow;
 
 		var unitName = row.str(Field.UNIT);
 		var prop = wb.index.flowPropertyOf(flow, unitName);
