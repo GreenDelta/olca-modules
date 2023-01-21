@@ -2,13 +2,10 @@ package org.openlca.core;
 
 import java.io.File;
 
-import org.openlca.core.database.BaseDao;
-import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Derby;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.matrix.solvers.JavaSolver;
-import org.openlca.core.model.AbstractEntity;
 
 public class Tests {
 
