@@ -31,16 +31,16 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 			return error("setup object is empty");
 		if (resolver == null)
 			return error("no resolver provided");
-			return new JsonCalculationSetup.Reader(obj, resolver).read();
-		}
+		return new JsonCalculationSetup.Reader(obj, resolver).read();
+	}
 
-		public boolean hasError() {
-			return error != null;
-		}
+	public boolean hasError() {
+		return error != null;
+	}
 
-		private record Reader(JsonObject json, EntityResolver resolver) {
+	private record Reader(JsonObject json, EntityResolver resolver) {
 
-			JsonCalculationSetup read() {
+		JsonCalculationSetup read() {
 			var target = resolveTarget();
 			if (target == null)
 				return error("invalid calculation target");
@@ -75,7 +75,7 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 
 			// other attributes
 			var alloc = Json.getEnum(
-					json, "allocationMethod", AllocationMethod.class);
+					json, "allocation", AllocationMethod.class);
 			setup.withAllocation(alloc);
 			setup.withCosts(Json.getBool(json, "withCosts", false));
 			setup.withRegionalization(
@@ -94,7 +94,7 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 				if (Strings.nullOrEmpty(refId)) {
 					return null;
 				}
-				var type = Json.getString(json, "@type");
+				var type = Json.getString(ref, "@type");
 				if (Objects.equals(type, "Process")) {
 					var process = resolver.get(Process.class, refId);
 					if (process != null)
