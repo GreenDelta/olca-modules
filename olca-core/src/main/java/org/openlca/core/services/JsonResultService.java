@@ -13,6 +13,7 @@ import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
@@ -195,16 +196,16 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonPrimitive> getTotalFlowValueOf(
+	public Response<JsonObject> getTotalFlowValueOf(
 			String resultId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var value = result.getTotalFlowValueOf(enviFlow);
-					return new JsonPrimitive(value);
+					return encodeEnviValue(enviFlow, value, JsonRefs.of(db));
 				}));
 	}
 
-	public Response<JsonArray> getDirectFlowValuesOf(
+	public Response<JsonArray> getFlowContributionsOf(
 			String resultId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
@@ -222,7 +223,7 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonArray> getDirectFlowsOf(
+	public Response<JsonArray> getDirectInterventionsOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
@@ -231,18 +232,19 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getDirectFlowOf(
+	public Response<JsonObject> getDirectInterventionOf(
 			String resultId, EnviFlowId enviFlowId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> join(
 				enviFlowOf(result, enviFlowId),
 				techFlowOf(result, techFlowId),
 				(enviFlow, techFlow) -> {
 					double amount = result.getDirectFlowOf(enviFlow, techFlow);
-					return Response.of(new JsonPrimitive(amount));
+					var val = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					return Response.of(val);
 				}));
 	}
 
-	public Response<JsonArray> getTotalFlowsOfOne(
+	public Response<JsonArray> getFlowIntensitiesOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
@@ -251,18 +253,19 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getTotalFlowOfOne(
+	public Response<JsonObject> getFlowIntensityOf(
 			String resultId, EnviFlowId enviFlowId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> join(
 				enviFlowOf(result, enviFlowId),
 				techFlowOf(result, techFlowId),
 				(enviFlow, techFlow) -> {
-					var value = result.getTotalFlowOf(enviFlow, techFlow);
-					return Response.of(new JsonPrimitive(value));
+					var amount = result.getTotalFlowOfOne(enviFlow, techFlow);
+					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
-	public Response<JsonArray> getTotalFlowsOf(
+	public Response<JsonArray> getTotalInterventionsOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
@@ -271,14 +274,15 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getTotalFlowOf(
+	public Response<JsonObject> getTotalInterventionOf(
 			String resultId, EnviFlowId enviFlowId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> join(
 				enviFlowOf(result, enviFlowId),
 				techFlowOf(result, techFlowId),
 				(enviFlow, techFlow) -> {
-					var value = result.getTotalFlowOf(enviFlow, techFlow);
-					return Response.of(new JsonPrimitive(value));
+					var amount = result.getTotalFlowOf(enviFlow, techFlow);
+					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
@@ -296,12 +300,12 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonPrimitive> getTotalImpactValueOf(
+	public Response<JsonObject> getTotalImpactValueOf(
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> {
-					double value = result.getTotalImpactValueOf(impact);
-					return new JsonPrimitive(value);
+					double amount = result.getTotalImpactValueOf(impact);
+					return encodeImpact(impact, amount, JsonRefs.of(db));
 				})
 		);
 	}
@@ -340,7 +344,7 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getDirectImpactValuesOf(
+	public Response<JsonArray> getImpactContributionsOf(
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> {
@@ -364,18 +368,19 @@ public class JsonResultService {
 						result.getDirectImpactsOf(techFlow), JsonRefs.of(db))));
 	}
 
-	public Response<JsonPrimitive> getDirectImpactOf(
+	public Response<JsonObject> getDirectImpactOf(
 			String resultId, String impactId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> join(
 				impactOf(result, impactId),
 				techFlowOf(result, techFlowId),
 				(impact, techFlow) -> {
-					double value = result.getDirectImpactOf(impact, techFlow);
-					return Response.of(new JsonPrimitive(value));
+					double amount = result.getDirectImpactOf(impact, techFlow);
+					var value = encodeImpact(impact, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
-	public Response<JsonArray> getTotalImpactsOfOne(
+	public Response<JsonArray> getImpactIntensitiesOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
@@ -384,14 +389,15 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getTotalImpactOfOne(
+	public Response<JsonObject> getImpactIntensityOf(
 			String resultId, String impactId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> join(
 				impactOf(result, impactId),
 				techFlowOf(result, techFlowId),
 				(impact, techFlow) -> {
-					double value = result.getTotalImpactOfOne(impact, techFlow);
-					return Response.of(new JsonPrimitive(value));
+					double amount = result.getTotalImpactOfOne(impact, techFlow);
+					var value = encodeImpact(impact, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
@@ -404,14 +410,15 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getTotalImpactOf(
+	public Response<JsonObject> getTotalImpactOf(
 			String resultId, String impactId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> join(
 				impactOf(result, impactId),
 				techFlowOf(result, techFlowId),
 				(impact, techFlow) -> {
-					double value = result.getTotalImpactOf(impact, techFlow);
-					return Response.of(new JsonPrimitive(value));
+					double amount = result.getTotalImpactOf(impact, techFlow);
+					var value = encodeImpact(impact, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
@@ -424,52 +431,36 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getImpactFactorOf(
+	public Response<JsonObject> getImpactFactorOf(
 			String resultId, String impactId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> join(
 				impactOf(result, impactId),
 				enviFlowOf(result, enviFlowId),
 				(impact, enviFlow) -> {
-					double value = result.getImpactFactorOf(impact, enviFlow);
-					return Response.of(new JsonPrimitive(value));
-				}));
-	}
-
-	public Response<JsonArray> getFlowImpactsOfOne(
-			String resultId, EnviFlowId enviFlowId) {
-		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
-				.map(enviFlow -> {
-					var values = result.getFlowImpactsOfOne(enviFlow);
-					return encodeImpactValues(values, JsonRefs.of(db));
+					double amount = result.getImpactFactorOf(impact, enviFlow);
+					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
 	public Response<JsonArray> getFlowImpactsOf(
-			String resultId, EnviFlowId enviFlowId) {
-		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
-				.map(enviFlow -> {
-					var values = result.getFlowImpactsOf(enviFlow);
-					return encodeImpactValues(values, JsonRefs.of(db));
+			String resultId, String impactId) {
+		return withResult(resultId, result -> impactCategoryOf(result, impactId)
+				.map(impact -> {
+					var values = result.getFlowImpactsOf(impact);
+					return encodeEnviValues(values, JsonRefs.of(db));
 				}));
 	}
 
-	public Response<JsonPrimitive> getFlowImpactOf(
+	public Response<JsonObject> getFlowImpactOf(
 			String resultId, String impactId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> join(
 				impactOf(result, impactId),
 				enviFlowOf(result, enviFlowId),
 				(impact, enviFlow) -> {
-					double value = result.getFlowImpactOf(impact, enviFlow);
-					return Response.of(new JsonPrimitive(value));
-				}));
-	}
-
-	public Response<JsonArray> getFlowImpactValuesOf(
-			String resultId, String impactId) {
-		return withResult(resultId, result -> impactOf(result, impactId)
-				.map(impact -> {
-					var values = result.getFlowImpactValuesOf(impact);
-					return encodeEnviValues(values, JsonRefs.of(db));
+					double amount = result.getFlowImpactOf(impact, enviFlow);
+					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					return Response.of(value);
 				}));
 	}
 
@@ -477,6 +468,7 @@ public class JsonResultService {
 
 	// region: costs
 
+	// TODO: costs should be encoded as CostValue
 	public Response<JsonPrimitive> getTotalCosts(String resultId) {
 		return withResult(resultId, result -> {
 			double value = result.getTotalCosts();
@@ -484,7 +476,7 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getDirectCostValues(String resultId) {
+	public Response<JsonArray> getCostContributions(String resultId) {
 		return withResult(resultId, result -> {
 			var values = result.getDirectCostValues();
 			var array = encodeTechValues(values, JsonRefs.of(db));
@@ -509,7 +501,7 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonPrimitive> getTotalCostsOfOne(
+	public Response<JsonPrimitive> getCostIntensitiesOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {

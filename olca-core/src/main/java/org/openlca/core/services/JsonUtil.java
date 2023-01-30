@@ -7,6 +7,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.ProviderLinking;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
@@ -96,6 +97,10 @@ final class JsonUtil {
 		return encodeArray(vs, v -> encodeTechValue(v, refs));
 	}
 
+	static JsonObject encodeEnviValue(EnviFlow flow, double value, JsonRefs refs) {
+		return encodeEnviValue(new EnviFlowValue(flow, value), refs);
+	}
+
 	static JsonObject encodeEnviValue(EnviFlowValue v, JsonRefs refs) {
 		if (v == null)
 			return null;
@@ -107,6 +112,11 @@ final class JsonUtil {
 
 	static JsonArray encodeEnviValues(Iterable<EnviFlowValue> vs, JsonRefs refs) {
 		return encodeArray(vs, v -> encodeEnviValue(v, refs));
+	}
+
+	static JsonObject encodeImpact(
+			ImpactDescriptor impact, double value, JsonRefs refs) {
+		return encodeImpact(ImpactValue.of(impact, value), refs);
 	}
 
 	static JsonObject encodeImpact(ImpactValue v, JsonRefs refs) {

@@ -87,14 +87,14 @@ public class ResultHandler {
 				rr -> results.getTotalRequirementsOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/direct-requirements-of")
-	public RpcResponse getDirectRequirementsOf(RpcRequest req) {
+	@Rpc("result/scaled-tech-flows-of")
+	public RpcResponse getScaledTechFlowsOf(RpcRequest req) {
 		return ResultRequest.of(req,
 				rr -> results.getScaledTechFlowsOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/unscaled-requirements-of")
-	public RpcResponse getUnscaledRequirementsOf(RpcRequest req) {
+	@Rpc("result/unscaled-tech-flows-of")
+	public RpcResponse getUnscaledTechFlowsOf(RpcRequest req) {
 		return ResultRequest.of(req,
 				rr -> results.getUnscaledTechFlowsOf(rr.id(), rr.techFlow()));
 	}
@@ -114,52 +114,47 @@ public class ResultHandler {
 				rr -> results.getTotalFlowValueOf(rr.id(), rr.enviFlow()));
 	}
 
-	@Rpc("result/direct-flow-values-of")
-	public RpcResponse getDirectFlowValuesOf(RpcRequest req) {
+	@Rpc("result/flow-contributions-of")
+	public RpcResponse getFlowContributionsOf(RpcRequest req) {
 		return ResultRequest.of(req,
-				rr -> results.getDirectFlowValuesOf(rr.id(), rr.enviFlow()));
+				rr -> results.getFlowContributionsOf(rr.id(), rr.enviFlow()));
 	}
 
-	@Rpc("result/total-flow-values-of")
-	public RpcResponse getTotalFlowValuesOf(RpcRequest req) {
+	@Rpc("result/direct-interventions-of")
+	public RpcResponse getDirectInterventionsOf(RpcRequest req) {
 		return ResultRequest.of(req,
-				rr -> results.getTotalFlowValuesOf(rr.id(), rr.enviFlow()));
+				rr -> results.getDirectInterventionsOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/direct-flows-of")
-	public RpcResponse getDirectFlowsOf(RpcRequest req) {
+	@Rpc("result/direct-intervention-of")
+	public RpcResponse getDirectInterventionOf(RpcRequest req) {
 		return ResultRequest.of(req,
-				rr -> results.getDirectFlowsOf(rr.id(), rr.techFlow()));
+				rr -> results.getDirectInterventionOf(
+						rr.id(), rr.enviFlow(), rr.techFlow()));
 	}
 
-	@Rpc("result/direct-flow-of")
-	public RpcResponse getDirectFlowOf(RpcRequest req) {
-		return ResultRequest.of(req,
-				rr -> results.getDirectFlowOf(rr.id(), rr.enviFlow(), rr.techFlow()));
-	}
-
-	@Rpc("result/total-flows-of-one")
-	public RpcResponse getTotalFlowsOfOne(RpcRequest req) {
+	@Rpc("result/flow-intensities-of")
+	public RpcResponse getFlowIntensitiesOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalFlowsOfOne(rr.id(), rr.techFlow()));
+				results.getFlowIntensitiesOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-flow-of-one")
-	public RpcResponse getTotalFlowOfOne(RpcRequest req) {
+	@Rpc("result/flow-intensity-of")
+	public RpcResponse getFlowIntensityOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalFlowOfOne(rr.id(), rr.enviFlow(), rr.techFlow()));
+				results.getFlowIntensityOf(rr.id(), rr.enviFlow(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-flows-of")
-	public RpcResponse getTotalFlowsOf(RpcRequest req) {
+	@Rpc("result/total-interventions-of")
+	public RpcResponse getTotalInterventionsOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalFlowsOf(rr.id(), rr.techFlow()));
+				results.getTotalInterventionsOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-flow-of")
-	public RpcResponse getTotalFlowOf(RpcRequest req) {
+	@Rpc("result/total-intervention-of")
+	public RpcResponse getTotalInterventionOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalFlowOf(rr.id(), rr.enviFlow(), rr.techFlow()));
+				results.getTotalInterventionOf(rr.id(), rr.enviFlow(), rr.techFlow()));
 	}
 
 	// endregion
@@ -170,6 +165,12 @@ public class ResultHandler {
 	public RpcResponse getTotalImpacts(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
 				results.getTotalImpacts(rr.id()));
+	}
+
+	@Rpc("result/total-impact-value-of")
+	public RpcResponse getTotalImpactValueOf(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getTotalImpactValueOf(rr.id(), rr.impact()));
 	}
 
 	@Rpc("result/total-impacts/normalized")
@@ -184,22 +185,10 @@ public class ResultHandler {
 				results.getWeightedImpacts(rr.id()));
 	}
 
-	@Rpc("result/total-impact-value-of")
-	public RpcResponse getTotalImpactValueOf(RpcRequest req) {
+	@Rpc("result/impact-contributions-of")
+	public RpcResponse getImpactContributionsOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalImpactValueOf(rr.id(), rr.impact()));
-	}
-
-	@Rpc("result/direct-impact-values-of")
-	public RpcResponse getDirectImpactValuesOf(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getDirectImpactValuesOf(rr.id(), rr.impact()));
-	}
-
-	@Rpc("result/total-impact-values-of")
-	public RpcResponse getTotalImpactValuesOf(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getTotalImpactValuesOf(rr.id(), rr.impact()));
+				results.getImpactContributionsOf(rr.id(), rr.impact()));
 	}
 
 	@Rpc("result/direct-impacts-of")
@@ -214,16 +203,16 @@ public class ResultHandler {
 				results.getDirectImpactOf(rr.id(), rr.impact(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-impacts-of-one")
-	public RpcResponse getTotalImpactsOfOne(RpcRequest req) {
+	@Rpc("result/impact-intensities-of")
+	public RpcResponse getImpactIntensitiesOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalImpactsOfOne(rr.id(), rr.techFlow()));
+				results.getImpactIntensitiesOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-impact-of-one")
-	public RpcResponse getTotalImpactOfOne(RpcRequest req) {
+	@Rpc("result/impact-intensity-of")
+	public RpcResponse getImpactIntensityOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalImpactOfOne(rr.id(), rr.impact(), rr.techFlow()));
+				results.getImpactIntensityOf(rr.id(), rr.impact(), rr.techFlow()));
 	}
 
 	@Rpc("result/total-impacts-of")
@@ -250,28 +239,16 @@ public class ResultHandler {
 				results.getImpactFactorOf(rr.id(), rr.impact(), rr.enviFlow()));
 	}
 
-	@Rpc("result/flow-impacts-of-one")
-	public RpcResponse getFlowImpactsOfOne(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getFlowImpactsOfOne(rr.id(), rr.enviFlow()));
-	}
-
 	@Rpc("result/flow-impacts-of")
 	public RpcResponse getFlowImpactsOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getFlowImpactsOf(rr.id(), rr.enviFlow()));
+				results.getFlowImpactsOf(rr.id(), rr.impact()));
 	}
 
 	@Rpc("result/flow-impact-of")
 	public RpcResponse getFlowImpactOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
 				results.getFlowImpactOf(rr.id(), rr.impact(), rr.enviFlow()));
-	}
-
-	@Rpc("result/flow-impact-values-of")
-	public RpcResponse getFlowImpactValuesOf(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getFlowImpactValuesOf(rr.id(), rr.impact()));
 	}
 
 	// endregion
@@ -284,16 +261,10 @@ public class ResultHandler {
 				results.getTotalCosts(rr.id()));
 	}
 
-	@Rpc("result/direct-cost-values")
-	public RpcResponse getDirectCostValues(RpcRequest req) {
+	@Rpc("result/cost-contributions")
+	public RpcResponse getCostContributions(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getDirectCostValues(rr.id()));
-	}
-
-	@Rpc("result/total-cost-values")
-	public RpcResponse getTotalCostValues(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getTotalCostValues(rr.id()));
+				results.getCostContributions(rr.id()));
 	}
 
 	@Rpc("result/direct-costs-of")
@@ -302,10 +273,10 @@ public class ResultHandler {
 				results.getDirectCostsOf(rr.id(), rr.techFlow()));
 	}
 
-	@Rpc("result/total-costs-of-one")
-	public RpcResponse getTotalCostsOfOne(RpcRequest req) {
+	@Rpc("result/cost-intensities-of")
+	public RpcResponse getCostIntensitiesOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getTotalCostsOfOne(rr.id(), rr.techFlow()));
+				results.getCostIntensitiesOf(rr.id(), rr.techFlow()));
 	}
 
 	@Rpc("result/total-costs-of")

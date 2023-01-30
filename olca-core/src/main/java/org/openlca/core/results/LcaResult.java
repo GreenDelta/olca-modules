@@ -322,15 +322,7 @@ public class LcaResult implements IResult {
 				(enviIdx, $) -> provider.impactFactorOf(impactIdx, enviIdx));
 	}
 
-	public double getImpactFactorOf(ImpactDescriptor impact, EnviFlow enviFlow) {
-		int impactIdx = provider.indexOf(impact);
-		if (impactIdx < 0)
-			return 0;
-		return enviViewOf(
-				enviFlow, enviIdx -> provider.impactFactorOf(impactIdx, enviIdx));
-	}
-
-	public List<ImpactValue> getFlowImpactsOfOne(EnviFlow enviFlow) {
+	public List<ImpactValue> getImpactFactorsOf(EnviFlow enviFlow) {
 		int enviIdx = provider.indexOf(enviFlow);
 		if (enviIdx < 0)
 			return Collections.emptyList();
@@ -341,6 +333,14 @@ public class LcaResult implements IResult {
 				});
 	}
 
+	public double getImpactFactorOf(ImpactDescriptor impact, EnviFlow enviFlow) {
+		int impactIdx = provider.indexOf(impact);
+		if (impactIdx < 0)
+			return 0;
+		return enviViewOf(
+				enviFlow, enviIdx -> provider.impactFactorOf(impactIdx, enviIdx));
+	}
+
 	public List<ImpactValue> getFlowImpactsOf(EnviFlow enviFlow) {
 		int enviIdx = provider.indexOf(enviFlow);
 		if (enviIdx < 0)
@@ -349,20 +349,20 @@ public class LcaResult implements IResult {
 				(impactIdx, $) -> provider.flowImpactOf(impactIdx, enviIdx));
 	}
 
+	public List<EnviFlowValue> getFlowImpactsOf(ImpactDescriptor impact) {
+		int impactIdx = provider.indexOf(impact);
+		if (impactIdx < 0)
+			return Collections.emptyList();
+		return enviValuesOf(
+				(enviIdx, $) -> provider.flowImpactOf(impactIdx, enviIdx));
+	}
+
 	public double getFlowImpactOf(ImpactDescriptor impact, EnviFlow enviFlow) {
 		int impactIdx = provider.indexOf(impact);
 		int flowIdx = provider.indexOf(enviFlow);
 		return impactIdx < 0 || flowIdx < 0
 				? 0
 				: provider.flowImpactOf(impactIdx, flowIdx);
-	}
-
-	public List<EnviFlowValue> getFlowImpactValuesOf(ImpactDescriptor impact) {
-		int impactIdx = provider.indexOf(impact);
-		if (impactIdx < 0)
-			return Collections.emptyList();
-		return enviValuesOf(
-				(enviIdx, $) -> provider.flowImpactOf(impactIdx, enviIdx));
 	}
 
 	// endregion
