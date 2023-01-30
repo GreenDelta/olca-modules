@@ -4,6 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.linking.LinkingConfig;
+import org.openlca.core.matrix.linking.ProviderLinking;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
@@ -17,6 +20,23 @@ import java.util.function.Function;
 final class JsonUtil {
 
 	private JsonUtil() {
+	}
+
+	static LinkingConfig linkingConfigOf(JsonObject json) {
+		var conf = new LinkingConfig();
+		if (json == null)
+			return conf;
+		var providerLinking = Json.getEnum(
+				json, "providerLinking", ProviderLinking.class);
+		if (providerLinking != null) {
+			conf.providerLinking(providerLinking);
+		}
+		var preferUnitProcesses = Json.getBool(json, "preferUnitProcesses", false);
+		conf.preferredType(preferUnitProcesses
+				? ProcessType.UNIT_PROCESS
+				: ProcessType.LCI_RESULT);
+		Json.getDouble(json, "cutoff").ifPresent(conf::cutoff);
+		return conf;
 	}
 
 	static JsonObject encodeTechFlow(TechFlow techFlow, JsonRefs refs) {

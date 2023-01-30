@@ -8,6 +8,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
+import org.openlca.core.matrix.ProductSystemBuilder;
+import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Currency;
@@ -223,6 +225,22 @@ public record JsonDataService(IDatabase db) {
 		} catch (Exception e) {
 			return Response.error(e);
 		}
+	}
+
+	public Response<JsonObject> createProductSystem(
+			String processId, JsonObject jsonConfig) {
+		var process = db.get(Process.class, processId);
+		if (process == null)
+			return Response.error("process does not exist: id=" + processId);
+		if (process.quantitativeReference == null)
+			return Response.error("process does not have a quantitative reference");
+		var system = db.insert(ProductSystem.of(process));
+		var config = JsonUtil.linkingConfigOf(jsonConfig);
+		var builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
+		builder.autoComplete(system);
+		system = ProductSystemBuilder.update(db, system);
+		var ref = Json.asRef(system);
+		return Response.of(ref);
 	}
 
 	/**
