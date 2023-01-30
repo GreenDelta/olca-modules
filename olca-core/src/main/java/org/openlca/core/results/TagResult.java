@@ -137,7 +137,7 @@ public class TagResult {
 			if (techFlow.isProductSystem()) {
 				var subResult = result.subResultOf(techFlow);
 				var subTags = TagResult.of(tag, subResult);
-				var scaling = result.scalingFactorOf(techFlow);
+				var scaling = result.getScalingFactorOf(techFlow);
 				tagResult.addSubResult(scaling, subTags);
 				continue;
 			}

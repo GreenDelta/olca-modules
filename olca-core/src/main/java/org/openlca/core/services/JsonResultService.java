@@ -112,7 +112,7 @@ public class JsonResultService {
 
 	public Response<JsonArray> getScalingFactors(String resultId) {
 		return withResult(resultId, result -> {
-			var s = result.scalingFactors();
+			var s = result.getScalingFactors();
 			var refs = JsonRefs.of(db);
 			var array = encodeArray(s,
 					techValue -> encodeTechValue(techValue, refs));
@@ -122,7 +122,7 @@ public class JsonResultService {
 
 	public Response<JsonArray> getTotalityFactors(String resultId) {
 		return withResult(resultId, result -> {
-			var tf = result.totalityFactors();
+			var tf = result.getTotalityFactors();
 			var refs = JsonRefs.of(db);
 			var array = encodeArray(tf, techVal -> encodeTechValue(techVal, refs));
 			return Response.of(array);
@@ -132,7 +132,7 @@ public class JsonResultService {
 	public Response<JsonObject> getTotalityFactorOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
-			var value = result.totalityFactorOf(techFlow);
+			var value = result.getTotalityFactorOf(techFlow);
 			var obj = encodeTechValue(
 					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
 			return Response.of(obj);
@@ -141,7 +141,7 @@ public class JsonResultService {
 
 	public Response<JsonArray> getTotalRequirements(String resultId) {
 		return withResult(resultId, result -> {
-			var tr = result.totalRequirements();
+			var tr = result.getTotalRequirements();
 			var refs = JsonRefs.of(db);
 			var array = encodeArray(tr,
 					techValue -> encodeTechValue(techValue, refs));
@@ -152,17 +152,17 @@ public class JsonResultService {
 	public Response<JsonObject> getTotalRequirementsOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
-			var value = result.totalRequirementsOf(techFlow);
+			var value = result.getTotalRequirementsOf(techFlow);
 			var obj = encodeTechValue(
 					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
 			return Response.of(obj);
 		});
 	}
 
-	public Response<JsonArray> getDirectRequirementsOf(
+	public Response<JsonArray> getScaledTechFlowsOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
-			var values = result.directRequirementsOf(techFlow);
+			var values = result.getScaledTechFlowsOf(techFlow);
 			var refs = JsonRefs.of(db);
 			var array = encodeArray(values,
 					techValue -> encodeTechValue(techValue, refs));
@@ -170,10 +170,10 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getUnscaledRequirementsOf(
+	public Response<JsonArray> getUnscaledTechFlowsOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
-			var values = result.unscaledRequirementsOf(techFlow);
+			var values = result.getUnscaledTechFlowsOf(techFlow);
 			var refs = JsonRefs.of(db);
 			var array = encodeArray(values,
 					techValue -> encodeTechValue(techValue, refs));

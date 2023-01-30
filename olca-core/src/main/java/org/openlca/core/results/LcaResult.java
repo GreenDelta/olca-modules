@@ -98,12 +98,12 @@ public class LcaResult implements IResult {
 
 	// region: tech-flows
 
-	public List<TechFlowValue> scalingFactors() {
+	public List<TechFlowValue> getScalingFactors() {
 		var s = provider.scalingVector();
 		return techValuesOf((i, techFlow) -> s[i]);
 	}
 
-	public double scalingFactorOf(TechFlow product) {
+	public double getScalingFactorOf(TechFlow product) {
 		int idx = techIndex().of(product);
 		var scalingVector = provider.scalingVector();
 		if (idx < 0 || idx > scalingVector.length)
@@ -111,37 +111,37 @@ public class LcaResult implements IResult {
 		return scalingVector[idx];
 	}
 
-	public List<TechFlowValue> totalityFactors() {
+	public List<TechFlowValue> getTotalityFactors() {
 		return techValuesOf((i, techFlow) -> provider.totalFactorOf(i));
 	}
 
-	public double totalityFactorOf(TechFlow techFlow) {
+	public double getTotalityFactorOf(TechFlow techFlow) {
 		int idx = techIndex().of(techFlow);
 		return  idx >= 0
 				? provider.totalFactorOf(idx)
 				: 0;
 	}
 
-	public List<TechFlowValue> totalRequirements() {
+	public List<TechFlowValue> getTotalRequirements() {
 		var t = provider.totalRequirements();
 		return techValuesOf((i, techFlow) -> t[i]);
 	}
 
-	public double totalRequirementsOf(TechFlow techFlow) {
+	public double getTotalRequirementsOf(TechFlow techFlow) {
 		int idx = provider.indexOf(techFlow);
 		return idx >= 0
 				? provider.totalRequirementsOf(idx)
 				: 0;
 	}
 
-	public List<TechFlowValue> directRequirementsOf(TechFlow techFlow) {
+	public List<TechFlowValue> getScaledTechFlowsOf(TechFlow techFlow) {
 		int j = techIndex().of(techFlow);
 		if (j < 0)
 			return Collections.emptyList();
 		return techValuesOf((i, other) -> provider.scaledTechValueOf(i, j));
 	}
 
-	public List<TechFlowValue> unscaledRequirementsOf(TechFlow techFlow) {
+	public List<TechFlowValue> getUnscaledTechFlowsOf(TechFlow techFlow) {
 		int j = techIndex().of(techFlow);
 		if (j < 0)
 			return Collections.emptyList();

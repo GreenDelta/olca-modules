@@ -90,13 +90,13 @@ public class ResultHandler {
 	@Rpc("result/direct-requirements-of")
 	public RpcResponse getDirectRequirementsOf(RpcRequest req) {
 		return ResultRequest.of(req,
-				rr -> results.getDirectRequirementsOf(rr.id(), rr.techFlow()));
+				rr -> results.getScaledTechFlowsOf(rr.id(), rr.techFlow()));
 	}
 
 	@Rpc("result/unscaled-requirements-of")
 	public RpcResponse getUnscaledRequirementsOf(RpcRequest req) {
 		return ResultRequest.of(req,
-				rr -> results.getUnscaledRequirementsOf(rr.id(), rr.techFlow()));
+				rr -> results.getUnscaledTechFlowsOf(rr.id(), rr.techFlow()));
 	}
 
 	// endregion

@@ -96,16 +96,16 @@ public class SubResultsTest {
 		var techFlowB = TechFlow.of(sysB);
 		var resultB = resultC.subResultOf(techFlowB);
 		assertEquals(3, resultB.getTotalFlowValueOf(co2Idx), 1e-10);
-		assertEquals(4, resultC.scalingFactorOf(techFlowB), 1e-10);
+		assertEquals(4, resultC.getScalingFactorOf(techFlowB), 1e-10);
 
 		// check sub-result A
 		var techFlowA = TechFlow.of(sysA);
 		var resultA = resultB.subResultOf(techFlowA);
 		assertEquals(1, resultA.getTotalFlowValueOf(co2Idx), 1e-10);
-		assertEquals(2, resultB.scalingFactorOf(techFlowA), 1e-10);
+		assertEquals(2, resultB.getScalingFactorOf(techFlowA), 1e-10);
 
 		// scale a sub-result to get the full result
-		assertEquals(13, 1 + resultC.scalingFactorOf(techFlowB)
+		assertEquals(13, 1 + resultC.getScalingFactorOf(techFlowB)
 				* resultB.getTotalFlowValueOf(co2Idx), 1e-10);
 
 		// test TagResult
