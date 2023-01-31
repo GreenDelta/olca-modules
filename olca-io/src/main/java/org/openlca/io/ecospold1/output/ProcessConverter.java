@@ -14,17 +14,13 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
 import org.openlca.ecospold.IDataEntryBy;
-import org.openlca.ecospold.IDataGeneratorAndPublication;
 import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IDataSetInformation;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IGeography;
 import org.openlca.ecospold.IReferenceFunction;
-import org.openlca.ecospold.IRepresentativeness;
 import org.openlca.ecospold.ITechnology;
-import org.openlca.ecospold.ITimePeriod;
-import org.openlca.ecospold.IValidation;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.io.Xml;
@@ -47,20 +43,21 @@ class ProcessConverter {
 	}
 
 	private IDataSet doIt() {
-		IDataSet iDataSet = factory.createDataSet();
-		DataSet dataSet = new DataSet(iDataSet, factory);
+		var ds = factory.createDataSet();
+		var dataSet = new DataSet(ds, factory);
 		Util.setDataSetAttributes(dataSet, process);
 		mapDocumentation(dataSet);
 		mapExchanges(dataSet);
 		// TODO: map allocation factors
 		// mapAllocations(process, dataSet, factory);
-		if (config.isCreateDefaults())
+		if (config.isCreateDefaults()) {
 			StructureDefaults.add(dataSet, factory);
-		return iDataSet;
+		}
+		return ds;
 	}
 
 	private void mapDocumentation(DataSet dataSet) {
-		ProcessDocumentation doc = process.documentation;
+		var doc = process.documentation;
 		if (doc == null)
 			return;
 		mapDataSetInformation(doc, dataSet);
@@ -121,7 +118,7 @@ class ProcessConverter {
 			actorSourceMapper.map(source, dataSet);
 		if (doc.sampling == null)
 			return;
-		IRepresentativeness repr = dataSet.getRepresentativeness();
+		var repr = dataSet.getRepresentativeness();
 		if (repr == null) {
 			repr = factory.createRepresentativeness();
 			dataSet.setRepresentativeness(repr);
@@ -132,7 +129,7 @@ class ProcessConverter {
 	private void mapValidation(ProcessDocumentation doc, DataSet dataSet) {
 		if (doc.reviewer == null)
 			return;
-		IValidation validation = dataSet.getValidation();
+		var validation = dataSet.getValidation();
 		if (validation == null) {
 			validation = factory.createValidation();
 			dataSet.setValidation(validation);
@@ -147,8 +144,7 @@ class ProcessConverter {
 	}
 
 	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataset) {
-		IDataGeneratorAndPublication generator = dataset
-				.getDataGeneratorAndPublication();
+		var generator = dataset.getDataGeneratorAndPublication();
 		if (generator == null) {
 			generator = factory.createDataGeneratorAndPublication();
 			dataset.setDataGeneratorAndPublication(generator);
@@ -186,7 +182,7 @@ class ProcessConverter {
 	}
 
 	private void mapTime(ProcessDocumentation doc, DataSet dataset) {
-		ITimePeriod time = factory.createTimePeriod();
+		var time = factory.createTimePeriod();
 		time.setDataValidForEntirePeriod(true);
 		if (doc.validFrom != null)
 			time.setStartDate(Xml.calendar(doc.validFrom));
@@ -224,11 +220,10 @@ class ProcessConverter {
 		}
 	}
 
-	private void mapRefFlow(DataSet dataSet, Exchange exchange,
-			IExchange iExchange) {
+	private void mapRefFlow(DataSet ds, Exchange exchange, IExchange iExchange) {
 		iExchange.setOutputGroup(0);
-		IReferenceFunction refFun = mapQuantitativeReference(exchange);
-		dataSet.setReferenceFunction(refFun);
+		var refFun = mapQuantitativeReference(exchange);
+		ds.setReferenceFunction(refFun);
 		refFun.setGeneralComment(process.description);
 		refFun.setInfrastructureProcess(process.infrastructureProcess);
 		Location location = process.location;
@@ -238,17 +233,21 @@ class ProcessConverter {
 			iExchange.setLocation("GLO");
 	}
 
-	private IReferenceFunction mapQuantitativeReference(Exchange exchange) {
-		IReferenceFunction refFun = factory.createReferenceFunction();
-		Flow flow = exchange.flow;
+	private IReferenceFunction mapQuantitativeReference(Exchange e) {
+		var refFun = factory.createReferenceFunction();
+		Flow flow = e.flow;
+		refFun.setDatasetRelatesToProduct(true);
 		refFun.setCASNumber(flow.casNumber);
 		refFun.setFormula(flow.formula);
-		refFun.setName(exchange.flow.name);
+		refFun.setName(e.flow.name);
 		refFun.setLocalName(refFun.getName());
-		refFun.setUnit(exchange.unit.name);
+		refFun.setUnit(e.unit.name);
 		refFun.setInfrastructureProcess(flow.infrastructureFlow);
-		refFun.setAmount(exchange.amount);
-		Categories.map(flow, refFun, config);
+		refFun.setAmount(e.amount);
+		var category = flow.category != null
+				? flow.category
+				: process.category;
+		Categories.map(category, refFun, config);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
 		return refFun;

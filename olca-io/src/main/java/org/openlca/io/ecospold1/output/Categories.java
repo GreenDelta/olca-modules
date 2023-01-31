@@ -1,7 +1,6 @@
 package org.openlca.io.ecospold1.output;
 
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Flow;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IReferenceFunction;
 
@@ -10,22 +9,23 @@ final class Categories {
 	private Categories() {
 	}
 
-	static void map(Flow flow, IReferenceFunction refFun, ExportConfig config) {
-		Category category = flow.category;
+	static void map(Category category, IReferenceFunction refFun,
+			ExportConfig config) {
 		if (category != null) {
-			if (category.category == null) {
+			var parent = category.category;
+			if (parent == null) {
 				refFun.setCategory(category.name);
 				refFun.setLocalCategory(category.name);
 			} else {
-				Category parent = category.category;
 				refFun.setCategory(parent.name);
 				refFun.setLocalCategory(parent.name);
 				refFun.setSubCategory(category.name);
 				refFun.setLocalSubCategory(category.name);
 			}
 		}
-		if (config.isCreateDefaults())
+		if (config.isCreateDefaults()) {
 			createDefaults(refFun);
+		}
 	}
 
 	private static void createDefaults(IReferenceFunction refFun) {
