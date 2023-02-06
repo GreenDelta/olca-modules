@@ -1,11 +1,6 @@
 # olca-ipc
-This module implements a [JSON-RPC](http://www.jsonrpc.org/specification) based
-[protocol](./protocol.md) for inter-process communication (IPC) with openLCA.
-With this, it is possible to call functions in openLCA and processing their
-results from outside of the Java Runtime in which openLCA is executed. A
-reference implementation of [this protocol](./protocol.md) for standard Python
-is provided with the [olca-ipc.py](https://github.com/GreenDelta/olca-ipc.py)
-package.
+This module implements the JSON-RPC based protocol for
+[inter-process communication (IPC) with openLCA](https://greendelta.github.io/openLCA-ApiDoc/ipc/).
 
 ## Building the server app
 
