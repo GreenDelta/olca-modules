@@ -8,12 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.database.Daos;
-import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.Simulator;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.results.LcaResult;
-import org.openlca.io.xls.results.SimulationResultExport;
-import org.openlca.io.xls.results.system.ResultExport;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -32,56 +27,6 @@ public class ExportHandler {
 		this.context = context;
 	}
 
-	@Rpc("export/excel")
-	public RpcResponse excel(RpcRequest req) {
-		if (req == null || req.params == null || !req.params.isJsonObject())
-			return Responses.badRequest("No @id given", req);
-		JsonObject obj = req.params.getAsJsonObject();
-		String id = Json.getString(obj, "@id");
-		if (id == null)
-			return Responses.badRequest("No `@id` given", req);
-		String path = Json.getString(obj, "path");
-		if (path == null)
-			return Responses.badRequest("No `path` given", req);
-		var r = context.getCached(CachedResult.class, id);
-		if (r == null)
-			return Responses.notImplemented("The Excel export is currently"
-				+ " only implemented for calculation results", req);
-		if (r.result() instanceof LcaResult)
-			return exportSimpleResult(req, path, r);
-		if (r.result() instanceof Simulator)
-			return exportSimulationResult(req, path, r);
-		return Responses.notImplemented("The Excel export is currently"
-			+ " only implemented for calculation results", req);
-	}
-
-	private RpcResponse exportSimpleResult(RpcRequest req, String path,
-	                                       CachedResult<?> r) {
-		var export = new ResultExport(
-			r.setup(),
-			(LcaResult) r.result(),
-			new File(path),
-			EntityCache.create(context.db()));
-		export.run();
-		if (export.doneWithSuccess())
-			return Responses.ok("Exported to " + path, req);
-		else
-			return Responses.internalServerError("Export failed", req);
-	}
-
-	private RpcResponse exportSimulationResult(RpcRequest req, String path,
-	                                           CachedResult<?> r) {
-		var simulator = (Simulator) r.result();
-		var result = simulator.getResult();
-		var export = new SimulationResultExport(
-			r.setup(), result, EntityCache.create(context.db()));
-		try {
-			export.run(new File(path));
-			return Responses.ok("Exported to " + path, req);
-		} catch (Exception e) {
-			return Responses.serverError(e, req);
-		}
-	}
 
 	@Rpc("export/json-ld")
 	public RpcResponse jsonLd(RpcRequest req) {

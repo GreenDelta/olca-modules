@@ -2,11 +2,6 @@
 This module implements the JSON-RPC based protocol for
 [inter-process communication (IPC) with openLCA](https://greendelta.github.io/openLCA-ApiDoc/ipc/).
 
-## Building the server app
-
-```bash
-mvn package -P server-app
-```
 
 ## Principles
 On the openLCA side, an IPC server is started which accepts function calls
