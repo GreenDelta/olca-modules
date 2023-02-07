@@ -1,19 +1,16 @@
 package org.openlca.core.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
+import org.openlca.core.results.LcaResult;
 
 public class CalculationQueue {
 
@@ -50,28 +47,12 @@ public class CalculationQueue {
 	 * Get the state of the calculation with the given ID.
 	 */
 	public ResultState get(String id) {
-		var state = states.get(id);
-		return state == null
+		var next = states.compute(id, ($, state) -> state != null
+				? state.update()
+				: null);
+		return next == null
 			? ResultState.empty(id)
-			: state;
-	}
-
-	/**
-	 * Get the states of all calculations in this queue.
-	 */
-	public Collection<ResultState> getAll() {
-		return new ArrayList<>(states.values());
-	}
-
-	/**
-	 * Get the states of all calculations in this queue that match the given
-	 * predicate.
-	 */
-	public Collection<ResultState> getAll(Predicate<ResultState> p) {
-		return states.values()
-			.stream()
-			.filter(p)
-			.collect(Collectors.toList());
+			: next;
 	}
 
 	/**
@@ -92,21 +73,53 @@ public class CalculationQueue {
 		return state;
 	}
 
+	/**
+	 * Schedules a Monte-Carlo-Simulation for the given setup. After
+	 * creating the simulator it schedules the first simulation, and
+	 * returns the state as 'scheduled'.
+	 */
+	public ResultState scheduleSimulation(CalculationSetup setup) {
+		var state = ResultState.scheduleSimulation(setup, db);
+		if (state.isError())
+			return state;
+		states.put(state.id(), state);
+		submit(state.id());
+		return state;
+	}
+
+	public ResultState nextSimulation(String id) {
+		var state = states.get(id);
+		if (state == null || state.isEmpty() || state.simulator() == null)
+			return ResultState.error("no simulator available: id=" + id);
+		if (state.isError())
+			return state;
+		if (state.isScheduled())
+			return state;
+		var next = state.updateResult(null);
+		states.put(id, next);
+		submit(id);
+		return next;
+	}
+
 	private void submit(String id) {
 		threads.submit(() -> {
 			var state = states.get(id);
 			if (state == null || !state.isScheduled())
 				return;
 			try {
-				var result = new SystemCalculator(db)
-						.withLibraryDir(libDir)
-						.calculate(state.setup());
-				var resultState = state.toResult(result);
-				states.put(state.id(), resultState);
+				LcaResult result;
+				if (state.simulator() != null) {
+					result = state.simulator().nextRun();
+				} else {
+					result = new SystemCalculator(db)
+							.withLibraryDir(libDir)
+							.calculate(state.setup());
+				}
+				var nextState = state.updateResult(result);
+				states.put(state.id(), nextState);
 			} catch (Throwable err) {
 				var message = "Calculation failed: " + err.getMessage();
-				var errorState = state.toError(message);
-				states.put(state.id(), errorState);
+				states.put(state.id(), state.toError(message));
 			}
 		});
 	}
