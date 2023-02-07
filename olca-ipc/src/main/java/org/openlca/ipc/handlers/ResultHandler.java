@@ -16,11 +16,25 @@ public class ResultHandler {
 
 	@Rpc("result/calculate")
 	public RpcResponse calculate(RpcRequest req) {
-		var resp = req.requireJsonObject();
-		if (!resp.isValue())
-			return Responses.of(resp, req);
-		var result = results.calculate(resp.value());
-		return Responses.of(result, req);
+		var obj = req.requireJsonObject();
+		if (!obj.isValue())
+			return Responses.of(obj, req);
+		var state = results.calculate(obj.value());
+		return Responses.of(state, req);
+	}
+
+	@Rpc("result/simulate")
+	public RpcResponse simulate(RpcRequest req) {
+		var obj = req.requireJsonObject();
+		if (!obj.isValue())
+			return Responses.of(obj, req);
+		var state = results.simulate(obj.value());
+		return Responses.of(state, req);
+	}
+
+	@Rpc("result/simulate/next")
+	public RpcResponse simulateNext(RpcRequest req) {
+		return ResultRequest.of(req, rr -> results.nextSimulationOf(rr.id()));
 	}
 
 	@Rpc("result/state")

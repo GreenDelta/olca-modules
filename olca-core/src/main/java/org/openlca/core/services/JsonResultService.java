@@ -13,7 +13,6 @@ import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
@@ -48,6 +47,27 @@ public class JsonResultService {
 			if (r.hasError())
 				return Response.error(r.error());
 			var state = queue.schedule(r.setup());
+			return Response.of(encodeState(state));
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	public Response<JsonObject> simulate(JsonObject setup) {
+		try {
+			var r = JsonCalculationSetup.readFrom(setup, DbEntityResolver.of(db));
+			if (r.hasError())
+				return Response.error(r.error());
+			var state = queue.scheduleSimulation(r.setup());
+			return Response.of(encodeState(state));
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	public Response<JsonObject> nextSimulationOf(String resultId) {
+		try {
+			var state = queue.nextSimulation(resultId);
 			return Response.of(encodeState(state));
 		} catch (Exception e) {
 			return Response.error(e);
