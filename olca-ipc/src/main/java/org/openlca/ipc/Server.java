@@ -6,8 +6,6 @@ import java.util.Objects;
 
 import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
-import org.openlca.ipc.handlers.CacheHandler;
-import org.openlca.ipc.handlers.SimulationHandler;
 import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
 import org.openlca.ipc.handlers.DataHandler;
@@ -38,9 +36,7 @@ public class Server extends NanoHTTPD {
 		var results = JsonResultService.of(config);
 		var context = new HandlerContext(this, config, results, cache);
 		register(new DataHandler(context));
-		register(new SimulationHandler(context));
 		register(new ResultHandler(context));
-		register(new CacheHandler(cache));
 		register(new RuntimeHandler(context));
 		register(new ExportHandler(context));
 		return this;
