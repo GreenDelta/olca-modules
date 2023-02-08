@@ -28,17 +28,13 @@ public class JsonResultService {
 	private final IDatabase db;
 	private final CalculationQueue queue;
 
-	private JsonResultService(IDatabase db, int threadCount) {
-		this.db = Objects.requireNonNull(db);
-		this.queue = new CalculationQueue(db, Math.max(1, threadCount));
+	private JsonResultService(ServerConfig config) {
+		this.db = Objects.requireNonNull(config.db());
+		this.queue = CalculationQueue.of(config);
 	}
 
-	public static JsonResultService of(IDatabase db) {
-		return new JsonResultService(db, 1);
-	}
-
-	public static JsonResultService threadCountOf(IDatabase db, int threadCount) {
-		return new JsonResultService(db, threadCount);
+	public static JsonResultService of(ServerConfig config) {
+		return new JsonResultService(config);
 	}
 
 	public Response<JsonObject> calculate(JsonObject setup) {

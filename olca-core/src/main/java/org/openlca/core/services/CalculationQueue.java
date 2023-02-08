@@ -5,12 +5,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
+import org.slf4j.LoggerFactory;
 
 public class CalculationQueue {
 
@@ -18,6 +21,7 @@ public class CalculationQueue {
 	private final ConcurrentMap<String, ResultState> states;
 	private final ExecutorService threads;
 	private LibraryDir libDir;
+	private Cleaner cleaner;
 
 	public CalculationQueue(IDatabase db, int threadCount) {
 		this.db = db;
@@ -30,6 +34,26 @@ public class CalculationQueue {
 		return this;
 	}
 
+	public static CalculationQueue of(ServerConfig config) {
+		var queue = new CalculationQueue(config.db(), config.threadCount());
+		queue.withLibraryDir(config.dataDir().getLibraryDir());
+		if (config.timeout() > 0) {
+			queue.withTimeout(config.timeout(), TimeUnit.MINUTES);
+		}
+		return queue;
+	}
+
+	public void withTimeout(long time, TimeUnit unit) {
+		if (cleaner != null) {
+			cleaner.halt();
+		}
+		if (time <= 0)
+			return;
+		long timeout = unit.toMillis(time);
+		cleaner = new Cleaner(this, timeout);
+		cleaner.start();
+	}
+
 	/**
 	 * Calls {@code shutdown} on the underlying thread-pool of this calculation
 	 * and returns that thread-pool.
@@ -39,6 +63,9 @@ public class CalculationQueue {
 	 * thread-pool.
 	 */
 	public ExecutorService shutdown() {
+		if (cleaner != null) {
+			cleaner.halt();
+		}
 		threads.shutdown();
 		return threads;
 	}
@@ -51,8 +78,8 @@ public class CalculationQueue {
 				? state.update()
 				: null);
 		return next == null
-			? ResultState.empty(id)
-			: next;
+				? ResultState.empty(id)
+				: next;
 	}
 
 	/**
@@ -122,6 +149,46 @@ public class CalculationQueue {
 				states.put(state.id(), state.toError(message));
 			}
 		});
+	}
+
+	private static class Cleaner extends Thread {
+
+		private final CalculationQueue queue;
+		private final long timeout;
+		private final AtomicBoolean stopped;
+
+		Cleaner(CalculationQueue queue, long timeout) {
+			this.queue = queue;
+			this.timeout = timeout;
+			this.stopped = new AtomicBoolean(false);
+			setDaemon(true);
+
+		}
+
+		void halt() {
+			this.stopped.set(true);
+		}
+
+		@Override
+		public void run() {
+			while (!stopped.get()) {
+				try {
+					Thread.sleep(timeout / 2);
+				} catch (InterruptedException e) {
+					var log = LoggerFactory.getLogger(getClass());
+					log.error("failed to wait in calculation queue");
+					stopped.set(true);
+				}
+
+				long limit = System.currentTimeMillis() - timeout;
+				for (var e : queue.states.entrySet()) {
+					var state = e.getValue();
+					if (state.time() < limit) {
+						queue.states.remove(e.getKey(), e.getValue());
+					}
+				}
+			}
+		}
 	}
 
 }

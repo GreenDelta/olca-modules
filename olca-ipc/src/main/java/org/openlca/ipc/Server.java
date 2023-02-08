@@ -35,7 +35,7 @@ public class Server extends NanoHTTPD {
 	public Server withDefaultHandlers() {
 		log.info("Register default handlers");
 		var cache = new Cache();
-		var results = JsonResultService.of(config.db());
+		var results = JsonResultService.of(config);
 		var context = new HandlerContext(this, config, results, cache);
 		register(new DataHandler(context));
 		register(new SimulationHandler(context));

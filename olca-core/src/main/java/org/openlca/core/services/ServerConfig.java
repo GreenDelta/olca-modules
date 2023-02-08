@@ -16,35 +16,48 @@ import org.slf4j.LoggerFactory;
 /**
  * General configuration of a service interface. A server configuration is
  * typically parsed from the command line arguments of a server application
- * when the server starts. The following arguments are interpreted by the
- * parser:
+ * when the server starts. The following parameters are interpreted by the
+ * parser, they are all optional and have a default value where possible:
  *
  * <pre>
  * {@code
  *
  *  -data
- *  optional; the path to the data folder that contains the database and
- *  possible libraries. The folder structure should follow the openLCA workspace
- *  structure. Defaults to the default openLCA workspace.
+ *  The path to the data folder that contains the database and possible
+ *  libraries. The folder structure need to follow the openLCA workspace
+ *  structure, means the sub-folder `databases` of that folder contains the
+ *  database and the sub-folder `libraries` possible data libraries to which
+ *  the database is linked. If this parameter is not provided, the default
+ *  openLCA workspace (currently `~/openLCA-data-1.4`) is taken as data folder.
  *
  *  -db
- *  optional; the name of the database in the data folder (only the name, not a
- *  full file path, must be provided); defaults to 'database'
+ *  The name of the database in the data folder (only the name, not a full
+ *  file path, must be provided); defaults to 'database'.
  *
  *  -port
- *  optional; the port of the server; defaults to 8080.
+ *  The port of the server; defaults to 8080.
  *
  *  -native
- *  optional; the path to the folder from which the native libraries should be
+ *  The path to the folder from which the native libraries should be
  *  loaded; defaults to the data folder.
  *
+ * 	-threads
+ * 	The number of parallel threads that can be used for calculations. Make sure
+ * 	that the server has enough resources if you provide a larger number than 1
+ * 	here; defaults to 1.
+ *
+ * 	-timeout
+ * 	The time in minutes after which results are cleaned up if they were not
+ * 	disposed by the user. A value of <=0 means that no timeout should be
+ * 	applied; defaults to 0.
+ *
  *  --readonly
- *  optional; if this flag is set, the server will run in readonly mode and
- *  modifying the database will possible then.
+ *  If this flag is set, the server will run in readonly mode and modifying the
+ *  database will not be possible.
  *
  *  -static
- *  optional; an optional path to a folder with static files that should be
- *  hosted by the server.
+ *  A path to a folder with static files that should be hosted by the server.
+ *  This only has an effect if the server supports hosting of static files.
  *
  * }
  * </pre>
@@ -70,6 +83,8 @@ public record ServerConfig(
 		int port,
 		boolean isReadonly,
 		File staticDir,
+		int threadCount,
+		int timeout,
 		Map<String, String> args
 ) {
 
@@ -102,11 +117,18 @@ public record ServerConfig(
 
 		ServerConfig parseArgs() {
 			var db = openDatabase();
-			var port = parseServerPort();
 			var staticDir = checkStaticDir();
 			loadNativeLibs();
 			boolean readonly = "true".equalsIgnoreCase(args.get("--readonly"));
-			return new ServerConfig(dataDir, db, port, readonly, staticDir, args);
+			return new ServerConfig(
+					dataDir,
+					db,
+					getPort(),
+					readonly,
+					staticDir,
+					getThreadCount(),
+					getTimeout(),
+					args);
 		}
 
 		private IDatabase openDatabase() {
@@ -132,13 +154,36 @@ public record ServerConfig(
 			return db;
 		}
 
-		private int parseServerPort() {
-			var str = args.get("-port");
-			var port = str != null
-					? Integer.parseInt(str)
-					: 8080;
-			log.info("use server port: {}", port);
+		private int getPort() {
+			var port = intOf("-port", 8080);
+			log.info("use {} as server", port);
 			return port;
+		}
+
+		private int getThreadCount() {
+			int count = Math.max(intOf("-threads", 1), 1);
+			log.info("use {} calculation threads", count);
+			return count;
+		}
+
+		private int getTimeout() {
+			int timeout =  Math.max(intOf("-timeout", 0), 0);
+			log.info("set {} as result timeout", timeout);
+			return timeout;
+		}
+
+		private int intOf(String flag, int defaultVal) {
+			var str = args.get(flag);
+			if (str == null)
+				return defaultVal;
+			try {
+				return Integer.parseInt(str);
+			} catch (NumberFormatException e) {
+				log.error("invalid value for {}: " +
+						"{} is not an integer, took default of {}",
+						flag, str, defaultVal);
+				return defaultVal;
+			}
 		}
 
 		private File checkStaticDir() {
@@ -199,6 +244,8 @@ public record ServerConfig(
 		private int port = 8080;
 		private boolean isReadonly = false;
 		private File staticDir;
+		private int threadCount = 1;
+		private int timeout = 0;
 		private Map<String, String> args;
 
 		private Builder(IDatabase db) {
@@ -225,6 +272,20 @@ public record ServerConfig(
 			return this;
 		}
 
+		public Builder withThreadCount(int threads) {
+			if (threads >= 1) {
+				this.threadCount = threads;
+			}
+			return this;
+		}
+
+		public Builder withTimeout(int timeout) {
+			if (timeout >= 0) {
+				this.timeout = timeout;
+			}
+			return this;
+		}
+
 		public Builder withArgs(Map<String, String> args) {
 			this.args = args;
 			return this;
@@ -238,10 +299,10 @@ public record ServerConfig(
 				NativeLib.loadFrom(dataDir.root());
 			}
 			Map<String, String> args = this.args == null
-					? Map.of()
+					? java.util.Map.of()
 					: this.args;
 			return new ServerConfig(
-					dataDir, db, port, isReadonly, staticDir, args);
+					dataDir, db, port, isReadonly, staticDir, threadCount, timeout, args);
 		}
 	}
 }
