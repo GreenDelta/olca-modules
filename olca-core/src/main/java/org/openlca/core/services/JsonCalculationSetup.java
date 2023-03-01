@@ -112,7 +112,7 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 		}
 
 		private void addParameters(CalculationSetup setup) {
-			var array = Json.getArray(json, "parameterRedefs");
+			var array = Json.getArray(json, "parameters");
 			if (array != null) {
 				var redefs = ParameterReader.readRedefs(array, resolver);
 				setup.withParameters(redefs);
