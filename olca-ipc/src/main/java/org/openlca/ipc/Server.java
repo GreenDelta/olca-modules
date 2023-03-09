@@ -165,14 +165,22 @@ public class Server extends NanoHTTPD {
 
 			// register a shutdown hook
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+
+				// shutdown the server
 				try {
 					if (server.isAlive()) {
 						log.info("shutdown server");
 						server.stop();
-						config.db().close();
 					}
 				} catch (Exception e) {
 					log.error("failed to shutdown server", e);
+				}
+
+				// close the database
+				try {
+					config.db().close();
+				} catch (Exception e) {
+					log.error("failed to close database");
 				}
 			}));
 

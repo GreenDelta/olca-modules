@@ -10,6 +10,7 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.providers.ResultProvider;
+import org.openlca.core.services.ServerConfig;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.ImpactFactorRequest;
 import org.openlca.proto.grpc.ImpactFactorResponse;
@@ -34,9 +35,9 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 	private final LibraryDir libDir;
 	final Map<String, LcaResult> results = new HashMap<>();
 
-	ResultService(IDatabase db, LibraryDir libDir) {
-		this.db = db;
-		this.libDir = libDir;
+	ResultService(ServerConfig config) {
+		this.db = config.db();
+		this.libDir = config.dataDir().getLibraryDir();
 	}
 
 	@Override

@@ -1,32 +1,27 @@
 package org.openlca.proto.io.server;
 
-import java.io.File;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import org.openlca.core.DataDir;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.upgrades.Upgrades;
-import org.openlca.nativelib.NativeLib;
+import org.openlca.core.services.ServerConfig;
 import org.slf4j.LoggerFactory;
 
 import io.grpc.ServerBuilder;
 
 public class Server {
 
-	private final int port;
+	private final ServerConfig config;
 	private final io.grpc.Server server;
-	private final IDatabase db;
 
-	public Server(IDatabase db, DataDir dataDir, int port) {
-		this.port = port;
-		this.db = Objects.requireNonNull(db);
-		this.server = ServerBuilder.forPort(port)
+	public Server(ServerConfig config) {
+		this.config = Objects.requireNonNull(config);
+		var db = config.db();
+		this.server = ServerBuilder.forPort(config.port())
 			.maxInboundMessageSize(1024 * 1024 * 1024)
 			.addService(new DataFetchService(db))
 			.addService(new DataUpdateService(db))
 			.addService(new FlowMapService(db))
-			.addService(new ResultService(db, dataDir.getLibraryDir()))
+			.addService(new ResultService(config))
 			.addService(new AboutService(db))
 			.build();
 	}
@@ -34,7 +29,7 @@ public class Server {
 	public void start() {
 		try {
 			var log = LoggerFactory.getLogger(getClass());
-			log.info("start server: localhost:{}", port);
+			log.info("start server: localhost:{}", config.port());
 			server.start();
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 				System.out.println("shut down server");
@@ -57,7 +52,6 @@ public class Server {
 			if (!server.isShutdown()) {
 				server.shutdown().awaitTermination(5, TimeUnit.MINUTES);
 			}
-			db.close();
 		} catch (Exception e) {
 			throw new RuntimeException("failed to stop server", e);
 		}
@@ -65,79 +59,35 @@ public class Server {
 
 	public static void main(String[] args) {
 
-		// read program arguments
-		String dbArg = null;
-		String portArg = null;
-		String dataArg = null;
-		String nativeArg = null;
-		String flag = null;
-
-		for (var arg : args) {
-			if (arg.startsWith("-")) {
-				flag = arg;
-				continue;
-			}
-			if (flag == null) {
-				System.err.println("Invalid argument: " + arg);
-				return;
-			}
-			switch (flag) {
-				case "-data" -> dataArg = arg;
-				case "-db" -> dbArg = arg;
-				case "-native" -> nativeArg = arg;
-				case "-port" -> portArg = arg;
-				default -> {
-					System.err.println("Unknown flag: " + flag);
-					return;
-				}
-			}
-		}
-
-		// port -> default = 8080
-		int port;
-		if (portArg == null) {
-			System.out.println("No port given. Take 8080 as default");
-			port = 8080;
-		} else {
-			try {
-				port = Integer.parseInt(portArg, 10);
-			} catch (Exception e) {
-				System.err.println(portArg + " is not a valid port number.");
-				return;
-			}
-		}
-
-		// data dir
-		var dataDir = dataArg != null
-			? DataDir.get(new File(dataArg))
-			: DataDir.get();
-
+		var log = LoggerFactory.getLogger(Server.class);
 		try {
+			log.info("parse server configuration");
+			var config = ServerConfig.parse(args);
+			var server = new Server(config);
 
-			// try to load the native libraries
-			var nativeDir = nativeArg != null
-				? new File(nativeArg)
-				: dataDir.root();
-			System.out.println("Load native libraries from " + nativeDir);
-			NativeLib.loadFrom(dataDir.root());
-			if (!NativeLib.isLoaded()) {
-				System.out.println("... could not load native libraries");
-			}
+			// register a shutdown hook
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 
-			// try to open the database
-			var dbName = dbArg != null
-				? dbArg
-				: "database";
-			System.out.println("Open database " + dbName);
-			var db = dataDir.openDatabase(dbName);
+				// shutdown the server
+				try {
+					if (!server.server.isShutdown()) {
+						log.info("shutdown server");
+						server.stop();
+					}
+				} catch (Exception e) {
+					log.error("failed to shutdown server", e);
+				}
 
-			// check if the database needs an update
-			if (db.getVersion() < IDatabase.CURRENT_VERSION) {
-				Upgrades.on(db);
-			}
+				// close the database
+				try {
+					config.db().close();
+				} catch (Exception e) {
+					log.error("failed to close database");
+				}
+			}));
 
-			System.out.println("Start server");
-			new Server(db, dataDir, port).start();
+			log.info("Start server");
+			server.start();
 		} catch (Exception e) {
 			System.err.println("Server error: " + e.getMessage());
 		}
