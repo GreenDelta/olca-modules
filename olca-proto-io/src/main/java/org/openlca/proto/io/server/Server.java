@@ -31,15 +31,6 @@ public class Server {
 			var log = LoggerFactory.getLogger(getClass());
 			log.info("start server: localhost:{}", config.port());
 			server.start();
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				System.out.println("shut down server");
-				try {
-					Server.this.stop();
-				} catch (Exception e) {
-					e.printStackTrace(System.err);
-				}
-				System.out.println("server shut down");
-			}));
 			log.info("server waiting for connections");
 			server.awaitTermination();
 		} catch (Exception e) {
@@ -89,7 +80,7 @@ public class Server {
 			log.info("Start server");
 			server.start();
 		} catch (Exception e) {
-			System.err.println("Server error: " + e.getMessage());
+			log.error("Server error", e);
 		}
 	}
 }
