@@ -112,20 +112,21 @@ public class Validation implements Runnable {
 
 		// create and start the worker threads
 		var workers = new Runnable[]{
-			new RootFieldCheck(this),
-			new UnitCheck(this),
-			new FlowPropertyCheck(this),
-			new FlowCheck(this),
-			new CurrencyCheck(this),
-			new SocialIndicatorCheck(this),
-			new DQSystemCheck(this),
-			new ProcessCheck(this),
-			new ImpactCategoryCheck(this),
-			new ImpactMethodCheck(this),
-			new ProjectCheck(this),
-			new FormulaCheck(this),
-			new FlowDirectionCheck(this),
-			new AllocationCheck(this),
+				new RootFieldCheck(this),
+				new UnitCheck(this),
+				new FlowPropertyCheck(this),
+				new FlowCheck(this),
+				new CurrencyCheck(this),
+				new SocialIndicatorCheck(this),
+				new DQSystemCheck(this),
+				new ProcessCheck(this),
+				new ImpactCategoryCheck(this),
+				new ImpactMethodCheck(this),
+				new ProjectCheck(this),
+				new FormulaCheck(this),
+				new FlowDirectionCheck(this),
+				new AllocationCheck(this),
+				new ProductSystemCheck(this),
 		};
 		_totalWorkers.set(workers.length);
 		int activeWorkers = 0;
@@ -146,8 +147,8 @@ public class Validation implements Runnable {
 					continue;
 				}
 				if (_canceled
-					|| (skipWarnings && item.isWarning())
-					|| (skipInfos && item.isOk())) {
+						|| (skipWarnings && item.isWarning())
+						|| (skipInfos && item.isOk())) {
 					continue;
 				}
 				items.add(item);
@@ -173,7 +174,7 @@ public class Validation implements Runnable {
 				unit = "minutes";
 			}
 			items.add(Item.ok(
-				String.format("Validated database in %.2f %s", time, unit)));
+					String.format("Validated database in %.2f %s", time, unit)));
 		}
 
 		_finished = true;
