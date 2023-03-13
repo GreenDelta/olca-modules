@@ -91,7 +91,7 @@ class ProductSystemCheck implements Runnable {
 			var exchangeId = r.getLong(5);
 			if (exchangeId == 0) {
 				v.error(systemId, ModelType.PRODUCT_SYSTEM,
-						"invalid linkg; no exchange");
+						"invalid link; no exchange");
 				foundIssues = true;
 				return !v.wasCanceled();
 			}

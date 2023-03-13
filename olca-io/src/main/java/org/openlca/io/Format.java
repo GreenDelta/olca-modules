@@ -141,6 +141,11 @@ public enum Format {
 				 var buffer = new BufferedReader(reader)) {
 				var first = buffer.readLine();
 
+				if (first.isBlank()) {
+					// we accept an empty CSV file as a mapping file
+					return Optional.of(MAPPING_CSV);
+				}
+
 				// check if it is SimaPro CSV
 				if (first.startsWith("{SimaPro "))
 					return Optional.of(SIMAPRO_CSV);
@@ -228,12 +233,14 @@ public enum Format {
 				if (format == null)
 					return false;
 				switch (format) {
-					case ES1_XML:
+					case ES1_XML -> {
 						formatRef.set(ES1_ZIP);
 						return true;
-					case ES2_XML:
+					}
+					case ES2_XML -> {
 						formatRef.set(ES2_ZIP);
 						return true;
+					}
 				}
 			} catch (Exception ignored) {
 			}
