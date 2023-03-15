@@ -4,27 +4,61 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.ModelType;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.geo.geojson.GeoJSON;
+import org.openlca.geo.geojson.Point;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The GeoJSON import tries to identify the corresponding locations in the
- * database via the feature attributes in a feature collection and updates
- * the corresponding geo data of that location if a corresponding feature
- * was found. This is currently mainly used for importing the geographic
- * information for ecoinvent available from https://geography.ecoinvent.org/.
+ * Imports geographic information from a GeoJSON file. Meta-data are taken
+ * from the properties of a feature. The import understands meta-data as
+ * defined in the
+ * <a href="https://geography.ecoinvent.org/">ecoinvent geographies</a>.
  */
 public class GeoJsonImport implements Runnable {
 
+	/**
+	 * The possible import modes.
+	 */
+	public enum Mode {
+
+		/**
+		 * Only create new geographies that do not exist already.
+		 */
+		NEW_ONLY,
+
+		/**
+		 * Only update the geometries of geographies that already exist.
+		 */
+		UPDATE_ONLY,
+
+		/**
+		 * Create new and updated existing locations.
+		 */
+		NEW_AND_UPDATE;
+
+		boolean canCreate() {
+			return this == NEW_ONLY || this == NEW_AND_UPDATE;
+		}
+
+		boolean canUpdate() {
+			return this == UPDATE_ONLY || this == NEW_AND_UPDATE;
+		}
+	}
+
 	private final File file;
 	private final IDatabase db;
+	private Mode mode = Mode.NEW_ONLY;
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Map<String, Location> byUUID = new HashMap<>();
@@ -34,6 +68,13 @@ public class GeoJsonImport implements Runnable {
 	public GeoJsonImport(File file, IDatabase db) {
 		this.file = file;
 		this.db = db;
+	}
+
+	public GeoJsonImport withMode(Mode mode) {
+		if (mode != null) {
+			this.mode = mode;
+		}
+		return this;
 	}
 
 	@Override
@@ -47,50 +88,103 @@ public class GeoJsonImport implements Runnable {
 				return;
 
 			// index locations
-			LocationDao dao = new LocationDao(db);
-			indexLocations(dao);
+			for (var loc : db.getAll(Location.class)) {
+				index(loc);
+			}
 
-			// match and update the locations
-			for (Feature f : coll.features) {
-				if (f.geometry == null || f.properties == null)
+			// create and/or update locations
+			for (var feature : coll.features) {
+				if (feature.geometry == null || feature.properties == null)
 					continue;
-				Location loc = findMatch(f);
-				if (loc == null)
-					continue;
-				loc.geodata = GeoJSON.pack(FeatureCollection.of(f.geometry));
-				dao.update(loc);
+				var loc = findExisting(feature);
+				if (loc == null && mode.canCreate()) {
+					create(feature);
+				} else if (loc != null && mode.canUpdate()) {
+					update(loc, feature);
+				}
 			}
 		} catch (Exception e) {
 			log.error("Failed to import GeoJSON file " + file, e);
 		}
 	}
 
-	private void indexLocations(LocationDao dao) {
-		for (Location loc : dao.getAll()) {
-			if (loc.refId != null) {
-				byUUID.put(loc.refId, loc);
-			}
-			if (loc.code != null) {
-				byCode.put(loc.code, loc);
-			}
-			if (loc.name != null) {
-				byName.put(loc.name, loc);
-			}
+	private void create(Feature feature) {
+
+		// meta-data
+		var code = anyStrOf(feature,
+				"isotwolettercode",
+				"isothreelettercode",
+				"unsubregioncode",
+				"shortname"
+		);
+		var name = anyStrOf(feature, "name", "shortname");
+		if (name == null) {
+			if (code == null)
+				return;
+			name = code;
 		}
+		var loc = code != null
+				? Location.of(name, code)
+				: Location.of(name);
+		var uuid = anyStrOf(feature, "uuid", "refId");
+		if (uuid != null) {
+			loc.refId = uuid;
+		}
+
+		// category
+		var collection = anyStrOf(feature, "collection", "category");
+		if (collection != null && collection.length() > 1) {
+			var cat = collection.substring(0, 1).toUpperCase()
+					+ collection.substring(1);
+			loc.category = CategoryDao.sync(db, ModelType.LOCATION, cat);
+		}
+
+		// geo-data
+		loc.geodata = GeoJSON.pack(FeatureCollection.of(feature.geometry));
+		var center = centerOf(feature);
+		if (center != null) {
+			loc.longitude = center.x;
+			loc.latitude = center.y;
+		}
+
+		index(db.insert(loc));
 	}
 
-	private Location findMatch(Feature f) {
+	private void update(Location loc, Feature feature) {
+		loc.geodata = GeoJSON.pack(FeatureCollection.of(feature.geometry));
+		var center = centerOf(feature);
+		if (center != null) {
+			loc.longitude = center.x;
+			loc.latitude = center.y;
+		}
+		db.update(loc);
+	}
+
+	private void index(Location loc) {
+		if (loc == null)
+			return;
+		BiConsumer<String, Map<String, Location>> idx = (rawKey, map) -> {
+			if (Strings.nullOrEmpty(rawKey))
+				return;
+			var key = rawKey.strip().toLowerCase();
+			map.put(key, loc);
+		};
+		idx.accept(loc.refId, byUUID);
+		idx.accept(loc.code, byCode);
+		idx.accept(loc.name, byName);
+	}
+
+	private Location findExisting(Feature f) {
 		if (f == null || f.geometry == null || f.properties == null)
 			return null;
-		// we try to match corresponding locations
-		// first by UUID, then by location code,
-		// and finally by name
-		for (Map<String, Location> map : Arrays.asList(byUUID, byCode, byName)) {
-			for (Object prop : f.properties.values()) {
-				if (!(prop instanceof String))
-					continue;
-				String s = (String) prop;
-				Location loc = map.get(s);
+		// we try to match corresponding locations first by UUID,
+		// then by location code, and finally by name
+		for (Object prop : f.properties.values()) {
+			if (!(prop instanceof String s) || Strings.nullOrEmpty(s))
+				continue;
+			var key = s.strip().toLowerCase();
+			for (var map : Arrays.asList(byUUID, byCode, byName)) {
+				var loc = map.get(key);
 				if (loc != null && loc.geodata == null) {
 					log.trace("identified location {} via attribute {}", loc, s);
 					return loc;
@@ -98,5 +192,35 @@ public class GeoJsonImport implements Runnable {
 			}
 		}
 		return null;
+	}
+
+	private Point centerOf(Feature feature) {
+		if (feature == null || feature.properties == null)
+			return null;
+		if (feature.properties.get("latitude") instanceof Number lat
+				&& feature.properties.get("longitude") instanceof Number lon) {
+			return new Point(lon.doubleValue(), lat.doubleValue());
+		}
+		return null;
+	}
+
+	private String anyStrOf(Feature feature, String... props) {
+		if (props == null)
+			return null;
+		for (var prop : props) {
+			var s = strOf(feature, prop);
+			if (s != null)
+				return s;
+		}
+		return null;
+	}
+
+	private String strOf(Feature feature, String property) {
+		if (feature == null || feature.properties == null)
+			return null;
+		var obj = feature.properties.get(property);
+		return obj instanceof String s && Strings.notEmpty(s)
+				? s.strip()
+				: null;
 	}
 }
