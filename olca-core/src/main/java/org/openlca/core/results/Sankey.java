@@ -153,15 +153,19 @@ public class Sankey<T> {
 	 * a negative value (-1..0) in case of negative upstream contributions.
 	 */
 	public double getLinkShare(Node provider, Node node) {
-		var total = solution.scaledTechValueOf(
-				provider.index, provider.index);
+		var total = solution.scaledTechValueOf(provider.index, provider.index);
 		if (total == 0)
 			return 0;
-		var amount = solution.scaledTechValueOf(
-				provider.index, node.index);
+		var aij = solution.techValueOf(provider.index, provider.index);
+		if (aij == 0)
+			return 0;
+		var sj = solution.solutionOfOne(node.index);
+		var tj = solution.totalFactorOf(node.index);
+		var amount = tj * aij * sj[provider.index];
+		// var amount = solution.scaledTechValueOf(provider.index, node.index);
 		return amount == 0
 				? 0
-				: -amount / total;
+				: amount / total;
 	}
 
 	/**
