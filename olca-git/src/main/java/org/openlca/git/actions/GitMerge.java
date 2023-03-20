@@ -151,6 +151,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var diffs = result.get(ImportState.MERGED).stream()
 				.map(r -> new Change(DiffType.MODIFIED, r))
 				.collect(Collectors.toList());
+		result.get(ImportState.KEPT).forEach(r -> diffs.add(new Change(DiffType.MODIFIED, r)));
 		result.get(ImportState.KEPT_DELETED).forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
 		result.get(ImportState.DELETED).forEach(r -> {
 			if (conflictResolver.isConflict(r)
