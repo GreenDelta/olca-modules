@@ -158,6 +158,8 @@ class GitStoreReader implements JsonStoreReader {
 			if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
 				if (references.get(type, ref.refId, previousCommit.id) == null) {
 					results.add(ref, ImportState.KEPT_DELETED);
+				} else {
+					results.add(ref, ImportState.KEPT);
 				}
 				return null;
 			}
