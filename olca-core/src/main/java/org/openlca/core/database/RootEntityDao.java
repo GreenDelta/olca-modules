@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
-import jakarta.persistence.TypedQuery;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
+
+import jakarta.persistence.TypedQuery;
 
 public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 		extends RefEntityDao<T, V> {
@@ -93,7 +93,6 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 		} finally {
 			em.close();
 		}
-		db.notifyUpdate(model);
 		return model;
 	}
 

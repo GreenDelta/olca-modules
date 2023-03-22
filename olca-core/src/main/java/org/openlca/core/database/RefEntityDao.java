@@ -3,18 +3,17 @@ package org.openlca.core.database;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import jakarta.persistence.Table;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
+import jakarta.persistence.Table;
 
 public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends BaseDao<T> {
 
@@ -24,34 +23,6 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	protected RefEntityDao(Class<T> entityType, Class<V> descriptorType, IDatabase db) {
 		super(entityType, db);
 		this.descriptorType = descriptorType;
-	}
-
-	@Override
-	public T insert(T entity) {
-		entity = super.insert(entity);
-		db.notifyInsert(Descriptor.of(entity));
-		return entity;
-	}
-
-	@Override
-	public T update(T entity) {
-		entity = super.update(entity);
-		db.notifyUpdate(Descriptor.of(entity));
-		return entity;
-	}
-
-	@Override
-	public void delete(T entity) {
-		super.delete(entity);
-		db.notifyDelete(Descriptor.of(entity));
-	}
-
-	@Override
-	public void deleteAll(Collection<T> entities) {
-		super.deleteAll(entities);
-		for (T entity : entities) {
-			db.notifyDelete(Descriptor.of(entity));
-		}
 	}
 
 	Class<V> getDescriptorType() {
@@ -136,8 +107,8 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 	}
 
 	/**
-	 * Returns all descriptors of the DAO type in a map which is indexed by the IDs
-	 * of the respective descriptors.
+	 * Returns all descriptors of the DAO type in a map which is indexed by the
+	 * IDs of the respective descriptors.
 	 */
 	public TLongObjectHashMap<V> descriptorMap() {
 		var descriptors = getDescriptors();

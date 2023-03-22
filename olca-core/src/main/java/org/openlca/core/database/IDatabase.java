@@ -22,7 +22,7 @@ import org.openlca.util.TLongSets;
 /**
  * The common interface for openLCA databases.
  */
-public interface IDatabase extends EntityStore, Closeable, INotifiable {
+public interface IDatabase extends EntityStore, Closeable {
 
 	/**
 	 * The current database schema version of this package. Together with the

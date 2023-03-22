@@ -12,7 +12,7 @@ import org.openlca.util.Exceptions;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class MySQL extends Notifiable implements IDatabase {
+public class MySQL implements IDatabase {
 
 	private final String name;
 	private final EntityManagerFactory entityFactory;

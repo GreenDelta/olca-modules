@@ -13,9 +13,8 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
-import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Categories;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
@@ -107,8 +106,6 @@ public class CategoryDao
 		String newRefId = Categories.createRefId(category);
 		Category forRefId = getForRefId(newRefId);
 		boolean isNew = category.id == 0L;
-		if (!Objects.equals(refId, newRefId) && !isNew)
-			getDatabase().notifyDelete(Descriptor.of(category));
 		if (Objects.equals(refId, newRefId) || forRefId == null) {
 			category.refId = newRefId;
 			category = super.update(category);
@@ -159,7 +156,6 @@ public class CategoryDao
 					+ " SET version = " + version + ", last_change = "
 					+ lastChange + " WHERE id = " + d.id;
 			NativeSql.on(db).runUpdate(update);
-			db.notifyUpdate(d);
 		}
 	}
 

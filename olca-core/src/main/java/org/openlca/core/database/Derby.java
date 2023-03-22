@@ -32,7 +32,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import jakarta.persistence.EntityManagerFactory;
 
-public class Derby extends Notifiable implements IDatabase {
+public class Derby implements IDatabase {
 
 	private static final AtomicInteger memInstances = new AtomicInteger(0);
 
