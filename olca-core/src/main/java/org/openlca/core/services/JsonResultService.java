@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.NwSetTable;
@@ -484,11 +485,11 @@ public class JsonResultService {
 
 	// region: costs
 
-	// TODO: costs should be encoded as CostValue
-	public Response<JsonPrimitive> getTotalCosts(String resultId) {
+	public Response<JsonObject> getTotalCosts(String resultId) {
 		return withResult(resultId, result -> {
-			double value = result.getTotalCosts();
-			return Response.of(new JsonPrimitive(value));
+			var c = new CurrencyDao(db).getReferenceCurrency();
+			var value = encodeCostValue(c, result.getTotalCosts());
+			return Response.of(value);
 		});
 	}
 

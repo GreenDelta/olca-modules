@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
@@ -392,6 +393,11 @@ public class Json {
 		// impact categories
 		if (e instanceof ImpactCategory impact) {
 			put(obj, "refUnit", impact.referenceUnit);
+		}
+
+		// currencies
+		if (e instanceof Currency currency) {
+			put(obj, "refUnit", currency.code);
 		}
 
 		return obj;

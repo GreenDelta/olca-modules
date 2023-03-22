@@ -6,6 +6,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.ProviderLinking;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -130,6 +131,13 @@ final class JsonUtil {
 
 	static JsonArray encodeImpactValues(Iterable<ImpactValue> vs, JsonRefs refs) {
 		return encodeArray(vs, v -> encodeImpact(v, refs));
+	}
+
+	static JsonObject encodeCostValue(Currency c, double v) {
+		var obj = new JsonObject();
+		obj.add("currency", Json.asRef(c));
+		obj.addProperty("amount", v);
+		return obj;
 	}
 
 	static JsonObject encodeUpstreamNode(UpstreamNode node, JsonRefs refs) {
