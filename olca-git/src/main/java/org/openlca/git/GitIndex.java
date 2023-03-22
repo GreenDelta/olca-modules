@@ -80,7 +80,7 @@ public class GitIndex {
 		if (path == null)
 			return false;
 		var entry = entries.get(path);
-		return entry != null;
+		return entry != null && entry.objectId != null;
 	}
 
 	public GitIndexEntry getRoot() {

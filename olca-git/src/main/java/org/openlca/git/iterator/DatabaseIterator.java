@@ -90,7 +90,11 @@ public class DatabaseIterator extends EntryIterator {
 			return gitIndex.has((ModelType) data);
 		if (data instanceof Category)
 			return gitIndex.has((Category) data);
-		return gitIndex.has(categoryPaths, (RootDescriptor) data);
+		var d = (RootDescriptor) data;
+		if (!gitIndex.has(categoryPaths, d))
+			return false;
+		var entry = gitIndex.get(categoryPaths, d);
+		return entry.version() == d.version && entry.lastChange() == d.lastChange;
 	}
 
 	@Override
@@ -104,7 +108,11 @@ public class DatabaseIterator extends EntryIterator {
 			return gitIndex.get((ModelType) data).rawObjectId();
 		if (data instanceof Category)
 			return gitIndex.get((Category) data).rawObjectId();
-		return gitIndex.get(categoryPaths, (RootDescriptor) data).rawObjectId();
+		var d = (RootDescriptor) data;
+		var entry = gitIndex.get(categoryPaths, d);
+		if (entry.version() == d.version && entry.lastChange() == d.lastChange)
+			return entry.rawObjectId();
+		return GitUtil.getBytes(ObjectId.zeroId());
 	}
 
 	@Override

@@ -14,24 +14,29 @@ public class TypedRefId {
 		this.type = getType(path);
 		this.refId = getRefId(path);
 	}
-	
+
 	public TypedRefId(ModelType type, String refId) {
 		this.type = type;
 		this.refId = refId;
 	}
-	
+
 	private ModelType getType(String path) {
 		if (path.isEmpty())
 			return null;
-		return ModelType.valueOf(path.split("/")[0]);
+		for (var type : ModelType.values())
+			if (type.name().equals(path.split("/")[0]))
+				return type;
+		return null;
 	}
 
 	private static String getRefId(String path) {
 		var parts = path.split("/");
+		if (parts.length < 2)
+			return null;
 		var last = parts[parts.length - 1];
-		if (last.endsWith(GitUtil.DATASET_SUFFIX))
-			return last.substring(last.lastIndexOf("/") + 1, last.indexOf(GitUtil.DATASET_SUFFIX));
-		return null;
+		if (!last.endsWith(GitUtil.DATASET_SUFFIX))
+			return null;
+		return last.substring(last.lastIndexOf("/") + 1, last.indexOf(GitUtil.DATASET_SUFFIX));
 	}
 
 	@Override
