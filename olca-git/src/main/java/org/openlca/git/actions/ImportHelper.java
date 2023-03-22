@@ -12,13 +12,14 @@ import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.ModelRef;
+import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
@@ -28,16 +29,18 @@ class ImportHelper {
 	final References references;
 	final Entries entries;
 	final IDatabase database;
-	final ObjectIdStore workspaceIds;
+	final GitIndex gitIndex;
 	final ProgressMonitor progressMonitor;
+	final Descriptors descriptors;
 	ConflictResolver conflictResolver = ConflictResolver.NULL;
 
-	ImportHelper(Repository repo, IDatabase database, ObjectIdStore workspaceIds, ProgressMonitor progressMonitor) {
+	ImportHelper(Repository repo, IDatabase database, GitIndex gitIndex, ProgressMonitor progressMonitor) {
 		this.references = References.of(repo);
 		this.entries = Entries.of(repo);
 		this.database = database;
-		this.workspaceIds = workspaceIds;
+		this.gitIndex = gitIndex;
 		this.progressMonitor = progressMonitor;
+		this.descriptors = Descriptors.of(database);
 	}
 
 	static final ModelType[] TYPE_ORDER = new ModelType[] {
@@ -113,27 +116,28 @@ class ImportHelper {
 		dao.delete(dao.getForRefId(refId));
 	}
 
-	void updateWorkspaceIds(String commitId, ImportResults result, boolean applyStash) throws IOException {
-		if (workspaceIds == null)
+	void updateGitIndex(String commitId, ImportResults result, boolean applyStash) throws IOException {
+		if (gitIndex == null)
 			return;
 		result.get(ImportState.UPDATED).forEach(ref -> {
 			if (applyStash) {
-				workspaceIds.invalidate(ref.path);
+				gitIndex.invalidate(ref.path);
 			} else {
-				workspaceIds.put(ref.path, ref.objectId);
+				var d = descriptors.get(ref.path);
+				gitIndex.put(ref.path, d.version, d.lastChange, ref.objectId);
 			}
 		});
-		result.get(ImportState.DELETED).forEach(ref -> workspaceIds.remove(ref.path));
+		result.get(ImportState.DELETED).forEach(ref -> gitIndex.remove(ref.path));
 		updateCategoryIds(commitId, "");
-		workspaceIds.putRoot(ObjectId.fromString(commitId));
-		workspaceIds.save();
+		gitIndex.putRoot(ObjectId.fromString(commitId));
+		gitIndex.save();
 	}
 
 	private void updateCategoryIds(String remoteCommitId, String path) {
 		entries.find().commit(remoteCommitId).path(path).all().forEach(entry -> {
 			if (entry.typeOfEntry == EntryType.DATASET)
 				return;
-			workspaceIds.put(entry.path, entry.objectId);
+			gitIndex.put(entry.path, 0, 0, entry.objectId);
 			updateCategoryIds(remoteCommitId, entry.path);
 		});
 	}

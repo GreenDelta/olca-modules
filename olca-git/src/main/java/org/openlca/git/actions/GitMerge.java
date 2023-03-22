@@ -17,7 +17,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
@@ -36,7 +36,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private final History localHistory;
 	private final Commits commits;
 	private IDatabase database;
-	private ObjectIdStore workspaceIds;
+	private GitIndex gitIndex;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver = ConflictResolver.NULL;
 	private LibraryResolver libraryResolver;
@@ -57,8 +57,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return this;
 	}
 
-	public GitMerge update(ObjectIdStore workspaceIds) {
-		this.workspaceIds = workspaceIds;
+	public GitMerge update(GitIndex gitIndex) {
+		this.gitIndex = gitIndex;
 		return this;
 	}
 
@@ -114,7 +114,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		if (!mountLibraries(toMount))
 			throw new IOException("Could not mount libraries");
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
-		var importHelper = new ImportHelper(repo, database, workspaceIds, progressMonitor);
+		var importHelper = new ImportHelper(repo, database, gitIndex, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
@@ -129,7 +129,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 				commitId = createMergeCommit(localCommit, remoteCommit, result);
 			}
 		}
-		importHelper.updateWorkspaceIds(commitId, result, applyStash);
+		importHelper.updateGitIndex(commitId, result, applyStash);
 		return result.size() > 0;
 	}
 
@@ -161,7 +161,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		});
 		progressMonitor.subTask("Writing merged changes");
 		var writer = new DbCommitWriter(repo, database)
-				.saveIdsIn(workspaceIds)
+				.update(gitIndex)
 				.as(committer)
 				.merge(localCommit.id, remoteCommit.id);
 		var commitId = writer.write("Merge remote-tracking branch", diffs);

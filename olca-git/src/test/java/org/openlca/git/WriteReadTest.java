@@ -36,7 +36,7 @@ public class WriteReadTest {
 		var tmp = TmpConfig.create();
 
 		// expect an empty database and repo
-		assertTrue(Diffs.of(tmp.repo).with(tmp.database, tmp.idStore).isEmpty());
+		assertTrue(Diffs.of(tmp.repo).with(tmp.database, tmp.gitIndex).isEmpty());
 
 		// insert model in database
 		var unitGroup = UnitGroup.of("Units of mass", "kg");
@@ -45,13 +45,13 @@ public class WriteReadTest {
 		db.insert(unitGroup);
 
 		// should find 1 diff
-		var diffs = Diffs.of(tmp.repo).with(tmp.database, tmp.idStore).stream()
+		var diffs = Diffs.of(tmp.repo).with(tmp.database, tmp.gitIndex).stream()
 				.map(Change::new)
 				.collect(Collectors.toList());
 		assertEquals(1, diffs.size());
 
 		// commit it
-		var writer = new DbCommitWriter(tmp.repo, tmp.database).saveIdsIn(tmp.idStore).as(tmp.committer);
+		var writer = new DbCommitWriter(tmp.repo, tmp.database).update(tmp.gitIndex).as(tmp.committer);
 		var commitId = writer.write("initial commit", diffs);
 
 		// get the data set from the repo
@@ -67,15 +67,15 @@ public class WriteReadTest {
 		tmp.delete();
 	}
 
-	private record TmpConfig(Repository repo, IDatabase database, ObjectIdStore idStore, PersonIdent committer,
+	private record TmpConfig(Repository repo, IDatabase database, GitIndex gitIndex, PersonIdent committer,
 			File dir) {
 
 		static TmpConfig create() {
 			try {
 				var dir = Files.createTempDirectory("olca-git-test").toFile();
 				var repo = Repositories.open(new File(dir, "repo"));
-				var idStore = ObjectIdStore.fromFile(new File(dir, "id-store"));
-				return new TmpConfig(repo, Tests.db(), idStore, new PersonIdent("user", "user@example.com"), dir);
+				var gitIndex = GitIndex.fromFile(new File(dir, "git.index"));
+				return new TmpConfig(repo, Tests.db(), gitIndex, new PersonIdent("user", "user@example.com"), dir);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

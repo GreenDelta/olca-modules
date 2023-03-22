@@ -6,12 +6,12 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 
 public class GitStashApply extends GitProgressAction<Void> {
 
 	private final Repository repo;
-	private ObjectIdStore workspaceIds;
+	private GitIndex gitIndex;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver;
 	private LibraryResolver libraryResolver;
@@ -30,8 +30,8 @@ public class GitStashApply extends GitProgressAction<Void> {
 		return this;
 	}
 
-	public GitStashApply update(ObjectIdStore workspaceIds) {
-		this.workspaceIds = workspaceIds;
+	public GitStashApply update(GitIndex gitIndex) {
+		this.gitIndex = gitIndex;
 		return this;
 	}
 
@@ -52,7 +52,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 		GitMerge.from(repo)
 				.into(database)
 				.as(committer)
-				.update(workspaceIds)
+				.update(gitIndex)
 				.resolveConflictsWith(conflictResolver)
 				.resolveLibrariesWith(libraryResolver)
 				.applyStash()

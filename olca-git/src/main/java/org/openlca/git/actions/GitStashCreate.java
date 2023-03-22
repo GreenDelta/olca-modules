@@ -12,7 +12,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.References;
@@ -31,7 +31,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	private Repository repo;
 	private Commits commits;
 	private References references;
-	private ObjectIdStore workspaceIds;
+	private GitIndex gitIndex;
 	private PersonIdent committer;
 	private Commit reference;
 	private boolean discard;
@@ -72,8 +72,8 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		return this;
 	}
 
-	public GitStashCreate update(ObjectIdStore workspaceIds) {
-		this.workspaceIds = workspaceIds;
+	public GitStashCreate update(GitIndex gitIndex) {
+		this.gitIndex = gitIndex;
 		return this;
 	}
 
@@ -81,12 +81,12 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	public Void run() throws IOException {
 		if (repo == null || database == null)
 			throw new IllegalStateException("Git repository and database must be set");
-		if (changes == null && workspaceIds == null)
-			throw new IllegalStateException("Either changes or workspaceIds must be set");
+		if (changes == null && gitIndex == null)
+			throw new IllegalStateException("Either changes or gitIndex must be set");
 		if (!discard && committer == null)
 			throw new IllegalStateException("Committer must be set");
 		if (changes == null) {
-			changes = Diffs.of(repo).with(database, workspaceIds).stream()
+			changes = Diffs.of(repo).with(database, gitIndex).stream()
 					.map(Change::new)
 					.collect(Collectors.toList());
 		}
@@ -106,17 +106,17 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		if (!discard) {
 			var writer = new DbCommitWriter(repo, database)
 					.ref(Constants.R_STASH)
-					.saveIdsIn(workspaceIds)
+					.update(gitIndex)
 					.as(committer)
 					.reference(reference)
 					.with(progressMonitor);
 			writer.write("Stashed changes", changes);
 		}
-		var importHelper = new ImportHelper(repo, database, workspaceIds, progressMonitor);
+		var importHelper = new ImportHelper(repo, database, gitIndex, progressMonitor);
 		if (commit == null) {
 			importHelper.delete(toDelete);
-			if (workspaceIds != null) {
-				workspaceIds.clear();
+			if (gitIndex != null) {
+				gitIndex.clear();
 			}
 		} else {
 			var gitStore = new GitStoreReader(repo, commit, toImport);
@@ -124,9 +124,9 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			importHelper.delete(toDelete);
 			var result = gitStore.getResults();
 			toDelete.forEach(ref -> result.add(ref, ImportState.DELETED));
-			importHelper.updateWorkspaceIds(commit.id, result, false);
+			importHelper.updateGitIndex(commit.id, result, false);
 		}
-		if (workspaceIds == null)
+		if (gitIndex == null)
 			return null;
 		for (var category : categoryDao.getRootCategories()) {
 			deleteIfAdded(category);
@@ -135,8 +135,8 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	}
 
 	private void deleteIfAdded(Category category) {
-		var path = workspaceIds.getPath(category);
-		if (workspaceIds.get(path).equals(ObjectId.zeroId())) {
+		var path = gitIndex.getPath(category);
+		if (gitIndex.get(path).objectId().equals(ObjectId.zeroId())) {
 			delete(category);
 		} else {
 			for (var child : category.childCategories) {

@@ -18,7 +18,7 @@ import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.NotBinaryFilter;
 import org.openlca.git.iterator.DatabaseIterator;
@@ -56,10 +56,10 @@ public class Diffs {
 		return this;
 	}
 
-	public List<Diff> with(IDatabase database, ObjectIdStore idStore) {
+	public List<Diff> with(IDatabase database, GitIndex gitIndex) {
 		try (var walk = new TreeWalk(repo)) {
 			addTree(repo, walk, commit, true);
-			walk.addTree(new DatabaseIterator(database, idStore));
+			walk.addTree(new DatabaseIterator(database, gitIndex));
 			if (paths == null) {
 				paths = new ArrayList<>();
 			}

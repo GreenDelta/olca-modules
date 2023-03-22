@@ -13,7 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
@@ -22,24 +22,24 @@ public class DatabaseIterator extends EntryIterator {
 
 	private final PathBuilder categoryPaths;
 	private final IDatabase database;
-	private final ObjectIdStore idStore;
+	private final GitIndex gitIndex;
 
-	public DatabaseIterator(IDatabase database, ObjectIdStore idStore) {
-		this(database, idStore, init(database));
+	public DatabaseIterator(IDatabase database, GitIndex gitIndex) {
+		this(database, gitIndex, init(database));
 	}
 
-	private DatabaseIterator(IDatabase database, ObjectIdStore idStore, List<TreeEntry> entries) {
+	private DatabaseIterator(IDatabase database, GitIndex gitIndex, List<TreeEntry> entries) {
 		super(entries);
 		this.database = database;
-		this.idStore = idStore;
+		this.gitIndex = gitIndex;
 		this.categoryPaths = Categories.pathsOf(database);
 	}
 
-	private DatabaseIterator(DatabaseIterator parent, IDatabase database, ObjectIdStore idStore,
+	private DatabaseIterator(DatabaseIterator parent, IDatabase database, GitIndex gitIndex,
 			List<TreeEntry> entries) {
 		super(parent, entries);
 		this.database = database;
-		this.idStore = idStore;
+		this.gitIndex = gitIndex;
 		this.categoryPaths = Categories.pathsOf(database);
 	}
 
@@ -81,30 +81,30 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public boolean hasId() {
-		if (idStore == null)
+		if (gitIndex == null)
 			return false;
 		var data = getEntryData();
 		if (data == null)
 			return false;
 		if (data instanceof ModelType)
-			return idStore.has((ModelType) data);
+			return gitIndex.has((ModelType) data);
 		if (data instanceof Category)
-			return idStore.has((Category) data);
-		return idStore.has(categoryPaths, (RootDescriptor) data);
+			return gitIndex.has((Category) data);
+		return gitIndex.has(categoryPaths, (RootDescriptor) data);
 	}
 
 	@Override
 	public byte[] idBuffer() {
-		if (idStore == null)
+		if (gitIndex == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
 		var data = getEntryData();
 		if (data == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
 		if (data instanceof ModelType)
-			return idStore.getRaw((ModelType) data);
+			return gitIndex.get((ModelType) data).rawObjectId();
 		if (data instanceof Category)
-			return idStore.getRaw((Category) data);
-		return idStore.getRaw(categoryPaths, (RootDescriptor) data);
+			return gitIndex.get((Category) data).rawObjectId();
+		return gitIndex.get(categoryPaths, (RootDescriptor) data).rawObjectId();
 	}
 
 	@Override
@@ -116,9 +116,9 @@ public class DatabaseIterator extends EntryIterator {
 	public DatabaseIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		if (data instanceof ModelType type)
-			return new DatabaseIterator(this, database, idStore, init(database, type));
+			return new DatabaseIterator(this, database, gitIndex, init(database, type));
 		if (data instanceof Category category)
-			return new DatabaseIterator(this, database, idStore, init(database, category));
+			return new DatabaseIterator(this, database, gitIndex, init(database, category));
 		return null;
 	}
 

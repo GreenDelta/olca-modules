@@ -2,7 +2,7 @@ package org.openlca.git.model;
 
 public class Change extends ModelRef {
 
-	public DiffType diffType;
+	public final DiffType diffType;
 
 	public Change(Diff diff) {
 		this(diff.diffType, diff);

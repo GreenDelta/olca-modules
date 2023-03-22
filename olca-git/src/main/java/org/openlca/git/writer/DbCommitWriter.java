@@ -17,11 +17,12 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.BinaryResolver;
+import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
 import org.openlca.util.Strings;
@@ -32,7 +33,8 @@ public class DbCommitWriter extends CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(DbCommitWriter.class);
 	private final IDatabase database;
-	private ObjectIdStore idStore;
+	private final Descriptors descriptors;
+	private GitIndex gitIndex;
 	private String localCommitId;
 	private String remoteCommitId;
 	private Converter converter;
@@ -42,6 +44,7 @@ public class DbCommitWriter extends CommitWriter {
 	public DbCommitWriter(Repository repo, IDatabase database) {
 		super(repo, new DatabaseBinaryResolver(database));
 		this.database = database;
+		this.descriptors = Descriptors.of(database);
 	}
 
 	@Override
@@ -62,8 +65,8 @@ public class DbCommitWriter extends CommitWriter {
 		return this;
 	}
 
-	public DbCommitWriter saveIdsIn(ObjectIdStore idStore) {
-		this.idStore = idStore;
+	public DbCommitWriter update(GitIndex gitIndex) {
+		this.gitIndex = gitIndex;
 		return this;
 	}
 	
@@ -90,8 +93,8 @@ public class DbCommitWriter extends CommitWriter {
 					.sorted()
 					.toList());
 			var commitId = write(message, changes, getParentIds(previousCommit));
-			if (idStore != null) {
-				idStore.save();
+			if (gitIndex != null) {
+				gitIndex.save();
 			}
 			return commitId;
 		} finally {
@@ -125,15 +128,16 @@ public class DbCommitWriter extends CommitWriter {
 
 	@Override
 	protected void inserted(String path, ObjectId id) {
-		if (idStore != null) {
-			idStore.put(path, id);
+		if (gitIndex != null) {
+			var d = descriptors.get(path);
+			gitIndex.put(path, d.version, d.lastChange, id);
 		}
 	}
 
 	@Override
 	protected void removed(String path) {
-		if (idStore != null) {
-			idStore.remove(path);
+		if (gitIndex != null) {
+			gitIndex.remove(path);
 		}
 	}
 

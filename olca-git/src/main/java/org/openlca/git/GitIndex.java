@@ -6,10 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -19,37 +18,35 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.TypedRefId;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
-public class ObjectIdStore {
+public class GitIndex {
 
 	private final File file;
-	private Map<String, byte[]> workspace = new HashMap<>();
-	private Map<String, byte[]> head = new HashMap<>();
+	private Map<String, GitIndexEntry> entries = new HashMap<>();
 
-	private ObjectIdStore(File storeFile) {
-		this.file = storeFile;
+	private GitIndex(File file) {
+		this.file = file;
 	}
 
-	public static ObjectIdStore fromFile(File file) throws IOException {
-		var store = new ObjectIdStore(file);
+	@SuppressWarnings("unchecked")
+	public static GitIndex fromFile(File file) throws IOException {
+		var store = new GitIndex(file);
 		if (file == null || !file.exists())
 			return store;
 		try (var fis = new FileInputStream(file);
 				var ois = new ObjectInputStream(fis)) {
-			@SuppressWarnings("unchecked")
-			var stores = (List<HashMap<String, byte[]>>) ois.readObject();
-			store.workspace = stores.get(0);
-			store.head = stores.get(1);
+			store.entries = (HashMap<String, GitIndexEntry>) ois.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		}
 		return store;
 	}
 
-	public static ObjectIdStore inMemory() {
-		return new ObjectIdStore(null);
+	public static GitIndex inMemory() {
+		return new GitIndex(null);
 	}
 
 	public void save() throws IOException {
@@ -60,7 +57,7 @@ public class ObjectIdStore {
 		}
 		try (var fos = new FileOutputStream(file);
 				var oos = new ObjectOutputStream(fos)) {
-			oos.writeObject(Arrays.asList(workspace, head));
+			oos.writeObject(entries);
 		}
 	}
 
@@ -80,94 +77,63 @@ public class ObjectIdStore {
 	}
 
 	public boolean has(String path) {
-		return workspace.containsKey(path);
+		if (path == null)
+			return false;
+		var entry = entries.get(path);
+		return entry != null;
 	}
 
-	public byte[] getRawRoot() {
-		return getRaw("");
-	}
-
-	public byte[] getRaw(ModelType type) {
-		var path = getPath(type);
-		return getRaw(path);
-	}
-
-	public byte[] getRaw(RootEntity e) {
-		var path = getPath(e);
-		return getRaw(path);
-	}
-
-	public byte[] getRaw(PathBuilder categoryPath, RootDescriptor d) {
-		var path = getPath(categoryPath, d);
-		return getRaw(path);
-	}
-
-	public byte[] getRaw(String path) {
-		var v = workspace.get(path);
-		if (v == null)
-			return GitUtil.getBytes(ObjectId.zeroId());
-		return v;
-	}
-
-	public ObjectId getRoot() {
+	public GitIndexEntry getRoot() {
 		return get("");
 	}
 
-	public ObjectId get(ModelType type) {
+	public GitIndexEntry get(ModelType type) {
 		var path = getPath(type);
 		return get(path);
 	}
 
-	public ObjectId get(RootEntity e) {
+	public GitIndexEntry get(RootEntity e) {
 		var path = getPath(e);
 		return get(path);
 	}
 
-	public ObjectId get(PathBuilder categoryPath, RootDescriptor d) {
+	public GitIndexEntry get(PathBuilder categoryPath, RootDescriptor d) {
 		var path = getPath(categoryPath, d);
 		return get(path);
 	}
 
-	public ObjectId get(String path) {
-		var id = workspace.get(path);
-		if (id == null)
-			return ObjectId.zeroId();
-		return ObjectId.fromRaw(id);
-	}
-
-	public ObjectId getHead(String path) {
-		var id = head.get(path);
-		if (id == null)
-			return ObjectId.zeroId();
-		return ObjectId.fromRaw(id);
+	public GitIndexEntry get(String path) {
+		if (path == null)
+			return GitIndexEntry.NULL;
+		var entry = entries.get(path);
+		if (entry != null)
+			return entry;
+		return GitIndexEntry.NULL;
 	}
 
 	public void putRoot(ObjectId id) {
-		put("", id);
+		put("", 0, 0, id);
 	}
 
 	public void put(ModelType type, ObjectId id) {
 		var path = getPath(type);
-		put(path, id);
+		put(path, 0, 0, id);
 	}
 
 	public void put(RootEntity e, ObjectId id) {
 		var path = getPath(e);
-		put(path, id);
+		put(path, e.version, e.lastChange, id);
 	}
 
 	public void put(PathBuilder categoryPath, RootDescriptor d, ObjectId id) {
 		var path = getPath(categoryPath, d);
-		put(path, id);
+		put(path, d.version, d.lastChange, id);
 	}
 
-	public void put(String path, ObjectId id) {
-		if (path.startsWith("/")) {
-			path = path.substring(1);
-		}
-		var bytes = GitUtil.getBytes(id);
-		workspace.put(path, bytes);
-		head.put(path, bytes);
+	public void put(String path, long version, long lastChange, ObjectId id) {
+		if (path == null)
+			return;
+		entries.put(path, new GitIndexEntry(path, version, lastChange, id));
 	}
 
 	public void removeRoot() {
@@ -190,7 +156,9 @@ public class ObjectIdStore {
 	}
 
 	public void remove(String path) {
-		head.remove(path);
+		if (path == null)
+			return;
+		entries.remove(path);
 	}
 
 	public void invalidate() {
@@ -213,6 +181,8 @@ public class ObjectIdStore {
 	}
 
 	public void invalidate(String path) {
+		if (path == null)
+			return;
 		var split = path.split("/");
 		for (var i = 0; i < split.length; i++) {
 			var k = "";
@@ -222,13 +192,19 @@ public class ObjectIdStore {
 					k += "/";
 				}
 			}
-			workspace.remove(k);
+			invalidate(entries.get(k));
 		}
-		workspace.remove("");
+		invalidate(entries.get(""));
+	}
+
+	private void invalidate(GitIndexEntry entry) {
+		if (entry == null)
+			return;
+		entry.objectId = null;
 	}
 
 	public void clear() {
-		workspace.clear();
+		entries.clear();
 	}
 
 	public String getPath(ModelType type) {
@@ -250,6 +226,8 @@ public class ObjectIdStore {
 	}
 
 	private String getPath(ModelType type, String path, String name) {
+		if (type == null)
+			return null;
 		var fullPath = type.name();
 		if (path != null && !path.isBlank()) {
 			if (!path.startsWith("/")) {
@@ -261,6 +239,57 @@ public class ObjectIdStore {
 			fullPath += "/" + name;
 		}
 		return fullPath;
+	}
+
+	public static class GitIndexEntry implements Serializable {
+
+		public static final GitIndexEntry NULL = new GitIndexEntry("", -1, -1, null);
+		private static final long serialVersionUID = 2035250054845500724L;
+		private final ModelType type;
+		private final String refId;
+		private final long version;
+		private final long lastChange;
+		private byte[] objectId;
+
+		private GitIndexEntry(String path, long version, long lastChange, ObjectId objectId) {
+			var ref = new TypedRefId(path);
+			this.type = ref.type;
+			this.refId = ref.refId;
+			this.version = version;
+			this.lastChange = lastChange;
+			this.objectId = objectId != null && !objectId.equals(ObjectId.zeroId())
+					? GitUtil.getBytes(objectId)
+					: null;
+		}
+
+		public ModelType type() {
+			return type;
+		}
+
+		public String refId() {
+			return refId;
+		}
+
+		public long version() {
+			return version;
+		}
+
+		public long lastChange() {
+			return lastChange;
+		}
+
+		public ObjectId objectId() {
+			if (objectId == null)
+				return ObjectId.zeroId();
+			return ObjectId.fromRaw(objectId);
+		}
+
+		public byte[] rawObjectId() {
+			if (objectId == null)
+				return GitUtil.getBytes(ObjectId.zeroId());
+			return objectId;
+		}
+
 	}
 
 }

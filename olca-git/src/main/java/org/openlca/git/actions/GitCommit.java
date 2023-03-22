@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.ObjectIdStore;
+import org.openlca.git.GitIndex;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.DbCommitWriter;
@@ -19,7 +19,7 @@ public class GitCommit extends GitProgressAction<String> {
 	private Repository repo;
 	private List<Change> changes;
 	private String message;
-	private ObjectIdStore workspaceIds;
+	private GitIndex gitIndex;
 	private PersonIdent committer;
 
 	private GitCommit(IDatabase database) {
@@ -50,8 +50,8 @@ public class GitCommit extends GitProgressAction<String> {
 		return this;
 	}
 
-	public GitCommit update(ObjectIdStore workspaceIds) {
-		this.workspaceIds = workspaceIds;
+	public GitCommit update(GitIndex gitIndex) {
+		this.gitIndex = gitIndex;
 		return this;
 	}
 
@@ -60,15 +60,15 @@ public class GitCommit extends GitProgressAction<String> {
 		if (repo == null || database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		if (changes == null) {
-			if (workspaceIds == null)
-				throw new IllegalStateException("ObjectIdStore must be set when no changes are specified");
-			changes = Diffs.of(repo).with(database, workspaceIds).stream()
+			if (gitIndex == null)
+				throw new IllegalStateException("gitIndex must be set when no changes are specified");
+			changes = Diffs.of(repo).with(database, gitIndex).stream()
 					.map(Change::new)
 					.collect(Collectors.toList());
 		}
 		progressMonitor.beginTask("Writing commit", changes.size());
 		var writer = new DbCommitWriter(repo, database)
-				.saveIdsIn(workspaceIds)
+				.update(gitIndex)
 				.as(committer)
 				.with(progressMonitor);
 		var commitId = writer.write(message, changes);
