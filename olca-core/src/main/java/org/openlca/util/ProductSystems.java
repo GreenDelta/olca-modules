@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ProcessLink;
@@ -88,6 +91,25 @@ public final class ProductSystems {
 		system.processLinks.addAll(validLinks);
 		log.info("removed {} unreachable processes and {} links",
 				processRemovals, linkRemovals);
+	}
+
+	/**
+	 * Returns the IDs of the linked exchanges of the given product system. Each
+	 * exchange can be only linked to one provider (but a provider can be linked
+	 * to multiple exchanges). Thus, the exchange IDs can be used to identify the
+	 * links in a system.
+	 */
+	public static TLongSet linkedExchangesOf(ProductSystem system) {
+		if (system == null || system.processLinks.isEmpty())
+			return new TLongHashSet();
+		var set = new TLongHashSet(
+				system.processLinks.size(),
+				Constants.DEFAULT_LOAD_FACTOR,
+				0L);
+		for (var link : system.processLinks) {
+			set.add(link.exchangeId);
+		}
+		return set;
 	}
 
 	public static boolean isConnected(ProductSystem system) {
