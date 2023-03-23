@@ -9,7 +9,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.Category;
@@ -18,7 +20,6 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypedRefId;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
@@ -26,6 +27,7 @@ public class GitIndex {
 
 	private final File file;
 	private Map<String, GitIndexEntry> entries = new HashMap<>();
+	private Map<String, Set<String>> subPaths = new HashMap<>();
 
 	private GitIndex(File file) {
 		this.file = file;
@@ -33,16 +35,46 @@ public class GitIndex {
 
 	@SuppressWarnings("unchecked")
 	public static GitIndex fromFile(File file) throws IOException {
-		var store = new GitIndex(file);
+		var index = new GitIndex(file);
 		if (file == null || !file.exists())
-			return store;
+			return index;
 		try (var fis = new FileInputStream(file);
 				var ois = new ObjectInputStream(fis)) {
-			store.entries = (HashMap<String, GitIndexEntry>) ois.readObject();
+			index.entries = (HashMap<String, GitIndexEntry>) ois.readObject();
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		}
-		return store;
+		for (var key : index.entries.keySet()) {
+			index.addSubPath(key);
+		}
+		return index;
+	}
+
+	private void addSubPath(String path) {
+		if (path.isEmpty())
+			return;
+		var parent = getParent(path);
+		subPaths.computeIfAbsent(parent, k -> new HashSet<>()).add(path);
+	}
+
+	private void removeSubPath(String path) {
+		if (path.isEmpty())
+			return;
+		var parent = getParent(path);
+		var set = subPaths.get(parent);
+		if (set == null)
+			return;
+		set.remove(path);
+		if (set.isEmpty()) {
+			subPaths.remove(parent);
+		}
+	}
+
+	private String getParent(String path) {
+		var lastSlash = path.lastIndexOf('/');
+		if (lastSlash == -1)
+			return "";
+		return path.substring(0, lastSlash);
 	}
 
 	public static GitIndex inMemory() {
@@ -111,13 +143,19 @@ public class GitIndex {
 		return GitIndexEntry.NULL;
 	}
 
+	public Set<String> getSubPaths(String path) {
+		if (path == null)
+			return new HashSet<>();
+		return subPaths.getOrDefault(path, new HashSet<>());
+	}
+
 	public void putRoot(ObjectId id) {
-		put("", 0, 0, id);
+		put("", -1, -1, id);
 	}
 
 	public void put(ModelType type, ObjectId id) {
 		var path = getPath(type);
-		put(path, 0, 0, id);
+		put(path, -1, -1, id);
 	}
 
 	public void put(RootEntity e, ObjectId id) {
@@ -134,6 +172,7 @@ public class GitIndex {
 		if (path == null)
 			return;
 		entries.put(path, new GitIndexEntry(path, version, lastChange, id));
+		addSubPath(path);
 	}
 
 	public void removeRoot() {
@@ -159,6 +198,7 @@ public class GitIndex {
 		if (path == null)
 			return;
 		entries.remove(path);
+		removeSubPath(path);
 	}
 
 	public void invalidate() {
@@ -205,6 +245,7 @@ public class GitIndex {
 
 	public void clear() {
 		entries.clear();
+		subPaths.clear();
 	}
 
 	public String getPath(ModelType type) {
@@ -245,29 +286,16 @@ public class GitIndex {
 
 		public static final GitIndexEntry NULL = new GitIndexEntry("", -1, -1, null);
 		private static final long serialVersionUID = 2035250054845500724L;
-		private final ModelType type;
-		private final String refId;
 		private final long version;
 		private final long lastChange;
 		private byte[] objectId;
 
 		private GitIndexEntry(String path, long version, long lastChange, ObjectId objectId) {
-			var ref = new TypedRefId(path);
-			this.type = ref.type;
-			this.refId = ref.refId;
 			this.version = version;
 			this.lastChange = lastChange;
 			this.objectId = objectId != null && !objectId.equals(ObjectId.zeroId())
 					? GitUtil.getBytes(objectId)
 					: null;
-		}
-
-		public ModelType type() {
-			return type;
-		}
-
-		public String refId() {
-			return refId;
 		}
 
 		public long version() {
