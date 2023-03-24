@@ -2,10 +2,8 @@ package org.openlca.io.simapro.csv.output;
 
 import static org.openlca.io.simapro.csv.output.Util.*;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,11 +14,9 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.ReferenceAmount;
-import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -30,8 +26,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.io.maps.FlowRef;
 import org.openlca.io.simapro.csv.Compartment;
@@ -65,34 +59,29 @@ class ProcessWriter {
 	private final Set<Flow> inputProducts = new HashSet<>();
 	private final Set<Flow> outputProducts = new HashSet<>();
 
-	/**
-	 * Only used when we need to link product providers during the export, so
-	 * when no default providers are given in the product inputs and waste
-	 * outputs.
-	 */
-	private ProcessTable processTable;
-
 	ProcessWriter(SimaProExport config, CsvWriter writer) {
 		this.config = config;
-		this.products = ProductLabeler.of(db, processes)
-		w = writer;
+		this.units = new UnitMap();
+		this.products = ProductLabeler.of(config);
+		this.flowMap = config.flowMap != null
+				? config.flowMap.index()
+				: null;
+		this.w = writer;
 	}
 
-
 	void write() {
-			w.writerHeader(db.getName());
-			var dao = new ProcessDao(db);
-			for (var descriptor : processes) {
-				var process = dao.getForId(descriptor.id);
-				if (process == null)
-					continue;
-				classifyElemFlows(process);
-				writeProcess(process);
-			}
-			writeDummies();
-			writeQuantities();
-			writeReferenceFlows();
-			writeGlobalParameters();
+		var dao = new ProcessDao(config.db);
+		for (var descriptor : config.processes) {
+			var process = dao.getForId(descriptor.id);
+			if (process == null)
+				continue;
+			classifyElemFlows(process);
+			writeProcess(process);
+		}
+		writeDummies();
+		writeQuantities();
+		writeReferenceFlows();
+		writeGlobalParameters();
 	}
 
 	private void writeDummies() {
@@ -300,7 +289,7 @@ class ProcessWriter {
 				}
 			}
 
-			w.ln(productName(p, e.flow),
+			w.ln(products.labelOf(e.flow, p),
 					units.get(ref.unit),
 					ref.amount,
 					allocation,
@@ -315,12 +304,9 @@ class ProcessWriter {
 			if (!e.isAvoided)
 				continue;
 			inputProducts.add(e.flow);
-			var provider = e.defaultProviderId > 0
-					? db.get(Process.class, e.defaultProviderId)
-					: null;
 			var ref = toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty);
-			w.ln(productName(provider, e.flow),
+			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],
@@ -378,12 +364,9 @@ class ProcessWriter {
 			if (!Exchanges.isLinkable(e))
 				continue;
 			inputProducts.add(e.flow);
-			var provider = e.defaultProviderId > 0
-					? db.get(Process.class, e.defaultProviderId)
-					: null;
 			var ref = toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty);
-			w.ln(productName(provider, e.flow),
+			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],
@@ -603,7 +586,6 @@ class ProcessWriter {
 	}
 
 
-
 	private FlowMapEntry mappedFlow(Flow flow) {
 		return flowMap != null && flow != null
 				? flowMap.get(flow.refId)
@@ -640,8 +622,4 @@ class ProcessWriter {
 		}
 		return clone;
 	}
-
-
-
-
 }

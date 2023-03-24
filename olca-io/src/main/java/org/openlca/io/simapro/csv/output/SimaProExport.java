@@ -40,6 +40,7 @@ public class SimaProExport {
 				|| processes.isEmpty())
 			return;
 		try (var csv = CsvWriter.on(file)) {
+			csv.writerHeader(db.getName());
 			new ProcessWriter(this, csv).write();
 		}
 	}
