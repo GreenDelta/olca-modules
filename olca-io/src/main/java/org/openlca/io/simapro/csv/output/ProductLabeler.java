@@ -46,7 +46,7 @@ class ProductLabeler {
 		if (withLongNames
 				&& process.location != null
 				&& Strings.notEmpty(process.location.code)) {
-			label += " {" + process.location + "}";
+			label += " {" + process.location.code + "}";
 		}
 
 		if (!Strings.nullOrEqual(product.name, process.name)) {
