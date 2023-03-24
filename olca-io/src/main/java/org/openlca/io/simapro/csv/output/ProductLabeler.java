@@ -4,10 +4,10 @@ package org.openlca.io.simapro.csv.output;
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ProcessTable;
-import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,57 +17,48 @@ class ProductLabeler {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
 	private final TLongHashSet exportIds;
-	private boolean withLongNames;
+	private final boolean withLongNames;
 	private ProcessTable processes;
 
-	private ProductLabeler(IDatabase db, TLongHashSet exportIds) {
-		this.db = db;
-		this.exportIds = exportIds;
-	}
-
-	static ProductLabeler of(SimaProExport export) {
-		var exportIds = new TLongHashSet(export.processes.size(), 0.8f, 0L);
+	private ProductLabeler(SimaProExport export) {
+		this.db = export.db;
+		this.withLongNames = export.withLongNames;
+		exportIds = new TLongHashSet(export.processes.size(), 0.8f, 0L);
 		for (var d : export.processes) {
 			exportIds.add(d.id);
 		}
-		return new ProductLabeler(export.db, exportIds);
 	}
 
-	ProductLabeler withLongNames(boolean b) {
-		this.withLongNames = b;
-		return this;
+	static ProductLabeler of(SimaProExport export) {
+		return new ProductLabeler(export);
 	}
 
 	String labelOf(Flow product, Process process) {
 		if (product == null || product.name == null)
 			return "?";
-		var flowName = product.name.trim();
-		String processName;
-		if (process != null) {
-			processName = process.name;
-		} else {
-			// try to find a default provider if required
-			if (processTable == null) {
-				processTable = ProcessTable.create(db);
-			}
-			var providers = processTable.getProviders(product.id);
-			if (providers.isEmpty()) {
-				log.warn("no providers found for flow {}", flowName);
-				return flowName;
-			}
-			if (providers.size() > 1) {
-				log.warn("multiple providers found for flow {}", flowName);
-			}
-			processName = providers.get(0).provider().name;
+		var label = product.name.trim();
+		if (process == null
+				|| Strings.nullOrEmpty(process.name)
+				|| process.name.startsWith("Dummy: "))
+			return label;
+
+		// location
+		if (withLongNames
+				&& process.location != null
+				&& Strings.notEmpty(process.location.code)) {
+			label += " {" + process.location + "}";
 		}
 
-		if (Strings.nullOrEmpty(processName)
-				|| processName.startsWith("Dummy: "))
-			return flowName;
-		processName = processName.trim();
-		return processName.equalsIgnoreCase(flowName)
-				? flowName
-				: flowName + " - " + processName;
+		if (!Strings.nullOrEqual(product.name, process.name)) {
+			label += " | " + process.name;
+		}
+
+		if (withLongNames) {
+			label += process.processType == ProcessType.LCI_RESULT
+					? ", S"
+					: ", U";
+		}
+		return label;
 	}
 
 	String labelOfInput(Exchange e) {
@@ -82,7 +73,7 @@ class ProductLabeler {
 			log.warn(
 					"provider process {} not exported; default to dummy",
 					provider.refId);
-			return  e.flow.name;
+			return e.flow.name;
 		}
 		return labelOf(e.flow, provider);
 	}
@@ -118,5 +109,4 @@ class ProductLabeler {
 		}
 		return candidate;
 	}
-
 }
