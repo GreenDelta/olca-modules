@@ -1,5 +1,7 @@
 package org.openlca.io.simapro.csv.output;
 
+import static org.openlca.io.simapro.csv.output.Util.*;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +29,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.io.maps.FlowMap;
@@ -48,17 +49,19 @@ import org.slf4j.LoggerFactory;
  * cases to get a file that is finally accepted by SimaPro. The idea of this
  * class is to provide a basic export that handles most of the common cases.
  */
-public class ProcessWriter {
+class ProcessWriter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final SimaProExport config;
+	private final CsvWriter w;
 
-	private final IDatabase db;
-	private Map<String, FlowMapEntry> flowMap;
-	private CsvWriter w;
+	private final UnitMap units;
+	private final ProductLabeler products;
+	private final Map<String, FlowMapEntry> flowMap;
 
-	private final Map<String, SimaProUnit> units = new HashMap<>();
 	private final Map<Category, Compartment> compartments = new HashMap<>();
 	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
+
 	private final Set<Flow> inputProducts = new HashSet<>();
 	private final Set<Flow> outputProducts = new HashSet<>();
 
@@ -69,21 +72,14 @@ public class ProcessWriter {
 	 */
 	private ProcessTable processTable;
 
-	public ProcessWriter(IDatabase db) {
-		this.db = db;
+	ProcessWriter(SimaProExport config, CsvWriter writer) {
+		this.config = config;
+		this.products = ProductLabeler.of(db, processes)
+		w = writer;
 	}
 
-	public void setFlowMap(FlowMap flowMap) {
-		if (flowMap != null) {
-			this.flowMap = flowMap.index();
-		}
-	}
 
-	public void write(Collection<ProcessDescriptor> processes, File file) {
-		if (processes == null || file == null)
-			return;
-		try (var writer = CsvWriter.on(file)){
-			this.w = writer;
+	void write() {
 			w.writerHeader(db.getName());
 			var dao = new ProcessDao(db);
 			for (var descriptor : processes) {
@@ -97,8 +93,6 @@ public class ProcessWriter {
 			writeQuantities();
 			writeReferenceFlows();
 			writeGlobalParameters();
-			this.w = null;
-		}
 	}
 
 	private void writeDummies() {
@@ -219,7 +213,7 @@ public class ProcessWriter {
 					// handle mapped flows
 					name = mapEntry.targetFlow().flow.name;
 					if (mapEntry.targetFlow().unit != null) {
-						unit = unit(mapEntry.targetFlow().unit.name);
+						unit = units.get(mapEntry.targetFlow().unit.name);
 					}
 				} else {
 					// handle unmapped flows
@@ -230,7 +224,7 @@ public class ProcessWriter {
 							refUnit = flow.referenceFlowProperty.unitGroup.referenceUnit;
 						}
 					}
-					unit = unit(refUnit);
+					unit = units.get(refUnit);
 				}
 
 				if (name == null || unit == null)
@@ -259,7 +253,7 @@ public class ProcessWriter {
 			w.endSection();
 		}
 
-		var globals = new ParameterDao(db)
+		var globals = new ParameterDao(config.db)
 				.getGlobalParameters();
 
 		w.ln("Project Input parameters");
@@ -307,11 +301,11 @@ public class ProcessWriter {
 			}
 
 			w.ln(productName(p, e.flow),
-					unit(ref.unit),
+					units.get(ref.unit),
 					ref.amount,
 					allocation,
 					"not defined",
-					productCategory(e.flow),
+					productCategoryOf(e.flow),
 					e.description);
 		}
 		w.ln();
@@ -327,7 +321,7 @@ public class ProcessWriter {
 			var ref = toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty);
 			w.ln(productName(provider, e.flow),
-					unit(ref.unit),
+					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],
 					e.description);
@@ -390,7 +384,7 @@ public class ProcessWriter {
 			var ref = toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty);
 			w.ln(productName(provider, e.flow),
-					unit(ref.unit),
+					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],
 					e.description);
@@ -415,7 +409,7 @@ public class ProcessWriter {
 				var u = uncertainty(ref.amount, ref.uncertainty);
 				w.ln(e.flow.name,
 						comp.sub().toString(),
-						unit(ref.unit),
+						units.get(ref.unit),
 						ref.amount,
 						u[0], u[1], u[2], u[3],
 						e.description);
@@ -425,7 +419,7 @@ public class ProcessWriter {
 			// handle a mapped flow
 			FlowRef target = mapEntry.targetFlow();
 			String unit = target.unit != null
-					? unit(target.unit.name)
+					? units.get(target.unit.name)
 					: SimaProUnit.kg.symbol;
 			var u = uncertainty(e.amount, e.uncertainty, mapEntry.factor());
 			w.ln(target.flow.name,
@@ -524,11 +518,10 @@ public class ProcessWriter {
 		}
 		w.ln();
 
-		// we do not write sources as literature references as these are
-		// are stored database wide in SimaPro. there are problems when
-		// the same literature reference occurs in different SimaPro CSV
-		// files. the import then just stops. instead we import them as
-		// external docs (see above)
+		// We do not write sources as literature references as these are stored
+		// database wide in SimaPro. There are problems when the same literature
+		// reference occurs in different SimaPro CSV files. The import then just
+		// stops. Instead, we import them as external docs (see above)
 		w.ln("Literature references");
 		w.ln();
 		w.ln();
@@ -609,118 +602,19 @@ public class ProcessWriter {
 		return buff.toString();
 	}
 
-	/**
-	 * Returns the corresponding SimaPro name of the given unit.
-	 */
-	private String unit(Unit u) {
-		if (u == null)
-			return SimaProUnit.kg.symbol;
-		SimaProUnit unit = units.get(u.name);
-		if (unit != null)
-			return unit.symbol;
-		unit = SimaProUnit.find(u.name);
-		if (unit != null) {
-			units.put(u.name, unit);
-			return unit.symbol;
-		}
-		if (u.synonyms != null) {
-			for (String syn : u.synonyms.split(";")) {
-				unit = SimaProUnit.find(syn);
-				if (unit != null) {
-					units.put(u.name, unit);
-					return unit.symbol;
-				}
-			}
-		}
-		log.warn("No corresponding SimaPro unit" +
-				" for '{}' found; fall back to 'kg'", u.name);
-		units.put(u.name, SimaProUnit.kg);
-		return SimaProUnit.kg.symbol;
-	}
 
-	/**
-	 * Returns the corresponding SimaPro name of the given unit name.
-	 */
-	private String unit(String u) {
-		if (u == null)
-			return SimaProUnit.kg.symbol;
-		SimaProUnit unit = units.get(u);
-		if (unit != null)
-			return unit.symbol;
-		unit = SimaProUnit.find(u);
-		if (unit != null) {
-			units.put(u, unit);
-			return unit.symbol;
-		}
-		log.warn("No corresponding SimaPro unit" +
-				" for '{}' found; fall back to 'kg'", u);
-		units.put(u, SimaProUnit.kg);
-		return SimaProUnit.kg.symbol;
-	}
-
-	private String productCategory(Flow e) {
-		if (e == null)
-			return "";
-		StringBuilder path = null;
-		Category c = e.category;
-		while (c != null) {
-			var name = Strings.cut(c.name, 40);
-			if (path == null) {
-				path = new StringBuilder(name);
-			} else {
-				path.insert(0, name + '\\');
-			}
-			c = c.category;
-		}
-		return path == null
-				? "Other"
-				: path.toString();
-	}
-
-	private String productName(Process process, Flow product) {
-		if (product == null || product.name == null)
-			return "?";
-		var flowName = product.name.trim();
-		String processName;
-		if (process != null) {
-			processName = process.name;
-		} else {
-			// try to find a default provider if required
-			if (processTable == null) {
-				processTable = ProcessTable.create(db);
-			}
-			var providers = processTable.getProviders(product.id);
-			if (providers.isEmpty()) {
-				log.warn("no providers found for flow {}", flowName);
-				return flowName;
-			}
-			if (providers.size() > 1) {
-				log.warn("multiple providers found for flow {}", flowName);
-			}
-			processName = providers.get(0).provider().name;
-		}
-
-		if (Strings.nullOrEmpty(processName)
-				|| processName.startsWith("Dummy: "))
-			return flowName;
-		processName = processName.trim();
-		return processName.equalsIgnoreCase(flowName)
-				? flowName
-				: flowName + " - " + processName;
-	}
 
 	private FlowMapEntry mappedFlow(Flow flow) {
-		if (flowMap == null || flow == null)
-			return null;
-		return flowMap.get(flow.refId);
+		return flowMap != null && flow != null
+				? flowMap.get(flow.refId)
+				: null;
 	}
 
 	/**
-	 * In SimaPro you cannot have multiple flow properties for
-	 * a flow. Thus we convert everything into the reference
-	 * flow property and unit. Otherwise the SimaPro import will
-	 * throw errors when the same flow is present with units from
-	 * different quantities.
+	 * In SimaPro you cannot have multiple flow properties for a flow. Thus, we
+	 * convert everything into the reference flow property and unit. Otherwise,
+	 * the SimaPro import will throw errors when the same flow is present with
+	 * units from different quantities.
 	 */
 	public Exchange toReferenceAmount(Exchange e) {
 		if (e == null || e.flow == null)
@@ -747,50 +641,7 @@ public class ProcessWriter {
 		return clone;
 	}
 
-	/**
-	 * Converts the given uncertainty into a SimaPro entry. Passing null into
-	 * this function is totally fine. Note that SimaPro does some validation
-	 * checks in the import (e.g. min <= mean <= max), so that we have to pass
-	 * also the mean value into this function.
-	 */
-	private Object[] uncertainty(double mean, Uncertainty u, double... factor) {
-		var row = new Object[]{"Undefined", 0, 0, 0};
-		if (u == null || u.distributionType == null)
-			return row;
-		double f = factor.length > 0
-				? factor[0]
-				: 1;
-		switch (u.distributionType) {
-			case LOG_NORMAL:
-				row[0] = "Lognormal";
-				row[1] = u.parameter2 == null ? 0 : u.parameter2;
-				return row;
-			case NORMAL:
-				row[0] = "Normal";
-				row[1] = u.parameter2 == null ? 0 : f * u.parameter2;
-				return row;
-			case TRIANGLE:
-				var tmin = u.parameter1 == null ? 0 : f * u.parameter1;
-				var tmax = u.parameter3 == null ? 0 : f * u.parameter3;
-				if (tmin > mean || tmax < mean)
-					return row;
-				row[0] = "Triangle";
-				row[2] = tmin;
-				row[3] = tmax;
-				return row;
-			case UNIFORM:
-				var umin = u.parameter1 == null ? 0 : f * u.parameter1;
-				var umax = u.parameter2 == null ? 0 : f * u.parameter2;
-				if (umin > mean || umax < mean)
-					return row;
-				row[0] = "Uniform";
-				row[2] = umin;
-				row[3] = umax;
-				return row;
-			default:
-				return row;
-		}
-	}
+
 
 
 }
