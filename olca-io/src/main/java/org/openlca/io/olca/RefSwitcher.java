@@ -53,32 +53,32 @@ class RefSwitcher {
 	private final IDatabase source;
 	private final IDatabase dest;
 
-	RefSwitcher(IDatabase source, IDatabase dest, Seq seq) {
-		this.source = source;
-		this.dest = dest;
-		this.seq = seq;
+	RefSwitcher(Config conf) {
+		this.source = conf.source();
+		this.dest = conf.target();
+		this.seq = conf.seq();
 	}
 
 	Category switchRef(Category srcCategory) {
-		return switchRef(seq.CATEGORY, new CategoryDao(dest), srcCategory);
+		return switchRef(Seq.CATEGORY, new CategoryDao(dest), srcCategory);
 	}
 
 	Location switchRef(Location srcLocation) {
-		return switchRef(seq.LOCATION, new LocationDao(dest), srcLocation);
+		return switchRef(Seq.LOCATION, new LocationDao(dest), srcLocation);
 	}
 
 	Actor switchRef(Actor srcActor) {
-		return switchRef(seq.ACTOR, new ActorDao(dest), srcActor);
+		return switchRef(Seq.ACTOR, new ActorDao(dest), srcActor);
 	}
 
 	Source switchRef(Source srcSource) {
-		return switchRef(seq.SOURCE, new SourceDao(dest), srcSource);
+		return switchRef(Seq.SOURCE, new SourceDao(dest), srcSource);
 	}
 
 	Unit switchRef(Unit srcUnit) {
 		if (srcUnit == null)
 			return null;
-		long id = seq.get(seq.UNIT, srcUnit.refId);
+		long id = seq.get(Seq.UNIT, srcUnit.refId);
 		if (id == 0)
 			return null;
 		UnitDao dao = new UnitDao(dest);
@@ -86,15 +86,15 @@ class RefSwitcher {
 	}
 
 	UnitGroup switchRef(UnitGroup srcUnitGroup) {
-		return switchRef(seq.UNIT_GROUP, new UnitGroupDao(dest), srcUnitGroup);
+		return switchRef(Seq.UNIT_GROUP, new UnitGroupDao(dest), srcUnitGroup);
 	}
 
 	FlowProperty switchRef(FlowProperty srcProperty) {
-		return switchRef(seq.FLOW_PROPERTY, new FlowPropertyDao(dest), srcProperty);
+		return switchRef(Seq.FLOW_PROPERTY, new FlowPropertyDao(dest), srcProperty);
 	}
 
 	Flow switchRef(Flow srcFlow) {
-		return switchRef(seq.FLOW, new FlowDao(dest), srcFlow);
+		return switchRef(Seq.FLOW, new FlowDao(dest), srcFlow);
 	}
 
 	/**
@@ -106,7 +106,7 @@ class RefSwitcher {
 		FlowProperty srcProp = srcFactor.flowProperty;
 		if (srcProp == null)
 			return null;
-		long propId = seq.get(seq.FLOW_PROPERTY, srcProp.refId);
+		long propId = seq.get(Seq.FLOW_PROPERTY, srcProp.refId);
 		for (FlowPropertyFactor fac : destFlow.flowPropertyFactors) {
 			if (fac.flowProperty == null)
 				continue;
@@ -117,37 +117,37 @@ class RefSwitcher {
 	}
 
 	Currency switchRef(Currency srcCurrency) {
-		return switchRef(seq.CURRENCY, new CurrencyDao(dest), srcCurrency);
+		return switchRef(Seq.CURRENCY, new CurrencyDao(dest), srcCurrency);
 	}
 
 	Process switchRef(Process srcProcess) {
-		return switchRef(seq.PROCESS, new ProcessDao(dest), srcProcess);
+		return switchRef(Seq.PROCESS, new ProcessDao(dest), srcProcess);
 	}
 
 	ProductSystem switchRef(ProductSystem srcProductSystem) {
-		return switchRef(seq.PRODUCT_SYSTEM, new ProductSystemDao(dest), srcProductSystem);
+		return switchRef(Seq.PRODUCT_SYSTEM, new ProductSystemDao(dest), srcProductSystem);
 	}
 
 	SocialIndicator switchRef(SocialIndicator srcIndicator) {
-		return switchRef(seq.SOCIAL_INDICATOR, new SocialIndicatorDao(dest), srcIndicator);
+		return switchRef(Seq.SOCIAL_INDICATOR, new SocialIndicatorDao(dest), srcIndicator);
 	}
 
 	DQSystem switchRef(DQSystem srcSystem) {
-		return switchRef(seq.DQ_SYSTEM, new DQSystemDao(dest), srcSystem);
+		return switchRef(Seq.DQ_SYSTEM, new DQSystemDao(dest), srcSystem);
 	}
 
 	ImpactCategory switchRef(ImpactCategory srcImpact) {
-		return switchRef(seq.IMPACT_CATEGORY,
+		return switchRef(Seq.IMPACT_CATEGORY,
 				new ImpactCategoryDao(dest), srcImpact);
 	}
 
 	ImpactMethod switchRef(ImpactMethod srcMethod) {
-		return switchRef(seq.IMPACT_METHOD,
+		return switchRef(Seq.IMPACT_METHOD,
 				new ImpactMethodDao(dest), srcMethod);
 	}
 
 	NwSet switchRef(NwSet srcNwSet) {
-		return switchRef(seq.NW_SET, new NwSetDao(dest), srcNwSet);
+		return switchRef(Seq.NW_SET, new NwSetDao(dest), srcNwSet);
 	}
 
 	private <T extends RefEntity> T switchRef(
@@ -168,7 +168,7 @@ class RefSwitcher {
 				.getDescriptor(srcMethodId);
 		if (srcDescriptor == null)
 			return null;
-		return seq.get(seq.IMPACT_METHOD, srcDescriptor.refId);
+		return seq.get(Seq.IMPACT_METHOD, srcDescriptor.refId);
 	}
 
 	Long getDestProcessId(Long srcProcessId) {
@@ -178,7 +178,7 @@ class RefSwitcher {
 		ProcessDescriptor srcDescriptor = srcDao.getDescriptor(srcProcessId);
 		if (srcDescriptor == null)
 			return null;
-		return seq.get(seq.PROCESS, srcDescriptor.refId);
+		return seq.get(Seq.PROCESS, srcDescriptor.refId);
 	}
 
 }

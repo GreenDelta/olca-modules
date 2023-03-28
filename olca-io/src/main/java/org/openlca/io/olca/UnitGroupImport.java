@@ -3,7 +3,6 @@ package org.openlca.io.olca;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
@@ -24,11 +23,11 @@ class UnitGroupImport {
 
 	private final HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
 
-	UnitGroupImport(IDatabase source, IDatabase dest, Seq seq) {
-		this.srcDao = new UnitGroupDao(source);
-		this.destDao = new UnitGroupDao(dest);
-		this.refs = new RefSwitcher(source, dest, seq);
-		this.seq = seq;
+	UnitGroupImport(Config conf) {
+		this.srcDao = new UnitGroupDao(conf.source());
+		this.destDao = new UnitGroupDao(conf.target());
+		this.refs = new RefSwitcher(conf);
+		this.seq = conf.seq();
 	}
 
 	/**
@@ -43,8 +42,8 @@ class UnitGroupImport {
 	public void run() {
 		log.trace("import unit groups");
 		try {
-			for (UnitGroupDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.UNIT_GROUP, descriptor.refId))
+			for (var descriptor : srcDao.getDescriptors()) {
+				if (seq.contains(Seq.UNIT_GROUP, descriptor.refId))
 					synchUnitGroup(descriptor);
 				else
 					createUnitGroup(descriptor);
@@ -56,13 +55,13 @@ class UnitGroupImport {
 
 	private void synchUnitGroup(UnitGroupDescriptor descriptor) {
 		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
-		UnitGroup destGroup = destDao.getForId(seq.get(seq.UNIT_GROUP,
+		UnitGroup destGroup = destDao.getForId(seq.get(Seq.UNIT_GROUP,
 				descriptor.refId));
 		boolean updated = false;
 		for (Unit srcUnit : srcGroup.units) {
 			Unit destUnit = destGroup.getUnit(srcUnit.name);
 			if (!updated && destUnit != null) {
-				seq.put(seq.UNIT, srcUnit.refId, destUnit.id);
+				seq.put(Seq.UNIT, srcUnit.refId, destUnit.id);
 			} else {
 				destUnit = srcUnit.copy();
 				destUnit.refId = srcUnit.refId;
@@ -87,7 +86,7 @@ class UnitGroupImport {
 		destGroup.defaultFlowProperty = null;
 		destGroup.category = refs.switchRef(srcGroup.category);
 		destGroup = destDao.insert(destGroup);
-		seq.put(seq.UNIT_GROUP, srcGroup.refId, destGroup.id);
+		seq.put(Seq.UNIT_GROUP, srcGroup.refId, destGroup.id);
 		indexUnits(srcGroup, destGroup);
 		FlowProperty defaultProperty = srcGroup.defaultFlowProperty;
 		if (defaultProperty != null)
@@ -111,7 +110,7 @@ class UnitGroupImport {
 						destGroup, srcUnit);
 				continue;
 			}
-			seq.put(seq.UNIT, srcUnit.refId, destUnit.id);
+			seq.put(Seq.UNIT, srcUnit.refId, destUnit.id);
 		}
 	}
 

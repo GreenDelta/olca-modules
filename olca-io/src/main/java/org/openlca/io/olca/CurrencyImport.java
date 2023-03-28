@@ -17,9 +17,9 @@ class CurrencyImport {
 	private Seq seq;
 	private RefSwitcher refs;
 
-	CurrencyImport(IDatabase source, IDatabase dest, Seq seq) {
-		this.sourceDao = new CurrencyDao(source);
-		this.destDao = new CurrencyDao(dest);
+	CurrencyImport(Config config) {
+		this.sourceDao = new CurrencyDao(config.source());
+		this.destDao = new CurrencyDao(config.target());
 		this.refs = new RefSwitcher(source, dest, seq);
 		this.seq = seq;
 	}
@@ -46,15 +46,15 @@ class CurrencyImport {
 	}
 
 	private void copy(Currency srcCurrency) {
-		Currency destCurrency = srcCurrency.copy();
+		var copy = srcCurrency.copy();
 		if (Objects.equal(srcCurrency, srcCurrency.referenceCurrency)) {
-			destCurrency.referenceCurrency = destCurrency;
+			copy.referenceCurrency = copy;
 		} else {
-			destCurrency.referenceCurrency = refs.switchRef(
+			copy.referenceCurrency = refs.switchRef(
 					srcCurrency.referenceCurrency);
 		}
-		destCurrency = destDao.insert(destCurrency);
-		seq.put(seq.CURRENCY, srcCurrency.refId, destCurrency.id);
+		copy = destDao.insert(copy);
+		seq.put(seq.CURRENCY, srcCurrency.refId, copy.id);
 	}
 
 }

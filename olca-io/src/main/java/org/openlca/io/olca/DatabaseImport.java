@@ -1,14 +1,11 @@
 package org.openlca.io.olca;
 
-import java.util.Calendar;
-
-import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +28,7 @@ public class DatabaseImport implements Runnable {
 				"run database import from {} to {}", conf.source(), conf.target());
 		try {
 			importSimple();
-			importUnitRefs();
+			importUnitsAndQuantities();
 			importStructs();
 			new MappingFileImport().run();
 			new FileImport(source, target).run();
@@ -48,26 +45,46 @@ public class DatabaseImport implements Runnable {
 		new ParameterImport(conf).run();
 	}
 
-	private void importUnitRefs() {
+	private void importUnitsAndQuantities() {
+
+		// import unit groups and remember which unit groups
+		// need to be updated with a default flow property
 		var unitImport = new UnitGroupImport(conf);
 		unitImport.run();
 		var requireUpdate = unitImport.getRequirePropertyUpdate();
-		new FlowPropertyImport(source, target, seq).run();
-		var propertyDao = new FlowPropertyDao(target);
-		var unitGroupDao = new UnitGroupDao(target);
+
+		// import flow properties
+		conf.syncAll(FlowProperty.class, prop -> {
+			var copy = prop.copy();
+			copy.unitGroup = conf.swap(prop.unitGroup);
+			return copy;
+		});
+
+		// update unit groups
+		var db = conf.target();
 		for (var refId : requireUpdate.keySet()) {
 			var unitGroup = requireUpdate.get(refId);
-			long propId = seq.get(seq.FLOW_PROPERTY, refId);
-			unitGroup.defaultFlowProperty = propertyDao.getForId(propId);
-			unitGroup.lastChange = Calendar.getInstance().getTimeInMillis();
-			Version.incUpdate(unitGroup);
-			unitGroupDao.update(unitGroup);
+			long propId = conf.seq().get(Seq.FLOW_PROPERTY, refId);
+			unitGroup.defaultFlowProperty = db.get(FlowProperty.class, propId);
+			db.update(unitGroup);
 		}
 	}
 
 	private void importStructs(Seq seq) {
-		new FlowImport(source, target, seq).run();
+
+		// flows
+		conf.syncAll(Flow.class, flow -> {
+			var copy = flow.copy();
+			copy.location = conf.swap(flow.location);
+			copy.referenceFlowProperty = conf.swap(flow.referenceFlowProperty);
+			for (var fac : copy.flowPropertyFactors) {
+				fac.flowProperty = conf.swap(fac.flowProperty);
+			}
+			return copy;
+		});
+
 		new CurrencyImport(source, target, seq).run();
+
 		new SocialIndicatorImport(source, target, seq).run();
 		new DQSystemImport(source, target, seq).run();
 		new ProcessImport(source, target, seq).run();
