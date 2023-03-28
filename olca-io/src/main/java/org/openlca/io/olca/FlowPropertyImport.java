@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 class FlowPropertyImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private FlowPropertyDao sourceDao;
-	private FlowPropertyDao destDao;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final FlowPropertyDao sourceDao;
+	private final FlowPropertyDao destDao;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
 	FlowPropertyImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.sourceDao = new FlowPropertyDao(source);
@@ -26,19 +26,19 @@ class FlowPropertyImport {
 	public void run() {
 		log.trace("import flow properties");
 		try {
-			for (FlowPropertyDescriptor descriptor : sourceDao.getDescriptors()) {
-				if (seq.contains(seq.FLOW_PROPERTY, descriptor.refId))
+			for (var d : sourceDao.getDescriptors()) {
+				if (seq.contains(seq.FLOW_PROPERTY, d.refId))
 					continue;
-				createFlowProperty(descriptor);
+				createFlowProperty(d);
 			}
 		} catch (Exception e) {
 			log.error("failed to import flow properties", e);
 		}
 	}
 
-	private void createFlowProperty(FlowPropertyDescriptor descriptor) {
-		FlowProperty srcProp = sourceDao.getForId(descriptor.id);
-		FlowProperty destProp = srcProp.copy();
+	private void createFlowProperty(FlowPropertyDescriptor d) {
+		var srcProp = sourceDao.getForId(d.id);
+		var destProp = srcProp.copy();
 		destProp.refId = srcProp.refId;
 		destProp.unitGroup = refs.switchRef(srcProp.unitGroup);
 		destProp.category = refs.switchRef(srcProp.category);

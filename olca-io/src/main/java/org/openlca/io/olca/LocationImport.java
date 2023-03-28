@@ -23,11 +23,12 @@ class LocationImport {
 	public void run() {
 		log.trace("import locations");
 		try {
-			for (Location srcLoc : srcDao.getAll()) {
+			for (var srcLoc : srcDao.getAll()) {
 				if (seq.contains(seq.LOCATION, srcLoc.refId))
 					continue;
-				Location destLoc = srcLoc.copy();
+				var destLoc = srcLoc.copy();
 				destLoc.refId = srcLoc.refId;
+				destLoc.category = seq.
 				destLoc = destDao.insert(destLoc);
 				seq.put(seq.LOCATION, srcLoc.refId, destLoc.id);
 			}

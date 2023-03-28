@@ -10,12 +10,12 @@ import org.slf4j.LoggerFactory;
 
 class FlowImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private FlowDao sourceDao;
-	private FlowDao destDao;
-	private RefSwitcher refs;
-	private Sequence seq;
+	private final FlowDao sourceDao;
+	private final FlowDao destDao;
+	private final RefSwitcher refs;
+	private final Sequence seq;
 
 	FlowImport(IDatabase source, IDatabase dest, Sequence seq) {
 		this.sourceDao = new FlowDao(source);
@@ -38,8 +38,8 @@ class FlowImport {
 	}
 
 	private void createFlow(FlowDescriptor descriptor) {
-		Flow srcFlow = sourceDao.getForId(descriptor.id);
-		Flow destFlow = srcFlow.copy();
+		var srcFlow = sourceDao.getForId(descriptor.id);
+		var destFlow = srcFlow.copy();
 		destFlow.refId = srcFlow.refId;
 		destFlow.category = refs.switchRef(srcFlow.category);
 		destFlow.location = refs.switchRef(srcFlow.location);

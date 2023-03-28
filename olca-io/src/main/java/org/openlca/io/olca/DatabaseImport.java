@@ -1,12 +1,10 @@
 package org.openlca.io.olca;
 
 import java.util.Calendar;
-import java.util.HashMap;
 
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +14,10 @@ import org.slf4j.LoggerFactory;
  */
 public class DatabaseImport implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private IDatabase source;
-	private IDatabase dest;
+	private final IDatabase source;
+	private final IDatabase dest;
 
 	public DatabaseImport(IDatabase source, IDatabase destination) {
 		this.source = source;
@@ -30,7 +28,7 @@ public class DatabaseImport implements Runnable {
 	public void run() {
 		log.trace("run database import from {} to {}", source, dest);
 		try {
-			Sequence seq = new Sequence(dest);
+			var seq = new Sequence(dest);
 			importSimple(seq);
 			importUnitRefs(seq);
 			importStructs(seq);
@@ -50,23 +48,14 @@ public class DatabaseImport implements Runnable {
 	}
 
 	private void importUnitRefs(Sequence seq) {
-		UnitGroupImport unitGroupImport = new UnitGroupImport(source, dest, seq);
-		unitGroupImport.run();
-		HashMap<String, UnitGroup> requirePropertyUpdate = unitGroupImport
-				.getRequirePropertyUpdate();
+		var unitImport = new UnitGroupImport(source, dest, seq);
+		unitImport.run();
+		var requireUpdate = unitImport.getRequirePropertyUpdate();
 		new FlowPropertyImport(source, dest, seq).run();
-		updateUnitGroups(requirePropertyUpdate, seq);
-	}
-
-	/**
-	 * Set the default flow properties in the given unit groups.
-	 */
-	private void updateUnitGroups(HashMap<String, UnitGroup> requireUpdate,
-			Sequence seq) {
-		FlowPropertyDao propertyDao = new FlowPropertyDao(dest);
-		UnitGroupDao unitGroupDao = new UnitGroupDao(dest);
-		for (String refId : requireUpdate.keySet()) {
-			UnitGroup unitGroup = requireUpdate.get(refId);
+		var propertyDao = new FlowPropertyDao(dest);
+		var unitGroupDao = new UnitGroupDao(dest);
+		for (var refId : requireUpdate.keySet()) {
+			var unitGroup = requireUpdate.get(refId);
 			long propId = seq.get(seq.FLOW_PROPERTY, refId);
 			unitGroup.defaultFlowProperty = propertyDao.getForId(propId);
 			unitGroup.lastChange = Calendar.getInstance().getTimeInMillis();

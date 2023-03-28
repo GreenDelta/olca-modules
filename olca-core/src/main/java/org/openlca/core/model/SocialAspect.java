@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "tbl_social_aspects")
 public class SocialAspect extends AbstractEntity
-	implements Copyable<SocialAspect> {
+		implements Copyable<SocialAspect> {
 
 	@OneToOne
 	@JoinColumn(name = "f_indicator")
@@ -42,6 +42,15 @@ public class SocialAspect extends AbstractEntity
 	/** Encoded data quality, e.g.: (3,1,2,4,1) */
 	@Column(name = "quality")
 	public String quality;
+
+	public static SocialAspect of(Process process, SocialIndicator indicator) {
+		var aspect = new SocialAspect();
+		aspect.indicator = indicator;
+		if (process != null) {
+			process.socialAspects.add(aspect);
+		}
+		return aspect;
+	}
 
 	@Override
 	public SocialAspect copy() {
