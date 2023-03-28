@@ -1,54 +1,38 @@
 package org.openlca.io.olca;
 
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.model.Parameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Imports the global parameters (identified by name).
- *
- * TODO: change this when we have reference IDs for parameters.
  */
 class ParameterImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Config conf;
 
-	private final ParameterDao sourceDao;
-	private final ParameterDao destDao;
-
-	ParameterImport(IDatabase source, IDatabase dest) {
-		this.sourceDao = new ParameterDao(source);
-		this.destDao = new ParameterDao(dest);
+	ParameterImport(Config conf) {
+		this.conf = conf;
 	}
 
 	public void run() {
-		log.trace("import global parameters");
-		try {
-			Set<String> existing = getExisting();
-			for (Parameter param : sourceDao.getGlobalParameters()) {
-				if (param.name == null)
-					continue;
-				if (existing.contains(param.name))
-					continue;
-				Parameter c = param.copy();
-				destDao.insert(c);
-			}
-		} catch (Exception e) {
-			log.error("Global parameter import failed", e);
-		}
-	}
+		var existing = new ParameterDao(conf.target())
+				.getGlobalParameters()
+				.stream()
+				.map(p -> p.name)
+				.collect(Collectors.toSet());
 
-	private Set<String> getExisting() {
-		Set<String> existing = new TreeSet<>();
-		for (Parameter param : destDao.getGlobalParameters()) {
-			if (param.name != null)
-				existing.add(param.name);
-		}
-		return existing;
+		new ParameterDao(conf.source())
+				.getGlobalParameters()
+				.stream()
+				.filter(p -> !existing.contains(p.name))
+				.forEach(p -> {
+					var copy = p.copy();
+					if (!conf.seq().contains(Seq.CATEGORY, p.refId)) {
+						copy.refId = p.refId;
+					}
+					copy.category = conf.swap(p.category);
+					conf.target().insert(copy);
+				});
 	}
 }

@@ -20,11 +20,11 @@ class UnitGroupImport {
 	private final UnitGroupDao srcDao;
 	private final UnitGroupDao destDao;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
 	private final HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
 
-	UnitGroupImport(IDatabase source, IDatabase dest, Sequence seq) {
+	UnitGroupImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new UnitGroupDao(source);
 		this.destDao = new UnitGroupDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

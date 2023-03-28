@@ -30,7 +30,7 @@ class ProcessImport {
 	private final ProcessDao destDao;
 	private final IDatabase dest;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
 	// Required for translating the default provider links: we import exchanges
 	// with possible links to processes that are not yet imported
@@ -39,7 +39,7 @@ class ProcessImport {
 	// updated after the import.
 	private TLongLongHashMap oldProviderMap = new TLongLongHashMap();
 
-	ProcessImport(IDatabase source, IDatabase dest, Sequence seq) {
+	ProcessImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new ProcessDao(source);
 		this.destDao = new ProcessDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

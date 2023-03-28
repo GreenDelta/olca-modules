@@ -15,9 +15,9 @@ class FlowImport {
 	private final FlowDao sourceDao;
 	private final FlowDao destDao;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
-	FlowImport(IDatabase source, IDatabase dest, Sequence seq) {
+	FlowImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.sourceDao = new FlowDao(source);
 		this.destDao = new FlowDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

@@ -45,12 +45,11 @@ public class DatabaseImport implements Runnable {
 		conf.syncAll(Actor.class, Actor::copy);
 		conf.syncAll(Location.class, Location::copy);
 		conf.syncAll(Source.class, Source::copy);
-
-		new ParameterImport(source, target).run();
+		new ParameterImport(conf).run();
 	}
 
-	private void importUnitRefs(Sequence seq) {
-		var unitImport = new UnitGroupImport(source, target, seq);
+	private void importUnitRefs() {
+		var unitImport = new UnitGroupImport(conf);
 		unitImport.run();
 		var requireUpdate = unitImport.getRequirePropertyUpdate();
 		new FlowPropertyImport(source, target, seq).run();
@@ -66,7 +65,7 @@ public class DatabaseImport implements Runnable {
 		}
 	}
 
-	private void importStructs(Sequence seq) {
+	private void importStructs(Seq seq) {
 		new FlowImport(source, target, seq).run();
 		new CurrencyImport(source, target, seq).run();
 		new SocialIndicatorImport(source, target, seq).run();

@@ -14,9 +14,9 @@ class SocialIndicatorImport {
 	private final SocialIndicatorDao srcDao;
 	private final SocialIndicatorDao destDao;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
-	SocialIndicatorImport(IDatabase source, IDatabase dest, Sequence seq) {
+	SocialIndicatorImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new SocialIndicatorDao(source);
 		this.destDao = new SocialIndicatorDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

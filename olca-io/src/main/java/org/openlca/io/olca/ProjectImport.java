@@ -19,9 +19,9 @@ class ProjectImport {
 	private final ProjectDao srcDao;
 	private final ProjectDao destDao;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
-	ProjectImport(IDatabase source, IDatabase dest, Sequence seq) {
+	ProjectImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new ProjectDao(source);
 		this.destDao = new ProjectDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

@@ -21,9 +21,9 @@ class ProductSystemImport {
 	private final IDatabase source;
 	private final IDatabase dest;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
-	ProductSystemImport(IDatabase source, IDatabase dest, Sequence seq) {
+	ProductSystemImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new ProductSystemDao(source);
 		this.refs = new RefSwitcher(source, dest, seq);
 		this.source = source;

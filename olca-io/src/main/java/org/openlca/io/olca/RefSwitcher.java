@@ -49,11 +49,11 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  */
 class RefSwitcher {
 
-	private final Sequence seq;
+	private final Seq seq;
 	private final IDatabase source;
 	private final IDatabase dest;
 
-	RefSwitcher(IDatabase source, IDatabase dest, Sequence seq) {
+	RefSwitcher(IDatabase source, IDatabase dest, Seq seq) {
 		this.source = source;
 		this.dest = dest;
 		this.seq = seq;

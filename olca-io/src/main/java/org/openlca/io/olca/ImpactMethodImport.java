@@ -21,9 +21,9 @@ class ImpactMethodImport {
 	private ImpactMethodDao srcDao;
 	private ImpactMethodDao destDao;
 	private RefSwitcher refs;
-	private Sequence seq;
+	private Seq seq;
 
-	ImpactMethodImport(IDatabase source, IDatabase dest, Sequence seq) {
+	ImpactMethodImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new ImpactMethodDao(source);
 		this.destDao = new ImpactMethodDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

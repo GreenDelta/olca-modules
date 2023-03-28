@@ -2,7 +2,6 @@ package org.openlca.io.olca;
 
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +13,9 @@ class FlowPropertyImport {
 	private final FlowPropertyDao sourceDao;
 	private final FlowPropertyDao destDao;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
-	FlowPropertyImport(IDatabase source, IDatabase dest, Sequence seq) {
+	FlowPropertyImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.sourceDao = new FlowPropertyDao(source);
 		this.destDao = new FlowPropertyDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

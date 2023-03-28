@@ -11,7 +11,7 @@ class CategoryImport implements Runnable {
 
 	private final CategoryDao sourceDao;
 	private final CategoryDao destDao;
-	private final Sequence seq;
+	private final Seq seq;
 
 	public CategoryImport(Config conf) {
 		this.sourceDao = new CategoryDao(conf.source());

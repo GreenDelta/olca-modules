@@ -32,32 +32,32 @@ import org.slf4j.LoggerFactory;
  * database in the import and initialized with the IDs of the data sets that are
  * already contained in this database.
  */
-class Sequence {
+class Seq {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	int CATEGORY = 0;
-	int LOCATION = 1;
-	int ACTOR = 2;
-	int SOURCE = 3;
-	int UNIT = 4;
-	int UNIT_GROUP = 5;
-	int FLOW_PROPERTY = 6;
-	int FLOW = 7;
-	int CURRENCY = 8;
-	int PROCESS = 9;
-	int PRODUCT_SYSTEM = 10;
-	int IMPACT_CATEGORY = 11;
-	int IMPACT_METHOD = 12;
-	int NW_SET = 13;
-	int PROJECT = 14;
-	int DQ_SYSTEM = 15;
-	int SOCIAL_INDICATOR = 16;
+	static final int CATEGORY = 0;
+	static final int LOCATION = 1;
+	static final int ACTOR = 2;
+	static final int SOURCE = 3;
+	static final int UNIT = 4;
+	static final int UNIT_GROUP = 5;
+	static final int FLOW_PROPERTY = 6;
+	static final int FLOW = 7;
+	static final int CURRENCY = 8;
+	static final int PROCESS = 9;
+	static final int PRODUCT_SYSTEM = 10;
+	static final int IMPACT_CATEGORY = 11;
+	static final int IMPACT_METHOD = 12;
+	static final int NW_SET = 13;
+	static final int PROJECT = 14;
+	static final int DQ_SYSTEM = 15;
+	static final int SOCIAL_INDICATOR = 16;
 
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
-	public Sequence(IDatabase database) {
+	public Seq(IDatabase database) {
 		sequences = new HashMap[17];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();

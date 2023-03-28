@@ -14,9 +14,9 @@ class DQSystemImport {
 	private DQSystemDao srcDao;
 	private DQSystemDao destDao;
 	private RefSwitcher refs;
-	private Sequence seq;
+	private Seq seq;
 
-	DQSystemImport(IDatabase source, IDatabase dest, Sequence seq) {
+	DQSystemImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.srcDao = new DQSystemDao(source);
 		this.destDao = new DQSystemDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

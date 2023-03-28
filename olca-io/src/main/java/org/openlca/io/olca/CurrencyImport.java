@@ -14,10 +14,10 @@ class CurrencyImport {
 
 	private CurrencyDao sourceDao;
 	private CurrencyDao destDao;
-	private Sequence seq;
+	private Seq seq;
 	private RefSwitcher refs;
 
-	CurrencyImport(IDatabase source, IDatabase dest, Sequence seq) {
+	CurrencyImport(IDatabase source, IDatabase dest, Seq seq) {
 		this.sourceDao = new CurrencyDao(source);
 		this.destDao = new CurrencyDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);

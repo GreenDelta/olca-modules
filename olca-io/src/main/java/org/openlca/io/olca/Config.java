@@ -27,11 +27,11 @@ import java.util.function.Function;
 record Config(
 		IDatabase source,
 		IDatabase target,
-		Sequence seq,
+		Seq seq,
 		ImportLog log) {
 
 	static Config of(IDatabase source, IDatabase target) {
-		var seq = new Sequence(target);
+		var seq = new Seq(target);
 		var log = new ImportLog();
 		return new Config(source, target, seq, log);
 	}
@@ -76,39 +76,39 @@ record Config(
 		if (type == null)
 			return -1;
 		if (type.equals(Category.class))
-			return 0;
+			return Seq.CATEGORY;
 		if (type.equals(Location.class))
-			return 1;
+			return Seq.LOCATION;
 		if (type.equals(Actor.class))
-			return 2;
+			return Seq.ACTOR;
 		if (type.equals(Source.class))
-			return 3;
+			return Seq.SOURCE;
 		if (type.equals(Unit.class))
-			return 4;
+			return Seq.UNIT;
 		if (type.equals(UnitGroup.class))
-			return 5;
+			return Seq.UNIT_GROUP;
 		if (type.equals(FlowProperty.class))
-			return 6;
+			return Seq.FLOW_PROPERTY;
 		if (type.equals(Flow.class))
-			return 7;
+			return Seq.FLOW;
 		if (type.equals(Currency.class))
-			return 8;
+			return Seq.CURRENCY;
 		if (type.equals(Process.class))
-			return 9;
+			return Seq.PROCESS;
 		if (type.equals(ProductSystem.class))
-			return 10;
+			return Seq.PRODUCT_SYSTEM;
 		if (type.equals(ImpactCategory.class))
-			return 11;
+			return Seq.IMPACT_CATEGORY;
 		if (type.equals(ImpactMethod.class))
-			return 12;
+			return Seq.IMPACT_METHOD;
 		if (type.equals(NwSet.class))
-			return 13;
+			return Seq.NW_SET;
 		if (type.equals(Project.class))
-			return 14;
+			return Seq.PROJECT;
 		if (type.equals(DQSystem.class))
-			return 15;
+			return Seq.DQ_SYSTEM;
 		if (type.equals(SocialIndicator.class))
-			return 16;
+			return Seq.SOCIAL_INDICATOR;
 		return -1;
 	}
 

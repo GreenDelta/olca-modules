@@ -15,9 +15,9 @@ class ImpactCategoryImport {
 	private final ImpactCategoryDao sourceDao;
 	private final ImpactCategoryDao destDao;
 	private final RefSwitcher refs;
-	private final Sequence seq;
+	private final Seq seq;
 
-	ImpactCategoryImport(IDatabase source, IDatabase dest, Sequence seq) {
+	ImpactCategoryImport(IDatabase source, IDatabase dest, Seq seq) {
 		sourceDao = new ImpactCategoryDao(source);
 		destDao = new ImpactCategoryDao(dest);
 		this.refs = new RefSwitcher(source, dest, seq);
