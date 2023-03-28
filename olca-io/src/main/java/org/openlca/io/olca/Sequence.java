@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 class Sequence {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	int CATEGORY = 0;
 	int LOCATION = 1;

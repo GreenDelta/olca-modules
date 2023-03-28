@@ -5,6 +5,9 @@ import java.util.Calendar;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,44 +19,43 @@ public class DatabaseImport implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final IDatabase source;
-	private final IDatabase dest;
+	private final Config conf;
 
-	public DatabaseImport(IDatabase source, IDatabase destination) {
-		this.source = source;
-		this.dest = destination;
+	public DatabaseImport(IDatabase source, IDatabase target) {
+		conf = Config.of(source, target);
 	}
 
 	@Override
 	public void run() {
-		log.trace("run database import from {} to {}", source, dest);
+		log.trace(
+				"run database import from {} to {}", conf.source(), conf.target());
 		try {
-			var seq = new Sequence(dest);
-			importSimple(seq);
-			importUnitRefs(seq);
-			importStructs(seq);
-			new MappingFileImport(source, dest).run();
-			new FileImport(source, dest).run();
+			importSimple();
+			importUnitRefs();
+			importStructs();
+			new MappingFileImport().run();
+			new FileImport(source, target).run();
 		} catch (Exception e) {
 			log.error("Database import failed", e);
 		}
 	}
 
-	private void importSimple(Sequence seq) {
-		new CategoryImport(source, dest, seq).run();
-		new LocationImport(source, dest, seq).run();
-		new ActorImport(source, dest, seq).run();
-		new SourceImport(source, dest, seq).run();
-		new ParameterImport(source, dest).run();
+	private void importSimple() {
+		new CategoryImport(conf).run();
+		conf.syncAll(Actor.class, Actor::copy);
+		conf.syncAll(Location.class, Location::copy);
+		conf.syncAll(Source.class, Source::copy);
+
+		new ParameterImport(source, target).run();
 	}
 
 	private void importUnitRefs(Sequence seq) {
-		var unitImport = new UnitGroupImport(source, dest, seq);
+		var unitImport = new UnitGroupImport(source, target, seq);
 		unitImport.run();
 		var requireUpdate = unitImport.getRequirePropertyUpdate();
-		new FlowPropertyImport(source, dest, seq).run();
-		var propertyDao = new FlowPropertyDao(dest);
-		var unitGroupDao = new UnitGroupDao(dest);
+		new FlowPropertyImport(source, target, seq).run();
+		var propertyDao = new FlowPropertyDao(target);
+		var unitGroupDao = new UnitGroupDao(target);
 		for (var refId : requireUpdate.keySet()) {
 			var unitGroup = requireUpdate.get(refId);
 			long propId = seq.get(seq.FLOW_PROPERTY, refId);
@@ -65,14 +67,14 @@ public class DatabaseImport implements Runnable {
 	}
 
 	private void importStructs(Sequence seq) {
-		new FlowImport(source, dest, seq).run();
-		new CurrencyImport(source, dest, seq).run();
-		new SocialIndicatorImport(source, dest, seq).run();
-		new DQSystemImport(source, dest, seq).run();
-		new ProcessImport(source, dest, seq).run();
-		new ProductSystemImport(source, dest, seq).run();
-		new ImpactCategoryImport(source, dest, seq).run();
-		new ImpactMethodImport(source, dest, seq).run();
-		new ProjectImport(source, dest, seq).run();
+		new FlowImport(source, target, seq).run();
+		new CurrencyImport(source, target, seq).run();
+		new SocialIndicatorImport(source, target, seq).run();
+		new DQSystemImport(source, target, seq).run();
+		new ProcessImport(source, target, seq).run();
+		new ProductSystemImport(source, target, seq).run();
+		new ImpactCategoryImport(source, target, seq).run();
+		new ImpactMethodImport(source, target, seq).run();
+		new ProjectImport(source, target, seq).run();
 	}
 }
