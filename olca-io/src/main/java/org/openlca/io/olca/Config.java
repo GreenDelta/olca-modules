@@ -36,8 +36,8 @@ record Config(
 		return new Config(source, target, seq, log);
 	}
 
-	<T extends RootEntity> void syncAll(Class<T> type, Function<T, T> copy) {
-		if (type == null || copy == null)
+	<T extends RootEntity> void syncAll(Class<T> type, Function<T, T> fn) {
+		if (type == null || fn == null)
 			return;
 		int seqType = seqTypeOf(type);
 		if (seqType < 0) {
@@ -45,22 +45,32 @@ record Config(
 			return;
 		}
 		for (var d : source.getDescriptors(type)) {
-			if (seq.contains(seqType, d.refId))
+			if (contains(seqType, d.refId))
 				continue;
 			var e = source.get(type, d.id);
-			if (e == null)
-				continue;
-			var copied = copy.apply(e);
-			if (copied == null)
-				continue;
-			copied.refId = e.refId;
-			copied.category = swap(e.category);
-			copied = target.insert(copied);
-			seq.put(seqType, e.refId, copied.id);
+			copy(e, fn);
 		}
 	}
 
+	boolean contains(int seqType, String refId) {
+		return seq.contains(seqType, refId);
+	}
 
+	<T extends RootEntity> T copy(T entity, Function<T, T> fn) {
+		if (entity == null)
+			return null;
+		var copied = fn.apply(entity);
+		if (copied == null)
+			return null;
+		copied.refId = entity.refId;
+		copied.category = swap(entity.category);
+		copied = target.insert(copied);
+		int seqType = seqTypeOf(copied.getClass());
+		if (seqType < 0)
+			return copied;
+		seq.put(seqType, entity.refId, copied.id);
+		return copied;
+	}
 
 	@SuppressWarnings("unchecked")
 	<T extends RootEntity> T swap(T sourceEntity) {

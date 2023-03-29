@@ -5,6 +5,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,8 @@ public class DatabaseImport implements Runnable {
 			importSimple();
 			importUnitsAndQuantities();
 			importStructs();
-			new MappingFileImport().run();
-			new FileImport(source, target).run();
+			new MappingFileImport(conf).run();
+			new FileImport(conf).run();
 		} catch (Exception e) {
 			log.error("Database import failed", e);
 		}
@@ -70,7 +71,7 @@ public class DatabaseImport implements Runnable {
 		}
 	}
 
-	private void importStructs(Seq seq) {
+	private void importStructs() {
 
 		// flows
 		conf.syncAll(Flow.class, flow -> {
@@ -83,7 +84,14 @@ public class DatabaseImport implements Runnable {
 			return copy;
 		});
 
-		new CurrencyImport(source, target, seq).run();
+		// currencies
+		new CurrencyImport(conf).run();
+
+		conf.syncAll(SocialIndicator.class, indicator -> {
+			var copy = indicator.copy();
+			copy.activityQuantity = conf.swap(indicator.activityQuantity);
+			copy.activityUnit = conf.swap(indicator.activityUnit);
+		});
 
 		new SocialIndicatorImport(source, target, seq).run();
 		new DQSystemImport(source, target, seq).run();

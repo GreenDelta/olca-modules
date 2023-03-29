@@ -3,6 +3,7 @@ package org.openlca.io.olca;
 import java.io.File;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.util.Dirs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,28 +15,28 @@ import com.google.common.io.Files;
  */
 class FileImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private IDatabase source;
-	private IDatabase dest;
+	private final IDatabase source;
+	private final IDatabase dest;
 
-	FileImport(IDatabase source, IDatabase dest) {
-		this.source = source;
-		this.dest = dest;
+	FileImport(Config conf) {
+		this.source = conf.source();
+		this.dest = conf.target();
 	}
 
 	public void run() {
 		log.trace("import external files");
 		try {
-			File srcDir = source.getFileStorageLocation();
-			if (srcDir == null || !srcDir.exists() || !srcDir.isDirectory()
-					|| srcDir.listFiles() == null)
+			var srcDir = source.getFileStorageLocation();
+			if (srcDir == null
+					|| !srcDir.exists()
+					|| !srcDir.isDirectory())
 				return;
-			File destDir = dest.getFileStorageLocation();
+			var destDir = dest.getFileStorageLocation();
 			if (destDir == null)
 				return;
-			if (!destDir.exists())
-				destDir.mkdirs();
+			Dirs.createIfAbsent(destDir);
 			syncDirs(srcDir, destDir);
 		} catch (Exception e) {
 			log.error("failed to import external files", e);
@@ -43,12 +44,13 @@ class FileImport {
 	}
 
 	private void syncDirs(File srcDir, File destDir) throws Exception {
-		for (File srcFile : srcDir.listFiles()) {
-			File destFile = new File(destDir, srcFile.getName());
+		var srcFiles = srcDir.listFiles();
+		if (srcFiles == null)
+			return;
+		for (var srcFile : srcFiles) {
+			var destFile = new File(destDir, srcFile.getName());
 			if (srcFile.isDirectory()) {
-				if (!destFile.exists()) {
-					destFile.mkdirs();
-				}
+				Dirs.createIfAbsent(destFile);
 				syncDirs(srcFile, destFile);
 			} else if (!destFile.exists()) {
 				Files.copy(srcFile, destFile);

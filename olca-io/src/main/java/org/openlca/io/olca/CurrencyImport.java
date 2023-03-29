@@ -1,60 +1,46 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 
 class CurrencyImport {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Config conf;
 
-	private CurrencyDao sourceDao;
-	private CurrencyDao destDao;
-	private Seq seq;
-	private RefSwitcher refs;
-
-	CurrencyImport(Config config) {
-		this.sourceDao = new CurrencyDao(config.source());
-		this.destDao = new CurrencyDao(config.target());
-		this.refs = new RefSwitcher(source, dest, seq);
-		this.seq = seq;
+	CurrencyImport(Config conf) {
+		this.conf = conf;
 	}
 
 	public void run() {
-		log.trace("import currencies");
 		try {
-			Currency refCurrency = sourceDao.getReferenceCurrency();
-			if (refCurrency == null)
+			var sourceDao = new CurrencyDao(conf.source());
+			var ref = sourceDao.getReferenceCurrency();
+			if (ref == null)
 				return;
-			if (!seq.contains(seq.CURRENCY, refCurrency.refId)) {
-				copy(refCurrency);
-			}
-			for (Currency srcCurrency : sourceDao.getAll()) {
-				if (Objects.equal(refCurrency, srcCurrency))
+			var targetRef = !conf.contains(Seq.CURRENCY, ref.refId)
+					? copy(ref, null)
+					: conf.target().get(Currency.class, ref.refId);
+			for (var c : sourceDao.getAll()) {
+				if (Objects.equal(ref, c))
 					continue;
-				if (seq.contains(seq.CURRENCY, srcCurrency.refId))
+				if (conf.contains(Seq.CURRENCY, c.refId))
 					continue;
-				copy(srcCurrency);
+				copy(c, targetRef);
 			}
 		} catch (Exception e) {
-			log.error("Currency import failed", e);
+			conf.log().error("Currency import failed", e);
 		}
 	}
 
-	private void copy(Currency srcCurrency) {
-		var copy = srcCurrency.copy();
-		if (Objects.equal(srcCurrency, srcCurrency.referenceCurrency)) {
-			copy.referenceCurrency = copy;
-		} else {
-			copy.referenceCurrency = refs.switchRef(
-					srcCurrency.referenceCurrency);
-		}
-		copy = destDao.insert(copy);
-		seq.put(seq.CURRENCY, srcCurrency.refId, copy.id);
+	private Currency copy(Currency c, Currency ref) {
+		return conf.copy(c, currency -> {
+			var copy = currency.copy();
+			copy.referenceCurrency = ref == null
+					? copy
+					: ref;
+			return copy;
+		});
 	}
-
 }

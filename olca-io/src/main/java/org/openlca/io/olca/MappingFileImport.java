@@ -1,6 +1,5 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.model.MappingFile;
 import org.slf4j.Logger;
@@ -13,9 +12,9 @@ class MappingFileImport {
 	private final MappingFileDao sourceDao;
 	private final MappingFileDao destDao;
 
-	MappingFileImport(IDatabase source, IDatabase dest) {
-		sourceDao = new MappingFileDao(source);
-		destDao = new MappingFileDao(dest);
+	MappingFileImport(Config conf) {
+		sourceDao = new MappingFileDao(conf.source());
+		destDao = new MappingFileDao(conf.target());
 	}
 
 	public void run() {
