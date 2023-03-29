@@ -1,12 +1,15 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.UnitDao;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,17 +90,27 @@ public class DatabaseImport implements Runnable {
 		// currencies
 		new CurrencyImport(conf).run();
 
+		// social indicators
 		conf.syncAll(SocialIndicator.class, indicator -> {
 			var copy = indicator.copy();
 			copy.activityQuantity = conf.swap(indicator.activityQuantity);
-			copy.activityUnit = conf.swap(indicator.activityUnit);
+			if (indicator.activityUnit != null) {
+				long unitId = conf.seq().get(Seq.UNIT, indicator.activityUnit.refId);
+				copy.activityUnit = new UnitDao(conf.target()).getForId(unitId);
+			}
+			return copy;
 		});
 
-		new SocialIndicatorImport(source, target, seq).run();
-		new DQSystemImport(source, target, seq).run();
-		new ProcessImport(source, target, seq).run();
-		new ProductSystemImport(source, target, seq).run();
-		new ImpactCategoryImport(source, target, seq).run();
+		// data quality systems
+		conf.syncAll(DQSystem.class, system -> {
+			var copy = system.copy();
+			copy.source = conf.swap(system.source);
+			return copy;
+		});
+
+		new ProcessImport(conf).run();
+		new ProductSystemImport(conf).run();
+		new ImpactCategoryImport(conf).run();
 		new ImpactMethodImport(source, target, seq).run();
 		new ProjectImport(source, target, seq).run();
 	}

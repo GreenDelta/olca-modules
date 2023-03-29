@@ -34,7 +34,7 @@ class ImpactMethodImport {
 		log.trace("import LCIA methods");
 		try {
 			for (ImpactMethodDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.IMPACT_METHOD, descriptor.refId))
+				if (seq.contains(Seq.IMPACT_METHOD, descriptor.refId))
 					continue;
 				createMethod(descriptor);
 			}
@@ -51,9 +51,9 @@ class ImpactMethodImport {
 		switchImpacts(dest);
 		switchNwSets(src, dest);
 		dest = destDao.insert(dest);
-		seq.put(seq.IMPACT_METHOD, src.refId, dest.id);
+		seq.put(Seq.IMPACT_METHOD, src.refId, dest.id);
 		for (NwSet nwSet : dest.nwSets) {
-			seq.put(seq.NW_SET, nwSet.refId, nwSet.id);
+			seq.put(Seq.NW_SET, nwSet.refId, nwSet.id);
 		}
 	}
 
@@ -72,7 +72,8 @@ class ImpactMethodImport {
 	}
 
 	private void switchNwSets(
-			ImpactMethod srcMethod, ImpactMethod destMethod) {
+			ImpactMethod srcMethod, ImpactMethod destMethod
+	) {
 		for (NwSet destNwSet : destMethod.nwSets) {
 			for (NwFactor f : destNwSet.factors) {
 				f.impactCategory = refs.switchRef(f.impactCategory);

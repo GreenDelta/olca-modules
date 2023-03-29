@@ -1,6 +1,5 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -17,17 +16,17 @@ class ImpactCategoryImport {
 	private final RefSwitcher refs;
 	private final Seq seq;
 
-	ImpactCategoryImport(IDatabase source, IDatabase dest, Seq seq) {
-		sourceDao = new ImpactCategoryDao(source);
-		destDao = new ImpactCategoryDao(dest);
-		this.refs = new RefSwitcher(source, dest, seq);
-		this.seq = seq;
+	ImpactCategoryImport(Config conf) {
+		sourceDao = new ImpactCategoryDao(conf.source());
+		destDao = new ImpactCategoryDao(conf.target());
+		this.refs = new RefSwitcher(conf);
+		this.seq = conf.seq();
 	}
 
 	void run() {
 		log.trace("import LCIA categories");
 		for (ImpactDescriptor d : sourceDao.getDescriptors()) {
-			if (seq.contains(seq.IMPACT_CATEGORY, d.refId))
+			if (seq.contains(Seq.IMPACT_CATEGORY, d.refId))
 				continue;
 			ImpactCategory src = sourceDao.getForId(d.id);
 			ImpactCategory dest = src.copy();
@@ -35,16 +34,16 @@ class ImpactCategoryImport {
 			dest.category = refs.switchRef(src.category);
 			switchFactorRefs(dest);
 			dest = destDao.insert(dest);
-			seq.put(seq.IMPACT_CATEGORY, src.refId, dest.id);
+			seq.put(Seq.IMPACT_CATEGORY, src.refId, dest.id);
 		}
 	}
 
 	private void switchFactorRefs(ImpactCategory impact) {
 		for (ImpactFactor f : impact.impactFactors) {
+			// TODO: swap locations
 			f.flow = refs.switchRef(f.flow);
 			f.unit = refs.switchRef(f.unit);
-			f.flowPropertyFactor = refs.switchRef(
-					f.flowPropertyFactor, f.flow);
+			f.flowPropertyFactor = refs.switchRef(f.flowPropertyFactor, f.flow);
 		}
 	}
 }

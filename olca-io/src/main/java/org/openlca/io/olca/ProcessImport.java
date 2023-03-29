@@ -34,24 +34,24 @@ class ProcessImport {
 
 	// Required for translating the default provider links: we import exchanges
 	// with possible links to processes that are not yet imported
-	private TLongLongHashMap srcDestIdMap = new TLongLongHashMap();
+	private final TLongLongHashMap srcDestIdMap = new TLongLongHashMap();
 	// Contains the exchange IDs and old default provider IDs that need to be
 	// updated after the import.
-	private TLongLongHashMap oldProviderMap = new TLongLongHashMap();
+	private final TLongLongHashMap oldProviderMap = new TLongLongHashMap();
 
-	ProcessImport(IDatabase source, IDatabase dest, Seq seq) {
-		this.srcDao = new ProcessDao(source);
-		this.destDao = new ProcessDao(dest);
-		this.refs = new RefSwitcher(source, dest, seq);
-		this.dest = dest;
-		this.seq = seq;
+	ProcessImport(Config config) {
+		this.srcDao = new ProcessDao(config.source());
+		this.destDao = new ProcessDao(config.target());
+		this.refs = new RefSwitcher(config);
+		this.dest = config.target();
+		this.seq = config.seq();
 	}
 
 	public void run() {
 		log.trace("import processes");
 		try {
 			for (ProcessDescriptor descriptor : srcDao.getDescriptors()) {
-				long destId = seq.get(seq.PROCESS, descriptor.refId);
+				long destId = seq.get(Seq.PROCESS, descriptor.refId);
 				if (destId != 0)
 					srcDestIdMap.put(descriptor.id, destId);
 				else
@@ -69,19 +69,18 @@ class ProcessImport {
 		destProcess.refId = srcProcess.refId;
 		destProcess.category = refs.switchRef(srcProcess.category);
 		destProcess.location = refs.switchRef(srcProcess.location);
-		Set<Long> providerUpdates = switchExchangeRefs(destProcess);
+		switchExchangeRefs(destProcess);
 		switchAllocationProducts(srcProcess, destProcess);
 		switchDocRefs(destProcess);
 		switchSocialAspectRefs(destProcess);
 		switchDqSystems(destProcess);
 		destProcess = destDao.insert(destProcess);
-		seq.put(seq.PROCESS, srcProcess.refId, destProcess.id);
+		seq.put(Seq.PROCESS, srcProcess.refId, destProcess.id);
 		srcDestIdMap.put(srcProcess.id, destProcess.id);
-		putProviderUpdates(providerUpdates, destProcess);
+		putProviderUpdates(destProcess);
 	}
 
-	private void putProviderUpdates(Set<Long> providerUpdates,
-			Process destProcess) {
+	private void putProviderUpdates(Process destProcess) {
 		for (Exchange exchange : destProcess.exchanges) {
 			if (exchange.defaultProviderId >= 0)
 				continue;
@@ -103,6 +102,7 @@ class ProcessImport {
 				removals.add(e);
 				continue;
 			}
+			// TODO swap locations
 			checkSetProvider(e, oldProviders);
 			e.flow = refs.switchRef(e.flow);
 			e.flowPropertyFactor = refs.switchRef(
@@ -158,7 +158,7 @@ class ProcessImport {
 					srcRefId = srcExchange.flow.refId;
 				}
 			}
-			factor.productId = seq.get(seq.FLOW, srcRefId);
+			factor.productId = seq.get(Seq.FLOW, srcRefId);
 		}
 	}
 
@@ -201,9 +201,10 @@ class ProcessImport {
 		updateDefaultProviders(exchangeIds, providerIds);
 	}
 
-	private void updateDefaultProviders(final TLongArrayList exchangeIds,
-			final TLongArrayList providerIds) {
-		String stmt = "update tbl_exchanges set f_default_provider = ? where id = ?";
+	private void updateDefaultProviders(
+			TLongArrayList exchangeIds,	TLongArrayList providerIds
+	) {
+		var stmt = "update tbl_exchanges set f_default_provider = ? where id = ?";
 		try {
 			NativeSql.on(dest).batchInsert(stmt, exchangeIds.size(),
 					(int i, PreparedStatement ps) -> {

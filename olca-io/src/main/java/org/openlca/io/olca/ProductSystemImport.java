@@ -23,19 +23,19 @@ class ProductSystemImport {
 	private final RefSwitcher refs;
 	private final Seq seq;
 
-	ProductSystemImport(IDatabase source, IDatabase dest, Seq seq) {
-		this.srcDao = new ProductSystemDao(source);
-		this.refs = new RefSwitcher(source, dest, seq);
-		this.source = source;
-		this.dest = dest;
-		this.seq = seq;
+	ProductSystemImport(Config config) {
+		this.srcDao = new ProductSystemDao(config.source());
+		this.refs = new RefSwitcher(config);
+		this.source = config.source();
+		this.dest = config.target();
+		this.seq = config.seq();
 	}
 
 	public void run() {
 		log.trace("import product systems");
 		try {
 			for (ProductSystemDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.PRODUCT_SYSTEM, descriptor.refId))
+				if (seq.contains(Seq.PRODUCT_SYSTEM, descriptor.refId))
 					continue;
 				copy(descriptor);
 			}
@@ -57,7 +57,7 @@ class ProductSystemImport {
 		ProductSystemDao destDao = new ProductSystemDao(dest);
 		ProductSystemLinks.map(source, dest, destSystem);
 		destSystem = destDao.insert(destSystem);
-		seq.put(seq.PRODUCT_SYSTEM, srcSystem.refId, destSystem.id);
+		seq.put(Seq.PRODUCT_SYSTEM, srcSystem.refId, destSystem.id);
 	}
 
 	private void switchRefExchange(ProductSystem srcSystem,
