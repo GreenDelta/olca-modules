@@ -111,7 +111,7 @@ public class DatabaseImport implements Runnable {
 		new ProcessImport(conf).run();
 		new ProductSystemImport(conf).run();
 		new ImpactCategoryImport(conf).run();
-		new ImpactMethodImport(source, target, seq).run();
+		new ImpactMethodImport(conf).run();
 		new ProjectImport(source, target, seq).run();
 	}
 }
