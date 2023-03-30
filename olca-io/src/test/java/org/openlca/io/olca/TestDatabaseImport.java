@@ -1,5 +1,9 @@
 package org.openlca.io.olca;
 
+import java.util.EnumMap;
+import java.util.UUID;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -71,4 +75,34 @@ public class TestDatabaseImport {
 		assertEquals("some/countries", location.category.toPath());
 	}
 
+	@Test
+	public void testCategories() throws Exception {
+		var ids = new EnumMap<ModelType, String>(ModelType.class);
+		for (var type : ModelType.values()) {
+			if (type == ModelType.CATEGORY)
+				continue;
+			var e = type.getModelClass()
+					.getConstructor()
+					.newInstance();
+			e.refId = UUID.randomUUID().toString();
+			e.category = CategoryDao.sync(
+					source, type, "some", "more", "categories");
+			source.insert(e);
+			ids.put(type, e.refId);
+		}
+
+		new DatabaseImport(source, target).run();
+
+		for (var type : ModelType.values()) {
+			if (type == ModelType.CATEGORY)
+				continue;
+			var id = ids.get(type);
+			var e = target.get(type.getModelClass(), id);
+			assertNotNull("copy failed for " + type, e);
+			assertEquals(
+					"category test failed for " + type,
+					"some/more/categories", e.category.toPath());
+		}
+
+	}
 }
