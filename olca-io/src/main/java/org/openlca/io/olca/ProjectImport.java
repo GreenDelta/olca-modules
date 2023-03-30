@@ -1,82 +1,58 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProjectDao;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.descriptors.ProjectDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ProjectImport {
 
-	private final ProjectDao srcDao;
-	private final ProjectDao destDao;
+	private final Config conf;
 	private final RefSwitcher refs;
-	private final Seq seq;
 
-	ProjectImport(IDatabase source, IDatabase dest, Seq seq) {
-		this.srcDao = new ProjectDao(source);
-		this.destDao = new ProjectDao(dest);
-		this.refs = new RefSwitcher(source, dest, seq);
-		this.seq = seq;
+	private ProjectImport(Config conf) {
+		this.conf = conf;
+		this.refs = new RefSwitcher(conf);
 	}
 
-	public void run() {
-		log.trace("import projects");
-		try {
-			for (ProjectDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(seq.PROJECT, descriptor.refId))
-					continue;
-				createProject(descriptor);
+	static void run(Config conf) {
+		new ProjectImport(conf).run();
+	}
+
+	private void run() {
+		conf.syncAll(Project.class, project -> {
+			var copy = project.copy();
+			copy.impactMethod = conf.swap(project.impactMethod);
+			copy.nwSet = refs.switchRef(project.nwSet);
+			for (var variant : copy.variants) {
+				swapRefsOf(variant);
 			}
-		} catch (Exception e) {
-			log.error("failed to import projects", e);
-		}
+			return copy;
+		});
 	}
 
-	private void createProject(ProjectDescriptor descriptor) {
-		Project srcProject = srcDao.getForId(descriptor.id);
-		Project destProject = srcProject.copy();
-		destProject.refId = srcProject.refId;
-		destProject.category = refs.switchRef(srcProject.category);
-		destProject.impactMethod = refs.switchRef(srcProject.impactMethod);
-		destProject.nwSet = refs.switchRef(srcProject.nwSet);
-		for (ProjectVariant variant : destProject.variants)
-			switchVariantReferences(variant);
-		destProject = destDao.insert(destProject);
-		seq.put(seq.PROJECT, srcProject.refId, destProject.id);
-	}
-
-	private void switchVariantReferences(ProjectVariant variant) {
-		variant.productSystem = refs.switchRef(variant.productSystem);
+	private void swapRefsOf(ProjectVariant variant) {
+		variant.productSystem = conf.swap(variant.productSystem);
 		variant.unit = refs.switchRef(variant.unit);
-		switchVariantProperty(variant);
-		for (ParameterRedef redef : variant.parameterRedefs) {
-			if (redef.contextId == null)
+		swapPropertyOf(variant);
+		for (var param : variant.parameterRedefs) {
+			if (param.contextId == null)
 				continue;
-			if (redef.contextType == ModelType.IMPACT_METHOD) {
-				redef.contextId = refs.getDestImpactMethodId(redef.contextId);
-			} else {
-				redef.contextId = refs.getDestProcessId(redef.contextId);
-			}
+			param.contextId = param.contextType == ModelType.IMPACT_CATEGORY
+					? refs.getDestImpactId(param.contextId)
+					: refs.getDestProcessId(param.contextId);
 		}
 	}
 
-	private void switchVariantProperty(ProjectVariant variant) {
+	private void swapPropertyOf(ProjectVariant variant) {
 		if (variant.flowPropertyFactor == null)
 			return;
-		ProductSystem destSystem = variant.productSystem;
-		if (destSystem == null || destSystem.referenceExchange == null) {
+		var system = variant.productSystem;
+		if (system == null || system.referenceExchange == null) {
 			variant.flowPropertyFactor = null;
 			return;
 		}
-		Flow destFlow = destSystem.referenceExchange.flow;
+		var flow = system.referenceExchange.flow;
 		variant.flowPropertyFactor = refs.switchRef(
-		variant.flowPropertyFactor, destFlow);
+				variant.flowPropertyFactor, flow);
 	}
 }

@@ -22,9 +22,7 @@ class ProductSystemImport {
 	private void run() {
 		conf.syncAll(ProductSystem.class, system -> {
 			var copy = system.copy();
-			copy.refId = system.refId;
-			copy.category = refs.switchRef(system.category);
-			copy.referenceProcess = refs.switchRef(system.referenceProcess);
+			copy.referenceProcess = conf.swap(system.referenceProcess);
 			swapQRef(system, copy);
 			swapParameters(copy);
 			ProductSystemLinks.map(conf, copy);

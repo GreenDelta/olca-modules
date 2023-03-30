@@ -1,43 +1,19 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.DQSystemDao;
-import org.openlca.core.database.FlowDao;
-import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.RefEntityDao;
-import org.openlca.core.database.SocialIndicatorDao;
-import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
-import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Currency;
-import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.NwSet;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * We copy most of the entities from the source database to the target database
@@ -63,18 +39,6 @@ class RefSwitcher {
 		return switchRef(Seq.CATEGORY, new CategoryDao(dest), srcCategory);
 	}
 
-	Location switchRef(Location srcLocation) {
-		return switchRef(Seq.LOCATION, new LocationDao(dest), srcLocation);
-	}
-
-	Actor switchRef(Actor srcActor) {
-		return switchRef(Seq.ACTOR, new ActorDao(dest), srcActor);
-	}
-
-	Source switchRef(Source srcSource) {
-		return switchRef(Seq.SOURCE, new SourceDao(dest), srcSource);
-	}
-
 	Unit switchRef(Unit srcUnit) {
 		if (srcUnit == null)
 			return null;
@@ -83,18 +47,6 @@ class RefSwitcher {
 			return null;
 		UnitDao dao = new UnitDao(dest);
 		return dao.getForId(id);
-	}
-
-	UnitGroup switchRef(UnitGroup srcUnitGroup) {
-		return switchRef(Seq.UNIT_GROUP, new UnitGroupDao(dest), srcUnitGroup);
-	}
-
-	FlowProperty switchRef(FlowProperty srcProperty) {
-		return switchRef(Seq.FLOW_PROPERTY, new FlowPropertyDao(dest), srcProperty);
-	}
-
-	Flow switchRef(Flow srcFlow) {
-		return switchRef(Seq.FLOW, new FlowDao(dest), srcFlow);
 	}
 
 	/**
@@ -114,36 +66,6 @@ class RefSwitcher {
 				return fac;
 		}
 		return null;
-	}
-
-	Currency switchRef(Currency srcCurrency) {
-		return switchRef(Seq.CURRENCY, new CurrencyDao(dest), srcCurrency);
-	}
-
-	Process switchRef(Process srcProcess) {
-		return switchRef(Seq.PROCESS, new ProcessDao(dest), srcProcess);
-	}
-
-	ProductSystem switchRef(ProductSystem srcProductSystem) {
-		return switchRef(Seq.PRODUCT_SYSTEM, new ProductSystemDao(dest), srcProductSystem);
-	}
-
-	SocialIndicator switchRef(SocialIndicator srcIndicator) {
-		return switchRef(Seq.SOCIAL_INDICATOR, new SocialIndicatorDao(dest), srcIndicator);
-	}
-
-	DQSystem switchRef(DQSystem srcSystem) {
-		return switchRef(Seq.DQ_SYSTEM, new DQSystemDao(dest), srcSystem);
-	}
-
-	ImpactCategory switchRef(ImpactCategory srcImpact) {
-		return switchRef(Seq.IMPACT_CATEGORY,
-				new ImpactCategoryDao(dest), srcImpact);
-	}
-
-	ImpactMethod switchRef(ImpactMethod srcMethod) {
-		return switchRef(Seq.IMPACT_METHOD,
-				new ImpactMethodDao(dest), srcMethod);
 	}
 
 	NwSet switchRef(NwSet srcNwSet) {
