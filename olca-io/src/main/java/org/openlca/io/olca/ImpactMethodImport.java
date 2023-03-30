@@ -9,11 +9,15 @@ class ImpactMethodImport {
 
 	private final Config conf;
 
-	ImpactMethodImport(Config conf) {
+	private ImpactMethodImport(Config conf) {
 		this.conf = conf;
 	}
 
-	public void run() {
+	static void run(Config config) {
+		new ImpactMethodImport(config).run();
+	}
+
+	private void run() {
 		conf.syncAll(ImpactMethod.class, method -> {
 			var copy = method.copy();
 			copy.source = conf.swap(method.source);

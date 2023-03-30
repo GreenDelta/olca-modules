@@ -11,6 +11,8 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.SocialIndicator;
@@ -86,9 +88,9 @@ public class DatabaseImport implements Runnable {
 		});
 
 		ProcessImport.run(conf);
-		new ProductSystemImport(conf).run();
-		new ImpactCategoryImport(conf).run();
-		new ImpactMethodImport(conf).run();
+		ProductSystemImport.run(conf);
+		copyImpactCategories();
+		ImpactMethodImport.run(conf);
 		new ProjectImport(source, target, seq).run();
 	}
 
@@ -132,6 +134,21 @@ public class DatabaseImport implements Runnable {
 			if (indicator.activityUnit != null) {
 				long unitId = conf.seq().get(Seq.UNIT, indicator.activityUnit.refId);
 				copy.activityUnit = new UnitDao(conf.target()).getForId(unitId);
+			}
+			return copy;
+		});
+	}
+
+	private void copyImpactCategories() {
+		var refs = new RefSwitcher(conf);
+		conf.syncAll(ImpactCategory.class, impact -> {
+			var copy = impact.copy();
+			copy.source = conf.swap(impact.source);
+			for (var f : copy.impactFactors) {
+				f.flow = conf.swap(f.flow);
+				f.unit = refs.switchRef(f.unit);
+				f.flowPropertyFactor = refs.switchRef(f.flowPropertyFactor, f.flow);
+				f.location = conf.swap(f.location);
 			}
 			return copy;
 		});
