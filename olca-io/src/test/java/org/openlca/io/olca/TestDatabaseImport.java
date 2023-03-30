@@ -3,7 +3,6 @@ package org.openlca.io.olca;
 import java.util.EnumMap;
 import java.util.UUID;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -13,9 +12,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.Derby;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
@@ -87,6 +85,9 @@ public class TestDatabaseImport {
 			e.refId = UUID.randomUUID().toString();
 			e.category = CategoryDao.sync(
 					source, type, "some", "more", "categories");
+			if (e instanceof Currency currency) {
+				currency.referenceCurrency = currency;
+			}
 			source.insert(e);
 			ids.put(type, e.refId);
 		}

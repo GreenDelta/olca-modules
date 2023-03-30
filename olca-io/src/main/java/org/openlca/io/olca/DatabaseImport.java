@@ -14,6 +14,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 
@@ -91,6 +92,7 @@ public class DatabaseImport implements Runnable {
 		copyImpactCategories();
 		ImpactMethodImport.run(conf);
 		ProjectImport.run(conf);
+		ResultImport.run(conf);
 	}
 
 	private void copyGlobalParameters() {

@@ -6,6 +6,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -16,6 +17,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -121,6 +123,10 @@ record Config(
 			return Seq.DQ_SYSTEM;
 		if (type.equals(SocialIndicator.class))
 			return Seq.SOCIAL_INDICATOR;
+		if (type.equals(Result.class))
+			return Seq.RESULT;
+		if (type.equals(Epd.class))
+			return Seq.EPD;
 		return -1;
 	}
 

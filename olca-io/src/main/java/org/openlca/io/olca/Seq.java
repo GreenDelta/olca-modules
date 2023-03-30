@@ -7,6 +7,7 @@ import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.DQSystemDao;
+import org.openlca.core.database.EpdDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
@@ -18,6 +19,7 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.database.RefEntityDao;
+import org.openlca.core.database.ResultDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
 import org.openlca.core.database.UnitDao;
@@ -53,12 +55,14 @@ class Seq {
 	static final int PROJECT = 14;
 	static final int DQ_SYSTEM = 15;
 	static final int SOCIAL_INDICATOR = 16;
+	static final int RESULT = 17;
+	static final int EPD = 18;
 
 	private final HashMap<String, Long>[] sequences;
 
 	@SuppressWarnings("unchecked")
 	public Seq(IDatabase database) {
-		sequences = new HashMap[17];
+		sequences = new HashMap[19];
 		for (int i = 0; i < sequences.length; i++)
 			sequences[i] = new HashMap<>();
 		init(database);
@@ -82,6 +86,8 @@ class Seq {
 		index(PROJECT, new ProjectDao(db));
 		index(DQ_SYSTEM, new DQSystemDao(db));
 		index(SOCIAL_INDICATOR, new SocialIndicatorDao(db));
+		index(RESULT, new ResultDao(db));
+		index(EPD, new EpdDao(db));
 	}
 
 	private void index(int type, RefEntityDao<?, ?> dao) {
