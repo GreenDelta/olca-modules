@@ -1,13 +1,11 @@
 package org.openlca.io.olca;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.util.Dirs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.io.Files;
 
 /**
  * Copies the files from the file storage of the source database to the file
@@ -15,18 +13,21 @@ import com.google.common.io.Files;
  */
 class FileImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
+	private final ImportLog log;
 	private final IDatabase source;
 	private final IDatabase dest;
 
-	FileImport(Config conf) {
+	private FileImport(Config conf) {
+		this.log = conf.log();
 		this.source = conf.source();
 		this.dest = conf.target();
 	}
 
-	public void run() {
-		log.trace("import external files");
+	static void run(Config conf) {
+		new FileImport(conf).run();
+	}
+
+	private void run() {
 		try {
 			var srcDir = source.getFileStorageLocation();
 			if (srcDir == null
@@ -53,7 +54,7 @@ class FileImport {
 				Dirs.createIfAbsent(destFile);
 				syncDirs(srcFile, destFile);
 			} else if (!destFile.exists()) {
-				Files.copy(srcFile, destFile);
+				Files.copy(srcFile.toPath(), destFile.toPath());
 			}
 		}
 	}

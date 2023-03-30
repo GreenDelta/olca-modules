@@ -9,11 +9,15 @@ class CurrencyImport {
 
 	private final Config conf;
 
-	CurrencyImport(Config conf) {
+	private CurrencyImport(Config conf) {
 		this.conf = conf;
 	}
 
-	public void run() {
+	static void run(Config conf) {
+		new CurrencyImport(conf).run();
+	}
+
+	private void run() {
 		try {
 			var sourceDao = new CurrencyDao(conf.source());
 			var ref = sourceDao.getReferenceCurrency();
@@ -22,6 +26,11 @@ class CurrencyImport {
 			var targetRef = !conf.contains(Seq.CURRENCY, ref.refId)
 					? copy(ref, null)
 					: conf.target().get(Currency.class, ref.refId);
+			if (targetRef == null) {
+				conf.log().error(
+						"failed to copy reference currency; " + ref.refId);
+				return;
+			}
 			for (var c : sourceDao.getAll()) {
 				if (Objects.equal(ref, c))
 					continue;

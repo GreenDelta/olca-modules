@@ -1,55 +1,50 @@
 package org.openlca.io.olca;
 
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.MappingFileDao;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.UnitDao;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
+import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Import the data from one openLCA database into another database.
  */
 public class DatabaseImport implements Runnable {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ImportLog log;
 
 	private final Config conf;
 
 	public DatabaseImport(IDatabase source, IDatabase target) {
 		conf = Config.of(source, target);
+		log = conf.log();
 	}
 
 	@Override
 	public void run() {
-		log.trace(
-				"run database import from {} to {}", conf.source(), conf.target());
 		try {
-			importSimple();
-			importUnitsAndQuantities();
-			importStructs();
-			new MappingFileImport(conf).run();
-			new FileImport(conf).run();
+			// the order is very important for correct linking
+			CategoryImport.run(conf);
+			copyUnits();
+			copyEntities();
+			copyMappingFiles();
+			FileImport.run(conf);
 		} catch (Exception e) {
-			log.error("Database import failed", e);
+			log.error("database import failed", e);
 		}
 	}
 
-	private void importSimple() {
-		new CategoryImport(conf).run();
-		conf.syncAll(Actor.class, Actor::copy);
-		conf.syncAll(Location.class, Location::copy);
-		conf.syncAll(Source.class, Source::copy);
-		new ParameterImport(conf).run();
-	}
-
-	private void importUnitsAndQuantities() {
+	private void copyUnits() {
 
 		// import unit groups and remember which unit groups
 		// need to be updated with a default flow property
@@ -74,9 +69,51 @@ public class DatabaseImport implements Runnable {
 		}
 	}
 
-	private void importStructs() {
+	private void copyEntities() {
 
-		// flows
+		conf.syncAll(Actor.class, Actor::copy);
+		conf.syncAll(Location.class, Location::copy);
+		conf.syncAll(Source.class, Source::copy);
+
+		copyGlobalParameters();
+		copyFlows();
+		CurrencyImport.run(conf);
+		copySocialIndicators();
+		conf.syncAll(DQSystem.class, system -> {
+			var copy = system.copy();
+			copy.source = conf.swap(system.source);
+			return copy;
+		});
+
+		ProcessImport.run(conf);
+		new ProductSystemImport(conf).run();
+		new ImpactCategoryImport(conf).run();
+		new ImpactMethodImport(conf).run();
+		new ProjectImport(source, target, seq).run();
+	}
+
+	private void copyGlobalParameters() {
+		var existing = new ParameterDao(conf.target())
+				.getGlobalParameters()
+				.stream()
+				.map(p -> p.name)
+				.collect(Collectors.toSet());
+
+		new ParameterDao(conf.source())
+				.getGlobalParameters()
+				.stream()
+				.filter(p -> !existing.contains(p.name))
+				.forEach(p -> {
+					var copy = p.copy();
+					if (!conf.seq().contains(Seq.CATEGORY, p.refId)) {
+						copy.refId = p.refId;
+					}
+					copy.category = conf.swap(p.category);
+					conf.target().insert(copy);
+				});
+	}
+
+	private void copyFlows() {
 		conf.syncAll(Flow.class, flow -> {
 			var copy = flow.copy();
 			copy.location = conf.swap(flow.location);
@@ -86,11 +123,9 @@ public class DatabaseImport implements Runnable {
 			}
 			return copy;
 		});
+	}
 
-		// currencies
-		new CurrencyImport(conf).run();
-
-		// social indicators
+	private void copySocialIndicators() {
 		conf.syncAll(SocialIndicator.class, indicator -> {
 			var copy = indicator.copy();
 			copy.activityQuantity = conf.swap(indicator.activityQuantity);
@@ -100,18 +135,26 @@ public class DatabaseImport implements Runnable {
 			}
 			return copy;
 		});
+	}
 
-		// data quality systems
-		conf.syncAll(DQSystem.class, system -> {
-			var copy = system.copy();
-			copy.source = conf.swap(system.source);
-			return copy;
-		});
-
-		new ProcessImport(conf).run();
-		new ProductSystemImport(conf).run();
-		new ImpactCategoryImport(conf).run();
-		new ImpactMethodImport(conf).run();
-		new ProjectImport(source, target, seq).run();
+	private void copyMappingFiles() {
+		var sourceDao = new MappingFileDao(conf.source());
+		var targetDao = new MappingFileDao(conf.target());
+		for (var file : sourceDao.getAll()) {
+			if (file == null || file.content == null)
+				continue;
+			try {
+				var copy = targetDao.getForName(file.name);
+				if (copy != null)
+					continue;
+				copy = new MappingFile();
+				copy.content = file.content;
+				copy.name = file.name;
+				targetDao.insert(copy);
+				conf.log().info("copied mapping file " + file.name);
+			} catch (Exception e) {
+				conf.log().error("failed to copy mapping file " + file.name, e);
+			}
+		}
 	}
 }

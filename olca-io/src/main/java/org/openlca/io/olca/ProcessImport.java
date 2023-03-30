@@ -2,91 +2,94 @@ package org.openlca.io.olca;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
-import gnu.trove.iterator.TLongLongIterator;
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.map.hash.TLongLongHashMap;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.core.model.SocialAspect;
-import org.openlca.core.model.Source;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ProcessImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
+	private final Config conf;
+	private final ImportLog log;
 	private final ProcessDao srcDao;
 	private final ProcessDao destDao;
-	private final IDatabase dest;
 	private final RefSwitcher refs;
-	private final Seq seq;
 
 	// Required for translating the default provider links: we import exchanges
 	// with possible links to processes that are not yet imported
-	private final TLongLongHashMap srcDestIdMap = new TLongLongHashMap();
+	private final TLongLongHashMap providerMap = new TLongLongHashMap();
+
 	// Contains the exchange IDs and old default provider IDs that need to be
 	// updated after the import.
-	private final TLongLongHashMap oldProviderMap = new TLongLongHashMap();
+	private final TLongLongHashMap oldExchangeProviders = new TLongLongHashMap();
 
-	ProcessImport(Config config) {
+	private ProcessImport(Config config) {
+		this.conf = config;
+		this.log = config.log();
 		this.srcDao = new ProcessDao(config.source());
 		this.destDao = new ProcessDao(config.target());
-		this.refs = new RefSwitcher(config);
-		this.dest = config.target();
-		this.seq = config.seq();
+		this.refs = new RefSwitcher(conf);
 	}
 
-	public void run() {
-		log.trace("import processes");
-		try {
-			for (ProcessDescriptor descriptor : srcDao.getDescriptors()) {
-				long destId = seq.get(Seq.PROCESS, descriptor.refId);
-				if (destId != 0)
-					srcDestIdMap.put(descriptor.id, destId);
-				else
-					createProcess(descriptor);
+	static void run(Config conf) {
+		new ProcessImport(conf).run();
+	}
+
+	private void run() {
+		for (var d : srcDao.getDescriptors()) {
+			try {
+				long destId = conf.seq().get(Seq.PROCESS, d.refId);
+				if (destId != 0) {
+					providerMap.put(d.id, destId);
+				} else {
+					copy(d);
+				}
+			} catch (Exception e) {
+				log.error("failed to copy process " + d.refId, e);
 			}
-			switchDefaultProviders();
-		} catch (Exception e) {
-			log.error("failed to import processes", e);
 		}
+		swapDefaultProviders();
 	}
 
-	private void createProcess(ProcessDescriptor descriptor) {
-		Process srcProcess = srcDao.getForId(descriptor.id);
-		Process destProcess = srcProcess.copy();
-		destProcess.refId = srcProcess.refId;
-		destProcess.category = refs.switchRef(srcProcess.category);
-		destProcess.location = refs.switchRef(srcProcess.location);
-		switchExchangeRefs(destProcess);
-		switchAllocationProducts(srcProcess, destProcess);
-		switchDocRefs(destProcess);
-		switchSocialAspectRefs(destProcess);
-		switchDqSystems(destProcess);
-		destProcess = destDao.insert(destProcess);
-		seq.put(Seq.PROCESS, srcProcess.refId, destProcess.id);
-		srcDestIdMap.put(srcProcess.id, destProcess.id);
-		putProviderUpdates(destProcess);
-	}
+	private void copy(ProcessDescriptor d) {
 
-	private void putProviderUpdates(Process destProcess) {
-		for (Exchange exchange : destProcess.exchanges) {
-			if (exchange.defaultProviderId >= 0)
+		// init copy
+		var process = srcDao.getForId(d.id);
+		if (process == null)
+			return;
+		var copy = process.copy();
+		copy.refId = process.refId;
+
+		// swap references
+		copy.category = conf.swap(process.category);
+		copy.location = conf.swap(process.location);
+		copy.dqSystem = conf.swap(copy.dqSystem);
+		copy.exchangeDqSystem = conf.swap(copy.exchangeDqSystem);
+		copy.socialDqSystem = conf.swap(copy.socialDqSystem);
+
+		swapExchangeRefs(copy);
+		swapAllocationProducts(process, copy);
+		swapDocRefs(copy);
+		for (var a : copy.socialAspects) {
+			a.indicator = conf.swap(a.indicator);
+			a.source = conf.swap(a.source);
+		}
+
+		copy = destDao.insert(copy);
+		conf.seq().put(Seq.PROCESS, process.refId, copy.id);
+		providerMap.put(process.id, copy.id);
+
+		// collect old default providers; they have a negative sign
+		for (var e : copy.exchanges) {
+			if (e.defaultProviderId >= 0)
 				continue;
-			// old default providers have a negative sign
-			long oldId = Math.abs(exchange.defaultProviderId);
-			oldProviderMap.put(exchange.id, oldId);
+			oldExchangeProviders.put(e.id, Math.abs(e.defaultProviderId));
 		}
 	}
 
@@ -94,119 +97,101 @@ class ProcessImport {
 	 * Returns also the list of provider IDs from the source database that need
 	 * to be updated after the import.
 	 */
-	private Set<Long> switchExchangeRefs(Process destProcess) {
-		List<Exchange> removals = new ArrayList<>();
-		Set<Long> oldProviders = new HashSet<>();
-		for (Exchange e : destProcess.exchanges) {
+	private void swapExchangeRefs(Process copy) {
+		var removals = new ArrayList<Exchange>();
+		for (Exchange e : copy.exchanges) {
 			if (!isValid(e)) {
 				removals.add(e);
 				continue;
 			}
-			// TODO swap locations
-			checkSetProvider(e, oldProviders);
-			e.flow = refs.switchRef(e.flow);
-			e.flowPropertyFactor = refs.switchRef(
-					e.flowPropertyFactor, e.flow);
+
+			// swap references
+			e.flow = conf.swap(e.flow);
+			e.flowPropertyFactor = refs.switchRef(e.flowPropertyFactor, e.flow);
 			e.unit = refs.switchRef(e.unit);
-			e.currency = refs.switchRef(e.currency);
-		}
-		if (!removals.isEmpty()) {
-			log.warn("there where invalid exchanges in {} "
-					+ "that where removed during the import", destProcess);
-			destProcess.exchanges.removeAll(removals);
-		}
-		return oldProviders;
-	}
+			e.currency = conf.swap(e.currency);
+			e.location = conf.swap(e.location);
 
-	private void switchSocialAspectRefs(Process destProcess) {
-		for (SocialAspect aspect : destProcess.socialAspects) {
-			aspect.indicator = refs.switchRef(aspect.indicator);
-			aspect.source = refs.switchRef(aspect.source);
-		}
-	}
-
-	private void checkSetProvider(Exchange exchange, Set<Long> oldProviders) {
-		long oldId = exchange.defaultProviderId;
-		if (oldId <= 0)
-			return; // no default provider
-		long newId = srcDestIdMap.get(oldId);
-		if (newId != 0) {
-			exchange.defaultProviderId = newId;
-			return; // default provider already in database
-		}
-		// update required after import indicated by a negative sign
-		exchange.defaultProviderId = -oldId;
-		oldProviders.add(oldId);
-	}
-
-	private boolean isValid(Exchange exchange) {
-		return exchange.flow != null
-				&& exchange.flowPropertyFactor != null
-				&& exchange.flowPropertyFactor.flowProperty != null
-				&& exchange.unit != null;
-	}
-
-	private void switchAllocationProducts(Process srcProcess,
-			Process destProcess) {
-		for (AllocationFactor factor : destProcess.allocationFactors) {
-			long srcProductId = factor.productId;
-			String srcRefId = null;
-			for (Exchange srcExchange : srcProcess.exchanges) {
-				if (srcExchange.flow == null)
-					continue;
-				if (srcExchange.flow.id == srcProductId) {
-					srcRefId = srcExchange.flow.refId;
+			// handle the default provider
+			if (e.defaultProviderId > 0) {
+				long oldId = e.defaultProviderId;
+				long newId = providerMap.get(oldId);
+				if (newId != 0) {
+					// default provider already in database
+					e.defaultProviderId = newId;
+				} else {
+					// update required after import indicated by a negative sign
+					// we can handle it when IDs are available after insertion
+					e.defaultProviderId = -oldId;
 				}
 			}
-			factor.productId = seq.get(Seq.FLOW, srcRefId);
+		}
+
+		if (!removals.isEmpty()) {
+			log.warn(copy,
+					"had invalid exchanges that were removed in the import");
+			copy.exchanges.removeAll(removals);
 		}
 	}
 
-	private void switchDocRefs(Process destProcess) {
-		if (destProcess.documentation == null)
+
+	private boolean isValid(Exchange e) {
+		return e.flow != null
+				&& e.flowPropertyFactor != null
+				&& e.flowPropertyFactor.flowProperty != null
+				&& e.unit != null;
+	}
+
+	private void swapAllocationProducts(Process process, Process copy) {
+		for (var f : copy.allocationFactors) {
+			String productId = null;
+			for (var e : process.exchanges) {
+				if (e.flow != null && e.flow.id == f.productId) {
+					productId = e.flow.refId;
+					break;
+				}
+			}
+			f.productId = conf.seq().get(Seq.FLOW, productId);
+		}
+	}
+
+	private void swapDocRefs(Process copy) {
+		if (copy.documentation == null)
 			return;
-		ProcessDocumentation doc = destProcess.documentation;
-		doc.reviewer = refs.switchRef(doc.reviewer);
-		doc.dataGenerator = refs.switchRef(doc.dataGenerator);
-		doc.dataDocumentor = refs.switchRef(doc.dataDocumentor);
-		doc.dataSetOwner = refs.switchRef(doc.dataSetOwner);
-		doc.publication = refs.switchRef(doc.publication);
-		List<Source> translatedSources = new ArrayList<>();
-		for (Source source : doc.sources)
-			translatedSources.add(refs.switchRef(source));
+		var doc = copy.documentation;
+		doc.reviewer = conf.swap(doc.reviewer);
+		doc.dataGenerator = conf.swap(doc.dataGenerator);
+		doc.dataDocumentor = conf.swap(doc.dataDocumentor);
+		doc.dataSetOwner = conf.swap(doc.dataSetOwner);
+		doc.publication = conf.swap(doc.publication);
+		var sources = doc.sources.stream()
+				.map(conf::swap)
+				.filter(Objects::nonNull)
+				.toList();
 		doc.sources.clear();
-		doc.sources.addAll(translatedSources);
+		doc.sources.addAll(sources);
 	}
 
-	private void switchDqSystems(Process destProcess) {
-		destProcess.dqSystem = refs.switchRef(destProcess.dqSystem);
-		destProcess.exchangeDqSystem = refs
-				.switchRef(destProcess.exchangeDqSystem);
-		destProcess.socialDqSystem = refs.switchRef(destProcess.socialDqSystem);
-	}
+	private void swapDefaultProviders() {
+		conf.target()
+				.getEntityFactory()
+				.getCache()
+				.evictAll();
 
-	private void switchDefaultProviders() {
-		log.trace("update default providers");
-		dest.getEntityFactory().getCache().evictAll();
-		TLongArrayList exchangeIds = new TLongArrayList();
-		TLongArrayList providerIds = new TLongArrayList();
-		TLongLongIterator it = oldProviderMap.iterator();
+		var exchangeIds = new TLongArrayList();
+		var providerIds = new TLongArrayList();
+		var it = oldExchangeProviders.iterator();
 		while (it.hasNext()) {
 			it.advance();
 			long exchangeId = it.key();
-			long newId = srcDestIdMap.get(it.value());
+			long newId = providerMap.get(it.value());
 			exchangeIds.add(exchangeId);
 			providerIds.add(newId);
 		}
-		updateDefaultProviders(exchangeIds, providerIds);
-	}
 
-	private void updateDefaultProviders(
-			TLongArrayList exchangeIds,	TLongArrayList providerIds
-	) {
 		var stmt = "update tbl_exchanges set f_default_provider = ? where id = ?";
 		try {
-			NativeSql.on(dest).batchInsert(stmt, exchangeIds.size(),
+			NativeSql.on(conf.target()).batchInsert(stmt, exchangeIds.size(),
 					(int i, PreparedStatement ps) -> {
 						ps.setLong(1, providerIds.get(i));
 						ps.setLong(2, exchangeIds.get(i));

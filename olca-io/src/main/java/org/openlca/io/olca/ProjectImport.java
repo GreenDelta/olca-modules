@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 class ProjectImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final ProjectDao srcDao;
 	private final ProjectDao destDao;
 	private final RefSwitcher refs;
