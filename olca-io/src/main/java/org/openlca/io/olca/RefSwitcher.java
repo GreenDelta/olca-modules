@@ -151,7 +151,7 @@ class RefSwitcher {
 	}
 
 	private <T extends RefEntity> T switchRef(
-            int type, RefEntityDao<T, ?> dao, T srcEntity) {
+			int type, RefEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)
 			return null;
 		long id = seq.get(type, srcEntity.refId);
@@ -160,25 +160,24 @@ class RefSwitcher {
 		return dao.getForId(id);
 	}
 
-	Long getDestImpactMethodId(Long srcMethodId) {
-		if (srcMethodId == null)
+	Long getDestImpactId(Long srcId) {
+		if (srcId == null)
 			return null;
-		ImpactMethodDao srcDao = new ImpactMethodDao(source);
-		ImpactMethodDescriptor srcDescriptor = srcDao
-				.getDescriptor(srcMethodId);
-		if (srcDescriptor == null)
-			return null;
-		return seq.get(Seq.IMPACT_METHOD, srcDescriptor.refId);
+		var dao = new ImpactCategoryDao(source);
+		var d = dao.getDescriptor(srcId);
+		return d != null
+				? seq.get(Seq.IMPACT_METHOD, d.refId)
+				: null;
 	}
 
-	Long getDestProcessId(Long srcProcessId) {
-		if (srcProcessId == null)
+	Long getDestProcessId(Long srcId) {
+		if (srcId == null)
 			return null;
-		ProcessDao srcDao = new ProcessDao(source);
-		ProcessDescriptor srcDescriptor = srcDao.getDescriptor(srcProcessId);
-		if (srcDescriptor == null)
-			return null;
-		return seq.get(Seq.PROCESS, srcDescriptor.refId);
+		var dao = new ProcessDao(source);
+		var d = dao.getDescriptor(srcId);
+		return d != null
+				? seq.get(Seq.PROCESS, d.refId)
+				: null;
 	}
 
 }

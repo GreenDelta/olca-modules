@@ -2,15 +2,12 @@ package org.openlca.io.olca;
 
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
 import org.openlca.util.RefIdMap;
@@ -22,31 +19,24 @@ import org.slf4j.LoggerFactory;
  */
 class ProductSystemLinks {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Config conf;
+	private final ProductSystem system;
+	private final RefIdMap<Long, String> srcIdMap;
+	private final RefIdMap<String, Long> destIdMap;
 
-	private IDatabase sourceDb;
-	private IDatabase destDb;
-	private ProductSystem system;
-
-	private RefIdMap<Long, String> srcIdMap;
-	private RefIdMap<String, Long> destIdMap;
-
-	public static void map(IDatabase sourceDb, IDatabase destDb,
-			ProductSystem system) {
-		if (sourceDb == null || destDb == null || system == null)
+	static void map(Config conf, ProductSystem system) {
+		if (system == null)
 			return;
-		new ProductSystemLinks(sourceDb, destDb, system).map();
+		new ProductSystemLinks(conf, system).map();
 	}
 
-	private ProductSystemLinks(IDatabase sourceDb, IDatabase destDb,
-			ProductSystem system) {
-		this.sourceDb = sourceDb;
-		this.destDb = destDb;
+	private ProductSystemLinks(Config conf, ProductSystem system) {
+		this.conf = conf;
 		this.system = system;
-		srcIdMap = RefIdMap.internalToRef(sourceDb, Process.class, Flow.class,
-				Unit.class);
-		destIdMap = RefIdMap.refToInternal(destDb, Process.class, Flow.class,
-				Unit.class);
+		srcIdMap = RefIdMap.internalToRef(
+				conf.source(), Process.class, Flow.class, Unit.class);
+		destIdMap = RefIdMap.refToInternal(
+				conf.target(), Process.class, Flow.class, Unit.class);
 	}
 
 	private long destId(Class<?> type, long sourceId) {
@@ -61,7 +51,7 @@ class ProductSystemLinks {
 
 	private void map() {
 		mapProcessIds();
-		for (ProcessLink link : system.processLinks) {
+		for (var link : system.processLinks) {
 			link.providerId = destId(Process.class, link.providerId);
 			link.processId = destId(Process.class, link.processId);
 			link.flowId = destId(Flow.class, link.flowId);
@@ -100,7 +90,7 @@ class ProductSystemLinks {
 					+ "resulting_amount_value, f_default_provider "
 					+ "from tbl_exchanges where id=" + id;
 			try {
-				NativeSql.on(sourceDb).query(sql, r -> {
+				NativeSql.on(conf.source()).query(sql, r -> {
 					processId = r.getLong(1);
 					flowId = r.getLong(2);
 					unitId = r.getLong(3);
@@ -110,7 +100,7 @@ class ProductSystemLinks {
 					return false;
 				});
 			} catch (Exception e) {
-				log.error("failed to query exchange: " + sql, e);
+				conf.log().error("failed to query exchange: " + sql, e);
 			}
 		}
 
@@ -138,9 +128,9 @@ class ProductSystemLinks {
 			}
 		}
 
-		long queryId(String sql) throws SQLException {
-			TLongDoubleHashMap vals = new TLongDoubleHashMap();
-			NativeSql.on(destDb).query(sql, r -> {
+		long queryId(String sql) {
+			var vals = new TLongDoubleHashMap();
+			NativeSql.on(conf.target()).query(sql, r -> {
 				vals.put(r.getLong(1), r.getDouble(2));
 				return true;
 			});

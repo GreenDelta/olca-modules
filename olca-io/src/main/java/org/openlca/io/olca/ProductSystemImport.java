@@ -1,114 +1,71 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ProductSystemImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final ProductSystemDao srcDao;
-	private final IDatabase source;
-	private final IDatabase dest;
+	private final Config conf;
 	private final RefSwitcher refs;
-	private final Seq seq;
 
-	ProductSystemImport(Config config) {
-		this.srcDao = new ProductSystemDao(config.source());
-		this.refs = new RefSwitcher(config);
-		this.source = config.source();
-		this.dest = config.target();
-		this.seq = config.seq();
+	private ProductSystemImport(Config conf) {
+		this.conf = conf;
+		this.refs = new RefSwitcher(conf);
 	}
 
-	public void run() {
-		log.trace("import product systems");
-		try {
-			for (ProductSystemDescriptor descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(Seq.PRODUCT_SYSTEM, descriptor.refId))
-					continue;
-				copy(descriptor);
-			}
-		} catch (Exception e) {
-			log.error("failed to import product systems", e);
-		}
+	static void run(Config conf) {
+		new ProductSystemImport(conf).run();
 	}
 
-	private void copy(ProductSystemDescriptor descriptor) {
-		ProductSystem srcSystem = srcDao.getForId(descriptor.id);
-		ProductSystem destSystem = srcSystem.copy();
-		destSystem.refId = srcSystem.refId;
-		destSystem.category = refs.switchRef(srcSystem.category);
-		destSystem.referenceProcess = refs.switchRef(srcSystem.referenceProcess);
-		switchRefExchange(srcSystem, destSystem);
-		destSystem.targetUnit = refs.switchRef(srcSystem.targetUnit);
-		switchRefFlowProp(srcSystem, destSystem);
-		switchParameterRedefs(destSystem);
-		ProductSystemDao destDao = new ProductSystemDao(dest);
-		ProductSystemLinks.map(source, dest, destSystem);
-		destSystem = destDao.insert(destSystem);
-		seq.put(Seq.PRODUCT_SYSTEM, srcSystem.refId, destSystem.id);
+	private void run() {
+		conf.syncAll(ProductSystem.class, system -> {
+			var copy = system.copy();
+			copy.refId = system.refId;
+			copy.category = refs.switchRef(system.category);
+			copy.referenceProcess = refs.switchRef(system.referenceProcess);
+			swapQRef(system, copy);
+			swapParameters(copy);
+			ProductSystemLinks.map(conf, copy);
+			return copy;
+		});
 	}
 
-	private void switchRefExchange(ProductSystem srcSystem,
-			ProductSystem destSystem) {
-		Exchange srcExchange = srcSystem.referenceExchange;
-		Process destProcess = destSystem.referenceProcess;
-		if (srcExchange == null || destProcess == null)
+	private void swapQRef(ProductSystem system, ProductSystem copy) {
+		if (system.referenceExchange == null || copy.referenceProcess == null)
 			return;
-		Exchange destRefExchange = null;
-		for (Exchange destExchange : destProcess.exchanges) {
-			if (sameExchange(srcExchange, destExchange)) {
-				destRefExchange = destExchange;
-				break;
-			}
+		copy.referenceExchange = copy.referenceProcess.exchanges.stream()
+				.filter(e -> isSame(system.referenceExchange, e))
+				.findAny()
+				.orElse(null);
+		var refFlow = copy.referenceExchange != null
+				? copy.referenceExchange.flow
+				: null;
+		if (refFlow != null) {
+			copy.targetFlowPropertyFactor =
+					refs.switchRef(system.targetFlowPropertyFactor, refFlow);
 		}
-		destSystem.referenceExchange = destRefExchange;
+		copy.targetUnit = refs.switchRef(system.targetUnit);
 	}
 
-	private boolean sameExchange(Exchange srcExchange, Exchange destExchange) {
-		if (srcExchange.isInput != destExchange.isInput)
+	private boolean isSame(Exchange e, Exchange copy) {
+		if (e.isInput != copy.isInput)
 			return false;
-		Unit srcUnit = srcExchange.unit;
-		Unit destUnit = destExchange.unit;
-		Flow srcFlow = srcExchange.flow;
-		Flow destFlow = destExchange.flow;
-		return srcUnit != null && destUnit != null && srcFlow != null
-				&& destFlow != null
-				&& Strings.nullOrEqual(srcUnit.refId, destUnit.refId)
-				&& Strings.nullOrEqual(srcFlow.refId, destFlow.refId);
+		return e.unit != null && copy.unit != null
+				&& e.flow != null && copy.flow != null
+				&& Strings.nullOrEqual(e.unit.refId, copy.unit.refId)
+				&& Strings.nullOrEqual(e.flow.refId, copy.flow.refId);
 	}
 
-	private void switchRefFlowProp(ProductSystem srcSystem,
-			ProductSystem destSystem) {
-		Flow destFlow = destSystem.referenceExchange.flow;
-		if (destFlow == null)
-			return;
-		destSystem.targetFlowPropertyFactor = refs.switchRef(
-		srcSystem.targetFlowPropertyFactor, destFlow);
-	}
-
-	private void switchParameterRedefs(ProductSystem destSystem) {
-		for (var set : destSystem.parameterSets) {
-			for (var redef : set.parameters) {
-				Long contextId = redef.contextId;
-				if (contextId == null)
+	private void swapParameters(ProductSystem copy) {
+		for (var set : copy.parameterSets) {
+			for (var p : set.parameters) {
+				if (p.contextId == null)
 					continue;
-				if (redef.contextType == ModelType.IMPACT_METHOD) {
-					redef.contextId = refs.getDestImpactMethodId(contextId);
-				} else {
-					redef.contextId = refs.getDestProcessId(contextId);
-				}
+				p.contextId = p.contextType == ModelType.IMPACT_CATEGORY
+						? refs.getDestImpactId(p.contextId)
+						: refs.getDestProcessId(p.contextId);
 			}
 		}
 	}
