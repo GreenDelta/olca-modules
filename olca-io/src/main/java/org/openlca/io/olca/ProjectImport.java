@@ -1,5 +1,7 @@
 package org.openlca.io.olca;
 
+import java.util.Objects;
+
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -22,7 +24,16 @@ class ProjectImport {
 		conf.syncAll(Project.class, project -> {
 			var copy = project.copy();
 			copy.impactMethod = conf.swap(project.impactMethod);
-			copy.nwSet = refs.switchRef(project.nwSet);
+			if (copy.impactMethod != null && project.nwSet != null) {
+				copy.nwSet = copy.impactMethod.nwSets.stream()
+						.filter(nws -> Objects.equals(nws.refId, project.nwSet.refId))
+						.findFirst()
+						.orElse(null);
+				if (copy.nwSet == null) {
+					conf.log().error("could not map NW set "
+							+ project.nwSet.refId + " in project " + project.refId);
+				}
+			}
 			for (var variant : copy.variants) {
 				swapRefsOf(variant);
 			}

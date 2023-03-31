@@ -15,10 +15,14 @@ import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
@@ -28,7 +32,10 @@ import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
@@ -37,11 +44,9 @@ import org.openlca.core.model.UnitGroup;
 
 /**
  * Tests that references between entities a correctly set in a database import.
- * We typically ignore that test because it takes very long, but it should be
- * enabled after model- or database-updates. We do not check category references
- * here as this is already covered in another test.
+ * We do not check category references here as this is already covered in
+ * another test.
  */
-// @Ignore
 public class RefsTest {
 
 	private static IDatabase db;
@@ -57,7 +62,7 @@ public class RefsTest {
 		var mass = FlowProperty.of("mass", units);
 		db.insert(units, mass);
 		units.defaultFlowProperty = mass;
-		units = db.update(units);
+		db.update(units);
 		mass = db.get(FlowProperty.class, mass.id);
 
 		// currency, location, flows
@@ -146,6 +151,33 @@ public class RefsTest {
 		system.parameterSets.add(sysParams);
 		db.insert(system);
 
+		// result
+		var result = Result.of("result", q);
+		result.referenceFlow.location = loc;
+		result.impactResults.add(ImpactResult.of(impact, 42));
+		result.productSystem = system;
+		result.impactMethod = method;
+		db.insert(result);
+
+		// EPD
+		var epd = Epd.of("epd", q);
+		epd.pcr = source;
+		epd.verifier = actor;
+		epd.manufacturer = actor;
+		epd.programOperator = actor;
+		epd.modules.add(EpdModule.of("mod", result));
+		db.insert(epd);
+
+		// project
+		var project = Project.of("project");
+		project.impactMethod = method;
+		project.nwSet = method.nwSets.get(0);
+		var variant = ProjectVariant.of("v1", system);
+		variant.parameterRedefs.add(
+				system.parameterSets.get(0).parameters.get(0).copy());
+		project.variants.add(variant);
+		db.insert(project);
+
 		new DatabaseImport(db, target).run();
 	}
 
@@ -174,6 +206,9 @@ public class RefsTest {
 		get(Process.class, "pP");
 		get(Process.class, "qQ");
 		get(ProductSystem.class, "system");
+		get(Result.class, "result");
+		get(Epd.class, "epd");
+		get(Project.class, "project");
 	}
 
 	@Test
@@ -322,6 +357,49 @@ public class RefsTest {
 		// parameter redef.
 		var param = sys.parameterSets.get(0).parameters.get(0);
 		assertEquals(qQ.id, param.contextId.longValue());
+	}
+
+	@Test
+	public void testResult() {
+		var r = get(Result.class, "result");
+		check(r.impactMethod, "method");
+		check(r.productSystem, "system");
+		Consumer<FlowResult> checkFlow = e -> {
+			check(e.flow, "q");
+			check(e.location, "loc");
+			check(e.unit, "kg");
+			check(e.flowPropertyFactor.flowProperty, "mass");
+		};
+		checkFlow.accept(r.referenceFlow);
+		checkFlow.accept(r.flowResults.get(0));
+		check(r.impactResults.get(0).indicator, "impact");
+	}
+
+	@Test
+	public void testEpd() {
+		var epd = get(Epd.class, "epd");
+		check(epd.product.flow, "q");
+		check(epd.product.property, "mass");
+		check(epd.product.unit, "kg");
+		check(epd.pcr, "source");
+		check(epd.manufacturer , "actor");
+		check(epd.programOperator , "actor");
+		check(epd.verifier , "actor");
+		check(epd.modules.get(0).result, "result");
+	}
+
+	@Test
+	public void testProject() {
+		var project = get(Project.class, "project");
+		check(project.impactMethod, "method");
+		check(project.nwSet, "nws");
+		var v = project.variants.get(0);
+		check(v.productSystem, "system");
+		check(v.unit, "kg");
+		check(v.flowPropertyFactor.flowProperty, "mass");
+		var qQ = get(Process.class, "qQ");
+		assertEquals(
+				qQ.id, v.parameterRedefs.get(0).contextId.longValue());
 	}
 
 	private <T extends RootEntity> T get(Class<T> type, String name) {

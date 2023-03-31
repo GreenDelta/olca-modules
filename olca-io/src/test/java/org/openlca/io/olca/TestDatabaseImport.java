@@ -20,10 +20,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 
-/**
- * We ignore these tests by default because they take quite some time.
- */
-@Ignore
 public class TestDatabaseImport {
 
 	private IDatabase source;

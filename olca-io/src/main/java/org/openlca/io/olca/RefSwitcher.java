@@ -68,10 +68,6 @@ class RefSwitcher {
 		return null;
 	}
 
-	NwSet switchRef(NwSet srcNwSet) {
-		return switchRef(Seq.NW_SET, new NwSetDao(dest), srcNwSet);
-	}
-
 	private <T extends RefEntity> T switchRef(
 			int type, RefEntityDao<T, ?> dao, T srcEntity) {
 		if (srcEntity == null)

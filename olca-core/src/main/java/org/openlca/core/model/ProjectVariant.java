@@ -54,6 +54,17 @@ public class ProjectVariant extends AbstractEntity
 	@Column(name = "is_disabled")
 	public boolean isDisabled;
 
+	public static ProjectVariant of(String name, ProductSystem system) {
+		var v = new ProjectVariant();
+		v.name = name;
+		if (system != null) {
+			v.productSystem = system;
+			v.unit = system.targetUnit;
+			v.flowPropertyFactor = system.targetFlowPropertyFactor;
+		}
+		return v;
+	}
+
 	@Override
 	public ProjectVariant copy() {
 		var clone = new ProjectVariant();
