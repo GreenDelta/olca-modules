@@ -40,13 +40,13 @@ class ImpactMethodImport {
 					// we need to set the reference IDs from the source as they are
 					// generated new in the clone method.
 					if (areEqual(copied, nwSet)) {
-						nwSet.refId = copied.refId;
+						copied.refId = nwSet.refId;
 						break;
 					}
 				}
 			}
 
-			return method;
+			return copy;
 		});
 	}
 
