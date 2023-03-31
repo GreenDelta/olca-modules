@@ -12,6 +12,7 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
@@ -22,8 +23,11 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialAspect;
@@ -130,7 +134,17 @@ public class RefsTest {
 		var qQ = Process.of("qQ", q);
 		decor.accept(qQ);
 		qQ.input(p, 1).defaultProviderId = pP.id;
+		qQ.parameters.add(Parameter.process("param", 42));
 		db.insert(qQ);
+
+		// product system
+		var system = ProductSystem.of("system", qQ);
+		system.link(pP, qQ);
+		var sysParams = new ParameterRedefSet();
+		sysParams.parameters.add(
+				ParameterRedef.of(qQ.parameters.get(0), qQ));
+		system.parameterSets.add(sysParams);
+		db.insert(system);
 
 		new DatabaseImport(db, target).run();
 	}
@@ -159,6 +173,7 @@ public class RefsTest {
 		get(ImpactMethod.class, "method");
 		get(Process.class, "pP");
 		get(Process.class, "qQ");
+		get(ProductSystem.class, "system");
 	}
 
 	@Test
@@ -221,6 +236,92 @@ public class RefsTest {
 		var nws = method.nwSets.get(0);
 		check(nws, "nws");
 		check(nws.factors.get(0).impactCategory, "impact");
+	}
+
+	@Test
+	public void testProcesses() {
+		var pP = get(Process.class, "pP");
+		var qQ = get(Process.class, "qQ");
+		var procs = List.of(pP, qQ);
+
+		for (var p : procs) {
+
+			check(p.dqSystem, "dqs");
+			check(p.exchangeDqSystem, "dqs");
+			check(p.socialDqSystem, "dqs");
+			var doc = p.documentation;
+			check(doc.dataSetOwner, "actor");
+			check(doc.dataGenerator, "actor");
+			check(doc.dataDocumentor, "actor");
+			check(doc.publication, "source");
+			check(doc.reviewer, "actor");
+			check(doc.sources.get(0), "source");
+
+			// quantitative reference
+			var flow = p.name.equals("pP") ? "p" : "q";
+			check(p.quantitativeReference.flow, flow);
+			var qex = p.exchanges.stream()
+					.filter(e -> e.flow.name.equals(flow))
+					.findFirst().orElseThrow();
+			assertEquals(p.quantitativeReference, qex);
+
+			// other exchange references
+			assertTrue(p.exchanges.size() > 1);
+			var eex = p.exchanges.stream()
+					.filter(e -> e.flow.name.equals("e"))
+					.findFirst().orElseThrow();
+			check(eex.location, "loc");
+			check(eex.currency, "eur");
+			for (var ex : p.exchanges) {
+				check(ex.flowPropertyFactor.flowProperty, "mass");
+				check(ex.unit, "kg");
+			}
+		}
+
+		// allocation factors
+		assertEquals(6, pP.allocationFactors.size());
+		long p = pP.quantitativeReference.flow.id;
+		long q = qQ.quantitativeReference.flow.id;
+		for (var f : pP.allocationFactors) {
+			var expectedProduct = f.value == 1 ? p : q;
+			assertEquals(expectedProduct, f.productId);
+			if (f.method == AllocationMethod.CAUSAL) {
+				check(f.exchange.flow, "e");
+			}
+		}
+	}
+
+	@Test
+	public void testSystem() {
+		var sys = get(ProductSystem.class, "system");
+		check(sys.referenceProcess, "qQ");
+		check(sys.referenceExchange.flow, "q");
+		check(sys.referenceExchange.flowPropertyFactor.flowProperty, "mass");
+		check(sys.referenceExchange.unit, "kg");
+		check(sys.targetUnit, "kg");
+		check(sys.targetFlowPropertyFactor.flowProperty, "mass");
+
+		var pP = get(Process.class, "pP");
+		var qQ = get(Process.class, "qQ");
+		assertTrue(sys.processes.containsAll(
+				List.of(pP.id, qQ.id)));
+
+		// link IDs
+		var link = sys.processLinks.get(0);
+		assertEquals(pP.id, link.providerId);
+		assertEquals(qQ.id, link.processId);
+		assertEquals(pP.quantitativeReference.flow.id, link.flowId);
+		assertEquals(
+				qQ.exchanges.stream()
+						.filter(e -> e.flow.name.equals("p"))
+						.findFirst()
+						.orElseThrow()
+						.id,
+				link.exchangeId);
+
+		// parameter redef.
+		var param = sys.parameterSets.get(0).parameters.get(0);
+		assertEquals(qQ.id, param.contextId.longValue());
 	}
 
 	private <T extends RootEntity> T get(Class<T> type, String name) {
