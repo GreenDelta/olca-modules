@@ -1,6 +1,7 @@
 package org.openlca.io.olca;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -10,7 +11,9 @@ import org.junit.Test;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -19,8 +22,11 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
@@ -59,12 +65,14 @@ public class RefsTest {
 		var e = Flow.elementary("e", mass);
 		db.insert(eur, loc, p, q, e);
 
-		// actor, source, parameter, social indicator
+		// actor, source, parameter, social indicator, dqs
 		var actor = Actor.of("actor");
 		var source = Source.of("source");
 		var param = Parameter.global("param", 42);
 		var social = SocialIndicator.of("social", mass);
-		db.insert(actor, source, param, social);
+		var dqs = DQSystem.of("dqs");
+		dqs.source = source;
+		db.insert(actor, source, param, social, dqs);
 
 		// impact category
 		var impact = ImpactCategory.of("impact");
@@ -79,8 +87,50 @@ public class RefsTest {
 		method.impactCategories.add(impact);
 		var nws = NwSet.of("nws");
 		method.add(nws);
-		nws.add(NwFactor.of(impact, 1,1));
+		nws.add(NwFactor.of(impact, 1, 1));
 		db.insert(method);
+
+		// processes
+		Consumer<Process> decor = proc -> {
+			var ex = proc.output(e, 1);
+			ex.location = loc;
+			ex.currency = eur;
+			proc.location = loc;
+			proc.dqSystem = dqs;
+			proc.exchangeDqSystem = dqs;
+			proc.socialDqSystem = dqs;
+			SocialAspect.of(proc, social).source = source;
+
+			var doc = proc.documentation = new ProcessDocumentation();
+			doc.dataSetOwner = actor;
+			doc.dataGenerator = actor;
+			doc.dataDocumentor = actor;
+			doc.publication = source;
+			doc.reviewer = actor;
+			doc.sources.add(source);
+		};
+
+		var pP = Process.of("pP", p);
+		decor.accept(pP);
+		pP.output(q, 1);
+		var eex = pP.exchanges.stream()
+				.filter(ex -> ex.flow.equals(e))
+				.findFirst()
+				.orElseThrow();
+		pP.allocationFactors.addAll(List.of(
+				AllocationFactor.economic(p, 1),
+				AllocationFactor.economic(q, 0),
+				AllocationFactor.physical(p, 1),
+				AllocationFactor.physical(q, 0),
+				AllocationFactor.causal(p, eex, 1),
+				AllocationFactor.causal(q, eex, 0)
+		));
+		db.insert(pP);
+
+		var qQ = Process.of("qQ", q);
+		decor.accept(qQ);
+		qQ.input(p, 1).defaultProviderId = pP.id;
+		db.insert(qQ);
 
 		new DatabaseImport(db, target).run();
 	}
@@ -104,8 +154,11 @@ public class RefsTest {
 		get(Source.class, "source");
 		get(Parameter.class, "param");
 		get(SocialIndicator.class, "social");
+		get(DQSystem.class, "dqs");
 		get(ImpactCategory.class, "impact");
 		get(ImpactMethod.class, "method");
+		get(Process.class, "pP");
+		get(Process.class, "qQ");
 	}
 
 	@Test
@@ -129,6 +182,12 @@ public class RefsTest {
 		var social = get(SocialIndicator.class, "social");
 		check(social.activityQuantity, "mass");
 		check(social.activityUnit, "kg");
+	}
+
+	@Test
+	public void testDqs() {
+		var dqs = get(DQSystem.class, "dqs");
+		check(dqs.source, "source");
 	}
 
 	@Test

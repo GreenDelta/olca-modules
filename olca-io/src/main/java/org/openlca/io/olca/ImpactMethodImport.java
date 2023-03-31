@@ -1,7 +1,6 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.util.Strings;
 
@@ -32,11 +31,13 @@ class ImpactMethodImport {
 			}
 
 			// swap impact categories in NW-sets
-			for (NwSet nwSet : method.nwSets) {
-				for (NwFactor f : nwSet.factors) {
+			for (var copied : copy.nwSets) {
+				for (var f : copied.factors) {
 					f.impactCategory = conf.swap(f.impactCategory);
 				}
-				for (NwSet copied : copy.nwSets) {
+			}
+			for (var nwSet : method.nwSets) {
+				for (var copied : copy.nwSets) {
 					// we need to set the reference IDs from the source as they are
 					// generated new in the clone method.
 					if (areEqual(copied, nwSet)) {
