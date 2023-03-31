@@ -9,12 +9,12 @@ import org.openlca.core.database.UnitDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
-import org.openlca.core.model.Result;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 
@@ -93,6 +93,7 @@ public class DatabaseImport implements Runnable {
 		ImpactMethodImport.run(conf);
 		ProjectImport.run(conf);
 		ResultImport.run(conf);
+		copyEpds();
 	}
 
 	private void copyGlobalParameters() {
@@ -150,6 +151,27 @@ public class DatabaseImport implements Runnable {
 				f.unit = refs.switchRef(f.unit);
 				f.flowPropertyFactor = refs.switchRef(f.flowPropertyFactor, f.flow);
 				f.location = conf.swap(f.location);
+			}
+			return copy;
+		});
+	}
+
+	private void copyEpds() {
+		var refs = new RefSwitcher(conf);
+		conf.syncAll(Epd.class, epd -> {
+			var copy = epd.copy();
+			copy.pcr = conf.swap(epd.pcr);
+			copy.programOperator = conf.swap(copy.programOperator);
+			copy.manufacturer = conf.swap(copy.manufacturer);
+			copy.verifier = conf.swap(copy.verifier);
+			if (copy.product != null) {
+				var p = copy.product;
+				p.flow = conf.swap(p.flow);
+				p.unit = refs.switchRef(p.unit);
+				p.property = conf.swap(p.property);
+			}
+			for (var mod : copy.modules) {
+				mod.result = conf.swap(mod.result);
 			}
 			return copy;
 		});
