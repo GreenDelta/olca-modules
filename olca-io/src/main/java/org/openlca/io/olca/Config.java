@@ -47,8 +47,10 @@ record Config(
 			return;
 		}
 		for (var d : source.getDescriptors(type)) {
-			if (contains(seqType, d.refId))
+			if (contains(seqType, d.refId)) {
+				log.skipped(d);
 				continue;
+			}
 			var e = source.get(type, d.id);
 			copy(e, fn);
 		}
@@ -67,6 +69,7 @@ record Config(
 		copied.refId = entity.refId;
 		copied.category = swap(entity.category);
 		copied = target.insert(copied);
+		log.imported(copied);
 		int seqType = seqTypeOf(copied.getClass());
 		if (seqType < 0)
 			return copied;
@@ -81,9 +84,12 @@ record Config(
 		var type = sourceEntity.getClass();
 		int seqType = seqTypeOf(type);
 		long id = seq.get(seqType, sourceEntity.refId);
-		return id == 0
-				? null
-				: (T) target.get(type, id);
+		if (id == 0) {
+			log.error("could not find " + type
+					+ " " + sourceEntity.refId);
+			return null;
+		}
+		return (T) target.get(type, id);
 	}
 
 	private <T extends RefEntity> int seqTypeOf(Class<T> type) {

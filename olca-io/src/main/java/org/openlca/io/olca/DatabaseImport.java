@@ -24,12 +24,15 @@ import org.openlca.core.model.Source;
 public class DatabaseImport implements Runnable {
 
 	private final ImportLog log;
-
 	private final Config conf;
 
 	public DatabaseImport(IDatabase source, IDatabase target) {
 		conf = Config.of(source, target);
 		log = conf.log();
+	}
+
+	public ImportLog log() {
+		return log;
 	}
 
 	@Override

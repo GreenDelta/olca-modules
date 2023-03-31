@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;

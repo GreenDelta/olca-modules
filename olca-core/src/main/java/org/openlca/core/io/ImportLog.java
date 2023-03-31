@@ -121,6 +121,12 @@ public final class ImportLog {
 		add(State.SKIPPED, entity);
 	}
 
+	public void skipped(RootDescriptor d) {
+		if (d == null || d.id == 0)
+			return;
+		add(new Message(State.SKIPPED, d));
+	}
+
 	private void add(State state, RootEntity e) {
 		if (e == null || e.id == 0)
 			return;
