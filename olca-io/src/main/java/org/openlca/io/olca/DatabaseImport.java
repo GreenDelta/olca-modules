@@ -17,14 +17,16 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
+import org.openlca.io.Import;
 
 /**
  * Import the data from one openLCA database into another database.
  */
-public class DatabaseImport implements Runnable {
+public class DatabaseImport implements Import {
 
 	private final ImportLog log;
 	private final Config conf;
+	private volatile boolean cancelled;
 
 	public DatabaseImport(IDatabase source, IDatabase target) {
 		conf = Config.of(source, target);
@@ -33,6 +35,16 @@ public class DatabaseImport implements Runnable {
 
 	public ImportLog log() {
 		return log;
+	}
+
+	@Override
+	public void cancel() {
+		cancelled = true;
+	}
+
+	@Override
+	public boolean isCanceled() {
+		return cancelled;
 	}
 
 	@Override
