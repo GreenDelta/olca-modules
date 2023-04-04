@@ -63,7 +63,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		return result;
 	}
 
-	protected String asSqlList(Set<Long> ids) {
+	public static String asSqlList(Set<Long> ids) {
 		StringBuilder builder = new StringBuilder();
 		builder.append('(');
 		Iterator<Long> it = ids.iterator();
