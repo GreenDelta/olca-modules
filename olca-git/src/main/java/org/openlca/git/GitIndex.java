@@ -266,7 +266,7 @@ public class GitIndex {
 		return getPath(d.type, path, d.refId + GitUtil.DATASET_SUFFIX);
 	}
 
-	private String getPath(ModelType type, String path, String name) {
+	public String getPath(ModelType type, String path, String name) {
 		if (type == null)
 			return null;
 		var fullPath = type.name();
