@@ -137,7 +137,7 @@ class ImportHelper {
 		entries.find().commit(remoteCommitId).path(path).all().forEach(entry -> {
 			if (entry.typeOfEntry == EntryType.DATASET)
 				return;
-			gitIndex.put(entry.path, 0, 0, entry.objectId);
+			gitIndex.put(entry.path, entry.objectId);
 			updateCategoryIds(remoteCommitId, entry.path);
 		});
 	}

@@ -150,12 +150,12 @@ public class GitIndex {
 	}
 
 	public void putRoot(ObjectId id) {
-		put("", -1, -1, id);
+		put("", id);
 	}
 
 	public void put(ModelType type, ObjectId id) {
 		var path = getPath(type);
-		put(path, -1, -1, id);
+		put(path, id);
 	}
 
 	public void put(RootEntity e, ObjectId id) {
@@ -166,6 +166,10 @@ public class GitIndex {
 	public void put(PathBuilder categoryPath, RootDescriptor d, ObjectId id) {
 		var path = getPath(categoryPath, d);
 		put(path, d.version, d.lastChange, id);
+	}
+
+	public void put(String path, ObjectId id) {
+		put(path, -1, -1, id);
 	}
 
 	public void put(String path, long version, long lastChange, ObjectId id) {
@@ -284,7 +288,7 @@ public class GitIndex {
 
 	public static class GitIndexEntry implements Serializable {
 
-		public static final GitIndexEntry NULL = new GitIndexEntry("", -1, -1, null);
+		public static final GitIndexEntry NULL = new GitIndexEntry(null, -1, -1, null);
 		private static final long serialVersionUID = 2035250054845500724L;
 		private final long version;
 		private final long lastChange;
