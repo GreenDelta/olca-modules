@@ -7,21 +7,21 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
+import org.junit.Assert;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
 import org.openlca.core.services.ServerConfig;
 
 class Tests {
 
-	private static Server server;
+	private static Server2 server;
 
-	private static Server getServer() {
+	private static Server2 getServer() {
 		if (server == null) {
 			var config = ServerConfig.defaultOf(Derby.createInMemory())
 					.withDataDir(DataDir.get())
-					.withPort(0)
 					.get();
-			server = new Server(config).withDefaultHandlers();
+			server = new Server2(config).withDefaultHandlers();
 			server.start();
 		}
 		return server;
@@ -33,6 +33,7 @@ class Tests {
 	}
 
 	static RpcResponse post(RpcRequest req) {
+		Assert.assertNotNull(getServer());
 		var gson = new Gson();
 		try {
 			byte[] bytes = gson.toJson(req).getBytes(StandardCharsets.UTF_8);

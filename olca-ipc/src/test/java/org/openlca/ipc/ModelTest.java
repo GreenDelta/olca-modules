@@ -22,34 +22,34 @@ public class ModelTest {
 
 		// insert a model
 		var req = prepareRequest();
-		req.method = "insert/model";
+		req.method = "data/put";
 		Json.put(req.params.getAsJsonObject(), "name", "a flow");
 		var result = Tests.post(req).result.getAsJsonObject();
 		assertEquals("a flow", Json.getString(result, "name"));
 
 		// get the model
-		req.method = "get/model";
+		req.method = "data/get";
 		result = Tests.post(req).result.getAsJsonObject();
 		assertEquals("a flow", Json.getString(result, "name"));
 
 		// update the model
-		req.method = "update/model";
+		req.method = "data/put";
 		Json.put(req.params.getAsJsonObject(), "name", "a better flow");
 		result = Tests.post(req).result.getAsJsonObject();
 		assertEquals("a better flow", Json.getString(result, "name"));
 
 		// get the updated model
-		req.method = "get/model";
+		req.method = "data/get";
 		result = Tests.post(req).result.getAsJsonObject();
 		assertEquals("a better flow", Json.getString(result, "name"));
 
 		// delete the model
-		req.method = "delete/model";
+		req.method = "data/delete";
 		result = Tests.post(req).result.getAsJsonObject();
 		assertEquals("a better flow", Json.getString(result, "name"));
 
 		// assert that the model does not exist
-		req.method = "get/model";
+		req.method = "data/get";
 		var err = Tests.post(req);
 		Assert.assertEquals(404, err.error.code); // = not found
 	}

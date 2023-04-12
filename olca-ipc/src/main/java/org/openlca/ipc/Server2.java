@@ -90,6 +90,10 @@ public class Server2 implements IServer {
 		}
 	}
 
+	public int getListeningPort() {
+		return config.port();
+	}
+
 	public void start() {
 		http.start();
 	}
