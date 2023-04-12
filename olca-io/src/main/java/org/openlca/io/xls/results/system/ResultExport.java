@@ -74,7 +74,7 @@ public class ResultExport implements Runnable {
 				ImpactSheet.write(this);
 			}
 			writeContributionSheets();
-			writeUpstreamSheets();
+			// writeUpstreamSheets();
 			success = true;
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);
