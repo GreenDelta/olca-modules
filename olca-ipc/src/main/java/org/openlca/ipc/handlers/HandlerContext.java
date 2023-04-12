@@ -7,10 +7,10 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.Cache;
-import org.openlca.ipc.Server;
+import org.openlca.ipc.IServer;
 
 public record HandlerContext(
-	Server server,
+	IServer server,
 	ServerConfig config,
 	JsonResultService results,
 	Cache cache) {
