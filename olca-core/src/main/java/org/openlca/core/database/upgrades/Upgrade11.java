@@ -11,6 +11,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.util.KeyGen;
+import org.slf4j.LoggerFactory;
 
 
 public class Upgrade11 implements IUpgrade {
@@ -225,7 +226,14 @@ public class Upgrade11 implements IUpgrade {
 			long id, String type, Map<Long, String> names, Map<Long, Long> parents) {
 		var path = new ArrayList<String>();
 		Long next = id;
+		var handled = new HashSet<Long>(5);
 		while (next != null) {
+			if (handled.contains(next)) {
+				LoggerFactory.getLogger(getClass())
+						.warn("there are loops in the category tree: id=" + next);
+				break;
+			}
+			handled.add(next);
 			path.add(names.get(next));
 			next = parents.get(next);
 		}
@@ -233,7 +241,4 @@ public class Upgrade11 implements IUpgrade {
 		Collections.reverse(path);
 		return KeyGen.get(path.toArray(String[]::new));
 	}
-
-
 }
-
