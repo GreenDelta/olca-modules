@@ -150,7 +150,7 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 	public Map<Long, Boolean> hasQuantitativeReference(Set<Long> ids) {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT id, f_quantitative_reference FROM tbl_processes ");
-		query.append("WHERE id IN " + asSqlList(ids));
+		query.append("WHERE id IN " + NativeSql.asList(ids));
 		query.append(" AND f_quantitative_reference IN ");
 		query.append("(SELECT id FROM tbl_exchanges WHERE id = f_quantitative_reference)");
 		Map<Long, Boolean> result = new HashMap<>();

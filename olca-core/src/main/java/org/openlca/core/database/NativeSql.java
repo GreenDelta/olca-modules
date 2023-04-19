@@ -5,8 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
-import org.openlca.core.model.ModelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +32,21 @@ public final class NativeSql {
 		} catch (SQLException e) {
 			throw new RuntimeException("failed to read string from Clob", e);
 		}
+	}
+
+	public static String asList(Set<Long> ids) {
+		var builder = new StringBuilder();
+		builder.append('(');
+		var it = ids.iterator();
+		while (it.hasNext()) {
+			long next = it.next();
+			builder.append(next);
+			if (it.hasNext()) {
+				builder.append(',');
+			}
+		}
+		builder.append(')');
+		return builder.toString();
 	}
 
 	public void query(String query, QueryResultHandler handler) {
@@ -86,7 +101,7 @@ public final class NativeSql {
 	}
 
 	/**
-	 * Creates an updateable cursor for the given query.
+	 * Creates an updatable cursor for the given query.
 	 */
 	public void updateRows(String query, QueryResultHandler handler) {
 		log.trace("execute update {}", query);

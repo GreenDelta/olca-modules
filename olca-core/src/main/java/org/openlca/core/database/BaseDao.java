@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,27 +53,13 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			result.put(id, false);
 		var table = entityType.getDeclaredAnnotation(Table.class).name();
 		var query = "SELECT id FROM " + table
-				+ " WHERE id IN " + asSqlList(ids);
+				+ " WHERE id IN " + NativeSql.asList(ids);
 		NativeSql.on(db).query(query, (entry) -> {
 			long id = entry.getLong(1);
 			result.put(id, true);
 			return true;
 		});
 		return result;
-	}
-
-	public static String asSqlList(Set<Long> ids) {
-		StringBuilder builder = new StringBuilder();
-		builder.append('(');
-		Iterator<Long> it = ids.iterator();
-		while (it.hasNext()) {
-			long next = it.next();
-			builder.append(next);
-			if (it.hasNext())
-				builder.append(',');
-		}
-		builder.append(')');
-		return builder.toString();
 	}
 
 	@Override

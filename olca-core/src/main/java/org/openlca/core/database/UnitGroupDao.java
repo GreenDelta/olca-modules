@@ -22,7 +22,7 @@ public class UnitGroupDao extends
 	public Map<Long, Boolean> hasReferenceUnit(Set<Long> ids) {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT id, f_reference_unit FROM tbl_unit_groups ");
-		query.append("WHERE id IN " + asSqlList(ids));
+		query.append("WHERE id IN " + NativeSql.asList(ids));
 		query.append(" AND f_reference_unit IN ");
 		query.append("(SELECT id FROM tbl_units WHERE id = f_reference_unit)");
 		Map<Long, Boolean> result = new HashMap<>();

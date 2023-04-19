@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ProcessLink;
@@ -156,21 +155,22 @@ public class Upgrade11 implements IUpgrade {
 				"provider_type SMALLINT NOT NULL DEFAULT "
 						+ ProcessLink.ProviderType.PROCESS);
 
-		// collect system IDs; we do not have result providers prior this update
+		// collect the IDs of product systems that are sub-systems;
+		// we do not result instances as providers prior this update
 		var sql = NativeSql.on(u.db);
 		var systemIds = new HashSet<Long>();
-		sql.query("SELECT links.f_provider " +
-				"FROM tbl_process_links links " +
-				"INNER JOIN tbl_product_systems sys " +
-				"ON sys.id = links.f_provider", r -> {
+		sql.query("SELECT sys.id FROM tbl_product_systems sys" +
+				"  INNER JOIN tbl_product_system_processes p" +
+				"  ON p.f_process = sys.id", r -> {
 			systemIds.add(r.getLong(1));
 			return true;
 		});
+		if (systemIds.isEmpty())
+			return;
 
 		// update process links of a sub system provider
-		sql.updateRows("SELECT provider_type " +
-				"FROM tbl_process_links " +
-				"WHERE f_provider IN " + BaseDao.asSqlList(systemIds), r -> {
+		sql.updateRows("SELECT provider_type FROM tbl_process_links " +
+				"WHERE f_provider IN " + NativeSql.asList(systemIds), r -> {
 			r.updateByte(1, ProcessLink.ProviderType.SUB_SYSTEM);
 			r.updateRow();
 			return true;

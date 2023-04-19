@@ -220,7 +220,7 @@ public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 			return executeChunked2(ids, this::hasReferenceFactor);
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT id, f_reference_flow_property FROM tbl_flows ");
-		query.append("WHERE id IN " + asSqlList(ids));
+		query.append("WHERE id IN " + NativeSql.asList(ids));
 		query.append(" AND f_reference_flow_property IN ");
 		query.append(
 			"(SELECT f_flow_property FROM tbl_flow_property_factors WHERE tbl_flows.id = f_flow)");

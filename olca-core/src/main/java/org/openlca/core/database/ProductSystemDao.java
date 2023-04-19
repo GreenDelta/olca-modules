@@ -24,7 +24,7 @@ public class ProductSystemDao extends
 		for (long id : ids)
 			result.put(id, false);
 		var query = "SELECT id, f_reference_process FROM tbl_product_systems " +
-								"WHERE id IN " + asSqlList(ids) +
+								"WHERE id IN " + NativeSql.asList(ids) +
 								"AND f_reference_process IN " +
 								"(SELECT f_process FROM tbl_product_system_processes " +
 								"WHERE f_process = f_reference_process)";
