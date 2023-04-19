@@ -6,12 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Category;
 import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
@@ -26,7 +23,6 @@ import org.openlca.git.writer.DbCommitWriter;
 public class GitStashCreate extends GitProgressAction<Void> {
 
 	private final IDatabase database;
-	private final CategoryDao categoryDao;
 	private List<Change> changes;
 	private Repository repo;
 	private Commits commits;
@@ -38,7 +34,6 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	private GitStashCreate(IDatabase database) {
 		this.database = database;
-		this.categoryDao = new CategoryDao(database);
 	}
 
 	public static GitStashCreate from(IDatabase database) {
@@ -126,30 +121,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			toDelete.forEach(ref -> result.add(ref, ImportState.DELETED));
 			importHelper.updateGitIndex(commit.id, result, false);
 		}
-		if (gitIndex == null)
-			return null;
-		for (var category : categoryDao.getRootCategories()) {
-			deleteIfAdded(category);
-		}
 		return null;
-	}
-
-	private void deleteIfAdded(Category category) {
-		var path = gitIndex.getPath(category);
-		if (gitIndex.get(path).objectId().equals(ObjectId.zeroId())) {
-			delete(category);
-		} else {
-			for (var child : category.childCategories) {
-				deleteIfAdded(child);
-			}
-		}
-	}
-
-	private void delete(Category category) {
-		for (var child : category.childCategories) {
-			delete(child);
-		}
-		categoryDao.delete(category);
 	}
 
 }
