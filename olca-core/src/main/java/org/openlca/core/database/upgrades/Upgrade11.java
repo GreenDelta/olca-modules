@@ -3,15 +3,16 @@ package org.openlca.core.database.upgrades;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.openlca.core.database.BaseDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.util.KeyGen;
 
-import gnu.trove.set.hash.TLongHashSet;
 
 public class Upgrade11 implements IUpgrade {
 
@@ -151,29 +152,29 @@ public class Upgrade11 implements IUpgrade {
 	 * {@code tbl_process_links} and set its values.
 	 */
 	private void setLinkProviderTypes(DbUtil u) {
-
-		u.createColumn("tbl_process_links", "provider_type SMALLINT default 0");
+		u.createColumn("tbl_process_links",
+				"provider_type SMALLINT NOT NULL DEFAULT "
+						+ ProcessLink.ProviderType.PROCESS);
 
 		// collect system IDs; we do not have result providers prior this update
 		var sql = NativeSql.on(u.db);
-		var systemIds = new TLongHashSet();
-		sql.query("select id from tbl_product_systems", r -> {
+		var systemIds = new HashSet<Long>();
+		sql.query("SELECT links.f_provider " +
+				"FROM tbl_process_links links " +
+				"INNER JOIN tbl_product_systems sys " +
+				"ON sys.id = links.f_provider", r -> {
 			systemIds.add(r.getLong(1));
 			return true;
 		});
 
-		// set the provider types
-		sql.updateRows(
-				"select f_provider, provider_type from tbl_process_links",
-				r -> {
-					long providerId = r.getLong(1);
-					byte type = systemIds.contains(providerId)
-							? ProcessLink.ProviderType.SUB_SYSTEM
-							: ProcessLink.ProviderType.PROCESS;
-					r.updateByte(2, type);
-					r.updateRow();
-					return true;
-				});
+		// update process links of a sub system provider
+		sql.updateRows("SELECT provider_type " +
+				"FROM tbl_process_links " +
+				"WHERE f_provider IN " + BaseDao.asSqlList(systemIds), r -> {
+			r.updateByte(1, ProcessLink.ProviderType.SUB_SYSTEM);
+			r.updateRow();
+			return true;
+		});
 	}
 
 	private void updateCategoryNames(DbUtil u) {
