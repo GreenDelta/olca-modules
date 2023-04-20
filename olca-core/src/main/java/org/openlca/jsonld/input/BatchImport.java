@@ -41,7 +41,7 @@ class BatchImport<T extends RootEntity> {
 			var item = imp.fetch(clazz, refId);
 			if (item.isVisited() || item.isError())
 				continue;
-			var reader = (EntityReader<T>)imp.readerFor(type);
+			var reader = (EntityReader<T>) imp.readerFor(type);
 			if (item.isNew()) {
 				insert(reader.read(item.json()));
 			} else {
@@ -49,6 +49,7 @@ class BatchImport<T extends RootEntity> {
 				reader.update(model, item.json());
 				update(model);
 			}
+			imp.copyBinaryFilesOf(type, refId);
 		}
 		if (inserts.size() > 0) {
 			flushInserts();

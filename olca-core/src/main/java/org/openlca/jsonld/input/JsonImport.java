@@ -207,7 +207,7 @@ public class JsonImport implements Runnable, EntityResolver {
 		};
 	}
 
-	private void copyBinaryFilesOf(ModelType type, String refId) {
+	void copyBinaryFilesOf(ModelType type, String refId) {
 		if (db == null || db.getFileStorageLocation() == null)
 			return;
 		var fs = new FileStore(db.getFileStorageLocation());
