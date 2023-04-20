@@ -2,6 +2,7 @@ package org.openlca.validation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.Table;
@@ -13,6 +14,7 @@ import org.openlca.util.Strings;
 class RootFieldCheck implements Runnable {
 
 	private final Validation v;
+	private final Set<String> refIds = new HashSet<>();
 	private Set<String> _libs;
 	private boolean foundErrors = false;
 
@@ -84,10 +86,15 @@ class RootFieldCheck implements Runnable {
 	private void checkRow(ModelType type, ResultSet r) throws SQLException {
 		long id = r.getLong(1);
 
-		var refID = r.getString(2);
-		if (Strings.nullOrEmpty(refID)) {
+		var refId = r.getString(2);
+		if (Strings.nullOrEmpty(refId)) {
 			v.error(id, type, "has no reference ID");
 			foundErrors = true;
+		} else if (refIds.contains(refId)) {
+			v.error(id, type, "duplicate reference ID: " + refId);
+			foundErrors = true;
+		} else {
+			refIds.add(refId);
 		}
 
 		var name = r.getString(3);
@@ -101,6 +108,10 @@ class RootFieldCheck implements Runnable {
 			&& !v.ids.contains(ModelType.CATEGORY, category)) {
 			v.error(id, type, "invalid category link @" + category);
 			foundErrors = true;
+		} else if (category == id && type == ModelType.CATEGORY) {
+			v.error(id, type, "cyclic category reference: @" + id
+					+ ", this can be fixed with the following SQL statement: "
+			+ "update tbl_categories set f_category = null where id = f_category");
 		}
 
 		var library = r.getString(5);
