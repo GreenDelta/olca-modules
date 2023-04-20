@@ -1,11 +1,9 @@
 package org.openlca.io.ecospold1.output;
 
 import java.util.Date;
-import java.util.Objects;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
@@ -15,7 +13,6 @@ import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
 import org.openlca.ecospold.IDataEntryBy;
 import org.openlca.ecospold.IDataSet;
-import org.openlca.ecospold.IDataSetInformation;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IGeography;
@@ -24,6 +21,8 @@ import org.openlca.ecospold.ITechnology;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.io.Xml;
+import org.openlca.util.Exchanges;
+import org.openlca.util.Processes;
 
 class ProcessConverter {
 
@@ -68,33 +67,33 @@ class ProcessConverter {
 		mapAdminInfo(doc, dataSet);
 	}
 
-	private void mapDataSetInformation(ProcessDocumentation doc,
-			DataSet dataSet) {
-		IDataSetInformation info = factory.createDataSetInformation();
-		dataSet.setDataSetInformation(info);
+	private void mapDataSetInformation(ProcessDocumentation doc, DataSet ds) {
+		var info = factory.createDataSetInformation();
+		ds.setDataSetInformation(info);
 		info.setEnergyValues(0);
 		info.setImpactAssessmentResult(false);
 		info.setLanguageCode(factory.getLanguageCode("en"));
 		info.setLocalLanguageCode(factory.getLanguageCode("en"));
-		if (process.lastChange != 0)
+		if (process.lastChange != 0) {
 			info.setTimestamp(Xml.calendar(process.lastChange));
-		else if (doc.creationDate != null)
-			info.setTimestamp(Xml.calendar(doc.creationDate));
-		else
-			info.setTimestamp(Xml.calendar(new Date()));
+		} else {
+			var date = doc.creationDate != null
+					? doc.creationDate
+					: new Date();
+			info.setTimestamp(Xml.calendar(date));
+		}
 		info.setType(getProcessType());
-		Version version = new Version(process.version);
-		info.setVersion(version.getMajor());
-		info.setInternalVersion(version.getMinor());
+		var v = new Version(process.version);
+		info.setVersion(v.getMajor());
+		info.setInternalVersion(v.getMinor());
 	}
 
 	private int getProcessType() {
 		if (process.processType == ProcessType.LCI_RESULT)
 			return 2;
-		if (isMultiOutput())
-			return 5;
-		else
-			return 1;
+		return Processes.isMultiFunctional(process)
+				? 5
+				: 1;
 	}
 
 	private void mapGeography(ProcessDocumentation doc, DataSet dataSet) {
@@ -135,12 +134,13 @@ class ProcessConverter {
 			dataSet.setValidation(validation);
 		}
 		int reviewer = actorSourceMapper.map(doc.reviewer, dataSet);
-		if (reviewer > 0)
+		if (reviewer > 0) {
 			validation.setProofReadingValidator(reviewer);
-		if (doc.reviewDetails != null)
-			validation.setProofReadingDetails(doc.reviewDetails);
-		else
-			validation.setProofReadingDetails("none");
+		}
+		validation.setProofReadingDetails(
+				doc.reviewDetails != null
+						? doc.reviewDetails
+						: "none");
 	}
 
 	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataset) {
@@ -198,39 +198,56 @@ class ProcessConverter {
 			time.setEndDate(Xml.calendar(new Date(253402210800000L)));
 	}
 
-	private boolean isMultiOutput() {
-		int count = 0;
-		for (Exchange e : process.exchanges) {
-			if (e.isInput || e.flow == null)
+	private void mapExchanges(DataSet ds) {
+		var qRef = process.quantitativeReference;
+		for (var e : process.exchanges) {
+			if (e.flow == null)
 				continue;
-			if (e.flow.flowType == FlowType.PRODUCT_FLOW)
-				count++;
-		}
-		return count > 1;
-	}
+			boolean isQRef = e.equals(qRef);
+			var ix = factory.createExchange();
+			ix.setNumber((int) e.flow.id);
+			ix.setName(e.flow.name);
 
-	private void mapExchanges(DataSet dataSet) {
-		Exchange qRef = process.quantitativeReference;
-		for (Exchange exchange : process.exchanges) {
-			IExchange iExchange = mapExchange(exchange);
-			dataSet.getExchanges().add(iExchange);
-			if (Objects.equals(exchange, qRef)) {
-				mapRefFlow(dataSet, exchange, iExchange);
+			// input/output group
+			if (Exchanges.isProviderFlow(e)) {
+				ix.setOutputGroup(isQRef ? 0 : 2);
+			} else if (Exchanges.isLinkable(e)) {
+				ix.setInputGroup(5);
+			} else if (e.isInput) {
+				ix.setInputGroup(4);
+			} else {
+				ix.setOutputGroup(4);
+			}
+
+			Categories.map(e.flow.category, ix, config);
+			Util.mapFlowInformation(ix, e.flow);
+			if (e.unit != null) {
+				ix.setUnit(e.unit.name);
+			}
+			if (e.uncertainty == null) {
+				ix.setMeanValue(e.amount);
+			} else {
+				mapUncertainty(e, ix);
+			}
+			mapComment(e, ix);
+			ds.getExchanges().add(ix);
+			if (isQRef) {
+				mapRefFlow(ds, e, ix);
 			}
 		}
 	}
 
-	private void mapRefFlow(DataSet ds, Exchange exchange, IExchange iExchange) {
-		iExchange.setOutputGroup(0);
-		var refFun = mapQuantitativeReference(exchange);
+	private void mapRefFlow(DataSet ds, Exchange e, IExchange ix) {
+		var refFun = mapQuantitativeReference(e);
 		ds.setReferenceFunction(refFun);
 		refFun.setGeneralComment(process.description);
 		refFun.setInfrastructureProcess(process.infrastructureProcess);
-		Location location = process.location;
-		if (location != null)
-			iExchange.setLocation(location.code);
-		else if (config.isCreateDefaults())
-			iExchange.setLocation("GLO");
+		var loc = process.location;
+		if (loc != null) {
+			ix.setLocation(loc.code);
+		} else if (config.isCreateDefaults()) {
+			ix.setLocation("GLO");
+		}
 	}
 
 	private IReferenceFunction mapQuantitativeReference(Exchange e) {
@@ -253,30 +270,6 @@ class ProcessConverter {
 		return refFun;
 	}
 
-	private IExchange mapExchange(Exchange inExchange) {
-		IExchange exchange = factory.createExchange();
-		Flow flow = inExchange.flow;
-		exchange.setNumber((int) flow.id);
-		exchange.setName(inExchange.flow.name);
-		if (inExchange.isInput) {
-			exchange.setInputGroup(mapFlowType(flow.flowType, true));
-		} else {
-			exchange.setOutputGroup(mapFlowType(flow.flowType, false));
-		}
-		Categories.map(flow.category, exchange, config);
-		Util.mapFlowInformation(exchange, inExchange.flow);
-		if (inExchange.unit != null) {
-			exchange.setUnit(inExchange.unit.name);
-		}
-		if (inExchange.uncertainty == null) {
-			exchange.setMeanValue(inExchange.amount);
-		} else {
-			mapUncertainty(inExchange, exchange);
-		}
-		mapComment(inExchange, exchange);
-		return exchange;
-	}
-
 	private void mapComment(Exchange inExchange, IExchange exchange) {
 		if (inExchange.description == null) {
 			exchange.setGeneralComment(inExchange.dqEntry);
@@ -288,48 +281,36 @@ class ProcessConverter {
 		}
 	}
 
-	private int mapFlowType(FlowType flowType, boolean input) {
-		if (input)
-			return flowType == FlowType.ELEMENTARY_FLOW ? 4 : 5;
-		if (flowType == FlowType.ELEMENTARY_FLOW)
-			return 4;
-		if (flowType == FlowType.WASTE_FLOW)
-			return 3;
-		else
-			return isMultiOutput() ? 2 : 0;
-	}
-
-	private void mapUncertainty(Exchange oExchange, IExchange exchange) {
+	private void mapUncertainty(Exchange oExchange, IExchange e) {
 		Uncertainty uncertainty = oExchange.uncertainty;
 		if (uncertainty == null || uncertainty.distributionType == null)
 			return;
 		switch (uncertainty.distributionType) {
-		case NORMAL:
-			exchange.setMeanValue(uncertainty.parameter1);
-			exchange.setStandardDeviation95(uncertainty.parameter2 * 2);
-			exchange.setUncertaintyType(2);
-			break;
-		case LOG_NORMAL:
-			exchange.setMeanValue(uncertainty.parameter1);
-			double sd = uncertainty.parameter2;
-			exchange.setStandardDeviation95(Math.pow(sd, 2));
-			exchange.setUncertaintyType(1);
-			break;
-		case TRIANGLE:
-			exchange.setMinValue(uncertainty.parameter1);
-			exchange.setMostLikelyValue(uncertainty.parameter2);
-			exchange.setMaxValue(uncertainty.parameter3);
-			exchange.setMeanValue(oExchange.amount);
-			exchange.setUncertaintyType(3);
-			break;
-		case UNIFORM:
-			exchange.setMinValue(uncertainty.parameter1);
-			exchange.setMaxValue(uncertainty.parameter2);
-			exchange.setMeanValue(oExchange.amount);
-			exchange.setUncertaintyType(4);
-			break;
-		default:
-			exchange.setMeanValue(oExchange.amount);
+			case NORMAL -> {
+				e.setMeanValue(uncertainty.parameter1);
+				e.setStandardDeviation95(uncertainty.parameter2 * 2);
+				e.setUncertaintyType(2);
+			}
+			case LOG_NORMAL -> {
+				e.setMeanValue(uncertainty.parameter1);
+				double sd = uncertainty.parameter2;
+				e.setStandardDeviation95(Math.pow(sd, 2));
+				e.setUncertaintyType(1);
+			}
+			case TRIANGLE -> {
+				e.setMinValue(uncertainty.parameter1);
+				e.setMostLikelyValue(uncertainty.parameter2);
+				e.setMaxValue(uncertainty.parameter3);
+				e.setMeanValue(oExchange.amount);
+				e.setUncertaintyType(3);
+			}
+			case UNIFORM -> {
+				e.setMinValue(uncertainty.parameter1);
+				e.setMaxValue(uncertainty.parameter2);
+				e.setMeanValue(oExchange.amount);
+				e.setUncertaintyType(4);
+			}
+			default -> e.setMeanValue(oExchange.amount);
 		}
 	}
 
