@@ -14,14 +14,14 @@ import org.openlca.core.services.ServerConfig;
 
 class Tests {
 
-	private static Server2 server;
+	private static Server server;
 
-	private static Server2 getServer() {
+	private static Server getServer() {
 		if (server == null) {
 			var config = ServerConfig.defaultOf(Derby.createInMemory())
 					.withDataDir(DataDir.get())
 					.get();
-			server = new Server2(config).withDefaultHandlers();
+			server = new Server(config).withDefaultHandlers();
 			server.start();
 		}
 		return server;

@@ -1,33 +1,44 @@
 package org.openlca.ipc;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
+import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
+import org.openlca.ipc.handlers.DataHandler;
 import org.openlca.ipc.handlers.ExportHandler;
 import org.openlca.ipc.handlers.HandlerContext;
-import org.openlca.ipc.handlers.DataHandler;
 import org.openlca.ipc.handlers.ResultHandler;
 import org.openlca.ipc.handlers.RuntimeHandler;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
+import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
 
-import fi.iki.elonen.NanoHTTPD;
-
-public class Server extends NanoHTTPD implements IServer {
+public class Server implements IServer {
 
 	private final ServerConfig config;
+	private final HttpServer http;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final HashMap<String, Handler> handlers = new HashMap<>();
 
 	public Server(ServerConfig config) {
-		super(config.port());
 		this.config = config;
+		try {
+			http = HttpServer.create(new InetSocketAddress(config.port()), 0);
+			http.createContext("/", this::handle);
+			http.setExecutor(Executors.newFixedThreadPool(
+					Math.max(config.threadCount(), 1)));
+		} catch (Exception e) {
+			throw new RuntimeException("failed to create server", e);
+		}
 	}
 
 	public Server withDefaultHandlers() {
@@ -40,16 +51,6 @@ public class Server extends NanoHTTPD implements IServer {
 		register(new RuntimeHandler(context));
 		register(new ExportHandler(context));
 		return this;
-	}
-
-	@Override
-	public void start() {
-		try {
-			start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-			log.info("Started IPC server @{}", getListeningPort());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**
@@ -89,23 +90,34 @@ public class Server extends NanoHTTPD implements IServer {
 		}
 	}
 
-	@Override
-	public Response serve(IHTTPSession session) {
-		String method = session.getMethod().name();
-		if (!"POST".equals(method))
-			return serve(Responses.requestError("Only understands http POST"));
-		try {
-			Map<String, String> content = new HashMap<>();
-			session.parseBody(content);
-			Gson gson = new Gson();
-			RpcRequest req = gson.fromJson(content.get("postData"),
-					RpcRequest.class);
-			log.trace("handle request {}/{}", req.id, req.method);
-			RpcResponse resp = getResponse(req);
-			return serve(resp);
-		} catch (Exception e) {
-			return serve(Responses.requestError(e.getMessage()));
+	public int getListeningPort() {
+		return config.port();
+	}
+
+	public void start() {
+		http.start();
+	}
+
+	public void stop() {
+		http.stop(60);
+	}
+
+	private void handle(HttpExchange t) {
+		var method = t.getRequestMethod();
+		if (!"POST".equals(method)) {
+			serve(t, Responses.requestError("only HTTP POST is allowed"));
+			return;
 		}
+		try (var body = t.getRequestBody();
+				 var reader = new InputStreamReader(body, StandardCharsets.UTF_8)) {
+			var req = new Gson().fromJson(reader, RpcRequest.class);
+			log.trace("handle request {}/{}", req.id, req.method);
+			serve(t, getResponse(req));
+		} catch (Exception e) {
+			serve(t, Responses.requestError(
+					"failed to parse request body: " + e.getMessage()));
+		}
+
 	}
 
 	private RpcResponse getResponse(RpcRequest req) {
@@ -118,15 +130,22 @@ public class Server extends NanoHTTPD implements IServer {
 		return handler.invoke(req);
 	}
 
-	private Response serve(RpcResponse r) {
-		String json = new Gson().toJson(r);
-		Response resp = newFixedLengthResponse(
-				Response.Status.OK, "application/json", json);
-		resp.addHeader("Access-Control-Allow-Origin", "*");
-		resp.addHeader("Access-Control-Allow-Methods", "POST");
-		resp.addHeader("Access-Control-Allow-Headers",
-				"Content-Type, Allow-Control-Allow-Headers");
-		return resp;
+	private void serve(HttpExchange t, RpcResponse r) {
+		try {
+			var headers = t.getResponseHeaders();
+			headers.put("Content-Type", List.of("application/json"));
+			headers.put("Access-Control-Allow-Origin", List.of("*"));
+			headers.put("Access-Control-Allow-Methods", List.of("POST"));
+			headers.put("Access-Control-Allow-Headers",
+					List.of("Content-Type, Allow-Control-Allow-Headers"));
+			var json = new Gson().toJson(r).getBytes(StandardCharsets.UTF_8);
+			t.sendResponseHeaders(200, json.length);
+			try (var body = t.getResponseBody()) {
+				body.write(json);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("failed to serve response", e);
+		}
 	}
 
 	private record Handler(Object instance, java.lang.reflect.Method method) {
@@ -157,10 +176,8 @@ public class Server extends NanoHTTPD implements IServer {
 
 				// shutdown the server
 				try {
-					if (server.isAlive()) {
-						log.info("shutdown server");
-						server.stop();
-					}
+					log.info("shutdown server");
+					server.stop();
 				} catch (Exception e) {
 					log.error("failed to shutdown server", e);
 				}
