@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
-public class Server implements IServer {
+public class Server {
 
 	private final ServerConfig config;
 	private final HttpServer http;
@@ -99,7 +99,7 @@ public class Server implements IServer {
 	}
 
 	public void stop() {
-		http.stop(60);
+		http.stop(1);
 	}
 
 	private void handle(HttpExchange t) {
