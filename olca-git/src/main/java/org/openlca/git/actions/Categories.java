@@ -31,10 +31,7 @@ class Categories {
 	}
 
 	private void init(Entries entries, String commitId, String path) {
-		entries.find().commit(commitId).path(path).all().forEach(entry -> {
-			if (entry.typeOfEntry == EntryType.DATASET)
-				return;
-			init(entries, commitId, entry.path);
+		entries.iterate(commitId, entry -> {
 			if (entry.typeOfEntry != EntryType.CATEGORY)
 				return;
 			var refId = getRefId(entry.path);
@@ -43,7 +40,7 @@ class Categories {
 			if (!Strings.nullOrEmpty(entry.category)) {
 				refIdToParent.put(refId, getRefId(entry.type.name() + "/" + entry.category));
 			}
-			pathToRefId.put(entry.path, refId);
+			pathToRefId.put(entry.path, refId);			
 		});
 	}
 

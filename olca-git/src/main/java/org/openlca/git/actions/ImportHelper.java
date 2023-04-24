@@ -17,7 +17,6 @@ import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
-import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.ProgressMonitor;
@@ -135,11 +134,6 @@ class ImportHelper {
 	}
 
 	private void updateCategoryIds(String remoteCommitId, String path) {
-		entries.find().commit(remoteCommitId).path(path).all().forEach(entry -> {
-			if (entry.typeOfEntry == EntryType.DATASET)
-				return;
-			gitIndex.put(entry.path, entry.objectId);
-			updateCategoryIds(remoteCommitId, entry.path);
-		});
+		entries.iterate(remoteCommitId, entry -> gitIndex.put(entry.path, entry.objectId));
 	}
 }
