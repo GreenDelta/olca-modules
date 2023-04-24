@@ -34,13 +34,14 @@ class ImportHelper {
 	final Descriptors descriptors;
 	ConflictResolver conflictResolver = ConflictResolver.NULL;
 
-	ImportHelper(Repository repo, IDatabase database, GitIndex gitIndex, ProgressMonitor progressMonitor) {
+	ImportHelper(Repository repo, IDatabase database, Descriptors descriptors, GitIndex gitIndex,
+			ProgressMonitor progressMonitor) {
 		this.references = References.of(repo);
 		this.entries = Entries.of(repo);
 		this.database = database;
 		this.gitIndex = gitIndex;
 		this.progressMonitor = progressMonitor;
-		this.descriptors = Descriptors.of(database);
+		this.descriptors = descriptors;
 	}
 
 	static final ModelType[] TYPE_ORDER = new ModelType[] {

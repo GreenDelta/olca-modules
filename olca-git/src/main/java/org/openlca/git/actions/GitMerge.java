@@ -25,6 +25,7 @@ import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.Constants;
+import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.History;
 import org.openlca.git.util.Repositories;
@@ -36,6 +37,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	private final History localHistory;
 	private final Commits commits;
 	private IDatabase database;
+	private Descriptors descriptors;
 	private GitIndex gitIndex;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver = ConflictResolver.NULL;
@@ -54,6 +56,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 
 	public GitMerge into(IDatabase database) {
 		this.database = database;
+		this.descriptors = Descriptors.of(database);
 		return this;
 	}
 
@@ -114,7 +117,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		if (!mountLibraries(toMount))
 			throw new IOException("Could not mount libraries");
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
-		var importHelper = new ImportHelper(repo, database, gitIndex, progressMonitor);
+		var importHelper = new ImportHelper(repo, database, descriptors, gitIndex, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
 		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
@@ -160,7 +163,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 			}
 		});
 		progressMonitor.subTask("Writing merged changes");
-		var writer = new DbCommitWriter(repo, database)
+		var writer = new DbCommitWriter(repo, database, descriptors)
 				.update(gitIndex)
 				.as(committer)
 				.merge(localCommit.id, remoteCommit.id);

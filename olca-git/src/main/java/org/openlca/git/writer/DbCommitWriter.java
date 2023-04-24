@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -23,6 +24,7 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.Descriptors;
+import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
 import org.openlca.util.Strings;
@@ -41,10 +43,10 @@ public class DbCommitWriter extends CommitWriter {
 	private Commit reference;
 	private ExecutorService threads;
 
-	public DbCommitWriter(Repository repo, IDatabase database) {
+	public DbCommitWriter(Repository repo, IDatabase database, Descriptors descriptors) {
 		super(repo, new DatabaseBinaryResolver(database));
 		this.database = database;
-		this.descriptors = Descriptors.of(database);
+		this.descriptors = descriptors;
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class DbCommitWriter extends CommitWriter {
 		this.gitIndex = gitIndex;
 		return this;
 	}
-	
+
 	public DbCommitWriter reference(Commit reference) {
 		this.reference = reference;
 		return this;
@@ -82,8 +84,10 @@ public class DbCommitWriter extends CommitWriter {
 	}
 
 	public String write(String message, List<Change> changes) throws IOException {
+		changes = filterInvalid(changes);
 		try {
-			var previousCommit = reference == null ? Repositories.headCommitOf(repo) : repo.parseCommit(ObjectId.fromString(reference.id));
+			var previousCommit = reference == null ? Repositories.headCommitOf(repo)
+					: repo.parseCommit(ObjectId.fromString(reference.id));
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
 			threads = Executors.newCachedThreadPool();
@@ -113,6 +117,23 @@ public class DbCommitWriter extends CommitWriter {
 			parentIds.add(ObjectId.fromString(remoteCommitId));
 		}
 		return parentIds.toArray(new ObjectId[parentIds.size()]);
+	}
+
+	private List<Change> filterInvalid(List<Change> changes) {
+		var remaining = changes.stream()
+				.filter(c -> {
+					if (c.type == null || !GitUtil.isUUID(c.refId)) {
+						var val = "{ type: " + c.type + ", refId: " + c.refId + "}";
+						log.warn("Filtering dataset with missing or invalid type or refId " + val);
+						return false;
+					}
+					return true;
+				})
+				.collect(Collectors.toList());
+		if (remaining.size() != changes.size()) {
+			progressMonitor.worked(changes.size() - remaining.size());
+		}
+		return remaining;
 	}
 
 	protected void close() throws IOException {

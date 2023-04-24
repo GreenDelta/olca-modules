@@ -1,26 +1,28 @@
 package org.openlca.git.util;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Descriptors {
 
+	private static final Logger log = LoggerFactory.getLogger(Descriptors.class);
 	private static final Descriptor NULL;
 	private final IDatabase database;
 	private final EnumMap<ModelType, Map<String, Descriptor>> cache = new EnumMap<>(ModelType.class);
 
 	static {
-		 NULL = new Descriptor();
-		 NULL.lastChange = -1;
-		 NULL.version = -1;
+		NULL = new Descriptor();
+		NULL.lastChange = -1;
+		NULL.version = -1;
 	}
-	
+
 	private Descriptors(IDatabase database) {
 		this.database = database;
 	}
@@ -40,13 +42,23 @@ public class Descriptors {
 	public Descriptor get(ModelType type, String refId) {
 		if (type == null || refId == null || refId.strip().isEmpty())
 			return NULL;
-		return cache.computeIfAbsent(type, this::load)
-				.getOrDefault(refId, NULL);
+		synchronized (cache) {
+			return cache.computeIfAbsent(type, this::load)
+					.getOrDefault(refId, NULL);
+		}
 	}
 
 	private Map<String, Descriptor> load(ModelType type) {
-		return database.getDescriptors(type.getModelClass()).stream()
-				.collect(Collectors.toMap(d -> d.refId, Function.identity()));
+		var map = new HashMap<String, Descriptor>();
+		for (var descriptor : database.getDescriptors(type.getModelClass())) {
+			var refId = descriptor.refId;
+			if (map.containsKey(refId)) {
+				var existing = map.get(refId).id;
+				log.warn("Duplicate descriptor for " + type + ": [" + existing + ", " + refId + "]");
+			}
+			map.put(descriptor.refId, descriptor);
+		}
+		return map;
 	}
 
 }

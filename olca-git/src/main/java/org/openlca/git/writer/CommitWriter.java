@@ -40,9 +40,9 @@ public abstract class CommitWriter {
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
 	protected final Repository repo;
 	protected final BinaryResolver binaryResolver;
-	private String ref = Constants.HEAD;
-	private PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
-	private ProgressMonitor progressMonitor = ProgressMonitor.NULL;
+	protected String ref = Constants.HEAD;
+	protected PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
+	protected ProgressMonitor progressMonitor = ProgressMonitor.NULL;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 

@@ -94,6 +94,8 @@ public class GitUtil {
 	}
 
 	public static boolean isUUID(String path) {
+		if (path == null || path.length() != 36)
+			return false;
 		for (int i = 0; i < path.length(); i++) {
 			var c = path.charAt(i);
 			if (i == 8 || i == 13 || i == 18 || i == 23) {

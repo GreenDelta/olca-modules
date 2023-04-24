@@ -81,18 +81,12 @@ class Converter implements JsonStoreWriter {
 	private void convert(Change change) {
 		if (change.diffType == DiffType.DELETED)
 			return;
-		var path = change.path;
-		var type = (Class<? extends RootEntity>) ModelType
-				.valueOf(path.substring(0, path.indexOf('/')))
-				.getModelClass();
-		var name = path.substring(path.lastIndexOf('/') + 1);
-		var refId = name.substring(0, name.indexOf('.'));
 		try {
-			var model = database.get(type, refId);
+			var model = database.get(change.type.getModelClass(), change.refId);
 			convert(model);
 		} catch (Exception e) {
 			log.error("failed to convert data set " + change, e);
-			put(path, new byte[0]);
+			put(change.path, new byte[0]);
 		}
 	}
 
@@ -117,7 +111,7 @@ class Converter implements JsonStoreWriter {
 		path += refId + GitUtil.DATASET_SUFFIX;
 		put(path, object);
 	}
-	
+
 	@Override
 	public void put(String path, byte[] data) {
 		try {

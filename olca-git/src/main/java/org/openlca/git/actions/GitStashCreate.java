@@ -17,6 +17,7 @@ import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
+import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.DbCommitWriter;
 
@@ -97,9 +98,10 @@ public class GitStashCreate extends GitProgressAction<Void> {
 						.map(c -> references.get(c.type, c.refId, commit.id))
 						.collect(Collectors.toList())
 				: new ArrayList<Reference>();
+		var descriptors = Descriptors.of(database);
 		progressMonitor.beginTask("Stashing data", changes.size() + toDelete.size() + toImport.size());
 		if (!discard) {
-			var writer = new DbCommitWriter(repo, database)
+			var writer = new DbCommitWriter(repo, database, descriptors)
 					.ref(Constants.R_STASH)
 					.update(gitIndex)
 					.as(committer)
@@ -107,7 +109,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 					.with(progressMonitor);
 			writer.write("Stashed changes", changes);
 		}
-		var importHelper = new ImportHelper(repo, database, gitIndex, progressMonitor);
+		var importHelper = new ImportHelper(repo, database, descriptors, gitIndex, progressMonitor);
 		if (commit == null) {
 			importHelper.delete(toDelete);
 			if (gitIndex != null) {
