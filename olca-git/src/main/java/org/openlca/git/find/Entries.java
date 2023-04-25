@@ -136,7 +136,7 @@ public class Entries {
 						var entry = new Entry(fullPath, commit.getName(), walk.getObjectId(0));
 						consumer.accept(entry);
 						if (recursive && entry.typeOfEntry != EntryType.DATASET) {
-							new Iterate().commit(commitId).path(fullPath).call(consumer);
+							new Iterate().commit(commitId).recursive().path(fullPath).call(consumer);
 						}
 					}
 				}
