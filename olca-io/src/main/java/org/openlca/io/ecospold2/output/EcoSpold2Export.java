@@ -50,17 +50,27 @@ public class EcoSpold2Export implements Runnable {
 	private final File activityDir;
 	private final IDatabase db;
 	private final List<ProcessDescriptor> descriptors;
+	private final EcoSpold2ExportConfig config;
 	private ElemFlowMap elemFlowMap;
 
 	public EcoSpold2Export(File dir, IDatabase db) {
-		this(dir, db, Collections.emptyList());
+		this(dir, db, EcoSpold2ExportConfig.DEFAULT);
+	}
+
+	public EcoSpold2Export(File dir, IDatabase db, EcoSpold2ExportConfig config) {
+		this(dir, db, Collections.emptyList(), config);
 	}
 
 	public EcoSpold2Export(File dir, IDatabase db, List<ProcessDescriptor> descriptors) {
+		this(dir, db, descriptors, EcoSpold2ExportConfig.DEFAULT);
+	}
+
+	public EcoSpold2Export(File dir, IDatabase db, List<ProcessDescriptor> descriptors, EcoSpold2ExportConfig config) {
 		this.activityDir = new File(dir, "Activities");
 		this.db = db;
 		this.descriptors = descriptors;
-		this.elemFlowMap = new ElemFlowMap(FlowMap.empty());
+		this.config = config;
+		this.elemFlowMap = new ElemFlowMap(FlowMap.empty(), config);
 	}
 
 	public void setFlowMap(FlowMap map) {
@@ -120,7 +130,9 @@ public class EcoSpold2Export implements Runnable {
 		String nameId = UUID.randomUUID().toString();
 		activity.activityNameId = nameId;
 		activityName.id = nameId;
-		String name = Strings.cut(process.name, 120);
+		String name = config.uncutNames
+				? process.name
+				: Strings.cut(process.name, 120);
 		activity.name = name;
 		activityName.name = name;
 		activity.id = process.refId;
@@ -214,7 +226,10 @@ public class EcoSpold2Export implements Runnable {
 			Process process, UserMasterData masterData) {
 		IntermediateExchange e2Ex = new IntermediateExchange();
 		if (exchange.isInput)
-			e2Ex.inputGroup = 5;
+			if (exchange.flow.flowType == FlowType.WASTE_FLOW && config.distinguishWasteTreaments)
+				e2Ex.inputGroup = 6;
+			else
+				e2Ex.inputGroup = 5;
 		else {
 			if (Objects.equals(exchange, process.quantitativeReference))
 				e2Ex.outputGroup = 0;
@@ -248,7 +263,9 @@ public class EcoSpold2Export implements Runnable {
 
 	private void mapExchangeData(Exchange exchange,
 			spold2.Exchange e2Exchange) {
-		e2Exchange.name = Strings.cut(exchange.flow.name, 120);
+		e2Exchange.name = config.uncutNames
+				? exchange.flow.name
+				: Strings.cut(exchange.flow.name, 120);
 		e2Exchange.id = new UUID(exchange.id, 0L).toString();
 		e2Exchange.amount = exchange.amount;
 		e2Exchange.mathematicalRelation = exchange.formula;

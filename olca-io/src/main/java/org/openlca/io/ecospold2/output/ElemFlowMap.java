@@ -19,24 +19,30 @@ class ElemFlowMap {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Map<String, FlowMapEntry> flowMap;
+	private final EcoSpold2ExportConfig config;
 
 	public ElemFlowMap(FlowMap flowMap) {
+		this(flowMap, EcoSpold2ExportConfig.DEFAULT);
+	}
+
+	public ElemFlowMap(FlowMap flowMap, EcoSpold2ExportConfig config) {
+		this.config = config;
 		this.flowMap = flowMap == null
-			? Collections.emptyMap()
-			: flowMap.index();
+				? Collections.emptyMap()
+				: flowMap.index();
 	}
 
 	public ElementaryExchange apply(Exchange olca) {
 		if (olca == null || olca.flow == null) {
 			log.warn("could not map exchange {}, exchange or flow is null",
-				olca);
+					olca);
 			return null;
 		}
 		var record = flowMap.get(olca.flow.refId);
 		if (!isValid(record, olca)) {
 			log.warn(
-				"elementary flow {} cannot be mapped to an ecoinvent flow",
-				olca.flow);
+					"elementary flow {} cannot be mapped to an ecoinvent flow",
+					olca.flow);
 			return null;
 		}
 		return map(olca, record);
@@ -44,24 +50,24 @@ class ElemFlowMap {
 
 	private boolean isValid(FlowMapEntry mapping, Exchange exchange) {
 		if (mapping == null
-			|| mapping.sourceFlow() == null
-			|| mapping.targetFlow() == null)
+				|| mapping.sourceFlow() == null
+				|| mapping.targetFlow() == null)
 			return false;
 		var source = mapping.sourceFlow();
 		var target = mapping.targetFlow();
 		if (source.property == null
-			|| source.unit == null
-			|| target.flow == null
-			|| target.unit == null)
+				|| source.unit == null
+				|| target.flow == null
+				|| target.unit == null)
 			return false;
 		return exchange != null
-			&& exchange.flowPropertyFactor != null
-			&& exchange.flowPropertyFactor.flowProperty != null
-			&& Objects.equals(
-			source.property.refId,
-			exchange.flowPropertyFactor.flowProperty.refId)
-			&& exchange.unit != null
-			&& Objects.equals(source.unit.refId, exchange.unit.refId);
+				&& exchange.flowPropertyFactor != null
+				&& exchange.flowPropertyFactor.flowProperty != null
+				&& Objects.equals(
+						source.property.refId,
+						exchange.flowPropertyFactor.flowProperty.refId)
+				&& exchange.unit != null
+				&& Objects.equals(source.unit.refId, exchange.unit.refId);
 	}
 
 	private ElementaryExchange map(Exchange olca, FlowMapEntry mapping) {
@@ -75,14 +81,16 @@ class ElemFlowMap {
 		var target = mapping.targetFlow();
 		exchange.id = new UUID(olca.id, 0L).toString();
 		exchange.flowId = target.flow.refId;
-		exchange.name = Strings.cut(target.flow.name, 120);
+		exchange.name = config.uncutNames
+				? target.flow.name
+				: Strings.cut(target.flow.name, 120);
 		exchange.compartment = createCompartment(target.flowCategory);
 		exchange.unit = target.unit.name;
 		exchange.unitId = target.unit.refId;
 		exchange.amount = mapping.factor() * olca.amount;
 		if (olca.formula != null) {
 			exchange.mathematicalRelation = mapping.factor() + " * ("
-				+ olca.formula + ")";
+					+ olca.formula + ")";
 		}
 		// TODO: convert uncertainty information
 		return exchange;
