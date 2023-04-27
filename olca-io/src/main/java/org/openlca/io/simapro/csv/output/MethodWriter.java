@@ -3,29 +3,37 @@ package org.openlca.io.simapro.csv.output;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
-import org.openlca.simapro.csv.SimaProCsv;
 import org.openlca.simapro.csv.method.ImpactCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactCategoryRow;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
 import org.openlca.simapro.csv.method.ImpactMethodBlock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MethodWriter {
 
-	private final Logger = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final File file;
 	private final IDatabase db;
 	private final Map<Category, Compartment> compartments = new HashMap<>();
 	private final Set<Category> unmappedCompartments = new HashSet<>();
+	private final UnitMap units = new UnitMap();
 
 	private Compartment defaultCompartment;
 
@@ -88,12 +96,16 @@ public class MethodWriter {
 	}
 
 	private ImpactFactorRow rowOf(ImpactFactor f) {
-		if (f.flow == null)
+		var comp = compartmentOf(f.flow);
+		if (comp == null)
 			return null;
-		var comp = Compartment.of(f.flow.category);
-		if (comp == null) {
-
-		}
+		return new ImpactFactorRow()
+				.flow(f.flow.name)
+				.compartment(comp.type().compartment())
+				.subCompartment(comp.sub().toString())
+				.casNumber(f.flow.casNumber)
+				.factor(f.value)
+				.unit(units.get(f.unit));
 	}
 
 	private Compartment compartmentOf(Flow flow) {
@@ -103,7 +115,7 @@ public class MethodWriter {
 			var action = defaultCompartment != null
 				? "applied default compartment"
 				: "skipped";
-			log.warning(
+			log.warn(
 				"could not classify flow {}: no category; {}",
 				flow.refId,
 				action);
@@ -123,9 +135,15 @@ public class MethodWriter {
 			return comp;
 		}
 
+		var action = defaultCompartment != null
+			? "all flows of this category mapped to default"
+			: "all flows of this category skipped";
 		unmappedCompartments.add(flow.category);
-		// TODO: continue
-
+		log.warn(
+			"could not map category {} to a compartment; {}",
+			flow.category,
+			action);
+		return defaultCompartment;
 	}
 
 	// just for tests
