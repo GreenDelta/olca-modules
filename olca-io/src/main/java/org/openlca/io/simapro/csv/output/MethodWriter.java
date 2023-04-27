@@ -1,13 +1,12 @@
 package org.openlca.io.simapro.csv.output;
 
-import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
@@ -15,6 +14,9 @@ import org.openlca.simapro.csv.method.ImpactCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactCategoryRow;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
 import org.openlca.simapro.csv.method.ImpactMethodBlock;
+import org.openlca.simapro.csv.method.NwSetBlock;
+import org.openlca.simapro.csv.method.NwSetFactorRow;
+import org.openlca.simapro.csv.method.VersionRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,18 +68,55 @@ public class MethodWriter {
 			var m = db.get(ImpactMethod.class, d.id);
 			if (m == null)
 				continue;
-
 			var block = new ImpactMethodBlock()
 					.name(m.name)
-					.comment(m.description);
+					.version(versionOf(m))
+					.comment(m.description)
+					.useAddition(false)
+					.useDamageAssessment(false);
+			setNwFlagsOf(m, block);
 			ds.methods().add(block);
-
 			for (var impact : m.impactCategories) {
 				block.impactCategories().add(blockOf(impact));
 			}
-
+			addNwBlocks(m, block);
 		}
 		ds.write(file);
+	}
+
+	private VersionRow versionOf(ImpactMethod method) {
+		var v = new Version(method.version);
+		return new VersionRow()
+				.major(v.getMajor())
+				.minor(v.getMinor());
+	}
+
+	private void setNwFlagsOf(ImpactMethod method, ImpactMethodBlock block) {
+		int state = 0;
+		String weightingUnit = null;
+		for (var nws : method.nwSets) {
+			if (nws.weightedScoreUnit != null && weightingUnit == null) {
+				weightingUnit = nws.weightedScoreUnit;
+			}
+			for (var f : nws.factors) {
+				if (f.normalisationFactor != null) {
+					state |= 1;
+				}
+				if (f.weightingFactor != null) {
+					state |= 2;
+				}
+				if (state == 3)
+					break;
+			}
+			if (state == 3)
+				break;
+		}
+
+		block.useNormalization((state & 1) == 1);
+		if ((state & 2) == 2) {
+			block.useWeighting(true);
+			block.weightingUnit(weightingUnit);
+		}
 	}
 
 	private ImpactCategoryBlock blockOf(ImpactCategory impact) {
@@ -86,7 +124,7 @@ public class MethodWriter {
 				.name(impact.name)
 				.unit(impact.referenceUnit);
 		var block = new ImpactCategoryBlock().info(info);
-	  for (var f : impact.impactFactors) {
+		for (var f : impact.impactFactors) {
 			var row = rowOf(f);
 			if (row != null) {
 				block.factors().add(row);
@@ -113,12 +151,12 @@ public class MethodWriter {
 			return null;
 		if (flow.category == null) {
 			var action = defaultCompartment != null
-				? "applied default compartment"
-				: "skipped";
+					? "applied default compartment"
+					: "skipped";
 			log.warn(
-				"could not classify flow {}: no category; {}",
-				flow.refId,
-				action);
+					"could not classify flow {}: no category; {}",
+					flow.refId,
+					action);
 			return defaultCompartment;
 		}
 
@@ -136,25 +174,41 @@ public class MethodWriter {
 		}
 
 		var action = defaultCompartment != null
-			? "all flows of this category mapped to default"
-			: "all flows of this category skipped";
+				? "all flows of this category mapped to default"
+				: "all flows of this category skipped";
 		unmappedCompartments.add(flow.category);
 		log.warn(
-			"could not map category {} to a compartment; {}",
-			flow.category,
-			action);
+				"could not map category {} to a compartment; {}",
+				flow.category,
+				action);
 		return defaultCompartment;
 	}
 
-	// just for tests
-	public static void main(String[] args) {
-		var file = new File("target/test.csv");
-		try (var db = DataDir.get().openDatabase("ei39_cutoff")) {
-			var dao = new ImpactMethodDao(db);
-			var d = dao.getDescriptorForRefId(
-				"4436e504-b912-4c49-85cd-88e46908b5c3");
-			var writer = new MethodWriter(db, file);
-			writer.write(List.of(d));
+	private void addNwBlocks(ImpactMethod m, ImpactMethodBlock b) {
+		for (var nws : m.nwSets) {
+			var block = new NwSetBlock().name(nws.name);
+			b.nwSets().add(block);
+
+			for (var f : nws.factors) {
+				if (f.impactCategory == null)
+					continue;
+
+				if (f.normalisationFactor != null
+						&& f.normalisationFactor != 0) {
+					// double nf = 1 / f.normalisationFactor;
+					var nf = new NwSetFactorRow()
+							.impactCategory(f.impactCategory.name)
+							.factor(1 / f.normalisationFactor);
+					block.normalizationFactors().add(nf);
+				}
+
+				if (f.weightingFactor != null) {
+					var wf = new NwSetFactorRow()
+							.impactCategory(f.impactCategory.name)
+							.factor(f.weightingFactor);
+					block.weightingFactors().add(wf);
+				}
+			}
 		}
 	}
 }

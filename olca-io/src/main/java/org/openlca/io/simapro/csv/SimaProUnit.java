@@ -76,7 +76,7 @@ public enum SimaProUnit {
 	my("my", 1, "my", "Length.Time", null),
 	nBq("nBq", 0.000000001, "Bq", "Radioactivity", null),
 	ng("ng", 0.000000000001, "kg", "Mass", null),
-	Nm3("Nm3", 1, "m3", "Volume", null),
+	Nm3("Nm3", 1, "m3", "Volume", new String[] {"Sm3"}),
 	nPt("nPt", 0.000000001, "Pt", "Indicator", null),
 	oz("oz", 0.02834952, "kg", "Mass", null),
 	p("p", 1, "p", "Amount", new String[] { "Item(s)" }),
