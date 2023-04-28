@@ -12,14 +12,14 @@ class CsvWriter implements AutoCloseable {
 
 	private final BufferedWriter buffer;
 
-	private CsvWriter (BufferedWriter buffer) {
+	private CsvWriter(BufferedWriter buffer) {
 		this.buffer = buffer;
 	}
 
 	static CsvWriter on(File file) {
 		try {
 			var stream = new FileOutputStream(file);
-			var writer =  new OutputStreamWriter(stream, "windows-1252");
+			var writer = new OutputStreamWriter(stream, "windows-1252");
 			var buffer = new BufferedWriter(writer);
 			return new CsvWriter(buffer);
 		} catch (IOException e) {

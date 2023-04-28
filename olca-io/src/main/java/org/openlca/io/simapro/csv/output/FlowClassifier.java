@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.io.maps.FlowMapEntry;
@@ -16,6 +17,7 @@ import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
+import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 class FlowClassifier {
@@ -44,13 +46,13 @@ class FlowClassifier {
 	/**
 	 * Returns a flow mapping for the given flow or {@code null}.
 	 */
-	FlowMapping mappingOf(Flow flow) {
+	Mapping mappingOf(Flow flow) {
 		if (flowMap == null || flow == null)
 			return null;
 		var mapping = flowMap.get(flow.refId);
 		if (mapping == null)
 			return null;
-		return FlowMapping.of(mapping, units).orElse(null);
+		return Mapping.of(mapping, units).orElse(null);
 	}
 
 	/**
@@ -67,7 +69,7 @@ class FlowClassifier {
 		var mapping = mappingOf(flow);
 		if (mapping != null) {
 			flowCompartments.put(flow, mapping.compartment());
-			return c;
+			return mapping.compartment;
 		}
 
 		if (flow.category == null) {
@@ -145,6 +147,35 @@ class FlowClassifier {
 				}
 				rows.add(row);
 			}
+		}
+	}
+
+	/**
+	 * Wraps a flow mapping entry. These mappings should be
+	 * only created when they are fully qualified with all
+	 * information available.
+	 */
+	record Mapping(
+			String flow,
+			String unit,
+			Compartment compartment,
+			double factor) {
+
+		static Optional<Mapping> of(FlowMapEntry e, UnitMap units) {
+			var target = e.targetFlow();
+			if (target == null
+					|| target.flow == null
+					|| Strings.nullOrEmpty(target.flow.name)
+					|| target.unit == null
+					|| Strings.nullOrEmpty(target.unit.name))
+				return Optional.empty();
+			var unit = units.get(target.unit.name);
+			var comp = Compartment.fromPath(target.flowCategory);
+			if (comp == null)
+				return Optional.empty();
+			var mapping = new Mapping(
+					target.flow.name, unit, comp, e.factor());
+			return Optional.of(mapping);
 		}
 	}
 }

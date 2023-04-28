@@ -2,15 +2,20 @@ package org.openlca.io.simapro.csv.output;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.openlca.core.model.Unit;
 import org.openlca.io.simapro.csv.SimaProUnit;
+import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 class UnitMap {
 
 	private final Map<String, SimaProUnit> units = new HashMap<>();
+	private final Set<String> unmapped = new HashSet<String>();
 
 	/**
 	 * Returns the corresponding SimaPro name of the given unit.
@@ -42,10 +47,7 @@ class UnitMap {
 			}
 		}
 
-		// log error
-		LoggerFactory.getLogger(getClass()).warn(
-				"No corresponding SimaPro unit found for '{}'", u.name);
-		return u.name;
+		return unmappedOf(u.name);
 	}
 
 	/**
@@ -67,13 +69,31 @@ class UnitMap {
 			return unit.symbol;
 		}
 
-		// log error
-		LoggerFactory.getLogger(getClass()).error(
-				"No corresponding SimaPro unit found for '{}'", u);
-		return u;
+		return unmappedOf(u);
+	}
+
+	private String unmappedOf(String unit) {
+		if (Strings.nullOrEmpty(unit))
+			return "?";
+		if (unmapped.contains(unit))
+			return unit;
+		LoggerFactory.getLogger(getClass()).warn(
+				"No corresponding SimaPro unit found for '{}'", unit);
+		unmapped.add(unit);
+		return unit;
 	}
 
 	Collection<SimaProUnit> values() {
 		return units.values();
+	}
+
+	/**
+	 * Write the quantities and their units of the used
+	 * units to the given data set.
+	 */
+	private void writeQuantitiesTo(CsvDataSet ds) {
+		if (ds == null)
+			return;
+		// TODO
 	}
 }
