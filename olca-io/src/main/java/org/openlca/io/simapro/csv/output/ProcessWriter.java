@@ -5,10 +5,7 @@ import static org.openlca.io.simapro.csv.output.Util.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -26,12 +23,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Unit;
-import org.openlca.core.io.maps.FlowMapEntry;
-import org.openlca.core.io.maps.FlowRef;
-import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.util.Exchanges;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -49,12 +42,9 @@ class ProcessWriter {
 	private final SimaProExport config;
 	private final CsvWriter w;
 
+	private final FlowClassifier flows;
 	private final UnitMap units;
 	private final ProductLabeler products;
-	private final Map<String, FlowMapEntry> flowMap;
-
-	private final Map<Category, Compartment> compartments = new HashMap<>();
-	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
 
 	private final Set<Flow> inputProducts = new HashSet<>();
 	private final Set<Flow> outputProducts = new HashSet<>();
@@ -63,9 +53,9 @@ class ProcessWriter {
 		this.config = config;
 		this.units = new UnitMap();
 		this.products = ProductLabeler.of(config);
-		this.flowMap = config.flowMap != null
-				? config.flowMap.index()
-				: null;
+		this.flows = config.flowMap != null
+				? FlowClassifier.withMapping(config.flowMap)
+				: FlowClassifier.withoutMapping();
 		this.w = writer;
 	}
 
@@ -101,35 +91,13 @@ class ProcessWriter {
 	 */
 	private void classifyElemFlows(Process p) {
 		for (Exchange e : p.exchanges) {
-			if (e.flow == null
-					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
+			if (e.flow == null || e.flow.flowType != FlowType.ELEMENTARY_FLOW)
 				continue;
-
-			// 1) the flow was already classified
-			Compartment c = flowCompartments.get(e.flow);
-			if (c != null)
-				continue;
-
-			// 2) check if we have a mapped flow
-			FlowMapEntry mapEntry = mappedFlow(e.flow);
-			if (mapEntry != null) {
-				c = Compartment.fromPath(mapEntry.targetFlow().flowCategory);
-				if (c != null) {
-					flowCompartments.put(e.flow, c);
-					continue;
-				}
-			}
-
-			// 3) get the compartment from the category path
-			c = compartments.computeIfAbsent(
-					e.flow.category, Compartment::of);
+			var c = flows.compartmentOf(e.flow);
 			if (c == null) {
-				log.warn("could not assign compartment to flow {};" +
-						" took default air/unspecified", e.flow);
-				c = Compartment.of(ElementaryFlowType.EMISSIONS_TO_AIR,
-						SubCompartment.UNSPECIFIED);
+				log.warn("could not assign compartment to elementary flow {};"
+						+ " this flow will be skipped in the export", e.flow);
 			}
-			flowCompartments.put(e.flow, c);
 		}
 	}
 
@@ -172,37 +140,30 @@ class ProcessWriter {
 		w.ln();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void writeReferenceFlows() {
 
-		// order flows by their type
-		int n = ElementaryFlowType.values().length;
-		List<Flow>[] buckets = new List[n];
-		for (int i = 0; i < n; i++) {
-			buckets[i] = new ArrayList<>();
-		}
-		for (Map.Entry<Flow, Compartment> e : flowCompartments.entrySet()) {
-			ElementaryFlowType type = e.getValue().type();
-			buckets[type.ordinal()].add(e.getKey());
-		}
-
 		// write the flow information
+		var groups = flows.groupFlows();
 		for (var type : ElementaryFlowType.values()) {
+			var group = groups.get(type);
+			if (group == null || group.isEmpty())
+				continue;
+
 			w.ln(type.blockHeader());
 
 			// duplicate names are not allowed here
 			HashSet<String> handledNames = new HashSet<>();
-			for (Flow flow : buckets[type.ordinal()]) {
+			for (var flow : group) {
 
 				String name;
 				String unit = null;
 
-				FlowMapEntry mapEntry = mappedFlow(flow);
-				if (mapEntry != null) {
+				var mapping = flows.mappingOf(flow);
+				if (mapping != null) {
 					// handle mapped flows
-					name = mapEntry.targetFlow().flow.name;
-					if (mapEntry.targetFlow().unit != null) {
-						unit = units.get(mapEntry.targetFlow().unit.name);
+					name = mapping.targetFlow().flow.name;
+					if (mapping.targetFlow().unit != null) {
+						unit = units.get(mapping.targetFlow().unit.name);
 					}
 				} else {
 					// handle unmapped flows
@@ -378,15 +339,14 @@ class ProcessWriter {
 	private void writeElemExchanges(Process p, ElementaryFlowType type) {
 		w.ln(type.exchangeHeader());
 		for (Exchange e : p.exchanges) {
-			if (e.flow == null
-					|| e.flow.flowType != FlowType.ELEMENTARY_FLOW)
+			if (e.flow == null || e.flow.flowType != FlowType.ELEMENTARY_FLOW)
 				continue;
-			Compartment comp = flowCompartments.get(e.flow);
+			var comp = flows.compartmentOf(e.flow);
 			if (comp == null || comp.type() != type)
 				continue;
 
-			FlowMapEntry mapEntry = mappedFlow(e.flow);
-			if (mapEntry == null) {
+			var mapping = flows.mappingOf(e.flow);
+			if (mapping == null) {
 				// we have an unmapped flow
 				var ref = toReferenceAmount(e);
 				var u = uncertainty(ref.amount, ref.uncertainty);
@@ -400,15 +360,15 @@ class ProcessWriter {
 			}
 
 			// handle a mapped flow
-			FlowRef target = mapEntry.targetFlow();
+			var target = mapping.targetFlow();
 			String unit = target.unit != null
 					? units.get(target.unit.name)
 					: SimaProUnit.kg.symbol;
-			var u = uncertainty(e.amount, e.uncertainty, mapEntry.factor());
+			var u = uncertainty(e.amount, e.uncertainty, mapping.factor());
 			w.ln(target.flow.name,
 					comp.sub().toString(),
 					unit,
-					e.amount * mapEntry.factor(),
+					e.amount * mapping.factor(),
 					u[0], u[1], u[2], u[3],
 					e.description);
 		}
@@ -583,13 +543,6 @@ class ProcessWriter {
 		}
 
 		return buff.toString();
-	}
-
-
-	private FlowMapEntry mappedFlow(Flow flow) {
-		return flowMap != null && flow != null
-				? flowMap.get(flow.refId)
-				: null;
 	}
 
 	/**
