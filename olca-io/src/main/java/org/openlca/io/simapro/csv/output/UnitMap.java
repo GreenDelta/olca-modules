@@ -9,6 +9,8 @@ import java.util.Set;
 import org.openlca.core.model.Unit;
 import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.CsvDataSet;
+import org.openlca.simapro.csv.refdata.QuantityRow;
+import org.openlca.simapro.csv.refdata.UnitRow;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
@@ -91,9 +93,22 @@ class UnitMap {
 	 * Write the quantities and their units of the used
 	 * units to the given data set.
 	 */
-	private void writeQuantitiesTo(CsvDataSet ds) {
+	void writeQuantitiesTo(CsvDataSet ds) {
 		if (ds == null)
 			return;
-		// TODO
+
+		units.values().stream()
+				.map(u -> u.quantity)
+				.distinct()
+				.map(q -> new QuantityRow().name(q).hasDimension(true))
+				.forEach(ds.quantities()::add);
+
+		units.values().stream()
+				.map(u -> new UnitRow()
+						.name(u.symbol)
+						.quantity(u.quantity)
+						.referenceUnit(u.refUnit)
+						.conversionFactor(u.factor))
+				.forEach(ds.units()::add);
 	}
 }

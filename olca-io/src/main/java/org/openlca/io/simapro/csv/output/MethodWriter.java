@@ -59,7 +59,10 @@ public class MethodWriter {
 			}
 			addNwBlocks(m, block);
 		}
+
+		// write reference data
 		flows.writeGroupsTo(ds);
+		units.writeQuantitiesTo(ds);
 
 		ds.write(file);
 	}
