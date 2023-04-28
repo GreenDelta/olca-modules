@@ -6,6 +6,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.util.Strings;
@@ -36,17 +37,22 @@ class ProductLabeler {
 	String labelOf(Flow product, Process process) {
 		if (product == null || product.name == null)
 			return "?";
-		var label = product.name.trim();
 		if (process == null
 				|| Strings.nullOrEmpty(process.name)
 				|| process.name.startsWith("Dummy: "))
-			return label;
+			return labelOf(product);
+
+		var label = product.name.trim();
 
 		// location
-		if (withLongNames
-				&& process.location != null
-				&& Strings.notEmpty(process.location.code)) {
-			label += " {" + process.location.code + "}";
+		if (withLongNames) {
+			var loc = process.location != null
+					? process.location
+					: product.location;
+			var locSuffix = suffixOf(loc);
+			if (locSuffix != null) {
+				label += locSuffix;
+			}
 		}
 
 		if (!Strings.nullOrEqual(product.name, process.name)) {
@@ -61,19 +67,31 @@ class ProductLabeler {
 		return label;
 	}
 
+	String labelOf(Flow product) {
+		if (product == null || Strings.nullOrEmpty(product.name))
+			return "?";
+		if (withLongNames) {
+			var locSuffix = suffixOf(product.location);
+			return locSuffix != null
+					? product.name + locSuffix
+					: product.name;
+		}
+		return product.name;
+	}
+
 	String labelOfInput(Exchange e) {
 		if (e == null || e.flow == null)
 			return "?";
 		var provider = providerOf(e);
 		if (provider == null) {
 			log.warn("no provider found for flow {}", e.flow.refId);
-			return e.flow.name;
+			return labelOf(e.flow);
 		}
 		if (!exportIds.contains(provider.id)) {
 			log.warn(
 					"provider process {} not exported; default to dummy",
 					provider.refId);
-			return e.flow.name;
+			return labelOf(e.flow);
 		}
 		return labelOf(e.flow, provider);
 	}
@@ -108,5 +126,11 @@ class ProductLabeler {
 					e.flow.refId);
 		}
 		return candidate;
+	}
+
+	private String suffixOf(Location loc) {
+		return loc != null && Strings.notEmpty(loc.code)
+				? " {" + loc.code + "}"
+				: null;
 	}
 }

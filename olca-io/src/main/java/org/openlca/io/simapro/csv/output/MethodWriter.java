@@ -14,9 +14,11 @@ import org.openlca.simapro.csv.method.ImpactMethodBlock;
 import org.openlca.simapro.csv.method.NwSetBlock;
 import org.openlca.simapro.csv.method.NwSetFactorRow;
 import org.openlca.simapro.csv.method.VersionRow;
+import org.openlca.util.KeyGen;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashSet;
 
 public class MethodWriter {
 
@@ -107,11 +109,23 @@ public class MethodWriter {
 				.name(impact.name)
 				.unit(impact.referenceUnit);
 		var block = new ImpactCategoryBlock().info(info);
+		var handled = new HashSet<String>();
 		for (var f : impact.impactFactors) {
 			var row = rowOf(f);
-			if (row != null) {
-				block.factors().add(row);
-			}
+			if (row == null)
+				continue;
+
+			// duplicates within an impact category
+			// are not allowed in SimaPro CSV
+			var key = KeyGen.toPath(
+					row.compartment(),
+					row.subCompartment(),
+					row.flow());
+			if (handled.contains(key))
+				continue;
+
+			handled.add(key);
+			block.factors().add(row);
 		}
 		return block;
 	}
