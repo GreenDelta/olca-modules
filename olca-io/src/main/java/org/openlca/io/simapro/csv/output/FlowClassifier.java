@@ -3,6 +3,7 @@ package org.openlca.io.simapro.csv.output;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +13,13 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.slf4j.LoggerFactory;
 
 class FlowClassifier {
 
 	private final Map<Category, Compartment> compartments = new HashMap<>();
 	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
+	private final HashSet<Category> unmappedCompartments = new HashSet<>();
 	private final Map<String, FlowMapEntry> flowMap;
 
 	private FlowClassifier(FlowMap flowMap) {
@@ -42,8 +45,8 @@ class FlowClassifier {
 			return null;
 		var mapping = flowMap.get(flow.refId);
 		return mapping == null || mapping.targetFlow() == null
-			? null
-			: mapping;
+				? null
+				: mapping;
 	}
 
 	/**
@@ -66,10 +69,25 @@ class FlowClassifier {
 			}
 		}
 
-		c = compartments.computeIfAbsent(flow.category, Compartment::of);
-		if (c != null) {
-			flowCompartments.put(flow, c);
+		if (flow.category == null) {
+			LoggerFactory.getLogger(getClass())
+					.error("elementary flow {} has no category " +
+							"and cannot be mapped to SimaPro", flow.refId);
+			return null;
 		}
+		if (unmappedCompartments.contains(flow.category)) {
+			return null;
+		}
+
+		c = compartments.computeIfAbsent(flow.category, Compartment::of);
+		if (c == null) {
+			LoggerFactory.getLogger(getClass()).error(
+					"category {} cannot mapped to SimaPro; all flows in this "
+							+ "category will be skipped", flow.category.toPath());
+			unmappedCompartments.add(flow.category);
+			return null;
+		}
+		flowCompartments.put(flow, c);
 		return c;
 	}
 
@@ -78,8 +96,7 @@ class FlowClassifier {
 				ElementaryFlowType.class);
 		for (var e : flowCompartments.entrySet()) {
 			var type = e.getValue().type();
-			var list = map.computeIfAbsent(
-					type, t -> new ArrayList<Flow>());
+			var list = map.computeIfAbsent(type, t -> new ArrayList<>());
 			list.add(e.getKey());
 		}
 		return map;
