@@ -17,7 +17,7 @@ class UnitMap {
 	 */
 	String get(Unit u) {
 		if (u == null)
-			return null;
+			return "?";
 
 		// get mapped
 		var unit = units.get(u.name);
@@ -43,9 +43,9 @@ class UnitMap {
 		}
 
 		// log error
-		LoggerFactory.getLogger(getClass()).error(
+		LoggerFactory.getLogger(getClass()).warn(
 				"No corresponding SimaPro unit found for '{}'", u.name);
-		return null;
+		return u.name;
 	}
 
 	/**
@@ -70,7 +70,7 @@ class UnitMap {
 		// log error
 		LoggerFactory.getLogger(getClass()).error(
 				"No corresponding SimaPro unit found for '{}'", u);
-		return null;
+		return u;
 	}
 
 	Collection<SimaProUnit> values() {

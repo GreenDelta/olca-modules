@@ -53,8 +53,8 @@ class ProcessWriter {
 		this.units = new UnitMap();
 		this.products = ProductLabeler.of(config);
 		this.flows = config.flowMap != null
-				? FlowClassifier.withMapping(config.flowMap)
-				: FlowClassifier.withoutMapping();
+				? FlowClassifier.of(units, config.flowMap)
+				: FlowClassifier.of(units);
 		this.w = writer;
 	}
 
@@ -155,20 +155,13 @@ class ProcessWriter {
 			for (var flow : group) {
 
 				// select name & unit
-				String name;
-				String unit = null;
 				var mapping = flows.mappingOf(flow);
-				if (mapping != null && mapping.targetFlow().flow != null) {
-					// handle mapped flows
-					name = mapping.targetFlow().flow.name;
-					if (mapping.targetFlow().unit != null) {
-						unit = units.get(mapping.targetFlow().unit.name);
-					}
-				} else {
-					// handle unmapped flows
-					name = flow.name;
-					unit = units.get(flow.getReferenceUnit());
-				}
+				var name = mapping == null
+						? flow.name
+						: mapping.flow();
+				var unit = mapping == null
+						? units.get(flow.getReferenceUnit())
+						: units.get(mapping.unit());
 				if (name == null || unit == null)
 					continue;
 
@@ -352,14 +345,10 @@ class ProcessWriter {
 			}
 
 			// handle a mapped flow
-			var target = mapping.targetFlow();
-			String unit = target.unit != null
-					? units.get(target.unit.name)
-					: SimaProUnit.kg.symbol;
 			var u = uncertainty(e.amount, e.uncertainty, mapping.factor());
-			w.ln(target.flow.name,
+			w.ln(mapping.flow(),
 					comp.sub().toString(),
-					unit,
+					mapping.unit(),
 					e.amount * mapping.factor(),
 					u[0], u[1], u[2], u[3],
 					e.description);

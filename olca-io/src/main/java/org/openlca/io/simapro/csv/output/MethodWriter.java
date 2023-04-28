@@ -22,13 +22,14 @@ public class MethodWriter {
 
 	private final File file;
 	private final IDatabase db;
-	private final UnitMap units = new UnitMap();
+	private final UnitMap units;
 	private final FlowClassifier flows;
 
 	public MethodWriter(IDatabase db, File file) {
 		this.db = db;
 		this.file = file;
-		this.flows = FlowClassifier.withoutMapping();
+		this.units = new UnitMap();
+		this.flows = FlowClassifier.of(units);
 	}
 
 	public void write(Collection<ImpactMethodDescriptor> methods) {
@@ -116,13 +117,21 @@ public class MethodWriter {
 		var comp = flows.compartmentOf(f.flow);
 		if (comp == null)
 			return null;
+		var mapping = flows.mappingOf(f.flow);
+		if (mapping == null)
+			return new ImpactFactorRow()
+					.flow(f.flow.name)
+					.compartment(comp.type().compartment())
+					.subCompartment(comp.sub().toString())
+					.casNumber(f.flow.casNumber)
+					.factor(f.value)
+					.unit(units.get(f.unit));
 		return new ImpactFactorRow()
-				.flow(f.flow.name)
+				.flow(mapping.flow())
 				.compartment(comp.type().compartment())
 				.subCompartment(comp.sub().toString())
-				.casNumber(f.flow.casNumber)
-				.factor(f.value)
-				.unit(units.get(f.unit));
+				.factor(f.value / mapping.factor())
+				.unit(mapping.unit());
 	}
 
 	private void addNwBlocks(ImpactMethod m, ImpactMethodBlock b) {

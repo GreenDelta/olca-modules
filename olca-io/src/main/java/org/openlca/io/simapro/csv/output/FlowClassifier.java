@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.io.maps.FlowMapEntry;
@@ -22,33 +23,34 @@ class FlowClassifier {
 	private final Map<Category, Compartment> compartments = new HashMap<>();
 	private final Map<Flow, Compartment> flowCompartments = new HashMap<>();
 	private final HashSet<Category> unmappedCompartments = new HashSet<>();
+	private final UnitMap units;
 	private final Map<String, FlowMapEntry> flowMap;
 
-	private FlowClassifier(FlowMap flowMap) {
+	private FlowClassifier(UnitMap units, FlowMap flowMap) {
+		this.units = Objects.requireNonNull(units);
 		this.flowMap = flowMap != null
 				? flowMap.index()
 				: null;
 	}
 
-	static FlowClassifier withMapping(FlowMap flowMap) {
-		return new FlowClassifier(flowMap);
+	static FlowClassifier of(UnitMap units, FlowMap flowMap) {
+		return new FlowClassifier(units, flowMap);
 	}
 
-	static FlowClassifier withoutMapping() {
-		return new FlowClassifier(null);
+	static FlowClassifier of(UnitMap units) {
+		return new FlowClassifier(units, null);
 	}
 
 	/**
-	 * Returns a flow mapping for the given flow or {@code null}
-	 * if no such mapping is available.
+	 * Returns a flow mapping for the given flow or {@code null}.
 	 */
-	FlowMapEntry mappingOf(Flow flow) {
+	FlowMapping mappingOf(Flow flow) {
 		if (flowMap == null || flow == null)
 			return null;
 		var mapping = flowMap.get(flow.refId);
-		return mapping == null || mapping.targetFlow() == null
-				? null
-				: mapping;
+		if (mapping == null)
+			return null;
+		return FlowMapping.of(mapping, units).orElse(null);
 	}
 
 	/**
@@ -63,12 +65,9 @@ class FlowClassifier {
 			return c;
 
 		var mapping = mappingOf(flow);
-		if (mapping != null && mapping.targetFlow() != null) {
-			c = Compartment.fromPath(mapping.targetFlow().flowCategory);
-			if (c != null) {
-				flowCompartments.put(flow, c);
-				return c;
-			}
+		if (mapping != null) {
+			flowCompartments.put(flow, mapping.compartment());
+			return c;
 		}
 
 		if (flow.category == null) {
@@ -109,8 +108,6 @@ class FlowClassifier {
 			return;
 
 		var groups = groupFlows();
-		var units = new UnitMap();
-
 		for (var type : ElementaryFlowType.values()) {
 			var group = groups.get(type);
 			if (group == null || group.isEmpty())
@@ -122,20 +119,13 @@ class FlowClassifier {
 			for (var flow : group) {
 
 				// select name & unit
-				String name;
-				String unit = null;
 				var mapping = mappingOf(flow);
-				if (mapping != null && mapping.targetFlow().flow != null) {
-					// handle mapped flows
-					name = mapping.targetFlow().flow.name;
-					if (mapping.targetFlow().unit != null) {
-						unit = units.get(mapping.targetFlow().unit.name);
-					}
-				} else {
-					// handle unmapped flows
-					name = flow.name;
-					unit = units.get(flow.getReferenceUnit());
-				}
+				var name = mapping == null
+						? flow.name
+						: mapping.flow();
+				var unit = mapping == null
+						? units.get(flow.getReferenceUnit())
+						: units.get(mapping.unit());
 				if (name == null || unit == null)
 					continue;
 
