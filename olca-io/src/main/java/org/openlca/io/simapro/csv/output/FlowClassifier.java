@@ -12,7 +12,9 @@ import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.io.simapro.csv.Compartment;
+import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.slf4j.LoggerFactory;
 
 class FlowClassifier {
@@ -100,5 +102,59 @@ class FlowClassifier {
 			list.add(e.getKey());
 		}
 		return map;
+	}
+
+	void writeGroupsTo(CsvDataSet ds) {
+		if (ds == null)
+			return;
+
+		var groups = groupFlows();
+		var units = new UnitMap();
+
+		for (var type : ElementaryFlowType.values()) {
+			var group = groups.get(type);
+			if (group == null || group.isEmpty())
+				return;
+			var rows = ds.getElementaryFlows(type);
+
+			// duplicate names are not allowed here
+			var handledNames = new HashSet<String>();
+			for (var flow : group) {
+
+				// select name & unit
+				String name;
+				String unit = null;
+				var mapping = mappingOf(flow);
+				if (mapping != null && mapping.targetFlow().flow != null) {
+					// handle mapped flows
+					name = mapping.targetFlow().flow.name;
+					if (mapping.targetFlow().unit != null) {
+						unit = units.get(mapping.targetFlow().unit.name);
+					}
+				} else {
+					// handle unmapped flows
+					name = flow.name;
+					unit = units.get(flow.getReferenceUnit());
+				}
+				if (name == null || unit == null)
+					continue;
+
+				// skip duplicate names
+				String id = name.trim().toLowerCase();
+				if (handledNames.contains(id))
+					continue;
+				handledNames.add(id);
+
+				// add row
+				var row = new ElementaryFlowRow()
+						.name(name)
+						.unit(unit);
+				if (mapping == null) {
+					row.cas(flow.casNumber)
+							.comment(flow.description);
+				}
+				rows.add(row);
+			}
+		}
 	}
 }

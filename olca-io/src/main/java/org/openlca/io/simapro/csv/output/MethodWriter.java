@@ -58,6 +58,8 @@ public class MethodWriter {
 			}
 			addNwBlocks(m, block);
 		}
+		flows.writeGroupsTo(ds);
+
 		ds.write(file);
 	}
 

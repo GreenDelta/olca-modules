@@ -17,15 +17,21 @@ class UnitMap {
 	 */
 	String get(Unit u) {
 		if (u == null)
-			return SimaProUnit.kg.symbol;
-		SimaProUnit unit = units.get(u.name);
+			return null;
+
+		// get mapped
+		var unit = units.get(u.name);
 		if (unit != null)
 			return unit.symbol;
+
+		// find by name
 		unit = SimaProUnit.find(u.name);
 		if (unit != null) {
 			units.put(u.name, unit);
 			return unit.symbol;
 		}
+
+		// find by synonym
 		if (u.synonyms != null) {
 			for (String syn : u.synonyms.split(";")) {
 				unit = SimaProUnit.find(syn);
@@ -35,11 +41,11 @@ class UnitMap {
 				}
 			}
 		}
-		LoggerFactory.getLogger(getClass())
-				.warn("No corresponding SimaPro unit" +
-						" for '{}' found; fall back to 'kg'", u.name);
-		units.put(u.name, SimaProUnit.kg);
-		return SimaProUnit.kg.symbol;
+
+		// log error
+		LoggerFactory.getLogger(getClass()).error(
+				"No corresponding SimaPro unit found for '{}'", u.name);
+		return null;
 	}
 
 	/**
@@ -47,20 +53,24 @@ class UnitMap {
 	 */
 	String get(String u) {
 		if (u == null)
-			return SimaProUnit.kg.symbol;
-		SimaProUnit unit = units.get(u);
+			return null;
+
+		// get mapped
+		var unit = units.get(u);
 		if (unit != null)
 			return unit.symbol;
+
+		// find by name
 		unit = SimaProUnit.find(u);
 		if (unit != null) {
 			units.put(u, unit);
 			return unit.symbol;
 		}
-		LoggerFactory.getLogger(getClass())
-				.warn("No corresponding SimaPro unit" +
-						" for '{}' found; fall back to 'kg'", u);
-		units.put(u, SimaProUnit.kg);
-		return SimaProUnit.kg.symbol;
+
+		// log error
+		LoggerFactory.getLogger(getClass()).error(
+				"No corresponding SimaPro unit found for '{}'", u);
+		return null;
 	}
 
 	Collection<SimaProUnit> values() {

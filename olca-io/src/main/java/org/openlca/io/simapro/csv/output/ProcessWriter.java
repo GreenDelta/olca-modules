@@ -22,7 +22,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.Unit;
 import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.util.Exchanges;
@@ -155,11 +154,11 @@ class ProcessWriter {
 			HashSet<String> handledNames = new HashSet<>();
 			for (var flow : group) {
 
+				// select name & unit
 				String name;
 				String unit = null;
-
 				var mapping = flows.mappingOf(flow);
-				if (mapping != null) {
+				if (mapping != null && mapping.targetFlow().flow != null) {
 					// handle mapped flows
 					name = mapping.targetFlow().flow.name;
 					if (mapping.targetFlow().unit != null) {
@@ -168,15 +167,8 @@ class ProcessWriter {
 				} else {
 					// handle unmapped flows
 					name = flow.name;
-					Unit refUnit = null;
-					if (flow.referenceFlowProperty != null) {
-						if (flow.referenceFlowProperty.unitGroup != null) {
-							refUnit = flow.referenceFlowProperty.unitGroup.referenceUnit;
-						}
-					}
-					unit = units.get(refUnit);
+					unit = units.get(flow.getReferenceUnit());
 				}
-
 				if (name == null || unit == null)
 					continue;
 
