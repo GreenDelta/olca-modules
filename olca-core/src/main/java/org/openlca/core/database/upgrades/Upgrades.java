@@ -20,6 +20,7 @@ public class Upgrades {
 			new Upgrade09(),
 			new Upgrade10(),
 			new Upgrade11(),
+			new Upgrade12(),
 	};
 
 	private final Logger log = LoggerFactory.getLogger(Upgrades.class);
@@ -46,7 +47,7 @@ public class Upgrades {
 
 	private IUpgrade findNextUpgrade(IDatabase db) {
 		int version = db.getVersion();
-		for (IUpgrade upgrade : upgrades) {
+		for (var upgrade : upgrades) {
 			for (int v : upgrade.getInitialVersions()) {
 				if (v == version)
 					return upgrade;

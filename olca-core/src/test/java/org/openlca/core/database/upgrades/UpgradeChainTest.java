@@ -57,6 +57,11 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
+		// roll back Upgrade12
+		for (var table : catEntityTables) {
+			u.dropColumn(table, "other_properties");
+		}
+
 		// roll back Upgrade11
 		u.dropTable("tbl_epds");
 		u.dropTable("tbl_epd_modules");
@@ -196,6 +201,13 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_impact_categories", "code"));
 		assertTrue(u.columnExists("tbl_impact_categories", "direction"));
 		assertTrue(u.columnExists("tbl_process_links", "provider_type"));
+
+		// check Upgrade12
+		for (var table : catEntityTables) {
+			assertTrue(
+					"column other_properties missing in table " + table,
+					u.columnExists(table, "other_properties"));
+		}
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

@@ -45,6 +45,8 @@ CREATE TABLE tbl_categories (
     library      VARCHAR(255),
     description  CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     model_type   VARCHAR(255),
 
     PRIMARY KEY (id)
@@ -63,6 +65,8 @@ CREATE TABLE tbl_actors (
     tags         VARCHAR(255),
     library      VARCHAR(255),
     description  CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     telefax      VARCHAR(255),
     website      VARCHAR(255),
@@ -90,6 +94,8 @@ CREATE TABLE tbl_locations (
     library      VARCHAR(255),
     description  CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     longitude    DOUBLE,
     latitude     DOUBLE,
     code         VARCHAR(255),
@@ -112,6 +118,8 @@ CREATE TABLE tbl_sources (
     tags            VARCHAR(255),
     library         VARCHAR(255),
     description     CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     source_year     SMALLINT,
     text_reference  CLOB(64 K),
@@ -161,6 +169,8 @@ CREATE TABLE tbl_unit_groups (
     library                  VARCHAR(255),
     description              CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     f_reference_unit         BIGINT,
     f_default_flow_property  BIGINT,
 
@@ -185,6 +195,8 @@ CREATE TABLE tbl_flow_properties (
     library             VARCHAR(255),
     description         CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     flow_property_type  VARCHAR(255),
     f_unit_group        BIGINT,
 
@@ -207,6 +219,8 @@ CREATE TABLE tbl_flows (
     tags                       VARCHAR(255),
     library                    VARCHAR(255),
     description                CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     synonyms                   VARCHAR(32672),
     flow_type                  VARCHAR(255),
@@ -250,6 +264,8 @@ CREATE TABLE tbl_processes (
     tags                       VARCHAR(255),
     library                    VARCHAR(255),
     description                CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     process_type               VARCHAR(255),
     default_allocation_method  VARCHAR(255),
@@ -368,6 +384,8 @@ CREATE TABLE tbl_product_systems (
     library                        VARCHAR(255),
     description                    CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     cutoff                         DOUBLE,
     target_amount                  DOUBLE,
     f_reference_process            BIGINT,
@@ -427,6 +445,8 @@ CREATE TABLE tbl_impact_methods (
     library       VARCHAR(255),
     description   CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     code        VARCHAR(255),
     f_source      BIGINT,
 
@@ -446,6 +466,8 @@ CREATE TABLE tbl_impact_categories (
     tags            VARCHAR(255),
     library         VARCHAR(255),
     description     CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     direction       VARCHAR(255),
     code            VARCHAR(255),
@@ -528,6 +550,8 @@ CREATE TABLE tbl_parameters (
     library             VARCHAR(255),
     description         CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     is_input_param      SMALLINT default 0,
     f_owner             BIGINT,
     scope               VARCHAR(255),
@@ -582,6 +606,8 @@ CREATE TABLE tbl_projects (
     library                  VARCHAR(255),
     description              CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     f_impact_method          BIGINT,
     f_nwset                  BIGINT,
     is_with_costs            SMALLINT default 0,
@@ -629,6 +655,8 @@ CREATE TABLE tbl_currencies (
     library               VARCHAR(255),
     description           CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     code                  VARCHAR(255),
     conversion_factor     DOUBLE,
     f_reference_currency  BIGINT,
@@ -659,6 +687,8 @@ CREATE TABLE tbl_social_indicators (
     tags                 VARCHAR(255),
     library              VARCHAR(255),
     description          CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     activity_variable    VARCHAR(255),
     f_activity_quantity  BIGINT,
@@ -697,6 +727,8 @@ CREATE TABLE tbl_dq_systems (
     library            VARCHAR(255),
     description        CLOB(64 K),
 
+    other_properties BLOB(5 M),
+
     f_source           BIGINT,
     has_uncertainties  SMALLINT default 0,
 
@@ -734,6 +766,8 @@ CREATE TABLE tbl_results (
     tags                 VARCHAR(255),
     library              VARCHAR(255),
     description          CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     f_product_system     BIGINT,
     f_impact_method      BIGINT,
@@ -779,6 +813,8 @@ CREATE TABLE tbl_epds (
     tags                 VARCHAR(255),
     library              VARCHAR(255),
     description          CLOB(64 K),
+
+    other_properties BLOB(5 M),
 
     f_flow               BIGINT,
     f_flow_property      BIGINT,
