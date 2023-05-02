@@ -7,12 +7,11 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.URIish;
 import org.openlca.git.util.Constants;
-import org.openlca.util.Strings;
 
 public class GitInit {
 
 	private File gitDir;
-	private String remoteUrl;
+	private URIish remoteUrl;
 
 	private GitInit(File gitDir) {
 		this.gitDir = gitDir;
@@ -22,24 +21,30 @@ public class GitInit {
 		return new GitInit(gitDir);
 	}
 
-	public GitInit remoteUrl(String remoteUrl) {
-		this.remoteUrl = remoteUrl;
+	public GitInit remoteUrl(String remoteUrl) throws URISyntaxException {
+		this.remoteUrl = new URIish(remoteUrl);
 		return this;
 	}
 
 	public void run() throws GitAPIException, URISyntaxException {
-		if (gitDir == null || Strings.nullOrEmpty(remoteUrl))
-			throw new IllegalStateException("Git directory and remote url must be set");
+		if (gitDir == null)
+			throw new IllegalStateException("Git directory must be set");
 		try (var git = Git.init()
 				.setInitialBranch(Constants.DEFAULT_BRANCH)
 				.setBare(true)
 				.setGitDir(gitDir)
 				.call()) {
+			if (remoteUrl == null)
+				return;
 			git.remoteAdd()
 					.setName(Constants.DEFAULT_REMOTE)
-					.setUri(new URIish(remoteUrl))
+					.setUri(remoteUrl)
 					.call();
 		}
+	}
+	
+	public static void main(String[] args) throws GitAPIException, URISyntaxException {
+		GitInit.in(new File("C:/Users/Sebastian/openLCA-data-1.4/repositories/cs_testing_20230425_withraphael_test3")).run();
 	}
 
 }
