@@ -1,5 +1,7 @@
 package org.openlca.validation;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.NativeSql;
@@ -17,6 +19,7 @@ class ProductSystemCheck implements Runnable {
 	@Override
 	public void run() {
 		try {
+			checkQRefs();
 			var processIds = checkProcessSets();
 			checkLinks(processIds);
 			if (!foundIssues && !v.wasCanceled()) {
@@ -27,6 +30,65 @@ class ProductSystemCheck implements Runnable {
 		} finally {
 			v.workerFinished();
 		}
+	}
+
+	private void checkQRefs() {
+		if (v.wasCanceled())
+			return;
+		var q = "select " +
+				/* 1 */ "id, " +
+				/* 2 */ "target_amount, " +
+				/* 3 */ "f_reference_process, " +
+				/* 4 */ "f_reference_exchange, " +
+				/* 5 */ "f_target_flow_property_factor, " +
+				/* 6 */ "f_target_unit from tbl_product_systems";
+		NativeSql.on(v.db).query(q, r -> {
+
+			long systemId = r.getLong(1);
+			var amount = r.getDouble(2);
+			if (amount == 0) {
+				v.error(systemId, ModelType.PRODUCT_SYSTEM,
+						"amount of the quantitative reference is 0");
+				foundIssues = true;
+			}
+
+			var refProcess = r.getLong(3);
+			if (!v.ids.contains(ModelType.PROCESS, refProcess)) {
+				v.error(systemId, ModelType.PRODUCT_SYSTEM,
+						"invalid or no reference process set: @" + refProcess);
+				foundIssues = true;
+				return !v.wasCanceled();
+			}
+
+			var refExchange = r.getLong(4);
+			if (refExchange == 0 || !hasExchange(refProcess, refExchange)) {
+				v.error(systemId, ModelType.PRODUCT_SYSTEM,
+						"invalid quantitative reference");
+				foundIssues = true;
+				return !v.wasCanceled();
+			}
+
+			var factor = r.getLong(5);
+			var unit = r.getLong(6);
+			if (!v.ids.units().isFactorUnit(factor, unit)) {
+				v.error(systemId, ModelType.PRODUCT_SYSTEM,
+						"invalid unit of quantitative reference");
+				foundIssues = true;
+			}
+
+			return !v.wasCanceled();
+		});
+	}
+
+	private boolean hasExchange(long process, long exchange) {
+		var q = "select f_owner from tbl_exchanges where id = " + exchange;
+		var hasIt = new AtomicBoolean(false);
+		NativeSql.on(v.db).query(q, r -> {
+			var owner = r.getLong(1);
+			hasIt.set(owner == process);
+			return false;
+		});
+		return hasIt.get();
 	}
 
 	private ProcessIdSet checkProcessSets() {
