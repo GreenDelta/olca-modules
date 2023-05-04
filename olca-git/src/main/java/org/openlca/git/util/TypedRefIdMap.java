@@ -91,15 +91,39 @@ public class TypedRefIdMap<T> {
 			if (refIds == null || refIds.isEmpty())
 				return;
 			refIds.keySet().forEach(refId -> {
-				consumer.accept(type, refId, refIds.get(refId));
+				try {
+					consumer.accept(type, refId, refIds.get(refId));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			});
+		});
+	}
+
+	public void forEach(ForEachValue<T> consumer) {
+		map.keySet().forEach(type -> {
+			var refIds = map.get(type);
+			if (refIds == null || refIds.isEmpty())
+				return;
+			refIds.keySet().forEach(refId -> {
+				try {
+					consumer.accept(refIds.get(refId));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			});
 		});
 	}
 
 	public interface ForEach<T> {
 
-		void accept(ModelType type, String refId, T value);
+		void accept(ModelType type, String refId, T value) throws Exception;
 
 	}
 
+	public interface ForEachValue<T> {
+
+		void accept(T value) throws Exception;
+
+	}
 }
