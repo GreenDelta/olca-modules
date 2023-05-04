@@ -8,14 +8,14 @@ import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
 
-public class TypeRefIdSet {
+public class TypedRefIdSet {
 
 	private final EnumMap<ModelType, Set<String>> map = new EnumMap<>(ModelType.class);
 
-	public TypeRefIdSet() {
+	public TypedRefIdSet() {
 	}
 
-	public TypeRefIdSet(Collection<? extends TypedRefId> refs) {
+	public TypedRefIdSet(Collection<? extends TypedRefId> refs) {
 		addAll(refs);
 	}
 
