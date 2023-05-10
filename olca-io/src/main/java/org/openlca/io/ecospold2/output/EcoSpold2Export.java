@@ -215,6 +215,7 @@ public class EcoSpold2Export implements Runnable {
 			if (flow.category.category != null) {
 				comp.compartment = flow.category.category.name;
 			}
+			e2Ex.compartment = comp;
 		}
 
 		Units.map(exchange.unit, e2Ex, masterData);
