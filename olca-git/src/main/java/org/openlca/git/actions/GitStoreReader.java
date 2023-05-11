@@ -15,7 +15,7 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypeRefIdMap;
+import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
@@ -31,7 +31,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final Commit previousCommit;
 	private final Commit commit;
 	private final Categories categories;
-	private final TypeRefIdMap<Reference> changes;
+	private final TypedRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
 	private final ImportResults results = new ImportResults();
 	private final byte[] packInfo;
@@ -48,7 +48,7 @@ class GitStoreReader implements JsonStoreReader {
 		this.previousCommit = previousCommit;
 		this.commit = commit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
-		this.changes = TypeRefIdMap.of(changes);
+		this.changes = TypedRefIdMap.of(changes);
 		this.packInfo = datasets.getPackageInfo(commit);
 
 	}

@@ -18,6 +18,7 @@ import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
 import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.input.JsonImport;
@@ -134,6 +135,10 @@ class ImportHelper {
 	}
 
 	private void updateCategoryIds(String remoteCommitId, String path) {
-		entries.iterate(remoteCommitId, entry -> gitIndex.put(entry.path, entry.objectId));
+		entries.iterate(remoteCommitId, entry -> {
+			if (entry.typeOfEntry == EntryType.DATASET)
+				return;
+			gitIndex.put(entry.path, entry.objectId);
+		});
 	}
 }

@@ -40,6 +40,14 @@ public final class Dirs {
 		}
 	}
 
+	public static boolean isPresent(File dir) {
+		return dir != null && isPresent(dir.toPath());
+	}
+
+	public static boolean isPresent(Path path) {
+		return path != null && Files.isDirectory(path);
+	}
+
 	public static void createIfAbsent(File dir) {
 		if (dir == null)
 			return;

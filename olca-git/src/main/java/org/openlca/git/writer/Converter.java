@@ -1,8 +1,11 @@
 package org.openlca.git.writer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
 import org.thavam.util.concurrent.blockingMap.BlockingMap;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 /**
@@ -34,17 +38,21 @@ import com.google.gson.JsonObject;
  * 
  * Expects all entries that are converted also to be taken in the same order,
  * otherwise runs into deadlock.
+ * 
+ * Product systems are not queued, but converted on demand, because the
+ * JsonObjects during conversion take to much memory
  */
 class Converter implements JsonStoreWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(Converter.class);
-	private static final int CONVERTER_THREADS = 50;
 	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
 	private final IDatabase database;
 	private final ExecutorService threads;
-	private Deque<Change> changes;
+	private final Deque<Change> changes = new LinkedList<>();
+	private final Map<String, Change> systems = new HashMap<>();
 	private final AtomicInteger queueSize = new AtomicInteger();
 	private final JsonExport export;
+	private final int converterThreads;
 
 	Converter(IDatabase database, ExecutorService threads) {
 		this.database = database;
@@ -52,11 +60,26 @@ class Converter implements JsonStoreWriter {
 		this.export = new JsonExport(database, this)
 				.withReferences(false)
 				.skipExternalFiles(true);
+		var processors = 1;
+		try {
+			processors = Runtime.getRuntime().availableProcessors();
+		} catch (Throwable e) {
+			processors = 1;
+		}
+		this.converterThreads = processors;
 	}
 
 	void start(List<Change> changes) {
-		this.changes = new LinkedList<>(changes);
-		for (var i = 0; i < CONVERTER_THREADS; i++) {
+		this.changes.clear();
+		this.systems.clear();
+		for (var change : changes) {
+			if (change.type == ModelType.PRODUCT_SYSTEM) {
+				this.systems.put(change.path, change);
+			} else {
+				this.changes.add(change);
+			}
+		}
+		for (var i = 0; i < converterThreads; i++) {
 			startNext();
 		}
 	}
@@ -64,7 +87,7 @@ class Converter implements JsonStoreWriter {
 	private void startNext() {
 		// forgoing synchronizing get + incrementAndGet for better performance.
 		// might lead to temporarily slightly higher queueSize than specified
-		if (queueSize.get() >= CONVERTER_THREADS)
+		if (queueSize.get() >= converterThreads)
 			return;
 		queueSize.incrementAndGet();
 		synchronized (changes) {
@@ -122,12 +145,21 @@ class Converter implements JsonStoreWriter {
 	}
 
 	byte[] take(String path) throws InterruptedException {
+		if (systems.containsKey(path))
+			return convertProductSystem(systems.get(path));
 		byte[] data = queue.take(path);
 		queueSize.decrementAndGet();
 		startNext();
 		return data;
 	}
 
+	private byte[] convertProductSystem(Change change) {
+		var model = database.get(change.type.getModelClass(), change.refId);
+		var object = export.getWriter(model).write(model);
+		var json = new Gson().toJson(object);
+		return json.getBytes(StandardCharsets.UTF_8);
+	}
+	
 	void clear() {
 		queue.clear();
 	}

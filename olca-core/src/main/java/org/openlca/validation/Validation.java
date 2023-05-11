@@ -127,6 +127,7 @@ public class Validation implements Runnable {
 				new FlowDirectionCheck(this),
 				new AllocationCheck(this),
 				new ProductSystemCheck(this),
+				new SourceCheck(this),
 		};
 		_totalWorkers.set(workers.length);
 		int activeWorkers = 0;

@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 
-public class TypeRefIdMap<T> {
+public class TypedRefIdMap<T> {
 
 	private final EnumMap<ModelType, Map<String, T>> map = new EnumMap<>(ModelType.class);
 
-	public static <R extends TypedRefId> TypeRefIdMap<R> of(Collection<R> col) {
-		var map = new TypeRefIdMap<R>();
+	public static <R extends TypedRefId> TypedRefIdMap<R> of(Collection<R> col) {
+		var map = new TypedRefIdMap<R>();
 		col.forEach(ref -> map.put(ref, ref));
 		return map;
 	}
