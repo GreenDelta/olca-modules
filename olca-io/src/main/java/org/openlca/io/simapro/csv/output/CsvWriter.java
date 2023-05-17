@@ -52,12 +52,10 @@ class CsvWriter implements AutoCloseable {
 				}
 				if (obj instanceof String) {
 					var s = ((String) obj)
+							.replace('"', '\'')
 							.replace(';', ',')
 							.replace("\r", "")
 							.replace('\n', '\u007F');
-					if (s.contains("\"")) {
-						s = "\"" + s + "\"";
-					}
 					strings[i] = s;
 					continue;
 				}
