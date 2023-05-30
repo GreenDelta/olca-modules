@@ -79,8 +79,7 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 		var em = db.newEntityManager();
 		TypedQuery<?> query = em.createQuery(jpql, entityType);
 		query.setParameter("id", model.id);
-		query.setParameter("category",
-				category.isPresent() ? category.get() : null);
+		query.setParameter("category", category.orElse(null));
 		query.setParameter("version", version);
 		query.setParameter("lastChange", lastChange);
 		try {
