@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +64,15 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 
 	private static IxImpactIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
+			return readProto(stream);
+		} catch (IOException e) {
+			throw new RuntimeException(
+				"failed to read impact-index from " + file, e);
+		}
+	}
+
+	public static IxImpactIndex readProto(InputStream stream) {
+		try {
 			var items = new ArrayList<IxImpactItem>();
 			var proto = IxProto.ImpactIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getImpactCount(); i++) {
@@ -72,7 +82,7 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 			return new IxImpactIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to read impact-index from " + file, e);
+					"failed to read impact-index from proto-stream", e);
 		}
 	}
 

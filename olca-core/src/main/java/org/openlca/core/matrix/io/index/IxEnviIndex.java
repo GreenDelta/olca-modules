@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,6 +68,15 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 
 	private static IxEnviIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
+			return readProto(stream);
+		} catch (IOException e) {
+			throw new RuntimeException(
+				"failed to read envi-index from " + file, e);
+		}
+	}
+
+	public static IxEnviIndex readProto(InputStream stream) {
+		try {
 			var items = new ArrayList<IxEnviItem>();
 			var proto = IxProto.ElemFlowIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getFlowCount(); i++) {
@@ -76,7 +86,7 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 			return new IxEnviIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to read envi-index from " + file, e);
+					"failed to read envi-index from proto-stream", e);
 		}
 	}
 

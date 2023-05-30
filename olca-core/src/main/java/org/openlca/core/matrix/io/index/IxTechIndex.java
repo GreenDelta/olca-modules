@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,6 +68,15 @@ public record IxTechIndex(List<IxTechItem> items) {
 
 	private static IxTechIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
+			return readProto(stream);
+		} catch (IOException e) {
+			throw new RuntimeException(
+				"failed to read tech-index from " + file, e);
+		}
+	}
+
+	public static IxTechIndex readProto(InputStream stream) {
+		try {
 			var items = new ArrayList<IxTechItem>();
 			var proto = IxProto.ProductIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getProductCount(); i++) {
@@ -76,7 +86,7 @@ public record IxTechIndex(List<IxTechItem> items) {
 			return new IxTechIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to read tech-index from " + file, e);
+					"failed to read tech-index from proto-stream", e);
 		}
 	}
 
