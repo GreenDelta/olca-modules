@@ -1,13 +1,46 @@
 package org.openlca.core.database.descriptors;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+import static org.openlca.core.database.descriptors.Util.ex;
 
 public interface DescriptorReader<T extends RootDescriptor> {
 
+	IDatabase db();
+
 	String query();
+
+	default List<T> getAll() {
+		var list = new ArrayList<T>();
+		NativeSql.on(db()).query(query(), r -> {
+			var d = getDescriptor(r);
+			list.add(d);
+			return true;
+		});
+		return list;
+	}
+
+	default List<T> getAll(Predicate<ResultSet> fn) {
+		if (fn == null)
+			return List.of();
+		var list = new ArrayList<T>();
+		NativeSql.on(db()).query(query(), r -> {
+			if (fn.test(r)) {
+				var d = getDescriptor(r);
+				list.add(d);
+			}
+			return true;
+		});
+		return list;
+	}
 
 	default long getId(ResultSet r) {
 		try {
@@ -76,7 +109,4 @@ public interface DescriptorReader<T extends RootDescriptor> {
 
 	T getDescriptor(ResultSet r);
 
-	private static RuntimeException ex(String message, Exception e) {
-		return new RuntimeException(message, e);
-	}
 }

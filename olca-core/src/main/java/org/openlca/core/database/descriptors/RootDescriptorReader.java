@@ -1,5 +1,6 @@
 package org.openlca.core.database.descriptors;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
@@ -9,6 +10,11 @@ import java.sql.ResultSet;
 public record RootDescriptorReader<T extends RootDescriptor>(
 		RootEntityDao<?, T> dao
 ) implements DescriptorReader<T> {
+
+	@Override
+	public IDatabase db() {
+		return dao.getDatabase();
+	}
 
 	@Override
 	public String query() {
@@ -32,14 +38,7 @@ public record RootDescriptorReader<T extends RootDescriptor>(
 			var d = dao.getDescriptorType()
 					.getDeclaredConstructor()
 					.newInstance();
-			d.id = getId(r);
-			d.refId = getRefIf(r);
-			d.name = getName(r);
-			d.version = getVersion(r);
-			d.lastChange = getLastChange(r);
-			d.category = getCategory(r);
-			d.library = getLibrary(r);
-			d.tags = getTags(r);
+			Util.fill(d, this, r);
 			return d;
 		} catch (
 				NoSuchMethodException

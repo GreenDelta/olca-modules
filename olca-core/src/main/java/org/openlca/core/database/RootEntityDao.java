@@ -1,13 +1,9 @@
 package org.openlca.core.database;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 
-import org.openlca.core.database.descriptors.DescriptorReader;
-import org.openlca.core.database.descriptors.RootDescriptorReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
@@ -30,22 +26,6 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 		} else {
 			return queryDescriptors("where d.f_category is null", List.of());
 		}
-	}
-
-	public List<V> getDescriptors(
-			BiPredicate<DescriptorReader<V>, ResultSet> fn
-	) {
-		if (fn == null)
-			return List.of();
-		var selected = new ArrayList<V>();
-		var reader = new RootDescriptorReader<>(this);
-		NativeSql.on(db).query(reader.query(), row -> {
-			if (fn.test(reader, row)) {
-				selected.add(reader.getDescriptor(row));
-			}
-			return true;
-		});
-		return selected;
 	}
 
 	@Override

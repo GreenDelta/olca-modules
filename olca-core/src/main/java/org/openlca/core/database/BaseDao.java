@@ -24,16 +24,16 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	 */
 	static final int MAX_LIST_SIZE = 1000;
 
-	protected Class<T> entityType;
-	protected Logger log = LoggerFactory.getLogger(this.getClass());
-	protected IDatabase db;
+	protected final Class<T> entityType;
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+	protected final IDatabase db;
 
 	protected BaseDao(Class<T> entityType, IDatabase db) {
 		this.entityType = entityType;
 		this.db = db;
 	}
 
-	protected IDatabase getDatabase() {
+	public IDatabase getDatabase() {
 		return db;
 	}
 
