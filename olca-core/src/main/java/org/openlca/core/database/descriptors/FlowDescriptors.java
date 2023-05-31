@@ -62,10 +62,10 @@ public class FlowDescriptors
 		}
 	}
 
-	public Long getRefFlowProperty(ResultSet r) {
+	public long getRefFlowProperty(ResultSet r) {
 		try {
 			var prop = r.getLong(11);
-			return r.wasNull() ? null : prop;
+			return r.wasNull() ? 0L : prop;
 		} catch (SQLException e) {
 			throw Util.ex("failed to read field 'ref.-flow-property", e);
 		}
