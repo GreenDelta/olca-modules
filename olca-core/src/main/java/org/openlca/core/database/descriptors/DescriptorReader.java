@@ -20,7 +20,11 @@ public interface DescriptorReader<T extends RootDescriptor> {
 			IDatabase db, ModelType type
 	) {
 		return switch (type) {
+			case FLOW -> FlowDescriptors.of(db);
+			case IMPACT_CATEGORY -> ImpactDescriptors.of(db);
 			case LOCATION -> LocationDescriptors.of(db);
+			case PARAMETER -> ParameterDescriptors.of(db);
+			case PROCESS -> ProcessDescriptors.of(db);
 			default -> new RootDescriptorReader<>(Daos.root(db, type));
 		};
 	}
