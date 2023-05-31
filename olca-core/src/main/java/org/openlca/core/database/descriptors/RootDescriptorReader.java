@@ -6,10 +6,16 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
+import java.util.Objects;
 
-public record RootDescriptorReader<T extends RootDescriptor>(
-		RootEntityDao<?, T> dao
-) implements DescriptorReader<T> {
+class RootDescriptorReader<T extends RootDescriptor>
+		implements DescriptorReader<T> {
+
+	private final RootEntityDao<?, T> dao;
+
+	RootDescriptorReader(RootEntityDao<?, T> dao) {
+		this.dao = Objects.requireNonNull(dao);
+	}
 
 	@Override
 	public IDatabase db() {

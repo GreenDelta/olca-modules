@@ -1,7 +1,9 @@
 package org.openlca.core.database.descriptors;
 
+import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 import java.sql.ResultSet;
@@ -13,6 +15,15 @@ import java.util.function.Predicate;
 import static org.openlca.core.database.descriptors.Util.ex;
 
 public interface DescriptorReader<T extends RootDescriptor> {
+
+	static DescriptorReader<? extends RootDescriptor> of(
+			IDatabase db, ModelType type
+	) {
+		return switch (type) {
+			case LOCATION -> LocationDescriptors.of(db);
+			default -> new RootDescriptorReader<>(Daos.root(db, type));
+		};
+	}
 
 	IDatabase db();
 
