@@ -11,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.TechIndex;
 
 public record IxTechIndex(List<IxTechItem> items) {
@@ -149,5 +151,9 @@ public record IxTechIndex(List<IxTechItem> items) {
 			throw new RuntimeException(
 				"failed to write tech-index to " + file, e);
 		}
+	}
+
+	public Optional<TechIndex> syncWith(IDatabase db) {
+		return IxTechSync.sync(db, this);
 	}
 }

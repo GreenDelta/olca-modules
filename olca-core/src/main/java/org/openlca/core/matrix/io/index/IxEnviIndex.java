@@ -11,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviIndex;
 
 public record IxEnviIndex(List<IxEnviItem> items) {
@@ -149,5 +151,9 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 			throw new RuntimeException(
 				"failed to write envi-index to " + file, e);
 		}
+	}
+
+	public Optional<EnviIndex> syncWith(IDatabase db) {
+		return IxEnviSync.sync(db, this);
 	}
 }
