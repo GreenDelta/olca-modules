@@ -1,25 +1,7 @@
 package org.openlca.core.library;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ImpactCategoryDao;
-import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
@@ -30,12 +12,21 @@ import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.LocationDescriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.npy.Npy;
 import org.openlca.util.Dirs;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record Library(File folder) {
 
@@ -53,7 +44,7 @@ public record Library(File folder) {
 			return LibraryInfo.of(folder.getName());
 		var obj = Json.readObject(file);
 		return obj.map(LibraryInfo::fromJson)
-			.orElseGet(() -> LibraryInfo.of(folder.getName()));
+				.orElseGet(() -> LibraryInfo.of(folder.getName()));
 	}
 
 	public String name() {
@@ -69,11 +60,11 @@ public record Library(File folder) {
 			return Collections.emptySet();
 		var libDir = new LibraryDir(folder.getParentFile());
 		return info.dependencies()
-			.stream()
-			.map(libDir::getLibrary)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.collect(Collectors.toSet());
+				.stream()
+				.map(libDir::getLibrary)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -130,22 +121,7 @@ public record Library(File folder) {
 	 * database, an empty option is returned.
 	 */
 	public Optional<TechIndex> syncTechIndex(IDatabase db) {
-		var processes = descriptors(new ProcessDao(db));
-		var products = descriptors(new FlowDao(db));
-		TechIndex index = null;
-		var libIdx = readTechIndex();
-		for (var i : libIdx.items()) {
-			var process = processes.get(i.provider().id());
-			var product = products.get(i.flow().id());
-			if (process == null || product == null)
-				return Optional.empty();
-			if (index == null) {
-				index = new TechIndex(TechFlow.of(process, product));
-			} else {
-				index.add(TechFlow.of(process, product));
-			}
-		}
-		return Optional.ofNullable(index);
+		return readTechIndex().syncWith(db);
 	}
 
 	/**
@@ -162,33 +138,7 @@ public record Library(File folder) {
 	 * with the database, an empty option is returned.
 	 */
 	public Optional<EnviIndex> syncEnviIndex(IDatabase db) {
-		var libIdx = readEnviIndex();
-		if (libIdx.isEmpty())
-			return Optional.empty();
-
-		var info = getInfo();
-		var index = info.isRegionalized()
-			? EnviIndex.createRegionalized()
-			: EnviIndex.create();
-
-		var flows = descriptors(new FlowDao(db));
-		Map<String, LocationDescriptor> locations = info.isRegionalized()
-			? descriptors(new LocationDao(db))
-			: Collections.emptyMap();
-
-		for (var i : libIdx.items()) {
-			var flow = flows.get(i.flow().id());
-			if (flow == null)
-				return Optional.empty();
-			var location = info.isRegionalized() && !i.location().isEmpty()
-				? locations.get(i.location().id())
-				: null;
-			var enviFlow = i.isInput()
-				? EnviFlow.inputOf(flow, location)
-				: EnviFlow.outputOf(flow, location);
-			index.add(enviFlow);
-		}
-		return Optional.of(index);
+		return readEnviIndex().syncWith(db);
 	}
 
 	/**
@@ -205,29 +155,7 @@ public record Library(File folder) {
 	 * with the database, an empty option is returned.
 	 */
 	public Optional<ImpactIndex> syncImpactIndex(IDatabase db) {
-		var libIdx = readImpactIndex();
-		if (libIdx.isEmpty())
-			return Optional.empty();
-
-		var index = new ImpactIndex();
-		var impacts = descriptors(new ImpactCategoryDao(db));
-		for (var i : libIdx.items()) {
-			var impact = impacts.get(i.impact().id());
-			if (impact == null)
-				return Optional.empty();
-			index.add(impact);
-		}
-		return Optional.of(index);
-	}
-
-	private <T extends RootDescriptor> Map<String, T> descriptors(
-		RootEntityDao<?, T> dao) {
-		return dao.getDescriptors()
-			.stream()
-			.collect(Collectors.toMap(
-				d -> d.refId,
-				d -> d,
-				(d1, d2) -> d1));
+		return readImpactIndex().syncWith(db);
 	}
 
 	public boolean hasMatrix(LibMatrix m) {
@@ -268,7 +196,7 @@ public record Library(File folder) {
 	}
 
 	public List<ImpactFactor> getImpactFactors(
-		ImpactDescriptor impact, IDatabase db) {
+			ImpactDescriptor impact, IDatabase db) {
 		return ImpactFactors.join(this, db).getFor(impact);
 	}
 
@@ -284,7 +212,7 @@ public record Library(File folder) {
 			return ZipStore.open(zip);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to open library meta data zip: " + zip, e);
+					"failed to open library meta data zip: " + zip, e);
 		}
 	}
 }
