@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
@@ -20,7 +21,7 @@ public class CalculationQueue {
 	private final IDatabase db;
 	private final ConcurrentMap<String, ResultState> states;
 	private final ExecutorService threads;
-	private LibraryDir libDir;
+	private LibReaderRegistry libraries;
 	private Cleaner cleaner;
 
 	public CalculationQueue(IDatabase db, int threadCount) {
@@ -29,14 +30,16 @@ public class CalculationQueue {
 		states = new ConcurrentHashMap<>();
 	}
 
-	public CalculationQueue withLibraryDir(LibraryDir libDir) {
-		this.libDir = libDir;
+	public CalculationQueue withLibraries(LibReaderRegistry libraries) {
+		this.libraries = libraries;
 		return this;
 	}
 
 	public static CalculationQueue of(ServerConfig config) {
 		var queue = new CalculationQueue(config.db(), config.threadCount());
-		queue.withLibraryDir(config.dataDir().getLibraryDir());
+		// TODO: the data-dir should have a method to check if it has libraries
+		// also check if the database has mounted libraries first
+		queue.withLibraries(config.dataDir().getLibraryDir());
 		if (config.timeout() > 0) {
 			queue.withTimeout(config.timeout(), TimeUnit.MINUTES);
 		}
@@ -139,7 +142,7 @@ public class CalculationQueue {
 					result = state.simulator().nextRun();
 				} else {
 					result = new SystemCalculator(db)
-							.withLibraryDir(libDir)
+							.withLibraries(libraries)
 							.calculate(state.setup());
 				}
 				var nextState = state.updateResult(result);

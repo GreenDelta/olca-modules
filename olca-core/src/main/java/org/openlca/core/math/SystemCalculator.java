@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
@@ -36,15 +36,15 @@ public class SystemCalculator {
 	private final int EAGER = 2;
 
 	private final IDatabase db;
-	private LibraryDir libraryDir;
+	private LibReaderRegistry libraries;
 	private MatrixSolver solver;
 
 	public SystemCalculator(IDatabase db) {
 		this.db = db;
 	}
 
-	public SystemCalculator withLibraryDir(LibraryDir libraryDir) {
-		this.libraryDir = libraryDir;
+	public SystemCalculator withLibraries(LibReaderRegistry libraries) {
+		this.libraries = libraries;
 		return this;
 	}
 
@@ -75,7 +75,7 @@ public class SystemCalculator {
 				.withSubResults(subs)
 				.build();
 		var context = SolverContext.of(db, data)
-				.libraryDir(libraryDir)
+				.withLibraries(libraries)
 				.withSolver(solver);
 
 		var provider = switch (type) {

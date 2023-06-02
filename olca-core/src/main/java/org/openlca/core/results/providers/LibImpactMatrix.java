@@ -49,10 +49,8 @@ public class LibImpactMatrix {
 		}
 
 		// collect and add the library factors
-		for (var libID : libs) {
-			var lib = libraries.get(libID);
-			if (lib == null)
-				continue;
+		for (var libId : libs) {
+			var lib = libraries.get(libId);
 
 			// load the matrix and impact index
 			var libMatrix = lib.matrixOf(LibMatrix.C);

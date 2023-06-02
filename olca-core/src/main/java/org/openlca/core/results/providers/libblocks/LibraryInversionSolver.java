@@ -70,7 +70,7 @@ public class LibraryInversionSolver {
 
 		for (var block : techIdx.blocks) {
 			int offset = block.offset();
-			var lib = libs.get(block.library());
+			var lib = block.reader();
 
 			// fill blocks of matrices A and INV
 			var libA = lib.matrixOf(LibMatrix.A);
@@ -113,9 +113,9 @@ public class LibraryInversionSolver {
 	}
 
 	private void addInterventionsOf(Block block, MatrixReader libInv) {
-		if (enviMatrix == null || !enviIdx.contains(block.library()))
+		if (enviMatrix == null || !enviIdx.contains(block.id()))
 			return;
-		var lib = libs.get(block.library());
+		var lib =block.reader();
 		var libB = lib.matrixOf(LibMatrix.B);
 		if (libB == null)
 			return;
@@ -125,11 +125,11 @@ public class LibraryInversionSolver {
 		}
 
 		var offset = block.offset();
-		if (enviIdx.isFront(block.library())) {
+		if (enviIdx.isFront(block.id())) {
 			libB.copyTo(enviMatrix, 0, offset);
 			libM.copyTo(intensities, 0, offset);
 		} else {
-			int[] rowMap = enviIdx.map(block.library());
+			int[] rowMap = enviIdx.map(block.id());
 			libB.iterate((row, col, value) ->
 				enviMatrix.set(rowMap[row], col + offset, value));
 			libM.iterate((row, col, value) ->
