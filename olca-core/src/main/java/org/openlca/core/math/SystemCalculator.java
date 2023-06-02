@@ -76,7 +76,7 @@ public class SystemCalculator {
 				.build();
 		var context = SolverContext.of(db, data)
 				.libraryDir(libraryDir)
-				.solver(solver);
+				.withSolver(solver);
 
 		var provider = switch (type) {
 			case LAZY -> ResultProviders.solveLazy(context);

@@ -23,6 +23,10 @@ public interface LibReader {
 
 	Library library();
 
+	default String libraryName() {
+		return library().name();
+	}
+
 	TechIndex techIndex();
 
 	default boolean hasTechData() {

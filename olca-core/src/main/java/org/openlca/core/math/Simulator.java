@@ -190,7 +190,7 @@ public class Simulator {
 
 	private LcaResult solve(MatrixData data) {
 		var context = SolverContext.of(db, data)
-				.solver(solver)
+				.withSolver(solver)
 				.libraryDir(libraryDir);
 		var provider = ResultProviders.solveLazy(context);
 		return new LcaResult(provider);

@@ -128,7 +128,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		var solver = new NativeSolver();
 		var context = SolverContext.of(data);
 		var libContext = SolverContext.of(db, foreground)
-			.solver(solver)
+			.withSolver(solver)
 			.libraryDir(libDir);
 
 		return List.of(

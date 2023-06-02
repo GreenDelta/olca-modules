@@ -1,6 +1,7 @@
 package org.openlca.core.results.providers.libblocks;
 
 import org.openlca.core.library.LibMatrix;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
@@ -11,7 +12,6 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
 import org.openlca.core.results.providers.LibImpactMatrix;
-import org.openlca.core.results.providers.LibraryCache;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.SolverContext;
 import org.openlca.core.results.providers.libblocks.BlockTechIndex.Block;
@@ -20,7 +20,7 @@ public class LibraryInversionSolver {
 
 	private final SolverContext context;
 	private final MatrixSolver solver;
-	private final LibraryCache libs;
+	private final LibReaderRegistry libs;
 
 	private final BlockTechIndex techIdx;
 	private final BlockEnviIndex enviIdx;
@@ -70,14 +70,14 @@ public class LibraryInversionSolver {
 
 		for (var block : techIdx.blocks) {
 			int offset = block.offset();
-			var lib = block.library();
+			var lib = libs.get(block.library());
 
 			// fill blocks of matrices A and INV
-			var libA = libs.matrixOf(lib, LibMatrix.A);
+			var libA = lib.matrixOf(LibMatrix.A);
 			if (libA == null)
 				continue;
 			libA.copyTo(techMatrix, offset, offset);
-			var libInv = libs.matrixOf(lib, LibMatrix.INV);
+			var libInv = lib.matrixOf(LibMatrix.INV);
 			if (libInv == null) {
 				libInv = solver.invert(libA);
 			}
@@ -102,8 +102,7 @@ public class LibraryInversionSolver {
 			&& MatrixIndex.isPresent(f.impactIndex)) {
 			data.impactIndex = f.impactIndex;
 			data.impactMatrix = LibImpactMatrix.of(f.impactIndex, data.enviIndex)
-				.withLibraryEnviIndices(enviIdx.libIndices)
-				.build(context.db(), libs.dir());
+				.build(context.db(), libs);
 		}
 
 		var result = InversionResult.of(context.solver(), data)
@@ -114,23 +113,23 @@ public class LibraryInversionSolver {
 	}
 
 	private void addInterventionsOf(Block block, MatrixReader libInv) {
-		var lib = block.library();
-		if (enviMatrix == null || !enviIdx.contains(lib))
+		if (enviMatrix == null || !enviIdx.contains(block.library()))
 			return;
-		var libB = libs.matrixOf(lib, LibMatrix.B);
+		var lib = libs.get(block.library());
+		var libB = lib.matrixOf(LibMatrix.B);
 		if (libB == null)
 			return;
-		var libM = libs.matrixOf(lib, LibMatrix.M);
+		var libM = lib.matrixOf(LibMatrix.M);
 		if (libM == null) {
 			libM = solver.multiply(libB, libInv);
 		}
 
 		var offset = block.offset();
-		if (enviIdx.isFront(lib)) {
+		if (enviIdx.isFront(block.library())) {
 			libB.copyTo(enviMatrix, 0, offset);
 			libM.copyTo(intensities, 0, offset);
 		} else {
-			int[] rowMap = enviIdx.map(lib);
+			int[] rowMap = enviIdx.map(block.library());
 			libB.iterate((row, col, value) ->
 				enviMatrix.set(rowMap[row], col + offset, value));
 			libM.iterate((row, col, value) ->

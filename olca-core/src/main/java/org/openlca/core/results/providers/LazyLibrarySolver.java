@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixData;
@@ -28,7 +29,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 public class LazyLibrarySolver implements ResultProvider {
 
 	private final IDatabase db;
-	private final LibraryCache libs;
+	private final LibReaderRegistry libs;
 	private final HashSet<String> usedLibs = new HashSet<>();
 	private final MatrixSolver solver;
 
@@ -313,6 +314,7 @@ public class LazyLibrarySolver implements ResultProvider {
 			var libId = p.library();
 			if (libId == null)
 				continue;
+
 			var libIndex = libs.techIndexOf(libId);
 			if (libIndex == null)
 				continue;
@@ -378,12 +380,13 @@ public class LazyLibrarySolver implements ResultProvider {
 
 		// in case of a library product, we need to map
 		// the column entries
-		var flowIdxB = libs.enviIndexOf(libId);
-		var techIdxB = libs.techIndexOf(libId);
+		var lib = libs.get(libId);
+		var flowIdxB = lib.enviIndex();
+		var techIdxB = lib.techIndex();
 		if (flowIdxB == null || techIdxB == null)
 			return put(techFlow, flowColumns, column);
 		var jB = techIdxB.of(product);
-		var colB = libs.columnOf(libId, LibMatrix.B, jB);
+		var colB = lib.columnOf(LibMatrix.B, jB);
 		if (colB == null)
 			return put(techFlow, flowColumns, column);
 
@@ -455,15 +458,18 @@ public class LazyLibrarySolver implements ResultProvider {
 
 		var techIdx = techIndex();
 		for (var libId : usedLibs) {
-			var flowIdxB = libs.enviIndexOf(libId);
-			var techIdxB = libs.techIndexOf(libId);
+			var lib = libs.get(libId);
+			if (lib == null)
+				continue;
+			var flowIdxB = lib.enviIndex();
+			var techIdxB = lib.techIndex();
 			if (flowIdxB == null || techIdxB == null)
 				continue;
 			if (flowIdxB.size() == 0)
 				continue;
 
 			// calculate the scaled library result
-			var matrixB = libs.matrixOf(libId, LibMatrix.B);
+			var matrixB = lib.matrixOf(LibMatrix.B);
 			if (matrixB == null)
 				continue;
 			var sB = new double[techIdxB.size()];
@@ -557,13 +563,16 @@ public class LazyLibrarySolver implements ResultProvider {
 			}
 		});
 		for (var libId : usedLibs) {
-			var libFlowIdx = libs.enviIndexOf(libId);
+			var lib = libs.get(libId);
+			if (lib == null)
+				continue;
+			var libFlowIdx = lib.enviIndex();
 			if (libFlowIdx == null)
 				continue;
-			var libImpactIdx = libs.impactIndexOf(libId);
+			var libImpactIdx = lib.impactIndex();
 			if (libImpactIdx == null)
 				continue;
-			var libMatrix = libs.matrixOf(libId, LibMatrix.C);
+			var libMatrix = lib.matrixOf(LibMatrix.C);
 			if (libMatrix == null)
 				continue;
 			libMatrix.iterate((rowB, colB, val) -> {
