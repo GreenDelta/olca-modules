@@ -1,4 +1,4 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -16,9 +16,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.io.index.IxFormat;
 import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.matrix.io.index.IxTechItem;
-import org.openlca.core.library.Libraries;
-import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.Mounter;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;

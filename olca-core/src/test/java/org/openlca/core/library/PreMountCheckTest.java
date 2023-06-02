@@ -1,4 +1,4 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,9 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.Library;
-import org.openlca.core.library.PreMountCheck;
-import org.openlca.core.library.PreMountState;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;

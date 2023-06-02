@@ -1,4 +1,4 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.nio.file.Files;
 
 import org.junit.Test;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.util.Dirs;
 
 public class LibraryTest {

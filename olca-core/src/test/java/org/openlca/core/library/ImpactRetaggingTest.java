@@ -1,4 +1,4 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
 import static org.junit.Assert.*;
 
@@ -9,10 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryExport;
-import org.openlca.core.library.MountAction;
-import org.openlca.core.library.Mounter;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
