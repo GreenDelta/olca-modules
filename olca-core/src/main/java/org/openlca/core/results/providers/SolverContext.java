@@ -63,7 +63,7 @@ public class SolverContext {
 		// when no library registry is configured we try to create
 		// it from the default location
 		var libDir = DataDir.get().getLibraryDir();
-		libraries = LibReaderRegistry.of(libDir, db);
+		libraries = LibReaderRegistry.of(db, libDir);
 		return libraries;
 	}
 

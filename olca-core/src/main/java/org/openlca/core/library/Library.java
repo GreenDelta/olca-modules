@@ -158,6 +158,16 @@ public record Library(File folder) {
 		return readImpactIndex().syncWith(db);
 	}
 
+	/**
+	 * Returns {@code true} when this library has matrix data.
+	 */
+	public boolean hasMatrices() {
+		// there are ony two types of matrix libraries: in process
+		// based libraries the tech. matrix A must be present, and
+		// in pure LCIA libraries the characterization matrix C
+		return hasMatrix(LibMatrix.A) || hasMatrix(LibMatrix.C);
+	}
+
 	public boolean hasMatrix(LibMatrix m) {
 		return m.isPresentIn(this);
 	}

@@ -95,7 +95,7 @@ public class LibraryInversionSolverTest {
 		data.impactMatrix = DenseMatrix.of((new double[][]{{0.5}}));
 
 		var context = SolverContext.of(db, data)
-			.withLibraries(LibReaderRegistry.of(libDir, db));
+			.withLibraries(LibReaderRegistry.of(db, libDir));
 
 		var result = LibraryInversionSolver.solve(context);
 		check(result.scalingVector(), 1, 1);

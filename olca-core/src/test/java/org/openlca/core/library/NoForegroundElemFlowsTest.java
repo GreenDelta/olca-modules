@@ -101,7 +101,7 @@ public class NoForegroundElemFlowsTest {
 		// calculate the results
 		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db)
-			.withLibraries(LibReaderRegistry.of(libDir, db))
+			.withLibraries(LibReaderRegistry.of(db, libDir))
 			.calculate(setup);
 
 		// check the result

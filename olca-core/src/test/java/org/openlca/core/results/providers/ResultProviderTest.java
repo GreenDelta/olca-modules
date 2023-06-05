@@ -130,7 +130,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		var context = SolverContext.of(data);
 		var libContext = SolverContext.of(db, foreground)
 			.withSolver(solver)
-			.withLibraries(LibReaderRegistry.of(libDir, db));
+			.withLibraries(LibReaderRegistry.of(db, libDir));
 
 		return List.of(
 			InversionResult.of(context).calculate().provider(),
