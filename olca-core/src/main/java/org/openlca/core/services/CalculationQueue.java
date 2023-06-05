@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
@@ -36,10 +35,12 @@ public class CalculationQueue {
 	}
 
 	public static CalculationQueue of(ServerConfig config) {
-		var queue = new CalculationQueue(config.db(), config.threadCount());
-		// TODO: the data-dir should have a method to check if it has libraries
-		// also check if the database has mounted libraries first
-		queue.withLibraries(config.dataDir().getLibraryDir());
+		var db = config.db();
+		var queue = new CalculationQueue(db, config.threadCount());
+		if (db.hasLibraries()) {
+			var libDir = config.dataDir().getLibraryDir();
+		  queue.withLibraries(LibReaderRegistry.of(libDir, db));
+		}
 		if (config.timeout() > 0) {
 			queue.withTimeout(config.timeout(), TimeUnit.MINUTES);
 		}

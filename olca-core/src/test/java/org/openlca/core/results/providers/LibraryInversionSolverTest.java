@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.io.index.IxEnviIndex;
 import org.openlca.core.matrix.io.index.IxEnviItem;
 import org.openlca.core.library.LibMatrix;
@@ -94,7 +95,7 @@ public class LibraryInversionSolverTest {
 		data.impactMatrix = DenseMatrix.of((new double[][]{{0.5}}));
 
 		var context = SolverContext.of(db, data)
-			.libraryDir(libDir);
+			.withLibraries(LibReaderRegistry.of(libDir, db));
 
 		var result = LibraryInversionSolver.solve(context);
 		check(result.scalingVector(), 1, 1);

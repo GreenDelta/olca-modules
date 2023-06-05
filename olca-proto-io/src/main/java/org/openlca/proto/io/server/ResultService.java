@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.providers.ResultProvider;
@@ -53,7 +54,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		}
 
 		var result = new SystemCalculator(db)
-			.withLibraries(libDir)
+			.withLibraries(LibReaderRegistry.of(libDir, db))
 			.calculate(setup);
 		var key = UUID.randomUUID().toString();
 		results.put(key, result);
