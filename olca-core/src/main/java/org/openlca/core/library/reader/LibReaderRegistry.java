@@ -1,6 +1,7 @@
 package org.openlca.core.library.reader;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,13 @@ public class LibReaderRegistry {
 							&& !queue.contains(dep))
 					.forEach(queue::add);
 		}
+		return reg;
+	}
+
+	public static LibReaderRegistry of(IDatabase db, Library lib) {
+		var reg = new LibReaderRegistry();
+		var reader = LibReader.of(lib, db).create();
+		reg.readers.put(lib.name(), reader);
 		return reg;
 	}
 
