@@ -6,11 +6,16 @@ import org.openlca.core.library.Library;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import javax.crypto.Cipher;
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -57,6 +62,27 @@ public interface LibReader {
 	double[] diagonalOf(LibMatrix matrix);
 
 	double[] columnOf(LibMatrix matrix, int col);
+
+	/**
+	 * Creates a list of exchanges from the library matrices that describe the
+	 * inputs and outputs of the given library product. The meta-data of the
+	 * exchanges are synchronized with the given databases. Thus, the library
+	 * needs to be mounted to that database.
+	 */
+	default List<Exchange> getExchanges(TechFlow product, IDatabase db) {
+		return Exchanges.join(db, this).getFor(product);
+	}
+
+	/**
+	 * Creates a list of impact factors from the characterization matrix of the
+	 * underlying library. The meta-data of these factors are synchronized with
+	 * the given database. This, the library needs to be mounted to that database.
+	 */
+	default List<ImpactFactor> getImpactFactors(
+			ImpactDescriptor impact, IDatabase db
+	) {
+		return ImpactFactors.join(db, this).getFor(impact);
+	}
 
 	default void dispose() {
 	}

@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.library.reader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,28 +7,29 @@ import java.util.List;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Exchange;
 
 class Exchanges {
 
-	private final Library lib;
 	private final IDatabase db;
+	private final LibReader lib;
 
-	private Exchanges(Library lib, IDatabase db) {
-		this.lib = lib;
+	private Exchanges(IDatabase db, LibReader lib) {
 		this.db = db;
+		this.lib = lib;
 	}
 
-	static Exchanges join(Library library, IDatabase db) {
-		return new Exchanges(library, db);
+	static Exchanges join(IDatabase db, LibReader lib) {
+		return new Exchanges(db, lib);
 	}
 
 	List<Exchange> getFor(TechFlow product) {
-		if (lib == null || db == null || product == null)
+		if (lib == null || product == null)
 			return Collections.emptyList();
-		var techIndex = lib.syncTechIndex(db).orElse(null);
+		var techIndex = lib.techIndex();
 		if (techIndex == null)
 			return Collections.emptyList();
 
@@ -46,7 +47,7 @@ class Exchanges {
 
 	private void addTechFlows(
 		List<Exchange> exchanges, TechIndex index, int column) {
-		var col = lib.getColumn(LibMatrix.A, column).orElse(null);
+		var col = lib.columnOf(LibMatrix.A, column);
 		if (col == null)
 			return;
 		var flowDao = new FlowDao(db);
@@ -69,10 +70,10 @@ class Exchanges {
 	}
 
 	private void addEnviFlows(List<Exchange> exchanges, int column) {
-		var colB = lib.getColumn(LibMatrix.B, column).orElse(null);
+		var colB = lib.columnOf(LibMatrix.B, column);
 		if (colB == null)
 			return;
-		var iFlows = lib.syncEnviIndex(db).orElse(null);
+		var iFlows = lib.enviIndex();
 		if (iFlows == null)
 			return;
 
