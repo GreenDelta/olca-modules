@@ -54,7 +54,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		}
 
 		var result = new SystemCalculator(db)
-			.withLibraries(LibReaderRegistry.of(libDir, db))
+			.withLibraries(LibReaderRegistry.of(db, libDir))
 			.calculate(setup);
 		var key = UUID.randomUUID().toString();
 		results.put(key, result);
