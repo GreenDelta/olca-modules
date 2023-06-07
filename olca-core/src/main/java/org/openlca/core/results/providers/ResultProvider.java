@@ -200,8 +200,8 @@ public interface ResultProvider {
 	 * Get the loop factor for the given technosphere flow. The loop factor `lf[j]`
 	 * describes the faction of the total requirements of a technosphere flow `j`
 	 * that is not related to loops. It is calculated in the following way:
-	 * `lf[j] = 1 / (A[j,j] * INV[j,j]). A loop factor of 1 means that `j` is not
-	 * in a loop; otherwise a small loop factor `0 < lf < 1` means a high
+	 * `lf[j] = 1 / (A[j,j] * INV[j,j])`. A loop factor of 1 means that `j` is not
+	 * in a loop; otherwise a small loop factor `0 &lt; lf &lt; 1` means a high
 	 * contribution of loops. Loop factors are used to avoid double counting of
 	 * loops in some result views.
 	 *

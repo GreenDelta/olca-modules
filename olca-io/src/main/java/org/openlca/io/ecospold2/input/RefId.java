@@ -17,7 +17,7 @@ final class RefId {
 
 	/**
 	 * We generate a UUID for the resulting process in openLCA from the activity
-	 * ID and the ID of the reference flow (the product output with an amount >
+	 * ID and the ID of the reference flow (the product output with an amount &gt;
 	 * 0).
 	 */
 	public static String forProcess(DataSet ds) {

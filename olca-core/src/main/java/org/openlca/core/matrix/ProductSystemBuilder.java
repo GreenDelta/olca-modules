@@ -143,7 +143,7 @@ public class ProductSystemBuilder {
 	/**
 	 * Saves the updated process links and process IDs of the given product system
 	 * in the databases. Note that if the product system is already contained in
-	 * the database (i.e. has an ID > 0) this function will not update the other
+	 * the database (i.e. has an ID &gt; 0) this function will not update the other
 	 * meta-data of the system as it is intended to call this function only for
 	 * updating the links and process IDs of a system.
 	 */
