@@ -39,7 +39,8 @@ public class UpstreamTree {
 
 	public static UpstreamTree of(ResultProvider provider, EnviFlow flow) {
 		int flowIdx = provider.indexOf(flow);
-		double total = provider.totalFlows()[flowIdx];
+		double total = ResultProvider.flowValueView(
+				flow, provider.totalFlows()[flowIdx]);
 		return new UpstreamTree(flow, provider, total,
 				techIdx -> provider.totalFlowOfOne(flowIdx, techIdx));
 	}

@@ -29,12 +29,7 @@ mvn install -DskipTests=true
 * olca-core: the openLCA kernel with the openLCA model, the database layer,
   LCA calculations, [JSON-LD](https://github.com/GreenDelta/olca-schema) data
   exchange etc.
-* olca-ecospold-1: an API for reading and writing EcoSpold 01 files.
-* olca-ecospold-2: an API for reading and writing EcoSpold 02 files.
-* olca-formula: the openLCA formula interpreter
 * olca-git: a client API to communicate with data repositories using Git
-* olca-ilcd: an API for reading and writing ILCD data sets with an
-  implementation of the ILCD network interface
 * olca-io: the import-export API of openLCA
 * olca-ipc: inter-process communication with openLCA over JSON-RPC/HTTP
 * olca-proto-io: data exchange via Protocol Buffers and gRPC
