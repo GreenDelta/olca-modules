@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ILCDLocations xmlns="http://lca.jrc.it/ILCD/Locations"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://lca.jrc.it/ILCD/Locations ../schemas/ILCD_Locations.xsd">
-	<location value="EU-28">EU-28 Member States</location>
-	<location value="RER">Europe</location>
-	<location value="DE">Germany</location>
-	<location value="FR">France</location>
-</ILCDLocations>
