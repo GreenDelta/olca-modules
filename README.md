@@ -1,25 +1,39 @@
 # openLCA – modules
 This project provides the core functionality of [openLCA](http://openlca.org) as
-a set of [Maven](https://maven.apache.org/) modules. Since version version 1.4
+a set of [Maven](https://maven.apache.org/) modules. Since version 1.4
 the [openLCA application](https://github.com/GreenDelta/olca-app) is built on
-top of these components.
+top of these modules.
 
 
-## Installation
-In order to install the modules, you need to have a [JDK >=17](https://adoptium.net)
-and [Maven 3](https://maven.apache.org/install.html) installed.
-[Download](https://github.com/GreenDelta/olca-modules/archive/master.zip) the
-repository (or get it via git), navigate to the root folder and type the
-following command in your console:
+## Usage
+
+The modules are available in the [Maven Central Repository](https://repo1.maven.org/maven2/org/openlca/),
+so you can just add them as a dependency to your project:
+
+```xml
+<dependency>
+  <groupId>org.openlca</groupId>
+  <artifactId>olca-core</artifactId>
+  <version>2.0.0</version>
+</dependency>
+```
+
+A Java version >= 17 is required.
+
+
+## Installation from source
+
+In order to build the modules from source, you need to have a [JDK >=17](https://adoptium.net)
+and [Maven 3](https://maven.apache.org/install.html) installed. Then, building
+the modules can be done like this:
 
 ```bash
-cd  olca-modules
+git clone https://github.com/GreenDelta/olca-modules.git
+cd olca-modules
 mvn install
 ```
 
-This will build the modules from source and install them into your local Maven
-repository. If the build fails because of failing tests you can skip the tests
-via:
+If the build fails because of failing tests you can skip them via:
 
 ```bash
 mvn install -DskipTests=true
