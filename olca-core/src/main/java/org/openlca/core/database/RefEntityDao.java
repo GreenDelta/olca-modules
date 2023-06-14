@@ -25,7 +25,7 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 		this.descriptorType = descriptorType;
 	}
 
-	Class<V> getDescriptorType() {
+	public Class<V> getDescriptorType() {
 		return descriptorType;
 	}
 
@@ -119,7 +119,7 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 		return map;
 	}
 
-	String getEntityTable() {
+	public String getEntityTable() {
 		if (entityTable == null) {
 			entityTable = entityType.getAnnotation(Table.class).name();
 		}

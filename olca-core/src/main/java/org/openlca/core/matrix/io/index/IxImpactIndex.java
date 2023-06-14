@@ -1,18 +1,21 @@
 package org.openlca.core.matrix.io.index;
 
+import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.index.ImpactIndex;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.matrix.index.ImpactIndex;
+import java.util.Optional;
 
 public record IxImpactIndex(List<IxImpactItem> items) {
 
@@ -27,7 +30,7 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 			return empty();
 		var items = new ArrayList<IxImpactItem>(idx.size());
 		idx.each((pos, impact)
-			-> items.add(IxImpactItem.of(pos, impact)));
+				-> items.add(IxImpactItem.of(pos, impact)));
 		return new IxImpactIndex(items);
 	}
 
@@ -37,32 +40,41 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 			return readProto(proto);
 		var csv = IxFormat.CSV.file(dir, NAME);
 		return csv.exists()
-			? readCsv(csv)
-			: empty();
+				? readCsv(csv)
+				: empty();
 	}
 
 	public static boolean isPresentInDir(File dir) {
 		return IxFormat.PROTO.file(dir, NAME).exists()
-			|| IxFormat.CSV.file(dir, NAME).exists();
+				|| IxFormat.CSV.file(dir, NAME).exists();
 	}
 
 	public static IxImpactIndex readFrom(File file) {
 		if (file == null || !file.exists())
 			return empty();
 		return Csv.isCsv(file)
-			? readCsv(file)
-			: readProto(file);
+				? readCsv(file)
+				: readProto(file);
 	}
 
 	private static IxImpactIndex readCsv(File file) {
 		var items = new ArrayList<IxImpactItem>();
 		Csv.eachRowSkipFirst(file,
-			row -> items.add(IxImpactItem.fromCsv(row)));
+				row -> items.add(IxImpactItem.fromCsv(row)));
 		return new IxImpactIndex(items);
 	}
 
 	private static IxImpactIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
+			return readProto(stream);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"failed to read impact-index from " + file, e);
+		}
+	}
+
+	public static IxImpactIndex readProto(InputStream stream) {
+		try {
 			var items = new ArrayList<IxImpactItem>();
 			var proto = IxProto.ImpactIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getImpactCount(); i++) {
@@ -72,7 +84,7 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 			return new IxImpactIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to read impact-index from " + file, e);
+					"failed to read impact-index from proto-stream", e);
 		}
 	}
 
@@ -101,10 +113,10 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 				 var printer = new CSVPrinter(writer, Csv.format())) {
 
 			printer.printRecord(
-				"index",
-				"indicator ID",
-				"indicator name",
-				"indicator unit");
+					"index",
+					"indicator ID",
+					"indicator name",
+					"indicator unit");
 
 			var buffer = new ArrayList<String>(9);
 			for (var item : items) {
@@ -127,7 +139,11 @@ public record IxImpactIndex(List<IxImpactItem> items) {
 			index.build().writeTo(buffer);
 		} catch (Exception e) {
 			throw new RuntimeException(
-				"failed to write impact-index to " + file, e);
+					"failed to write impact-index to " + file, e);
 		}
+	}
+
+	public Optional<ImpactIndex> syncWith(IDatabase db) {
+		return IxImpactSync.sync(db, this);
 	}
 }

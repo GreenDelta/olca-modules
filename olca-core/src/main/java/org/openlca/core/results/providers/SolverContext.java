@@ -2,7 +2,7 @@ package org.openlca.core.results.providers;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -11,9 +11,8 @@ public class SolverContext {
 
 	private final IDatabase db;
 	private final MatrixData matrixData;
-	private LibraryDir libDir;
-	private LibraryCache libraries;
 	private MatrixSolver solver;
+	private LibReaderRegistry libraries;
 
 	private SolverContext(IDatabase db, MatrixData matrixData) {
 		this.db = db;
@@ -53,22 +52,22 @@ public class SolverContext {
 		return matrixData.hasLibraryLinks();
 	}
 
-	public SolverContext libraryDir(LibraryDir dir) {
-		this.libDir = dir;
+	public SolverContext withLibraries(LibReaderRegistry libraries) {
+		this.libraries = libraries;
 		return this;
 	}
 
-	public LibraryCache libraries() {
+	public LibReaderRegistry libraries() {
 		if (libraries != null)
 			return libraries;
-		if (libDir == null) {
-			libDir = DataDir.get().getLibraryDir();
-		}
-		libraries = new LibraryCache(libDir, db);
+		// when no library registry is configured we try to create
+		// it from the default location
+		var libDir = DataDir.get().getLibraryDir();
+		libraries = LibReaderRegistry.of(db, libDir);
 		return libraries;
 	}
 
-	public SolverContext solver(MatrixSolver solver) {
+	public SolverContext withSolver(MatrixSolver solver) {
 		this.solver = solver;
 		return this;
 	}

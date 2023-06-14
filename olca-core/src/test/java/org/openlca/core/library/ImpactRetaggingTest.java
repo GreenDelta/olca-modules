@@ -1,6 +1,7 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,10 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryExport;
-import org.openlca.core.library.MountAction;
-import org.openlca.core.library.Mounter;
+import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -60,7 +58,8 @@ public class ImpactRetaggingTest {
 		assertEquals(Direction.INPUT, impact.direction);
 		assertTrue(impact.impactFactors.isEmpty());
 
-		var factors = lib.getImpactFactors(Descriptor.of(impact), db);
+		var r = LibReader.of(lib, db).create();
+		var factors = r.getImpactFactors(Descriptor.of(impact), db);
 		assertEquals(2, factors.size());
 		for (var f : factors) {
 			if (r1.equals(f.flow)) {

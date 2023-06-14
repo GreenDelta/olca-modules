@@ -6,8 +6,8 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -15,6 +15,8 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.index.IxContext;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxImpactIndex;
 import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
@@ -25,20 +27,20 @@ public class LibStrip implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
-	private final Library lib;
+	private final LibReader lib;
 
-	private LibStrip(IDatabase db, Library lib) {
+	private LibStrip(IDatabase db, LibReader lib) {
 		this.db = Objects.requireNonNull(db);
 		this.lib = Objects.requireNonNull(lib);
 	}
 
-	public static LibStrip of(IDatabase db, Library lib) {
+	public static LibStrip of(IDatabase db, LibReader lib) {
 		return new LibStrip(db, lib);
 	}
 
 	@Override
 	public void run() {
-		var all = lib.syncTechIndex(db).orElse(null);
+		var all = lib.techIndex();
 		if (all == null || all.isEmpty()) {
 			log.error("library has not processes in database; aborted");
 			return;
@@ -64,8 +66,8 @@ public class LibStrip implements Runnable {
 			return;
 		}
 
-		var stripped = LibraryDir.of(lib.folder().getParentFile())
-				.create(lib.name() + "_stripped");
+		var stripped = LibraryDir.of(lib.library().folder().getParentFile())
+				.create(lib.libraryName() + "_stripped");
 		var ixCxt = IxContext.of(db);
 		int n = strippedIdx.size();
 
@@ -80,11 +82,12 @@ public class LibStrip implements Runnable {
 		LibMatrix.INV.write(stripped, matrixA);
 
 		// envi. index and matrix
-		var flowIdx = lib.readEnviIndex();
+		var flowIdx = lib.enviIndex();
 		if (!flowIdx.isEmpty()) {
-			flowIdx.writeToDir(stripped.folder());
+			IxEnviIndex.of(flowIdx, ixCxt)
+					.writeToDir(stripped.folder());
 
-			var rawM = lib.getMatrix(LibMatrix.M).orElse(null);
+			var rawM = lib.matrixOf(LibMatrix.M);
 			if (rawM != null) {
 				var strippedB = new DenseMatrix(flowIdx.size(), n);
 				for (int col = 0; col < idxMap.length; col++) {
@@ -100,11 +103,14 @@ public class LibStrip implements Runnable {
 		}
 
 		// impact index and matrix
-		var impactIdx = lib.readImpactIndex();
-		if (!impactIdx.isEmpty()) {
-			impactIdx.writeToDir(stripped.folder());
-			LibMatrix.C.readFrom(lib)
-					.ifPresent(matrixC -> LibMatrix.C.write(stripped, matrixC));
+		var impactIdx = lib.impactIndex();
+		if (impactIdx != null && !impactIdx.isEmpty()) {
+			IxImpactIndex.of(impactIdx)
+					.writeToDir(stripped.folder());
+			var matrixC = lib.matrixOf(LibMatrix.C);
+			if (matrixC != null) {
+				LibMatrix.C.write(stripped, matrixC);
+			}
 		}
 
 		// reduce the meta-data
@@ -114,11 +120,11 @@ public class LibStrip implements Runnable {
 			strippedProcessIds.add(techFlow.provider().refId);
 			strippedFlowIds.add(techFlow.flow().refId);
 		}
-		for (var enviFlow : flowIdx.items()) {
-			strippedFlowIds.add(enviFlow.flow().id());
+		for (var enviFlow : flowIdx) {
+			strippedFlowIds.add(enviFlow.flow().refId);
 		}
 
-		try (var sourceZip = lib.openJsonZip();
+		try (var sourceZip = lib.library().openJsonZip();
 				 var targetZip = stripped.openJsonZip()) {
 			for (var type : ModelType.values()) {
 				var ids = sourceZip.getRefIds(type);
@@ -174,7 +180,7 @@ public class LibStrip implements Runnable {
 	}
 
 	private boolean isLib(String libId) {
-		return libId != null && libId.equals(lib.name());
+		return libId != null && libId.equals(lib.libraryName());
 	}
 
 }

@@ -29,7 +29,7 @@ public class UnitGroupDao extends
 		for (long id : ids)
 			result.put(id, false);
 		NativeSql.on(db).query(query.toString(), (res) -> {
-			result.put(res.getLong(1), res.getLong(2) != 0l);
+			result.put(res.getLong(1), res.getLong(2) != 0L);
 			return true;
 		});
 		return result;

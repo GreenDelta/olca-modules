@@ -19,6 +19,7 @@ import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.LibraryExport;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.JavaMatrix;
@@ -117,6 +118,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		new LibraryExport(db, new File(libRoot, libID))
 			.withData(data)
 			.run();
+		var lib = libDir.getLibrary(libID).orElseThrow();
 
 		var foreground = new MatrixData();
 		foreground.techIndex = new TechIndex(data.techIndex.at(0));
@@ -124,12 +126,10 @@ public record ResultProviderTest(ResultProvider provider) {
 		foreground.techMatrix = JavaMatrix.of(new double[][]{{1}});
 		foreground.impactIndex = data.impactIndex;
 
-		// create the result providers
-		var solver = new NativeSolver();
 		var context = SolverContext.of(data);
 		var libContext = SolverContext.of(db, foreground)
-			.solver(solver)
-			.libraryDir(libDir);
+			.withSolver(new NativeSolver())
+			.withLibraries(LibReaderRegistry.of(db, lib));
 
 		return List.of(
 			InversionResult.of(context).calculate().provider(),

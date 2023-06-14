@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.library.reader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,22 +7,23 @@ import java.util.List;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
+import org.openlca.core.library.LibMatrix;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 class ImpactFactors {
 
-	private final Library lib;
+	private final LibReader lib;
 	private final IDatabase db;
 
-	private ImpactFactors(Library lib, IDatabase db) {
+	private ImpactFactors(IDatabase db, LibReader lib) {
 		this.lib = lib;
 		this.db = db;
 	}
 
-	static ImpactFactors join(Library lib, IDatabase db) {
-		return new ImpactFactors(lib, db);
+	static ImpactFactors join(IDatabase db, LibReader lib) {
+		return new ImpactFactors(db, lib);
 	}
 
 	List<ImpactFactor> getFor(ImpactDescriptor impact) {
@@ -30,7 +31,7 @@ class ImpactFactors {
 			return Collections.emptyList();
 
 		// get the row of the impact category
-		var impactIndex = lib.syncImpactIndex(db).orElse(null);
+		var impactIndex = lib.impactIndex();
 		if (impactIndex == null)
 			return Collections.emptyList();
 		int row = impactIndex.of(impact);
@@ -38,12 +39,12 @@ class ImpactFactors {
 			return Collections.emptyList();
 
 		// sync the flows
-		var flowIndex = lib.syncEnviIndex(db).orElse(null);
+		var flowIndex = lib.enviIndex();
 		if (flowIndex == null)
 			return Collections.emptyList();
 
 		// get the values
-		var m = lib.getMatrix(LibMatrix.C).orElse(null);
+		var m = lib.matrixOf(LibMatrix.C);
 		if (m == null || m.rows() <= row)
 			return Collections.emptyList();
 		var values = m.getRow(row);

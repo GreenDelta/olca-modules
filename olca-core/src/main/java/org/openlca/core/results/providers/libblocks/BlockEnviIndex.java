@@ -28,17 +28,17 @@ class BlockEnviIndex {
 
 	private BlockEnviIndex(SolverContext context, BlockTechIndex techIdx) {
 
-		var libs = context.libraries();
 		var enviBlocks = new ArrayList<EnviBlock>();
 		EnviBlock front = null;
 		libIndices = new HashMap<>();
 		for (var block : techIdx.blocks) {
-			var enviIdx = libs.enviIndexOf(block.library());
+			var reader = block.reader();
+			var enviIdx = reader.enviIndex();
 			if (enviIdx == null)
 				continue;
 			var enviBlock = new EnviBlock(block, enviIdx);
 			enviBlocks.add(enviBlock);
-			libIndices.put(block.library(), enviIdx);
+			libIndices.put(block.id(), enviIdx);
 			if (front == null || enviBlock.size() > front.size()) {
 				front = enviBlock;
 			}
@@ -60,7 +60,7 @@ class BlockEnviIndex {
 		if (front == null) {
 			frontLib = null;
 		} else {
-			frontLib = front.block.library();
+			frontLib = front.block.id();
 			if (f.enviIndex != null) {
 				index.addAll(f.enviIndex);
 			}

@@ -1,7 +1,9 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,12 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.io.index.IxFormat;
 import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.matrix.io.index.IxTechItem;
-import org.openlca.core.library.Libraries;
-import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.Mounter;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
@@ -45,12 +45,10 @@ public class LibrariesTest {
 	@Test
 	public void testEmptyIndices() {
 		var lib = libDir.create("a test lib");
-		assertTrue(lib.readTechIndex().isEmpty());
-		assertTrue(lib.readEnviIndex().isEmpty());
-		assertTrue(lib.readImpactIndex().isEmpty());
-		assertTrue(lib.syncTechIndex(db).isEmpty());
-		assertTrue(lib.syncEnviIndex(db).isEmpty());
-		assertTrue(lib.syncImpactIndex(db).isEmpty());
+		var r = LibReader.of(lib, db).create();
+		assertNull(r.techIndex());
+		assertNull(r.enviIndex());
+		assertNull(r.impactIndex());
 	}
 
 	@Test
@@ -75,7 +73,8 @@ public class LibrariesTest {
 		libIdx.writeToDir(lib.folder(), IxFormat.CSV);
 
 		Mounter.of(db, lib).run();
-		var techIdx = lib.syncTechIndex(db).orElse(null);
+		var r = LibReader.of(lib, db).create();
+		var techIdx = r.techIndex();
 		assertNotNull(techIdx);
 	}
 

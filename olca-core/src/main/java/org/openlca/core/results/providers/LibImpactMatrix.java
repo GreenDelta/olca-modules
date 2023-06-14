@@ -1,11 +1,10 @@
 package org.openlca.core.results.providers;
 
 import java.util.HashSet;
-import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.IndexedMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -18,7 +17,6 @@ public class LibImpactMatrix {
 
 	private final ImpactIndex impactIndex;
 	private final EnviIndex flowIndex;
-	private Map<String, EnviIndex> libFlowIndices;
 
 	private LibImpactMatrix(ImpactIndex impacts, EnviIndex flows) {
 		this.impactIndex = impacts;
@@ -29,13 +27,7 @@ public class LibImpactMatrix {
 		return new LibImpactMatrix(impacts, flows);
 	}
 
-	public LibImpactMatrix withLibraryEnviIndices(
-		Map<String, EnviIndex> indices) {
-		this.libFlowIndices = indices;
-		return this;
-	}
-
-	public MatrixReader build(IDatabase db, LibraryDir libDir) {
+	public MatrixReader build(IDatabase db, LibReaderRegistry libraries) {
 
 		// collect the used libraries
 		var libs = new HashSet<String>();
@@ -57,33 +49,24 @@ public class LibImpactMatrix {
 		}
 
 		// collect and add the library factors
-		for (var libID : libs) {
-			var lib = libDir.getLibrary(libID).orElse(null);
-			if (lib == null)
-				continue;
+		for (var libId : libs) {
+			var lib = libraries.get(libId);
 
 			// load the matrix and impact index
-			var libMatrix = lib.getMatrix(LibMatrix.C);
-			if (libMatrix.isEmpty())
+			var libMatrix = lib.matrixOf(LibMatrix.C);
+			if (libMatrix == null)
 				continue;
-			var libImpacts = lib.syncImpactIndex(db);
-			if (libImpacts.isEmpty())
+			var libImpacts = lib.impactIndex();
+			if (libImpacts == null)
 				continue;
 
 			// load the library flows
-			EnviIndex libFlows = libFlowIndices != null
-				?  libFlowIndices.get(libID)
-				: null;
-			if (libFlows == null) {
-				libFlows = lib.syncEnviIndex(db)
-					.orElse(null);
-			}
+			var libFlows = lib.enviIndex();
 			if (libFlows == null)
 				continue;
 
 			// add the matrix
-			builder.put(IndexedMatrix.of(
-				libImpacts.get(), libFlows, libMatrix.get()));
+			builder.put(IndexedMatrix.of(libImpacts, libFlows, libMatrix));
 		}
 
 		return builder.finish().data();
