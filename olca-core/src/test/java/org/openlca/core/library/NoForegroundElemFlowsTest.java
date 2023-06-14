@@ -1,4 +1,4 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.library.LibMatrix;
-import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -102,7 +101,7 @@ public class NoForegroundElemFlowsTest {
 		// calculate the results
 		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db)
-			.withLibraryDir(libDir)
+			.withLibraries(LibReaderRegistry.of(db, lib))
 			.calculate(setup);
 
 		// check the result

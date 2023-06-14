@@ -1,4 +1,4 @@
-package org.openlca.core.libraries;
+package org.openlca.core.library;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -8,8 +8,6 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.junit.Test;
-import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryPackage;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.core.model.FlowProperty;

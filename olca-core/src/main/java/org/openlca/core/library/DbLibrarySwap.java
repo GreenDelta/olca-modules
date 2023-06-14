@@ -11,6 +11,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.RootEntity;
@@ -28,19 +29,19 @@ import gnu.trove.set.hash.TLongHashSet;
 public class DbLibrarySwap implements Runnable {
 
 	private final IDatabase db;
-	private final Library library;
+	private final LibReader lib;
 
-	public DbLibrarySwap(IDatabase db, Library library) {
+	public DbLibrarySwap(IDatabase db, LibReader lib) {
 		this.db = db;
-		this.library = library;
+		this.lib = lib;
 	}
 
 	@Override
 	public void run() {
 		try {
 			var replacedTechFlows = techFlowsOf(db);
-			var libId = library.name();
-			var meta = new File(library.folder(), "meta.zip");
+			var libId = lib.libraryName();
+			var meta = new File(lib.library().folder(), "meta.zip");
 			try (var store = ZipStore.open(meta)) {
 				var imp = new JsonImport(store, db);
 				imp.setUpdateMode(UpdateMode.ALWAYS);
@@ -120,11 +121,11 @@ public class DbLibrarySwap implements Runnable {
 			.filter(d -> d.flowType != FlowType.ELEMENTARY_FLOW)
 			.collect(map());
 
-		var libIdx = library.readTechIndex();
+		var libIdx = lib.techIndex();
 		var list = new ArrayList<TechFlow>();
-		for (var i : libIdx.items()) {
-			var process = processes.get(i.provider().id());
-			var flow = flows.get(i.flow().id());
+		for (var i : libIdx) {
+			var process = processes.get(i.provider().refId);
+			var flow = flows.get(i.flow().refId);
 			if (process != null && flow != null) {
 				list.add(TechFlow.of(process, flow));
 			}

@@ -1,14 +1,13 @@
 package examples;
 
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.persistence.jpa.PersistenceProvider;
 
-import com.google.common.io.Files;
-
 // This example creates a database schema from the openLCA model using the DDL
-// generation feature from EclipseLink. In openLCA  we do not create the 
+// generation feature from EclipseLink. In openLCA  we do not create the
 // database schema in this way but have the current schema as a separate file (
 // current_schema_<database name>.sql in org.openlca.core.database.internal).
 // This allows us to track the schema changes via version control (see also the
@@ -41,7 +40,9 @@ public class DatabaseSchemaGeneration {
 			config.put("eclipselink.target-database", "MySQL");
 
 			// specify the location where the schema files should be written
-			String folder = Files.createTempDir().getAbsolutePath();
+			String folder = Files.createTempDirectory("_olca_schema")
+					.toFile()
+					.getAbsolutePath();
 			String createDllFile = "olca_schema_create.sql";
 			String dropDllFile = "olca_schema_drop.sql";
 

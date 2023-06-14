@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.openlca</groupId>
 		<artifactId>olca-modules</artifactId>
-		<version>2.0.0</version>
+		<version>2.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>olca-core</artifactId>
 	<packaging>jar</packaging>
@@ -31,7 +31,7 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-formula</artifactId>
-			<version>${project.version}</version>
+			<version>2.0.0</version>
 		</dependency>
 
 		<dependency>

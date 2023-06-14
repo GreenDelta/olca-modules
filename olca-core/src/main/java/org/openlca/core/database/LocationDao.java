@@ -75,5 +75,4 @@ public class LocationDao
 		}
 		return map;
 	}
-
 }

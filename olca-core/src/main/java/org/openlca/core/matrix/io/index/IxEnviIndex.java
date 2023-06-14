@@ -6,12 +6,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.index.EnviIndex;
 
 public record IxEnviIndex(List<IxEnviItem> items) {
@@ -67,6 +70,15 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 
 	private static IxEnviIndex readProto(File file) {
 		try (var stream = new FileInputStream(file)) {
+			return readProto(stream);
+		} catch (IOException e) {
+			throw new RuntimeException(
+				"failed to read envi-index from " + file, e);
+		}
+	}
+
+	public static IxEnviIndex readProto(InputStream stream) {
+		try {
 			var items = new ArrayList<IxEnviItem>();
 			var proto = IxProto.ElemFlowIndex.parseFrom(stream);
 			for (int i = 0; i < proto.getFlowCount(); i++) {
@@ -76,7 +88,7 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 			return new IxEnviIndex(items);
 		} catch (IOException e) {
 			throw new RuntimeException(
-				"failed to read envi-index from " + file, e);
+					"failed to read envi-index from proto-stream", e);
 		}
 	}
 
@@ -139,5 +151,9 @@ public record IxEnviIndex(List<IxEnviItem> items) {
 			throw new RuntimeException(
 				"failed to write envi-index to " + file, e);
 		}
+	}
+
+	public Optional<EnviIndex> syncWith(IDatabase db) {
+		return IxEnviSync.sync(db, this);
 	}
 }

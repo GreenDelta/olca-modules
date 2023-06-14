@@ -12,7 +12,7 @@ import java.util.Set;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -96,7 +96,7 @@ public class Simulator {
 	private final Map<Long, Node> nodeIndex = new HashMap<>();
 
 	private SimulationResult result;
-	private LibraryDir libraryDir;
+	private LibReaderRegistry libraries;
 	private MatrixSolver solver;
 
 	private Simulator(IDatabase db) {
@@ -114,8 +114,8 @@ public class Simulator {
 		return this;
 	}
 
-	public Simulator withLibraryDir(LibraryDir libraryDir) {
-		this.libraryDir = libraryDir;
+	public Simulator withLibraries(LibReaderRegistry libraries) {
+		this.libraries = libraries;
 		return this;
 	}
 
@@ -188,8 +188,8 @@ public class Simulator {
 
 	private LcaResult solve(MatrixData data) {
 		var context = SolverContext.of(db, data)
-				.solver(solver)
-				.libraryDir(libraryDir);
+				.withSolver(solver)
+				.withLibraries(libraries);
 		var provider = ResultProviders.solveLazy(context);
 		return new LcaResult(provider);
 	}

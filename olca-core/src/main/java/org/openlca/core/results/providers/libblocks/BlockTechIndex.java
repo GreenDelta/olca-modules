@@ -1,8 +1,7 @@
 package org.openlca.core.results.providers.libblocks;
 
-import org.openlca.core.library.Library;
+import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.results.providers.LibraryCache;
 import org.openlca.core.results.providers.SolverContext;
 
 import java.io.File;
@@ -42,60 +41,63 @@ public class BlockTechIndex {
 		// the library blocks
 		blocks = new ArrayList<>();
 		int offset = front.size();
-		var techIndices = context.libraries().techIndicesOf(f.techIndex);
-		for (var e : techIndices.entrySet()) {
-			var block = new Block(e.getKey(), e.getValue(), offset);
+		for (var reader : context.libraries().readers()) {
+			var techIdx = reader.techIndex();
+			if (techIdx == null)
+				continue;
+			var block = new Block(reader, techIdx, offset);
 			blocks.add(block);
 			index.addAll(block.index);
 			offset += block.size();
 		}
 
-		isSparse = areSparse(context, blocks);
+		isSparse = areSparse(blocks);
 	}
 
-	private boolean areSparse(SolverContext context, List<Block> blocks) {
-		var libs = context.libraries();
+	private boolean areSparse(List<Block> blocks) {
 		if (blocks.size() == 1)
-			return blocks.get(0).isSparse(libs);
+			return blocks.get(0).isSparse();
 		double entries = 0;
 		double total = 0;
 		for (var block : blocks) {
-			var libDir = libs.dir()
-				.getLibrary(block.library)
-				.map(Library::folder)
-				.orElse(null);
+			var libDir = block.reader.library().folder();
 			if (libDir == null)
 				continue;
 			total += block.size();
-			var f = block.isSparse(libs) ? 0.25 : 0.75;
+			var f = block.isSparse() ? 0.25 : 0.75;
 			entries += f * Math.pow(index.size(), 2.0);
 		}
 		return entries == 0
-			|| total == 0
-			|| (entries / Math.pow(total, 2.0)) < 0.4;
+				|| total == 0
+				|| (entries / Math.pow(total, 2.0)) < 0.4;
 	}
 
 	int size() {
 		return index.size();
 	}
 
-	record Block(String library, TechIndex index, int offset) {
+	record Block(LibReader reader, TechIndex index, int offset) {
+
+		String id() {
+			return reader.libraryName();
+		}
 
 		int size() {
 			return index.size();
 		}
 
-		private boolean isSparse(LibraryCache libs) {
-			var lib = libs.dir().getLibrary(library).orElse(null);
-			if (lib == null)
+		private boolean isSparse() {
+			var libDir = reader.library().folder();
+			if (libDir == null)
 				return false;
-			var npz = new File(lib.folder(), "A.npz");
+			var npz = new File(libDir, "A.npz");
 			return npz.exists();
 		}
 
 		@Override
 		public String toString() {
-			return "Block { library: " + library + ", size: " + size() + "}";
+			return "Block { library: " + reader.libraryName()
+					+ ", size: " + size() + "}";
 		}
 	}
 }

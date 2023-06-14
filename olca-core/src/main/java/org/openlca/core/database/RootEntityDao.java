@@ -14,9 +14,10 @@ import jakarta.persistence.TypedQuery;
 public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 		extends RefEntityDao<T, V> {
 
-	protected RootEntityDao(Class<T> entityType, Class<V> descriptorType,
-			IDatabase database) {
-		super(entityType, descriptorType, database);
+	protected RootEntityDao(
+			Class<T> entityType, Class<V> descriptorType, IDatabase db
+	) {
+		super(entityType, descriptorType, db);
 	}
 
 	public List<V> getDescriptors(Optional<Category> category) {
@@ -79,8 +80,7 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 		var em = db.newEntityManager();
 		TypedQuery<?> query = em.createQuery(jpql, entityType);
 		query.setParameter("id", model.id);
-		query.setParameter("category",
-				category.isPresent() ? category.get() : null);
+		query.setParameter("category", category.orElse(null));
 		query.setParameter("version", version);
 		query.setParameter("lastChange", lastChange);
 		try {
