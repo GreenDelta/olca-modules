@@ -1,14 +1,13 @@
 package org.openlca.core.results;
 
-import java.util.List;
-
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 
+import java.util.List;
+
 /**
  * Describes a node in an upstream tree.
- *
  */
 public class UpstreamNode {
 
@@ -28,6 +27,8 @@ public class UpstreamNode {
 	 */
 	double scaling;
 
+	double direct;
+
 	/**
 	 * The child nodes of this node. Node that the child nodes are calculated on
 	 * demand and thus initialized with null.
@@ -46,7 +47,7 @@ public class UpstreamNode {
 	}
 
 	static UpstreamNode of(int index, TechIndex techIndex) {
-		var flow =techIndex.at(index);
+		var flow = techIndex.at(index);
 		return new UpstreamNode(index, flow);
 	}
 
@@ -70,5 +71,20 @@ public class UpstreamNode {
 	 */
 	public double requiredAmount() {
 		return requiredAmount;
+	}
+
+	/**
+	 * Returns the scaling factor of this upstream node.
+	 */
+	public double scalingFactor() {
+		return scaling;
+	}
+
+	/**
+	 * Returns the direct contribution of the process (tech-flow) of the node to
+	 * the total result the node.
+	 */
+	public double directContribution() {
+		return direct;
 	}
 }
