@@ -540,7 +540,7 @@ public class JsonResultService {
 
 	// region: upstream trees
 
-	public Response<JsonArray> getUpstreamOfEnviFlow(
+	public Response<JsonArray> getUpstreamInterventionsOf(
 			String resultId, String path, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
@@ -549,7 +549,7 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonArray> getUpstreamOfImpactCategory(
+	public Response<JsonArray> getUpstreamImpactsOf(
 			String resultId, String path, String impactId) {
 		return withResult(resultId, result -> impactCategoryOf(result, impactId)
 				.map(impact -> {
@@ -558,7 +558,7 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonArray> getUpstreamOfCosts(String resultId, String path) {
+	public Response<JsonArray> getUpstreamCostsOf(String resultId, String path) {
 		return withResult(resultId, result -> {
 			var tree = UpstreamTree.costsOf(result.provider());
 			var nodes = getUpstreamNodes(path, tree);

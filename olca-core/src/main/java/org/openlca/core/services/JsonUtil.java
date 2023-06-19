@@ -146,6 +146,7 @@ final class JsonUtil {
 		var obj = new JsonObject();
 		Json.put(obj, "techFlow", encodeTechFlow(node.provider(), refs));
 		Json.put(obj, "result", node.result());
+		Json.put(obj, "directContribution", node.directContribution());
 		Json.put(obj, "requiredAmount", node.requiredAmount());
 		return obj;
 	}

@@ -10,21 +10,29 @@ import com.google.gson.Gson;
 import org.junit.Assert;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.services.ServerConfig;
 
 class Tests {
 
 	private static Server server;
+	private static IDatabase db;
 
 	private static Server getServer() {
 		if (server == null) {
-			var config = ServerConfig.defaultOf(Derby.createInMemory())
+			db = Derby.createInMemory();
+			var config = ServerConfig.defaultOf(db)
 					.withDataDir(DataDir.get())
 					.get();
 			server = new Server(config).withDefaultHandlers();
 			server.start();
 		}
 		return server;
+	}
+
+	static IDatabase getDb() {
+		getServer();
+		return db;
 	}
 
 	private static String getUrl() {

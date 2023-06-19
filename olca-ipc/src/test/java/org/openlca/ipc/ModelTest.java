@@ -55,10 +55,10 @@ public class ModelTest {
 	}
 
 	private RpcRequest prepareRequest() {
-		RpcRequest req = new RpcRequest();
+		var req = new RpcRequest();
 		req.jsonrpc = "2.0";
 		req.id = new JsonPrimitive(nextID.incrementAndGet());
-		JsonObject flow = new JsonObject();
+		var flow = new JsonObject();
 		flow.addProperty("@type", "Flow");
 		flow.addProperty("@id", "aFlow");
 		req.params = flow;
