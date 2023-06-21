@@ -3,6 +3,9 @@ package org.openlca.git.find;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -29,10 +32,7 @@ public class References {
 	}
 
 	public Reference get(ModelType type, String refId, String commitId) {
-		var refs = find().model(type, refId).commit(commitId).all();
-		if (refs.isEmpty())
-			return null;
-		return refs.get(0);
+		return find().model(type, refId).commit(commitId).first();
 	}
 
 	public List<String> getBinaries(Reference ref) {
@@ -95,22 +95,40 @@ public class References {
 		}
 
 		public long count() {
-			return get(true).size();
+			var count = new AtomicLong();
+			iterate(ref -> {
+				count.addAndGet(1);
+				return true;
+			});
+			return count.get();
 		}
 
-		public List<Reference> all() {
-			return get(false);
+		public Reference first() {
+			var refHolder = new ArrayList<Reference>();
+			iterate(ref -> {
+				refHolder.add(ref);
+				return false;
+			});
+			if (refHolder.isEmpty())
+				return null;
+			return refHolder.get(0);
 		}
 
-		private List<Reference> get(boolean countOnly) {
+		public void iterate(Consumer<Reference> consumer) {
+			iterate(ref -> {
+				consumer.accept(ref);
+				return true;
+			});
+		}
+
+		private void iterate(Function<Reference, Boolean> consumer) {
 			try {
 				var commits = Commits.of(repo);
 				var commit = commits.getRev(commitId);
 				if (commit == null)
-					return new ArrayList<>();
+					return;
 				var commitId = commit.getId().name();
 				try (var walk = new TreeWalk(repo)) {
-					var refs = new ArrayList<Reference>();
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
 					var filter = AndTreeFilter.create(
@@ -124,18 +142,13 @@ public class References {
 					}
 					walk.setFilter(filter);
 					while (walk.next()) {
-						if (countOnly) {
-							refs.add(null);
-						} else {
-							refs.add(createRef(walk, commitId, 0));
-						}
+						if (!consumer.apply(createRef(walk, commitId, 0)))
+							break;
 					}
-					return refs;
 				}
 			} catch (IOException e) {
 				log.error("Error getting references, type: " + type + ", refId: " + refId + ", commit: " + commitId
 						+ ", path: " + path, e);
-				return new ArrayList<>();
 			}
 		}
 
