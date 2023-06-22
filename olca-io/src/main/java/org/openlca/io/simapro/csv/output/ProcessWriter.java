@@ -195,7 +195,7 @@ class ProcessWriter {
 		for (var param : globals) {
 			if (!param.isInputParameter)
 				continue;
-			var u = uncertainty(param.value, param.uncertainty);
+			var u = uncertainty(param.value, param.uncertainty, 1);
 			w.ln(param.name,
 					param.value,
 					u[0], u[1], u[2], u[3],
@@ -251,7 +251,7 @@ class ProcessWriter {
 				continue;
 			inputProducts.add(e.flow);
 			var ref = toReferenceAmount(e);
-			var u = uncertainty(ref.amount, ref.uncertainty);
+			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
 					ref.amount,
@@ -282,7 +282,7 @@ class ProcessWriter {
 		for (var param : p.parameters) {
 			if (!param.isInputParameter)
 				continue;
-			var u = uncertainty(param.value, param.uncertainty);
+			var u = uncertainty(param.value, param.uncertainty, 1);
 			w.ln(param.name,
 					param.value,
 					u[0], u[1], u[2], u[3],
@@ -311,7 +311,7 @@ class ProcessWriter {
 				continue;
 			inputProducts.add(e.flow);
 			var ref = toReferenceAmount(e);
-			var u = uncertainty(ref.amount, ref.uncertainty);
+			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
 					ref.amount,
@@ -334,7 +334,7 @@ class ProcessWriter {
 			if (mapping == null) {
 				// we have an unmapped flow
 				var ref = toReferenceAmount(e);
-				var u = uncertainty(ref.amount, ref.uncertainty);
+				var u = uncertainty(ref.amount, ref.uncertainty, 1);
 				w.ln(e.flow.name,
 						comp.sub().toString(),
 						units.get(ref.unit),

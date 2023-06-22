@@ -31,12 +31,14 @@ final class Uncertainties {
 
 		if (record.isLogNormal()) {
 			var log = record.getAsLogNormal();
-			return Uncertainty.logNormal(mean, Math.sqrt(log.xsd()));
+			var gsd = Math.sqrt(Math.abs(log.xsd()));
+			return Uncertainty.logNormal(mean, gsd);
 		}
 
 		if (record.isNormal()) {
 			var norm = record.getAsNormal();
-			return Uncertainty.normal(mean, 0.5 * norm.xsd());
+			var sd = 0.5 * norm.xsd();
+			return Uncertainty.normal(mean, sd);
 		}
 
 		if (record.isTriangle()) {
