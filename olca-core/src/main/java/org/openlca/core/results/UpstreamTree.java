@@ -1,12 +1,12 @@
 package org.openlca.core.results;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.IntToDoubleFunction;
-
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.IntToDoubleFunction;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the
@@ -22,44 +22,62 @@ public class UpstreamTree {
 	 */
 	public final Object ref;
 
-	private final IntToDoubleFunction intensity;
 	private final ResultProvider r;
+	private final IntToDoubleFunction intensity;
+	private final IntToDoubleFunction directResult;
 
 	private UpstreamTree(
-			Object ref, ResultProvider r, double total, IntToDoubleFunction intensity) {
+			Object ref,
+			ResultProvider r,
+			double total,
+			IntToDoubleFunction intensity,
+			IntToDoubleFunction directResult) {
 		this.ref = ref;
 		this.r = r;
 		this.intensity = intensity;
+		this.directResult = directResult;
 		root = UpstreamNode.rootOf(r.techIndex(), r.demand());
 		double demand = r.demand().value();
 		root.scaling = demand / r.techValueOf(root.index, root.index);
 		setRequiredAmount(root, demand);
 		root.result = total;
+		setDirectResult(root);
 	}
 
 	public static UpstreamTree of(ResultProvider provider, EnviFlow flow) {
 		int flowIdx = provider.indexOf(flow);
 		double total = ResultProvider.flowValueView(
 				flow, provider.totalFlows()[flowIdx]);
-		return new UpstreamTree(flow, provider, total,
-				techIdx -> provider.totalFlowOfOne(flowIdx, techIdx));
+		return new UpstreamTree(
+				flow, provider, total,
+				techIdx -> provider.totalFlowOfOne(flowIdx, techIdx),
+				techIdx -> {
+					var direct = provider.directFlowOf(flowIdx, techIdx);
+					return ResultProvider.flowValueView(flow, direct);
+				});
 	}
 
 	public static UpstreamTree of(ResultProvider provider, ImpactDescriptor impact) {
 		int impactIdx = provider.indexOf(impact);
 		double total = provider.totalImpacts()[impactIdx];
-		return new UpstreamTree(impact, provider, total,
-				techIdx -> provider.totalImpactOfOne(impactIdx, techIdx));
+		return new UpstreamTree(
+				impact, provider, total,
+				techIdx -> provider.totalImpactOfOne(impactIdx, techIdx),
+				techIdx -> provider.directImpactOf(impactIdx, techIdx));
 	}
 
 	public static UpstreamTree costsOf(ResultProvider provider) {
-		return new UpstreamTree(null, provider, provider.totalCosts(),
-				provider::totalCostsOfOne);
+		return new UpstreamTree(
+				null, provider, provider.totalCosts(),
+				provider::totalCostsOfOne,
+				provider::directCostsOf);
 	}
 
 	public static UpstreamTree addedValuesOf(ResultProvider provider) {
-		return new UpstreamTree(null, provider, -provider.totalCosts(),
-				techIdx -> -provider.totalCostsOfOne(techIdx));
+		return new UpstreamTree(
+				null, provider, -provider.totalCosts(),
+				techIdx -> -provider.totalCostsOfOne(techIdx),
+				techIdx -> -provider.directCostsOf(techIdx));
 	}
 
 	public List<UpstreamNode> childs(UpstreamNode parent) {
@@ -85,6 +103,7 @@ public class UpstreamTree {
 			child.scaling = scaling;
 			setRequiredAmount(child, amount);
 			child.result = adopt(intensity.applyAsDouble(i) * amount);
+			setDirectResult(child);
 			parent.childs.add(child);
 		}
 
@@ -110,5 +129,17 @@ public class UpstreamTree {
 		child.requiredAmount = child.provider.isWaste()
 				? -value
 				: value;
+	}
+
+	private void setDirectResult(UpstreamNode node) {
+		if (node.result == 0)
+			return;
+		var resultScaling = r.scalingFactorOf(node.index);
+		if (resultScaling == 0)
+			return;
+		double direct = directResult.applyAsDouble(node.index);
+		if (direct == 0)
+			return;
+		node.direct = node.scaling * direct / resultScaling;
 	}
 }

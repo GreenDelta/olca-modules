@@ -171,6 +171,12 @@ public class ResultHandler {
 				results.getTotalInterventionOf(rr.id(), rr.enviFlow(), rr.techFlow()));
 	}
 
+	@Rpc("result/upstream-interventions-of")
+	public RpcResponse getUpstreamInterventionsOf(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getUpstreamInterventionsOf(rr.id(), rr.path(), rr.enviFlow()));
+	}
+
 	// endregion
 
 	// region: impact results
@@ -265,6 +271,12 @@ public class ResultHandler {
 				results.getFlowImpactOf(rr.id(), rr.impact(), rr.enviFlow()));
 	}
 
+	@Rpc("result/upstream-impacts-of")
+	public RpcResponse getUpstreamImpactsOf(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getUpstreamImpactsOf(rr.id(), rr.path(), rr.impact()));
+	}
+
 	// endregion
 
 	// region: cost results
@@ -299,28 +311,11 @@ public class ResultHandler {
 				results.getTotalCostsOf(rr.id(), rr.techFlow()));
 	}
 
-	// endregion
-
-	// region: upstream trees
-
-	@Rpc("result/upstream-of-flow")
-	public RpcResponse getUpstream(RpcRequest req) {
+	@Rpc("result/upstream-costs-of")
+	public RpcResponse getUpstreamCostsOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getUpstreamOfEnviFlow(rr.id(), rr.path(), rr.enviFlow()));
-	}
-
-	@Rpc("result/upstream-of-impact-category")
-	public RpcResponse getUpstreamOfImpactCategory(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getUpstreamOfImpactCategory(rr.id(), rr.path(), rr.impact()));
-	}
-
-	@Rpc("result/upstream-of-costs")
-	public RpcResponse getUpstreamOfCosts(RpcRequest req) {
-		return ResultRequest.of(req, rr ->
-				results.getUpstreamOfCosts(rr.id(), rr.path()));
+				results.getUpstreamCostsOf(rr.id(), rr.path()));
 	}
 
 	// endregion
-
 }
