@@ -326,7 +326,8 @@ public record JsonDataService(IDatabase db) {
 
 	@SuppressWarnings("unchecked")
 	private <T extends RootEntity> EntityReader<T> readerOf(Class<T> type) {
-		var resolver = new DbEntityResolver(db);
+		var resolver = DbEntityResolver.of(db)
+				.withCategoryCreation(true);
 		if (Objects.equals(type, Actor.class))
 			return (EntityReader<T>) new ActorReader(resolver);
 		if (Objects.equals(type, Currency.class))
