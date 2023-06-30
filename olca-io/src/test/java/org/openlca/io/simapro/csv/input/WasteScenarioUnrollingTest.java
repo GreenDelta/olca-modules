@@ -179,5 +179,6 @@ public class WasteScenarioUnrollingTest {
 		assertEquals(4.0, co2Result.value(), 1e-10);
 
 		assertTrue(file.delete());
+		result.dispose();
 	}
 }

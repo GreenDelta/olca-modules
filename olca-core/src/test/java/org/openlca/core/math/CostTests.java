@@ -44,6 +44,7 @@ public class CostTests {
 		var c = contributions.get(0);
 		assertEquals(3, c.amount, 1e-10);
 		assertEquals(1, c.share, 1e-10);
+		result.dispose();
 	}
 
 	@Test
@@ -57,6 +58,7 @@ public class CostTests {
 		ProductSystem system = TestSystem.of(p1).get();
 		LcaResult r = TestSystem.calculate(system);
 		assertEquals(3, r.getTotalCosts(), 1e-10);
+		r.dispose();
 	}
 
 	@Test
@@ -84,6 +86,7 @@ public class CostTests {
 		assertEquals(-1, r.getDirectCostsOf(d2), 1e-10);
 		assertEquals(6, r.getTotalCostsOf(d1), 1e-10);
 		assertEquals(5, r.getTotalCostsOf(d2), 1e-10);
+		r.dispose();
 	}
 
 	@Test
@@ -117,6 +120,7 @@ public class CostTests {
 
 		LcaResult r = TestSystem.calculate(system);
 		assertEquals(-1.2, r.getTotalCosts(), 1e-10);
+		r.dispose();
 	}
 
 	@Test
@@ -167,7 +171,7 @@ public class CostTests {
 		// TODO: test something here
 		LcaResult result = TestSystem.calculate(system);
 		System.out.println(result.getTotalCosts());
-
+		result.dispose();
 	}
 
 }

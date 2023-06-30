@@ -44,6 +44,7 @@ public class ResultExportTest {
 		Assert.assertTrue(file.length() > 0);
 
 		// clean up
+		result.dispose();
 		Files.delete(file.toPath());
 		db.clear();
 	}

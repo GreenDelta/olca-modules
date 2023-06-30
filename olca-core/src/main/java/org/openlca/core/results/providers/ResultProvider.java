@@ -585,4 +585,14 @@ public interface ResultProvider {
 		// original value could be negative ~> -(-(-v))
 		return value == 0 ? 0 : -value;
 	}
+
+	/**
+	 * This method should be implemented by result providers that allocate
+	 * resources that need to be freed up later, like memory outside the JVM of
+	 * matrix factorizations in native code for example. A user of a result
+	 * provider should always call this method when the result is not needed
+	 * anymore (but not before).
+	 */
+	default void dispose() {
+	}
 }

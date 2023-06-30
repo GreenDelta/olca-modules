@@ -87,4 +87,10 @@ record ResultState(
 		long time = System.currentTimeMillis();
 		return new ResultState(id, time, null, null, null, error);
 	}
+
+	void dispose() {
+		if (result != null) {
+			result.dispose();
+		}
+	}
 }

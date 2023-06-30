@@ -88,6 +88,7 @@ public class LinkedResultTest {
 		var calculator = new SystemCalculator(db);
 		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactValueOf(impact), 1e-10);
+		r.dispose();
 	}
 
 	@Test
@@ -96,6 +97,7 @@ public class LinkedResultTest {
 		var r = calculator.calculate(setup);
 		assertEquals(42.0, r.getTotalImpactValueOf(impact), 1e-10);
 		assertEquals(42.0, r.getDirectImpactOf(impact, resultFlow), 1e-10);
+		r.dispose();
 	}
 
 	@Test
@@ -110,6 +112,7 @@ public class LinkedResultTest {
 		var tree = UpstreamTree.of(r.provider(), impact);
 		assertEquals(42.0, tree.root.result, 1e-10);
 		assertEquals(42.0, tree.childs(tree.root).get(0).result, 1e-10);
+		r.dispose();
 	}
 
 }

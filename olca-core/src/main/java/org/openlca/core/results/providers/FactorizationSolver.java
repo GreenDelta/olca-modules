@@ -330,4 +330,11 @@ public class FactorizationSolver implements ResultProvider {
 	public double totalCosts() {
 		return totalCosts;
 	}
+
+	@Override
+	public void dispose() {
+		if (!factorization.isDisposed()) {
+			factorization.dispose();
+		}
+	}
 }

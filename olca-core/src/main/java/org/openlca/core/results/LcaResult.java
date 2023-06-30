@@ -61,6 +61,18 @@ public class LcaResult implements IResult {
 		return provider;
 	}
 
+	/**
+	 * This method must be called when a result is not needed anymore, and only
+	 * then. It frees up possible allocated resources of the underlying result
+	 * provider of this result.
+	 */
+	public void dispose() {
+		for (var sub : subResults.values()) {
+			sub.dispose();
+		}
+		provider.dispose();
+	}
+
 	@Override
 	public Demand demand() {
 		return provider.demand();

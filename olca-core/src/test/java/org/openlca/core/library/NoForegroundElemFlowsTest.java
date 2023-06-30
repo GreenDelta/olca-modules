@@ -111,6 +111,7 @@ public class NoForegroundElemFlowsTest {
 			Assert.assertEquals(expected[i], totals[i], 1e-16);
 		}
 
+		result.dispose();
 		db.clear();
 		Dirs.delete(libDir.folder());
 	}

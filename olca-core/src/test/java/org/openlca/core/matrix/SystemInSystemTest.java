@@ -52,8 +52,7 @@ public class SystemInSystemTest {
 		var ee = EnviFlow.outputOf(e);
 		assertEquals(42, result.getTotalFlowValueOf(ee), 1e-16);
 
+		result.dispose();
 		db.delete(sysQ, sysP, procP, procQ, p, q, e, mass, units);
-
 	}
-
 }
