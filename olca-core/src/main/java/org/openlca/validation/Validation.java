@@ -128,6 +128,7 @@ public class Validation implements Runnable {
 				new AllocationCheck(this),
 				new ProductSystemCheck(this),
 				new SourceCheck(this),
+				new SeqIdCheck(this),
 		};
 		_totalWorkers.set(workers.length);
 		int activeWorkers = 0;
@@ -196,6 +197,10 @@ public class Validation implements Runnable {
 
 	void error(String message, Throwable e) {
 		put(Item.error(message, e));
+	}
+
+	void error(String message) {
+		put(Item.error(message));
 	}
 
 	void error(long id, ModelType type, String message) {
