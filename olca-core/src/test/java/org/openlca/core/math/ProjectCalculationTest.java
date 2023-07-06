@@ -59,5 +59,6 @@ public class ProjectCalculationTest {
 			});
 		}
 		assertEquals(4, icount.get());
+		result.dispose();
 	}
 }

@@ -42,7 +42,7 @@ import org.openlca.core.results.LcaResult;
  * We test different aspects of regionalized models here. Our test model has two
  * connected processes `p1` and `p2` where `p1` is the reference process of the
  * model with an input of 2 units of `p2`:
- *
+ * <p>
  * <code>
  * A = [ 1.0  0.0 ; -2.0  1.0 ]
  * f = [ 1.0 ; 0.0 ]
@@ -52,7 +52,7 @@ import org.openlca.core.results.LcaResult;
  * Process `p1` has emissions of 2 units of a flow `e1` and process `p2` has
  * emissions of 2 units of a flow `e2`. Also, we define two locations `loc1` and
  * `loc2` and a regionalized LCIA method with the following factors:
- *
+ * <p>
  * <code>
  * e1 loc1 9.0
  * e1 loc2 6.0
@@ -171,12 +171,14 @@ public class RegionalizedCalculationTest {
 				{p1, 14.0},
 				{p2, 8.0},
 		});
+
+		r.dispose();
 	}
 
 	@Test
 	public void checkNoLocations() {
-		CalculationSetup setup = calcSetup();
-		SystemCalculator calc = new SystemCalculator(db);
+		var setup = calcSetup();
+		var calc = new SystemCalculator(db);
 		var r = calc.calculate(setup);
 
 		// total results
@@ -209,6 +211,8 @@ public class RegionalizedCalculationTest {
 				{p1, 14.0},
 				{p2, 8.0},
 		});
+
+		r.dispose();
 	}
 
 	/**
@@ -254,6 +258,8 @@ public class RegionalizedCalculationTest {
 				{p1, 14.0},
 				{p2, 8.0},
 		});
+
+		r.dispose();
 	}
 
 	/**
@@ -268,6 +274,7 @@ public class RegionalizedCalculationTest {
 		var calc = new SystemCalculator(db);
 		var r = calc.calculate(setup);
 		checkRegionalizedResults(r);
+		r.dispose();
 	}
 
 	@Test
@@ -280,6 +287,7 @@ public class RegionalizedCalculationTest {
 				.build();
 		var result = LcaResult.of(db, data);
 		checkRegionalizedResults(result);
+		result.dispose();
 	}
 
 	private void checkRegionalizedResults(LcaResult r) {
@@ -491,6 +499,7 @@ public class RegionalizedCalculationTest {
 				{nox, loc1, 5.0},
 				{nox, loc2, 10.0},
 		});
+		r.dispose();
 	}
 
 	private Flow flow(String name, String unit, FlowType type) {

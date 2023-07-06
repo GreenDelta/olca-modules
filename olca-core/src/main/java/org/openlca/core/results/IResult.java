@@ -65,4 +65,5 @@ public interface IResult {
 	 * Returns true when this result contains LCC results.
 	 */
 	boolean hasCosts();
+
 }

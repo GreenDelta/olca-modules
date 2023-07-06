@@ -49,11 +49,12 @@ public class AvoidedFlowsTest {
 	}
 
 	private void check(Process refProc, Process linkedProc) {
-		ProductSystem system = TestSystem.of(refProc).link(linkedProc).get();
-		LcaResult r = TestSystem.calculate(system);
+		var system = TestSystem.of(refProc).link(linkedProc).get();
+		var r = TestSystem.calculate(system);
 		assertEquals(1, r.enviIndex().size());
-		EnviFlow co2 = r.enviIndex().at(0);
+		var co2 = r.enviIndex().at(0);
 		assertEquals(1.0, r.getTotalFlowValueOf(co2), 1e-16);
+		r.dispose();
 	}
 
 }

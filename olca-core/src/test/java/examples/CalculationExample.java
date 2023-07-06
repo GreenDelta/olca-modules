@@ -24,6 +24,7 @@ public class CalculationExample {
 			System.out.println(f.flow().name + "  -> " + r.getTotalFlowValueOf(f));
 			var impact =  r.impactIndex().at(0);
 			System.out.println(impact.name + "  -> " + r.getTotalImpactValueOf(impact));
+			r.dispose();
 		}
 	}
 }

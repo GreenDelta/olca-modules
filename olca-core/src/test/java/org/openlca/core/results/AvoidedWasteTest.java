@@ -50,6 +50,7 @@ public class AvoidedWasteTest {
 
 	@After
 	public void cleanup() {
+		result.dispose();
 		for (var e : entities) {
 			db.delete(e);
 		}

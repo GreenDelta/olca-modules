@@ -109,4 +109,13 @@ public class ProjectResult {
 		}
 		return false;
 	}
+
+	/**
+	 * This method must be called when this result is not needed anymore.
+	 */
+	public void dispose() {
+		for (var r : results.values()) {
+			r.dispose();
+		}
+	}
 }

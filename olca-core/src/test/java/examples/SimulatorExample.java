@@ -39,6 +39,7 @@ public class SimulatorExample {
 		for (int i = 0; i < 200; i++) {
 			var r = simulator.nextRun();
 			double val = r.getTotalImpactValueOf(gwp);
+			r.dispose();
 			if (i == 0) {
 				min = val;
 				max = val;

@@ -10,18 +10,31 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.util.Strings;
 
 /**
  * An entity resolver that directly queries the database for each request.
  */
-public record DbEntityResolver(IDatabase db) implements EntityResolver {
+public class DbEntityResolver implements EntityResolver {
 
-	public DbEntityResolver(IDatabase db) {
+	private final IDatabase db;
+	private boolean createCategories = false;
+
+	private DbEntityResolver(IDatabase db) {
 		this.db = Objects.requireNonNull(db);
 	}
 
 	public static DbEntityResolver of(IDatabase db) {
 		return new DbEntityResolver(db);
+	}
+
+	/**
+	 * If set to true, this resolver will create requested categories that do
+	 * not exist yet.
+	 */
+	public DbEntityResolver withCategoryCreation(boolean b) {
+		createCategories = b;
+		return this;
 	}
 
 	@Override
@@ -37,8 +50,13 @@ public record DbEntityResolver(IDatabase db) implements EntityResolver {
 
 	@Override
 	public Category getCategory(ModelType type, String path) {
+		if (type == null || Strings.nullOrEmpty(path))
+			return null;
 		var dao = new CategoryDao(db);
-		return dao.getForPath(type, path);
+		var c = dao.getForPath(type, path);
+		return c == null && createCategories
+				? dao.sync(type, path.split("/"))
+				: c;
 	}
 
 	@Override

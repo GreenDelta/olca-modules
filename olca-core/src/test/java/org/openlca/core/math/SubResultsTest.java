@@ -124,6 +124,8 @@ public class SubResultsTest {
 				tagResult.inventoryResultOf(co2Idx).value(), 1e-10);
 		}
 
+		resultC.dispose(); // will also dispose sub-results
+
 		db.delete(
 			sysC, sysB, sysA,
 			procA, procB, procC,

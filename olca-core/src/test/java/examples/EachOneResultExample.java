@@ -22,7 +22,7 @@ public class EachOneResultExample {
 					System.out.printf("%s;%.5f;%s%n",
 						impact.name, r, impact.referenceUnit);
 				});
-
+				result.dispose();
 				i++;
 				if (i > 3)
 					break;

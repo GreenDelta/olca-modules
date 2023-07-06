@@ -91,7 +91,10 @@ public class CalculationQueue {
 	 * was scheduled, it will not be performed.
 	 */
 	public void dispose(String id) {
-		states.remove(id);
+		var state = states.remove(id);
+		if (state != null) {
+			state.dispose();
+		}
 	}
 
 	/**
@@ -189,6 +192,7 @@ public class CalculationQueue {
 					var state = e.getValue();
 					if (state.time() < limit) {
 						queue.states.remove(e.getKey(), e.getValue());
+						state.dispose();
 					}
 				}
 			}
