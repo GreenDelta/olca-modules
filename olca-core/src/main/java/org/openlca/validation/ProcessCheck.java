@@ -1,5 +1,6 @@
 package org.openlca.validation;
 
+import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 
@@ -15,10 +16,10 @@ class ProcessCheck implements Runnable {
 	@Override
 	public void run() {
 		try {
-			checkProcessRefs();
+			var lastInternalIds = checkProcessRefs();
+			checkExchanges(lastInternalIds);
 			checkQuantitativeRefs();
 			checkProcessDocs();
-			checkExchanges();
 			checkAllocationFactors();
 			checkSocialAspects();
 			if (!foundErrors && !v.wasCanceled()) {
@@ -31,15 +32,19 @@ class ProcessCheck implements Runnable {
 		}
 	}
 
-	private void checkProcessRefs() {
+	private TLongLongHashMap checkProcessRefs() {
+		var lastInternalIds = new TLongLongHashMap();
 		if (v.wasCanceled())
-			return;
+			return lastInternalIds;
+
 		var sql = "select " +
 				/* 1 */ "id, " +
 				/* 2 */ "f_location, " +
 				/* 3 */ "f_dq_system, " +
 				/* 4 */ "f_exchange_dq_system, " +
-				/* 5 */ "f_social_dq_system from tbl_processes";
+				/* 5 */ "f_social_dq_system, " +
+				/* 6 */ "last_internal_id from tbl_processes";
+
 		NativeSql.on(v.db).query(sql, r -> {
 			long id = r.getLong(1);
 
@@ -57,8 +62,12 @@ class ProcessCheck implements Runnable {
 				}
 			}
 
+			lastInternalIds.put(id, r.getLong(6));
+
 			return !v.wasCanceled();
 		});
+
+		return lastInternalIds;
 	}
 
 	private void checkProcessDocs() {
@@ -112,7 +121,7 @@ class ProcessCheck implements Runnable {
 		});
 	}
 
-	private void checkExchanges() {
+	private void checkExchanges(TLongLongHashMap lastInternalIds) {
 		if (v.wasCanceled())
 			return;
 
@@ -124,13 +133,26 @@ class ProcessCheck implements Runnable {
 				/* 4 */ "f_flow_property_factor, " +
 				/* 5 */ "f_default_provider, " +
 				/* 6 */ "f_location, " +
-				/* 7 */ "f_currency from tbl_exchanges";
+				/* 7 */ "f_currency, " +
+				/* 8 */ "internal_id from tbl_exchanges";
 
 		NativeSql.on(v.db).query(sql, r -> {
 			var id = r.getLong(1);
 
 			if (!processIDs.contains(id))
 				return true;
+
+			var lastInternalId = lastInternalIds.get(id);
+			var internalId = r.getLong(8);
+			if (internalId == 0) {
+				v.error(id, ModelType.PROCESS, "no internal exchange ID");
+				foundErrors = true;
+			} else if (internalId > lastInternalId) {
+				v.error(id, ModelType.PROCESS, "internal ID of exchange ("
+						+ internalId + ") is larger than last-internal ID ("
+						+ lastInternalId + ") of process");
+				foundErrors = true;
+			}
 
 			var flowID = r.getLong(2);
 			if (!v.ids.contains(ModelType.FLOW, flowID)) {
