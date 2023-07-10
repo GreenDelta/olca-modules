@@ -38,6 +38,11 @@ public class DbEntityResolver implements EntityResolver {
 	}
 
 	@Override
+	public IDatabase db() {
+		return db;
+	}
+
+	@Override
 	public <T extends RootEntity> T get(Class<T> type, String refId) {
 		return db.get(type, refId);
 	}
