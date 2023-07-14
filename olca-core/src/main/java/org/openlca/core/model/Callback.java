@@ -1,5 +1,7 @@
 package org.openlca.core.model;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * A simple callback interface for notification of model events; e.g. for
  * imports and exports.
@@ -48,6 +50,33 @@ public interface Callback {
 
 		public static Message error(String text, Throwable error) {
 			return new Message(ERROR, text, error);
+		}
+
+		/**
+		 * Logs the message using the respective standard logger; this can be
+		 * useful for debugging.
+		 */
+		public void log() {
+			if (text == null)
+				return;
+			var log = LoggerFactory.getLogger(getClass());
+			switch (type) {
+				case ERROR -> {
+					if (error != null) {
+						log.error(text, error);
+					} else {
+						log.error(text);
+					}
+				}
+				case WARN -> {
+					if (error != null) {
+						log.warn(text, error);
+					} else {
+						log.warn(text);
+					}
+				}
+				default -> log.info(text);
+			}
 		}
 	}
 }
