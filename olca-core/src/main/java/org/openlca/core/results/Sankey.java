@@ -2,6 +2,7 @@ package org.openlca.core.results;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
@@ -276,8 +277,8 @@ public class Sankey<T> {
 			// expand the graph recursively
 			if (root.total != 0 && (maxNodes < 0 || maxNodes > 1)) {
 				expand(root);
+				fill(root);
 			}
-
 			return sankey;
 		}
 
@@ -378,6 +379,47 @@ public class Sankey<T> {
 			existing.providers.add(provider);
 			handled.put(provider.index, provider);
 			sankey.nodeCount++;
+		}
+
+		/**
+		 * Executes the fill phase after the expansion phase: in the expansion phase,
+		 * we add node-provider relations in breadth-first order applying cut-off
+		 * rules. A node k is then maybe not added as provider of a node i because of
+		 * these cut-off rules. But, k is maybe added as provider of a node j later
+		 * because it has a higher upstream contribution there. In the fill phase,
+		 * we then add such missing relations (k, i) of the existing nodes in the
+		 * sub-graph.
+		 */
+		private void fill(Node root) {
+			var queue = new ArrayDeque<Node>();
+			queue.add(root);
+			var queued = new HashSet<Integer>();
+			queued.add(root.index);
+
+			while (!queue.isEmpty()) {
+				var next = queue.poll();
+				var providers = new HashSet<Integer>();
+				for (var provider : next.providers) {
+					if (!queued.contains(provider.index)) {
+						queued.add(provider.index);
+						queue.add(provider);
+					}
+					providers.add(provider.index);
+				}
+
+				result.iterateTechColumnOf(next.index).eachNonZero((i, $) -> {
+					if (i == next.index || providers.contains(i))
+						return;
+					var node = handled.get(i);
+					if (node == null)
+						return;
+					if (!queued.contains(i)) {
+						queued.add(i);
+						queue.add(node);
+					}
+					next.providers.add(node);
+				});
+			}
 		}
 	}
 
