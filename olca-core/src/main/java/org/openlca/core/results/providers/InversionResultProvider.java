@@ -1,6 +1,7 @@
 package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.format.ColumnIterator;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
@@ -69,6 +70,11 @@ public class InversionResultProvider implements ResultProvider {
 	@Override
 	public double[] techColumnOf(int techFlow) {
 		return r.data().techMatrix.getColumn(techFlow);
+	}
+
+	@Override
+	public ColumnIterator iterateTechColumnOf(int techFlow) {
+		return ColumnIterator.of(r.data().techMatrix, techFlow);
 	}
 
 	@Override

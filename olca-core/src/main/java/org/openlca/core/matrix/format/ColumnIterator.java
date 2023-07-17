@@ -90,6 +90,20 @@ public interface ColumnIterator {
 		}
 	}
 
+	record ArrayIterator(double[] values, int column)
+			implements ColumnIterator {
+
+		@Override
+		public void eachNonZero(EntryConsumer fn) {
+			for (int row = 0; row < values.length; row++) {
+				var value = values[row];
+				if (value != 0) {
+					fn.next(row, value);
+				}
+			}
+		}
+	}
+
 	@FunctionalInterface
 	interface EntryConsumer {
 		void next(int row, double value);

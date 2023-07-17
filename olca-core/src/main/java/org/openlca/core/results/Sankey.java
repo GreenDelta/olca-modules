@@ -266,6 +266,13 @@ public class Sankey<T> {
 			sankey.nodeCount = 1;
 			handled.put(root.index, root);
 
+			// when the number of nodes is limited, we select the nodes with
+			// the highest contributions
+			if (maxNodes > 0) {
+				candidates = new PriorityQueue<>(
+						(n1, n2) -> Double.compare(n2.share, n1.share));
+			}
+
 			// expand the graph recursively
 			if (root.total != 0 && (maxNodes < 0 || maxNodes > 1)) {
 				expand(root);
@@ -319,24 +326,23 @@ public class Sankey<T> {
 		 * added to the graph, according to the cutoff rules of this builder.
 		 */
 		private void expand(Node node) {
-			var colA = result.techColumnOf(node.index);
-			for (int i = 0; i < colA.length; i++) {
-				if (i == node.index || colA[i] == 0)
-					continue;
+			result.iterateTechColumnOf(node.index).eachNonZero((i, $) -> {
+				if (i == node.index)
+					return;
 				var provider = handled.get(i);
 				if (provider != null) {
 					node.providers.add(provider);
-					continue;
+					return;
 				}
 
 				// calculate and check the share
 				var product = result.techIndex().at(i);
 				var total = getTotal(product);
 				if (total == 0)
-					continue;
+					return;
 				var share = Math.abs(total / sankey.root.total);
 				if (share < minShare)
-					continue;
+					return;
 
 				// construct a candidate node
 				provider = new Node();
@@ -347,20 +353,15 @@ public class Sankey<T> {
 				provider.share = share;
 
 				// if there is no limit regarding the
-				// node count, add and expand the node
-				if (maxNodes < 0) {
+				// node count, add and expand the node,
+				// use the priority queue otherwise
+				if (candidates != null) {
+					candidates.add(new Candidate(node, provider));
+				} else {
 					add(node, provider);
 					expand(provider);
-					continue;
 				}
-
-				// add is as a candidate
-				if (candidates == null) {
-					candidates = new PriorityQueue<>(
-							(n1, n2) -> Double.compare(n2.share, n1.share));
-				}
-				candidates.add(new Candidate(node, provider));
-			}
+			});
 
 			// we add the candidate with the largest share to
 			// the providers.
