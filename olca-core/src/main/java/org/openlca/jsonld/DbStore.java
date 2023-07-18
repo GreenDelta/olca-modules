@@ -1,5 +1,6 @@
 package org.openlca.jsonld;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import jakarta.persistence.Table;
 import org.openlca.core.database.FileStore;
@@ -10,13 +11,18 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.input.EntityReader;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.util.Dirs;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class DbStore implements JsonStoreReader, JsonStoreWriter {
@@ -100,18 +106,29 @@ public class DbStore implements JsonStoreReader, JsonStoreWriter {
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (path == null)
+		if (Strings.nullOrEmpty(path))
 			return null;
+
+		// 1. read a possible file
 		var file = new File(path);
-		if (!file.isFile())
-			return null;
-		try {
-			return Files.readAllBytes(file.toPath());
-		} catch (Exception e) {
-			var log = LoggerFactory.getLogger(getClass());
-			log.error("failed to read file: " + file, e);
-			return null;
+		if (file.isFile()) {
+			try {
+				return Files.readAllBytes(file.toPath());
+			} catch (Exception e) {
+				var log = LoggerFactory.getLogger(getClass());
+				log.error("failed to read file: " + file, e);
+				return null;
+			}
 		}
+
+		// 2. read a possible model
+		var info = ModelInfo.parseFrom(path).orElse(null);
+		if (info == null)
+			return null;
+		var json = get(info.type, info.refId);
+		return json != null
+				? new Gson().toJson(json).getBytes(StandardCharsets.UTF_8)
+				: null;
 	}
 
 	@Override
@@ -138,7 +155,7 @@ public class DbStore implements JsonStoreReader, JsonStoreWriter {
 
 		if (entity != null) {
 			reader.update(entity, json);
-			 db.update(entity);
+			db.update(entity);
 		} else {
 			// add an ID, if not provided
 			if (Strings.nullOrEmpty(id)) {
@@ -152,19 +169,86 @@ public class DbStore implements JsonStoreReader, JsonStoreWriter {
 	}
 
 	@Override
-	public void put(String path, JsonObject object) {
-		JsonStoreWriter.super.put(path, object);
+	public void put(String path, JsonObject obj) {
+		if (path == null || obj == null)
+			return;
+		var info = ModelInfo.parseFrom(path).orElse(null);
+		if (info == null) {
+			LoggerFactory.getLogger(getClass())
+					.warn("could not determine model-info from path '{}'", path);
+			return;
+		}
+		info.put(this, obj);
 	}
 
 	@Override
-	public void putBin(ModelType type, String refId, String filename, byte[] data) {
-		JsonStoreWriter.super.putBin(type, refId, filename, data);
+	public void putBin(ModelType type, String refId, String fileName, byte[] data) {
+		if (type == null || refId == null || fileName == null || data == null)
+			return;
+		var root = db.getFileStorageLocation();
+		if (root == null || !root.isDirectory())
+			return;
+		var store = new FileStore(root);
+		var dir = store.getFolder(type, refId);
+		try {
+			Dirs.createIfAbsent(dir);
+			var file = new File(dir, fileName);
+			Files.write(file.toPath(), data);
+		} catch (Exception e) {
+			LoggerFactory.getLogger(getClass())
+					.error("failed to write to file: " + fileName, e);
+		}
 	}
 
 	@Override
 	public void put(String path, byte[] data) {
 
+		// try to insert it as model
+		var info = ModelInfo.parseFrom(path).orElse(null);
+		if (info != null) {
+			try (var stream = new ByteArrayInputStream(data);
+					 var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+				var obj = new Gson().fromJson(reader, JsonObject.class);
+				info.put(this, obj);
+			} catch (Exception e) {
+				LoggerFactory.getLogger(getClass())
+						.error("failed to parse JSON object", e);
+			}
+		}
+
+		// try to insert it as file
+		var root = db.getFileStorageLocation();
+		if (root == null || !root.isDirectory())
+			return;
+		var file = new File(root, path);
+		try {
+			Dirs.createIfAbsent(file.getParentFile());
+			Files.write(file.toPath(), data);
+		} catch (Exception e) {
+			LoggerFactory.getLogger(getClass())
+					.error("failed write file " + file, e);
+		}
 	}
 
+	private record ModelInfo(ModelType type, String refId) {
 
+		static Optional<ModelInfo> parseFrom(String path) {
+			if (Strings.nullOrEmpty(path) || !path.endsWith(".json"))
+				return Optional.empty();
+			var parts = path.substring(0, path.length() - 5).split("/");
+			if (parts.length != 2)
+				return Optional.empty();
+			var type = ModelPath.typeOf(parts[0]).orElse(null);
+			return type != null
+					? Optional.of(new ModelInfo(type, parts[1]))
+					: Optional.empty();
+		}
+
+		void put(DbStore store, JsonObject obj) {
+			if (Json.getString(obj, "@id") == null) {
+				Json.put(obj, "@id", refId);
+			}
+			store.put(type.getModelClass(), obj);
+		}
+	}
 }

@@ -1,6 +1,10 @@
 package org.openlca.jsonld;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.util.Strings;
+
+import java.util.Locale;
+import java.util.Optional;
 
 public final class ModelPath {
 
@@ -51,4 +55,29 @@ public final class ModelPath {
 		};
 	}
 
+	static Optional<ModelType> typeOf(String folder) {
+		if (Strings.nullOrEmpty(folder))
+			return Optional.empty();
+		return switch (folder.strip().toLowerCase(Locale.US)) {
+			case "actors" -> Optional.of(ModelType.ACTOR);
+			case "categories" -> Optional.of(ModelType.CATEGORY);
+			case "currencies" -> Optional.of(ModelType.CURRENCY);
+			case "dq_systems" -> Optional.of(ModelType.DQ_SYSTEM);
+			case "epds" -> Optional.of(ModelType.EPD);
+			case "flows" -> Optional.of(ModelType.FLOW);
+			case "flow_properties" -> Optional.of(ModelType.FLOW_PROPERTY);
+			case "lcia_categories" -> Optional.of(ModelType.IMPACT_CATEGORY);
+			case "lcia_methods" -> Optional.of(ModelType.IMPACT_METHOD);
+			case "locations" -> Optional.of(ModelType.LOCATION);
+			case "parameters" -> Optional.of(ModelType.PARAMETER);
+			case "processes" -> Optional.of(ModelType.PROCESS);
+			case "product_systems" -> Optional.of(ModelType.PRODUCT_SYSTEM);
+			case "projects" -> Optional.of(ModelType.PROJECT);
+			case "results" -> Optional.of(ModelType.RESULT);
+			case "social_indicators" -> Optional.of(ModelType.SOCIAL_INDICATOR);
+			case "sources" -> Optional.of(ModelType.SOURCE);
+			case "unit_groups" -> Optional.of(ModelType.UNIT_GROUP);
+			default -> Optional.empty();
+		};
+	}
 }
