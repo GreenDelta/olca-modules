@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,7 +31,11 @@ public class DbStore implements JsonStoreReader, JsonStoreWriter {
 	private final IDatabase db;
 
 	private DbStore(IDatabase db) {
-		this.db = db;
+		this.db = Objects.requireNonNull(db);
+	}
+
+	public static DbStore of(IDatabase db) {
+		return new DbStore(db);
 	}
 
 	@Override
