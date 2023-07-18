@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.ColumnIterator;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -139,6 +140,11 @@ public class FactorizationSolver implements ResultProvider {
 	@Override
 	public double[] techColumnOf(int techFlow) {
 		return data.techMatrix.getColumn(techFlow);
+	}
+
+	@Override
+	public ColumnIterator iterateTechColumnOf(int techFlow) {
+		return ColumnIterator.of(data.techMatrix, techFlow);
 	}
 
 	@Override

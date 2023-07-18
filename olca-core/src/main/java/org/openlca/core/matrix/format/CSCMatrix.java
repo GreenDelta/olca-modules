@@ -68,9 +68,8 @@ public class CSCMatrix implements MatrixReader {
 		if (m == null)
 			throw new NullPointerException("the given matrix is null");
 
-		if (m instanceof CSCMatrix) {
+		if (m instanceof CSCMatrix csc) {
 			// copy a CCR matrix
-			var csc = (CSCMatrix) m;
 			double[] values = Arrays.copyOf(
 					csc.values, csc.values.length);
 			int[] columnPointers = Arrays.copyOf(

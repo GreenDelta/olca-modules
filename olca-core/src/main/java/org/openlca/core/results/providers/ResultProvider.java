@@ -3,6 +3,8 @@ package org.openlca.core.results.providers;
 import java.util.Arrays;
 
 import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.format.ColumnIterator;
+import org.openlca.core.matrix.format.ColumnIterator.ArrayIterator;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -166,6 +168,14 @@ public interface ResultProvider {
 	 * @see #techValueOf(int, int)
 	 */
 	double[] techColumnOf(int techFlow);
+
+	/**
+	 * Creates an iterator of the column A[:,j] for the given technosphere flow j.
+	 */
+	default ColumnIterator iterateTechColumnOf(int techFlow) {
+		var column = techColumnOf(techFlow);
+		return new ArrayIterator(column, techFlow);
+	}
 
 	/**
 	 * Get the unscaled value `A[i,j]` from the technology matrix `A` for the

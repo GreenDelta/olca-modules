@@ -2,6 +2,7 @@ package org.openlca.core.results;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
@@ -266,11 +267,18 @@ public class Sankey<T> {
 			sankey.nodeCount = 1;
 			handled.put(root.index, root);
 
+			// when the number of nodes is limited, we select the nodes with
+			// the highest contributions
+			if (maxNodes > 0) {
+				candidates = new PriorityQueue<>(
+						(n1, n2) -> Double.compare(n2.share, n1.share));
+			}
+
 			// expand the graph recursively
 			if (root.total != 0 && (maxNodes < 0 || maxNodes > 1)) {
 				expand(root);
+				fill(root);
 			}
-
 			return sankey;
 		}
 
@@ -319,24 +327,23 @@ public class Sankey<T> {
 		 * added to the graph, according to the cutoff rules of this builder.
 		 */
 		private void expand(Node node) {
-			var colA = result.techColumnOf(node.index);
-			for (int i = 0; i < colA.length; i++) {
-				if (i == node.index || colA[i] == 0)
-					continue;
+			result.iterateTechColumnOf(node.index).eachNonZero((i, $) -> {
+				if (i == node.index)
+					return;
 				var provider = handled.get(i);
 				if (provider != null) {
 					node.providers.add(provider);
-					continue;
+					return;
 				}
 
 				// calculate and check the share
 				var product = result.techIndex().at(i);
 				var total = getTotal(product);
 				if (total == 0)
-					continue;
+					return;
 				var share = Math.abs(total / sankey.root.total);
 				if (share < minShare)
-					continue;
+					return;
 
 				// construct a candidate node
 				provider = new Node();
@@ -347,20 +354,15 @@ public class Sankey<T> {
 				provider.share = share;
 
 				// if there is no limit regarding the
-				// node count, add and expand the node
-				if (maxNodes < 0) {
+				// node count, add and expand the node,
+				// use the priority queue otherwise
+				if (candidates != null) {
+					candidates.add(new Candidate(node, provider));
+				} else {
 					add(node, provider);
 					expand(provider);
-					continue;
 				}
-
-				// add is as a candidate
-				if (candidates == null) {
-					candidates = new PriorityQueue<>(
-							(n1, n2) -> Double.compare(n2.share, n1.share));
-				}
-				candidates.add(new Candidate(node, provider));
-			}
+			});
 
 			// we add the candidate with the largest share to
 			// the providers.
@@ -377,6 +379,47 @@ public class Sankey<T> {
 			existing.providers.add(provider);
 			handled.put(provider.index, provider);
 			sankey.nodeCount++;
+		}
+
+		/**
+		 * Executes the fill phase after the expansion phase: in the expansion phase,
+		 * we add node-provider relations in breadth-first order applying cut-off
+		 * rules. A node k is then maybe not added as provider of a node i because of
+		 * these cut-off rules. But, k is maybe added as provider of a node j later
+		 * because it has a higher upstream contribution there. In the fill phase,
+		 * we then add such missing relations (k, i) of the existing nodes in the
+		 * sub-graph.
+		 */
+		private void fill(Node root) {
+			var queue = new ArrayDeque<Node>();
+			queue.add(root);
+			var queued = new HashSet<Integer>();
+			queued.add(root.index);
+
+			while (!queue.isEmpty()) {
+				var next = queue.poll();
+				var providers = new HashSet<Integer>();
+				for (var provider : next.providers) {
+					if (!queued.contains(provider.index)) {
+						queued.add(provider.index);
+						queue.add(provider);
+					}
+					providers.add(provider.index);
+				}
+
+				result.iterateTechColumnOf(next.index).eachNonZero((i, $) -> {
+					if (i == next.index || providers.contains(i))
+						return;
+					var node = handled.get(i);
+					if (node == null)
+						return;
+					if (!queued.contains(i)) {
+						queued.add(i);
+						queue.add(node);
+					}
+					next.providers.add(node);
+				});
+			}
 		}
 	}
 
