@@ -7,8 +7,6 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-import java.util.Objects;
-
 class JsonSankeyRequest {
 
 	private ImpactDescriptor impact;
@@ -31,17 +29,20 @@ class JsonSankeyRequest {
 
 		var impactId = Json.getRefId(obj, "impactCategory");
 		if (Strings.notEmpty(impactId)) {
-			req.impact = findImpact(result, impactId);
-			if (req.impact == null)
-				return Response.error("no impact category with @id="
-						+ impactId + " available in result");
+			var r = Util.impactCategoryOf(result, impactId);
+			if (r.isError())
+				return Response.error(r.error());
+			req.impact = r.value();
 		}
 
 		var flowRef = Json.getObject(obj, "enviFlow");
 		if (flowRef != null) {
-			req.flow = findFlow(result, flowRef);
-			if (req.flow == null)
+			var enviFlowId = EnviFlowId.of(flowRef).orElse(null);
+			if (enviFlowId == null)
 				return Response.error("invalid enviFlow object");
+			req.flow = enviFlowId.findEnviFlowOf(result).orElse(null);
+			if (req.flow == null)
+				return Response.error("no envi-flow available for: " + enviFlowId);
 		}
 
 		// we set some defaults here
@@ -49,32 +50,6 @@ class JsonSankeyRequest {
 		req.maxNodes = Json.getInt(obj, "maxNodes", 100);
 
 		return Response.of(req);
-	}
-
-	private static ImpactDescriptor findImpact(LcaResult result, String impactId) {
-		if (!result.hasImpacts())
-			return null;
-		var impactIdx = result.impactIndex();
-		if (impactIdx == null)
-			return null;
-		for (var impact : impactIdx) {
-			if (Objects.equals(impactId, impact.refId))
-				return impact;
-		}
-		return null;
-	}
-
-	private static EnviFlow findFlow(LcaResult result, JsonObject flowRef) {
-		if (!result.hasEnviFlows())
-			return null;
-		var flowIdx = result.enviIndex();
-		if (flowIdx == null)
-			return null;
-		var flowId = Json.getRefId(flowRef, "flow");
-		var locationId = Json.getRefId(flowRef, "location");
-		return new EnviFlowId(flowId, locationId)
-				.findEnviFlowOf(result)
-				.orElse(null);
 	}
 
 	boolean hasImpact() {
