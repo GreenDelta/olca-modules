@@ -26,16 +26,24 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class DbStore implements JsonStoreReader, JsonStoreWriter {
+
+/**
+ * An implementation of the JSON reader and writer interface that directly works
+ * on a database. It is not the recommended way to use this for importing and
+ * exporting data sets - use the specific import and export classes for this -
+ * but it can be used in specific use cases e.g. when transferring a
+ * foreground-model from one database to another.
+ */
+public class JsonDatabaseStore implements JsonStoreReader, JsonStoreWriter {
 
 	private final IDatabase db;
 
-	private DbStore(IDatabase db) {
+	private JsonDatabaseStore(IDatabase db) {
 		this.db = Objects.requireNonNull(db);
 	}
 
-	public static DbStore of(IDatabase db) {
-		return new DbStore(db);
+	public static JsonDatabaseStore of(IDatabase db) {
+		return new JsonDatabaseStore(db);
 	}
 
 	@Override
@@ -249,7 +257,7 @@ public class DbStore implements JsonStoreReader, JsonStoreWriter {
 					: Optional.empty();
 		}
 
-		void put(DbStore store, JsonObject obj) {
+		void put(JsonDatabaseStore store, JsonObject obj) {
 			if (Json.getString(obj, "@id") == null) {
 				Json.put(obj, "@id", refId);
 			}

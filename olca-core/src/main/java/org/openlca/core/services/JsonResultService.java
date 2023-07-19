@@ -15,6 +15,7 @@ import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.Sankey;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.jsonld.Json;
@@ -573,6 +574,33 @@ public class JsonResultService {
 	}
 
 	// endregion
+
+	public Response<JsonObject> getSankeyGraph(String resultId, JsonObject req) {
+		return withResult(resultId, result -> {
+
+			// check all possible errors
+			var rr = JsonSankeyRequest.resolve(result, req);
+			if (rr.isError())
+				return Response.error("failed to handle request: " + rr.error());
+			var r = rr.value();
+			if (r.isForCosts())
+				return Response.error("not yet implemented");
+			if (!r.hasImpact() && !r.hasFlow())
+				return Response.error("no impact category or flow provided");
+
+			// build the Sankey diagram
+			var config = r.hasImpact()
+					? Sankey.of(r.impact(), result.provider())
+					: Sankey.of(r.flow(), result.provider());
+			var sankey = config.withMaximumNodeCount(r.maxNodes())
+					.withMinimumShare(r.minShare())
+					.build();
+
+			// convert the graph
+			var json = JsonSankeyGraph.of(sankey,JsonRefs.of(db));
+			return Response.of(json);
+		});
+	}
 
 	public Response<JsonObject> dispose(String resultId) {
 		try {
