@@ -19,9 +19,8 @@ import org.openlca.core.matrix.io.index.IxContext;
 import org.openlca.core.matrix.io.index.IxEnviIndex;
 import org.openlca.core.matrix.io.index.IxImpactIndex;
 import org.openlca.core.matrix.io.index.IxTechIndex;
-import org.openlca.core.matrix.solvers.NativeSolver;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.nativelib.NativeLib;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -208,12 +207,12 @@ public class LibraryExport implements Runnable {
 	}
 
 	private void preCalculate() {
-		if (!NativeLib.isLoaded()) {
+		var solver = MatrixSolver.get();
+		if (!solver.isNative()) {
 			log.info("no native libraries loaded; skip matrix inversion");
 			return;
 		}
 		log.info("create matrix INV");
-		var solver = new NativeSolver();
 		var inv = solver.invert(data.techMatrix);
 		NpyMatrix.write(folder, "INV", inv);
 		if (data.enviMatrix == null)

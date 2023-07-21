@@ -1,5 +1,6 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ public class SparseTest {
 
 	@BeforeClass
 	public static void setup() {
-		MKL.loadFromDefault();
+		Assume.assumeTrue(MKL.loadFromDefault());
 	}
 
 	@Test
