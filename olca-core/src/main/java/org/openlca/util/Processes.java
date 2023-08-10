@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
@@ -22,8 +23,8 @@ public class Processes {
 	 */
 	public static List<Exchange> getProviderFlows(Process p) {
 		return p == null
-			? Collections.emptyList()
-			: p.exchanges.stream()
+				? Collections.emptyList()
+				: p.exchanges.stream()
 				.filter(Exchanges::isProviderFlow)
 				.collect(Collectors.toList());
 	}
@@ -36,7 +37,7 @@ public class Processes {
 			return false;
 		int count = 0;
 		for (var exchange : p.exchanges) {
-			if (Exchanges.isProviderFlow(exchange)){
+			if (Exchanges.isProviderFlow(exchange)) {
 				count++;
 				if (count > 1)
 					return true;
@@ -98,5 +99,40 @@ public class Processes {
 		if (loc == null)
 			return false;
 		return d.location == loc.id;
+	}
+
+	/**
+	 * Checks if the process contains a valid sequence of internal IDs and a
+	 * valid last-internal ID. Fixes that sequence if there is an issue, does
+	 * nothing otherwise.
+	 */
+	public static void fixInternalIds(Process process) {
+		if (process == null)
+			return;
+
+		// check exchange IDs
+		int last = 0;
+		var used = new TIntHashSet();
+		boolean shouldFix = false;
+		for (var e : process.exchanges) {
+			last = Math.max(last, e.internalId);
+			if (shouldFix)
+				continue;
+			if (e.internalId <= 0 || used.contains(e.internalId)) {
+				shouldFix = true;
+				continue;
+			}
+			used.add(e.internalId);
+		}
+
+		// if there is an issue, we just start with a fresh sequence
+		if (shouldFix) {
+			for (var e : process.exchanges) {
+				e.internalId = ++last;
+			}
+		}
+		if (process.lastInternalId < last) {
+			process.lastInternalId = last;
+		}
 	}
 }

@@ -83,10 +83,10 @@ public class BatchImport<T extends RootEntity> {
 	}
 
 	public void close() {
-		if (inserts.size() > 0) {
+		if (!inserts.isEmpty()) {
 			flushInserts();
 		}
-		if (updates.size() > 0) {
+		if (!updates.isEmpty()) {
 			flushUpdates();
 		}
 		writer.close();
