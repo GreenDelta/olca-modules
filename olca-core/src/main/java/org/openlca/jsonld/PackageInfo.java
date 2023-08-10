@@ -4,8 +4,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public record PackageInfo(JsonObject json) {
 
@@ -13,8 +15,8 @@ public record PackageInfo(JsonObject json) {
 
 	public static PackageInfo of(JsonElement json) {
 		var obj = json != null && json.isJsonObject()
-			? json.getAsJsonObject()
-			: new JsonObject();
+				? json.getAsJsonObject()
+				: new JsonObject();
 		return new PackageInfo(obj);
 	}
 
@@ -38,33 +40,23 @@ public record PackageInfo(JsonObject json) {
 		return new SchemaVersion(value);
 	}
 
-	public List<String> libraries() {
+	public List<LibraryLink> libraries() {
 		var array = Json.getArray(json, "libraries");
 		if (array == null)
 			return Collections.emptyList();
 		return Json.stream(array)
-			.filter(JsonElement::isJsonPrimitive)
-			.map(JsonElement::getAsString)
-			.toList();
+				.map(LibraryLink::parseFrom)
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.toList();
 	}
 
-	public PackageInfo withLibraries(Iterable<String> libraryIds) {
-		if (libraryIds == null)
+	public PackageInfo withLibraries(Collection<LibraryLink> links) {
+		if (links == null || links.isEmpty())
 			return this;
 		var array = new JsonArray();
-		for (var libId : libraryIds) {
-			array.add(libId);
-		}
-		json.add("libraries", array);
-		return this;
-	}
-
-	public PackageInfo withLibraries(String... libraryIds) {
-		if (libraryIds == null || libraryIds.length == 0)
-			return this;
-		var array = new JsonArray();
-		for (var libId : libraryIds) {
-			array.add(libId);
+		for (var link : links) {
+			array.add(link.toJson());
 		}
 		json.add("libraries", array);
 		return this;
@@ -76,5 +68,4 @@ public record PackageInfo(JsonObject json) {
 		Json.put(json, "schemaVersion", version.value());
 		return this;
 	}
-
 }
