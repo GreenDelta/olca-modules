@@ -17,10 +17,11 @@ import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Entries;
 import org.openlca.git.find.References;
-import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Entry.EntryType;
+import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.ProgressMonitor;
+import org.openlca.jsonld.input.BatchImport;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 
@@ -82,11 +83,23 @@ class ImportHelper {
 			if (changes.isEmpty())
 				continue;
 			progressMonitor.subTask("Importing " + getLabel(type));
-			for (var change : changes) {
-				if (change != null) {
-					jsonImport.run(type, change.refId);
+			var batchSize = BatchImport.batchSizeOf(type);
+			if (batchSize == 1) {
+				for (var change : changes) {
+					if (change != null) {
+						jsonImport.run(type, change.refId);
+					}
+					progressMonitor.worked(1);
 				}
-				progressMonitor.worked(1);
+			} else {
+				var batchImport = new BatchImport<>(jsonImport, type.getModelClass(), batchSize);
+				for (var change : changes) {
+					if (change != null) {
+						batchImport.run(change.refId);
+					}
+					progressMonitor.worked(1);
+				}
+				batchImport.close();
 			}
 		}
 	}
