@@ -224,9 +224,6 @@ class ProcessImport {
 			Exchange e = createExchange(ie, refId, flow, p);
 			if (e == null)
 				continue;
-			if (isAvoidedProduct(refId, e)) {
-				e.isAvoided = true;
-			}
 			if (ie.activityLinkId != null) {
 				addActivityLink(ie, e);
 			}
@@ -241,17 +238,9 @@ class ProcessImport {
 		}
 	}
 
-	private boolean isAvoidedProduct(String refId, Exchange exchange) {
-		return false;
-		// If the sign of an product/waste input is different from the sign of
-		// the product/waste output of the linked activity it could be an
-		// avoided product. Not sure, if this is true for ecoinvent 3
-		// boolean isNeg = exchange.getAmountValue() < 0;
-		// return isNeg != index.isNegativeFlow(refId) && exchange.isInput();
-	}
 
-	private Exchange createExchange(spold2.Exchange es2,
-																	String flowRefId, Flow flow, Process process) {
+	private Exchange createExchange(
+			spold2.Exchange es2, String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.referenceFlowProperty == null)
 			return null;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
@@ -283,8 +272,8 @@ class ProcessImport {
 			pm.geographicalCorrelation, pm.technologyCorrelation);
 	}
 
-	private Unit getFlowUnit(spold2.Exchange original,
-													 String flowRefId, Flow flow) {
+	private Unit getFlowUnit(
+			spold2.Exchange original, String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
 			return index.getUnit(original.unitId);
 		FlowProperty refProp = flow.referenceFlowProperty;
