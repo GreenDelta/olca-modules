@@ -99,6 +99,7 @@ class ImportHelper {
 					}
 					progressMonitor.worked(1);
 				}
+				batchImport.close();
 			}
 		}
 	}
