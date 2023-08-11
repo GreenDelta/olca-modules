@@ -241,12 +241,19 @@ public class ParameterUsageTree {
 		}
 
 		private void exchanges() {
-			String sql = "SELECT f_owner, f_flow, "
-					+ "resulting_amount_formula FROM tbl_exchanges "
-					+ " WHERE resulting_amount_formula IS NOT NULL";
+			String sql = "SELECT f_owner, f_flow, resulting_amount_formula,"
+					+ " cost_formula FROM tbl_exchanges "
+					+ " WHERE resulting_amount_formula IS NOT NULL"
+					+ " OR cost_formula IS NOT NULL";
 			NativeSql.on(db).query(sql, r -> {
-				var formula = r.getString(3);
-				if (!matches(formula))
+				var amountFormula = r.getString(3);
+				var costFormula = r.getString(4);
+				var formula = matches(amountFormula)
+						? amountFormula
+						: matches(costFormula)
+						? costFormula
+						: null;
+				if (formula == null)
 					return true;
 				long ownerID = r.getLong(1);
 				if (skipOwner(ownerID))
