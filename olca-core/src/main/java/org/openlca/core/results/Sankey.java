@@ -1,20 +1,19 @@
 package org.openlca.core.results;
 
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.ResultProvider;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
-
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.providers.ResultProvider;
-
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * An instance of this class contains the underlying graph data structure of
@@ -154,19 +153,30 @@ public class Sankey<T> {
 	 * a negative value (-1..0) in case of negative upstream contributions.
 	 */
 	public double getLinkShare(Node provider, Node node) {
-		var total = solution.scaledTechValueOf(provider.index, provider.index);
+		if (provider == null || node == null || provider.index == node.index)
+			return 0;
+		// the provider is i; the linked node is j: i -> j
+		// we calculate the share by dividing the total amount of i that goes
+		// into j with the total amount of i that is produced in the system
+		int i = provider.index;
+		int j = node.index;
+
+		// the total amount of i that is produced in the system: s[i] * A[i,i]
+		var total = solution.scaledTechValueOf(i, i);
 		if (total == 0)
 			return 0;
-		var aij = solution.techValueOf(provider.index, provider.index);
-		if (aij == 0)
-			return 0;
-		var sj = solution.solutionOfOne(node.index);
-		var tj = solution.totalFactorOf(node.index);
-		var amount = tj * aij * sj[provider.index];
-		// var amount = solution.scaledTechValueOf(provider.index, node.index);
-		return amount == 0
-				? 0
-				: amount / total;
+
+		// the total amount of i that goes into j: tf[j] * A[i,i] * INV[i,j]
+		var aii = solution.techValueOf(i, i);
+		var inv_ij = solution.solutionOfOne(j)[i];
+		var tfj = solution.totalFactorOf(j);
+		var linkedAmount = tfj * aii * inv_ij;
+		return linkedAmount == 0 ? 0 : linkedAmount / total;
+
+		// an alternative would be, to relate the upstream share to the direct
+		// amount that goes from i to j; but this is not so nice when visualizing
+		// the effects of loops
+		// var linkedAmount = solution.scaledTechValueOf(provider.index, node.index);
 	}
 
 	/**
