@@ -5,13 +5,13 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openlca.io.xls.results.CellWriter;
 
-abstract class ContributionSheet<C, R> {
+abstract class ContributionMatrix<C, R> {
 
 	private final CellWriter writer;
 	private final String[] colHeaders;
 	private final String[] rowHeaders;
 
-	ContributionSheet(CellWriter writer, String[] colHeaders, String[] rowHeaders) {
+	ContributionMatrix(CellWriter writer, String[] colHeaders, String[] rowHeaders) {
 		this.writer = writer;
 		this.colHeaders = colHeaders;
 		this.rowHeaders = rowHeaders;
@@ -45,7 +45,7 @@ abstract class ContributionSheet<C, R> {
 				double val = getValue(colDesc, rowDesc);
 				if (val != 0) {
 					// do not write zeros in the sheets -> makes the workbook
-					// much smaller in size (and also the export much faster)
+					// much smaller (and also the export much faster)
 					writer.cell(sheet, row, col, val);
 				}
 				col++;

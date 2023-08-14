@@ -8,44 +8,43 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
-class ProcessFlowContributionSheet
-		extends ContributionSheet<TechFlow, EnviFlow> {
+class TotalInventoryMatrix extends ContributionMatrix<TechFlow, EnviFlow> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
 	private final ResultItemOrder items;
 
 	static void write(ResultExport export, LcaResult r) {
-		new ProcessFlowContributionSheet(export, r).write(export.workbook);
+		new TotalInventoryMatrix(export, r)
+				.write(export.workbook);
 	}
 
-	private ProcessFlowContributionSheet(ResultExport export, LcaResult result) {
+	private TotalInventoryMatrix(ResultExport export, LcaResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
-		this.r = result;
+		this.r = r;
 		this.items = export.items();
 	}
 
 	private void write(Workbook workbook) {
-		Sheet sheet = workbook.createSheet("Process flow contributions");
+		Sheet sheet = workbook.createSheet("Total upstream inventories");
 		header(sheet);
 		subHeaders(sheet, items.techFlows(), items.enviFlows());
 		data(sheet, items.techFlows(), items.enviFlows());
 	}
 
 	@Override
-	protected double getValue(TechFlow techFlow, EnviFlow flow) {
-		return r.getDirectFlowOf(flow, techFlow);
+	protected double getValue(TechFlow process, EnviFlow flow) {
+		return r.getTotalFlowOf(flow, process);
 	}
 
 	@Override
-	protected void subHeaderCol(TechFlow techFlow, Sheet sheet, int col) {
-		writer.processCol(sheet, 1, col, techFlow);
+	protected void subHeaderCol(TechFlow process, Sheet sheet, int col) {
+		writer.processCol(sheet, 1, col, process);
 	}
 
 	@Override
 	protected void subHeaderRow(EnviFlow flow, Sheet sheet, int row) {
 		writer.flowRow(sheet, row, 1, flow);
 	}
-
 }

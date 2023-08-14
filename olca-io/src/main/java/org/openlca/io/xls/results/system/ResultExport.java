@@ -2,6 +2,8 @@ package org.openlca.io.xls.results.system;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.EnumSet;
+import java.util.Set;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
@@ -30,6 +32,7 @@ public class ResultExport implements Runnable {
 
 	DQResult dqResult;
 	private ResultItemOrder _items;
+	private EnumSet<MatrixPage> matrixPages = EnumSet.noneOf(MatrixPage.class);
 
 	private boolean success;
 	SXSSFWorkbook workbook;
@@ -53,6 +56,13 @@ public class ResultExport implements Runnable {
 		return this;
 	}
 
+	public ResultExport addPage(MatrixPage page) {
+		if (page != null) {
+			matrixPages.add(page);
+		}
+		return this;
+	}
+
 	ResultItemOrder items() {
 		if (_items == null) {
 			_items = ResultItemOrder.of(result);
@@ -69,12 +79,13 @@ public class ResultExport implements Runnable {
 					? dqResult.setup
 					: null;
 			InfoSheet.write(workbook, writer, setup, dqSetup, "Result information");
-			InventorySheet.write(this);
+			if (result.hasEnviFlows()) {
+				InventorySheet.write(this);
+			}
 			if (result.hasImpacts()) {
 				ImpactSheet.write(this);
 			}
-			writeContributionSheets();
-			// writeUpstreamSheets();
+			writeMatrices();
 			success = true;
 			try (FileOutputStream stream = new FileOutputStream(file)) {
 				workbook.write(stream);
@@ -86,18 +97,27 @@ public class ResultExport implements Runnable {
 		}
 	}
 
-	private void writeContributionSheets() {
-		ProcessFlowContributionSheet.write(this, result);
-		if (result.hasImpacts()) {
-			ProcessImpactContributionSheet.write(this, result);
-			FlowImpactContributionSheet.write(this, result);
+	private void writeMatrices() {
+		if (!result.hasEnviFlows())
+			return;
+		if (matrixPages.contains(MatrixPage.DIRECT_INVENTORIES)) {
+			DirectInventoryMatrix.write(this, result);
 		}
-	}
+		if (matrixPages.contains(MatrixPage.TOTAL_INVENTORIES)) {
+			TotalInventoryMatrix.write(this, result);
+		}
 
-	private void writeUpstreamSheets() {
-		ProcessFlowUpstreamSheet.write(this, result);
-		if (result.hasImpacts()) {
-			ProcessImpactUpstreamSheet.write(this, result);
+		// impact matrices
+		if (!result.hasImpacts())
+			return;
+		if (matrixPages.contains(MatrixPage.DIRECT_IMPACTS)) {
+			DirectImpactMatrix.write(this, result);
+		}
+		if (matrixPages.contains(MatrixPage.FLOW_IMPACTS)) {
+			FlowImpactMatrix.write(this, result);
+		}
+		if (matrixPages.contains(MatrixPage.TOTAL_IMPACTS)) {
+			TotalImpactMatrix.write(this, result);
 		}
 	}
 

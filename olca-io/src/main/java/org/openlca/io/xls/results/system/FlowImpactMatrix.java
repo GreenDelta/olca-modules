@@ -8,20 +8,18 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
-class FlowImpactContributionSheet
-		extends ContributionSheet<EnviFlow, ImpactDescriptor> {
+class FlowImpactMatrix extends ContributionMatrix<EnviFlow, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
 	private final ResultItemOrder items;
 
-	static void write(ResultExport export,
-			LcaResult result) {
-		new FlowImpactContributionSheet(export, result)
+	static void write(ResultExport export, LcaResult result) {
+		new FlowImpactMatrix(export, result)
 				.write(export.workbook);
 	}
 
-	private FlowImpactContributionSheet(ResultExport export, LcaResult result) {
+	private FlowImpactMatrix(ResultExport export, LcaResult result) {
 		super(export.writer, ResultExport.FLOW_HEADER, ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = result;
@@ -29,7 +27,7 @@ class FlowImpactContributionSheet
 	}
 
 	private void write(Workbook wb) {
-		Sheet sheet = wb.createSheet("Flow impact contributions");
+		var sheet = wb.createSheet("Impact contributions by flow");
 		header(sheet);
 		subHeaders(sheet, items.enviFlows(), items.impacts());
 		data(sheet, items.enviFlows(), items.impacts());
@@ -46,9 +44,7 @@ class FlowImpactContributionSheet
 	}
 
 	@Override
-	protected void subHeaderRow(ImpactDescriptor impact, Sheet sheet,
-			int row) {
+	protected void subHeaderRow(ImpactDescriptor impact, Sheet sheet, int row) {
 		writer.impactRow(sheet, row, 1, impact);
 	}
-
 }

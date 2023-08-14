@@ -8,18 +8,18 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
-class ProcessImpactUpstreamSheet extends
-		ContributionSheet<TechFlow, ImpactDescriptor> {
+class TotalImpactMatrix extends
+		ContributionMatrix<TechFlow, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
 	private final ResultItemOrder items;
 
 	static void write(ResultExport export, LcaResult r) {
-		new ProcessImpactUpstreamSheet(export, r).write(export.workbook);
+		new TotalImpactMatrix(export, r).write(export.workbook);
 	}
 
-	private ProcessImpactUpstreamSheet(ResultExport export, LcaResult r) {
+	private TotalImpactMatrix(ResultExport export, LcaResult r) {
 		super(export.writer, ResultExport.PROCESS_HEADER,
 				ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
@@ -28,7 +28,7 @@ class ProcessImpactUpstreamSheet extends
 	}
 
 	private void write(Workbook wb) {
-		var sheet = wb.createSheet("Process upstream impacts");
+		var sheet = wb.createSheet("Total upstream impacts");
 		header(sheet);
 		subHeaders(sheet, items.techFlows(), items.impacts());
 		data(sheet, items.techFlows(), items.impacts());
