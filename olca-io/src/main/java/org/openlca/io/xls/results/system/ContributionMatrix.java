@@ -50,7 +50,7 @@ abstract class ContributionMatrix<C, R> {
 				if (export.wasCancelled())
 					break;
 				double val = getValue(colDesc, rowDesc);
-				if (val != 0) {
+				if (val != 0 || !export.skipZeros) {
 					// do not write zeros in the sheets -> makes the workbook
 					// much smaller (and also the export much faster)
 					writer.cell(sheet, row, col, val);

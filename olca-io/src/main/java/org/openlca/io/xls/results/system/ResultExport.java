@@ -38,7 +38,9 @@ public class ResultExport implements Runnable {
 	private boolean success;
 	SXSSFWorkbook workbook;
 	CellWriter writer;
+
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
+	boolean skipZeros = false;
 
 	public ResultExport(CalculationSetup setup,
 			LcaResult result, File file, EntityCache cache) {
@@ -70,6 +72,11 @@ public class ResultExport implements Runnable {
 			_items = ResultItemOrder.of(result);
 		}
 		return _items;
+	}
+
+	public ResultExport skipZeros(boolean b) {
+		skipZeros = b;
+		return this;
 	}
 
 	public boolean wasCancelled() {
