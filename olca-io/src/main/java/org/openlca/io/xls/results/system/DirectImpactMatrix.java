@@ -19,8 +19,7 @@ class DirectImpactMatrix extends ContributionMatrix<TechFlow, ImpactDescriptor> 
 	}
 
 	private DirectImpactMatrix(ResultExport export, LcaResult r) {
-		super(export.writer, ResultExport.PROCESS_HEADER,
-				ResultExport.IMPACT_HEADER);
+		super(export, ResultExport.PROCESS_HEADER, ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = r;
 		this.items = export.items();

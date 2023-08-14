@@ -20,7 +20,7 @@ class TotalInventoryMatrix extends ContributionMatrix<TechFlow, EnviFlow> {
 	}
 
 	private TotalInventoryMatrix(ResultExport export, LcaResult r) {
-		super(export.writer, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
+		super(export, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
 		this.r = r;
 		this.items = export.items();

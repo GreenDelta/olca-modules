@@ -7,12 +7,15 @@ import org.openlca.io.xls.results.CellWriter;
 
 abstract class ContributionMatrix<C, R> {
 
+	private final ResultExport export;
 	private final CellWriter writer;
 	private final String[] colHeaders;
 	private final String[] rowHeaders;
 
-	ContributionMatrix(CellWriter writer, String[] colHeaders, String[] rowHeaders) {
-		this.writer = writer;
+	ContributionMatrix(
+			ResultExport export, String[] colHeaders, String[] rowHeaders) {
+		this.export = export;
+		this.writer = export.writer;
 		this.colHeaders = colHeaders;
 		this.rowHeaders = rowHeaders;
 	}
@@ -40,8 +43,12 @@ abstract class ContributionMatrix<C, R> {
 	void data(Sheet sheet, List<C> colData, List<R> rowData) {
 		int row = colHeaders.length + 2;
 		for (R rowDesc : rowData) {
+			if (export.wasCancelled())
+				break;
 			int col = rowHeaders.length + 2;
 			for (C colDesc : colData) {
+				if (export.wasCancelled())
+					break;
 				double val = getValue(colDesc, rowDesc);
 				if (val != 0) {
 					// do not write zeros in the sheets -> makes the workbook

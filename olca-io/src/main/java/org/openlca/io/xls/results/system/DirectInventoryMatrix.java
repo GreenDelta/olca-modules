@@ -19,7 +19,7 @@ class DirectInventoryMatrix extends ContributionMatrix<TechFlow, EnviFlow> {
 	}
 
 	private DirectInventoryMatrix(ResultExport export, LcaResult result) {
-		super(export.writer, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
+		super(export, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
 		this.r = result;
 		this.items = export.items();

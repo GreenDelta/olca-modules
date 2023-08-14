@@ -20,7 +20,7 @@ class FlowImpactMatrix extends ContributionMatrix<EnviFlow, ImpactDescriptor> {
 	}
 
 	private FlowImpactMatrix(ResultExport export, LcaResult result) {
-		super(export.writer, ResultExport.FLOW_HEADER, ResultExport.IMPACT_HEADER);
+		super(export, ResultExport.FLOW_HEADER, ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = result;
 		this.items = export.items();

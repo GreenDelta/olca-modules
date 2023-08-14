@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
@@ -32,11 +33,12 @@ public class ResultExport implements Runnable {
 
 	DQResult dqResult;
 	private ResultItemOrder _items;
-	private EnumSet<MatrixPage> matrixPages = EnumSet.noneOf(MatrixPage.class);
+	private final EnumSet<MatrixPage> matrixPages = EnumSet.noneOf(MatrixPage.class);
 
 	private boolean success;
 	SXSSFWorkbook workbook;
 	CellWriter writer;
+	private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
 	public ResultExport(CalculationSetup setup,
 			LcaResult result, File file, EntityCache cache) {
@@ -70,6 +72,14 @@ public class ResultExport implements Runnable {
 		return _items;
 	}
 
+	public boolean wasCancelled() {
+		return cancelled.get();
+	}
+
+	public void cancel() {
+		cancelled.set(true);
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -79,16 +89,18 @@ public class ResultExport implements Runnable {
 					? dqResult.setup
 					: null;
 			InfoSheet.write(workbook, writer, setup, dqSetup, "Result information");
-			if (result.hasEnviFlows()) {
+			if (result.hasEnviFlows() && !wasCancelled()) {
 				InventorySheet.write(this);
 			}
-			if (result.hasImpacts()) {
+			if (result.hasImpacts() && !wasCancelled()) {
 				ImpactSheet.write(this);
 			}
 			writeMatrices();
 			success = true;
-			try (FileOutputStream stream = new FileOutputStream(file)) {
-				workbook.write(stream);
+			if (!wasCancelled()) {
+				try (var stream = new FileOutputStream(file)) {
+					workbook.write(stream);
+				}
 			}
 			workbook.dispose();
 		} catch (Exception e) {
