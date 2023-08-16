@@ -58,14 +58,10 @@ public class CalcImpactFactor {
 		}
 
 		a *= conversionFactor;
-		return applyDirectionSign(a);
-	}
-
-	public double applyDirectionSign(double value) {
 		if (withAbs) {
-			return isInput ? -Math.abs(value) : Math.abs(value);
+			return isInput ? -Math.abs(a) : Math.abs(a);
 		} else {
-			return isInput ? -value : value;
+			return isInput ? -a : a;
 		}
 	}
 }
