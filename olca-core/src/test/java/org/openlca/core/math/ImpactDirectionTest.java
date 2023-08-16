@@ -80,6 +80,21 @@ public class ImpactDirectionTest {
 	}
 
 	@Test
+	public void testSwappedFlows() {
+		var result = calc(
+				process -> {
+					process.input(e, -1);
+					process.output(r, -1);
+				},
+				indicator -> {
+					indicator.direction = Direction.INPUT;
+					indicator.factor(r, 1);
+					indicator.factor(e, -0.5);
+				});
+		assertEquals(0.5, result, 1e-16);
+	}
+
+	@Test
 	public void testNegativeFactorNoDirection() {
 		var result = calc(
 				process -> {
