@@ -1,18 +1,22 @@
 package org.openlca.jsonld;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.util.Strings;
 
-import java.util.List;
-import java.util.Optional;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Contains information about a linked library of a JSON package.
  *
- * @param id  the required library ID
- * @param url an optional URL from which the library can be downloaded.
+ * @param id
+ *            the required library ID
+ * @param url
+ *            an optional URL from which the library can be downloaded.
  */
 public record LibraryLink(String id, String url) {
 
@@ -44,6 +48,10 @@ public record LibraryLink(String id, String url) {
 		if (db == null)
 			return List.of();
 		var libraries = db.getLibraries();
+		return of(libraries);
+	}
+
+	public static List<LibraryLink> of(Collection<String> libraries) {
 		return libraries.stream()
 				.filter(Strings::notEmpty)
 				.map(id -> new LibraryLink(id, null))
