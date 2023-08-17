@@ -1,6 +1,7 @@
 package org.openlca.core.results.providers;
 
 import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.ColumnIterator;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -20,6 +21,10 @@ public class InversionResultProvider implements ResultProvider {
 
 	public static ResultProvider of(InversionResult r) {
 		return new InversionResultProvider(r);
+	}
+
+	public MatrixData matrixData() {
+		return r.data();
 	}
 
 	@Override

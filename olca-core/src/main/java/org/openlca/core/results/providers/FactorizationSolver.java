@@ -85,6 +85,10 @@ public class FactorizationSolver implements ResultProvider {
 		return new FactorizationSolver(context);
 	}
 
+	public MatrixData matrixData() {
+		return data;
+	}
+
 	@Override
 	public Demand demand() {
 		return demand;
