@@ -36,6 +36,7 @@ public class LibraryExport implements Runnable {
 	private AllocationMethod allocation;
 	private boolean withUncertainties;
 	private MatrixData data;
+	private boolean withInversion;
 
 	public LibraryExport(IDatabase db, File folder) {
 		this.db = db;
@@ -68,6 +69,16 @@ public class LibraryExport implements Runnable {
 			|| data.impactUncertainties != null;
 		info.isRegionalized(
 			data.enviIndex != null && data.enviIndex.isRegionalized());
+		return this;
+	}
+
+	/**
+	 * If set to {@code true}, the export will calculate and store the inverse
+	 * of the technology matrix as well as the inventory intensities if the
+	 * respective matrices are available.
+	 */
+	public LibraryExport withInversion(boolean b) {
+		this.withInversion = b;
 		return this;
 	}
 
@@ -121,7 +132,10 @@ public class LibraryExport implements Runnable {
 				IxImpactIndex.of(data.impactIndex).writeToDir(target);
 			}
 		});
-		exec.execute(this::preCalculate);
+
+		if (withInversion) {
+			exec.execute(this::calculateInverse);
+		}
 	}
 
 	private void buildMatrices() {
@@ -206,11 +220,12 @@ public class LibraryExport implements Runnable {
 		}
 	}
 
-	private void preCalculate() {
+	private void calculateInverse() {
+		if (data.techMatrix == null)
+			return;
 		var solver = MatrixSolver.get();
 		if (!solver.isNative()) {
-			log.info("no native libraries loaded; skip matrix inversion");
-			return;
+			log.warn("no native libraries loaded");
 		}
 		log.info("create matrix INV");
 		var inv = solver.invert(data.techMatrix);

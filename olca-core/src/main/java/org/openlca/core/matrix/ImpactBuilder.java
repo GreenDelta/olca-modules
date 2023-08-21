@@ -1,10 +1,6 @@
 package org.openlca.core.matrix;
 
-import java.sql.ResultSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.TreeSet;
-
+import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
@@ -21,7 +17,10 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
+import java.sql.ResultSet;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.TreeSet;
 
 /**
  * Builds the matrices with characterization factors for a given set of flows
@@ -55,12 +54,12 @@ public final class ImpactBuilder {
 		// same for the interpreter, we create it if it is not
 		// set via the configuration
 		if (config.interpreter != null) {
-			this.interpreter= config.interpreter;
+			this.interpreter = config.interpreter;
 		} else {
 			var contexts = new TreeSet<Long>();
 			impactIndex.each((i, d) -> contexts.add(d.id));
 			this.interpreter = ParameterTable.interpreter(
-				db, contexts, Collections.emptyList());
+					db, contexts, Collections.emptyList());
 		}
 
 		withUncertainties = config.withUncertainties;
@@ -81,8 +80,8 @@ public final class ImpactBuilder {
 		matrix = new MatrixBuilder();
 		matrix.minSize(impactIndex.size(), flowIndex.size());
 		uncertainties = withUncertainties
-			? new UMatrix()
-			: null;
+				? new UMatrix()
+				: null;
 		if (flowIndex.isRegionalized()) {
 			fillRegionalized();
 		} else {
@@ -138,8 +137,9 @@ public final class ImpactBuilder {
 				f.formula = r.getString(4);
 				f.conversionFactor = getConversionFactor(r);
 				f.isInput = impact.direction != null
-					? impact.direction == Direction.INPUT
-					: flowIndex.isInput(flowId);
+						? impact.direction == Direction.INPUT
+						: flowIndex.isInput(flowId);
+				f.withAbs = impact.direction != null;
 
 				// set the matrix value
 				int row = impactIndex.of(impactId);
@@ -204,8 +204,10 @@ public final class ImpactBuilder {
 				f.formula = r.getString(4);
 				f.conversionFactor = getConversionFactor(r);
 				f.isInput = impact.direction != null
-					? impact.direction == Direction.INPUT
-					: flowIndex.isInput(flowId, locationId);
+						? impact.direction == Direction.INPUT
+						: flowIndex.isInput(flowId, locationId);
+				f.withAbs = impact.direction != null;
+
 				if (uncertainties != null) {
 					int uType = r.getInt(7);
 					if (!r.wasNull()) {
@@ -250,9 +252,11 @@ public final class ImpactBuilder {
 				if (factor == null)
 					continue;
 				var impact = impactIndex.at(row);
-				factor.isInput = impact.direction !=null
-					? impact.direction == Direction.INPUT
-					: idxFlow.isInput();
+				factor.isInput = impact.direction != null
+						? impact.direction == Direction.INPUT
+						: idxFlow.isInput();
+				factor.withAbs = impact.direction != null;
+
 				matrix.set(row, col, factor.matrixValue(interpreter));
 				if (uncertainties != null) {
 					uncertainties.add(row, col, factor);
@@ -332,7 +336,7 @@ public final class ImpactBuilder {
 		}
 
 		public Config(MatrixConfig conf, EnviIndex flows) {
-			this.db	= conf.db;
+			this.db = conf.db;
 			this.flows = flows;
 			this.withUncertainties = conf.withUncertainties;
 			this.interpreter = conf.interpreter;

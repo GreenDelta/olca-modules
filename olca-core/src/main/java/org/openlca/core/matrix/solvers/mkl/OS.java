@@ -10,7 +10,7 @@ enum OS {
 	}),
 
 	MacOS(new String[]{
-		"libmkl_rt.dylib",
+		"libmkl_rt.2.dylib",
 		"libolcamkl.dylib"
 	}),
 
