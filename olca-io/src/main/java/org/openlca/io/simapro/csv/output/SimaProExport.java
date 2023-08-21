@@ -12,7 +12,11 @@ public class SimaProExport {
 	final IDatabase db;
 	final Collection<ProcessDescriptor> processes;
 	FlowMap flowMap;
-	boolean withLongNames;
+
+	// config for product names
+	boolean withLocationSuffixes;
+	boolean withTypeSuffixes;
+	boolean withProcessSuffixes;
 
 	private SimaProExport(IDatabase db, Collection<ProcessDescriptor> processes) {
 		this.db = db;
@@ -28,8 +32,18 @@ public class SimaProExport {
 		return this;
 	}
 
-	public SimaProExport withLongNames(boolean b) {
-		this.withLongNames = b;
+	public SimaProExport withLocationSuffixes(boolean b) {
+		this.withLocationSuffixes = b;
+		return this;
+	}
+
+	public SimaProExport withTypeSuffixes(boolean b) {
+		this.withTypeSuffixes = b;
+		return this;
+	}
+
+	public SimaProExport withProcessSuffixes(boolean b) {
+		this.withProcessSuffixes = b;
 		return this;
 	}
 

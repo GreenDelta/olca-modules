@@ -2,7 +2,6 @@ package org.openlca.io.simapro.csv.output;
 
 
 import gnu.trove.set.hash.TLongHashSet;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.cache.ProcessTable;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -16,14 +15,12 @@ import org.slf4j.LoggerFactory;
 class ProductLabeler {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final IDatabase db;
+	private final SimaProExport config;
 	private final TLongHashSet exportIds;
-	private final boolean withLongNames;
 	private ProcessTable processes;
 
 	private ProductLabeler(SimaProExport export) {
-		this.db = export.db;
-		this.withLongNames = export.withLongNames;
+		this.config = export;
 		exportIds = new TLongHashSet(export.processes.size(), 0.8f, 0L);
 		for (var d : export.processes) {
 			exportIds.add(d.id);
@@ -45,7 +42,7 @@ class ProductLabeler {
 		var label = product.name.trim();
 
 		// location
-		if (withLongNames) {
+		if (config.withLocationSuffixes) {
 			var loc = process.location != null
 					? process.location
 					: product.location;
@@ -55,11 +52,12 @@ class ProductLabeler {
 			}
 		}
 
-		if (!Strings.nullOrEqual(product.name, process.name)) {
+		if (config.withProcessSuffixes
+				&& !Strings.nullOrEqual(product.name, process.name)) {
 			label += " | " + process.name;
 		}
 
-		if (withLongNames) {
+		if (config.withTypeSuffixes) {
 			label += process.processType == ProcessType.LCI_RESULT
 					? ", S"
 					: ", U";
@@ -70,7 +68,7 @@ class ProductLabeler {
 	String labelOf(Flow product) {
 		if (product == null || Strings.nullOrEmpty(product.name))
 			return "?";
-		if (withLongNames) {
+		if (config.withLocationSuffixes) {
 			var locSuffix = suffixOf(product.location);
 			return locSuffix != null
 					? product.name + locSuffix
@@ -97,6 +95,7 @@ class ProductLabeler {
 	}
 
 	private Process providerOf(Exchange e) {
+		var db = config.db;
 		if (e.defaultProviderId > 0) {
 			var p = db.get(Process.class, e.defaultProviderId);
 			if (p != null)
