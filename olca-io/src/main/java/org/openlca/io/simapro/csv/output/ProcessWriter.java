@@ -240,7 +240,7 @@ class ProcessWriter {
 					ref.amount,
 					allocation,
 					"not defined",
-					productCategoryOf(e.flow),
+					CategoryPath.of(config, e.flow).path(),
 					e.description);
 		}
 		w.ln();
@@ -366,7 +366,7 @@ class ProcessWriter {
 		w.ln();
 
 		w.ln("Category type");
-		w.ln("material");
+		w.ln(CategoryPath.of(config, p).type().toString());
 		w.ln();
 
 		w.ln("Process identifier");

@@ -1,9 +1,6 @@
 package org.openlca.io.simapro.csv.output;
 
-import org.openlca.core.model.Category;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.util.Strings;
 
 class Util {
 	private Util() {
@@ -58,24 +55,5 @@ class Util {
 				return row;
 			}
 		}
-	}
-
-	static String productCategoryOf(Flow e) {
-		if (e == null)
-			return "";
-		StringBuilder path = null;
-		Category c = e.category;
-		while (c != null) {
-			var name = Strings.cut(c.name, 40);
-			if (path == null) {
-				path = new StringBuilder(name);
-			} else {
-				path.insert(0, name + '\\');
-			}
-			c = c.category;
-		}
-		return path == null
-				? "Other"
-				: path.toString();
 	}
 }

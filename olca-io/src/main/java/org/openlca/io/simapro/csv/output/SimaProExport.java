@@ -11,7 +11,9 @@ public class SimaProExport {
 
 	final IDatabase db;
 	final Collection<ProcessDescriptor> processes;
+
 	FlowMap flowMap;
+	boolean withTopCategoryAsType;
 
 	// config for product names
 	boolean withLocationSuffixes;
@@ -29,6 +31,11 @@ public class SimaProExport {
 
 	public SimaProExport withFlowMap(FlowMap flowMap) {
 		this.flowMap = flowMap;
+		return this;
+	}
+
+	public SimaProExport withTopCategoryAsType(boolean b) {
+		this.withTopCategoryAsType = b;
 		return this;
 	}
 
