@@ -156,7 +156,7 @@ public class Sankey<T> {
 		if (provider == null || node == null || provider.index == node.index)
 			return 0;
 		// the provider is i; the linked node is j: i -> j
-		// we calculate the share by dividing the total amount of i that goes
+		// we calculate the share by dividing the scaled amount of i that goes
 		// into j with the total amount of i that is produced in the system
 		int i = provider.index;
 		int j = node.index;
@@ -166,17 +166,19 @@ public class Sankey<T> {
 		if (total == 0)
 			return 0;
 
-		// the total amount of i that goes into j: tf[j] * A[i,i] * INV[i,j]
-		var aii = solution.techValueOf(i, i);
-		var inv_ij = solution.solutionOfOne(j)[i];
-		var tfj = solution.totalFactorOf(j);
-		var linkedAmount = tfj * aii * inv_ij;
-		return linkedAmount == 0 ? 0 : linkedAmount / total;
+		var linkedAmount = solution.scaledTechValueOf(i, j);
+		return linkedAmount == 0 ? 0 : -linkedAmount / total;
 
-		// an alternative would be, to relate the upstream share to the direct
-		// amount that goes from i to j; but this is not so nice when visualizing
-		// the effects of loops
-		// var linkedAmount = solution.scaledTechValueOf(provider.index, node.index);
+		// an alternative calculation is to relate the upstream share to the
+		// total amount of i that is produced by the scaled demand of j. This
+		// makes the effects of loops sometimes more clear but the upstream
+		// shares can be misleading when there are multiple paths of i into j
+		// the total amount of i that goes into j: tf[j] * A[i,i] * INV[i,j]
+		// var aii = solution.techValueOf(i, i);
+		// var inv_ij = solution.solutionOfOne(j)[i];
+		// var tfj = solution.totalFactorOf(j);
+		// var linkedAmount = tfj * aii * inv_ij;
+		// return linkedAmount == 0 ? 0 : linkedAmount / total;
 	}
 
 	/**
