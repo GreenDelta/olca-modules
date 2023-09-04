@@ -7,13 +7,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public class WasteCalculationTest {
 
@@ -74,6 +80,39 @@ public class WasteCalculationTest {
 		var result = new SystemCalculator(db).calculate(setup);
 		assertEquals(4.0, result.getTotalFlows().get(0).value(), 1e-10);
 		result.dispose();
+	}
+
+	@Test
+	public void testLinkedWasteResult() {
+
+		// create the process model
+		var units = UnitGroup.of("Mass units", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		var p = Flow.product("p", mass);
+		var w = Flow.waste("w", mass);
+		var process = Process.of("P", p);
+		process.output(w, 2);
+
+		// create the result model
+		var result = Result.of("R", w);
+		var i = ImpactCategory.of("I");
+		var m = ImpactMethod.of("M");
+		m.add(i);
+		result.impactMethod = m;
+		result.impactResults.add(ImpactResult.of(i, 21));
+
+		db.insert(units, mass, p, w, process, i, m, result);
+
+		// create product system & calculate
+		var sys = ProductSystem.of("Sys", process);
+		sys.link(TechFlow.of(result), process);
+		db.insert(sys);
+		var setup = CalculationSetup.of(sys).withImpactMethod(m);
+		var r = new SystemCalculator(db).calculate(setup);
+		var v = r.getTotalImpactValueOf(Descriptor.of(i));
+
+		db.delete(sys, result, m, i, process, p, w, mass, units);
+		assertEquals(42, v, 1e-16);
 	}
 
 }
