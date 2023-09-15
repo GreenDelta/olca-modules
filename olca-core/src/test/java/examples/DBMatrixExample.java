@@ -34,7 +34,7 @@ public class DBMatrixExample {
 
 			System.out.println("done; flow count = " + r.enviIndex().size());
 			System.out.println(r.getTotalFlows().get(0));
-
+			r.dispose();
 		}
 
 	}

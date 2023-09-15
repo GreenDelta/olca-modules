@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class SelfLoopAnalysisTest {
 	private LcaResult result;
 
 	@Before
-	public void setUp() {
+	public void setup() {
 		Process p1 = TestProcess
 				.refProduct("p1", 1, "kg")
 				.prodIn("p2", 1, "kg")
@@ -36,6 +37,11 @@ public class SelfLoopAnalysisTest {
 		system.targetAmount = 2;
 		system = db.update(system);
 		result = TestSystem.calculate(system);
+	}
+
+	@After
+	public void cleanup() {
+		result.dispose();
 	}
 
 	@Test

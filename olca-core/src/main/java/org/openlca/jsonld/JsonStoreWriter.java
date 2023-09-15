@@ -1,6 +1,7 @@
 package org.openlca.jsonld;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import org.openlca.core.model.ModelType;
 
@@ -24,13 +25,19 @@ public interface JsonStoreWriter {
 		if (path == null || object == null)
 			return;
 		var json = new Gson().toJson(object);
-		byte[] data = json.getBytes(StandardCharsets.UTF_8);
+		var data = json.getBytes(StandardCharsets.UTF_8);
 		put(path, data);
 	}
 
 	default void putBin(ModelType type, String refId, String filename, byte[] data) {
 		var path = ModelPath.binFolderOf(type, refId) + "/" + filename;
 		put(path, data);
+	}
+
+	default void putLibraryLinks(Collection<LibraryLink> libraries) {
+		if (libraries == null || libraries.isEmpty())
+			return;
+		PackageInfo.create().withLibraries(libraries).writeTo(this);
 	}
 
 	void put(String path, byte[] data);

@@ -8,26 +8,25 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
-class ProcessFlowContributionSheet
-		extends ContributionSheet<TechFlow, EnviFlow> {
+class DirectInventoryMatrix extends ContributionMatrix<TechFlow, EnviFlow> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
 	private final ResultItemOrder items;
 
 	static void write(ResultExport export, LcaResult r) {
-		new ProcessFlowContributionSheet(export, r).write(export.workbook);
+		new DirectInventoryMatrix(export, r).write(export.workbook);
 	}
 
-	private ProcessFlowContributionSheet(ResultExport export, LcaResult result) {
-		super(export.writer, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
+	private DirectInventoryMatrix(ResultExport export, LcaResult result) {
+		super(export, ResultExport.PROCESS_HEADER, ResultExport.FLOW_HEADER);
 		this.writer = export.writer;
 		this.r = result;
 		this.items = export.items();
 	}
 
 	private void write(Workbook workbook) {
-		Sheet sheet = workbook.createSheet("Process flow contributions");
+		var sheet = workbook.createSheet("Direct inventory contributions");
 		header(sheet);
 		subHeaders(sheet, items.techFlows(), items.enviFlows());
 		data(sheet, items.techFlows(), items.enviFlows());

@@ -163,9 +163,12 @@ public class Descriptor implements Copyable<Descriptor> {
 	}
 
 	public static LocationDescriptor of(Location location) {
-		return location == null
-			? null
-			: setBaseValues(location, new LocationDescriptor());
+		if (location == null)
+			return null;
+		var d = new LocationDescriptor();
+		setBaseValues(location, d);
+		d.code = location.code;
+		return d;
 	}
 
 	public static SourceDescriptor of(Source source) {

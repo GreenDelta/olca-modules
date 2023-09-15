@@ -6,7 +6,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
 
 /**
  * Contains helper methods for string operations.
@@ -64,11 +67,11 @@ public class Strings {
 		int suffixLen = maxLen - prefixLen - 3;
 
 		var r = prefixLen > 0
-			? s.substring(0, prefixLen) + "..."
-			: "...";
+				? s.substring(0, prefixLen) + "..."
+				: "...";
 		return suffixLen > 0 && suffixLen < s.length()
-			? r + s.substring(s.length() - suffixLen)
-			: r;
+				? r + s.substring(s.length() - suffixLen)
+				: r;
 	}
 
 	public static String[] readLines(InputStream is) throws IOException {
@@ -188,7 +191,34 @@ public class Strings {
 		return s == null
 				? null
 				: s.isBlank()
-					? null
-					: s;
+				? null
+				: s;
+	}
+
+	public static <T> String uniqueNameOf(
+			String base, Iterable<T> existing, Function<T, String> fn
+	) {
+		var raw = base == null ? "" : base.trim();
+		if (existing == null)
+			return raw;
+		var s = new HashSet<String>();
+		for (var e : existing) {
+			var en = fn.apply(e);
+			if (en != null) {
+				s.add(en.trim().toLowerCase(Locale.US));
+			}
+		}
+
+		var norm = raw.trim().toLowerCase(Locale.US);
+		if (!s.contains(norm))
+			return raw;
+
+		int i = 1;
+		String nextNorm;
+		do {
+			i++;
+			nextNorm = norm + " (" + i + ")";
+		} while (s.contains(nextNorm));
+		return raw.trim() + " (" + i + ")";
 	}
 }

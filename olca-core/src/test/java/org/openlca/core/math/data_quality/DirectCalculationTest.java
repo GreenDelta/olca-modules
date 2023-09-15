@@ -57,6 +57,7 @@ public class DirectCalculationTest {
 		Assert.assertArrayEquals(new int[]{1, 2, 3, 4, 5}, dq);
 
 		// delete artifacts
+		result.dispose();
 		db.delete(process, process.exchangeDqSystem, co2, steel, mass, units);
 	}
 

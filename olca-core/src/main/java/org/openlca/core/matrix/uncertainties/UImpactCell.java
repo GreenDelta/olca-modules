@@ -30,29 +30,24 @@ class UImpactCell implements UCell {
 		if (t == null) {
 			return NumberGenerator.discrete(e.amount);
 		}
-		switch (t) {
-			case LOG_NORMAL:
-				return NumberGenerator.logNormal(
-						e.parameter1, e.parameter2);
-			case NORMAL:
-				return NumberGenerator.normal(
-						e.parameter1, e.parameter2);
-			case TRIANGLE:
-				return NumberGenerator.triangular(
-						e.parameter1, e.parameter2, e.parameter3);
-			case UNIFORM:
-				return NumberGenerator.uniform(
-						e.parameter1, e.parameter2);
-			default:
-				return NumberGenerator.discrete(e.amount);
-		}
+		return switch (t) {
+			case LOG_NORMAL -> NumberGenerator.logNormal(
+					e.parameter1, e.parameter2);
+			case NORMAL -> NumberGenerator.normal(
+					e.parameter1, e.parameter2);
+			case TRIANGLE -> NumberGenerator.triangular(
+					e.parameter1, e.parameter2, e.parameter3);
+			case UNIFORM -> NumberGenerator.uniform(
+					e.parameter1, e.parameter2);
+			default -> NumberGenerator.discrete(e.amount);
+		};
 	}
 
 	@Override
 	public UncertaintyType type() {
 		return factor.uncertaintyType == null
-			? UncertaintyType.NONE
-			: factor.uncertaintyType;
+				? UncertaintyType.NONE
+				: factor.uncertaintyType;
 	}
 
 	@Override
@@ -62,12 +57,12 @@ class UImpactCell implements UCell {
 			return new double[0];
 		if (factor.uncertaintyType == UncertaintyType.TRIANGLE)
 			return new double[]{
+					factor.parameter1,
+					factor.parameter2,
+					factor.parameter3};
+		return new double[]{
 				factor.parameter1,
 				factor.parameter2,
-				factor.parameter3};
-		return new double[] {
-			factor.parameter1,
-			factor.parameter2,
 		};
 	}
 

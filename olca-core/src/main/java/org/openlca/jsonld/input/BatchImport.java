@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 
-class BatchImport<T extends RootEntity> {
+public class BatchImport<T extends RootEntity> {
 
 	private final JsonImport imp;
 	private final Class<T> clazz;
@@ -20,14 +20,14 @@ class BatchImport<T extends RootEntity> {
 	private final ArrayList<RootEntity> inserts = new ArrayList<>();
 	private final ArrayList<RootEntity> updates = new ArrayList<>();
 
-	BatchImport(JsonImport imp, Class<T> type, int batchSize) {
+	public BatchImport(JsonImport imp, Class<T> type, int batchSize) {
 		this.imp = imp;
 		this.type = imp.types.get(type);
 		this.clazz = type;
 		this.batchSize = batchSize;
 	}
 
-	static int batchSizeOf(ModelType type) {
+	public static int batchSizeOf(ModelType type) {
 		return switch (type) {
 			case IMPACT_CATEGORY, PRODUCT_SYSTEM -> 1;
 			case LOCATION, PROCESS, RESULT -> 100;
@@ -35,29 +35,27 @@ class BatchImport<T extends RootEntity> {
 		};
 	}
 
-	@SuppressWarnings("unchecked")
-	void run() {
+	public void run() {
 		for (var refId : imp.reader.getRefIds(type)) {
-			var item = imp.fetch(clazz, refId);
-			if (item.isVisited() || item.isError())
-				continue;
-			var reader = (EntityReader<T>) imp.readerFor(type);
-			if (item.isNew()) {
-				insert(reader.read(item.json()));
-			} else {
-				T model = item.entity();
-				reader.update(model, item.json());
-				update(model);
-			}
-			imp.copyBinaryFilesOf(type, refId);
+			run(refId);
 		}
-		if (inserts.size() > 0) {
-			flushInserts();
+		close();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void run(String refId) {
+		var item = imp.fetch(clazz, refId);
+		if (item.isVisited() || item.isError())
+			return;
+		var reader = (EntityReader<T>) imp.readerFor(type);
+		if (item.isNew()) {
+			insert(reader.read(item.json()));
+		} else {
+			T model = item.entity();
+			reader.update(model, item.json());
+			update(model);
 		}
-		if (updates.size() > 0) {
-			flushUpdates();
-		}
-		writer.close();
+		imp.copyBinaryFilesOf(type, refId);
 	}
 
 	private void insert(RootEntity entity) {
@@ -82,6 +80,16 @@ class BatchImport<T extends RootEntity> {
 	private void flushUpdates() {
 		writer.update(updates);
 		updates.clear();
+	}
+
+	public void close() {
+		if (!inserts.isEmpty()) {
+			flushInserts();
+		}
+		if (!updates.isEmpty()) {
+			flushUpdates();
+		}
+		writer.close();
 	}
 
 	private class Writer {

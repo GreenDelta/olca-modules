@@ -8,27 +8,25 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.results.CellWriter;
 
-class ProcessImpactUpstreamSheet extends
-		ContributionSheet<TechFlow, ImpactDescriptor> {
+class DirectImpactMatrix extends ContributionMatrix<TechFlow, ImpactDescriptor> {
 
 	private final CellWriter writer;
 	private final LcaResult r;
 	private final ResultItemOrder items;
 
 	static void write(ResultExport export, LcaResult r) {
-		new ProcessImpactUpstreamSheet(export, r).write(export.workbook);
+		new DirectImpactMatrix(export, r).write(export.workbook);
 	}
 
-	private ProcessImpactUpstreamSheet(ResultExport export, LcaResult r) {
-		super(export.writer, ResultExport.PROCESS_HEADER,
-				ResultExport.FLOW_HEADER);
+	private DirectImpactMatrix(ResultExport export, LcaResult r) {
+		super(export, ResultExport.PROCESS_HEADER, ResultExport.IMPACT_HEADER);
 		this.writer = export.writer;
 		this.r = r;
 		this.items = export.items();
 	}
 
 	private void write(Workbook wb) {
-		var sheet = wb.createSheet("Process upstream impacts");
+		var sheet = wb.createSheet("Direct impact contributions");
 		header(sheet);
 		subHeaders(sheet, items.techFlows(), items.impacts());
 		data(sheet, items.techFlows(), items.impacts());
@@ -36,7 +34,7 @@ class ProcessImpactUpstreamSheet extends
 
 	@Override
 	protected double getValue(TechFlow techFlow, ImpactDescriptor impact) {
-		return r.getTotalImpactOf(impact, techFlow);
+		return r.getDirectImpactOf(impact, techFlow);
 	}
 
 	@Override
@@ -48,4 +46,5 @@ class ProcessImpactUpstreamSheet extends
 	protected void subHeaderRow(ImpactDescriptor impact, Sheet sheet, int row) {
 		writer.impactRow(sheet, row, 1, impact);
 	}
+
 }

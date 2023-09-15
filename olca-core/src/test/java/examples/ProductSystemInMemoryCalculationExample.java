@@ -58,7 +58,8 @@ public class ProductSystemInMemoryCalculationExample {
 					+ impact.referenceUnit);
 		}
 
-		// finally, close the database
+		// clean up
+		r.dispose();
 		db.close();
 	}
 }

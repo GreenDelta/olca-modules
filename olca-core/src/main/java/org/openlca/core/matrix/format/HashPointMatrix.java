@@ -26,7 +26,7 @@ public class HashPointMatrix implements Matrix {
 	 * faster to convert this matrix into the compressed column format
 	 * that is used in the math libraries.
 	 */
-	private final TIntObjectHashMap<TIntDoubleHashMap> data;
+	final TIntObjectHashMap<TIntDoubleHashMap> data;
 
 	public HashPointMatrix() {
 		data = new TIntObjectHashMap<>(

@@ -60,6 +60,7 @@ public class ProcessImport {
 		process.category = new CategoryDao(config.db())
 			.sync(ModelType.PROCESS, path);
 		createAndMapContent();
+		org.openlca.util.Processes.fixInternalIds(process);
 		process = config.insert(process);
 		config.providers().pop(process);
 		return process;

@@ -197,7 +197,12 @@ public class Parameters {
 					e.formula = Formulas.renameVariable(
 						e.formula, oldName, newName);
 				}
+				if (e.costFormula != null) {
+					e.costFormula = Formulas.renameVariable(
+							e.costFormula, oldName, newName);
+				}
 			}
+
 			for (var af : process.allocationFactors) {
 				if (af.formula != null) {
 					af.formula = Formulas.renameVariable(
@@ -296,6 +301,11 @@ public class Parameters {
 		// rename unbound variables in exchange formulas
 		sql = "select f_owner, resulting_amount_formula from" +
 				" tbl_exchanges where resulting_amount_formula is not null";
+		NativeSql.on(db).updateRows(sql, formulaUpdate);
+
+		// rename unbound variables in cost formulas of exchanges
+		sql = "select f_owner, cost_formula from tbl_exchanges" +
+				" where cost_formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		// rename unbound variables in impact factor formulas

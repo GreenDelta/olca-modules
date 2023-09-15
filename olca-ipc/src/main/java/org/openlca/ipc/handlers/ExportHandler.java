@@ -14,6 +14,7 @@ import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
+import org.openlca.jsonld.LibraryLink;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 
@@ -26,7 +27,6 @@ public class ExportHandler {
 	public ExportHandler(HandlerContext context) {
 		this.context = context;
 	}
-
 
 	@Rpc("export/json-ld")
 	public RpcResponse jsonLd(RpcRequest req) {
@@ -41,6 +41,8 @@ public class ExportHandler {
 			return Responses.badRequest("No `models` given", req);
 		try {
 			var store = ZipStore.open(new File(path));
+			store.putLibraryLinks(LibraryLink.of(
+					context.db().getLibraries()));
 			var export = new JsonExport(context.db(), store);
 			for (var type : models.keySet()) {
 				for (var refId : models.get(type)) {

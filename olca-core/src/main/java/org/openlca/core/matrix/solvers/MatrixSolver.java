@@ -2,6 +2,8 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.solvers.mkl.MKL;
+import org.openlca.core.matrix.solvers.mkl.MKLSolver;
 import org.openlca.nativelib.NativeLib;
 
 /**
@@ -20,9 +22,11 @@ public interface MatrixSolver {
 	 * function.
 	 */
 	static MatrixSolver get() {
-		return NativeLib.isLoaded()
-			? new NativeSolver()
-			: new JavaSolver();
+		if (MKL.isLoaded())
+			return new MKLSolver();
+		if (NativeLib.isLoaded())
+			return new NativeSolver();
+		return new JavaSolver();
 	}
 
 	/**

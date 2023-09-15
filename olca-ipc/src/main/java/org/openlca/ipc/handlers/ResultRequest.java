@@ -69,4 +69,10 @@ class ResultRequest {
 	String impact() {
 		return Json.getRefId(reqParam, "impactCategory");
 	}
+
+	JsonElement param(String param) {
+		return reqParam != null
+				? reqParam.get(param)
+				: null;
+	}
 }

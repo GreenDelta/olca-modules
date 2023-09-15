@@ -287,7 +287,10 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
 	@Override
 	public void dispose(ProtoResultRef req, StreamObserver<Empty> resp) {
-		results.remove(req.getId());
+		var r = results.remove(req.getId());
+		if (r != null) {
+			r.dispose();
+		}
 		// we always return ok, even when the result does not exist
 		resp.onNext(Empty.newBuilder().build());
 		resp.onCompleted();

@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.upgrades.Upgrades;
+import org.openlca.core.matrix.solvers.mkl.MKL;
 import org.openlca.nativelib.NativeLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -204,7 +205,11 @@ public record ServerConfig(
 			var nativeDir = nativePath != null
 					? new File(nativePath)
 					: dataDir.root();
-			log.info("load native libraries from: {}", nativeDir);
+			log.info("try to load native libraries from: {}", nativeDir);
+			if (MKL.isLibraryDir(nativeDir) && MKL.loadFrom(nativeDir)) {
+				log.info("loaded MKL libraries");
+				return;
+			}
 			NativeLib.loadFrom(nativeDir);
 			if (!NativeLib.isLoaded()) {
 				log.warn("no native libraries could be loaded;" +

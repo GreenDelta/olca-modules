@@ -1,6 +1,7 @@
 package org.openlca.ipc.handlers;
 
 import org.openlca.core.services.JsonResultService;
+import org.openlca.core.services.Response;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -318,4 +319,14 @@ public class ResultHandler {
 	}
 
 	// endregion
+
+	@Rpc("result/sankey")
+	public RpcResponse getSankeyGraph(RpcRequest req) {
+		return ResultRequest.of(req, rr -> {
+			var config = rr.param("config");
+			return config != null && config.isJsonObject()
+					? results.getSankeyGraph(rr.id(), config.getAsJsonObject())
+					: Response.error("invalid request; 'config: SankeyRequest' missing");
+		});
+	}
 }

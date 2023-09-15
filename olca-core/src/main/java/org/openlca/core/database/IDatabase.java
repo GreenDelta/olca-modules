@@ -95,7 +95,7 @@ public interface IDatabase extends EntityStore, Closeable {
 	 * Returns true if there are libraries linked to this database.
 	 */
 	default boolean hasLibraries() {
-		return getLibraries().size() > 0;
+		return !getLibraries().isEmpty();
 	}
 
 	/**

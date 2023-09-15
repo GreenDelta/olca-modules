@@ -142,7 +142,8 @@ class GlobalParameters {
 				.filter(p -> p.name != null)
 				.collect(Collectors.toMap(
 						p -> p.name.trim().toLowerCase(),
-						p -> p));
+						p -> p,
+						(p, dup) -> p));
 
 		for (String name : names) {
 			var g = globals.get(name.trim().toLowerCase());

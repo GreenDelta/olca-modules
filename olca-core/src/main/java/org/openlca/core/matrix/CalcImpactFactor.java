@@ -18,6 +18,13 @@ public class CalcImpactFactor {
 	 */
 	public boolean isInput;
 
+	/**
+	 * Indicates whether the absolute value of the factor should be taken before
+	 * applying the impact direction sign. This is the case when the impact
+	 * direction is defined on the category level.
+	 */
+	public boolean withAbs;
+
 	public double conversionFactor;
 	public double amount;
 	public String formula;
@@ -51,6 +58,10 @@ public class CalcImpactFactor {
 		}
 
 		a *= conversionFactor;
-		return isInput ? -a : a;
+		if (withAbs) {
+			return isInput ? -Math.abs(a) : Math.abs(a);
+		} else {
+			return isInput ? -a : a;
+		}
 	}
 }

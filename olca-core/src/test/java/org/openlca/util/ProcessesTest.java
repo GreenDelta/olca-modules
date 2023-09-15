@@ -10,6 +10,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -45,4 +46,20 @@ public class ProcessesTest {
 		assertNull(query.get());
 	}
 
+	@Test
+	public void testFixInternalIds() {
+		var p = new Process();
+		p.lastInternalId = 2;
+		for (int i = 0; i < 3; i++) {
+			var e = new Exchange();
+			e.internalId = i;
+			p.exchanges.add(e);
+		}
+		Processes.fixInternalIds(p);
+		assertEquals(5, p.lastInternalId);
+		for (int i = 0; i < 3; i++) {
+			var e = p.exchanges.get(i);
+			assertEquals(i + 3, e.internalId);
+		}
+	}
 }

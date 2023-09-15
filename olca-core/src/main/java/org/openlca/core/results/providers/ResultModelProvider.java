@@ -31,7 +31,10 @@ public class ResultModelProvider implements ResultProvider {
 
 	private ResultModelProvider(Result model) {
 		var refFlow = TechFlow.of(model);
-		demand = new Demand(refFlow, ReferenceAmount.get(model));
+		var refAmount = refFlow.isWaste()
+				? -ReferenceAmount.get(model)
+				: ReferenceAmount.get(model);
+		demand = new Demand(refFlow, refAmount);
 		techIndex = new TechIndex(refFlow);
 
 		// inventory results
@@ -104,8 +107,8 @@ public class ResultModelProvider implements ResultProvider {
 			throw new IndexOutOfBoundsException(techFlow);
 		var d = demand.value();
 		return d == 0
-			? new double[]{0}
-			: new double[]{1 / d};
+				? new double[]{0}
+				: new double[]{1 / d};
 	}
 
 	@Override
@@ -135,8 +138,8 @@ public class ResultModelProvider implements ResultProvider {
 			throw new IndexOutOfBoundsException(techFlow);
 		var demand = demand().value();
 		return demand == 0
-			? new double[flowIndex.size()]
-			: scale(flowResults, 1 / demand);
+				? new double[flowIndex.size()]
+				: scale(flowResults, 1 / demand);
 	}
 
 	@Override
@@ -170,8 +173,8 @@ public class ResultModelProvider implements ResultProvider {
 			throw new IndexOutOfBoundsException(techFlow);
 		var d = demand.value();
 		return d == 0
-			? new double[impactIndex.size()]
-			: scale(impactResults, 1 / d);
+				? new double[impactIndex.size()]
+				: scale(impactResults, 1 / d);
 	}
 
 	@Override
@@ -227,13 +230,13 @@ public class ResultModelProvider implements ResultProvider {
 					results.add(idx, impact.amount);
 				}
 				return index.isEmpty()
-					? new FlowResults(null, EMPTY_VECTOR)
-					: new FlowResults(index, results.toArray());
+						? new FlowResults(null, EMPTY_VECTOR)
+						: new FlowResults(index, results.toArray());
 			}
 
 			var flowIndex = isRegionalized
-				? EnviIndex.createRegionalized()
-				: EnviIndex.create();
+					? EnviIndex.createRegionalized()
+					: EnviIndex.create();
 			var results = DoubleBuffer.withCapacity(model.flowResults.size());
 			for (var f : model.flowResults) {
 				if (isNonEnvi(f))
@@ -250,8 +253,8 @@ public class ResultModelProvider implements ResultProvider {
 
 		private static boolean isNonEnvi(FlowResult f) {
 			return f == null
-				|| f.flow == null
-				|| f.flow.flowType != FlowType.ELEMENTARY_FLOW;
+					|| f.flow == null
+					|| f.flow.flowType != FlowType.ELEMENTARY_FLOW;
 		}
 	}
 

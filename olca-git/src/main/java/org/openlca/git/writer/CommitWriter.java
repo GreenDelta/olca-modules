@@ -29,6 +29,7 @@ import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
+import org.openlca.jsonld.LibraryLink;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -327,8 +328,8 @@ public abstract class CommitWriter {
 	protected void removed(String path) {
 	}
 
-	protected Set<String> getLibraries() {
-		return null;
+	protected List<LibraryLink> getLibraries() {
+		return List.of();
 	}
 
 	protected abstract byte[] getData(Change change) throws IOException;

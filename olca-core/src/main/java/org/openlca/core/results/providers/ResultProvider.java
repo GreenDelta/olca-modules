@@ -3,6 +3,8 @@ package org.openlca.core.results.providers;
 import java.util.Arrays;
 
 import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.format.ColumnIterator;
+import org.openlca.core.matrix.format.ColumnIterator.ArrayIterator;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -166,6 +168,14 @@ public interface ResultProvider {
 	 * @see #techValueOf(int, int)
 	 */
 	double[] techColumnOf(int techFlow);
+
+	/**
+	 * Creates an iterator of the column A[:,j] for the given technosphere flow j.
+	 */
+	default ColumnIterator iterateTechColumnOf(int techFlow) {
+		var column = techColumnOf(techFlow);
+		return new ArrayIterator(column, techFlow);
+	}
 
 	/**
 	 * Get the unscaled value `A[i,j]` from the technology matrix `A` for the
@@ -584,5 +594,15 @@ public interface ResultProvider {
 		// avoid -0 in the results; note that abs(value) is not correct because the
 		// original value could be negative ~> -(-(-v))
 		return value == 0 ? 0 : -value;
+	}
+
+	/**
+	 * This method should be implemented by result providers that allocate
+	 * resources that need to be freed up later, like memory outside the JVM of
+	 * matrix factorizations in native code for example. A user of a result
+	 * provider should always call this method when the result is not needed
+	 * anymore (but not before).
+	 */
+	default void dispose() {
 	}
 }

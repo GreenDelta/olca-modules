@@ -1,5 +1,6 @@
 package org.openlca.validation;
 
+import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 
@@ -15,8 +16,8 @@ class FlowCheck implements Runnable {
 	@Override
 	public void run() {
 		try {
-			checkReferences();
-			checkPropertyFactors();
+			var refMap = checkReferences();
+			checkPropertyFactors(refMap);
 			if (!foundErrors && !v.wasCanceled()) {
 				v.ok("checked flows");
 			}
@@ -27,13 +28,16 @@ class FlowCheck implements Runnable {
 		}
 	}
 
-	private void checkReferences() {
+	private TLongLongHashMap checkReferences() {
+		var refMap = new TLongLongHashMap();
 		if (v.wasCanceled())
-			return;
+			return refMap;
+
 		var sql = "select " +
 			/* 1 */ "id, " +
 			/* 2 */ "f_reference_flow_property, " +
 			/* 3 */ "f_location from tbl_flows";
+
 		NativeSql.on(v.db).query(sql, r -> {
 			long id = r.getLong(1);
 
@@ -42,6 +46,8 @@ class FlowCheck implements Runnable {
 				v.error(id, ModelType.FLOW,
 					"invalid flow property reference @" + propID);
 				foundErrors = true;
+			} else {
+				refMap.put(id, propID);
 			}
 
 			long locID = r.getLong(3);
@@ -52,15 +58,19 @@ class FlowCheck implements Runnable {
 
 			return !v.wasCanceled();
 		});
+
+		return refMap;
 	}
 
-	private void checkPropertyFactors() {
+	private void checkPropertyFactors(TLongLongHashMap refMap) {
 		if (v.wasCanceled())
 			return;
+
 		var sql = "select " +
 			/* 1 */ "f_flow, " +
 			/* 2 */ "f_flow_property, " +
 			/* 3 */ "conversion_factor from tbl_flow_property_factors";
+
 		NativeSql.on(v.db).query(sql, r -> {
 
 			long flowID = r.getLong(1);
@@ -76,12 +86,20 @@ class FlowCheck implements Runnable {
 				foundErrors = true;
 			}
 
+			var refProp = refMap.get(flowID);
 			double factor = r.getDouble(3);
 			if (Double.compare(factor, 0) == 0) {
 				v.error(flowID, ModelType.FLOW,
 					"invalid flow property factor of 0 for property @" + propID);
 				foundErrors = true;
+			} else if (refProp != 0
+					&& propID == refProp
+					&& Double.compare(factor, 1) != 0) {
+				v.error(flowID, ModelType.FLOW,
+						"reference flow property factor must be 1 @" + refProp);
+				foundErrors = true;
 			}
+
 			return !v.wasCanceled();
 		});
 	}

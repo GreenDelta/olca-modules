@@ -36,6 +36,7 @@ public class SankeyExample {
 
 		System.out.println(sankey.toDot());
 
+		result.dispose();
 		db.close();
 	}
 

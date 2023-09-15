@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -27,6 +26,7 @@ import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
+import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,8 +163,8 @@ public class DbCommitWriter extends CommitWriter {
 	}
 
 	@Override
-	protected Set<String> getLibraries() {
-		return database.getLibraries();
+	protected List<LibraryLink> getLibraries() {
+		return LibraryLink.allOf(database);
 	}
 
 	@Override
