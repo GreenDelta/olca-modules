@@ -11,7 +11,19 @@ import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Methods;
 import org.openlca.util.Strings;
 
-public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class ImpactImport {
+
+	private final ImportConfig config;
+	private final LCIAMethod dataSet;
+	private final AtomicBoolean hasRefErrors;
+
+	public ImpactImport(ImportConfig config, LCIAMethod dataSet) {
+		this.config = config;
+		this.dataSet = dataSet;
+		this.hasRefErrors = new AtomicBoolean(false);
+	}
 
 	public static ImpactCategory get(ImportConfig config, String id) {
 		var impact = config.db().get(ImpactCategory.class, id);
@@ -20,7 +32,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		var dataSet = config.store().get(LCIAMethod.class, id);
 		if (dataSet == null) {
 			config.log().error("invalid reference in ILCD data set:" +
-				" impact method '" + id + "' does not exist");
+					" impact method '" + id + "' does not exist");
 			return null;
 		}
 		return new ImpactImport(config, dataSet).createNew();
@@ -29,8 +41,8 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 	public ImpactCategory run() {
 		var impact = config.db().get(ImpactCategory.class, dataSet.getUUID());
 		return impact != null
-			? impact
-			: createNew();
+				? impact
+				: createNew();
 	}
 
 	private ImpactCategory createNew() {
@@ -39,7 +51,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		impact.name = name();
 		config.log().info("import impact category: " + impact.name);
 		impact.category = new CategoryDao(config.db())
-			.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(dataSet));
+				.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(dataSet));
 
 		var info = Methods.getDataSetInfo(dataSet);
 		if (info != null) {
@@ -54,7 +66,7 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		var entry = Methods.getDataEntry(dataSet);
 		if (entry != null && entry.timeStamp != null) {
 			impact.lastChange = entry.timeStamp.toGregorianCalendar()
-				.getTimeInMillis();
+					.getTimeInMillis();
 		} else {
 			impact.lastChange = System.currentTimeMillis();
 		}
@@ -81,9 +93,9 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 		var name = config.str(info.name);
 		if (Strings.nullOrEmpty(name)) {
 			name = info.impactCategories.stream()
-				.filter(Strings::notEmpty)
-				.findAny()
-				.orElse(null);
+					.filter(Strings::notEmpty)
+					.findAny()
+					.orElse(null);
 			if (Strings.nullOrEmpty(name)) {
 				name = info.indicator;
 			}
@@ -105,8 +117,15 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 				continue;
 
 			var syncFlow = FlowImport.get(config, factor.flow.uuid);
-			if (syncFlow.isEmpty())
+			if (syncFlow.isEmpty()) {
+				if (!hasRefErrors.get()) {
+					hasRefErrors.set(true);
+					config.log().error("impact category " + impact.refId
+							+ " has invalid data set references; e.g. flow: "
+							+ factor.flow.uuid);
+				}
 				continue;
+			}
 
 			var f = new ImpactFactor();
 			f.flow = syncFlow.flow();
@@ -116,8 +135,8 @@ public record ImpactImport(ImportConfig config, LCIAMethod dataSet) {
 			if (syncFlow.isMapped()) {
 				var cf = syncFlow.mapFactor();
 				f.value = cf != 1 && cf != 0
-					? factor.meanValue / cf
-					: factor.meanValue;
+						? factor.meanValue / cf
+						: factor.meanValue;
 			} else {
 				f.value = factor.meanValue;
 			}

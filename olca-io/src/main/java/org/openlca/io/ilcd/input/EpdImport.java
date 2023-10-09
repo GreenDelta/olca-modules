@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.*;
@@ -18,10 +19,18 @@ import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
 import org.openlca.util.Strings;
 
-public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
+public class EpdImport {
+
+	private final ImportConfig config;
+	private final Process dataSet;
+	private final EpdDataSet epd;
+	private final AtomicBoolean hasRefError;
 
 	public EpdImport(ImportConfig config, Process dataSet) {
-		this(config, dataSet, EpdExtensions.read(dataSet));
+		this.config = config;
+		this.dataSet = dataSet;
+		this.epd = EpdExtensions.read(dataSet);
+		this.hasRefError = new AtomicBoolean(false);
 	}
 
 	public void run() {
@@ -111,8 +120,14 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		if (exchange == null || exchange.flow == null)
 			return null;
 		var f = FlowImport.get(config, exchange.flow.uuid);
-		if (f.isEmpty())
+		if (f.isEmpty()) {
+			if (!hasRefError.get()) {
+				hasRefError.set(true);
+				config.log().error("EPD " + dataSet.getUUID()
+						+ " has invalid references; e.g. flow: " + exchange.flow.uuid);
+			}
 			return null;
+		}
 
 		var ref = new FlowResult();
 		ref.flow = f.flow();

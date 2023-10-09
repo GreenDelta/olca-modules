@@ -34,8 +34,6 @@ public class FlowImport {
 		return config.flowSync().createIfAbsent(id, () -> {
 			var dataSet = config.store().get(org.openlca.ilcd.flows.Flow.class, id);
 			if (dataSet == null) {
-				config.log().error("invalid reference in ILCD data set:" +
-					" flow '" + id + "' does not exist");
 				return null;
 			}
 			return new FlowImport(config).createNew(dataSet);
