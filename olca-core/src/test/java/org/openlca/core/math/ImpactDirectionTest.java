@@ -76,7 +76,7 @@ public class ImpactDirectionTest {
 					indicator.factor(r, 1);
 					indicator.factor(e, -0.5);
 				});
-		assertEquals(0.5, result, 1e-16);
+		assertEquals(1.5, result, 1e-16);
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class ImpactDirectionTest {
 					indicator.factor(r, 1);
 					indicator.factor(e, -0.5);
 				});
-		assertEquals(0.5, result, 1e-16);
+		assertEquals(1.5, result, 1e-16);
 	}
 
 	@Test
