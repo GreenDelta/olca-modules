@@ -88,6 +88,7 @@ public class JsonImport implements Runnable, EntityResolver {
 
 	@Override
 	public void run() {
+		new CategoryImport(this).importAll();
 		new UnitGroupImport(this).importAll();
 		var typeOrder = new ModelType[]{
 				ModelType.ACTOR,
