@@ -65,6 +65,12 @@ public class KnownFilesFilter extends TreeFilter {
 		}
 		return GitUtil.isBinDir(path);
 	}
+	
+	protected boolean isEmptyCategoryTag(FileMode mode, String path, int depth) {
+		if (mode != FileMode.REGULAR_FILE || depth < 1)
+			return false;
+		return path.equals(GitUtil.EMPTY_CATEGORY_FLAG) || path.endsWith("/" + GitUtil.EMPTY_CATEGORY_FLAG);
+	}
 
 	@Override
 	public boolean include(TreeWalk walker) throws MissingObjectException, IncorrectObjectTypeException, IOException {

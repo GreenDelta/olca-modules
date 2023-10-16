@@ -87,7 +87,8 @@ public class Diffs {
 			if (paths == null) {
 				paths = new ArrayList<>();
 			}
-			walk.setFilter(getPathsFilter(paths.stream().distinct().toList()));
+			walk.setFilter(AndTreeFilter.create(new KnownFilesFilter(),
+					getPathsFilter(paths.stream().distinct().toList())));
 			walk.setRecursive(true);
 			return scan(walk, e -> map(e, oldCommit, newCommit));
 		} catch (IOException e) {

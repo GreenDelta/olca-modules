@@ -8,10 +8,16 @@ import org.openlca.git.util.GitUtil;
 
 class TreeEntry implements Comparable<TreeEntry> {
 
+	public static final TreeEntry EMPTY = new TreeEntry();
 	public final String name;
 	public final FileMode fileMode;
 	public final Object data;
 	public final String filePath;
+	
+	
+	private TreeEntry() {
+		this(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE);
+	}
 
 	TreeEntry(ModelType type) {
 		this(type.name(), FileMode.TREE, type);

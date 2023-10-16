@@ -12,6 +12,7 @@ public class GitUtil {
 
 	public static final String BIN_DIR_SUFFIX = "_bin";
 	public static final String DATASET_SUFFIX = ".json";
+	public static final String EMPTY_CATEGORY_FLAG = ".empty";
 	private static final List<Character> hexChars = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
 			'b', 'c', 'd', 'e', 'f');
 	private static final Map<String, String> encodings = new HashMap<>();

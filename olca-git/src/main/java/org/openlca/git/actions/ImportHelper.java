@@ -84,7 +84,7 @@ class ImportHelper {
 				continue;
 			progressMonitor.subTask("Importing " + getLabel(type));
 			var batchSize = BatchImport.batchSizeOf(type);
-			if (batchSize == 1 || type == ModelType.UNIT_GROUP) {
+			if (batchSize == 1) {
 				for (var change : changes) {
 					if (change != null) {
 						jsonImport.run(type, change.refId);

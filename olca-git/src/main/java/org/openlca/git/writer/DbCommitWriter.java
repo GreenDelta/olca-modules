@@ -122,8 +122,10 @@ public class DbCommitWriter extends CommitWriter {
 	private List<Change> filterInvalid(List<Change> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
+					if (c.isEmptyCategoryFlag())
+						return true;
 					if (c.type == null || !GitUtil.isUUID(c.refId)) {
-						var val = "{ type: " + c.type + ", refId: " + c.refId + "}";
+						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
 						log.warn("Filtering dataset with missing or invalid type or refId " + val);
 						return false;
 					}

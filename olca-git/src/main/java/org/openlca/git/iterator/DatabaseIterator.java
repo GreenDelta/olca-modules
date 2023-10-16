@@ -76,6 +76,9 @@ public class DatabaseIterator extends EntryIterator {
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
+		if (entries.isEmpty()) {
+			entries.add(TreeEntry.EMPTY);
+		}
 		return entries;
 	}
 

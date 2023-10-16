@@ -221,11 +221,15 @@ public abstract class CommitWriter {
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
 		progressMonitor.subTask("Writing", change);
-		var data = getData(change);
+		var data = change.isEmptyCategoryFlag()
+				? new byte[0]
+				: getData(change);
 		if (data == null)
 			return null;
 		var blobId = insertBlob(data);
-		inserted(path, blobId);
+		if (!change.isEmptyCategoryFlag()) {
+			inserted(path, blobId);
+		}
 		progressMonitor.worked(1);
 		return blobId;
 	}

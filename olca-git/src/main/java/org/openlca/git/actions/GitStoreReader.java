@@ -62,7 +62,10 @@ class GitStoreReader implements JsonStoreReader {
 			return categories.getForPath(path);
 		if (binDir == null)
 			return getDataset(path);
-		return getBinary(path);
+		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
+		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+		var ref = references.get(type, refId, commit.id);
+		return datasets.getBytes(ref);
 	}
 
 	private byte[] getDataset(String path) {
@@ -72,20 +75,6 @@ class GitStoreReader implements JsonStoreReader {
 		return datasets.getBytes(ref);
 	}
 
-	private byte[] getBinary(String path) {
-		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-		String refId = null;
-		for (var part : path.split("/")) {
-			if (part.endsWith(GitUtil.BIN_DIR_SUFFIX))
-				refId = part.substring(0, part.indexOf(GitUtil.BIN_DIR_SUFFIX));
-		}
-		if (refId == null)
-			return null;
-		var filename = path.substring(path.lastIndexOf(GitUtil.BIN_DIR_SUFFIX) + GitUtil.BIN_DIR_SUFFIX.length() + 1);
-		var ref = references.get(type, refId, commit.id);
-		return datasets.getBinary(ref, filename);
-	}
-	
 	@Override
 	public JsonObject get(ModelType type, String refId) {
 		if (type == ModelType.CATEGORY)

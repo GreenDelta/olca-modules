@@ -34,6 +34,8 @@ public class TypedRefId {
 		if (parts.length < 2)
 			return null;
 		var last = parts[parts.length - 1];
+		if (last.equals(GitUtil.EMPTY_CATEGORY_FLAG))
+			return last;
 		if (!last.endsWith(GitUtil.DATASET_SUFFIX))
 			return null;
 		return last.substring(last.lastIndexOf("/") + 1, last.indexOf(GitUtil.DATASET_SUFFIX));
@@ -55,6 +57,10 @@ public class TypedRefId {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "[type=" + type + ", refId=" + refId + "]";
+	}
+	
+	public boolean isEmptyCategoryFlag() {
+		return refId != null && refId.equals(GitUtil.EMPTY_CATEGORY_FLAG);
 	}
 
 }

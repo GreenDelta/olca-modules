@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -52,7 +53,7 @@ public class ChangeIterator extends EntryIterator {
 			var name = path.contains("/") ? path.substring(0, path.indexOf('/')) : path;
 			if (added.contains(name))
 				return;
-			if (path.contains("/")) {
+			if (path.contains("/") || change.type == ModelType.CATEGORY) {
 				list.add(new TreeEntry(name, FileMode.TREE));
 			} else {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
@@ -63,6 +64,8 @@ public class ChangeIterator extends EntryIterator {
 			}
 			added.add(name);
 		});
+		if (list.isEmpty() && prefix.contains("/"))
+			System.out.println();
 		return list;
 	}
 

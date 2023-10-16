@@ -18,7 +18,8 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 
 	private final Repository repo;
 	private final History localHistory;
-
+	private boolean force;
+	
 	private GitPush(Repository repo) {
 		this.repo = repo;
 		this.localHistory = History.localOf(repo);
@@ -28,6 +29,11 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 		return new GitPush(repo);
 	}
 
+	public GitPush force() {
+		this.force = true;
+		return this;
+	}
+	
 	@Override
 	public PushResponse run() throws GitAPIException {
 		if (repo == null)
@@ -41,6 +47,7 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 				.setProgressMonitor(monitor)
 				.setRemote(Constants.DEFAULT_REMOTE)
 				.setRefSpecs(new RefSpec(Constants.LOCAL_REF))
+				.setForce(force)
 				.call();
 		var update = getUpdate(result);
 		if (update == null)
