@@ -136,7 +136,7 @@ public class Entries {
 					}
 				}
 			} catch (IOException e) {
-				log.error("Error walking commit " + commit != null ? commit.getName() : commitId);
+				log.error("Error walking commit " + (commit != null ? commit.getName() : commitId), e);
 			}
 		}
 
