@@ -1,10 +1,8 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.List;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
@@ -14,6 +12,8 @@ import org.openlca.ilcd.util.FlowBag;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.util.Strings;
+
+import java.util.Objects;
 
 public class FlowImport {
 
@@ -79,24 +79,47 @@ public class FlowImport {
 
 	private void addFlowProperties() {
 		Integer refID = Flows.getReferenceFlowPropertyID(ilcdFlow.flow);
-		List<FlowPropertyRef> refs = Flows
-			.getFlowProperties(ilcdFlow.flow);
+		boolean addItems = false;
+		var refs = Flows.getFlowProperties(ilcdFlow.flow);
 		for (FlowPropertyRef ref : refs) {
-			if (ref == null || ref.flowProperty == null)
+			if (ref == null || ref.flowProperty == null || ref.meanValue == 0)
 				continue;
 			var property = FlowPropertyImport.get(config, ref.flowProperty.uuid);
 			if (property == null)
 				continue;
-			var factor = new FlowPropertyFactor();
-			factor.flowProperty = property;
-			factor.conversionFactor = ref.meanValue;
-			flow.flowPropertyFactors.add(factor);
-			Integer propID = ref.dataSetInternalID;
-			if (refID == null || propID == null)
-				continue;
-			if (refID.intValue() == propID.intValue())
+			flow.property(property, ref.meanValue);
+			if (Objects.equals(refID,  ref.dataSetInternalID)) {
 				flow.referenceFlowProperty = property;
+				addItems = ref.meanValue != 1;
+			}
 		}
+
+		// in the ILCD format, specifically for EPD data sets, flows sometimes
+		// have a reference flow property factor with a value != 1. In EPDs this
+		// is typically used to describe that an item of that product has a
+		// specific mass. In this case, we try to add the flow property "number
+		// of items" and set this as the reference flow property if possible
+		if (!addItems)
+			return;
+		var num = config.db().get(
+				FlowProperty.class, "01846770-4cfe-4a25-8ad9-919d8d378345");
+		if (num == null) {
+			config.log().error("flow " + flow.refId
+					+ " has a reference flow property with a factor != 1");
+			return;
+		}
+		for (var f : flow.flowPropertyFactors) {
+			if (Objects.equals(f.flowProperty, num)) {
+				config.log().error("flow " + flow.refId
+						+ " has a reference flow property with a factor != 1");
+				return;
+			}
+		}
+		config.log().warn("flow " + flow.refId + " has a reference " +
+				"flow property with a factor != 1; added 'Number of items' " +
+				"as reference flow property");
+		flow.property(num, 1);
+		flow.referenceFlowProperty = num;
 	}
 
 	private FlowType flowType() {
