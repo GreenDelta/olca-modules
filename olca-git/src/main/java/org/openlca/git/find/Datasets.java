@@ -9,11 +9,11 @@ import java.util.function.Function;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectStream;
 import org.eclipse.jgit.lib.Repository;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.FieldDefinition;
 import org.openlca.git.util.MetaDataParser;
-import org.openlca.jsonld.PackageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +108,8 @@ public class Datasets {
 		return getBytes(id);
 	}
 
-	public byte[] getPackageInfo(Commit commit) {
-		return getBytes(Entries.of(repo).get(PackageInfo.FILE_NAME, commit.id));
+	public byte[] getRepositoryInfo(Commit commit) {
+		return getBytes(Entries.of(repo).get(RepositoryInfo.FILE_NAME, commit.id));
 	}
 
 }
