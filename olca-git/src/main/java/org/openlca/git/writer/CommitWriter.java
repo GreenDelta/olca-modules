@@ -68,7 +68,7 @@ public abstract class CommitWriter {
 	}
 
 	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
-		Compatibility.check(repo);
+		Compatibility.checkClient(repo);
 		try {
 			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);

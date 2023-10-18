@@ -79,7 +79,7 @@ class ImportHelper {
 	}
 
 	void runImport(GitStoreReader gitStore) throws IOException {
-		Compatibility.check(repo);
+		Compatibility.checkClient(repo);
 		var jsonImport = new JsonImport(gitStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		for (var type : ImportHelper.TYPE_ORDER) {

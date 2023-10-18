@@ -100,7 +100,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var toMount = resolveLibraries(remoteCommit);
 		if (toMount == null)
 			return null;
-		Compatibility.check(repo);
+		Compatibility.checkClient(repo);
 		var commonParent = localHistory.commonParentOf(getRef());
 		var diffs = Diffs.of(repo, commonParent).with(remoteCommit);
 		var deleted = diffs.stream()

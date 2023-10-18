@@ -1,5 +1,6 @@
 package org.openlca.git;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,7 +17,11 @@ import com.google.gson.JsonObject;
 public record RepositoryInfo(JsonObject json) {
 	
 	public static final String FILE_NAME = PackageInfo.FILE_NAME;
-
+	public static final int REPOSITORY_CURRENT_CLIENT_VERSION = 2;
+	public static final List<Integer> REPOSITORY_SUPPORTED_CLIENT_VERSIONS = Arrays.asList(1, 2);
+	public static final int REPOSITORY_CURRENT_SERVER_VERSION = 2;
+	public static final List<Integer> REPOSITORY_SUPPORTED_SERVER_VERSIONS = Arrays.asList(1, 2);
+	
 	public static RepositoryInfo of(JsonElement json) {
 		var obj = json != null && json.isJsonObject()
 				? json.getAsJsonObject()
@@ -26,7 +31,8 @@ public record RepositoryInfo(JsonObject json) {
 
 	public static RepositoryInfo create() {
 		var json = PackageInfo.create().json();
-		Json.put(json, "repositoryVersion", RepositoryVersion.current().value());
+		Json.put(json, "repositoryClientVersion", REPOSITORY_CURRENT_CLIENT_VERSION);
+		Json.put(json, "repositoryServerVersion", REPOSITORY_CURRENT_SERVER_VERSION);
 		return new RepositoryInfo(json);
 	}
 
@@ -47,9 +53,12 @@ public record RepositoryInfo(JsonObject json) {
 		return PackageInfo.of(json).libraries();
 	}
 
-	public RepositoryVersion repositoryVersion() {
-		var value = Json.getInt(json, "repositoryVersion", RepositoryVersion.fallback().value());
-		return new RepositoryVersion(value);
+	public int repositoryClientVersion() {
+		return Json.getInt(json, "repositoryClientVersion", 1);
+	}
+
+	public int repositoryServerVersion() {
+		return Json.getInt(json, "repositoryServerVersion", 1);
 	}
 
 	public RepositoryInfo withLibraries(Collection<LibraryLink> links) {
@@ -62,10 +71,14 @@ public record RepositoryInfo(JsonObject json) {
 		return of(json);
 	}
 
-	public RepositoryInfo withRepositoryVersion(RepositoryVersion version) {
-		if (version == null)
-			return this;
-		Json.put(json, "repositoryVersion", version.value());
+	public RepositoryInfo withRepositoryClientVersion(int version) {
+		Json.put(json, "repositoryClientVersion", version);
 		return this;
 	}
+
+	public RepositoryInfo withRepositoryServerVersion(int version) {
+		Json.put(json, "repositoryServerVersion", version);
+		return this;
+	}
+
 }
