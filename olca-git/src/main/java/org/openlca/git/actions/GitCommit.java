@@ -68,7 +68,7 @@ public class GitCommit extends GitProgressAction<String> {
 					.map(Change::new)
 					.collect(Collectors.toList());
 		}
-		Compatibility.checkClient(repo);
+		Compatibility.checkRepositoryClientVersion(repo);
 		progressMonitor.beginTask("Writing commit", changes.size());
 		var writer = new DbCommitWriter(repo, database, Descriptors.of(database))
 				.update(gitIndex)

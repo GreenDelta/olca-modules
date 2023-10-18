@@ -89,7 +89,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
-		Compatibility.checkClient(repo);
+		Compatibility.checkRepositoryClientVersion(repo);
 		var commit = reference == null ? commits.head() : reference;
 		var toDelete = changes.stream()
 				.filter(c -> c.diffType == DiffType.ADDED)
