@@ -19,7 +19,7 @@ public class Compatibility {
 			return RepositoryInfo.REPOSITORY_CURRENT_CLIENT_VERSION;
 		var info = Repositories.infoOf(repo);
 		if (info == null)
-			return 1;
+			return RepositoryInfo.REPOSITORY_CLIENT_VERSION_FALLBACK;
 		return info.repositoryClientVersion();
 	}
 
@@ -35,7 +35,7 @@ public class Compatibility {
 			return RepositoryInfo.REPOSITORY_CURRENT_SERVER_VERSION;
 		var info = Repositories.infoOf(repo);
 		if (info == null)
-			return 1;
+			return RepositoryInfo.REPOSITORY_SERVER_VERSION_FALLBACK;
 		return info.repositoryServerVersion();
 	}
 
