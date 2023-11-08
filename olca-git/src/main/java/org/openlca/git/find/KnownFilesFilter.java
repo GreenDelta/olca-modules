@@ -8,8 +8,8 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
-import org.openlca.jsonld.PackageInfo;
 
 public class KnownFilesFilter extends TreeFilter {
 
@@ -26,7 +26,7 @@ public class KnownFilesFilter extends TreeFilter {
 	protected boolean isRecognizedRootFile(FileMode mode, String path, int depth) {
 		if (mode != FileMode.REGULAR_FILE || depth > 0)
 			return false;
-		return path.equals(PackageInfo.FILE_NAME);
+		return path.equals(RepositoryInfo.FILE_NAME);
 	}
 
 	protected boolean isModelTypeRootDirectory(FileMode mode, String path, int depth) {

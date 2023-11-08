@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Datasets;
@@ -17,7 +18,6 @@ import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 
 import com.google.gson.Gson;
@@ -34,7 +34,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final TypedRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
 	private final ImportResults results = new ImportResults();
-	private final byte[] packInfo;
+	private final byte[] repoInfo;
 
 	GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
@@ -49,14 +49,14 @@ class GitStoreReader implements JsonStoreReader {
 		this.commit = commit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = TypedRefIdMap.of(changes);
-		this.packInfo = datasets.getPackageInfo(commit);
+		this.repoInfo = datasets.getRepositoryInfo(commit);
 
 	}
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (PackageInfo.FILE_NAME.equals(path))
-			return packInfo;
+		if (RepositoryInfo.FILE_NAME.equals(path))
+			return repoInfo;
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);

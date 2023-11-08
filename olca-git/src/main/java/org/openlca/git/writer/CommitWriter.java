@@ -20,6 +20,8 @@ import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.git.Compatibility;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.iterator.EntryIterator;
 import org.openlca.git.model.Change;
@@ -29,7 +31,6 @@ import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.git.util.Repositories;
 import org.openlca.jsonld.LibraryLink;
-import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,11 +68,9 @@ public abstract class CommitWriter {
 	}
 
 	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
+		Compatibility.checkRepositoryClientVersion(repo);
 		try {
-			var previousCommit = Repositories.headCommitOf(repo);
-			if (previousCommit != null && !isCurrentSchemaVersion())
-				throw new IOException("Git repo is not in current schema version");
-			init(previousCommit == null);
+			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);
 			var treeId = syncTree("", new ChangeIterator(binaryResolver, changes), treeIds);
 			var commitId = commit(message, treeId, parentCommitIds);
@@ -100,7 +99,8 @@ public abstract class CommitWriter {
 		return commit.getTree().getId();
 	}
 
-	private void init(boolean firstCommit) {
+	private void init() {
+		var firstCommit = Repositories.headCommitOf(repo) == null;
 		if (repo instanceof FileRepository fileRepo) {
 			packInserter = fileRepo.getObjectDatabase().newPackInserter();
 			packInserter.checkExisting(!firstCommit);
@@ -116,7 +116,7 @@ public abstract class CommitWriter {
 			var previousWasDeleted = false;
 			while (walk.next()) {
 				var name = walk.getNameString();
-				if (name.equals(PackageInfo.FILE_NAME))
+				if (name.equals(RepositoryInfo.FILE_NAME))
 					continue;
 				if (previousWasDeleted && isBinaryOf(name, previous))
 					continue;
@@ -144,7 +144,7 @@ public abstract class CommitWriter {
 			return null;
 		}
 		if (Strings.nullOrEmpty(prefix)) {
-			appendPackageInfo(tree);
+			appendRepositoryInfo(tree);
 		}
 		try {
 			var newId = objectInserter.insert(tree);
@@ -234,17 +234,17 @@ public abstract class CommitWriter {
 		return blobId;
 	}
 
-	private void appendPackageInfo(TreeFormatter tree) {
+	private void appendRepositoryInfo(TreeFormatter tree) {
 		try {
-			var schemaBytes = PackageInfo.create()
+			var schemaBytes = RepositoryInfo.create()
 					.withLibraries(getLibraries())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
-				tree.append(PackageInfo.FILE_NAME, FileMode.REGULAR_FILE, blobId);
+				tree.append(RepositoryInfo.FILE_NAME, FileMode.REGULAR_FILE, blobId);
 			}
 		} catch (Exception e) {
-			log.error("Error inserting package info", e);
+			log.error("Error inserting repository info", e);
 		}
 	}
 
@@ -300,16 +300,6 @@ public abstract class CommitWriter {
 	private boolean isBinaryOf(String current, String previous) {
 		return previous.endsWith(GitUtil.DATASET_SUFFIX)
 				&& current.equals(previous.substring(0, previous.length() - 5) + GitUtil.BIN_DIR_SUFFIX);
-	}
-
-	private boolean isCurrentSchemaVersion() {
-		var info = Repositories.infoOf(repo);
-		if (info == null)
-			return false;
-		var schema = info.schemaVersion();
-		if (schema == null)
-			return false;
-		return schema.isCurrent();
 	}
 
 	protected void close() throws IOException {

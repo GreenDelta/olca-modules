@@ -17,6 +17,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
+import org.openlca.git.Compatibility;
 import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
@@ -99,6 +100,7 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var toMount = resolveLibraries(remoteCommit);
 		if (toMount == null)
 			return null;
+		Compatibility.checkRepositoryClientVersion(repo);
 		var commonParent = localHistory.commonParentOf(getRef());
 		var diffs = Diffs.of(repo, commonParent).with(remoteCommit);
 		var deleted = diffs.stream()
