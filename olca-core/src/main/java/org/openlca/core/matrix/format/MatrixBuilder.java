@@ -54,21 +54,23 @@ public class MatrixBuilder {
 	 * Set the cell (row, col) to the given value.
 	 */
 	public void set(int row, int col, double val) {
-		if (val == 0 || row < 0 || col < 0)
+		if (row < 0 || col < 0)
 			return;
 		if (row < denseRows && col < denseCols) {
 			dense.set(row, col, val);
 			return;
 		}
 		sparse.set(row, col, val);
-		sparseEntries++;
-		if (sparseEntries % checkpoint == 0) {
-			// double casts to avoid integer overflows
-			double n = (double) sparse.rows * (double) sparse.cols
-				- (double) denseRows * (double) denseCols;
-			double fr = sparseEntries / n;
-			if (fr > maxSparseFileRate) {
-				mapDense();
+		if (val != 0) {
+			sparseEntries++;
+			if (sparseEntries % checkpoint == 0) {
+				// double casts to avoid integer overflows
+				double n = (double) sparse.rows * (double) sparse.cols
+						- (double) denseRows * (double) denseCols;
+				double fr = sparseEntries / n;
+				if (fr > maxSparseFileRate) {
+					mapDense();
+				}
 			}
 		}
 	}

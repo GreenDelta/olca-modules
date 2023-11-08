@@ -5,7 +5,7 @@ import java.util.Locale;
 enum OS {
 
 	Linux(new String[]{
-		"libmkl_rt.so",
+		"libmkl_rt.so.2",
 		"libolcamkl.so"
 	}),
 
