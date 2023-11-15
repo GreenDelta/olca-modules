@@ -13,13 +13,13 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
+import org.openlca.git.find.Diffs;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.Descriptors;
-import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.DbCommitWriter;
 
 public class GitStashCreate extends GitProgressAction<Void> {

@@ -1,85 +1,111 @@
 package org.openlca.git.iterator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.Daos;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.GitIndex;
+import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.GitUtil;
-import org.openlca.util.Categories;
-import org.openlca.util.Categories.PathBuilder;
+import org.openlca.util.Strings;
 
 public class DatabaseIterator extends EntryIterator {
 
-	private final PathBuilder categoryPaths;
-	private final IDatabase database;
 	private final GitIndex gitIndex;
+	private final Descriptors descriptors;
 
-	public DatabaseIterator(IDatabase database, GitIndex gitIndex) {
-		this(database, gitIndex, init(database));
+	public DatabaseIterator(GitIndex gitIndex, Descriptors descriptors) {
+		this(gitIndex, descriptors, init(descriptors));
 	}
 
-	private DatabaseIterator(IDatabase database, GitIndex gitIndex, List<TreeEntry> entries) {
+	public DatabaseIterator(GitIndex gitIndex, Descriptors descriptors, String path) {
+		this(gitIndex, descriptors, init(descriptors, path));
+	}
+
+	private DatabaseIterator(GitIndex gitIndex, Descriptors descriptors, List<TreeEntry> entries) {
 		super(entries);
-		this.database = database;
 		this.gitIndex = gitIndex;
-		this.categoryPaths = Categories.pathsOf(database);
+		this.descriptors = descriptors;
 	}
 
-	private DatabaseIterator(DatabaseIterator parent, IDatabase database, GitIndex gitIndex,
-			List<TreeEntry> entries) {
+	private DatabaseIterator(DatabaseIterator parent, List<TreeEntry> entries) {
 		super(parent, entries);
-		this.database = database;
-		this.gitIndex = gitIndex;
-		this.categoryPaths = Categories.pathsOf(database);
+		this.gitIndex = parent.gitIndex;
+		this.descriptors = parent.descriptors;
 	}
 
-	private static List<TreeEntry> init(IDatabase database) {
+	private static List<TreeEntry> init(Descriptors descriptors) {
 		return Arrays.stream(ModelType.values()).filter(type -> {
 			if (type == ModelType.CATEGORY)
 				return false;
-			var dao = new CategoryDao(database);
-			if (!dao.getRootCategories(type).isEmpty())
+			if (!descriptors.getCategories(type).isEmpty())
 				return true;
-			return !Daos.root(database, type).getDescriptors(Optional.empty()).isEmpty();
+			return !descriptors.get(type).isEmpty();
 		}).map(TreeEntry::new)
 				.toList();
 	}
 
-	private static List<TreeEntry> init(IDatabase database, ModelType type) {
-		var entries = new CategoryDao(database).getRootCategories(type).stream()
-				.filter(c -> !c.isFromLibrary())
+	private static List<TreeEntry> init(Descriptors descriptors, String path) {
+		if (Strings.nullOrEmpty(path))
+			return init(descriptors);
+		if (!path.contains("/")) {
+			var modelType = ModelType.parse(path);
+			if (modelType == null)
+				return new ArrayList<>();
+			return init(descriptors, modelType);
+		}
+		var category = descriptors.getCategory(path);
+		if (category == null)
+			return new ArrayList<>();
+		return init(descriptors, category);
+	}
+
+	private static List<TreeEntry> init(Descriptors descriptors, ModelType type) {
+		var entries = descriptors.getCategories(type).stream()
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(database, type).getDescriptors(Optional.empty()).stream()
+		entries.addAll(descriptors.get(type).stream()
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
 		return entries;
 	}
 
-	private static List<TreeEntry> init(IDatabase database, Category category) {
-		var entries = category.childCategories.stream()
-				.filter(c -> !c.isFromLibrary())
+	private static List<TreeEntry> init(Descriptors descriptors, Category category) {
+		var categories = category.childCategories;
+		var entries = categories.stream()
+				.filter(c -> !isFromLibrary(descriptors, c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(database, category.modelType).getDescriptors(Optional.of(category)).stream()
+		entries.addAll(descriptors.get(category).stream()
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
-		if (entries.isEmpty()) {
-			entries.add(TreeEntry.EMPTY);
+		if (entries.isEmpty() && !isFromLibrary(descriptors, category)) {
+			entries.add(TreeEntry.empty());
 		}
 		return entries;
+	}
+
+	private static boolean isFromLibrary(Descriptors descriptors, Category category) {
+		var hasLibrariesElements = false;
+		for (var model : descriptors.get(category)) {
+			if (!model.isFromLibrary())
+				return false;
+			hasLibrariesElements = true;
+		}
+		for (var child : category.childCategories) {
+			if (!isFromLibrary(descriptors, child))
+				return false;
+			hasLibrariesElements = true;
+		}
+		return hasLibrariesElements;
 	}
 
 	@Override
@@ -94,9 +120,9 @@ public class DatabaseIterator extends EntryIterator {
 		if (data instanceof Category)
 			return gitIndex.has((Category) data);
 		var d = (RootDescriptor) data;
-		if (!gitIndex.has(categoryPaths, d))
+		if (!gitIndex.has(descriptors.categoryPaths, d))
 			return false;
-		var entry = gitIndex.get(categoryPaths, d);
+		var entry = gitIndex.get(descriptors.categoryPaths, d);
 		return entry.version() == d.version && entry.lastChange() == d.lastChange;
 	}
 
@@ -112,7 +138,7 @@ public class DatabaseIterator extends EntryIterator {
 		if (data instanceof Category)
 			return gitIndex.get((Category) data).rawObjectId();
 		var d = (RootDescriptor) data;
-		var entry = gitIndex.get(categoryPaths, d);
+		var entry = gitIndex.get(descriptors.categoryPaths, d);
 		if (entry.version() == d.version && entry.lastChange() == d.lastChange)
 			return entry.rawObjectId();
 		return GitUtil.getBytes(ObjectId.zeroId());
@@ -127,9 +153,9 @@ public class DatabaseIterator extends EntryIterator {
 	public DatabaseIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		if (data instanceof ModelType type)
-			return new DatabaseIterator(this, database, gitIndex, init(database, type));
+			return new DatabaseIterator(this, init(descriptors, type));
 		if (data instanceof Category category)
-			return new DatabaseIterator(this, database, gitIndex, init(database, category));
+			return new DatabaseIterator(this, init(descriptors, category));
 		return null;
 	}
 

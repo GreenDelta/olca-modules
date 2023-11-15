@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -14,6 +15,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.openlca.git.model.Commit;
+import org.openlca.util.Strings;
 import org.openlca.git.RepositoryInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,5 +92,21 @@ public final class Repositories {
 			return null;
 		}
 	}
+	
+	public static ObjectId getSubTreeId(Repository repo, ObjectId treeId, String path) {
+		if (Strings.nullOrEmpty(path))
+			return treeId;
+		try (var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId)) {
+			if (walk == null)
+				return ObjectId.zeroId();
+			if (walk.getFileMode() != FileMode.TREE)
+				return ObjectId.zeroId();
+			return walk.getObjectId(0);
+		} catch (IOException e) {
+			log.error("Error finding entry for " + path);
+			return null;
+		}
+	}
+
 
 }

@@ -2,13 +2,17 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -88,36 +92,63 @@ class ImportHelper {
 				continue;
 			progressMonitor.subTask("Importing " + getLabel(type));
 			var batchSize = BatchImport.batchSizeOf(type);
-			if (batchSize == 1) {
-				for (var change : changes) {
-					if (change != null) {
-						jsonImport.run(type, change.refId);
-					}
-					progressMonitor.worked(1);
+			var batchImport = new BatchImport<>(jsonImport, type.getModelClass(), batchSize);
+			for (var change : changes) {
+				if (change == null)
+					continue;
+				if (change.isCategory) {
+					jsonImport.getCategory(change.type, change.getCategoryPath());
+				} else if (batchSize == 1) {
+					jsonImport.run(type, change.refId);
+				} else {
+					batchImport.run(change.refId);
 				}
-			} else {
-				var batchImport = new BatchImport<>(jsonImport, type.getModelClass(), batchSize);
-				for (var change : changes) {
-					if (change != null) {
-						batchImport.run(change.refId);
-					}
-					progressMonitor.worked(1);
-				}
+				progressMonitor.worked(1);
+			}
+			if (batchSize != 1) {
 				batchImport.close();
 			}
 		}
 	}
 
 	void delete(List<? extends ModelRef> remoteDeletions) {
-		for (var ref : new ArrayList<>(remoteDeletions)) {
-			progressMonitor.subTask("Deleting", ref);
-			if (keepLocal(ref)) {
-				remoteDeletions.remove(ref);
-			} else {
-				delete(Daos.root(database, ref.type), ref.refId);
-			}
-			progressMonitor.worked(1);
-		}
+		remoteDeletions.stream()
+				.filter(ref -> !ref.isCategory)
+				.forEach(ref -> {
+					progressMonitor.subTask("Deleting", ref);
+					if (keepLocal(ref)) {
+						remoteDeletions.remove(ref);
+					} else if (!ref.isCategory) {
+						delete(Daos.root(database, ref.type), ref.refId);
+					}
+					progressMonitor.worked(1);
+				});
+		var categoryDao = new CategoryDao(database);
+		var deleted = new ArrayList<Category>();
+		remoteDeletions.stream()
+				.filter(ref -> ref.isCategory)
+				.sorted(new CategoryDepthComparator())
+				.forEach(ref -> {
+					var category = categoryDao.getForPath(ref.type, ref.getCategoryPath());
+					progressMonitor.subTask("Deleting category " + category.refId);
+					if (isEmptyCategory(deleted, category)) {
+						categoryDao.delete(category);
+						deleted.add(category);
+					}
+					progressMonitor.worked(1);
+				});
+	}
+
+	private boolean isEmptyCategory(List<Category> deleted, Category category) {
+		// cant use cache, because elements might have been deleted before
+		if (!category.childCategories.isEmpty())
+			for (var child : category.childCategories)
+				if (!deleted.contains(child))
+					return false;
+		var models = Daos.root(database, category.modelType).getDescriptors(Optional.ofNullable(category));
+		if (!models.isEmpty())
+			return false;
+		return true;
 	}
 
 	private boolean keepLocal(ModelRef ref) {
@@ -137,6 +168,11 @@ class ImportHelper {
 	void updateGitIndex(String commitId, ImportResults result, boolean applyStash) throws IOException {
 		if (gitIndex == null)
 			return;
+		entries.iterate(commitId, entry -> {
+			if (entry.typeOfEntry == EntryType.DATASET)
+				return;
+			gitIndex.put(entry.path, entry.objectId);
+		});
 		result.get(ImportState.UPDATED).forEach(ref -> {
 			if (applyStash) {
 				gitIndex.invalidate(ref.path);
@@ -146,16 +182,27 @@ class ImportHelper {
 			}
 		});
 		result.get(ImportState.DELETED).forEach(ref -> gitIndex.remove(ref.path));
-		updateCategoryIds(commitId, "");
 		gitIndex.putRoot(ObjectId.fromString(commitId));
 		gitIndex.save();
 	}
 
-	private void updateCategoryIds(String remoteCommitId, String path) {
-		entries.iterate(remoteCommitId, entry -> {
-			if (entry.typeOfEntry == EntryType.DATASET)
-				return;
-			gitIndex.put(entry.path, entry.objectId);
-		});
+	private static class CategoryDepthComparator implements Comparator<ModelRef> {
+
+		@Override
+		public int compare(ModelRef c1, ModelRef c2) {
+			return getDepth(c2) - getDepth(c1);
+		}
+
+		private int getDepth(ModelRef c) {
+			var path = c.getCategoryPath();
+			var depth = 0;
+			while (path.contains("/")) {
+				depth++;
+				path = path.substring(0, path.lastIndexOf("/"));
+			}
+			return depth;
+		}
+
 	}
+
 }

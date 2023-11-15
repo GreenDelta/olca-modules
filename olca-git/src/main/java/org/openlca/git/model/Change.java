@@ -7,10 +7,16 @@ public class Change extends ModelRef {
 	public Change(Diff diff) {
 		this(diff.diffType, diff);
 	}
-	
+
 	public Change(DiffType diffType, ModelRef ref) {
 		super(ref);
 		this.diffType = diffType;
+	}
+
+	@Override
+	protected String fieldsToString() {
+		var s = super.fieldsToString();
+		return s + ", diffType=" + diffType;
 	}
 
 }

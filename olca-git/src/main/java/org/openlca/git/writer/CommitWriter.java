@@ -72,7 +72,7 @@ public abstract class CommitWriter {
 		try {
 			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);
-			var treeId = syncTree("", new ChangeIterator(binaryResolver, changes), treeIds);
+			var treeId = syncTree("", new ChangeIterator(repo, binaryResolver, changes), treeIds);
 			var commitId = commit(message, treeId, parentCommitIds);
 			return commitId.name();
 		} finally {
@@ -188,10 +188,15 @@ public abstract class CommitWriter {
 		for (var i = 0; i < treeCount - 1; i++) {
 			treeIds[i] = walk.getFileMode(i) != FileMode.MISSING ? walk.getObjectId(i) : null;
 		}
-		var subIterator = walk.getFileMode(treeCount - 1) != FileMode.MISSING ? iterator.createSubtreeIterator() : null;
-		if (subIterator != null) {
+		if (walk.getFileMode(treeCount - 1) != FileMode.MISSING) {
+			var data = iterator.getEntryData();
+			if (data != null && data.isCategory && data.diffType == DiffType.DELETED) {
+				removed(data.path);
+				return null;
+			}
+			var subIterator = iterator.createSubtreeIterator();
 			var prefix = GitUtil.decode(walk.getPathString());
-			return syncTree(prefix, subIterator, treeIds);
+			return syncTree(prefix, subIterator, treeIds);	
 		}
 		for (var i = treeCount - 2; i >= 0; i--)
 			if (treeIds[i] != null)
@@ -213,21 +218,23 @@ public abstract class CommitWriter {
 		Change change = iterator.getEntryData();
 		var filePath = iterator.getEntryFilePath();
 		if (change.diffType == DiffType.DELETED && matches(path, change, filePath)) {
-			if (filePath == null) {
+			if (filePath == null && !change.isEmptyCategory) {
 				removed(path);
 			}
 			return null;
 		}
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
-		progressMonitor.subTask("Writing", change);
-		var data = change.isEmptyCategoryFlag()
+		if (!change.isEmptyCategory) {
+			progressMonitor.subTask("Writing", change);
+		}
+		var data = change.isEmptyCategory
 				? new byte[0]
 				: getData(change);
 		if (data == null)
 			return null;
 		var blobId = insertBlob(data);
-		if (!change.isEmptyCategoryFlag()) {
+		if (!change.isCategory) {
 			inserted(path, blobId);
 		}
 		progressMonitor.worked(1);
@@ -258,7 +265,10 @@ public abstract class CommitWriter {
 		if (change == null)
 			return false;
 		if (filePath == null)
-			return path.equals(change.path);
+			if (change.isEmptyCategory)
+				return path.equals(change.path + "/" + GitUtil.EMPTY_CATEGORY_FLAG);
+			else
+				return path.equals(change.path);
 		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 

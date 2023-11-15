@@ -21,7 +21,7 @@ public class Diff extends ModelRef {
 		this.newCommitId = newRef != null ? newRef.commitId : null;
 		this.newObjectId = newRef != null ? newRef.objectId : ObjectId.zeroId();
 	}
-	
+
 	public Reference toReference(Side side) {
 		if (side == Side.OLD)
 			return new Reference(path, oldCommitId, oldObjectId);
@@ -41,6 +41,13 @@ public class Diff extends ModelRef {
 					return true;
 			return false;
 		}).toList();
+	}
+
+	@Override
+	protected String fieldsToString() {
+		var s = super.fieldsToString();
+		return s + ", diffType=" + diffType + ", oldCommitId=" + oldCommitId + ", oldObjectId=" + ObjectId.toString(oldObjectId)
+				+ ", newCommitId=" + newCommitId + ", newObjectId=" + ObjectId.toString(newObjectId);
 	}
 
 }

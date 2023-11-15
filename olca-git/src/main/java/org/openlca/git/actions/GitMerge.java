@@ -22,12 +22,12 @@ import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Commits;
+import org.openlca.git.find.Diffs;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.Descriptors;
-import org.openlca.git.util.Diffs;
 import org.openlca.git.util.History;
 import org.openlca.git.util.Repositories;
 import org.openlca.git.writer.DbCommitWriter;
@@ -97,10 +97,10 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var remoteCommit = getRemoteCommit();
 		if (remoteCommit == null)
 			return false;
+		Compatibility.checkRepositoryClientVersion(repo);
 		var toMount = resolveLibraries(remoteCommit);
 		if (toMount == null)
 			return null;
-		Compatibility.checkRepositoryClientVersion(repo);
 		var commonParent = localHistory.commonParentOf(getRef());
 		var diffs = Diffs.of(repo, commonParent).with(remoteCommit);
 		var deleted = diffs.stream()

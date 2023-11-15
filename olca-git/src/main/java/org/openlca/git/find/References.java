@@ -131,7 +131,7 @@ public class References {
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
-					TreeFilter filter = new KnownFilesFilter();
+					TreeFilter filter = KnownFilesFilter.create();
 					if (path != null) {
 						filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 					}

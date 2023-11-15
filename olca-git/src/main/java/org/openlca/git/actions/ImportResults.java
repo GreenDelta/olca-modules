@@ -29,7 +29,7 @@ class ImportResults {
 	int size() {
 		return list.size();
 	}
-	
+
 	static class ImportResult extends ModelRef {
 
 		final ImportState state;
@@ -39,7 +39,13 @@ class ImportResults {
 			super(path);
 			this.state = state;
 			this.objectId = objectId;
-		}		
+		}
+
+		@Override
+		protected String fieldsToString() {
+			var s = super.fieldsToString();
+			return s + ", state=" + state + ", objectId=" + ObjectId.toString(objectId);
+		}
 
 	}
 

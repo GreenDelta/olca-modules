@@ -73,7 +73,7 @@ class Converter implements JsonStoreWriter {
 		this.changes.clear();
 		this.systems.clear();
 		for (var change : changes) {
-			if (change.isEmptyCategoryFlag())
+			if (change.isCategory)
 				continue;
 			if (change.type == ModelType.PRODUCT_SYSTEM) {
 				this.systems.put(change.path, change);

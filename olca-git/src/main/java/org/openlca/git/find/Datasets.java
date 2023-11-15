@@ -1,6 +1,7 @@
 package org.openlca.git.find;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import org.openlca.git.util.FieldDefinition;
 import org.openlca.git.util.MetaDataParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 public class Datasets {
 
@@ -109,6 +112,8 @@ public class Datasets {
 	}
 
 	public byte[] getRepositoryInfo(Commit commit) {
+		if (Commits.of(repo).find().latest() == null)
+			return new Gson().toJson(RepositoryInfo.create().json()).getBytes(StandardCharsets.UTF_8);
 		return getBytes(Entries.of(repo).get(RepositoryInfo.FILE_NAME, commit.id));
 	}
 

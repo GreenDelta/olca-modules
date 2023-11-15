@@ -10,26 +10,48 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
+import org.openlca.util.Strings;
 
 public class KnownFilesFilter extends TreeFilter {
 
 	private final Integer depth;
+	private boolean includeEmptyCategoryTags;
 	
-	public KnownFilesFilter() {
-		depth = null;
-	}
-
-	public KnownFilesFilter(int depth) {
+	private KnownFilesFilter(Integer depth) {
 		this.depth = depth;
 	}
 
-	protected boolean isRecognizedRootFile(FileMode mode, String path, int depth) {
+	public static KnownFilesFilter create() {
+		return new KnownFilesFilter(null);
+	}
+
+	public static KnownFilesFilter createForPath(String path) {
+		return new KnownFilesFilter(getDepth(path));
+	}
+
+	public KnownFilesFilter includeEmptyCategoryTags() {
+		this.includeEmptyCategoryTags = true;
+		return this;
+	}
+	
+	private static int getDepth(String path) {
+		if (Strings.nullOrEmpty(path))
+			return 0;
+		var p = path;
+		var depth = 1;
+		while (p.contains("/")) {
+			p = p.substring(p.indexOf("/") + 1);
+			depth++;
+		}
+		return depth;
+	}
+	private boolean isRecognizedRootFile(String path, FileMode mode, int depth) {
 		if (mode != FileMode.REGULAR_FILE || depth > 0)
 			return false;
 		return path.equals(RepositoryInfo.FILE_NAME);
 	}
 
-	protected boolean isModelTypeRootDirectory(FileMode mode, String path, int depth) {
+	private boolean isModelTypeRootDirectory(String path, FileMode mode, int depth) {
 		if (mode != FileMode.TREE || depth > 0)
 			return false;
 		for (var type : ModelType.values()) {
@@ -41,11 +63,11 @@ public class KnownFilesFilter extends TreeFilter {
 		return false;
 	}
 
-	protected boolean isCategory(FileMode mode, String path, int depth) {
+	private boolean isCategory(String path, FileMode mode, int depth) {
 		return mode == FileMode.TREE && depth > 0;
 	}
 
-	protected boolean isDataset(FileMode mode, String path, int depth) {
+	private boolean isDataset(String path, FileMode mode, int depth) {
 		if (mode != FileMode.REGULAR_FILE || depth == 0)
 			return false;
 		if (!path.endsWith(GitUtil.DATASET_SUFFIX))
@@ -57,7 +79,7 @@ public class KnownFilesFilter extends TreeFilter {
 		return GitUtil.isUUID(path);
 	}
 
-	protected boolean isBinDir(FileMode mode, String path, int depth) {
+	private boolean isBinDir(String path, FileMode mode, int depth) {
 		if (mode != FileMode.TREE || depth < 1)
 			return false;
 		if (path.contains("/")) {
@@ -65,8 +87,8 @@ public class KnownFilesFilter extends TreeFilter {
 		}
 		return GitUtil.isBinDir(path);
 	}
-	
-	protected boolean isEmptyCategoryTag(FileMode mode, String path, int depth) {
+
+	private boolean isEmptyCategoryTag(String path, FileMode mode, int depth) {
 		if (mode != FileMode.REGULAR_FILE || depth < 1)
 			return false;
 		return path.equals(GitUtil.EMPTY_CATEGORY_FLAG) || path.endsWith("/" + GitUtil.EMPTY_CATEGORY_FLAG);
@@ -74,24 +96,28 @@ public class KnownFilesFilter extends TreeFilter {
 
 	@Override
 	public boolean include(TreeWalk walker) throws MissingObjectException, IncorrectObjectTypeException, IOException {
-		var path = walker.getPathString();
+		var path = GitUtil.decode(walker.getPathString());
 		var mode = walker.getFileMode();
-		var depth = this.depth != null
-				? this.depth
-				: walker.getDepth();
-		if (isRecognizedRootFile(mode, path, depth))
+		var depth = this.depth != null ? this.depth : walker.getDepth();
+		return include(path, mode, depth);
+	}
+	
+	private boolean include(String path, FileMode mode, int depth) {
+		if (isRecognizedRootFile(path, mode, depth))
 			return false;
-		if (isModelTypeRootDirectory(mode, path, depth))
+		if (isEmptyCategoryTag(path, mode, depth))
+			return includeEmptyCategoryTags;
+		if (isModelTypeRootDirectory(path, mode, depth))
 			return true;
-		if (isBinDir(mode, path, depth))
+		if (isBinDir(path, mode, depth))
 			return false;
-		if (isCategory(mode, path, depth))
+		if (isCategory(path, mode, depth))
 			return true;
-		if (isDataset(mode, path, depth))
+		if (isDataset(path, mode, depth))
 			return true;
 		return false;
 	}
-
+	
 	@Override
 	public boolean shouldBeRecursive() {
 		return depth != null;

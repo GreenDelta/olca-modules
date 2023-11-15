@@ -12,6 +12,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.openlca.git.model.Entry;
 import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.Repositories;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,23 +44,10 @@ public class Entries {
 			var commit = commits.getRev(commitId);
 			if (commit == null)
 				return null;
-			var objectId = get(commit.getTree().getId(), path);
+			var objectId = Repositories.getSubTreeId(repo, commit.getTree().getId(), path);
 			return new Entry(path, commitId, objectId);
 		} catch (IOException e) {
 			log.error("Error finding sub tree for " + path);
-			return null;
-		}
-	}
-
-	private ObjectId get(ObjectId treeId, String path) {
-		if (Strings.nullOrEmpty(path))
-			return treeId;
-		try (var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId)) {
-			if (walk == null)
-				return ObjectId.zeroId();
-			return walk.getObjectId(0);
-		} catch (IOException e) {
-			log.error("Error finding entry for " + path);
 			return null;
 		}
 	}
@@ -117,13 +105,13 @@ public class Entries {
 					return;
 				var treeId = Strings.nullOrEmpty(path)
 						? commit.getTree().getId()
-						: get(commit.getTree().getId(), path);
+						: Repositories.getSubTreeId(repo, commit.getTree().getId(), path);
 				if (treeId.equals(ObjectId.zeroId()))
 					return;
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
-					var filter = new KnownFilesFilter(getDepth());
+					var filter = KnownFilesFilter.createForPath(path);
 					walk.setFilter(filter);
 					while (walk.next()) {
 						var name = GitUtil.decode(walk.getNameString());
@@ -138,18 +126,6 @@ public class Entries {
 			} catch (IOException e) {
 				log.error("Error walking commit " + (commit != null ? commit.getName() : commitId), e);
 			}
-		}
-
-		private int getDepth() {
-			if (path == null)
-				return 0;
-			var p = path;
-			var depth = 1;
-			while (p.contains("/")) {
-				p = p.substring(p.indexOf("/") + 1);
-				depth++;
-			}
-			return depth;
 		}
 
 	}

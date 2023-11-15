@@ -1,29 +1,48 @@
 package org.openlca.git.model;
 
+import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefId;
+import org.openlca.util.Strings;
 
 public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 
 	public final String path;
 	public final String category;
+	public final boolean isCategory;
+	public final boolean isEmptyCategory;
 
 	public ModelRef(String path) {
 		super(path);
-		this.path = path;
+		this.isEmptyCategory = path.endsWith("/" + GitUtil.EMPTY_CATEGORY_FLAG);
+		if (this.isEmptyCategory) {
+			path = path.substring(0, path.indexOf("/" + GitUtil.EMPTY_CATEGORY_FLAG));
+		}
+		this.isCategory = path.contains("/") && Strings.nullOrEmpty(refId);
 		this.category = getCategory(path);
+		this.path = path;
 	}
 
 	public ModelRef(ModelRef ref) {
 		super(ref.type, ref.refId);
 		this.path = ref.path;
 		this.category = ref.category;
+		this.isCategory = ref.isCategory;
+		this.isEmptyCategory = ref.isEmptyCategory;
 	}
 
-	public static String getCategory(String path) {
+	private String getCategory(String path) {
+		if (!path.contains("/"))
+			return "";
 		path = path.substring(path.indexOf("/") + 1);
 		if (!path.contains("/"))
 			return "";
 		return path.substring(0, path.lastIndexOf("/"));
+	}
+	
+	public String getCategoryPath() {
+		if (!isCategory)
+			return category;
+		return path.substring(path.indexOf("/") + 1);
 	}
 
 	@Override
@@ -44,6 +63,13 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	@Override
 	public int compareTo(ModelRef o) {
 		return path.compareTo(o.path);
+	}
+
+	@Override
+	protected String fieldsToString() {
+		var s = super.fieldsToString();
+		return s + ", path=" + path + ", category=" + category + ", isCategory=" + isCategory + ", isEmptyCategory="
+				+ isEmptyCategory;
 	}
 
 }

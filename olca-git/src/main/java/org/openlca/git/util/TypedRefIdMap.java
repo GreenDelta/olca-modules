@@ -21,7 +21,7 @@ public class TypedRefIdMap<T> {
 	}
 
 	public void put(TypedRefId pair, T value) {
-		put(pair.type, pair.refId, value);
+		put(pair.type, pair.refId, value);			
 	}
 
 	public void put(ModelType type, String refId, T value) {

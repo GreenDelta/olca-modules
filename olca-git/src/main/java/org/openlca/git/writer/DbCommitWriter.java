@@ -86,7 +86,8 @@ public class DbCommitWriter extends CommitWriter {
 	public String write(String message, List<Change> changes) throws IOException {
 		changes = filterInvalid(changes);
 		try {
-			var previousCommit = reference == null ? Repositories.headCommitOf(repo)
+			var previousCommit = reference == null
+					? Repositories.headCommitOf(repo)
 					: repo.parseCommit(ObjectId.fromString(reference.id));
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
@@ -122,11 +123,12 @@ public class DbCommitWriter extends CommitWriter {
 	private List<Change> filterInvalid(List<Change> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
-					if (c.isEmptyCategoryFlag())
+					if (c.isCategory)
 						return true;
 					if (c.type == null || !GitUtil.isUUID(c.refId)) {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
 						log.warn("Filtering dataset with missing or invalid type or refId " + val);
+						progressMonitor.worked(1);
 						return false;
 					}
 					return true;

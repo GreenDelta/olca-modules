@@ -1,5 +1,6 @@
 package org.openlca.git.actions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +49,14 @@ class GitStoreReader implements JsonStoreReader {
 		this.previousCommit = previousCommit;
 		this.commit = commit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
-		this.changes = TypedRefIdMap.of(changes);
+		this.changes = new TypedRefIdMap<Reference>();
+		changes.forEach(ref -> {
+			if (ref.isCategory) {
+				this.changes.put(ref.type, ref.path, ref);
+			} else {
+				this.changes.put(ref, ref);
+			}
+		});
 		this.repoInfo = datasets.getRepositoryInfo(commit);
 
 	}
@@ -60,20 +68,14 @@ class GitStoreReader implements JsonStoreReader {
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);
-		if (binDir == null)
-			return getDataset(path);
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
-		var ref = references.get(type, refId, commit.id);
+		var ref = binDir == null
+				? changes.get(type, refId)
+				: references.get(type, refId, commit.id);
 		return datasets.getBytes(ref);
 	}
 
-	private byte[] getDataset(String path) {
-		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
-		var ref = changes.get(type, refId);
-		return datasets.getBytes(ref);
-	}
 
 	@Override
 	public JsonObject get(ModelType type, String refId) {
@@ -131,7 +133,8 @@ class GitStoreReader implements JsonStoreReader {
 
 	@Override
 	public List<String> getFiles(String dir) {
-		throw new UnsupportedOperationException("Not supported by this implementation");
+		// TODO relevant for upgrades
+		return new ArrayList<>();
 	}
 
 	@Override
@@ -143,13 +146,14 @@ class GitStoreReader implements JsonStoreReader {
 
 	List<? extends ModelRef> getChanges(ModelType type) {
 		if (type == ModelType.CATEGORY)
-			return Collections.emptyList();
+			return new ArrayList<>();
 		return changes.get(type).stream().map(ref -> {
 			// performance improvement: JsonImport will load model from
 			// database. If ref will not be imported and conflict resolver can
 			// determine resolution without json data we can skip that.
 			// ObjectIds need still to be updated so refs need to be added to
-			// results. Returning null values to count worked refs in ImportHelper
+			// results. Returning null values to count worked refs in
+			// ImportHelper
 			var resolution = conflictResolver.peekConflictResolution(ref);
 			if (resolution == ConflictResolutionType.IS_EQUAL) {
 				results.add(ref, ImportState.UPDATED);

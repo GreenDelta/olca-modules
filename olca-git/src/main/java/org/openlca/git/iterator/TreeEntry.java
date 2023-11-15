@@ -3,20 +3,23 @@ package org.openlca.git.iterator;
 import org.eclipse.jgit.lib.FileMode;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.GitUtil;
 
 class TreeEntry implements Comparable<TreeEntry> {
 
-	public static final TreeEntry EMPTY = new TreeEntry();
 	public final String name;
 	public final FileMode fileMode;
 	public final Object data;
 	public final String filePath;
-	
-	
-	private TreeEntry() {
-		this(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE);
+
+	public static TreeEntry empty() {
+		return new TreeEntry(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE, null);
+	}
+
+	public static TreeEntry empty(Change change) {
+		return new TreeEntry(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE, change);
 	}
 
 	TreeEntry(ModelType type) {
@@ -27,7 +30,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 		this(category.name, FileMode.TREE, category);
 	}
 
-	TreeEntry(RootDescriptor descriptor) {
+	TreeEntry(Descriptor descriptor) {
 		this(descriptor.refId + GitUtil.DATASET_SUFFIX, FileMode.REGULAR_FILE, descriptor);
 	}
 

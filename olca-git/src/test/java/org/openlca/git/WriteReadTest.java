@@ -16,10 +16,10 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.git.find.Commits;
 import org.openlca.git.find.Datasets;
+import org.openlca.git.find.Diffs;
 import org.openlca.git.find.References;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Descriptors;
-import org.openlca.git.util.Diffs;
 import org.openlca.git.util.Repositories;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.jsonld.Json;
@@ -46,7 +46,7 @@ public class WriteReadTest {
 		db.insert(unitGroup);
 
 		// should find 1 diff
-		var diffs = Diffs.of(tmp.repo).with(tmp.database, tmp.gitIndex).stream()
+		var diffs = Diffs.of(tmp.repo).excludeCategories().with(tmp.database, tmp.gitIndex).stream()
 				.map(Change::new)
 				.collect(Collectors.toList());
 		assertEquals(1, diffs.size());

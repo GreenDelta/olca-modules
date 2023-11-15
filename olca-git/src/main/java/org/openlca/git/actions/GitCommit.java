@@ -9,9 +9,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.Compatibility;
 import org.openlca.git.GitIndex;
+import org.openlca.git.find.Diffs;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Descriptors;
-import org.openlca.git.util.Diffs;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Strings;
 
