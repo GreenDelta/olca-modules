@@ -26,9 +26,9 @@ public class GeoFactorSetup {
 	 */
 	public final List<GeoFlowBinding> bindings = new ArrayList<>();
 
-	final FeatureCollection features;
+	public final FeatureCollection features;
 
-	private GeoFactorSetup(FeatureCollection features) {
+	public GeoFactorSetup(FeatureCollection features) {
 		this.features = features;
 	}
 

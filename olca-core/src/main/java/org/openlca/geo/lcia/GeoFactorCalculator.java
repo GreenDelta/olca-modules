@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Collectors;
 
-class GeoFactorCalculator implements Runnable {
+public class GeoFactorCalculator implements Runnable {
 
 	private final IDatabase db;
 	private final GeoFactorSetup setup;
@@ -31,7 +31,7 @@ class GeoFactorCalculator implements Runnable {
 	private final List<Location> locations;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	GeoFactorCalculator(
+	public GeoFactorCalculator(
 			IDatabase db, GeoFactorSetup setup, ImpactCategory impact, List<Location> locations
 	) {
 		this.db = db;
