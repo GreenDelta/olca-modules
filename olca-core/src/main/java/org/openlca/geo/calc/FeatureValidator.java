@@ -80,12 +80,11 @@ public class FeatureValidator {
 			} else if (strategy == PolygonFix.SPLIT) {
 				geo = splitIntersections(geo);
 			} else {
-				// TODO: wrap polygons with buffer(0)
+				geo = wrapIntersections(geo);
 			}
 
 			if (geo == null)
 				continue;
-
 			var feature = new Feature();
 			feature.geometry = JTS.toGeoJSON(geo);
 			feature.properties = f.properties;
@@ -93,6 +92,23 @@ public class FeatureValidator {
 		}
 		coll.features.clear();
 		coll.features.addAll(fixed);
+	}
+
+	private Geometry wrapIntersections(Geometry geom) {
+		if (geom instanceof Polygon)
+			return geom.buffer(0);
+
+		if (!(geom instanceof MultiPolygon mul))
+			return geom;
+
+		var polys = new ArrayList<Polygon>();
+		for (int n = 0; n < mul.getNumGeometries(); n++) {
+			var gi = geom.getGeometryN(n).buffer(0);
+			if (gi instanceof Polygon poly) {
+				polys.add(poly);
+			}
+		}
+		return new MultiPolygon(polys.toArray(Polygon[]::new), geom.getFactory());
 	}
 
 	private Geometry splitIntersections(Geometry geom) {
