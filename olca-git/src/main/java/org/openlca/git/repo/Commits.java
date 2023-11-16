@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
@@ -19,7 +18,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.Repositories;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +25,13 @@ import org.slf4j.LoggerFactory;
 public class Commits {
 
 	private static final Logger log = LoggerFactory.getLogger(Commits.class);
-	private final Repository repo;
+	private final OlcaRepository repo;
 
-	public static Commits of(Repository repo) {
+	static Commits of(OlcaRepository repo) {
 		return new Commits(repo);
 	}
 
-	private Commits(Repository repo) {
+	private Commits(OlcaRepository  repo) {
 		this.repo = repo;
 	}
 
@@ -62,7 +60,7 @@ public class Commits {
 	}
 
 	public Commit head() {
-		var commit = Repositories.headCommitOf(repo);
+		var commit = repo.getHeadCommit();
 		if (commit == null)
 			return null;
 		return new Commit(commit);
@@ -71,7 +69,7 @@ public class Commits {
 	RevCommit getRev(String commitId) throws IOException {
 		if (commitId != null)
 			return repo.parseCommit(ObjectId.fromString(commitId));
-		return Repositories.headCommitOf(repo);
+		return repo.getHeadCommit();
 	}
 
 	public Find find() {

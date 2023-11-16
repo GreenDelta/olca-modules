@@ -10,98 +10,92 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.GitIndex;
-import org.openlca.git.util.Descriptors;
+import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.Path;
 import org.openlca.util.Strings;
 
 public class DatabaseIterator extends EntryIterator {
 
-	private final GitIndex gitIndex;
-	private final Descriptors descriptors;
+	private final ClientRepository repo;
 
-	public DatabaseIterator(GitIndex gitIndex, Descriptors descriptors) {
-		this(gitIndex, descriptors, init(descriptors));
+	public DatabaseIterator(ClientRepository repo, String path) {
+		this(repo, init(repo, path));
 	}
 
-	public DatabaseIterator(GitIndex gitIndex, Descriptors descriptors, String path) {
-		this(gitIndex, descriptors, init(descriptors, path));
-	}
-
-	private DatabaseIterator(GitIndex gitIndex, Descriptors descriptors, List<TreeEntry> entries) {
+	private DatabaseIterator(ClientRepository repo, List<TreeEntry> entries) {
 		super(entries);
-		this.gitIndex = gitIndex;
-		this.descriptors = descriptors;
+		this.repo = repo;
 	}
 
 	private DatabaseIterator(DatabaseIterator parent, List<TreeEntry> entries) {
 		super(parent, entries);
-		this.gitIndex = parent.gitIndex;
-		this.descriptors = parent.descriptors;
+		this.repo = parent.repo;;
 	}
 
-	private static List<TreeEntry> init(Descriptors descriptors) {
+	private static List<TreeEntry> init(ClientRepository repo) {
 		return Arrays.stream(ModelType.values()).filter(type -> {
 			if (type == ModelType.CATEGORY)
 				return false;
-			if (!descriptors.getCategories(type).isEmpty())
+			if (!repo.descriptors.getCategories(type).isEmpty())
 				return true;
-			return !descriptors.get(type).isEmpty();
+			return !repo.descriptors.get(type).isEmpty();
 		}).map(TreeEntry::new)
 				.toList();
 	}
 
-	private static List<TreeEntry> init(Descriptors descriptors, String path) {
+	private static List<TreeEntry> init(ClientRepository repo, String path) {
 		if (Strings.nullOrEmpty(path))
-			return init(descriptors);
+			return init(repo);
 		if (!path.contains("/")) {
 			var modelType = ModelType.parse(path);
 			if (modelType == null)
 				return new ArrayList<>();
-			return init(descriptors, modelType);
+			return init(repo, modelType);
 		}
-		var category = descriptors.getCategory(path);
+		path = GitUtil.decode(path);
+		var category = repo.descriptors.getCategory(path);
 		if (category == null)
 			return new ArrayList<>();
-		return init(descriptors, category);
+		return init(repo, category);
 	}
 
-	private static List<TreeEntry> init(Descriptors descriptors, ModelType type) {
-		var entries = descriptors.getCategories(type).stream()
+	private static List<TreeEntry> init(ClientRepository repo, ModelType type) {
+		var entries = repo.descriptors.getCategories(type).stream()
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(descriptors.get(type).stream()
+		entries.addAll(repo.descriptors.get(type).stream()
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
 		return entries;
 	}
 
-	private static List<TreeEntry> init(Descriptors descriptors, Category category) {
+	private static List<TreeEntry> init(ClientRepository repo, Category category) {
 		var categories = category.childCategories;
 		var entries = categories.stream()
-				.filter(c -> !isFromLibrary(descriptors, c))
+				.filter(c -> !isFromLibrary(repo, c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(descriptors.get(category).stream()
+		entries.addAll(repo.descriptors.get(category).stream()
 				.filter(d -> !d.isFromLibrary())
 				.map(TreeEntry::new)
 				.toList());
-		if (entries.isEmpty() && !isFromLibrary(descriptors, category)) {
+		if (entries.isEmpty() && !isFromLibrary(repo, category)) {
 			entries.add(TreeEntry.empty());
 		}
 		return entries;
 	}
 
-	private static boolean isFromLibrary(Descriptors descriptors, Category category) {
+	private static boolean isFromLibrary(ClientRepository repo, Category category) {
 		var hasLibrariesElements = false;
-		for (var model : descriptors.get(category)) {
+		for (var model : repo.descriptors.get(category)) {
 			if (!model.isFromLibrary())
 				return false;
 			hasLibrariesElements = true;
 		}
 		for (var child : category.childCategories) {
-			if (!isFromLibrary(descriptors, child))
+			if (!isFromLibrary(repo, child))
 				return false;
 			hasLibrariesElements = true;
 		}
@@ -110,38 +104,40 @@ public class DatabaseIterator extends EntryIterator {
 
 	@Override
 	public boolean hasId() {
-		if (gitIndex == null)
+		var path = getPath();
+		if (path == null)
 			return false;
-		var data = getEntryData();
-		if (data == null)
-			return false;
-		if (data instanceof ModelType)
-			return gitIndex.has((ModelType) data);
-		if (data instanceof Category)
-			return gitIndex.has((Category) data);
-		var d = (RootDescriptor) data;
-		if (!gitIndex.has(descriptors.categoryPaths, d))
-			return false;
-		var entry = gitIndex.get(descriptors.categoryPaths, d);
-		return entry.version() == d.version && entry.lastChange() == d.lastChange;
+		if (getEntryData() instanceof RootDescriptor d) {
+			if (!repo.index.contains(path))
+				return false;
+			return repo.index.isSameVersion(path, d);
+		}
+		return repo.index.contains(path);
 	}
 
 	@Override
 	public byte[] idBuffer() {
-		if (gitIndex == null)
+		var path = getPath();
+		if (path == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
+		if (!repo.index.contains(path))
+			return GitUtil.getBytes(ObjectId.zeroId());
+		if (!(getEntryData() instanceof RootDescriptor d) || repo.index.isSameVersion(path, d))
+			return GitUtil.getBytes(repo.index.getObjectId(path));
+		return GitUtil.getBytes(ObjectId.zeroId());
+	}
+
+	private String getPath() {
 		var data = getEntryData();
 		if (data == null)
-			return GitUtil.getBytes(ObjectId.zeroId());
-		if (data instanceof ModelType)
-			return gitIndex.get((ModelType) data).rawObjectId();
-		if (data instanceof Category)
-			return gitIndex.get((Category) data).rawObjectId();
-		var d = (RootDescriptor) data;
-		var entry = gitIndex.get(descriptors.categoryPaths, d);
-		if (entry.version() == d.version && entry.lastChange() == d.lastChange)
-			return entry.rawObjectId();
-		return GitUtil.getBytes(ObjectId.zeroId());
+			return null;
+		if (data instanceof ModelType t)
+			return Path.of(t);
+		if (data instanceof Category c)
+			return Path.of(c);
+		if (data instanceof RootDescriptor d)
+			return Path.of(repo.descriptors.categoryPaths, d);
+		return null;
 	}
 
 	@Override
@@ -153,9 +149,9 @@ public class DatabaseIterator extends EntryIterator {
 	public DatabaseIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		if (data instanceof ModelType type)
-			return new DatabaseIterator(this, init(descriptors, type));
+			return new DatabaseIterator(this, init(repo, type));
 		if (data instanceof Category category)
-			return new DatabaseIterator(this, init(descriptors, category));
+			return new DatabaseIterator(this, init(repo, category));
 		return null;
 	}
 

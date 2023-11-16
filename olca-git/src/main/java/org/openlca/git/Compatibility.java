@@ -2,38 +2,37 @@ package org.openlca.git;
 
 import java.io.IOException;
 
-import org.eclipse.jgit.lib.Repository;
-import org.openlca.git.util.Repositories;
+import org.openlca.git.repo.OlcaRepository;
 
 public class Compatibility {
 
-	public static void checkRepositoryClientVersion(Repository repo) throws UnsupportedClientVersionException {
+	public static void checkRepositoryClientVersion(OlcaRepository repo) throws UnsupportedClientVersionException {
 		var version = getRepositoryClientVersion(repo);
 		if (!RepositoryInfo.REPOSITORY_SUPPORTED_CLIENT_VERSIONS.contains(version))
 			throw new UnsupportedClientVersionException(version);
 	}
 
-	public static int getRepositoryClientVersion(Repository repo) {
-		var head = Repositories.headCommitOf(repo);
+	public static int getRepositoryClientVersion(OlcaRepository repo) {
+		var head = repo.getHeadCommit();
 		if (head == null)
 			return RepositoryInfo.REPOSITORY_CURRENT_CLIENT_VERSION;
-		var info = Repositories.infoOf(repo);
+		var info = repo.getInfo();
 		if (info == null)
 			return RepositoryInfo.REPOSITORY_CLIENT_VERSION_FALLBACK;
 		return info.repositoryClientVersion();
 	}
 
-	public static void checkRepositoryServerVersion(Repository repo) throws UnsupportedServerVersionException {
+	public static void checkRepositoryServerVersion(OlcaRepository repo) throws UnsupportedServerVersionException {
 		var version = getRepositoryServerVersion(repo);
 		if (!RepositoryInfo.REPOSITORY_SUPPORTED_SERVER_VERSIONS.contains(version))
 			throw new UnsupportedServerVersionException(version);
 	}
 
-	public static int getRepositoryServerVersion(Repository repo) {
-		var head = Repositories.headCommitOf(repo);
+	public static int getRepositoryServerVersion(OlcaRepository repo) {
+		var head = repo.getHeadCommit();
 		if (head == null)
 			return RepositoryInfo.REPOSITORY_CURRENT_SERVER_VERSION;
-		var info = Repositories.infoOf(repo);
+		var info = repo.getInfo();
 		if (info == null)
 			return RepositoryInfo.REPOSITORY_SERVER_VERSION_FALLBACK;
 		return info.repositoryServerVersion();

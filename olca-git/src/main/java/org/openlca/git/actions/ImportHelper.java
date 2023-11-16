@@ -6,25 +6,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.Compatibility;
-import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.actions.ImportResults.ImportState;
-import org.openlca.git.find.Entries;
-import org.openlca.git.find.References;
-import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.model.ModelRef;
-import org.openlca.git.util.Descriptors;
+import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.input.BatchImport;
 import org.openlca.jsonld.input.JsonImport;
@@ -32,24 +24,13 @@ import org.openlca.jsonld.input.UpdateMode;
 
 class ImportHelper {
 
-	private final Repository repo;
-	final References references;
-	final Entries entries;
-	final IDatabase database;
-	final GitIndex gitIndex;
+	private final ClientRepository repo;
 	final ProgressMonitor progressMonitor;
-	final Descriptors descriptors;
 	ConflictResolver conflictResolver = ConflictResolver.NULL;
 
-	ImportHelper(Repository repo, IDatabase database, Descriptors descriptors, GitIndex gitIndex,
-			ProgressMonitor progressMonitor) {
+	ImportHelper(ClientRepository repo, ProgressMonitor progressMonitor) {
 		this.repo = repo;
-		this.references = References.of(repo);
-		this.entries = Entries.of(repo);
-		this.database = database;
-		this.gitIndex = gitIndex;
 		this.progressMonitor = progressMonitor;
-		this.descriptors = descriptors;
 	}
 
 	static final ModelType[] TYPE_ORDER = new ModelType[] {
@@ -84,7 +65,7 @@ class ImportHelper {
 
 	void runImport(GitStoreReader gitStore) throws IOException {
 		Compatibility.checkRepositoryClientVersion(repo);
-		var jsonImport = new JsonImport(gitStore, database);
+		var jsonImport = new JsonImport(gitStore, repo.database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		for (var type : ImportHelper.TYPE_ORDER) {
 			var changes = gitStore.getChanges(type);
@@ -119,11 +100,11 @@ class ImportHelper {
 					if (keepLocal(ref)) {
 						remoteDeletions.remove(ref);
 					} else if (!ref.isCategory) {
-						delete(Daos.root(database, ref.type), ref.refId);
+						delete(Daos.root(repo.database, ref.type), ref.refId);
 					}
 					progressMonitor.worked(1);
 				});
-		var categoryDao = new CategoryDao(database);
+		var categoryDao = new CategoryDao(repo.database);
 		var deleted = new ArrayList<Category>();
 		remoteDeletions.stream()
 				.filter(ref -> ref.isCategory)
@@ -145,7 +126,7 @@ class ImportHelper {
 			for (var child : category.childCategories)
 				if (!deleted.contains(child))
 					return false;
-		var models = Daos.root(database, category.modelType).getDescriptors(Optional.ofNullable(category));
+		var models = Daos.root(repo.database, category.modelType).getDescriptors(Optional.ofNullable(category));
 		if (!models.isEmpty())
 			return false;
 		return true;
@@ -163,27 +144,6 @@ class ImportHelper {
 		if (!dao.contains(refId))
 			return;
 		dao.delete(dao.getForRefId(refId));
-	}
-
-	void updateGitIndex(String commitId, ImportResults result, boolean applyStash) throws IOException {
-		if (gitIndex == null)
-			return;
-		entries.iterate(commitId, entry -> {
-			if (entry.typeOfEntry == EntryType.DATASET)
-				return;
-			gitIndex.put(entry.path, entry.objectId);
-		});
-		result.get(ImportState.UPDATED).forEach(ref -> {
-			if (applyStash) {
-				gitIndex.invalidate(ref.path);
-			} else {
-				var d = descriptors.get(ref.path);
-				gitIndex.put(ref.path, d.version, d.lastChange, ref.objectId);
-			}
-		});
-		result.get(ImportState.DELETED).forEach(ref -> gitIndex.remove(ref.path));
-		gitIndex.putRoot(ObjectId.fromString(commitId));
-		gitIndex.save();
 	}
 
 	private static class CategoryDepthComparator implements Comparator<ModelRef> {

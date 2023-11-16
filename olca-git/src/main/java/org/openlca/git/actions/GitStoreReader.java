@@ -5,17 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
-import org.openlca.git.find.Datasets;
-import org.openlca.git.find.Entries;
-import org.openlca.git.find.References;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.JsonStoreReader;
@@ -27,8 +24,7 @@ import com.google.gson.JsonObject;
 class GitStoreReader implements JsonStoreReader {
 
 	private static final Gson gson = new Gson();
-	private final References references;
-	private final Datasets datasets;
+	private final OlcaRepository repo;
 	private final Commit previousCommit;
 	private final Commit commit;
 	private final Categories categories;
@@ -37,15 +33,14 @@ class GitStoreReader implements JsonStoreReader {
 	private final ImportResults results = new ImportResults();
 	private final byte[] repoInfo;
 
-	GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
+	GitStoreReader(OlcaRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
 	}
 
-	GitStoreReader(Repository repo, Commit previousCommit, Commit commit, List<Reference> changes,
+	GitStoreReader(OlcaRepository repo, Commit previousCommit, Commit commit, List<Reference> changes,
 			ConflictResolver conflictResolver) {
-		this.categories = Categories.of(Entries.of(repo), commit.id);
-		this.references = References.of(repo);
-		this.datasets = Datasets.of(repo);
+		this.repo = repo;
+		this.categories = Categories.of(repo, commit.id);
 		this.previousCommit = previousCommit;
 		this.commit = commit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
@@ -57,7 +52,7 @@ class GitStoreReader implements JsonStoreReader {
 				this.changes.put(ref, ref);
 			}
 		});
-		this.repoInfo = datasets.getRepositoryInfo(commit);
+		this.repoInfo = repo.datasets.getRepositoryInfo(commit);
 
 	}
 
@@ -72,8 +67,8 @@ class GitStoreReader implements JsonStoreReader {
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
 		var ref = binDir == null
 				? changes.get(type, refId)
-				: references.get(type, refId, commit.id);
-		return datasets.getBytes(ref);
+				: repo.references.get(type, refId, commit.id);
+		return repo.datasets.getBytes(ref);
 	}
 
 
@@ -90,7 +85,7 @@ class GitStoreReader implements JsonStoreReader {
 			results.add(ref, ImportState.UPDATED);
 			return null;
 		}
-		var data = datasets.get(ref);
+		var data = repo.datasets.get(ref);
 		var remote = parse(data);
 		if (!conflictResolver.isConflict(ref)) {
 			results.add(ref, ImportState.UPDATED);
@@ -106,7 +101,7 @@ class GitStoreReader implements JsonStoreReader {
 			return remote;
 		}
 		if (resolution.type == ConflictResolutionType.KEEP && previousCommit != null) {
-			if (references.get(type, refId, previousCommit.id) == null) {
+			if (repo.references.get(type, refId, previousCommit.id) == null) {
 				results.add(ref, ImportState.KEPT_DELETED);
 			}
 			return null;
@@ -126,7 +121,7 @@ class GitStoreReader implements JsonStoreReader {
 		var ref = changes.get(type, refId);
 		if (ref == null)
 			return Collections.emptyList();
-		return references.getBinaries(ref).stream()
+		return repo.references.getBinaries(ref).stream()
 				.map(binary -> ref.getBinariesPath() + "/" + binary)
 				.toList();
 	}
@@ -160,7 +155,7 @@ class GitStoreReader implements JsonStoreReader {
 				return null;
 			}
 			if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
-				if (references.get(type, ref.refId, previousCommit.id) == null) {
+				if (repo.references.get(type, ref.refId, previousCommit.id) == null) {
 					results.add(ref, ImportState.KEPT_DELETED);
 				} else {
 					results.add(ref, ImportState.KEPT);

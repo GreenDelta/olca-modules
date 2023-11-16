@@ -7,7 +7,6 @@ import java.util.List;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.internal.storage.file.PackInserter;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -15,7 +14,6 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
@@ -26,10 +24,10 @@ import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.iterator.EntryIterator;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
-import org.openlca.git.util.Repositories;
 import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -39,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public abstract class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
-	protected final Repository repo;
+	protected final OlcaRepository repo;
 	protected final BinaryResolver binaryResolver;
 	protected String ref = Constants.HEAD;
 	protected PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
@@ -47,7 +45,7 @@ public abstract class CommitWriter {
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 
-	public CommitWriter(Repository repo, BinaryResolver binaryResolver) {
+	public CommitWriter(OlcaRepository repo, BinaryResolver binaryResolver) {
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
 	}
@@ -100,11 +98,9 @@ public abstract class CommitWriter {
 	}
 
 	private void init() {
-		var firstCommit = Repositories.headCommitOf(repo) == null;
-		if (repo instanceof FileRepository fileRepo) {
-			packInserter = fileRepo.getObjectDatabase().newPackInserter();
-			packInserter.checkExisting(!firstCommit);
-		}
+		var firstCommit = repo.getHeadCommit() == null;
+		packInserter = repo.getObjectDatabase().newPackInserter();
+		packInserter.checkExisting(!firstCommit);
 		objectInserter = repo.newObjectInserter();
 	}
 
@@ -139,16 +135,13 @@ public abstract class CommitWriter {
 		} catch (Exception e) {
 			log.error("Error walking tree", e);
 		}
-		if (!appended && !Strings.nullOrEmpty(prefix)) {
-			removed(prefix);
+		if (!appended && !Strings.nullOrEmpty(prefix))
 			return null;
-		}
 		if (Strings.nullOrEmpty(prefix)) {
 			appendRepositoryInfo(tree);
 		}
 		try {
 			var newId = objectInserter.insert(tree);
-			inserted(prefix, newId);
 			return newId;
 		} catch (IOException e) {
 			log.error("Error inserting tree", e);
@@ -190,13 +183,11 @@ public abstract class CommitWriter {
 		}
 		if (walk.getFileMode(treeCount - 1) != FileMode.MISSING) {
 			var data = iterator.getEntryData();
-			if (data != null && data.isCategory && data.diffType == DiffType.DELETED) {
-				removed(data.path);
+			if (data != null && data.isCategory && data.diffType == DiffType.DELETED)
 				return null;
-			}
 			var subIterator = iterator.createSubtreeIterator();
 			var prefix = GitUtil.decode(walk.getPathString());
-			return syncTree(prefix, subIterator, treeIds);	
+			return syncTree(prefix, subIterator, treeIds);
 		}
 		for (var i = treeCount - 2; i >= 0; i--)
 			if (treeIds[i] != null)
@@ -217,12 +208,8 @@ public abstract class CommitWriter {
 		var iterator = walk.getTree(treeCount - 1, EntryIterator.class);
 		Change change = iterator.getEntryData();
 		var filePath = iterator.getEntryFilePath();
-		if (change.diffType == DiffType.DELETED && matches(path, change, filePath)) {
-			if (filePath == null && !change.isEmptyCategory) {
-				removed(path);
-			}
+		if (change.diffType == DiffType.DELETED && matches(path, change, filePath))
 			return null;
-		}
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
 		if (!change.isEmptyCategory) {
@@ -234,9 +221,6 @@ public abstract class CommitWriter {
 		if (data == null)
 			return null;
 		var blobId = insertBlob(data);
-		if (!change.isCategory) {
-			inserted(path, blobId);
-		}
 		progressMonitor.worked(1);
 		return blobId;
 	}
@@ -323,12 +307,6 @@ public abstract class CommitWriter {
 			objectInserter.close();
 			objectInserter = null;
 		}
-	}
-
-	protected void inserted(String path, ObjectId id) {
-	}
-
-	protected void removed(String path) {
 	}
 
 	protected List<LibraryLink> getLibraries() {

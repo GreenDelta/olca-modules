@@ -1,63 +1,61 @@
-package org.openlca.git.util;
+package org.openlca.git.repo;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
-import org.openlca.git.model.Commit;
-import org.openlca.util.Strings;
 import org.openlca.git.RepositoryInfo;
+import org.openlca.git.model.Commit;
+import org.openlca.git.util.Constants;
+import org.openlca.git.util.GitUtil;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-public final class Repositories {
+public class OlcaRepository extends FileRepository {
 
-	private static final Logger log = LoggerFactory.getLogger(Repositories.class);
+	private static final Logger log = LoggerFactory.getLogger(OlcaRepository.class);
+	public final Commits commits;
+	public final Datasets datasets;
+	public final Entries entries;
+	public final References references;
+	public final Diffs diffs;
+	public final History localHistory;
+	public final History remoteHistory;
+	public final File dir;
 
-	private Repositories() {
+	public OlcaRepository(File gitDir) throws IOException {
+		super(gitDir);
+		this.commits = Commits.of(this);
+		this.datasets = Datasets.of(this);
+		this.entries = Entries.of(this);
+		this.references = References.of(this);
+		this.diffs = Diffs.of(this);
+		this.localHistory = History.of(this, Constants.LOCAL_REF);
+		this.remoteHistory = History.of(this, Constants.REMOTE_REF);
+		this.dir = gitDir;
 	}
 
-	public static Repository open(File dir) {
-		return open(dir.toPath());
+	public RepositoryInfo getInfo() {
+		return getInfo(null);
 	}
 
-	public static Repository open(Path dir) {
-		try {
-			var repo = new FileRepository(dir.toFile());
-			if (!Files.exists(dir)) {
-				// create a new bare repository
-				repo.create(true);
-			}
-			return repo;
-		} catch (IOException e) {
-			throw new RuntimeException(
-					"could not get repository from folder: " + dir, e);
-		}
-	}
-
-	public static RepositoryInfo infoOf(Repository repo) {
-		return infoOf(repo, null);
-	}
-
-	public static RepositoryInfo infoOf(Repository repo, Commit commit) {
-		try (var walk = new TreeWalk(repo);
-				var reader = repo.getObjectDatabase().newReader()) {
+	public RepositoryInfo getInfo(Commit commit) {
+		try (var walk = new TreeWalk(this);
+				var reader = getObjectDatabase().newReader()) {
 			var revCommit = commit != null
-					? repo.parseCommit(ObjectId.fromString(commit.id))
-					: headCommitOf(repo);
+					? parseCommit(ObjectId.fromString(commit.id))
+					: getHeadCommit();
 			if (revCommit == null)
 				return null;
 			walk.addTree(revCommit.getTree().getId());
@@ -75,11 +73,11 @@ public final class Repositories {
 		}
 	}
 
-	public static RevCommit headCommitOf(Repository repo) {
-		try (var walk = new RevWalk(repo)) {
-			var head = repo.resolve(Constants.LOCAL_BRANCH);
+	public RevCommit getHeadCommit() {
+		try (var walk = new RevWalk(this)) {
+			var head = resolve(Constants.LOCAL_BRANCH);
 			if (head == null) {
-				head = repo.resolve(Constants.LOCAL_REF);
+				head = resolve(Constants.LOCAL_REF);
 			}
 			if (head == null)
 				return null;
@@ -92,11 +90,11 @@ public final class Repositories {
 			return null;
 		}
 	}
-	
-	public static ObjectId getSubTreeId(Repository repo, ObjectId treeId, String path) {
+
+	public ObjectId getSubTreeId(ObjectId treeId, String path) {
 		if (Strings.nullOrEmpty(path))
 			return treeId;
-		try (var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId)) {
+		try (var walk = TreeWalk.forPath(this, GitUtil.encode(path), treeId)) {
 			if (walk == null)
 				return ObjectId.zeroId();
 			if (walk.getFileMode() != FileMode.TREE)
@@ -107,6 +105,5 @@ public final class Repositories {
 			return null;
 		}
 	}
-
 
 }

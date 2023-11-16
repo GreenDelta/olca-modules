@@ -7,11 +7,10 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
-import org.openlca.git.find.Entries;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
@@ -20,9 +19,9 @@ public class ChangeIterator extends EntryIterator {
 
 	private final BinaryResolver binaryResolver;
 	private final List<Change> changes;
-	private final Repository repo;
+	private final OlcaRepository repo;
 
-	public ChangeIterator(Repository repo, BinaryResolver binaryResolver, List<Change> changes) {
+	public ChangeIterator(OlcaRepository repo, BinaryResolver binaryResolver, List<Change> changes) {
 		super(initialize(null, changes));
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
@@ -93,8 +92,8 @@ public class ChangeIterator extends EntryIterator {
 		return list;
 	}
 
-	private static boolean addEmptyFlag(Repository repo, String prefix, List<Change> changes) {
-		var entries = Entries.of(repo).find().path(prefix).all();
+	private static boolean addEmptyFlag(OlcaRepository repo, String prefix, List<Change> changes) {
+		var entries = repo.entries.find().path(prefix).all();
 		if (entries.isEmpty())
 			return false;
 		var deletions = changes.stream()

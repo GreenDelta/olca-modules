@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectStream;
-import org.eclipse.jgit.lib.Repository;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Reference;
@@ -23,13 +22,13 @@ import com.google.gson.Gson;
 public class Datasets {
 
 	private static final Logger log = LoggerFactory.getLogger(Datasets.class);
-	private final Repository repo;
+	private final OlcaRepository repo;
 
-	public static Datasets of(Repository repo) {
+	static Datasets of(OlcaRepository repo) {
 		return new Datasets(repo);
 	}
 
-	private Datasets(Repository repo) {
+	private Datasets(OlcaRepository repo) {
 		this.repo = repo;
 	}
 
@@ -107,14 +106,19 @@ public class Datasets {
 	public byte[] getBinary(Reference ref, String filepath) {
 		if (ref == null || filepath == null || filepath.isEmpty())
 			return null;
-		var id = Entries.of(repo).get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
+		var id = repo.entries.get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
 		return getBytes(id);
 	}
 
 	public byte[] getRepositoryInfo(Commit commit) {
-		if (Commits.of(repo).find().latest() == null)
+		if (repo.commits.find().latest() == null)
 			return new Gson().toJson(RepositoryInfo.create().json()).getBytes(StandardCharsets.UTF_8);
-		return getBytes(Entries.of(repo).get(RepositoryInfo.FILE_NAME, commit.id));
+		return getBytes(repo.entries.get(RepositoryInfo.FILE_NAME, commit.id));
+	}
+
+	public Map<String, Object> getVersionAndLastChange(Reference ref) {
+		return stream(ref, new HashMap<String, Object>(),
+				stream -> MetaDataParser.parseTop(stream, "version", "lastChange"));
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
@@ -21,13 +20,13 @@ import org.slf4j.LoggerFactory;
 public class References {
 
 	static final Logger log = LoggerFactory.getLogger(References.class);
-	private final Repository repo;
+	private final OlcaRepository repo;
 
-	public static References of(Repository repo) {
+	static References of(OlcaRepository repo) {
 		return new References(repo);
 	}
 
-	private References(Repository repo) {
+	private References(OlcaRepository repo) {
 		this.repo = repo;
 	}
 
@@ -39,7 +38,7 @@ public class References {
 		if (ref == null)
 			return new ArrayList<>();
 		try {
-			var commit = Commits.of(repo).getRev(ref.commitId);
+			var commit = repo.commits.getRev(ref.commitId);
 			if (commit == null)
 				return new ArrayList<>();
 			try (var walk = new TreeWalk(repo)) {
@@ -123,8 +122,7 @@ public class References {
 
 		private void iterate(Function<Reference, Boolean> consumer) {
 			try {
-				var commits = Commits.of(repo);
-				var commit = commits.getRev(commitId);
+				var commit = repo.commits.getRev(commitId);
 				if (commit == null)
 					return;
 				var commitId = commit.getId().name();

@@ -6,22 +6,19 @@ import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
-import org.openlca.git.find.Commits;
 import org.openlca.git.model.Commit;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.Constants;
 
 public class GitFetch extends GitRemoteAction<List<Commit>> {
 
-	private final Repository repo;
-	private final Commits commits;
+	private final OlcaRepository repo;
 
-	private GitFetch(Repository repo) {
+	private GitFetch(OlcaRepository repo) {
 		this.repo = repo;
-		this.commits = Commits.of(repo);
 	}
 
-	public static GitFetch to(Repository repo) {
+	public static GitFetch to(OlcaRepository repo) {
 		return new GitFetch(repo);
 	}
 
@@ -29,7 +26,7 @@ public class GitFetch extends GitRemoteAction<List<Commit>> {
 	public List<Commit> run() throws GitAPIException {
 		if (repo == null) 
 			throw new IllegalStateException("Git repository must be set");
-		var lastId = commits.find()
+		var lastId = repo.commits.find()
 				.refs(Constants.REMOTE_REF)
 				.latestId();
 		var result = Git.wrap(repo).fetch()
@@ -39,7 +36,7 @@ public class GitFetch extends GitRemoteAction<List<Commit>> {
 				.call();
 		if (result == null)
 			return new ArrayList<>();
-		var newCommits = commits.find()
+		var newCommits = repo.commits.find()
 				.refs(Constants.REMOTE_REF)
 				.after(lastId)
 				.all();

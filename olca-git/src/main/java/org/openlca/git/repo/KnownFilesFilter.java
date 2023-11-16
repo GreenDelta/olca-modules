@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.repo;
 
 import java.io.IOException;
 
@@ -12,7 +12,7 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
 import org.openlca.util.Strings;
 
-public class KnownFilesFilter extends TreeFilter {
+class KnownFilesFilter extends TreeFilter {
 
 	private final Integer depth;
 	private boolean includeEmptyCategoryTags;
@@ -103,16 +103,16 @@ public class KnownFilesFilter extends TreeFilter {
 	}
 	
 	private boolean include(String path, FileMode mode, int depth) {
+		if (isCategory(path, mode, depth))
+			return true;
+		if (isModelTypeRootDirectory(path, mode, depth))
+			return true;
 		if (isRecognizedRootFile(path, mode, depth))
+			return false;
+		if (isBinDir(path, mode, depth))
 			return false;
 		if (isEmptyCategoryTag(path, mode, depth))
 			return includeEmptyCategoryTags;
-		if (isModelTypeRootDirectory(path, mode, depth))
-			return true;
-		if (isBinDir(path, mode, depth))
-			return false;
-		if (isCategory(path, mode, depth))
-			return true;
 		if (isDataset(path, mode, depth))
 			return true;
 		return false;

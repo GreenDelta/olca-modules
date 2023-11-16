@@ -14,7 +14,7 @@ public class FieldDefinition {
 	String condition;
 	List<String> conditionFields;
 	Function<String, Boolean> meetsCondition;
-	
+
 	public static FieldDefinition firstOf(String field) {
 		return new FieldDefinition(Type.FIRST, field, null);
 	}
@@ -30,12 +30,12 @@ public class FieldDefinition {
 	public static FieldDefinition allOf(String field, Function<String, Object> converter) {
 		return new FieldDefinition(Type.ALL, field, converter);
 	}
-	
+
 	public FieldDefinition name(String name) {
 		this.name = name;
 		return this;
 	}
-	
+
 	public FieldDefinition ifIs(String condition) {
 		return ifIs(condition, null);
 	}
@@ -61,7 +61,7 @@ public class FieldDefinition {
 	boolean isConditional() {
 		return conditionFields != null && !conditionFields.isEmpty();
 	}
-	
+
 	static enum Type {
 		FIRST, ALL;
 	}

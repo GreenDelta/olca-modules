@@ -60,6 +60,8 @@ public class Categories {
 		private final TLongObjectHashMap<List<String>> lists = new TLongObjectHashMap<>();
 
 		private PathBuilder(IDatabase db) {
+			if (db == null)
+				return;
 			String sql = "select id, name, f_category from tbl_categories";
 			try {
 				NativeSql.on(db).query(sql, r -> {
