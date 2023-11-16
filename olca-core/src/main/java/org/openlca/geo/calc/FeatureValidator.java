@@ -13,6 +13,21 @@ import java.util.ArrayList;
 
 public class FeatureValidator {
 
+	public enum PolygonFix {
+
+		/**
+		 * When there are self intersections, split the polygons at intersection
+		 * points into a multi-polygon.
+		 */
+		SPLIT,
+
+		/**
+		 * When there are self intersections, calculate an outer polygon.
+		 */
+		WRAP,
+
+	}
+
 	private final FeatureCollection coll;
 
 	private FeatureValidator(FeatureCollection coll) {
@@ -49,16 +64,28 @@ public class FeatureValidator {
 	 * alternative is to run {@code buffer(0)} on such polygons as described
 	 * <a href="https://github.com/locationtech/jts/issues/657">here</a>.
 	 */
-	public void fix() {
+	public void fixPolygons(PolygonFix strategy) {
 		if (coll == null)
 			return;
 		var fixed = new ArrayList<Feature>();
 		for (var f : coll.features) {
+
 			if (f.geometry == null)
 				continue;
-			var geo = fix(JTS.fromGeoJSON(f.geometry));
+			var geo = JTS.fromGeoJSON(f.geometry);
 			if (geo == null)
 				continue;
+			if (geo.isValid()) {
+				geo.normalize();
+			} else if (strategy == PolygonFix.SPLIT) {
+				geo = splitIntersections(geo);
+			} else {
+				// TODO: wrap polygons with buffer(0)
+			}
+
+			if (geo == null)
+				continue;
+
 			var feature = new Feature();
 			feature.geometry = JTS.toGeoJSON(geo);
 			feature.properties = f.properties;
@@ -68,13 +95,7 @@ public class FeatureValidator {
 		coll.features.addAll(fixed);
 	}
 
-	private Geometry fix(Geometry geom) {
-		if (geom == null)
-			return null;
-		if (geom.isValid()) {
-			geom.normalize();
-			return geom;
-		}
+	private Geometry splitIntersections(Geometry geom) {
 
 		if (geom instanceof Polygon polygon) {
 			var polygonizer = new Polygonizer();
