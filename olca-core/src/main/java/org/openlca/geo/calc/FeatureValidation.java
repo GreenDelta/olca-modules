@@ -37,6 +37,10 @@ public class FeatureValidation implements Runnable {
 		cancelled.set(true);
 	}
 
+	/**
+	 * Reports the number of validated features after each
+	 * validation event.
+	 */
 	public void onValidated(IntConsumer listener) {
 		this.listener = listener;
 	}
@@ -45,6 +49,11 @@ public class FeatureValidation implements Runnable {
 		return stats;
 	}
 
+	public boolean wasCancelled() {
+		return cancelled.get();
+	}
+
+	@Override
 	public void run() {
 		int count = 0;
 		for (var f : coll.features) {

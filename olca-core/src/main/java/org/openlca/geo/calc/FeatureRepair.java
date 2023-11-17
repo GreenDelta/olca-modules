@@ -10,8 +10,18 @@ import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntConsumer;
 
-public class FeatureValidator {
+/**
+ * Tries to fix invalid geometries of the features in the collection in place.
+ * Currently, this is only done for self-intersecting polygons because the
+ * intersection calculation would fail for them. We currently apply the
+ * approach <a href="https://stackoverflow.com/a/31474580">here</a>. An
+ * alternative is to run {@code buffer(0)} on such polygons as described
+ * <a href="https://github.com/locationtech/jts/issues/657">here</a>.
+ */
+public class FeatureRepair implements Runnable {
 
 	public enum PolygonFix {
 
@@ -29,52 +39,68 @@ public class FeatureValidator {
 	}
 
 	private final FeatureCollection coll;
+	private final PolygonFix strategy;
+	private final AtomicBoolean cancelled;
 
-	private FeatureValidator(FeatureCollection coll) {
+	private IntConsumer listener;
+	private int handled = 0;
+
+	private FeatureRepair(FeatureCollection coll, PolygonFix strategy) {
 		this.coll = coll;
+		this.strategy = strategy;
+		cancelled = new AtomicBoolean(false);
 	}
 
-	public static FeatureValidator of(FeatureCollection coll) {
-		return new FeatureValidator(coll);
+	public static FeatureRepair of(FeatureCollection coll) {
+		return new FeatureRepair(coll, PolygonFix.WRAP);
+	}
+
+	public static FeatureRepair of(FeatureCollection coll, PolygonFix strategy) {
+		return new FeatureRepair(coll, strategy);
+	}
+
+	public int count() {
+		return coll.features.size();
+	}
+
+	public void cancel() {
+		cancelled.set(true);
 	}
 
 	/**
-	 * Checks if the geometries of the features in the collection are valid.
-	 *
-	 * @return {@code true} when all geometries are valid, {@code false} otherwise
+	 * Reports the number of handled features after each
+	 * feature that was checked.
 	 */
-	public boolean check() {
-		if (coll == null)
-			return false;
-		for (var f : coll.features) {
-			if (f.geometry == null)
-				return false;
-			var geo = JTS.fromGeoJSON(f.geometry);
-			if (!geo.isValid())
-				return false;
+	public void onHandled(IntConsumer listener) {
+		this.listener = listener;
+	}
+
+	public boolean wasCancelled() {
+		return cancelled.get();
+	}
+
+	private void reportNext() {
+		handled++;
+		if (listener != null) {
+			listener.accept(handled);
 		}
-		return true;
 	}
 
-	/**
-	 * Tries to fix invalid geometries of the features in the collection in place.
-	 * Currently, this is only done for self-intersecting polygons because the
-	 * intersection calculation would fail for them. We currently apply the
-	 * approach <a href="https://stackoverflow.com/a/31474580">here</a>. An
-	 * alternative is to run {@code buffer(0)} on such polygons as described
-	 * <a href="https://github.com/locationtech/jts/issues/657">here</a>.
-	 */
-	public void fixPolygons(PolygonFix strategy) {
+	@Override
+	public void run() {
 		if (coll == null)
 			return;
+
 		var fixed = new ArrayList<Feature>();
 		for (var f : coll.features) {
-
-			if (f.geometry == null)
-				continue;
+			if (cancelled.get())
+				break;
 			var geo = JTS.fromGeoJSON(f.geometry);
-			if (geo == null)
+			if (geo == null) {
+				reportNext();
 				continue;
+			}
+
 			if (geo.isValid()) {
 				geo.normalize();
 			} else if (strategy == PolygonFix.SPLIT) {
@@ -82,6 +108,7 @@ public class FeatureValidator {
 			} else {
 				geo = wrapIntersections(geo);
 			}
+			reportNext();
 
 			if (geo == null)
 				continue;
@@ -90,8 +117,11 @@ public class FeatureValidator {
 			feature.properties = f.properties;
 			fixed.add(feature);
 		}
-		coll.features.clear();
-		coll.features.addAll(fixed);
+
+		if (!cancelled.get()) {
+			coll.features.clear();
+			coll.features.addAll(fixed);
+		}
 	}
 
 	private Geometry wrapIntersections(Geometry geom) {
