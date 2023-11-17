@@ -40,7 +40,7 @@ public class FeatureRepair implements Runnable {
 
 	private final FeatureCollection coll;
 	private final PolygonFix strategy;
-	private final AtomicBoolean cancelled;
+	private final AtomicBoolean canceled;
 
 	private IntConsumer listener;
 	private int handled = 0;
@@ -48,7 +48,7 @@ public class FeatureRepair implements Runnable {
 	private FeatureRepair(FeatureCollection coll, PolygonFix strategy) {
 		this.coll = coll;
 		this.strategy = strategy;
-		cancelled = new AtomicBoolean(false);
+		canceled = new AtomicBoolean(false);
 	}
 
 	public static FeatureRepair of(FeatureCollection coll) {
@@ -64,7 +64,7 @@ public class FeatureRepair implements Runnable {
 	}
 
 	public void cancel() {
-		cancelled.set(true);
+		canceled.set(true);
 	}
 
 	/**
@@ -75,8 +75,8 @@ public class FeatureRepair implements Runnable {
 		this.listener = listener;
 	}
 
-	public boolean wasCancelled() {
-		return cancelled.get();
+	public boolean wasCanceled() {
+		return canceled.get();
 	}
 
 	private void reportNext() {
@@ -93,7 +93,7 @@ public class FeatureRepair implements Runnable {
 
 		var fixed = new ArrayList<Feature>();
 		for (var f : coll.features) {
-			if (cancelled.get())
+			if (canceled.get())
 				break;
 			var geo = JTS.fromGeoJSON(f.geometry);
 			if (geo == null) {
@@ -118,7 +118,7 @@ public class FeatureRepair implements Runnable {
 			fixed.add(feature);
 		}
 
-		if (!cancelled.get()) {
+		if (!canceled.get()) {
 			coll.features.clear();
 			coll.features.addAll(fixed);
 		}

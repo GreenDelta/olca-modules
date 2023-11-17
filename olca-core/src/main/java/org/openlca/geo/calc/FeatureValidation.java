@@ -16,13 +16,13 @@ public class FeatureValidation implements Runnable {
 
 	private final FeatureCollection coll;
 	private final Stats stats;
-	private final AtomicBoolean cancelled;
+	private final AtomicBoolean canceled;
 	private IntConsumer listener;
 
 	private FeatureValidation(FeatureCollection coll) {
 		this.coll = Objects.requireNonNull(coll);
 		this.stats = Stats.create();
-		this.cancelled = new AtomicBoolean(false);
+		this.canceled = new AtomicBoolean(false);
 	}
 
 	public static FeatureValidation of(FeatureCollection coll) {
@@ -34,7 +34,7 @@ public class FeatureValidation implements Runnable {
 	}
 
 	public void cancel() {
-		cancelled.set(true);
+		canceled.set(true);
 	}
 
 	/**
@@ -49,15 +49,15 @@ public class FeatureValidation implements Runnable {
 		return stats;
 	}
 
-	public boolean wasCancelled() {
-		return cancelled.get();
+	public boolean wasCanceled() {
+		return canceled.get();
 	}
 
 	@Override
 	public void run() {
 		int count = 0;
 		for (var f : coll.features) {
-			if (cancelled.get())
+			if (canceled.get())
 				break;
 			count++;
 			if (f.geometry == null) {
