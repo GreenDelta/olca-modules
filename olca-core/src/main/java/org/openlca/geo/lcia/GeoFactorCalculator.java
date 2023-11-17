@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Collectors;
 
 public class GeoFactorCalculator implements Runnable {
@@ -73,40 +72,40 @@ public class GeoFactorCalculator implements Runnable {
 	 * intersections with the given feature collection and the aggregation function
 	 * that is defined in the respective parameter.
 	 */
-	private Map<Location, List<Pair<GeoProperty, Double>>> calcParamVals(
-			FeatureCollection coll) {
-		IntersectionCalculator calc = IntersectionCalculator.on(coll);
-		Map<Location, List<Pair<Feature, Double>>> map = locations
+	private Map<Location, List<PropVal>> calcParamVals(FeatureCollection coll) {
+
+		var calc = IntersectionCalculator.on(coll);
+		Map<Location, List<Pair<Feature, Double>>> intersections = locations
 				.parallelStream()
 				.map(loc -> Pair.of(loc, calcIntersections(loc, calc)))
 				.collect(Collectors.toMap(p -> p.first, p -> p.second));
 
-		Map<Location, List<Pair<GeoProperty, Double>>> locParams = new HashMap<>();
-		map.forEach((loc, pairs) -> {
-			List<Pair<GeoProperty, Double>> paramVals = new ArrayList<>();
+		var locParams = new HashMap<Location, List<PropVal>>();
+		intersections.forEach((loc, pairs) -> {
+
+			var paramVals = new ArrayList<PropVal>();
 			locParams.put(loc, paramVals);
-			for (GeoProperty param : setup.properties) {
+			for (var param : setup.properties) {
 				if (pairs.isEmpty()) {
-					paramVals.add(Pair.of(param, null));
+					paramVals.add(PropVal.defaultOf(param));
 					continue;
 				}
 
-				List<Double> vals = new ArrayList<>();
-				List<Double> shares = new ArrayList<>();
+				var vals = new ArrayList<Double>();
+				var shares = new ArrayList<Double>();
 				for (Pair<Feature, Double> pair : pairs) {
-					Feature f = pair.first;
-					Double share = pair.second;
+					var f = pair.first;
+					var share = pair.second;
 					if (f.properties == null)
 						continue;
-					Object valObj = f.properties.get(param.name);
-					if (!(valObj instanceof Number))
+					var valObj = f.properties.get(param.name);
+					if (!(valObj instanceof Number num))
 						continue;
-					vals.add(((Number) valObj).doubleValue());
+					vals.add(num.doubleValue());
 					shares.add(share);
 				}
-				Double aggVal = aggregate(param, vals, shares);
-				paramVals.add(Pair.of(param, aggVal));
 
+				paramVals.add(PropVal.of(param, vals, shares));
 			}
 		});
 		return locParams;
@@ -143,78 +142,7 @@ public class GeoFactorCalculator implements Runnable {
 		}
 	}
 
-	/**
-	 * Aggregates the given parameter values that were extracted from the
-	 * intersecting features with the aggregation function that is defined in the
-	 * given parameter. If the lists are empty `null` is returned which means that
-	 * the default parameter value should be used in this case. The shares are only
-	 * used when a weighted average should be calculated, which is the default
-	 * aggregation function. Note that the shares must have the same length as the
-	 * corresponding parameter values.
-	 */
-	private Double aggregate(
-		GeoProperty param, List<Double> vals, List<Double> shares) {
-
-		if (param == null || vals.isEmpty()) {
-			return null;
-		}
-
-		// take the minimum or maximum value
-		if (param.aggregation == GeoAggregation.MINIMUM
-				|| param.aggregation == GeoAggregation.MAXIMUM) {
-
-			DoubleBinaryOperator fn = param.aggregation == GeoAggregation.MINIMUM
-					? Math::min
-					: Math::max;
-
-			double val = vals.get(0) == null ? 0 : vals.get(0);
-			for (int i = 1; i < vals.size(); i++) {
-				Double next = vals.get(i);
-				if (next == null)
-					continue;
-				val = fn.applyAsDouble(val, next);
-			}
-			return val;
-		}
-
-		// calculate the average value
-		if (param.aggregation == GeoAggregation.AVERAGE) {
-
-			double sum = 0;
-			int count = 0;
-			for (int i = 0; i < vals.size(); i++) {
-				Double next = vals.get(i);
-				if (next == null)
-					continue;
-				sum += next;
-				count++;
-			}
-
-			if (count == 0)
-				return null;
-			return sum / count;
-		}
-
-		// calculate the weighted average by default
-		double sum = 0;
-		double wsum = 0;
-		for (int i = 0; i < vals.size(); i++) {
-			Double next = vals.get(i);
-			Double share = shares.get(i);
-			if (next == null || share == null)
-				continue;
-			sum += next * share;
-			wsum += share;
-		}
-		if (wsum == 0) {
-			return null;
-		}
-		return sum / wsum;
-
-	}
-
-	private void createFactors(
-			Map<Location, List<Pair<GeoProperty, Double>>> locParams) {
+	private void createFactors(Map<Location, List<PropVal>> locParams) {
 
 		// remove all LCIA factors with a flow and location
 		// that will be calculated
@@ -272,15 +200,12 @@ public class GeoFactorCalculator implements Runnable {
 			// bind the location specific parameter values
 			// to a formula interpreter
 			fi = new FormulaInterpreter();
-			List<Pair<GeoProperty, Double>> pairs = locParams.get(loc);
-			if (pairs == null)
+			var propVals = locParams.get(loc);
+			if (propVals == null)
 				continue;
-			for (Pair<GeoProperty, Double> pair : pairs) {
-				GeoProperty param = pair.first;
-				double val = pair.second == null
-						? param.defaultValue
-						: pair.second;
-				fi.bind(param.identifier, Double.toString(val));
+			for (var v : propVals) {
+				var param = v.param().identifier;
+				fi.bind(param, v.value());
 			}
 
 			for (GeoFlowBinding b : setup.bindings) {
