@@ -7,16 +7,14 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.geo.calc.FeatureShare;
 import org.openlca.geo.calc.IntersectionCalculator;
-import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
-import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,28 +72,30 @@ public class GeoFactorCalculator implements Runnable {
 	 */
 	private Map<Location, List<PropVal>> calcParamVals(FeatureCollection coll) {
 
+		// calculate intersections
 		var calc = IntersectionCalculator.on(coll);
-		Map<Location, List<Pair<Feature, Double>>> intersections = locations
-				.parallelStream()
-				.map(loc -> Pair.of(loc, calcIntersections(loc, calc)))
-				.collect(Collectors.toMap(p -> p.first, p -> p.second));
+		Map<Location, List<FeatureShare>> intersections = locations
+			.parallelStream()
+			.map(loc -> Pair.of(loc, calc.shares(loc)))
+			.collect(Collectors.toMap(p -> p.first, p -> p.second));
 
+		// calculate parameter values based on intersections
 		var locParams = new HashMap<Location, List<PropVal>>();
-		intersections.forEach((loc, pairs) -> {
+		intersections.forEach((loc, featureShares) -> {
 
 			var paramVals = new ArrayList<PropVal>();
 			locParams.put(loc, paramVals);
 			for (var param : setup.properties) {
-				if (pairs.isEmpty()) {
+				if (featureShares.isEmpty()) {
 					paramVals.add(PropVal.defaultOf(param));
 					continue;
 				}
 
 				var vals = new ArrayList<Double>();
 				var shares = new ArrayList<Double>();
-				for (Pair<Feature, Double> pair : pairs) {
-					var f = pair.first;
-					var share = pair.second;
+				for (var fs : featureShares) {
+						var f = fs.feature();
+						var share = fs.value();
 					if (f.properties == null)
 						continue;
 					var valObj = f.properties.get(param.name);
@@ -109,37 +109,6 @@ public class GeoFactorCalculator implements Runnable {
 			}
 		});
 		return locParams;
-	}
-
-	/**
-	 * Calculates the intersection of the given location.
-	 */
-	private List<Pair<Feature, Double>> calcIntersections(
-			Location loc, IntersectionCalculator calc) {
-		if (loc.geodata == null) {
-			log.info("No geodata for location {} found", loc);
-			return Collections.emptyList();
-		}
-		try {
-			FeatureCollection coll = GeoJSON.unpack(loc.geodata);
-			if (coll == null || coll.features.isEmpty()) {
-				log.info("No geodata for location {} found", loc);
-				return Collections.emptyList();
-			}
-			Feature f = coll.features.get(0);
-			if (f == null || f.geometry == null) {
-				log.info("No geodata for location {} found", loc);
-				return Collections.emptyList();
-			}
-
-			List<Pair<Feature, Double>> s = calc.shares(f.geometry);
-			log.trace("Calculated intersetions for location {}", loc);
-			return s;
-		} catch (Exception e) {
-			log.error("Failed to calculate the "
-					+ "intersections for location " + loc, e);
-			return Collections.emptyList();
-		}
 	}
 
 	private void createFactors(Map<Location, List<PropVal>> locParams) {
