@@ -27,7 +27,7 @@ record PropVal(GeoProperty param, double value) {
 	 * value.
 	 */
 	static PropVal of(GeoProperty param, List<Double> vals, List<Double> shares) {
-		if (vals.isEmpty())
+		if (vals == null || vals.isEmpty())
 			return PropVal.defaultOf(param);
 		if (param.aggregation == null)
 			return PropVal.of(param, weightedMean(vals, shares));
