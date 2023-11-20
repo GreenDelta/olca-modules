@@ -5,8 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +34,9 @@ public class DatabaseConfigList {
 	}
 
 	public static DatabaseConfigList read(File file) {
-		try (FileInputStream in = new FileInputStream(file);
-				 Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
-			Gson gson = new Gson();
+		try (var in = new FileInputStream(file);
+				 var reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
+			var gson = new Gson();
 			return gson.fromJson(reader, DatabaseConfigList.class);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(DatabaseConfigList.class);
@@ -48,10 +46,10 @@ public class DatabaseConfigList {
 	}
 
 	public void write(File file) {
-		try (FileOutputStream out = new FileOutputStream(file);
-				 Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			String s = gson.toJson(this);
+		try (var out = new FileOutputStream(file);
+				 var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
+			var gson = new GsonBuilder().setPrettyPrinting().create();
+			var s = gson.toJson(this);
 			writer.write(s);
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(DatabaseConfigList.class);
@@ -73,18 +71,17 @@ public class DatabaseConfigList {
 	public boolean nameExists(String name) {
 		if (Strings.nullOrEmpty(name))
 			return false;
-		String newName = name.trim().toLowerCase();
+		var newName = name.trim().toLowerCase();
 		Predicate<DatabaseConfig> sameName = config -> {
 			if (config == null || config.name() == null)
 				return false;
-			return Strings.nullOrEqual(
-				config.name().toLowerCase(), newName);
+			return Strings.nullOrEqual(config.name().toLowerCase(), newName);
 		};
-		for (DatabaseConfig config : localDatabases) {
+		for (var config : localDatabases) {
 			if (sameName.test(config))
 				return true;
 		}
-		for (DatabaseConfig config : remoteDatabases) {
+		for (var config : remoteDatabases) {
 			if (sameName.test(config))
 				return true;
 		}

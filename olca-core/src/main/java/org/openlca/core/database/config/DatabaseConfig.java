@@ -30,4 +30,11 @@ public interface DatabaseConfig {
 	 */
 	boolean isEmbedded();
 
+	/**
+	 * Returns an optional category of the database. The category is just a path
+	 * separated by forward slashes, like {@code "some/database"}.
+	 */
+	default String category() {
+		return null;
+	}
 }
