@@ -33,6 +33,14 @@ public class DatabaseConfigList {
 		return remoteDatabases;
 	}
 
+	public List<DatabaseConfig> getAll() {
+		var list = new ArrayList<DatabaseConfig>(
+				localDatabases.size() + remoteDatabases.size());
+		list.addAll(localDatabases);
+		list.addAll(remoteDatabases);
+		return list;
+	}
+
 	public static DatabaseConfigList read(File file) {
 		try (var in = new FileInputStream(file);
 				 var reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
