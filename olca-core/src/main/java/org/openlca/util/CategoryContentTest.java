@@ -78,6 +78,31 @@ public class CategoryContentTest {
 		var cache = cacheOf(category);
 		return test(category, cache.nonLib);
 	}
+	
+	/**
+	 * Returns {@code true} if the given category or a child category of it
+	 * contain model elements only from a library.
+	 */
+	public boolean hasOnlyLibraryContent(Category category, String library) {
+		if (category == null)
+			return false;
+		var cache = cacheOf(category);
+		var ids = cache.libs.get(library);
+		if (ids == null)
+			return false;
+		if (!test(category, ids))
+			return false;
+		if (test(category, cache.nonLib))
+			return false;
+		for (var lib : cache.libs.keySet()) {
+			if (lib.equals(library))
+				continue;
+			if (test(category, cache.libs.get(lib)))
+				return false;
+		}
+		return true;
+	}
+
 
 	private boolean test(Category category, TLongHashSet set) {
 		if (set.contains(category.id))
