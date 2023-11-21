@@ -78,7 +78,8 @@ public class ChangeIterator extends EntryIterator {
 		if (!prefix.contains("/"))
 			return list;
 		var parentChange = parent != null ? parent.getEntryData() : null;
-		if (list.isEmpty() && parentChange != null && parentChange.isEmptyCategory) {
+		if (list.isEmpty() && parentChange != null 
+				&& (parentChange.isEmptyCategory || parentChange.diffType == DiffType.ADDED)) {
 			list.add(TreeEntry.empty(parentChange));
 			return list;
 		}

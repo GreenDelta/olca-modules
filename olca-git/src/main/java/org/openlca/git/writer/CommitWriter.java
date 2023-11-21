@@ -212,10 +212,10 @@ public abstract class CommitWriter {
 			return null;
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
-		if (!change.isEmptyCategory) {
+		if (!change.isCategory) {
 			progressMonitor.subTask("Writing", change);
 		}
-		var data = change.isEmptyCategory
+		var data = change.isCategory
 				? new byte[0]
 				: getData(change);
 		if (data == null)
@@ -249,7 +249,7 @@ public abstract class CommitWriter {
 		if (change == null)
 			return false;
 		if (filePath == null)
-			if (change.isEmptyCategory)
+			if (change.isCategory)
 				return path.equals(change.path + "/" + GitUtil.EMPTY_CATEGORY_FLAG);
 			else
 				return path.equals(change.path);
