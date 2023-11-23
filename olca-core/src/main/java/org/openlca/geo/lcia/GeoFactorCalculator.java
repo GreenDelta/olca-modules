@@ -115,19 +115,19 @@ public class GeoFactorCalculator implements Runnable {
 
 		// remove all LCIA factors with a flow and location
 		// that will be calculated
-		TLongHashSet setupFlows = new TLongHashSet();
-		for (GeoFlowBinding b : setup.bindings) {
+		var setupFlows = new TLongHashSet();
+		for (var b : setup.bindings) {
 			if (b.flow == null)
 				continue;
 			setupFlows.add(b.flow.id);
 		}
-		TLongHashSet setupLocations = new TLongHashSet();
-		for (Location loc : locations) {
+		var setupLocations = new TLongHashSet();
+		for (var loc : locations) {
 			setupLocations.add(loc.id);
 		}
-		TLongByteHashMap isDefaultPresent = new TLongByteHashMap();
-		List<ImpactFactor> removals = new ArrayList<>();
-		for (ImpactFactor factor : impact.impactFactors) {
+		var isDefaultPresent = new TLongByteHashMap();
+		var removals = new ArrayList<ImpactFactor>();
+		for (var factor : impact.impactFactors) {
 			if (factor.flow == null)
 				return;
 			long flowID = factor.flow.id;
@@ -143,12 +143,11 @@ public class GeoFactorCalculator implements Runnable {
 
 		// generate the non-regionalized default factors
 		// for setup flows that are not yet present
-		FormulaInterpreter fi = new FormulaInterpreter();
-		for (GeoProperty param : setup.properties) {
-			fi.bind(param.identifier,
-					Double.toString(param.defaultValue));
+		var fi = new FormulaInterpreter();
+		for (var param : setup.properties) {
+			fi.bind(param.identifier, param.defaultValue);
 		}
-		for (GeoFlowBinding b : setup.bindings) {
+		for (var b : setup.bindings) {
 			if (b.flow == null)
 				continue;
 			byte present = isDefaultPresent.get(b.flow.id);
@@ -164,7 +163,7 @@ public class GeoFactorCalculator implements Runnable {
 		}
 
 		// finally, generate regionalized factors
-		for (Location loc : locParams.keySet()) {
+		for (var loc : locParams.keySet()) {
 
 			// bind the location specific parameter values
 			// to a formula interpreter
@@ -177,7 +176,7 @@ public class GeoFactorCalculator implements Runnable {
 				fi.bind(param, v.value());
 			}
 
-			for (GeoFlowBinding b : setup.bindings) {
+			for (var b : setup.bindings) {
 				if (b.flow == null || b.formula == null)
 					continue;
 				try {
