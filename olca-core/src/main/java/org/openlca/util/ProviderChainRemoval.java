@@ -38,16 +38,21 @@ public class ProviderChainRemoval {
 		return new ProviderChainRemoval(system);
 	}
 
-	public void remove(ProcessLink link) {
+	/**
+	 * Removes the given link from the product system and the sub-graph G with
+	 * the provider of the link as root, if G is not connected to the reference
+	 * process anymore. Returns the number of processes that were removed.
+	 */
+	public int remove(ProcessLink link) {
 		if (link == null)
-			return;
+			return 0;
 		removeLink(link);
-		if (link.providerId != ref) {
-			removeCluster(link.providerId);
-		}
+		return link.providerId != ref
+				? removeCluster(link.providerId)
+				: 0;
 	}
 
-	private void removeCluster(long root) {
+	private int removeCluster(long root) {
 		var links = new ArrayList<ProcessLink>();
 		var queue = new ArrayDeque<Long>();
 		var handled = new HashSet<Long>();
@@ -63,7 +68,7 @@ public class ProviderChainRemoval {
 			if (outList != null) {
 				for (var link : outList) {
 					if (link.processId == ref)
-						return;
+						return 0;
 					links.add(link);
 					Long process = link.processId;
 					if (!handled.contains(process)
@@ -77,7 +82,7 @@ public class ProviderChainRemoval {
 			if (inList != null) {
 				for (var link : inList) {
 					if (link.providerId == ref)
-						return;
+						return 0;
 					links.add(link);
 					Long provider = link.providerId;
 					if (!handled.contains(provider)
@@ -92,6 +97,7 @@ public class ProviderChainRemoval {
 		for (var link : links) {
 			removeLink(link);
 		}
+		return handled.size();
 	}
 
 	private void removeLink(ProcessLink link) {
