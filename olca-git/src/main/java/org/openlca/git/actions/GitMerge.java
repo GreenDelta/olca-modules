@@ -16,22 +16,28 @@ import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
 import org.openlca.git.Compatibility;
-import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.actions.ImportResults.ImportState;
+import org.openlca.git.Compatibility.UnsupportedClientVersionException;
+import org.openlca.git.actions.GitMerge.MergeResult;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
+import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.Constants;
 import org.openlca.git.writer.DbCommitWriter;
+import org.openlca.jsonld.LibraryLink;
 
-public class GitMerge extends GitProgressAction<Boolean> {
+public class GitMerge extends GitProgressAction<MergeResult> {
 
 	private final ClientRepository repo;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver = ConflictResolver.NULL;
 	private LibraryResolver libraryResolver;
 	private boolean applyStash;
+	private Commit localCommit;
+	private Commit remoteCommit;
+	private List<Diff> diffs;
+	private List<Change> mergeResults;
 
 	private GitMerge(ClientRepository repo) {
 		this.repo = repo;
@@ -62,54 +68,69 @@ public class GitMerge extends GitProgressAction<Boolean> {
 	}
 
 	@Override
-	public Boolean run() throws IOException, GitAPIException {
+	public MergeResult run() throws IOException, GitAPIException {
+		if (!prepare())
+			return MergeResult.NO_CHANGES;
+		var mountResult = mountLibraries();
+		if (mountResult == MergeResult.MOUNT_ERROR || mountResult == MergeResult.ABORTED)
+			return mountResult;
+		importData();
+		deleteData();
+		unmountLibraries();
+		if (applyStash)
+			return MergeResult.SUCCESS;
+		var ahead = repo.localHistory.getAheadOf(Constants.REMOTE_REF);
+		if (ahead.isEmpty()) {
+			updateHead();
+		} else {
+			createMergeCommit();
+		}
+		return MergeResult.SUCCESS;
+	}
+
+	private boolean prepare() throws GitAPIException, UnsupportedClientVersionException {
 		if (repo == null || repo.database == null)
 			throw new IllegalStateException("Git repository and database must be set");
-		var behind = repo.localHistory.getBehindOf(getRef());
+		Compatibility.checkRepositoryClientVersion(repo);
+		var ref = applyStash
+				? org.eclipse.jgit.lib.Constants.R_STASH
+				: Constants.REMOTE_REF;
+		var behind = repo.localHistory.getBehindOf(ref);
 		if (behind.isEmpty())
 			return false;
-		var localCommit = repo.commits.get(repo.commits.resolve(Constants.LOCAL_BRANCH));
-		var remoteCommit = getRemoteCommit();
+		localCommit = repo.commits.get(repo.commits.resolve(Constants.LOCAL_BRANCH));
+		remoteCommit = getRemoteCommit();
 		if (remoteCommit == null)
 			return false;
-		Compatibility.checkRepositoryClientVersion(repo);
-		var toMount = resolveLibraries(remoteCommit);
-		if (toMount == null)
-			return null;
-		var commonParent = repo.localHistory.commonParentOf(getRef());
-		var diffs = repo.diffs.find().commit(commonParent).with(remoteCommit);
-		var deleted = diffs.stream()
-				.filter(d -> d.diffType == DiffType.DELETED)
-				.map(d -> d.toReference(Side.OLD))
-				.collect(Collectors.toList());
+		var commonParent = repo.localHistory.commonParentOf(ref);
+		diffs = repo.diffs.find().commit(commonParent).with(remoteCommit);
+		return diffs.size() > 0;
+	}
+
+	private void importData() {
 		var addedOrChanged = diffs.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
 				.map(d -> d.toReference(Side.NEW))
 				.collect(Collectors.toList());
-		var ahead = !applyStash
-				? repo.localHistory.getAheadOf(Constants.REMOTE_REF)
-				: new ArrayList<>();
-		var work = toMount.size() + addedOrChanged.size() + deleted.size() + (!ahead.isEmpty() ? 1 : 0);
-		progressMonitor.beginTask("Merging data", work);
-		if (!mountLibraries(toMount))
-			throw new IOException("Could not mount libraries");
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
-		var importHelper = new ImportHelper(repo, progressMonitor);
-		importHelper.conflictResolver = conflictResolver;
-		importHelper.runImport(gitStore);
-		importHelper.delete(deleted);
-		// TODO unmount libs removed from package info; not yet supported
-		var result = gitStore.getResults();
-		deleted.forEach(ref -> result.add(ref, ImportState.DELETED));
-		if (applyStash)
-			return result.size() > 0;
-		if (ahead.isEmpty()) {
-			updateHead(remoteCommit);
-		} else {
-			createMergeCommit(localCommit, remoteCommit, result);
-		}
-		repo.index.reload();
-		return result.size() > 0;
+		var mergeResults = ImportData.from(gitStore)
+				.with(progressMonitor)
+				.into(repo.database)
+				.run();
+		this.mergeResults.addAll(mergeResults);
+	}
+
+	private void deleteData() {
+		var deleted = diffs.stream()
+				.filter(d -> d.diffType == DiffType.DELETED)
+				.map(d -> d.toReference(Side.OLD))
+				.collect(Collectors.toList());
+		var mergeResults = DeleteData.from(repo.database)
+				.with(progressMonitor)
+				.with(conflictResolver)
+				.data(deleted)
+				.run();
+		this.mergeResults.addAll(mergeResults);
 	}
 
 	private Commit getRemoteCommit() throws GitAPIException {
@@ -121,51 +142,58 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return new Commit(commits.iterator().next());
 	}
 
-	private String getRef() {
-		return applyStash ? org.eclipse.jgit.lib.Constants.R_STASH : Constants.REMOTE_REF;
-	}
-
-	private String createMergeCommit(Commit localCommit, Commit remoteCommit, ImportResults result)
+	private String createMergeCommit()
 			throws IOException {
-		var diffs = result.get(ImportState.MERGED).stream()
-				.map(r -> new Change(DiffType.MODIFIED, r))
-				.collect(Collectors.toList());
-		result.get(ImportState.KEPT).forEach(r -> diffs.add(new Change(DiffType.MODIFIED, r)));
-		result.get(ImportState.KEPT_DELETED).forEach(r -> diffs.add(new Change(DiffType.DELETED, r)));
-		result.get(ImportState.DELETED).forEach(r -> {
-			if (conflictResolver.isConflict(r)
-					&& conflictResolver.resolveConflict(r, null).type == ConflictResolutionType.OVERWRITE) {
-				diffs.add(new Change(DiffType.DELETED, r));
-			}
-		});
-		progressMonitor.subTask("Writing merged changes");
-		var writer = new DbCommitWriter(repo)
+		return new DbCommitWriter(repo)
 				.as(committer)
-				.merge(localCommit.id, remoteCommit.id);
-		var commitId = writer.write("Merge remote-tracking branch", diffs);
-		progressMonitor.worked(1);
-		return commitId;
+				.merge(localCommit.id, remoteCommit.id)
+				.write("Merge remote-tracking branch", mergeResults);
 	}
 
-	private void updateHead(Commit commit) throws IOException {
+	private void updateHead() throws IOException {
 		var update = repo.updateRef(Constants.LOCAL_BRANCH);
-		update.setNewObjectId(ObjectId.fromString(commit.id));
+		update.setNewObjectId(ObjectId.fromString(remoteCommit.id));
 		update.update();
+		repo.index.reload();
 	}
 
-	private List<Library> resolveLibraries(Commit commit) {
-		var info = repo.getInfo(commit);
+	private MergeResult mountLibraries() {
+		var newLibraries = resolveNewLibraries();
+		if (newLibraries.size() == 0)
+			return MergeResult.NO_CHANGES;
+		progressMonitor.beginTask("Mounting libraries");
+		var queue = new ArrayDeque<>(newLibraries);
+		var handled = new HashSet<Library>();
+		while (!queue.isEmpty()) {
+			var next = queue.poll();
+			progressMonitor.subTask(next.name());
+			if (handled.contains(next))
+				continue;
+			handled.add(next);
+			var checkResult = PreMountCheck.check(repo.database, next);
+			if (checkResult.isError())
+				return MergeResult.MOUNT_ERROR;
+			checkResult.getStates().forEach(p -> handled.add(p.first));
+			Mounter.of(repo.database, next)
+					.applyDefaultsOf(checkResult)
+					.run();
+		}
+		return MergeResult.SUCCESS;
+	}
+
+	private List<Library> resolveNewLibraries() {
+		var info = repo.getInfo(remoteCommit);
 		if (info == null)
 			return new ArrayList<>();
 		if (libraryResolver == null)
-			return null;
-		var remoteLibs = info.libraries();
+			throw new IllegalStateException("Could not mount libraries because no library resolver was set");
+		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
 		var localLibs = repo.database.getLibraries();
 		var libs = new ArrayList<Library>();
-		for (var newLib : remoteLibs) {
-			if (localLibs.contains(newLib.id()))
+		for (var remoteLib : remoteLibs) {
+			if (localLibs.contains(remoteLib))
 				continue;
-			var lib = libraryResolver.resolve(newLib.id());
+			var lib = libraryResolver.resolve(remoteLib);
 			if (lib == null)
 				return null;
 			libs.add(lib);
@@ -173,32 +201,30 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		return libs;
 	}
 
-	private boolean mountLibraries(List<Library> newLibraries) {
-		var queue = new ArrayDeque<>(newLibraries);
-		var handled = new HashSet<Library>();
-		while (!queue.isEmpty()) {
-			var next = queue.poll();
-			progressMonitor.subTask("Mounting library " + next.name());
-			if (handled.contains(next)) {
-				progressMonitor.worked(1);
-				continue;
-			}
-			handled.add(next);
+	private void unmountLibraries() {
+//		var libraries = resolveObsoleteLibraries();
+//		 TODO unmount
+	}
+	
+//	private List<String> resolveObsoleteLibraries() {
+//		var info = repo.getInfo(remoteCommit);
+//		if (info == null)
+//			return new ArrayList<>();
+//		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
+//		var localLibs = repo.database.getLibraries();
+//		var libs = new ArrayList<String>();
+//		for (var localLib : localLibs) {
+//			if (remoteLibs.contains(localLib))
+//				continue;
+//			libs.add(localLib);
+//		}
+//		return libs;
+//	}
 
-			// run a pre-mount check; transitive dependencies will
-			// be handled as well; we apply the default action
-			// related to the library states of the check result
-			// when mounting these libraries
-			var checkResult = PreMountCheck.check(repo.database, next);
-			if (checkResult.isError())
-				return false; // might result in partly mounted library list
-			checkResult.getStates().forEach(p -> handled.add(p.first));
-			Mounter.of(repo.database, next)
-					.applyDefaultsOf(checkResult)
-					.run();
-			progressMonitor.worked(1);
-		}
-		return true;
+	public static enum MergeResult {
+
+		NO_CHANGES, SUCCESS, MOUNT_ERROR, ABORTED;
+
 	}
 
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -37,10 +38,12 @@ public class DbCommitWriter extends CommitWriter {
 	private Commit reference;
 	private ExecutorService threads;
 	private IDatabase database;
+	private ClientRepository repo;
 
 	public DbCommitWriter(ClientRepository repo) {
 		super(repo, new DatabaseBinaryResolver(repo.database));
 		this.database = repo.database;
+		this.repo = repo;
 	}
 
 	@Override
@@ -74,6 +77,7 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Change> changes) throws IOException {
 		changes = filterInvalid(changes);
+		progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 		try {
 			var previousCommit = reference == null
 					? repo.getHeadCommit()
@@ -87,6 +91,10 @@ public class DbCommitWriter extends CommitWriter {
 					.sorted()
 					.toList());
 			var commitId = write(message, changes, getParentIds(previousCommit));
+			if (Constants.HEAD.equals(ref)) {
+				progressMonitor.beginTask("Updating local index");
+				repo.index.reload();
+			}
 			return commitId;
 		} finally {
 			close();

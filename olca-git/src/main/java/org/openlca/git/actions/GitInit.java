@@ -42,9 +42,5 @@ public class GitInit {
 					.call();
 		}
 	}
-	
-	public static void main(String[] args) throws GitAPIException, URISyntaxException {
-		GitInit.in(new File("C:/Users/Sebastian/openLCA-data-1.4/repositories/cs_testing_20230425_withraphael_test3")).run();
-	}
 
 }

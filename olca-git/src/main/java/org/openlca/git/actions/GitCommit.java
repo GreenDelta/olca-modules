@@ -50,14 +50,13 @@ public class GitCommit extends GitProgressAction<String> {
 					.map(Change::new)
 					.collect(Collectors.toList());
 		}
+		if (changes.isEmpty())
+			throw new IllegalStateException("No changes found");
 		Compatibility.checkRepositoryClientVersion(repo);
-		progressMonitor.beginTask("Writing commit", changes.size());
-		var writer = new DbCommitWriter(repo)
+		return new DbCommitWriter(repo)
 				.as(committer)
-				.with(progressMonitor);
-		var commitId = writer.write(message, changes);
-		repo.index.reload();
-		return commitId;
+				.with(progressMonitor)
+				.write(message, changes);
 	}
 
 }

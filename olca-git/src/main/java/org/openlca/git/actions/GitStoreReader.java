@@ -8,8 +8,9 @@ import java.util.stream.Collectors;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.actions.ImportResults.ImportState;
+import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
@@ -30,8 +31,8 @@ class GitStoreReader implements JsonStoreReader {
 	private final Categories categories;
 	private final TypedRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
-	private final ImportResults results = new ImportResults();
 	private final byte[] repoInfo;
+	final List<Change> resolvedConflicts = new ArrayList<>();
 
 	GitStoreReader(OlcaRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
@@ -45,6 +46,7 @@ class GitStoreReader implements JsonStoreReader {
 		this.commit = commit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = new TypedRefIdMap<Reference>();
+		this.repoInfo = repo.datasets.getRepositoryInfo(commit);
 		changes.forEach(ref -> {
 			if (ref.isCategory) {
 				this.changes.put(ref.type, ref.path, ref);
@@ -52,8 +54,6 @@ class GitStoreReader implements JsonStoreReader {
 				this.changes.put(ref, ref);
 			}
 		});
-		this.repoInfo = repo.datasets.getRepositoryInfo(commit);
-
 	}
 
 	@Override
@@ -71,7 +71,6 @@ class GitStoreReader implements JsonStoreReader {
 		return repo.datasets.getBytes(ref);
 	}
 
-
 	@Override
 	public JsonObject get(ModelType type, String refId) {
 		if (type == ModelType.CATEGORY)
@@ -81,32 +80,24 @@ class GitStoreReader implements JsonStoreReader {
 		var ref = changes.get(type, refId);
 		if (ref == null)
 			return null;
-		if (conflictResolver.peekConflictResolution(ref) == ConflictResolutionType.IS_EQUAL) {
-			results.add(ref, ImportState.UPDATED);
+		if (conflictResolver.peekConflictResolution(ref) == ConflictResolutionType.IS_EQUAL)
 			return null;
-		}
 		var data = repo.datasets.get(ref);
 		var remote = parse(data);
-		if (!conflictResolver.isConflict(ref)) {
-			results.add(ref, ImportState.UPDATED);
+		if (!conflictResolver.isConflict(ref))
 			return remote;
-		}
 		var resolution = conflictResolver.resolveConflict(ref, remote);
-		if (resolution.type == ConflictResolutionType.IS_EQUAL) {
-			results.add(ref, ImportState.UPDATED);
+		if (resolution.type == ConflictResolutionType.IS_EQUAL)
 			return null;
-		}
-		if (resolution.type == ConflictResolutionType.OVERWRITE) {
-			results.add(ref, ImportState.UPDATED);
-			return remote;
-		}
+		if (resolution.type == ConflictResolutionType.OVERWRITE) 
+			return null;
 		if (resolution.type == ConflictResolutionType.KEEP && previousCommit != null) {
 			if (repo.references.get(type, refId, previousCommit.id) == null) {
-				results.add(ref, ImportState.KEPT_DELETED);
+				resolvedConflicts.add(new Change(DiffType.DELETED, ref));
 			}
 			return null;
 		}
-		results.add(ref, ImportState.MERGED);
+		resolvedConflicts.add(new Change(DiffType.MODIFIED, ref));
 		return resolution.data;
 	}
 
@@ -142,38 +133,35 @@ class GitStoreReader implements JsonStoreReader {
 	List<? extends ModelRef> getChanges(ModelType type) {
 		if (type == ModelType.CATEGORY)
 			return new ArrayList<>();
-		return changes.get(type).stream().map(ref -> {
-			// performance improvement: JsonImport will load model from
-			// database. If ref will not be imported and conflict resolver can
-			// determine resolution without json data we can skip that.
-			// ObjectIds need still to be updated so refs need to be added to
-			// results. Returning null values to count worked refs in
-			// ImportHelper
-			var resolution = conflictResolver.peekConflictResolution(ref);
-			if (resolution == ConflictResolutionType.IS_EQUAL) {
-				results.add(ref, ImportState.UPDATED);
-				return null;
+		return changes.get(type).stream()
+				.map(this::replaceEqualOrKeptWithNull)
+				.collect(Collectors.toList());
+	}
+
+	private Reference replaceEqualOrKeptWithNull(Reference ref) {
+		// performance improvement: JsonImport will load model from
+		// database. If ref will not be imported and conflict
+		// resolver can determine resolution without json data we
+		// can skip that. Returning null values to still display progress
+		// in ImportData
+		var resolution = conflictResolver.peekConflictResolution(ref);
+		if (resolution == ConflictResolutionType.IS_EQUAL)
+			return null;
+		if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
+			if (repo.references.get(ref.type, ref.refId, previousCommit.id) == null) {
+				resolvedConflicts.add(new Change(DiffType.DELETED, ref));
+			} else {
+				resolvedConflicts.add(new Change(DiffType.MODIFIED, ref));
 			}
-			if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
-				if (repo.references.get(type, ref.refId, previousCommit.id) == null) {
-					results.add(ref, ImportState.KEPT_DELETED);
-				} else {
-					results.add(ref, ImportState.KEPT);
-				}
-				return null;
-			}
-			return ref;
-		}).collect(Collectors.toList());
+			return null;
+		}
+		return ref;
 	}
 
 	private JsonObject parse(String data) {
 		if (Strings.nullOrEmpty(data))
 			return null;
 		return gson.fromJson(data, JsonObject.class);
-	}
-
-	ImportResults getResults() {
-		return results;
 	}
 
 }

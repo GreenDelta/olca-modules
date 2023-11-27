@@ -33,7 +33,6 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO check error handling
 public abstract class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
@@ -213,7 +212,7 @@ public abstract class CommitWriter {
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
 		if (!change.isCategory) {
-			progressMonitor.subTask("Writing", change);
+			progressMonitor.subTask(change.refId);
 		}
 		var data = change.isCategory
 				? new byte[0]

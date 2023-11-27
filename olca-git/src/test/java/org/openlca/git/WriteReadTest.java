@@ -49,6 +49,7 @@ public class WriteReadTest {
 			var writer = new DbCommitWriter(tmp.repo)
 					.as(tmp.committer);
 			var commitId = writer.write("initial commit", diffs);
+			tmp.repo.index.reload();
 
 			// get the data set from the repo
 			var ref = tmp.repo.references.get(ModelType.UNIT_GROUP, unitGroup.refId, commitId);
