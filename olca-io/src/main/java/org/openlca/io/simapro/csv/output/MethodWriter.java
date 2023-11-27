@@ -4,6 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.simapro.csv.CsvDataSet;
@@ -153,6 +154,11 @@ public class MethodWriter {
 
 	private void addNwBlocks(ImpactMethod m, ImpactMethodBlock b) {
 		for (var nws : m.nwSets) {
+			boolean hasNormalization = hasNormalization(nws);
+			boolean hasWeighting = hasWeighting(nws);
+			if (!hasNormalization && !hasWeighting)
+				continue;
+
 			var block = new NwSetBlock().name(nws.name);
 			b.nwSets().add(block);
 
@@ -160,22 +166,51 @@ public class MethodWriter {
 				if (f.impactCategory == null)
 					continue;
 
-				if (f.normalisationFactor != null
-						&& f.normalisationFactor != 0) {
-					// double nf = 1 / f.normalisationFactor;
+				if (hasNormalization) {
+					double value = f.normalisationFactor != null &&
+							f.normalisationFactor != 0
+							? 1 / f.normalisationFactor
+							: 0;
 					var nf = new NwSetFactorRow()
 							.impactCategory(f.impactCategory.name)
-							.factor(1 / f.normalisationFactor);
+							.factor(value);
 					block.normalizationFactors().add(nf);
 				}
 
-				if (f.weightingFactor != null) {
+				if (hasWeighting) {
+					double value = f.weightingFactor != null
+							? f.weightingFactor
+							: 0;
 					var wf = new NwSetFactorRow()
 							.impactCategory(f.impactCategory.name)
-							.factor(f.weightingFactor);
+							.factor(value);
 					block.weightingFactors().add(wf);
 				}
 			}
 		}
+	}
+
+	private boolean hasNormalization(NwSet nws) {
+		if (nws == null)
+			return false;
+		for (var f : nws.factors) {
+			if (f.impactCategory == null)
+				continue;
+			if (f.normalisationFactor != null)
+				return true;
+		}
+		return false;
+	}
+
+	private boolean hasWeighting(NwSet nws) {
+		if (nws == null)
+			return false;
+		for (var f : nws.factors) {
+			if (f.impactCategory == null)
+				continue;
+			if (f.weightingFactor != null)
+				return true;
+		}
+		return false;
 	}
 }

@@ -12,6 +12,7 @@ public final class DerbyConfig implements DatabaseConfig {
 
 	private String name;
 	private String folder;
+	private String category;
 
 	@Override
 	public Derby connect(File databasesDir) {
@@ -40,9 +41,19 @@ public final class DerbyConfig implements DatabaseConfig {
 	 * @param folder a path to the databases' folder
 	 * @return the instance of this configuration
 	 */
-	public DerbyConfig folder(String folder) {
-		this.folder = Objects.requireNonNull(folder);
+	public DerbyConfig setFolder(String folder) {
+		this.folder = folder;
 		return this;
+	}
+
+	public DerbyConfig setCategory(String category) {
+		this.category = category;
+		return this;
+	}
+
+	@Override
+	public String category() {
+		return category;
 	}
 
 	@Override
@@ -58,7 +69,7 @@ public final class DerbyConfig implements DatabaseConfig {
 			return true;
 		if (!getClass().equals(obj.getClass()))
 			return false;
-		DerbyConfig other = (DerbyConfig) obj;
+		var other = (DerbyConfig) obj;
 		return Objects.equals(this.name, other.name);
 	}
 
