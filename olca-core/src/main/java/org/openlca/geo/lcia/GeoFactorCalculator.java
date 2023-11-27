@@ -68,19 +68,19 @@ public class GeoFactorCalculator {
 
 		// calculate parameter values based on intersections
 		var params = new HashMap<Location, List<PropVal>>();
-		intersections.forEach((loc, featureShares) -> {
+		intersections.forEach((loc, shares) -> {
 
 			var values = new ArrayList<PropVal>();
 			params.put(loc, values);
 			for (var param : setup.properties) {
-				if (featureShares.isEmpty()) {
+				if (shares.isEmpty()) {
 					values.add(PropVal.defaultOf(param));
 					continue;
 				}
 
-				var vals = new ArrayList<Double>();
-				var shares = new ArrayList<Double>();
-				for (var fs : featureShares) {
+				var featureValues = new ArrayList<Double>();
+				var featureShares = new ArrayList<Double>();
+				for (var fs : shares) {
 					var f = fs.origin();
 					var share = fs.value();
 					if (f.properties == null)
@@ -88,11 +88,11 @@ public class GeoFactorCalculator {
 					var valObj = f.properties.get(param.name);
 					if (!(valObj instanceof Number num))
 						continue;
-					vals.add(num.doubleValue());
-					shares.add(share);
+					featureValues.add(num.doubleValue());
+					featureShares.add(share);
 				}
 
-				values.add(PropVal.of(param, vals, shares));
+				values.add(PropVal.of(param, featureValues, featureShares));
 			}
 		});
 		return params;

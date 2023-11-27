@@ -8,8 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Contains the value of some property (e.g. polygon area, line length, number
- * of points) of a feature.
+ * Contains the resulting value of an intersection calculation with a
+ * geometry G.
+ *
+ * @param origin       the original feature that intersects with G
+ * @param intersection the resulting geometry of the intersection
+ * @param value        the share of this intersection which is, depending on the
+ *                     resulting geometry, related to the area, length, or
+ *                     number of points.
  */
 public record IntersectionShare(
 		Feature origin, Feature intersection, double value) {
