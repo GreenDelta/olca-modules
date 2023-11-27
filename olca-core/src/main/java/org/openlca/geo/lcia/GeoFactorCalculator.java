@@ -4,7 +4,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.geo.calc.FeatureShare;
+import org.openlca.geo.calc.IntersectionShare;
 import org.openlca.geo.calc.IntersectionCalculator;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.util.Pair;
@@ -61,7 +61,7 @@ public class GeoFactorCalculator {
 
 		// calculate intersections
 		var calc = IntersectionCalculator.on(coll);
-		Map<Location, List<FeatureShare>> intersections = locations
+		Map<Location, List<IntersectionShare>> intersections = locations
 				.parallelStream()
 				.map(loc -> Pair.of(loc, calc.shares(loc)))
 				.collect(Collectors.toMap(p -> p.first, p -> p.second));
@@ -81,7 +81,7 @@ public class GeoFactorCalculator {
 				var vals = new ArrayList<Double>();
 				var shares = new ArrayList<Double>();
 				for (var fs : featureShares) {
-					var f = fs.feature();
+					var f = fs.origin();
 					var share = fs.value();
 					if (f.properties == null)
 						continue;
