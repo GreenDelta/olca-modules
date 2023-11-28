@@ -15,6 +15,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
+import org.openlca.core.library.Unmounter;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.actions.GitMerge.MergeResult;
@@ -202,24 +203,27 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private void unmountLibraries() {
-//		var libraries = resolveObsoleteLibraries();
-//		 TODO unmount
+		var libraries = resolveObsoleteLibraries();
+		var unmounter = new Unmounter(repo.database);
+		for (var lib : libraries) {
+			unmounter.unmountUnsafe(lib);
+		}
 	}
-	
-//	private List<String> resolveObsoleteLibraries() {
-//		var info = repo.getInfo(remoteCommit);
-//		if (info == null)
-//			return new ArrayList<>();
-//		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
-//		var localLibs = repo.database.getLibraries();
-//		var libs = new ArrayList<String>();
-//		for (var localLib : localLibs) {
-//			if (remoteLibs.contains(localLib))
-//				continue;
-//			libs.add(localLib);
-//		}
-//		return libs;
-//	}
+
+	private List<String> resolveObsoleteLibraries() {
+		var info = repo.getInfo(remoteCommit);
+		if (info == null)
+			return new ArrayList<>();
+		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
+		var localLibs = repo.database.getLibraries();
+		var libs = new ArrayList<String>();
+		for (var localLib : localLibs) {
+			if (remoteLibs.contains(localLib))
+				continue;
+			libs.add(localLib);
+		}
+		return libs;
+	}
 
 	public static enum MergeResult {
 
