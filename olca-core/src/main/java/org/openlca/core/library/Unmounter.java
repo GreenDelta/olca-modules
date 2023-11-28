@@ -28,7 +28,7 @@ public class Unmounter {
 		}
 	}
 
-	public void unmountUnsafe(Library lib) {
+	public void unmountUnsafe(String lib) {
 		var rootCategories = categoryDao.getRootCategories();
 		var libraryCategories = collectCategories(rootCategories, lib);
 		for (var type : ModelType.values()) {
@@ -36,7 +36,7 @@ public class Unmounter {
 				continue;
 			var dao = daos.get(type);
 			for (var descriptor : dao.getDescriptors()) {
-				if (!descriptor.isFromLibrary() || !lib.name().equals(descriptor.library))
+				if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
 					continue;
 				dao.delete(descriptor.id);
 			}
@@ -44,10 +44,10 @@ public class Unmounter {
 		for (var category : libraryCategories) {
 			categoryDao.delete(category);
 		}
-		database.removeLibrary(lib.name());
+		database.removeLibrary(lib);
 	}
 
-	private List<Category> collectCategories(List<Category> in, Library lib) {
+	private List<Category> collectCategories(List<Category> in, String lib) {
 		var categories = new ArrayList<Category>();
 		for (var category : in) {
 			categories.addAll(collectCategories(category, lib));
@@ -55,7 +55,7 @@ public class Unmounter {
 		return categories;
 	}
 
-	private List<Category> collectCategories(Category category, Library lib) {
+	private List<Category> collectCategories(Category category, String lib) {
 		var categories = new ArrayList<Category>();
 		if (hasOnlyLibraryContent(category, lib)) {
 			categories.add(category);
@@ -66,8 +66,8 @@ public class Unmounter {
 		return categories;
 	}
 
-	private boolean hasOnlyLibraryContent(Category category, Library lib) {
-		if (!test.hasOnlyLibraryContent(category, lib.name()))
+	private boolean hasOnlyLibraryContent(Category category, String lib) {
+		if (!test.hasOnlyLibraryContent(category, lib))
 			return false;
 		for (var child : category.childCategories)
 			if (!hasOnlyLibraryContent(child, lib))
