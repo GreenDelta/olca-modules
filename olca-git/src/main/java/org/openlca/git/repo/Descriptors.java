@@ -44,6 +44,14 @@ public class Descriptors {
 		loadCategories();
 	}
 
+	public void reload(ModelType type) {
+		cache.remove(type);
+		rootCategories.clear();
+		categoriesByPath.clear();
+		categoriesById.clear();
+		loadCategories();
+	}
+	
 	static Descriptors of(IDatabase database) {
 		return new Descriptors(database);
 	}
