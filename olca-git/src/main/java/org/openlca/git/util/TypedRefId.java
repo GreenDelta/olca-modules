@@ -24,7 +24,7 @@ public class TypedRefId {
 		if (path.isEmpty())
 			return null;
 		for (var type : ModelType.values())
-			if (type.name().equals(path.split("/")[0]))
+			if (type.name().equals(path.split("/")[0].trim()))
 				return type;
 		return null;
 	}
@@ -33,7 +33,7 @@ public class TypedRefId {
 		var parts = path.split("/");
 		if (parts.length < 2)
 			return null;
-		var last = parts[parts.length - 1];
+		var last = parts[parts.length - 1].trim();
 		if (!last.endsWith(GitUtil.DATASET_SUFFIX))
 			return null;
 		return last.substring(last.lastIndexOf("/") + 1, last.indexOf(GitUtil.DATASET_SUFFIX));

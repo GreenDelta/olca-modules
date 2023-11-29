@@ -59,6 +59,7 @@ class Converter implements JsonStoreWriter {
 		this.threads = threads;
 		this.export = new JsonExport(database, this)
 				.withReferences(false)
+				.skipLibraryData(true)
 				.skipExternalFiles(true);
 		var processors = 1;
 		try {
@@ -159,7 +160,7 @@ class Converter implements JsonStoreWriter {
 		var json = new Gson().toJson(object);
 		return json.getBytes(StandardCharsets.UTF_8);
 	}
-	
+
 	void clear() {
 		queue.clear();
 	}

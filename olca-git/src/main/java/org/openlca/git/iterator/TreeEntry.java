@@ -18,7 +18,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 	}
 
 	TreeEntry(Category category) {
-		this(category.name, FileMode.TREE, category);
+		this(category.name.trim(), FileMode.TREE, category);
 	}
 
 	TreeEntry(RootDescriptor descriptor) {
