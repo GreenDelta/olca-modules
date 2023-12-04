@@ -102,6 +102,18 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 		return collector.ids;
 	}
 
+	public void remove(String path) {
+		if (Strings.nullOrEmpty(path))
+			return;
+		try {
+			Path file = zip.getPath(path);
+			Files.deleteIfExists(file);
+		} catch (Exception e) {
+			log.error("failed to remove file " + path, e);
+			return;
+		}
+	}
+
 	@Override
 	public void close() throws IOException {
 		zip.close();
