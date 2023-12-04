@@ -62,7 +62,7 @@ class ImportData {
 			if (changes.isEmpty())
 				continue;
 			progressMonitor.beginTask("Importing " + getLabel(type), changes.size());
-			var batchSize = BatchImport.batchSizeOf(type);
+			var batchSize = type == ModelType.UNIT_GROUP ? 1 : BatchImport.batchSizeOf(type);
 			var batchImport = new BatchImport<>(jsonImport, type.getModelClass(), batchSize);
 			for (var change : changes) {
 				if (change == null) {
@@ -79,9 +79,7 @@ class ImportData {
 				}
 				progressMonitor.worked(1);
 			}
-			if (batchSize != 1) {
-				batchImport.close();
-			}
+			batchImport.close();
 		}
 		return gitStore.resolvedConflicts;
 	}

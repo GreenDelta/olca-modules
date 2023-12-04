@@ -38,7 +38,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private Commit localCommit;
 	private Commit remoteCommit;
 	private List<Diff> diffs;
-	private List<Change> mergeResults;
+	private List<Change> mergeResults = new ArrayList<>();
 
 	private GitMerge(ClientRepository repo) {
 		this.repo = repo;

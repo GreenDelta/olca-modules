@@ -33,9 +33,7 @@ class DeleteData {
 
 	private DeleteData(IDatabase database) {
 		for (var type : ModelType.values()) {
-			if (type == ModelType.CATEGORY) {
-				daos.put(type, Daos.root(database, type));
-			}
+			daos.put(type, Daos.root(database, type));
 		}
 		this.categoryDao = (CategoryDao) daos.get(ModelType.CATEGORY);
 	}
