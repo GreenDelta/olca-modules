@@ -34,7 +34,18 @@ public class Entries {
 		return new Find();
 	}
 
+	public void iterate(Consumer<Entry> consumer) {
+		var head = repo.commits.head();
+		if (head == null)
+			return;
+		iterate(head.id, consumer);
+	}
+
 	public void iterate(String commitId, Consumer<Entry> consumer) {
+		iterate(commitId, null, consumer);
+	}
+
+	public void iterate(String commitId, String path, Consumer<Entry> consumer) {
 		new Iterate().commit(commitId).recursive().call(consumer);
 	}
 
@@ -54,7 +65,7 @@ public class Entries {
 	public class Find {
 
 		private final Iterate iterate = new Iterate();
-		
+
 		public Find path(String path) {
 			iterate.path(path);
 			return this;
@@ -75,7 +86,7 @@ public class Entries {
 			iterate.call(entries::add);
 			return entries;
 		}
-		
+
 		public Map<String, Entry> asMap() {
 			return all().stream().collect(Collectors.toMap(e -> e.path, e -> e));
 		}
