@@ -46,7 +46,7 @@ public class Entries {
 	}
 
 	public void iterate(String commitId, String path, Consumer<Entry> consumer) {
-		new Iterate().commit(commitId).recursive().call(consumer);
+		new Iterate().commit(commitId).path(path).recursive().call(consumer);
 	}
 
 	public Entry get(String path, String commitId) {
