@@ -41,12 +41,14 @@ public abstract class CommitWriter {
 	protected String ref = Constants.HEAD;
 	protected PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
 	protected ProgressMonitor progressMonitor = ProgressMonitor.NULL;
+	private final UsedFeatures usedFeatures;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
-
+	
 	public CommitWriter(OlcaRepository repo, BinaryResolver binaryResolver) {
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
+		this.usedFeatures = UsedFeatures.of(repo);
 	}
 
 	public CommitWriter ref(String ref) {
@@ -214,6 +216,9 @@ public abstract class CommitWriter {
 		if (!change.isCategory) {
 			progressMonitor.subTask(change.refId);
 		}
+		if (change.isCategory) {
+			usedFeatures.emptyCategories();
+		}
 		var data = change.isCategory
 				? new byte[0]
 				: getData(change);
@@ -226,8 +231,7 @@ public abstract class CommitWriter {
 
 	private void appendRepositoryInfo(TreeFormatter tree) {
 		try {
-			var schemaBytes = RepositoryInfo.create()
-					.withLibraries(getLibraries())
+			var schemaBytes = usedFeatures.createInfo(getLibraries())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
