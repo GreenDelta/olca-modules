@@ -105,7 +105,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 			return false;
 		var commonParent = repo.localHistory.commonParentOf(ref);
 		diffs = repo.diffs.find().commit(commonParent).with(remoteCommit);
-		return diffs.size() > 0;
+		return true;
 	}
 
 	private void importData() {
@@ -113,6 +113,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 				.filter(d -> d.diffType != DiffType.DELETED)
 				.map(d -> d.toReference(Side.NEW))
 				.collect(Collectors.toList());
+		if (addedOrChanged.isEmpty())
+			return;
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
 		var mergeResults = ImportData.from(gitStore)
 				.with(progressMonitor)
@@ -126,6 +128,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 				.filter(d -> d.diffType == DiffType.DELETED)
 				.map(d -> d.toReference(Side.OLD))
 				.collect(Collectors.toList());
+		if (deleted.isEmpty())
+			return;
 		var mergeResults = DeleteData.from(repo.database)
 				.with(progressMonitor)
 				.with(conflictResolver)
