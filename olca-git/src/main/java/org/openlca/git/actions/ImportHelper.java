@@ -54,6 +54,7 @@ class ImportHelper {
 			ModelType.ACTOR,
 			ModelType.SOURCE,
 			ModelType.PARAMETER,
+			ModelType.UNIT_GROUP,
 			ModelType.FLOW_PROPERTY,
 			ModelType.CURRENCY,
 			ModelType.FLOW,
