@@ -14,10 +14,10 @@ import org.openlca.geo.geojson.Geometry;
 import org.openlca.util.Pair;
 
 /**
- * Calculates the intersections of a geometry $g$ (typically a location in
- * an openLCA database) with a given feature collection $F$ (e.g. features
+ * Calculates the intersections of a geometry g (typically a location in
+ * an openLCA database) with a given feature collection F (e.g. features
  * with characterization factors of an LCIA category). A specific projection can
- * be applied when calculating the intersections. By default the Mollweide
+ * be applied when calculating the intersections. By default, the Mollweide
  * projection is used.
  */
 public class IntersectionCalculator {
@@ -95,14 +95,14 @@ public class IntersectionCalculator {
 	/**
 	 * Calculates the intersection shares of the given location.
 	 */
-	public List<FeatureShare> shares(Location loc) {
+	public List<IntersectionShare> shares(Location loc) {
 		if (loc == null || loc.geodata == null)
 			return List.of();
 		var coll = GeoJSON.unpack(loc.geodata);
 		if (coll == null || coll.features.isEmpty())
 			return List.of();
 
-		var shares = new ArrayList<FeatureShare>();
+		var shares = new ArrayList<IntersectionShare>();
 		for (var f : coll.features) {
 			if (f.geometry == null)
 				continue;
@@ -125,7 +125,7 @@ public class IntersectionCalculator {
 	 *     <li>number of geometries, for dimension = 0</li>
 	 * </ol>
 	 */
-	public List<FeatureShare> shares(Geometry g) {
+	public List<IntersectionShare> shares(Geometry g) {
 
 		// calculate the intersections
 		var intersections = jts(g).toList();
@@ -137,7 +137,7 @@ public class IntersectionCalculator {
 		);
 
 		// create the shares for that dimension
-		var shares = new ArrayList<FeatureShare>();
+		var shares = new ArrayList<IntersectionShare>();
 		for (var p : intersections) {
 			double value = switch (maxDim) {
 				case 0 -> p.second.getNumGeometries();
@@ -146,10 +146,10 @@ public class IntersectionCalculator {
 				default -> 0;
 			};
 			if (value > 0) {
-				shares.add(FeatureShare.of(p.first, value));
+				shares.add(IntersectionShare.of(p.first, p.second, value));
 			}
 		}
-		return FeatureShare.makeRelative(shares);
+		return IntersectionShare.makeRelative(shares);
 	}
 
 	/**

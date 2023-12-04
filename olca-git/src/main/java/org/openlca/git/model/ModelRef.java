@@ -13,6 +13,7 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 
 	public ModelRef(String path) {
 		super(path);
+		path = trimPaths(path);
 		this.isEmptyCategory = path.endsWith("/" + GitUtil.EMPTY_CATEGORY_FLAG);
 		if (this.isEmptyCategory) {
 			path = path.substring(0, path.indexOf("/" + GitUtil.EMPTY_CATEGORY_FLAG));
@@ -38,7 +39,7 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 			return "";
 		return path.substring(0, path.lastIndexOf("/"));
 	}
-	
+
 	public String getCategoryPath() {
 		if (!isCategory)
 			return category;
@@ -63,6 +64,16 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	@Override
 	public int compareTo(ModelRef o) {
 		return path.compareTo(o.path);
+	}
+
+	private String trimPaths(String path) {
+		while (path.contains(" /")) {
+			path = path.replace(" /", "/");
+		}
+		while (path.contains("/ ")) {
+			path = path.replace("/ ", "/");
+		}
+		return path;
 	}
 
 	@Override
