@@ -103,13 +103,13 @@ class KnownFilesFilter extends TreeFilter {
 	}
 	
 	private boolean include(String path, FileMode mode, int depth) {
+		if (isBinDir(path, mode, depth))
+			return false;
 		if (isCategory(path, mode, depth))
 			return true;
 		if (isModelTypeRootDirectory(path, mode, depth))
 			return true;
 		if (isRecognizedRootFile(path, mode, depth))
-			return false;
-		if (isBinDir(path, mode, depth))
 			return false;
 		if (isEmptyCategoryTag(path, mode, depth))
 			return includeEmptyCategoryTags;
