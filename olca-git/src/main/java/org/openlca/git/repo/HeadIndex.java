@@ -1,43 +1,41 @@
 package org.openlca.git.repo;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.openlca.core.database.Derby;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.model.Entry;
 import org.openlca.git.model.Entry.EntryType;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Strings;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class HeadIndex {
 
+	private static final String FILE_NAME = "head.index";
 	private final OlcaRepository repo;
 	private Map<String, Entry> map;
 	private Map<String, Set<String>> subPaths = new HashMap<>();
 	private Map<String, MetaInfo> metaInfo = new HashMap<>();
 
-	private HeadIndex(OlcaRepository repo) {
-		this.repo = repo;
-		reload();
+	public static void main(String[] args) throws Exception {
+		var db = new Derby(new File("C:/Users/greve/openLCA-data-1.4/databases/ecoinvent_391_apos_lci_n2"));
+		var repoDir = new File("C:/Users/greve/openLCA-data-1.4/repositories/ecoinvent_391_apos_lci_n2");
+		new ClientRepository(repoDir, db).close();
 	}
 
-	public void reload() {
-		subPaths.clear();
-		metaInfo.clear();
-		map = repo.entries.find().recursive().asMap();
-		map.values().forEach(entry -> {
-			if (entry.typeOfEntry == EntryType.DATASET) {
-				metaInfo.put(entry.path, new MetaInfo(repo.datasets.getVersionAndLastChange(entry)));
-			}
-			var path = entry.path;
-			var parent = path.contains("/")
-					? path.substring(0, path.lastIndexOf("/"))
-					: "";
-			subPaths.computeIfAbsent(parent, k -> new HashSet<>()).add(path);
-		});
+	private HeadIndex(OlcaRepository repo) {
+		this.repo = repo;
+		load();
+		fillUp();
 	}
 
 	static HeadIndex of(OlcaRepository repo) {
@@ -64,6 +62,71 @@ public class HeadIndex {
 		if (info == null)
 			return false;
 		return info.matches(d);
+	}
+
+	private void load() {
+		metaInfo.clear();
+		var file = new File(repo.dir, FILE_NAME);
+		if (!file.exists())
+			return;
+		var array = Json.readArray(file);
+		if (array.isEmpty())
+			return;
+		for (var e : array.get()) {
+			if (!e.isJsonObject())
+				continue;
+			var obj = e.getAsJsonObject();
+			var path = Json.getString(obj, "path");
+			if (Strings.nullOrEmpty(path))
+				continue;
+			var version = Json.getLong(obj, "version", 0);
+			var lastChange = Json.getLong(obj, "lastChange", 0);
+			metaInfo.put(path, new MetaInfo(version, lastChange));
+		}
+	}
+
+	public void reload() {
+		metaInfo.clear();
+		fillUp();
+	}
+
+	private void fillUp() {
+		try {
+			subPaths.clear();
+			map = repo.entries.find().recursive().asMap();
+			var changed = false;
+			for (var entry : map.values()) {
+				var path = entry.path;
+				var parent = path.contains("/")
+						? path.substring(0, path.lastIndexOf("/"))
+						: "";
+				subPaths.computeIfAbsent(parent, k -> new HashSet<>()).add(path);
+				if (entry.typeOfEntry != EntryType.DATASET)
+					continue;
+				if (metaInfo.containsKey(entry.path))
+					continue;
+				metaInfo.put(entry.path, new MetaInfo(repo.datasets.getVersionAndLastChange(entry)));
+				changed = true;
+			}
+			if (!changed)
+				return;
+			store();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void store() {
+		var array = new JsonArray();
+		for (var path : metaInfo.keySet()) {
+			var obj = new JsonObject();
+			obj.addProperty("path", path);
+			var value = metaInfo.get(path);
+			obj.addProperty("version", value.version);
+			obj.addProperty("lastChange", value.lastChange);
+			array.add(obj);
+		}
+		Json.write(array, new File(repo.dir, FILE_NAME));
 	}
 
 	private static class MetaInfo {
