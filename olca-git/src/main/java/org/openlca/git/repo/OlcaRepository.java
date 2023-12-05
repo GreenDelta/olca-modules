@@ -91,13 +91,27 @@ public class OlcaRepository extends FileRepository {
 		}
 	}
 
-	public ObjectId getSubTreeId(ObjectId treeId, String path) {
+	ObjectId getSubTreeId(ObjectId treeId, String path) {
 		if (Strings.nullOrEmpty(path))
 			return treeId;
 		try (var walk = TreeWalk.forPath(this, GitUtil.encode(path), treeId)) {
 			if (walk == null)
 				return ObjectId.zeroId();
 			if (walk.getFileMode() != FileMode.TREE)
+				return ObjectId.zeroId();
+			return walk.getObjectId(0);
+		} catch (IOException e) {
+			log.error("Error finding entry for " + path);
+			return null;
+		}
+	}
+
+	ObjectId getObjectId(RevCommit commit, String path) {
+		var treeId = commit.getTree().getId();
+		if (Strings.nullOrEmpty(path))
+			return treeId;
+		try (var walk = TreeWalk.forPath(this, GitUtil.encode(path), treeId)) {
+			if (walk == null)
 				return ObjectId.zeroId();
 			return walk.getObjectId(0);
 		} catch (IOException e) {

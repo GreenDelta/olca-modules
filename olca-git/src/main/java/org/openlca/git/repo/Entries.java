@@ -54,7 +54,7 @@ public class Entries {
 			var commit = repo.commits.getRev(commitId);
 			if (commit == null)
 				return null;
-			var objectId = repo.getSubTreeId(commit.getTree().getId(), path);
+			var objectId = repo.getObjectId(commit, path);
 			return new Entry(path, commitId, objectId);
 		} catch (IOException e) {
 			log.error("Error finding sub tree for " + path);
