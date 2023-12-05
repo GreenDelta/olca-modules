@@ -214,7 +214,7 @@ public abstract class CommitWriter {
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
 		if (!change.isCategory) {
-			progressMonitor.subTask(change.refId);
+			progressMonitor.subTask(change);
 		}
 		if (change.isCategory) {
 			usedFeatures.emptyCategories();

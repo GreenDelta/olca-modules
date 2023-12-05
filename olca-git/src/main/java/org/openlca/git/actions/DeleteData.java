@@ -71,7 +71,7 @@ class DeleteData {
 	}
 
 	private void deleteModel(ModelRef ref) {
-		progressMonitor.subTask(ref.refId);
+		progressMonitor.subTask(ref);
 		if (!keepLocal(ref)) {
 			delete(daos.get(ref.type), ref.refId);
 		}
@@ -80,7 +80,7 @@ class DeleteData {
 
 	private void deleteCategory(ModelRef ref) {
 		var category = categoryDao.getForPath(ref.type, ref.getCategoryPath());
-		progressMonitor.subTask(category.refId);
+		progressMonitor.subTask(ref);
 		if (isEmptyCategory(deleted, category)) {
 			categoryDao.delete(category);
 			deleted.add(category);

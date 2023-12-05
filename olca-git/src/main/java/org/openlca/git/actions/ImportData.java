@@ -69,7 +69,7 @@ class ImportData {
 					progressMonitor.worked(1);
 					continue;
 				}
-				progressMonitor.subTask(change.refId);
+				progressMonitor.subTask(change);
 				if (change.isCategory) {
 					jsonImport.getCategory(change.type, change.getCategoryPath());
 				} else if (batchSize == 1) {
