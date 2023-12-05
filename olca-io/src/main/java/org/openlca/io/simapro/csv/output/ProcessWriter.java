@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -24,6 +25,7 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.util.Exchanges;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -365,8 +367,9 @@ class ProcessWriter {
 		w.ln("Process");
 		w.ln();
 
+		var categoryType = CategoryPath.of(config, p).type();
 		w.ln("Category type");
-		w.ln(CategoryPath.of(config, p).type().toString());
+		w.ln(categoryType.toString());
 		w.ln();
 
 		w.ln("Process identifier");
@@ -387,23 +390,39 @@ class ProcessWriter {
 		w.ln();
 		w.ln();
 
-		// these sections all get an `Unspecified` value
-		String[] uSections = {
+		List.of(
 				"Time period",
 				"Geography",
 				"Technology",
-				"Representativeness",
-				"Multiple output allocation",
-				"Substitution allocation",
-				"Cut off rules",
-				"Capital goods",
-				"Boundary with nature",
-		};
-		for (String uSection : uSections) {
-			w.ln(uSection);
+				"Representativeness").forEach(s -> {
+			w.ln(s);
 			w.ln("Unspecified");
 			w.ln();
+		});
+
+		if (categoryType == ProcessCategory.WASTE_TREATMENT
+				|| categoryType == ProcessCategory.WASTE_SCENARIO) {
+			w.ln("Waste treatment allocation");
+			w.ln("Unspecified");
+			w.ln();
+		} else {
+			List.of(
+					"Multiple output allocation",
+					"Substitution allocation").forEach(s -> {
+				w.ln(s);
+				w.ln("Unspecified");
+				w.ln();
+			});
 		}
+
+		List.of(
+				"Cut off rules",
+				"Capital goods",
+				"Boundary with nature").forEach(s -> {
+			w.ln(s);
+			w.ln("Unspecified");
+			w.ln();
+		});
 
 		w.ln("Infrastructure");
 		w.ln("No");
