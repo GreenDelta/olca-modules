@@ -1,18 +1,33 @@
 package org.openlca.core.services;
 
-import static org.openlca.core.services.JsonUtil.*;
-import static org.openlca.core.services.Util.*;
+import static org.openlca.core.services.JsonUtil.encodeArray;
+import static org.openlca.core.services.JsonUtil.encodeCostValue;
+import static org.openlca.core.services.JsonUtil.encodeEnviFlow;
+import static org.openlca.core.services.JsonUtil.encodeEnviValue;
+import static org.openlca.core.services.JsonUtil.encodeEnviValues;
+import static org.openlca.core.services.JsonUtil.encodeImpact;
+import static org.openlca.core.services.JsonUtil.encodeImpactValues;
+import static org.openlca.core.services.JsonUtil.encodeState;
+import static org.openlca.core.services.JsonUtil.encodeTechFlow;
+import static org.openlca.core.services.JsonUtil.encodeTechValue;
+import static org.openlca.core.services.JsonUtil.encodeTechValues;
+import static org.openlca.core.services.JsonUtil.encodeUpstreamNode;
+import static org.openlca.core.services.Util.enviFlowOf;
+import static org.openlca.core.services.Util.impactCategoryOf;
+import static org.openlca.core.services.Util.join;
+import static org.openlca.core.services.Util.resultOf;
+import static org.openlca.core.services.Util.techFlowOf;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.Sankey;
@@ -20,10 +35,11 @@ import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
+import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.util.Strings;
+import com.google.gson.JsonPrimitive;
 
 public class JsonResultService {
 
@@ -79,6 +95,15 @@ public class JsonResultService {
 		} catch (Exception e) {
 			return Response.error(e);
 		}
+	}
+
+	public Response<LcaResult> getResult(String resultId) {
+		return withResult(resultId, result -> Response.of(result));
+	}
+
+	public Response<CalculationSetup> getSetup(String resultId) {
+		var state = queue.get(resultId);
+		return Response.of(state.setup());
 	}
 
 	// region: index elements
@@ -324,8 +349,7 @@ public class JsonResultService {
 				.map(impact -> {
 					double amount = result.getTotalImpactValueOf(impact);
 					return encodeImpact(impact, amount, JsonRefs.of(db));
-				})
-		);
+				}));
 	}
 
 	public Response<JsonArray> getNormalizedImpacts(String resultId) {
@@ -368,8 +392,7 @@ public class JsonResultService {
 				.map(impact -> {
 					var values = result.getDirectImpactValuesOf(impact);
 					return encodeTechValues(values, JsonRefs.of(db));
-				})
-		);
+				}));
 	}
 
 	public Response<JsonArray> getTotalImpactValuesOf(
@@ -597,7 +620,7 @@ public class JsonResultService {
 					.build();
 
 			// convert the graph
-			var json = JsonSankeyGraph.of(sankey,JsonRefs.of(db));
+			var json = JsonSankeyGraph.of(sankey, JsonRefs.of(db));
 			return Response.of(json);
 		});
 	}

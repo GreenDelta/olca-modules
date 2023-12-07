@@ -8,7 +8,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.database.Daos;
+import org.openlca.core.database.EntityCache;
+import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.results.LcaResult;
+import org.openlca.io.xls.results.system.ResultExport;
 import org.openlca.ipc.Responses;
 import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
@@ -26,6 +30,30 @@ public class ExportHandler {
 
 	public ExportHandler(HandlerContext context) {
 		this.context = context;
+	}
+
+	@Rpc("export/excel")
+	public RpcResponse excel(RpcRequest req) {
+		if (req == null || req.params == null || !req.params.isJsonObject())
+			return Responses.badRequest("No @id given", req);
+		JsonObject obj = req.params.getAsJsonObject();
+		String id = Json.getString(obj, "@id");
+		if (id == null)
+			return Responses.badRequest("No `@id` given", req);
+		String path = Json.getString(obj, "path");
+		if (path == null)
+			return Responses.badRequest("No `path` given", req);
+		var setup = context.results().getSetup(id).value();
+		var result = context.results().getResult(id).value();
+		return exportSimpleResult(req, path, setup, result);
+	}
+
+	private RpcResponse exportSimpleResult(RpcRequest req, String path, CalculationSetup setup, LcaResult result) {
+		var export = new ResultExport(setup, result, new File(path), EntityCache.create(context.db()));
+		export.run();
+		if (export.doneWithSuccess())
+			return Responses.ok("Exported to " + path, req);
+		return Responses.internalServerError("Export failed", req);
 	}
 
 	@Rpc("export/json-ld")
