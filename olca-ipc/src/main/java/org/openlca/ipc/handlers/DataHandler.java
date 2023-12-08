@@ -1,5 +1,6 @@
 package org.openlca.ipc.handlers;
 
+import java.util.HashSet;
 import java.util.function.BiFunction;
 
 import org.openlca.core.model.ModelType;
@@ -116,6 +117,20 @@ public class DataHandler {
 		var processId = Json.getRefId(obj, "process");
 		var config = Json.getObject(obj, "config");
 		var resp = service.createProductSystem(processId, config);
+		return Responses.of(resp, req);
+	}
+	
+	@Rpc("data/get/quality")
+	public RpcResponse getDataQuality(RpcRequest req) {
+		if (req.params == null || !req.params.isJsonObject())
+			return Responses.invalidParams("no parameters given", req);
+		var obj = req.params.getAsJsonObject();
+		var processIds = Json.getArray(obj, "processIds");
+		var set = new HashSet<String>();
+		for (var processId : processIds) {
+			set.add(processId.getAsString());
+		}
+		var resp = service.getDataQuality(set);
 		return Responses.of(resp, req);
 	}
 

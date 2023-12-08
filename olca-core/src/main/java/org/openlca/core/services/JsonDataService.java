@@ -1,11 +1,11 @@
 package org.openlca.core.services;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -18,10 +18,14 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.EntityReader;
-import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonWriter;
 import org.openlca.util.Strings;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 public record JsonDataService(IDatabase db) {
 
@@ -293,4 +297,34 @@ public record JsonDataService(IDatabase db) {
 		return Response.error(
 				"unsupported parameter container: type=" + type + " id=" + id);
 	}
+	
+	public Response<JsonArray> getDataQuality(Set<String> refIds) {
+		var json = new JsonArray();
+		NativeSql.on(db).query("SELECT ref_id, dq_entry FROM tbl_processes", entry -> {
+			var refId = entry.getString("ref_id");
+			if (!refIds.contains(refId))
+				return true;
+			var dqEntry = entry.getString("dq_entry");
+			JsonArray value = null;
+			if (!Strings.nullOrEmpty(dqEntry)) {
+				value = new JsonArray();
+				dqEntry = dqEntry.replace("(", "").replace(")", "");
+				String[] v = dqEntry.split(";");
+				for (var i = 0; i < v.length; i++) {
+					try {
+						value.add(Integer.parseInt(v[i]));
+					} catch (NumberFormatException e) {
+						value.add(JsonNull.INSTANCE);
+					}
+				}
+			} 
+			var obj = new JsonObject();
+			obj.addProperty("processId", refId);
+			obj.add("dqEntry", value);
+			json.add(obj);
+			return json.size() != refIds.size();
+		});
+		return Response.of(json);
+	}
+	
 }
