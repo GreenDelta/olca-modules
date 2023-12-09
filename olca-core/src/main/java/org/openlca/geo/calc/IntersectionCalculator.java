@@ -87,7 +87,7 @@ public class IntersectionCalculator {
 	 * with the given geometry.
 	 */
 	public List<Pair<Feature, Geometry>> calculate(Geometry g) {
-		return jts(g).map(p -> Pair.of(p.first, JTS.toGeoJSON(p.second)))
+		return jts(g).map(s -> Pair.of(s.feature, JTS.toGeoJSON(s.geometry)))
 				.filter(p -> p.second != null)
 				.collect(Collectors.toList());
 	}
@@ -132,21 +132,21 @@ public class IntersectionCalculator {
 
 		// select the maximum dimension
 		int maxDim = intersections.stream().reduce(0,
-				(dim, p) -> Math.max(dim, p.second.getDimension()),
+				(dim, p) -> Math.max(dim, p.geometry.getDimension()),
 				Math::max
 		);
 
 		// create the shares for that dimension
 		var shares = new ArrayList<IntersectionShare>();
-		for (var p : intersections) {
+		for (var s : intersections) {
 			double value = switch (maxDim) {
-				case 0 -> p.second.getNumGeometries();
-				case 1 -> p.second.getLength();
-				case 2 -> p.second.getArea();
+				case 0 -> s.geometry.getNumGeometries();
+				case 1 -> s.geometry.getLength();
+				case 2 -> s.geometry.getArea();
 				default -> 0;
 			};
 			if (value > 0) {
-				shares.add(IntersectionShare.of(p.first, p.second, value));
+				shares.add(IntersectionShare.of(s.feature, s.geometry, value));
 			}
 		}
 		return IntersectionShare.makeRelative(shares);
@@ -156,8 +156,7 @@ public class IntersectionCalculator {
 	 * Calculates the intersection geometries based on JTS geometries and
 	 * returns the non-empty intersections.
 	 */
-	private Stream<Pair<Feature, org.locationtech.jts.geom.Geometry>> jts(
-			Geometry g) {
+	private Stream<Sect> jts(Geometry g) {
 		if (g == null)
 			return Stream.empty();
 		org.locationtech.jts.geom.Geometry jts;
@@ -172,9 +171,30 @@ public class IntersectionCalculator {
 			return Stream.empty();
 		return IntStream.range(0, features.length)
 				.parallel()
-				.mapToObj(i -> Pair.of(
-						features[i], geometries[i].intersection(jts)))
-				.filter(p -> p.second != null && !p.second.isEmpty());
+				.mapToObj(i -> Sect.of(features[i], geometries[i], jts))
+				.filter(s -> !s.isEmpty());
 	}
 
+	private record Sect(
+			Feature feature,
+			org.locationtech.jts.geom.Geometry geometry) {
+
+		static Sect of(
+				Feature f,
+				org.locationtech.jts.geom.Geometry g1,
+				org.locationtech.jts.geom.Geometry g2) {
+			try {
+				var sect = g1.intersection(g2);
+				return new Sect(f, sect);
+			} catch (Exception e) {
+				return new Sect(f, null);
+			}
+		}
+
+		boolean isEmpty() {
+			return feature == null
+					|| geometry == null
+					|| geometry.isEmpty();
+		}
+	}
 }
