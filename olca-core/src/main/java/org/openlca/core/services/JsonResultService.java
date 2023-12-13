@@ -345,7 +345,7 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getNormalizedWeightedImpacts(String resultId) {
+	public Response<JsonArray> getWeightedImpacts(String resultId) {
 		return withResult(resultId, result -> {
 			var impacts = result.getTotalImpacts();
 			if (impacts.isEmpty())

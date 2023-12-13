@@ -203,7 +203,7 @@ public class ResultHandler {
 	@Rpc("result/total-impacts/weighted")
 	public RpcResponse getWeightedImpacts(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getNormalizedWeightedImpacts(rr.id()));
+				results.getWeightedImpacts(rr.id()));
 	}
 
 	@Rpc("result/impact-contributions-of")
