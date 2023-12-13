@@ -345,7 +345,7 @@ public class JsonResultService {
 		});
 	}
 
-	public Response<JsonArray> getWeightedImpacts(String resultId) {
+	public Response<JsonArray> getNormalizedWeightedImpacts(String resultId) {
 		return withResult(resultId, result -> {
 			var impacts = result.getTotalImpacts();
 			if (impacts.isEmpty())
@@ -357,7 +357,7 @@ public class JsonResultService {
 			if (setup.nwSet() == null)
 				return Response.error("no nw-set was defined");
 			var factors = NwSetTable.of(db, setup.nwSet());
-			var weighted = factors.weight(impacts);
+			var weighted = factors.apply(impacts);
 			return Response.of(encodeImpactValues(weighted, JsonRefs.of(db)));
 		});
 	}
