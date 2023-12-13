@@ -9,6 +9,7 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.jsonld.JsonStoreReader;
+import org.openlca.jsonld.input.BatchImport;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 
@@ -56,13 +57,20 @@ public class RepositoryImport implements JsonStoreReader {
 		JsonImport importer = new JsonImport(this, database);
 		importer.setUpdateMode(UpdateMode.ALWAYS);
 		for (var type : TYPE_ORDER) {
+			var batchSize = type == ModelType.UNIT_GROUP ? 1 : BatchImport.batchSizeOf(type);
+			var batchImport = new BatchImport<>(importer, type.getModelClass(), batchSize);
 			repo.entries.iterate(commit.id, type.name(), entry -> {
 				if (entry.typeOfEntry == EntryType.CATEGORY) {
 					importer.getCategory(entry.type, entry.getCategoryPath());
 				} else if (entry.typeOfEntry == EntryType.DATASET) {
-					importer.run(entry.type, entry.refId);
+					if (batchSize == 1) {
+						importer.run(entry.type, entry.refId);
+					} else {
+						batchImport.run(entry.refId);
+					}
 				}
 			});
+			batchImport.close();
 		}
 	}
 
