@@ -57,11 +57,11 @@ class ImportData {
 	List<Change> run() {
 		var jsonImport = new JsonImport(gitStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
+		progressMonitor.beginTask("Importing data sets", gitStore.size());
 		for (var type : ImportData.TYPE_ORDER) {
 			var changes = gitStore.getChanges(type);
 			if (changes.isEmpty())
 				continue;
-			progressMonitor.beginTask("Importing " + getLabel(type), changes.size());
 			var batchSize = type == ModelType.UNIT_GROUP ? 1 : BatchImport.batchSizeOf(type);
 			var batchImport = new BatchImport<>(jsonImport, type.getModelClass(), batchSize);
 			for (var change : changes) {
@@ -82,16 +82,6 @@ class ImportData {
 			batchImport.close();
 		}
 		return gitStore.resolvedConflicts;
-	}
-
-	private String getLabel(ModelType type) {
-		if (type == ModelType.PROCESS)
-			return "processes";
-		if (type == ModelType.IMPACT_CATEGORY)
-			return "impact categories";
-		if (type == ModelType.FLOW_PROPERTY)
-			return "flow properties";
-		return type.name().toLowerCase().replace("_", " ") + "s";
 	}
 
 }

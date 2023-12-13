@@ -137,6 +137,10 @@ class GitStoreReader implements JsonStoreReader {
 				.map(this::replaceEqualOrKeptWithNull)
 				.collect(Collectors.toList());
 	}
+	
+	int size() {
+		return changes.size();
+	}
 
 	private Reference replaceEqualOrKeptWithNull(Reference ref) {
 		// performance improvement: JsonImport will load model from

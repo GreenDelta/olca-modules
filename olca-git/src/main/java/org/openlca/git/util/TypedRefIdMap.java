@@ -21,7 +21,7 @@ public class TypedRefIdMap<T> {
 	}
 
 	public void put(TypedRefId pair, T value) {
-		put(pair.type, pair.refId, value);			
+		put(pair.type, pair.refId, value);
 	}
 
 	public void put(ModelType type, String refId, T value) {
@@ -59,6 +59,14 @@ public class TypedRefIdMap<T> {
 
 	public List<T> values() {
 		return map.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+	}
+
+	public int size() {
+		int total = 0;
+		for (var map : this.map.values()) {
+			total += map.values().size();
+		}
+		return total;
 	}
 
 	public T remove(TypedRefId pair) {
