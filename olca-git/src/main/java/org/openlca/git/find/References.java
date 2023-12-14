@@ -11,10 +11,10 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
-import org.openlca.jsonld.PackageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,9 +131,7 @@ public class References {
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
-					var filter = AndTreeFilter.create(
-							NotBinaryFilter.create(),
-							PathFilter.create(PackageInfo.FILE_NAME).negate());
+					TreeFilter filter = new KnownFilesFilter();
 					if (path != null) {
 						filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 					}

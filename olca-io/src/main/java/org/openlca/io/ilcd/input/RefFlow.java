@@ -7,6 +7,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.ProcessBag;
+import org.openlca.ilcd.util.Processes;
 
 /**
  * Maps the reference flow of an ILCD process to an openLCA process. An ILCD

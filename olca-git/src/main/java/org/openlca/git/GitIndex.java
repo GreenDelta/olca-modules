@@ -281,7 +281,7 @@ public class GitIndex {
 			fullPath += path;
 		}
 		if (name != null && !name.isBlank()) {
-			fullPath += "/" + name;
+			fullPath += "/" + name.trim();
 		}
 		return fullPath;
 	}

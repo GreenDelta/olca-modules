@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.database.IDatabase;
+import org.openlca.git.Compatibility;
 import org.openlca.git.GitIndex;
 import org.openlca.git.model.Change;
 import org.openlca.git.util.Descriptors;
@@ -67,6 +68,7 @@ public class GitCommit extends GitProgressAction<String> {
 					.map(Change::new)
 					.collect(Collectors.toList());
 		}
+		Compatibility.checkRepositoryClientVersion(repo);
 		progressMonitor.beginTask("Writing commit", changes.size());
 		var writer = new DbCommitWriter(repo, database, Descriptors.of(database))
 				.update(gitIndex)

@@ -18,12 +18,12 @@ import org.slf4j.LoggerFactory;
  * Contains conversion methods for creating JTS geometries from GeoJSON and
  * converting them back to GeoJSON.
  */
-class JTS {
+public class JTS {
 
 	/**
 	 * Creates a JTS geometry from the given GeoJSON geometry.
 	 */
-	static Geometry fromGeoJSON(org.openlca.geo.geojson.Geometry g) {
+	public static Geometry fromGeoJSON(org.openlca.geo.geojson.Geometry g) {
 		if (g == null)
 			return null;
 		GeometryFactory gen = new GeometryFactory();
@@ -117,7 +117,7 @@ class JTS {
 	/**
 	 * Converts the given JTS geometry to a GeoJSON geometry.
 	 */
-	static org.openlca.geo.geojson.Geometry toGeoJSON(Geometry g) {
+	public static org.openlca.geo.geojson.Geometry toGeoJSON(Geometry g) {
 		if (g == null)
 			return null;
 

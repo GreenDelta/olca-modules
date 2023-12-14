@@ -102,7 +102,7 @@ public class Flow extends RootEntity {
 	 * Adds a conversion factor with the given flow property to this flow.
 	 */
 	public FlowPropertyFactor property(FlowProperty prop, double factor) {
-		FlowPropertyFactor f = new FlowPropertyFactor();
+		var f = new FlowPropertyFactor();
 		f.flowProperty = prop;
 		f.conversionFactor = factor;
 		flowPropertyFactors.add(f);

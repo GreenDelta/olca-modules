@@ -4,7 +4,6 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
 
 class ImpactCategoryCheck implements Runnable {
 
@@ -88,8 +87,7 @@ class ImpactCategoryCheck implements Runnable {
 			return;
 		var sql = "select " +
 				/* 1 */ "id, " +
-				/* 2 */ "f_source, " +
-				/* 3 */ "direction from tbl_impact_categories";
+				/* 2 */ "f_source from tbl_impact_categories";
 		NativeSql.on(v.db).query(sql, r -> {
 			var id = r.getLong(1);
 
@@ -100,15 +98,6 @@ class ImpactCategoryCheck implements Runnable {
 						"invalid reference to source @" + source);
 				foundErrors = true;
 			}
-
-			// impact direction
-			var direction = r.getString(3);
-			if (Strings.nullOrEmpty(direction)){
-				v.warning(id, ModelType.IMPACT_CATEGORY,
-						"no impact direction defined");
-				foundErrors = true;
-			}
-
 			return !v.wasCanceled();
 		});
 	}

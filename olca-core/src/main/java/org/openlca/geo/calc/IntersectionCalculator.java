@@ -6,16 +6,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.openlca.core.model.Location;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
+import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.geo.geojson.Geometry;
 import org.openlca.util.Pair;
 
 /**
- * Calculates the intersections of a geometry $g$ (typically a location in
- * an openLCA database) with a given feature collection $F$ (e.g. features
+ * Calculates the intersections of a geometry g (typically a location in
+ * an openLCA database) with a given feature collection F (e.g. features
  * with characterization factors of an LCIA category). A specific projection can
- * be applied when calculating the intersections. By default the Mollweide
+ * be applied when calculating the intersections. By default, the Mollweide
  * projection is used.
  */
 public class IntersectionCalculator {
@@ -57,17 +59,17 @@ public class IntersectionCalculator {
 
 		// we make sure that there is always a corresponding JTS geometry
 		// for a feature.
-		List<Feature> features = new ArrayList<>();
-		List<org.locationtech.jts.geom.Geometry> geometries = new ArrayList<>();
-		for (Feature feature : coll.features) {
+		var features = new ArrayList<Feature>();
+		var geometries = new ArrayList<org.locationtech.jts.geom.Geometry>();
+		for (var feature : coll.features) {
 			if (feature.geometry == null)
 				continue;
-			Geometry g = feature.geometry;
+			var g = feature.geometry;
 			if (projection != null) {
 				g = g.copy();
 				projection.project(g);
 			}
-			org.locationtech.jts.geom.Geometry jts = JTS.fromGeoJSON(g);
+			var jts = JTS.fromGeoJSON(g);
 			if (jts == null)
 				continue;
 			features.add(feature);
@@ -85,9 +87,31 @@ public class IntersectionCalculator {
 	 * with the given geometry.
 	 */
 	public List<Pair<Feature, Geometry>> calculate(Geometry g) {
-		return jts(g).map(p -> Pair.of(p.first, JTS.toGeoJSON(p.second)))
+		return jts(g).map(s -> Pair.of(s.feature, JTS.toGeoJSON(s.geometry)))
 				.filter(p -> p.second != null)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Calculates the intersection shares of the given location.
+	 */
+	public List<IntersectionShare> shares(Location loc) {
+		if (loc == null || loc.geodata == null)
+			return List.of();
+		var coll = GeoJSON.unpack(loc.geodata);
+		if (coll == null || coll.features.isEmpty())
+			return List.of();
+
+		var shares = new ArrayList<IntersectionShare>();
+		for (var f : coll.features) {
+			if (f.geometry == null)
+				continue;
+			var next = shares(f.geometry);
+			if (!next.isEmpty()) {
+				shares.addAll(next);
+			}
+		}
+		return shares;
 	}
 
 	/**
@@ -101,51 +125,38 @@ public class IntersectionCalculator {
 	 *     <li>number of geometries, for dimension = 0</li>
 	 * </ol>
 	 */
-	public List<Pair<Feature, Double>> shares(Geometry g) {
-		List<Pair<Feature, org.locationtech.jts.geom.Geometry>> s = jts(g).toList();
+	public List<IntersectionShare> shares(Geometry g) {
 
-		// get the maximum dimension
-		int maxDim = s.stream().reduce(0,
-				(dim, p) -> Math.max(dim, p.second.getDimension()),
+		// calculate the intersections
+		var intersections = jts(g).toList();
+
+		// select the maximum dimension
+		int maxDim = intersections.stream().reduce(0,
+				(dim, p) -> Math.max(dim, p.geometry.getDimension()),
 				Math::max
 		);
 
-		// calculate the shares
-		List<Pair<Feature, Double>> shares = s
-				.parallelStream()
-				.map(p -> {
-					double a = switch (maxDim) {
-						case 0 -> p.second.getNumGeometries();
-						case 1 -> p.second.getLength();
-						case 2 -> p.second.getArea();
-						default -> 0;
-					};
-					return Pair.of(p.first, a);
-				})
-				.filter(p -> p.second != null && p.second > 0)
-				.collect(Collectors.toList());
-
-		if (shares.isEmpty())
-			return shares;
-
-		// calculate the relative shares; above we made sure that
-		// the total amount is > 0
-		double total = 0;
-		for (Pair<Feature, Double> p : shares) {
-			total = Math.max(total, p.second);
+		// create the shares for that dimension
+		var shares = new ArrayList<IntersectionShare>();
+		for (var s : intersections) {
+			double value = switch (maxDim) {
+				case 0 -> s.geometry.getNumGeometries();
+				case 1 -> s.geometry.getLength();
+				case 2 -> s.geometry.getArea();
+				default -> 0;
+			};
+			if (value > 0) {
+				shares.add(IntersectionShare.of(s.feature, s.geometry, value));
+			}
 		}
-		for (Pair<Feature, Double> p : shares) {
-			p.second = p.second / total;
-		}
-		return shares;
+		return IntersectionShare.makeRelative(shares);
 	}
 
 	/**
 	 * Calculates the intersection geometries based on JTS geometries and
 	 * returns the non-empty intersections.
 	 */
-	private Stream<Pair<Feature, org.locationtech.jts.geom.Geometry>> jts(
-			Geometry g) {
+	private Stream<Sect> jts(Geometry g) {
 		if (g == null)
 			return Stream.empty();
 		org.locationtech.jts.geom.Geometry jts;
@@ -160,9 +171,30 @@ public class IntersectionCalculator {
 			return Stream.empty();
 		return IntStream.range(0, features.length)
 				.parallel()
-				.mapToObj(i -> Pair.of(
-						features[i], geometries[i].intersection(jts)))
-				.filter(p -> p.second != null && !p.second.isEmpty());
+				.mapToObj(i -> Sect.of(features[i], geometries[i], jts))
+				.filter(s -> !s.isEmpty());
 	}
 
+	private record Sect(
+			Feature feature,
+			org.locationtech.jts.geom.Geometry geometry) {
+
+		static Sect of(
+				Feature f,
+				org.locationtech.jts.geom.Geometry g1,
+				org.locationtech.jts.geom.Geometry g2) {
+			try {
+				var sect = g1.intersection(g2);
+				return new Sect(f, sect);
+			} catch (Exception e) {
+				return new Sect(f, null);
+			}
+		}
+
+		boolean isEmpty() {
+			return feature == null
+					|| geometry == null
+					|| geometry.isEmpty();
+		}
+	}
 }

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Repository;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
 import org.openlca.git.find.Datasets;
@@ -17,7 +18,6 @@ import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.jsonld.PackageInfo;
 import org.openlca.util.Strings;
 
 import com.google.gson.Gson;
@@ -34,7 +34,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final TypedRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
 	private final ImportResults results = new ImportResults();
-	private final byte[] packInfo;
+	private final byte[] repoInfo;
 
 	GitStoreReader(Repository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
@@ -49,23 +49,20 @@ class GitStoreReader implements JsonStoreReader {
 		this.commit = commit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = TypedRefIdMap.of(changes);
-		this.packInfo = datasets.getPackageInfo(commit);
+		this.repoInfo = datasets.getRepositoryInfo(commit);
 
 	}
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (PackageInfo.FILE_NAME.equals(path))
-			return packInfo;
+		if (RepositoryInfo.FILE_NAME.equals(path))
+			return repoInfo;
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);
 		if (binDir == null)
 			return getDataset(path);
-		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
-		var ref = references.get(type, refId, commit.id);
-		return datasets.getBytes(ref);
+		return getBinary(path);
 	}
 
 	private byte[] getDataset(String path) {
@@ -75,6 +72,20 @@ class GitStoreReader implements JsonStoreReader {
 		return datasets.getBytes(ref);
 	}
 
+	private byte[] getBinary(String path) {
+		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
+		String refId = null;
+		for (var part : path.split("/")) {
+			if (part.endsWith(GitUtil.BIN_DIR_SUFFIX))
+				refId = part.substring(0, part.indexOf(GitUtil.BIN_DIR_SUFFIX));
+		}
+		if (refId == null)
+			return null;
+		var filename = path.substring(path.lastIndexOf(GitUtil.BIN_DIR_SUFFIX) + GitUtil.BIN_DIR_SUFFIX.length() + 1);
+		var ref = references.get(type, refId, commit.id);
+		return datasets.getBinary(ref, filename);
+	}
+	
 	@Override
 	public JsonObject get(ModelType type, String refId) {
 		if (type == ModelType.CATEGORY)

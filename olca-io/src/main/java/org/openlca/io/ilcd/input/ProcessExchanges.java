@@ -1,10 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
@@ -12,15 +7,23 @@ import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.util.Strings;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Maps the inputs and outputs of an ILCD process to an openLCA process.
  */
 class ProcessExchanges {
 
 	private final ImportConfig config;
+	private final AtomicBoolean hasRefErrors;
 
 	ProcessExchanges(ImportConfig config) {
 		this.config = config;
+		this.hasRefErrors = new AtomicBoolean(false);
 	}
 
 	void map(ProcessBag iProcess, Process process) {
@@ -30,13 +33,17 @@ class ProcessExchanges {
 		for (var origin : iProcess.getExchanges()) {
 			if (origin.flow == null || Strings.nullOrEmpty(origin.flow.uuid)) {
 				config.log().warn("invalid flow references in process "
-					+ iProcess.getId());
+						+ iProcess.getId());
 				continue;
 			}
 
 			var flow = FlowImport.get(config, origin.flow.uuid);
 			if (flow.isEmpty()) {
-				config.log().error("missing flows in process: " + iProcess.getId());
+				if (!hasRefErrors.get()) {
+					hasRefErrors.set(true);
+					config.log().error("missing flows in process: "
+							+ iProcess.getId() + "; e.g." + origin.flow.uuid);
+				}
 				continue;
 			}
 
@@ -44,7 +51,7 @@ class ProcessExchanges {
 			mappedExchanges.add(mapped);
 			if (mapped.hasExtensionError()) {
 				config.log().warn("invalid exchange extensions in process: "
-					+ iProcess.getId());
+						+ iProcess.getId());
 			}
 
 			var exchange = mapped.exchange();
@@ -68,7 +75,7 @@ class ProcessExchanges {
 
 		// map the reference flow of the process
 		var mappedIndex = new HashMap<Integer, Exchange>();
-		for(var m : mappedExchanges) {
+		for (var m : mappedExchanges) {
 			mappedIndex.put(m.origin().id, m.exchange());
 		}
 		RefFlow.map(iProcess, process, mappedIndex);
@@ -84,23 +91,23 @@ class ProcessExchanges {
 
 				// find the product ID of the factor
 				var productId = mapped.stream()
-					.filter(e -> e.origin().id == f.productExchangeId)
-					.map(e -> e.exchange().flow)
-					.filter(Objects::nonNull)
-					.mapToLong(flow -> flow.id)
-					.findAny();
+						.filter(e -> e.origin().id == f.productExchangeId)
+						.map(e -> e.exchange().flow)
+						.filter(Objects::nonNull)
+						.mapToLong(flow -> flow.id)
+						.findAny();
 				if (productId.isEmpty())
 					continue;
 
 				// create the allocation factor
 				createAllocationFactor(
-					m.exchange(), productId.getAsLong(), f.fraction, process);
+						m.exchange(), productId.getAsLong(), f.fraction, process);
 			}
 		}
 	}
 
 	private void createAllocationFactor(Exchange exchange, long productId,
-		double fraction, Process process) {
+																			double fraction, Process process) {
 		if (exchange.flow == null)
 			return;
 		var factor = new AllocationFactor();
@@ -113,7 +120,7 @@ class ProcessExchanges {
 			var economic = factor.copy();
 			economic.method = AllocationMethod.ECONOMIC;
 			process.allocationFactors.add(economic);
-		}	else {
+		} else {
 			factor.method = AllocationMethod.CAUSAL;
 			factor.exchange = exchange;
 			process.allocationFactors.add(factor);

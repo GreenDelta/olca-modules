@@ -3,17 +3,10 @@ package org.openlca.io.ilcd.input;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.EpdProduct;
-import org.openlca.core.model.FlowResult;
-import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactResult;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Result;
+import org.openlca.core.model.*;
 import org.openlca.ilcd.epd.conversion.EpdExtensions;
 import org.openlca.ilcd.epd.model.Amount;
 import org.openlca.ilcd.epd.model.EpdDataSet;
@@ -23,12 +16,21 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
+import org.openlca.util.Lists;
 import org.openlca.util.Strings;
 
-public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
+public class EpdImport {
+
+	private final ImportConfig config;
+	private final Process dataSet;
+	private final EpdDataSet epd;
+	private final AtomicBoolean hasRefError;
 
 	public EpdImport(ImportConfig config, Process dataSet) {
-		this(config, dataSet, EpdExtensions.read(dataSet));
+		this.config = config;
+		this.dataSet = dataSet;
+		this.epd = EpdExtensions.read(dataSet);
+		this.hasRefError = new AtomicBoolean(false);
 	}
 
 	public void run() {
@@ -46,11 +48,15 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 			Processes.fullName(dataSet, config.langOrder()), 2048);
 		var path = Categories.getPath(dataSet);
 		oEpd.category = new CategoryDao(config.db()).sync(ModelType.EPD, path);
+		oEpd.tags = tags();
 
 		var info = Processes.getDataSetInfo(dataSet);
 		if (info != null) {
 			oEpd.description = config.str(info.comment);
 		}
+		oEpd.verifier = verifier();
+		oEpd.programOperator = operator();
+		oEpd.manufacturer = manufacturer();
 
 		// declared product
 		var refFlow = getRefFlow();
@@ -78,6 +84,7 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 
 			result = new Result();
 			result.refId = refId;
+			result.tags = suffix;
 
 			// meta-data
 			result.name = Strings.cut(
@@ -113,8 +120,14 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		if (exchange == null || exchange.flow == null)
 			return null;
 		var f = FlowImport.get(config, exchange.flow.uuid);
-		if (f.isEmpty())
+		if (f.isEmpty()) {
+			if (!hasRefError.get()) {
+				hasRefError.set(true);
+				config.log().error("EPD " + dataSet.getUUID()
+						+ " has invalid references; e.g. flow: " + exchange.flow.uuid);
+			}
 			return null;
+		}
 
 		var ref = new FlowResult();
 		ref.flow = f.flow();
@@ -198,6 +211,54 @@ public record EpdImport(ImportConfig config, Process dataSet, EpdDataSet epd) {
 		factor.flowPropertyFactor = f.property();
 		factor.unit = f.unit();
 		return config.db().insert(impact);
+	}
+
+	private Actor operator() {
+		var pub = Processes.getPublication(dataSet);
+		if (pub == null || pub.registrationAuthority == null)
+			return null;
+		var id = pub.registrationAuthority.uuid;
+		return ContactImport.get(config, id);
+	}
+
+	private Actor manufacturer() {
+		var pub = Processes.getPublication(dataSet);
+		if (pub == null || pub.owner == null)
+			return null;
+		var id = pub.owner.uuid;
+		return ContactImport.get(config, id);
+	}
+
+	private Actor verifier() {
+		var v = Processes.getValidation(dataSet);
+		if (v == null)
+			return null;
+		var review = Lists.first(v.reviews).orElse(null);
+		if (review == null)
+			return null;
+		var ref = Lists.first(review.reviewers).orElse(null);
+		if (ref == null)
+			return null;
+		return ContactImport.get(config, ref.uuid);
+	}
+
+	private String tags() {
+		var decls = Processes.getComplianceDeclarations(dataSet);
+		if (Lists.isEmpty(decls))
+			return null;
+		var tags = new StringBuilder();
+		for (var decl : decls) {
+			if (decl.system == null)
+				continue;
+			var sys = config.str(decl.system.name);
+			if (Strings.nullOrEmpty(sys))
+				continue;
+			if (!tags.isEmpty()) {
+				tags.append(',');
+			}
+			tags.append(sys);
+		}
+		return tags.isEmpty() ? null : tags.toString();
 	}
 
 	private record Scope(String module, String scenario) {

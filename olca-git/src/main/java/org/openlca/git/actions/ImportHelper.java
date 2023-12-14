@@ -12,6 +12,7 @@ import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.git.Compatibility;
 import org.openlca.git.GitIndex;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.actions.ImportResults.ImportState;
@@ -27,6 +28,7 @@ import org.openlca.jsonld.input.UpdateMode;
 
 class ImportHelper {
 
+	private final Repository repo;
 	final References references;
 	final Entries entries;
 	final IDatabase database;
@@ -37,6 +39,7 @@ class ImportHelper {
 
 	ImportHelper(Repository repo, IDatabase database, Descriptors descriptors, GitIndex gitIndex,
 			ProgressMonitor progressMonitor) {
+		this.repo = repo;
 		this.references = References.of(repo);
 		this.entries = Entries.of(repo);
 		this.database = database;
@@ -75,7 +78,8 @@ class ImportHelper {
 		return type.name().toLowerCase().replace("_", " ") + "s";
 	}
 
-	void runImport(GitStoreReader gitStore) {
+	void runImport(GitStoreReader gitStore) throws IOException {
+		Compatibility.checkRepositoryClientVersion(repo);
 		var jsonImport = new JsonImport(gitStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		for (var type : ImportHelper.TYPE_ORDER) {
@@ -84,7 +88,7 @@ class ImportHelper {
 				continue;
 			progressMonitor.subTask("Importing " + getLabel(type));
 			var batchSize = BatchImport.batchSizeOf(type);
-			if (batchSize == 1) {
+			if (batchSize == 1 || type == ModelType.UNIT_GROUP) {
 				for (var change : changes) {
 					if (change != null) {
 						jsonImport.run(type, change.refId);

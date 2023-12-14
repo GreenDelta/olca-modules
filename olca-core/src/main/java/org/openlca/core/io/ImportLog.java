@@ -30,7 +30,7 @@ public final class ImportLog {
 	private final List<Consumer<Message>> listeners = new ArrayList<>();
 
 	public ImportLog() {
-		this(100_000);
+		this(10_000);
 	}
 
 	private ImportLog(int size) {

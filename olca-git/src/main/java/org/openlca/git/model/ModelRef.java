@@ -9,8 +9,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 
 	public ModelRef(String path) {
 		super(path);
-		this.path = path;
-		this.category = getCategory(path);
+		this.path = trimPaths(path);
+		this.category = getCategory(this.path);
 	}
 
 	public ModelRef(ModelRef ref) {
@@ -44,6 +44,16 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	@Override
 	public int compareTo(ModelRef o) {
 		return path.compareTo(o.path);
+	}
+
+	private String trimPaths(String path) {
+		while (path.contains(" /")) {
+			path = path.replace(" /", "/");
+		}
+		while (path.contains("/ ")) {
+			path = path.replace("/ ", "/");
+		}
+		return path;
 	}
 
 }

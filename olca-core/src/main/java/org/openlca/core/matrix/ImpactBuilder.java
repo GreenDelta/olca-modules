@@ -139,7 +139,6 @@ public final class ImpactBuilder {
 				f.isInput = impact.direction != null
 						? impact.direction == Direction.INPUT
 						: flowIndex.isInput(flowId);
-				f.withAbs = impact.direction != null;
 
 				// set the matrix value
 				int row = impactIndex.of(impactId);
@@ -206,7 +205,6 @@ public final class ImpactBuilder {
 				f.isInput = impact.direction != null
 						? impact.direction == Direction.INPUT
 						: flowIndex.isInput(flowId, locationId);
-				f.withAbs = impact.direction != null;
 
 				if (uncertainties != null) {
 					int uType = r.getInt(7);
@@ -255,7 +253,6 @@ public final class ImpactBuilder {
 				factor.isInput = impact.direction != null
 						? impact.direction == Direction.INPUT
 						: idxFlow.isInput();
-				factor.withAbs = impact.direction != null;
 
 				matrix.set(row, col, factor.matrixValue(interpreter));
 				if (uncertainties != null) {

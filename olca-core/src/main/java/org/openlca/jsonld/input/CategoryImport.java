@@ -1,0 +1,50 @@
+package org.openlca.jsonld.input;
+
+import org.openlca.core.model.ModelType;
+import org.openlca.util.Strings;
+
+public class CategoryImport {
+
+	private final JsonImport imp;
+	
+	public CategoryImport(JsonImport imp) {
+		this.imp = imp;
+	}
+	
+	public void importAll() {
+		var categories = imp.reader.getJson("categories.json");
+		if (categories == null || !categories.isJsonArray())
+			return;
+		for (var category : categories.getAsJsonArray()) {
+			if (!category.isJsonPrimitive())
+				continue;
+			var value = category.getAsString();
+			if (Strings.nullOrEmpty(value))
+				continue;
+			if (value.startsWith("/")) {
+				value = value.substring(1);
+			}
+			if (value.endsWith("/")) {
+				value = value.substring(0, value.length() - 1);
+			}
+			if (!value.contains("/")) 
+				continue;
+			if (value.contains("//"))
+				continue;
+			var type = safeModelType(value);
+			if (type == null)
+				continue;
+			var path = value.substring(value.indexOf("/") + 1);
+			imp.getCategory(type, path);
+		}
+	}
+
+	private ModelType safeModelType(String value) {
+		var type = value.substring(0, value.indexOf("/"));
+		for (var mType : ModelType.values())
+			if (mType.name().equals(type))
+				return mType;
+		return null;
+	}
+	
+}
