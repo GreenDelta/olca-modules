@@ -224,7 +224,7 @@ class ProcessWriter {
 
 		w.ln("Avoided products");
 		for (var e : p.exchanges) {
-			if (!e.isAvoided)
+			if (!e.isAvoided || !Exchanges.isProduct(e))
 				continue;
 			linkedFlows.add(e.flow);
 			var ref = toReferenceAmount(e);
@@ -411,7 +411,7 @@ class ProcessWriter {
 		w.ln("Process");
 		w.ln();
 
-		var categoryType = CategoryPath.of(config, p).type();
+		var categoryType = categoryTypeOf(p);
 		w.ln("Category type");
 		w.ln(categoryType.toString());
 		w.ln();
@@ -536,6 +536,14 @@ class ProcessWriter {
 		w.ln("System description");
 		w.ln("", "");
 		w.ln();
+	}
+
+	private ProcessCategory categoryTypeOf(Process p) {
+		for (var e : p.exchanges) {
+			if (Exchanges.isProviderFlow(e) && Exchanges.isWaste(e))
+				return ProcessCategory.WASTE_TREATMENT;
+		}
+		return CategoryPath.of(config, p).type();
 	}
 
 	private String comment(Process p) {
