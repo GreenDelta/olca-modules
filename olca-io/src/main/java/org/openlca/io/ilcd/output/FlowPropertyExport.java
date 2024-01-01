@@ -13,11 +13,11 @@ import org.openlca.io.Xml;
 
 public class FlowPropertyExport {
 
-	private final ILCDExport exp;
+	private final Export exp;
 	private org.openlca.core.model.FlowProperty flowProperty;
 	private String baseUri;
 
-	public FlowPropertyExport(ILCDExport exp) {
+	public FlowPropertyExport(Export exp) {
 		this.exp = exp;
 	}
 
@@ -57,7 +57,7 @@ public class FlowPropertyExport {
 	private QuantitativeReference makeUnitGroupRef() {
 		var qRef = new QuantitativeReference();
 		var unitGroup = flowProperty.unitGroup;
-		qRef.unitGroup = Export.of(unitGroup, exp);
+		qRef.unitGroup = exp.writeRef(unitGroup);
 		return qRef;
 	}
 

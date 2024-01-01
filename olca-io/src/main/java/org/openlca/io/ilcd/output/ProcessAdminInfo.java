@@ -2,7 +2,6 @@ package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDocumentation;
-import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.Ref;
@@ -18,12 +17,12 @@ import java.util.Date;
 
 class ProcessAdminInfo {
 
-	private final ILCDExport exp;
+	private final Export exp;
 	private Process process;
 	private ProcessDocumentation doc;
 	private AdminInfo iAdminInfo;
 
-	ProcessAdminInfo(ILCDExport exp) {
+	ProcessAdminInfo(Export exp) {
 		this.exp = exp;
 	}
 
@@ -41,23 +40,18 @@ class ProcessAdminInfo {
 	}
 
 	private void createDataEntry() {
-		DataEntry dataEntry = new DataEntry();
-		iAdminInfo.dataEntry = dataEntry;
-		dataEntry.timeStamp = Xml.calendar(new Date());
-		dataEntry.formats.add(Refs.ilcd());
-		if (doc.dataDocumentor != null) {
-			Ref ref = Export.of(doc.dataDocumentor, exp);
-			if (ref != null) {
-				dataEntry.documentor = ref;
-			}
-		}
+		var entry = new DataEntry();
+		iAdminInfo.dataEntry = entry;
+		entry.timeStamp = Xml.calendar(new Date());
+		entry.formats.add(Refs.ilcd());
+		entry.documentor = exp.writeRef(doc.dataDocumentor);
 	}
 
 	private void createDataGenerator() {
 		if (doc.dataGenerator != null) {
 			var generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
-			Ref ref = Export.of(doc.dataGenerator, exp);
+			Ref ref = exp.writeRef(doc.dataGenerator);
 			if (ref != null)
 				generator.contacts.add(ref);
 		}
@@ -71,27 +65,9 @@ class ProcessAdminInfo {
 		}
 		pub.version = Version.asString(process.version);
 		pub.copyright = doc.copyright;
-		mapDataSetOwner(pub);
+		pub.owner = exp.writeRef(doc.dataSetOwner);
 		exp.add(pub.accessRestrictions, doc.restrictions);
-		mapPublicationSource(pub);
-	}
-
-	private void mapDataSetOwner(Publication publication) {
-		if (doc.dataSetOwner != null) {
-			Ref ref = Export.of(doc.dataSetOwner, exp);
-			if (ref != null) {
-				publication.owner = ref;
-			}
-		}
-	}
-
-	private void mapPublicationSource(Publication publication) {
-		Source source = doc.publication;
-		if (source == null)
-			return;
-		Ref ref = Export.of(source, exp);
-		if (ref != null)
-			publication.republication = ref;
+		pub.republication = exp.writeRef(doc.publication);
 	}
 
 	private void createCommissionerAndGoal() {

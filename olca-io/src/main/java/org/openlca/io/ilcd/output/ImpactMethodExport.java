@@ -16,9 +16,9 @@ import java.util.Map;
 
 public class ImpactMethodExport {
 
-	private final ILCDExport exp;
+	private final Export exp;
 
-	public ImpactMethodExport(ILCDExport exp) {
+	public ImpactMethodExport(Export exp) {
 		this.exp = exp;
 	}
 
@@ -67,7 +67,7 @@ public class ImpactMethodExport {
 			list.factors.add(iFactor);
 			// TODO: uncertainty values + formulas
 			iFactor.meanValue = getRefAmount(oFactor);
-			iFactor.flow = Export.of(oFactor.flow, exp);
+			iFactor.flow = exp.writeRef(oFactor.flow);
 			if (oFactor.location != null) {
 				iFactor.location = oFactor.location.code;
 			}

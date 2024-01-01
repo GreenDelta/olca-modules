@@ -25,11 +25,11 @@ import org.openlca.io.Xml;
 
 public class FlowExport {
 
-	private final ILCDExport exp;
+	private final Export exp;
 	private org.openlca.core.model.Flow flow;
 	private String baseUri;
 
-	public FlowExport(ILCDExport exp) {
+	public FlowExport(Export exp) {
 		this.exp = exp;
 	}
 
@@ -94,7 +94,7 @@ public class FlowExport {
 			var propRef = new FlowPropertyRef();
 			refs.add(propRef);
 			var property = factor.flowProperty;
-			propRef.flowProperty = Export.of(property, exp);
+			propRef.flowProperty = exp.writeRef(property);
 			propRef.dataSetInternalID = property.equals(refProp)
 					? 0
 					: pos++;

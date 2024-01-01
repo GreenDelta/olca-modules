@@ -34,11 +34,11 @@ import java.util.List;
 public class ProcessExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final ILCDExport exp;
+	private final Export exp;
 	private org.openlca.core.model.Process process;
 	private ProcessDocumentation doc;
 
-	public ProcessExport(ILCDExport exp) {
+	public ProcessExport(Export exp) {
 		this.exp = exp;
 	}
 
@@ -201,7 +201,7 @@ public class ProcessExport {
 		exp.add(iRepri.dataTreatment, doc.dataTreatment);
 
 		for (Source source : doc.sources) {
-			Ref ref = Export.of(source, exp);
+			Ref ref = exp.writeRef(source);
 			if (ref != null)
 				iRepri.sources.add(ref);
 		}
@@ -223,7 +223,7 @@ public class ProcessExport {
 		reviews.add(review);
 		review.type = ReviewType.NOT_REVIEWED;
 		if (doc.reviewer != null) {
-			Ref ref = Export.of(doc.reviewer, exp);
+			Ref ref = exp.writeRef(doc.reviewer);
 			if (ref != null)
 				review.reviewers.add(ref);
 		}

@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 class ProcessParameterConversion {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ILCDExport exp;
+	private final Export exp;
 
-	public ProcessParameterConversion(ILCDExport exp) {
+	public ProcessParameterConversion(Export exp) {
 		this.exp = exp;
 	}
 

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class SystemExport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ILCDExport exp;
+	private final Export exp;
 	private ProductSystem system;
 
 	private final Map<Long, Integer> processIDs = new HashMap<>();
@@ -42,7 +42,7 @@ public class SystemExport {
 	private final Map<Long, ProcessDescriptor> processes = new HashMap<>();
 	private final Map<Long, FlowDescriptor> flows = new HashMap<>();
 
-	public SystemExport(ILCDExport exp) {
+	public SystemExport(Export exp) {
 		this.exp = exp;
 	}
 
@@ -144,7 +144,7 @@ public class SystemExport {
 		var d = processes.get(id);
 		if (!exp.store.contains(Process.class, d.refId)) {
 			var dao = new ProcessDao(exp.db);
-			Export.of(dao.getForId(d.id), exp);
+			exp.write(dao.getForId(d.id));
 		}
 		pi.process = toRef(d);
 

@@ -16,11 +16,11 @@ import org.openlca.io.Xml;
 
 public class UnitGroupExport {
 
-	private final ILCDExport exp;
+	private final Export exp;
 	private org.openlca.core.model.UnitGroup unitGroup;
 	private String baseUri;
 
-	public UnitGroupExport(ILCDExport exp) {
+	public UnitGroupExport(Export exp) {
 		this.exp = exp;
 	}
 

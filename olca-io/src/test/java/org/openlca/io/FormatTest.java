@@ -19,7 +19,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpold;
-import org.openlca.io.ilcd.output.ILCDExport;
+import org.openlca.io.ilcd.output.Export;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
@@ -118,7 +118,7 @@ public class FormatTest {
 		var file = Files.createTempFile("_olca_test", ".zip").toFile();
 		Files.delete(file.toPath());
 		try (var zip = new org.openlca.ilcd.io.ZipStore(file)) {
-			var export = new ILCDExport(db, zip);
+			var export = new Export(db, zip);
 			export.write(process);
 		}
 		check(file, Format.ILCD_ZIP);

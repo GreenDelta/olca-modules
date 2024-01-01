@@ -30,7 +30,7 @@ import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.output.ActorExport;
 import org.openlca.io.ilcd.output.FlowExport;
 import org.openlca.io.ilcd.output.FlowPropertyExport;
-import org.openlca.io.ilcd.output.ILCDExport;
+import org.openlca.io.ilcd.output.Export;
 import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 public class ILCDImportExportTest {
 
 	private static ImportConfig importConf;
-	private static ILCDExport export;
+	private static Export export;
 	private static File zip;
 	private static DataStore store;
 
@@ -55,7 +55,7 @@ public class ILCDImportExportTest {
 		assertTrue(zip.delete());
 		store = new ZipStore(zip);
 		importConf = new ImportConfig(new MemDataStore(), Tests.getDb());
-		export = new ILCDExport(Tests.getDb(), store);
+		export = new Export(Tests.getDb(), store);
 		put("contact.xml",
 			Contact.class);
 		put("source.xml", Source.class);

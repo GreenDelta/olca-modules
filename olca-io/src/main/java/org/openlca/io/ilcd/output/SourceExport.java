@@ -20,11 +20,11 @@ import java.io.File;
 public class SourceExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final ILCDExport exp;
+	private final Export exp;
 	private String baseUri;
 	private org.openlca.core.model.Source source;
 
-	public SourceExport(ILCDExport exp) {
+	public SourceExport(Export exp) {
 		this.exp = exp;
 	}
 

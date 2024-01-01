@@ -13,11 +13,11 @@ import org.openlca.io.Xml;
 
 public class ActorExport {
 
-	private final ILCDExport exp;
+	private final Export exp;
 	private Actor actor;
 	private String baseUri;
 
-	public ActorExport(ILCDExport exp) {
+	public ActorExport(Export exp) {
 		this.exp = exp;
 	}
 

@@ -7,7 +7,6 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.ExchangeDirection;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.ProcessInfo;
@@ -19,11 +18,11 @@ import java.util.HashMap;
 
 class ExchangeConversion {
 
-	private final ILCDExport exp;
+	private final Export exp;
 	private org.openlca.ilcd.processes.Process iProcess;
 	private final Process process;
 
-	public ExchangeConversion(Process process, ILCDExport exp) {
+	public ExchangeConversion(Process process, Export exp) {
 		this.process = process;
 		this.exp = exp;
 	}
@@ -43,7 +42,7 @@ class ExchangeConversion {
 		var iExchange = new org.openlca.ilcd.processes.Exchange();
 		iExchange.id = oExchange.internalId;
 		exp.add(iExchange.comment, oExchange.description);
-		mapFlow(oExchange, iExchange);
+		iExchange.flow = exp.writeRef(oExchange.flow);
 		iExchange.direction = oExchange.isInput
 				? ExchangeDirection.INPUT
 				: ExchangeDirection.OUTPUT;
@@ -150,15 +149,4 @@ class ExchangeConversion {
 		}
 		list.parameters.add(parameter);
 	}
-
-	private void mapFlow(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		if (oExchange.flow != null) {
-			Ref ref = Export.of(oExchange.flow, exp);
-			if (ref != null) {
-				iExchange.flow = ref;
-			}
-		}
-	}
-
 }
