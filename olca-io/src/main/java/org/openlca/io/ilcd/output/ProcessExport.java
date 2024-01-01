@@ -78,18 +78,9 @@ public class ProcessExport {
 		info.name = processName;
 		exp.add(processName.name, process.name);
 		exp.add(info.comment, process.description);
-		addClassification(info);
+		Categories.toClassification(process.category)
+				.ifPresent(info.classifications::add);
 		return info;
-	}
-
-	private void addClassification(DataSetInfo dataSetInfo) {
-		log.trace("Add classification");
-		if (process.category != null) {
-			var converter = new CategoryConverter();
-			var c = converter.getClassification(process.category);
-			if (c != null)
-				dataSetInfo.classifications.add(c);
-		}
 	}
 
 	private org.openlca.ilcd.commons.Time makeTime() {

@@ -51,7 +51,9 @@ public class Export {
 		if (e == null)
 			return;
 		try {
-			if (e instanceof ImpactMethod method) {
+			if (e instanceof Epd epd) {
+				new EpdExport(this).run(epd);
+			} else if (e instanceof ImpactMethod method) {
 				new ImpactMethodExport(this).run(method);
 			} else if (e instanceof ProductSystem system) {
 				new SystemExport(this).run(system);

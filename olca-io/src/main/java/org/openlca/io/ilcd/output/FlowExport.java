@@ -3,11 +3,9 @@ package org.openlca.io.ilcd.output;
 import java.util.List;
 
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
-import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
@@ -69,17 +67,14 @@ public class FlowExport {
 	}
 
 	private void makeCategoryInfo(DataSetInfo dataSetInfo) {
-		CategoryConverter converter = new CategoryConverter();
-		FlowCategoryInfo info = new FlowCategoryInfo();
+		var info = new FlowCategoryInfo();
 		dataSetInfo.classificationInformation = info;
 		if (flow.flowType == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
-			CompartmentList categorization = converter
-					.getElementaryFlowCategory(flow.category);
-			info.compartmentLists.add(categorization);
+			Categories.toCompartments(flow.category)
+					.ifPresent(info.compartmentLists::add);
 		} else {
-			Classification classification = converter
-					.getClassification(flow.category);
-			info.classifications.add(classification);
+			Categories.toClassification(flow.category)
+					.ifPresent(info.classifications::add);
 		}
 	}
 

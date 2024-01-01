@@ -12,7 +12,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.models.Connection;
-import org.openlca.ilcd.models.DataSetInfo;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelName;
@@ -93,16 +92,14 @@ public class SystemExport {
 		Models.setOrigin(model, "openLCA");
 		model.version = "1.1";
 		model.locations = "../ILCDLocations.xml";
-		DataSetInfo info = Models.forceDataSetInfo(model);
+		var info = Models.forceDataSetInfo(model);
 		info.uuid = system.refId;
 		ModelName name = Models.forceModelName(model);
 		exp.add(name.name, system.name);
 		exp.add(info.comment, system.description);
-		var conv = new CategoryConverter();
-		var c = conv.getClassification(system.category);
-		if (c != null) {
-			Models.forceClassifications(model).add(c);
-		}
+		Categories.toClassification(system.category)
+				.ifPresent(c -> Models.forceClassifications(model).add(c));
+
 		if (system.referenceProcess != null) {
 			long refId = system.referenceProcess.id;
 			var qRef = Models.forceQuantitativeReference(model);

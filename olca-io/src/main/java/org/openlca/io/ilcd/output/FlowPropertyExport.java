@@ -46,11 +46,8 @@ public class FlowPropertyExport {
 		info.uuid = flowProperty.refId;
 		exp.add(info.name, flowProperty.name);
 		exp.add(info.generalComment, flowProperty.description);
-		var converter = new CategoryConverter();
-		var c = converter.getClassification(flowProperty.category);
-		if (c != null) {
-			info.classifications.add(c);
-		}
+		Categories.toClassification(flowProperty.category)
+				.ifPresent(info.classifications::add);
 		return info;
 	}
 

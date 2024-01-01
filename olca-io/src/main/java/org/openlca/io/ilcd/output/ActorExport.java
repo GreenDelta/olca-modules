@@ -50,7 +50,8 @@ public class ActorExport {
 		info.wwwAddress = actor.website;
 		addAddress(info);
 		exp.add(info.description, actor.description);
-		addClassification(info);
+		Categories.toClassification(actor.category)
+				.ifPresent(info.classifications::add);
 		return info;
 	}
 
@@ -65,16 +66,6 @@ public class ActorExport {
 			address += " " + actor.city;
 		}
 		exp.add(dataSetInfo.contactAddress, address);
-	}
-
-	private void addClassification(DataSetInfo dataSetInfo) {
-		if (actor.category == null)
-			return;
-		var converter = new CategoryConverter();
-		var classification = converter.getClassification(actor.category);
-		if (classification != null) {
-			dataSetInfo.classifications.add(classification);
-		}
 	}
 
 	private AdminInfo makeAdminInfo() {

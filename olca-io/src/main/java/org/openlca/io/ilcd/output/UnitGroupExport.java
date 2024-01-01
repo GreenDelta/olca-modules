@@ -50,11 +50,8 @@ public class UnitGroupExport {
 		info.uuid = unitGroup.refId;
 		exp.add(info.name, unitGroup.name);
 		exp.add(info.generalComment, unitGroup.description);
-		var converter = new CategoryConverter();
-		var c = converter.getClassification(unitGroup.category);
-		if (c != null) {
-			info.classifications.add(c);
-		}
+		Categories.toClassification(unitGroup.category)
+				.ifPresent(info.classifications::add);
 		return info;
 	}
 

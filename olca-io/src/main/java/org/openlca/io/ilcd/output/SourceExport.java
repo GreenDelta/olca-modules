@@ -71,16 +71,13 @@ public class SourceExport {
 
 	private DataSetInfo makeDateSetInfo() {
 		log.trace("Create data set information.");
-		DataSetInfo info = new DataSetInfo();
+		var info = new DataSetInfo();
 		info.uuid = source.refId;
 		exp.add(info.name, source.name);
 		exp.add(info.description, source.description);
 		addTextReference(info);
-		var converter = new CategoryConverter();
-		var c = converter.getClassification(source.category);
-		if (c != null) {
-			info.classifications.add(c);
-		}
+		Categories.toClassification(source.category)
+				.ifPresent(info.classifications::add);
 		return info;
 	}
 
