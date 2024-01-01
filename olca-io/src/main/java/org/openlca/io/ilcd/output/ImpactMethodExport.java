@@ -5,7 +5,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Unit;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
@@ -17,16 +16,16 @@ import java.util.Map;
 
 public class ImpactMethodExport {
 
-	private final ILCDExport config;
+	private final ILCDExport exp;
 
-	public ImpactMethodExport(ILCDExport config) {
-		this.config = config;
+	public ImpactMethodExport(ILCDExport exp) {
+		this.exp = exp;
 	}
 
 	public void run(ImpactMethod method) {
 		if (method == null)
 			return;
-		if (config.store.contains(LCIAMethod.class, method.refId))
+		if (exp.store.contains(LCIAMethod.class, method.refId))
 			return;
 		for (ImpactCategory impact : method.impactCategories) {
 			LCIAMethod lciaMethod = new LCIAMethod();
@@ -34,24 +33,22 @@ public class ImpactMethodExport {
 					lciaMethod.otherAttributes);
 			addMethodInfo(method, impact, lciaMethod);
 			addFactors(impact, lciaMethod);
-			config.store.put(lciaMethod);
+			exp.store.put(lciaMethod);
 		}
 	}
 
 	private void addMethodInfo(ImpactMethod method, ImpactCategory impact,
 			LCIAMethod lciaMethod) {
-		MethodInfo info = new MethodInfo();
+		var info = new MethodInfo();
 		lciaMethod.methodInfo = info;
-		DataSetInfo dataSetInfo = new DataSetInfo();
+		var dataSetInfo = new DataSetInfo();
 		info.dataSetInfo = dataSetInfo;
 		dataSetInfo.uuid = impact.refId;
 		dataSetInfo.methods.add(method.name);
 		dataSetInfo.impactCategories.add(impact.name);
 		putAttribute("olca_category_unit", impact.referenceUnit,
 				dataSetInfo.otherAttributes);
-		if (impact.description != null)
-			LangString.set(dataSetInfo.comment,
-					impact.description, config.lang);
+		exp.add(dataSetInfo.comment, impact.description);
 	}
 
 	private void putAttribute(String name, String value,
@@ -70,7 +67,7 @@ public class ImpactMethodExport {
 			list.factors.add(iFactor);
 			// TODO: uncertainty values + formulas
 			iFactor.meanValue = getRefAmount(oFactor);
-			iFactor.flow = Export.of(oFactor.flow, config);
+			iFactor.flow = Export.of(oFactor.flow, exp);
 			if (oFactor.location != null) {
 				iFactor.location = oFactor.location.code;
 			}

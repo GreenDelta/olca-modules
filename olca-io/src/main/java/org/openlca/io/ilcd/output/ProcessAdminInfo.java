@@ -5,7 +5,6 @@ import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.processes.DataEntry;
@@ -19,13 +18,13 @@ import java.util.Date;
 
 class ProcessAdminInfo {
 
-	private final ILCDExport config;
+	private final ILCDExport exp;
 	private Process process;
 	private ProcessDocumentation doc;
 	private AdminInfo iAdminInfo;
 
-	ProcessAdminInfo(ILCDExport config) {
-		this.config = config;
+	ProcessAdminInfo(ILCDExport exp) {
+		this.exp = exp;
 	}
 
 	AdminInfo create(Process process) {
@@ -47,7 +46,7 @@ class ProcessAdminInfo {
 		dataEntry.timeStamp = Xml.calendar(new Date());
 		dataEntry.formats.add(Refs.ilcd());
 		if (doc.dataDocumentor != null) {
-			Ref ref = Export.of(doc.dataDocumentor, config);
+			Ref ref = Export.of(doc.dataDocumentor, exp);
 			if (ref != null) {
 				dataEntry.documentor = ref;
 			}
@@ -58,31 +57,28 @@ class ProcessAdminInfo {
 		if (doc.dataGenerator != null) {
 			var generator = new DataGenerator();
 			iAdminInfo.dataGenerator = generator;
-			Ref ref = Export.of(doc.dataGenerator, config);
+			Ref ref = Export.of(doc.dataGenerator, exp);
 			if (ref != null)
 				generator.contacts.add(ref);
 		}
 	}
 
 	private void createPublication() {
-		Publication pub = new Publication();
+		var pub = new Publication();
 		iAdminInfo.publication = pub;
-		if (process.lastChange != 0)
+		if (process.lastChange != 0) {
 			pub.lastRevision = Xml.calendar(process.lastChange);
+		}
 		pub.version = Version.asString(process.version);
 		pub.copyright = doc.copyright;
 		mapDataSetOwner(pub);
-		if (!Strings.nullOrEmpty(doc.restrictions)) {
-			pub.accessRestrictions.add(
-					LangString.of(doc.restrictions,
-							config.lang));
-		}
+		exp.add(pub.accessRestrictions, doc.restrictions);
 		mapPublicationSource(pub);
 	}
 
 	private void mapDataSetOwner(Publication publication) {
 		if (doc.dataSetOwner != null) {
-			Ref ref = Export.of(doc.dataSetOwner, config);
+			Ref ref = Export.of(doc.dataSetOwner, exp);
 			if (ref != null) {
 				publication.owner = ref;
 			}
@@ -93,7 +89,7 @@ class ProcessAdminInfo {
 		Source source = doc.publication;
 		if (source == null)
 			return;
-		Ref ref = Export.of(source, config);
+		Ref ref = Export.of(source, exp);
 		if (ref != null)
 			publication.republication = ref;
 	}
@@ -102,18 +98,10 @@ class ProcessAdminInfo {
 		if (Strings.nullOrEmpty(doc.intendedApplication)
 				&& Strings.nullOrEmpty(doc.project))
 			return;
-		CommissionerAndGoal comAndGoal = new CommissionerAndGoal();
+		var comAndGoal = new CommissionerAndGoal();
 		iAdminInfo.commissionerAndGoal = comAndGoal;
-		if (!Strings.nullOrEmpty(doc.intendedApplication)) {
-			comAndGoal.intendedApplications.add(
-					LangString.of(doc.intendedApplication,
-							config.lang));
-		}
-		if (!Strings.nullOrEmpty(doc.project)) {
-			comAndGoal.project.add(
-					LangString.of(doc.project,
-							config.lang));
-		}
+		exp.add(comAndGoal.intendedApplications, doc.intendedApplication);
+		exp.add(comAndGoal.project, doc.project);
 	}
 
 }

@@ -8,7 +8,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.commons.DataSetType;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 
 class DataSetRef {
@@ -16,44 +15,40 @@ class DataSetRef {
 	private DataSetRef() {
 	}
 
-	public static Ref makeRef(RootEntity model, ILCDExport config) {
-		if (model == null) {
+	public static Ref refOf(RootEntity e, ILCDExport exp) {
+		if (e == null) {
 			return new Ref();
 		}
-		Ref ref = new Ref();
+		var ref = new Ref();
 		ref.version = "01.00.000";
-		ref.uuid = model.refId;
-		setUriAndType(model, ref);
-		if (model.name != null) {
-			LangString.set(ref.name, model.name,
-					config.lang);
-		}
+		exp.add(ref.name, e.name);
+		ref.uuid = e.refId;
+		setUriAndType(e, ref);
 		return ref;
 	}
 
-	private static void setUriAndType(RootEntity iModel,
-                                      Ref ref) {
+	private static void setUriAndType(RootEntity e, Ref ref) {
 		String uri = "../";
-		if (iModel instanceof Actor) {
+		if (e instanceof Actor) {
 			ref.type = DataSetType.CONTACT;
 			uri += "contacts/";
-		} else if (iModel instanceof Source) {
+		} else if (e instanceof Source) {
 			ref.type = DataSetType.SOURCE;
 			uri += "sources/";
-		} else if (iModel instanceof UnitGroup) {
+		} else if (e instanceof UnitGroup) {
 			ref.type = DataSetType.UNIT_GROUP;
 			uri += "unitgroups/";
-		} else if (iModel instanceof FlowProperty) {
+		} else if (e instanceof FlowProperty) {
 			ref.type = DataSetType.FLOW_PROPERTY;
 			uri += "flowproperties/";
-		} else if (iModel instanceof Flow) {
+		} else if (e instanceof Flow) {
 			ref.type = DataSetType.FLOW;
 			uri += "flows/";
-		} else if (iModel instanceof Process) {
+		} else if (e instanceof Process) {
 			ref.type = DataSetType.PROCESS;
 			uri += "processes/";
 		}
-		uri += iModel.refId;
+		uri += e.refId;
 		ref.uri = uri + ".xml";
 	}
 

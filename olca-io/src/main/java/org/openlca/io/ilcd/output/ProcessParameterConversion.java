@@ -7,7 +7,6 @@ import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -16,15 +15,15 @@ import org.slf4j.LoggerFactory;
 class ProcessParameterConversion {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ILCDExport config;
+	private final ILCDExport exp;
 
-	public ProcessParameterConversion(ILCDExport config) {
-		this.config = config;
+	public ProcessParameterConversion(ILCDExport exp) {
+		this.exp = exp;
 	}
 
 	public List<org.openlca.ilcd.processes.Parameter> run(Process process) {
 		log.trace("Create process parameters.");
-		List<org.openlca.ilcd.processes.Parameter> params = processParams(process);
+		var params = processParams(process);
 		try {
 			addDatabaseParams(params);
 		} catch (Exception e) {
@@ -35,11 +34,11 @@ class ProcessParameterConversion {
 
 	private void addDatabaseParams(
 			List<org.openlca.ilcd.processes.Parameter> params) {
-		ParameterDao dao = new ParameterDao(config.db);
+		ParameterDao dao = new ParameterDao(exp.db);
 		for (Parameter param : dao.getGlobalParameters()) {
 			if (!valid(param))
 				continue;
-			org.openlca.ilcd.processes.Parameter iParam = convertParam(param);
+			var iParam = convertParam(param);
 			params.add(iParam);
 			addScope(iParam, ParameterScope.GLOBAL);
 		}
@@ -59,21 +58,17 @@ class ProcessParameterConversion {
 	}
 
 	private org.openlca.ilcd.processes.Parameter convertParam(Parameter oParam) {
-		org.openlca.ilcd.processes.Parameter iParameter = new org.openlca.ilcd.processes.Parameter();
+		var iParameter = new org.openlca.ilcd.processes.Parameter();
 		iParameter.name = oParam.name;
 		iParameter.formula = oParam.formula;
 		iParameter.mean = oParam.value;
 		new UncertaintyConverter().map(oParam, iParameter);
-		if (Strings.notEmpty(oParam.description)) {
-			LangString.set(iParameter.comment, oParam.description, config.lang);
-		}
+		exp.add(iParameter.comment, oParam.description);
 		return iParameter;
 	}
 
 	private boolean valid(Parameter param) {
-		if (param == null || Strings.nullOrEmpty(param.name))
-			return false;
-		return true;
+		return param != null && !Strings.nullOrEmpty(param.name);
 	}
 
 	private void addScope(org.openlca.ilcd.processes.Parameter param,

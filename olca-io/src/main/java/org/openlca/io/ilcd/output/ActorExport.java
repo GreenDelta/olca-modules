@@ -2,9 +2,7 @@ package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
@@ -43,40 +41,37 @@ public class ActorExport {
 	}
 
 	private DataSetInfo makeDataSetInfo() {
-		DataSetInfo info = new DataSetInfo();
+		var info = new DataSetInfo();
 		info.uuid = actor.refId;
-		LangString.set(info.name, actor.name, exp.lang);
+		exp.add(info.name, actor.name);
 		info.email = actor.email;
 		info.telefax = actor.telefax;
 		info.telephone = actor.telephone;
 		info.wwwAddress = actor.website;
 		addAddress(info);
-		if (actor.description != null) {
-			LangString.set(info.description,
-					actor.description, exp.lang);
-		}
+		exp.add(info.description, actor.description);
 		addClassification(info);
 		return info;
 	}
 
 	private void addAddress(DataSetInfo dataSetInfo) {
-		String address = actor.address;
+		var address = actor.address;
 		if (address == null)
 			return;
-		if (actor.zipCode != null)
+		if (actor.zipCode != null) {
 			address += ", " + actor.zipCode;
-		if (actor.city != null)
+		}
+		if (actor.city != null) {
 			address += " " + actor.city;
-		LangString.set(dataSetInfo.contactAddress, address,
-				exp.lang);
+		}
+		exp.add(dataSetInfo.contactAddress, address);
 	}
 
 	private void addClassification(DataSetInfo dataSetInfo) {
 		if (actor.category == null)
 			return;
-		CategoryConverter converter = new CategoryConverter();
-		Classification classification = converter.getClassification(
-				actor.category);
+		var converter = new CategoryConverter();
+		var classification = converter.getClassification(actor.category);
 		if (classification != null) {
 			dataSetInfo.classifications.add(classification);
 		}

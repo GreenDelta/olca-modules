@@ -47,7 +47,7 @@ class Export {
 		try {
 			var export = new SourceExport(config);
 			export.run(source);
-			return DataSetRef.makeRef(source, config);
+			return DataSetRef.refOf(source, config);
 		} catch (Exception e) {
 			log.error("Export of source failed: " + source, e);
 			return null;
@@ -58,7 +58,7 @@ class Export {
 		try {
 			var export = new ActorExport(config);
 			export.run(actor);
-			return DataSetRef.makeRef(actor, config);
+			return DataSetRef.refOf(actor, config);
 		} catch (Exception e) {
 			log.error("Export of actor failed: " + actor, e);
 			return null;
@@ -69,7 +69,7 @@ class Export {
 		try {
 			var export = new FlowExport(config);
 			export.run(flow);
-			return DataSetRef.makeRef(flow, config);
+			return DataSetRef.refOf(flow, config);
 		} catch (Exception e) {
 			log.error("Export of flow failed: " + flow, e);
 			return null;
@@ -80,7 +80,7 @@ class Export {
 		try {
 			var export = new FlowPropertyExport(config);
 			export.run(prop);
-			return DataSetRef.makeRef(prop, config);
+			return DataSetRef.refOf(prop, config);
 		} catch (Exception e) {
 			log.error("Export of flow property failed: " + prop, e);
 			return null;
@@ -91,7 +91,7 @@ class Export {
 		try {
 			var export = new UnitGroupExport(config);
 			export.run(unitGroup);
-			return DataSetRef.makeRef(unitGroup, config);
+			return DataSetRef.refOf(unitGroup, config);
 		} catch (Exception e) {
 			log.error("Export of unit group failed: " + unitGroup, e);
 			return null;
@@ -102,7 +102,7 @@ class Export {
 		try {
 			var export = new ProcessExport(config);
 			export.run(process);
-			return DataSetRef.makeRef(process, config);
+			return DataSetRef.refOf(process, config);
 		} catch (Exception e) {
 			log.error("Export of process failed: " + process, e);
 			return null;

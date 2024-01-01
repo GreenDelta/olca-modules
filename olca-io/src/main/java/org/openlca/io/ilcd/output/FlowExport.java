@@ -5,7 +5,6 @@ import java.util.List;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
 import org.openlca.ilcd.flows.CompartmentList;
@@ -26,50 +25,45 @@ import org.openlca.io.Xml;
 
 public class FlowExport {
 
-	private final ILCDExport config;
+	private final ILCDExport exp;
 	private org.openlca.core.model.Flow flow;
 	private String baseUri;
 
-	public FlowExport(ILCDExport config) {
-		this.config = config;
+	public FlowExport(ILCDExport exp) {
+		this.exp = exp;
 	}
 
 	public Flow run(org.openlca.core.model.Flow flow) {
-		if (config.store.contains(Flow.class, flow.refId))
-			return config.store.get(Flow.class, flow.refId);
+		if (exp.store.contains(Flow.class, flow.refId))
+			return exp.store.get(Flow.class, flow.refId);
 		this.flow = flow;
-		Flow iFlow = new Flow();
+		var iFlow = new Flow();
 		iFlow.version = "1.1";
 		FlowInfo info = new FlowInfo();
 		iFlow.flowInfo = info;
 		info.dataSetInfo = makeDataSetInfo();
-		QuantitativeReference qRef = new QuantitativeReference();
+		var qRef = new QuantitativeReference();
 		info.quantitativeReference = qRef;
 		qRef.referenceFlowProperty = 0;
 		iFlow.adminInfo = makeAdminInfo();
 		iFlow.modelling = makeModellingInfo();
 		makeFlowProperties(Flows.flowProperties(iFlow));
 		addLocation(iFlow);
-		config.store.put(iFlow);
+		exp.store.put(iFlow);
 		this.flow = null;
 		return iFlow;
 	}
 
 	private DataSetInfo makeDataSetInfo() {
-		DataSetInfo info = new DataSetInfo();
+		var info = new DataSetInfo();
 		info.uuid = flow.refId;
-		FlowName flowName = new FlowName();
+		var flowName = new FlowName();
 		info.name = flowName;
-		LangString.set(flowName.baseName, flow.name,
-			config.lang);
-		if (flow.description != null)
-			LangString.set(info.generalComment,
-				flow.description, config.lang);
+		exp.add(flowName.baseName, flow.name);
+		exp.add(info.generalComment, flow.description);
 		info.casNumber = flow.casNumber;
 		info.sumFormula = flow.formula;
-		if (flow.synonyms != null)
-			LangString.set(info.synonyms, flow.synonyms,
-				config.lang);
+		exp.add(info.synonyms, flow.synonyms);
 		makeCategoryInfo(info);
 		return info;
 	}
@@ -80,11 +74,11 @@ public class FlowExport {
 		dataSetInfo.classificationInformation = info;
 		if (flow.flowType == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
 			CompartmentList categorization = converter
-				.getElementaryFlowCategory(flow.category);
+					.getElementaryFlowCategory(flow.category);
 			info.compartmentLists.add(categorization);
 		} else {
 			Classification classification = converter
-				.getClassification(flow.category);
+					.getClassification(flow.category);
 			info.classifications.add(classification);
 		}
 	}
@@ -100,18 +94,18 @@ public class FlowExport {
 			var propRef = new FlowPropertyRef();
 			refs.add(propRef);
 			var property = factor.flowProperty;
-			propRef.flowProperty = Export.of(property, config);
+			propRef.flowProperty = Export.of(property, exp);
 			propRef.dataSetInternalID = property.equals(refProp)
-				? 0
-				: pos++;
+					? 0
+					: pos++;
 			propRef.meanValue = factor.conversionFactor;
 		}
 	}
 
 	private void addLocation(org.openlca.ilcd.flows.Flow iFlow) {
 		if (flow != null && flow.location != null) {
-			Geography geography = new Geography();
-			LangString.set(geography.location, flow.location.code, config.lang);
+			var geography = new Geography();
+			exp.add(geography.location, flow.location.code);
 			iFlow.flowInfo.geography = geography;
 		}
 	}

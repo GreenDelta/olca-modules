@@ -10,11 +10,13 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.io.DataStore;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.util.List;
 
 /**
  * The entry point for the ILCD export of model components.
@@ -24,48 +26,59 @@ public class ILCDExport {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	final IDatabase db;
 	final DataStore store;
-	String lang = "en";
+	private String lang = "en";
 
 	public ILCDExport(IDatabase db, DataStore store) {
 		this.db = db;
 		this.store = store;
 	}
 
-	public void write(RootEntity component) {
-		if (component == null)
+	/**
+	 * Set the language code for multi-language strings of the export.
+	 */
+	public ILCDExport withLang(String lang) {
+		if (Strings.notEmpty(lang)) {
+			this.lang = lang;
+		}
+		return this;
+	}
+
+	public void write(RootEntity e) {
+		if (e == null)
 			return;
 		try {
-			tryExport(component);
-		} catch (Exception e) {
-			log.error("Export of component " + component + " failed", e);
+			if (e instanceof ImpactMethod method) {
+				new ImpactMethodExport(this).run(method);
+			} else if (e instanceof ProductSystem system) {
+				new SystemExport(this).run(system);
+			} else if (e instanceof Process process) {
+				new ProcessExport(this).run(process);
+			} else if (e instanceof Flow flow) {
+				new FlowExport(this).run(flow);
+			} else if (e instanceof FlowProperty prop) {
+				new FlowPropertyExport(this).run(prop);
+			} else if (e instanceof UnitGroup group) {
+				new UnitGroupExport(this).run(group);
+			} else if (e instanceof Actor actor) {
+				new ActorExport(this).run(actor);
+			} else if (e instanceof Source source) {
+				new SourceExport(this).run(source);
+			} else {
+				log.error("cannot convert type to ILCD: {}", e);
+			}
+		} catch (Exception ex) {
+			log.error("export of " + e + " failed", ex);
 		}
 	}
 
-	private void tryExport(RootEntity component) {
-		if (component instanceof ImpactMethod) {
-			ImpactMethodExport export = new ImpactMethodExport(this);
-			export.run((ImpactMethod) component);
-		} else if (component instanceof ProductSystem) {
-			SystemExport export = new SystemExport(this);
-			export.run((ProductSystem) component);
-		} else if (component instanceof Process) {
-			ProcessExport export = new ProcessExport(this);
-			export.run((Process) component);
-		} else if (component instanceof Flow) {
-			FlowExport flowExport = new FlowExport(this);
-			flowExport.run((Flow) component);
-		} else if (component instanceof FlowProperty) {
-			FlowPropertyExport export = new FlowPropertyExport(this);
-			export.run((FlowProperty) component);
-		} else if (component instanceof UnitGroup) {
-			UnitGroupExport export = new UnitGroupExport(this);
-			export.run((UnitGroup) component);
-		} else if (component instanceof Actor) {
-			ActorExport export = new ActorExport(this);
-			export.run((Actor) component);
-		} else if (component instanceof Source) {
-			SourceExport export = new SourceExport(this);
-			export.run((Source) component);
-		}
+	/**
+	 * Adds the given value to the given list of language strings using the
+	 * default language code of the export. It only adds the string when the given
+	 * value is a non-empty string.
+	 */
+	void add(List<LangString> list, String value) {
+		if (value == null || value.isEmpty())
+			return;
+		LangString.set(list, value, lang);
 	}
 }
