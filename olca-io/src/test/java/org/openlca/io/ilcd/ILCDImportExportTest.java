@@ -13,6 +13,7 @@ import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
+import org.openlca.ilcd.io.DataStore;
 import org.openlca.ilcd.io.MemDataStore;
 import org.openlca.ilcd.io.ZipStore;
 import org.openlca.ilcd.processes.Process;
@@ -27,9 +28,9 @@ import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.output.ActorExport;
-import org.openlca.io.ilcd.output.ExportConfig;
 import org.openlca.io.ilcd.output.FlowExport;
 import org.openlca.io.ilcd.output.FlowPropertyExport;
+import org.openlca.io.ilcd.output.ILCDExport;
 import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
@@ -44,16 +45,17 @@ import static org.junit.Assert.*;
 public class ILCDImportExportTest {
 
 	private static ImportConfig importConf;
-	private static ExportConfig exportConf;
+	private static ILCDExport export;
 	private static File zip;
+	private static DataStore store;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
 		zip = Files.createTempFile("_olca_ilcd_export_test", ".zip").toFile();
 		assertTrue(zip.delete());
-		ZipStore store = new ZipStore(zip);
+		store = new ZipStore(zip);
 		importConf = new ImportConfig(new MemDataStore(), Tests.getDb());
-		exportConf = new ExportConfig(Tests.getDb(), store);
+		export = new ILCDExport(Tests.getDb(), store);
 		put("contact.xml",
 			Contact.class);
 		put("source.xml", Source.class);
@@ -68,7 +70,7 @@ public class ILCDImportExportTest {
 
 	@AfterClass
 	public static void tearDown() throws Exception {
-		exportConf.store.close();
+		store.close();
 		assertTrue(zip.delete());
 	}
 
@@ -85,8 +87,8 @@ public class ILCDImportExportTest {
 		var contact = importConf.store().get(Contact.class, id);
 		var actor = new ContactImport(importConf).run(contact);
 		assertEquals(id, actor.refId);
-		new ActorExport(exportConf).run(actor);
-		assertTrue(exportConf.store.contains(Contact.class, id));
+		new ActorExport(export).run(actor);
+		assertTrue(store.contains(Contact.class, id));
 	}
 
 	@Test
@@ -95,8 +97,8 @@ public class ILCDImportExportTest {
 		var dataSet = importConf.store().get(Source.class, id);
 		var source = new SourceImport(importConf).run(dataSet);
 		assertEquals(id, source.refId);
-		new SourceExport(exportConf).run(source);
-		assertTrue(exportConf.store.contains(Source.class, id));
+		new SourceExport(export).run(source);
+		assertTrue(store.contains(Source.class, id));
 	}
 
 	@Test
@@ -105,8 +107,8 @@ public class ILCDImportExportTest {
 		var dataSet = importConf.store().get(UnitGroup.class, id);
 		var group = new UnitGroupImport(importConf).run(dataSet);
 		assertEquals(id, group.refId);
-		new UnitGroupExport(exportConf).run(group);
-		assertTrue(exportConf.store.contains(UnitGroup.class, id));
+		new UnitGroupExport(export).run(group);
+		assertTrue(store.contains(UnitGroup.class, id));
 	}
 
 	@Test
@@ -115,8 +117,8 @@ public class ILCDImportExportTest {
 		var dataSet = importConf.store().get(FlowProperty.class, id);
 		var prop = new FlowPropertyImport(importConf).run(dataSet);
 		assertEquals(id, prop.refId);
-		new FlowPropertyExport(exportConf).run(prop);
-		assertTrue(exportConf.store.contains(FlowProperty.class, id));
+		new FlowPropertyExport(export).run(prop);
+		assertTrue(store.contains(FlowProperty.class, id));
 	}
 
 	@Test
@@ -125,8 +127,8 @@ public class ILCDImportExportTest {
 		var dataSet = importConf.store().get(Flow.class, id);
 		var syncFlow = new FlowImport(importConf).run(dataSet);
 		assertEquals(id, syncFlow.flow().refId);
-		new FlowExport(exportConf).run(syncFlow.flow());
-		assertTrue(exportConf.store.contains(Flow.class, id));
+		new FlowExport(export).run(syncFlow.flow());
+		assertTrue(store.contains(Flow.class, id));
 	}
 
 	@Test
@@ -135,8 +137,8 @@ public class ILCDImportExportTest {
 		var dataSet = importConf.store().get(Process.class, id);
 		var process = new ProcessImport(importConf).run(dataSet);
 		assertEquals(id, process.refId);
-		new ProcessExport(exportConf).run(process);
-		assertTrue(exportConf.store.contains(Process.class, id));
+		new ProcessExport(export).run(process);
+		assertTrue(store.contains(Process.class, id));
 	}
 
 }

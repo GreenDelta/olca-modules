@@ -20,11 +20,11 @@ import org.openlca.io.Xml;
 
 public class UnitGroupExport {
 
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private org.openlca.core.model.UnitGroup unitGroup;
 	private String baseUri;
 
-	public UnitGroupExport(ExportConfig config) {
+	public UnitGroupExport(ILCDExport config) {
 		this.config = config;
 	}
 

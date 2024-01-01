@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class SystemExport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private ProductSystem system;
 
 	private final Map<Long, Integer> processIDs = new HashMap<>();
@@ -45,7 +45,7 @@ public class SystemExport {
 	private final Map<Long, ProcessDescriptor> processes = new HashMap<>();
 	private final Map<Long, FlowDescriptor> flows = new HashMap<>();
 
-	public SystemExport(ExportConfig config) {
+	public SystemExport(ILCDExport config) {
 		this.config = config;
 	}
 

@@ -26,7 +26,7 @@ class Export {
 	 * Runs an export of the given model to the ILCD data store and returns the
 	 * data set reference to the exported model in the store.
 	 */
-	public static Ref of(RootEntity model, ExportConfig config) {
+	public static Ref of(RootEntity model, ILCDExport config) {
 		if (model instanceof Source)
 			return source((Source) model, config);
 		if (model instanceof Actor)
@@ -43,7 +43,7 @@ class Export {
 		return null;
 	}
 
-	private static Ref source(Source source, ExportConfig config) {
+	private static Ref source(Source source, ILCDExport config) {
 		try {
 			var export = new SourceExport(config);
 			export.run(source);
@@ -54,7 +54,7 @@ class Export {
 		}
 	}
 
-	private static Ref actor(Actor actor, ExportConfig config) {
+	private static Ref actor(Actor actor, ILCDExport config) {
 		try {
 			var export = new ActorExport(config);
 			export.run(actor);
@@ -65,7 +65,7 @@ class Export {
 		}
 	}
 
-	private static Ref flow(Flow flow, ExportConfig config) {
+	private static Ref flow(Flow flow, ILCDExport config) {
 		try {
 			var export = new FlowExport(config);
 			export.run(flow);
@@ -76,7 +76,7 @@ class Export {
 		}
 	}
 
-	private static Ref property(FlowProperty prop, ExportConfig config) {
+	private static Ref property(FlowProperty prop, ILCDExport config) {
 		try {
 			var export = new FlowPropertyExport(config);
 			export.run(prop);
@@ -87,7 +87,7 @@ class Export {
 		}
 	}
 
-	private static Ref unitGroup(UnitGroup unitGroup, ExportConfig config) {
+	private static Ref unitGroup(UnitGroup unitGroup, ILCDExport config) {
 		try {
 			var export = new UnitGroupExport(config);
 			export.run(unitGroup);
@@ -98,7 +98,7 @@ class Export {
 		}
 	}
 
-	private static Ref process(Process process, ExportConfig config) {
+	private static Ref process(Process process, ILCDExport config) {
 		try {
 			var export = new ProcessExport(config);
 			export.run(process);

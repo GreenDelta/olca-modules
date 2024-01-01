@@ -21,11 +21,11 @@ import java.util.Map;
 
 class ExchangeConversion {
 
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private org.openlca.ilcd.processes.Process iProcess;
 	private final Process process;
 
-	public ExchangeConversion(Process process, ExportConfig config) {
+	public ExchangeConversion(Process process, ILCDExport config) {
 		this.process = process;
 		this.config = config;
 	}

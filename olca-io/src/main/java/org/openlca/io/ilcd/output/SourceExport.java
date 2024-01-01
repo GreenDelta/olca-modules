@@ -22,11 +22,11 @@ import org.slf4j.LoggerFactory;
 public class SourceExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private String baseUri;
 	private org.openlca.core.model.Source source;
 
-	public SourceExport(ExportConfig config) {
+	public SourceExport(ILCDExport config) {
 		this.config = config;
 	}
 

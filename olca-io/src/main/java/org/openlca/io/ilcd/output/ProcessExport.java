@@ -37,11 +37,11 @@ import java.util.List;
 public class ProcessExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private org.openlca.core.model.Process process;
 	private ProcessDocumentation doc;
 
-	public ProcessExport(ExportConfig config) {
+	public ProcessExport(ILCDExport config) {
 		this.config = config;
 	}
 

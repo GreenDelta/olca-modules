@@ -13,10 +13,8 @@ class CategoryConverter {
 		if (category == null)
 			return null;
 		Classification classification = new Classification();
-		if (category != null) {
-			Stack<Category> stack = fillStack(category);
-			makeClasses(classification, stack);
-		}
+		Stack<Category> stack = fillStack(category);
+		makeClasses(classification, stack);
 		return classification;
 	}
 

@@ -19,12 +19,12 @@ import java.util.Date;
 
 class ProcessAdminInfo {
 
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private Process process;
 	private ProcessDocumentation doc;
 	private AdminInfo iAdminInfo;
 
-	ProcessAdminInfo(ExportConfig config) {
+	ProcessAdminInfo(ILCDExport config) {
 		this.config = config;
 	}
 

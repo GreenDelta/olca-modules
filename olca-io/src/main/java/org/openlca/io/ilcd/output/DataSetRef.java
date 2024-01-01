@@ -16,8 +16,7 @@ class DataSetRef {
 	private DataSetRef() {
 	}
 
-	public static Ref makeRef(RootEntity model,
-                              ExportConfig config) {
+	public static Ref makeRef(RootEntity model, ILCDExport config) {
 		if (model == null) {
 			return new Ref();
 		}

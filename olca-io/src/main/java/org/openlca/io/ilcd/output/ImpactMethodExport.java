@@ -17,9 +17,9 @@ import java.util.Map;
 
 public class ImpactMethodExport {
 
-	private final ExportConfig config;
+	private final ILCDExport config;
 
-	public ImpactMethodExport(ExportConfig config) {
+	public ImpactMethodExport(ILCDExport config) {
 		this.config = config;
 	}
 

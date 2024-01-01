@@ -16,11 +16,11 @@ import org.openlca.io.Xml;
 
 public class FlowPropertyExport {
 
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private org.openlca.core.model.FlowProperty flowProperty;
 	private String baseUri;
 
-	public FlowPropertyExport(ExportConfig config) {
+	public FlowPropertyExport(ILCDExport config) {
 		this.config = config;
 	}
 

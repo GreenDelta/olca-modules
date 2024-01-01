@@ -26,11 +26,11 @@ import org.openlca.io.Xml;
 
 public class FlowExport {
 
-	private final ExportConfig config;
+	private final ILCDExport config;
 	private org.openlca.core.model.Flow flow;
 	private String baseUri;
 
-	public FlowExport(ExportConfig config) {
+	public FlowExport(ILCDExport config) {
 		this.config = config;
 	}
 
@@ -148,16 +148,10 @@ public class FlowExport {
 	private FlowType getFlowType() {
 		if (flow.flowType == null)
 			return FlowType.OTHER_FLOW;
-		switch (flow.flowType) {
-			case ELEMENTARY_FLOW:
-				return FlowType.ELEMENTARY_FLOW;
-			case PRODUCT_FLOW:
-				return FlowType.PRODUCT_FLOW;
-			case WASTE_FLOW:
-				return FlowType.WASTE_FLOW;
-			default:
-				return FlowType.OTHER_FLOW;
-		}
+		return switch (flow.flowType) {
+			case ELEMENTARY_FLOW -> FlowType.ELEMENTARY_FLOW;
+			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
+			case WASTE_FLOW -> FlowType.WASTE_FLOW;
+		};
 	}
-
 }

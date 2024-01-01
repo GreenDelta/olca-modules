@@ -1,4 +1,4 @@
-package org.openlca.io.ilcd;
+package org.openlca.io.ilcd.input;
 
 import org.openlca.core.io.ImportLog;
 import org.openlca.ilcd.commons.IDataSet;

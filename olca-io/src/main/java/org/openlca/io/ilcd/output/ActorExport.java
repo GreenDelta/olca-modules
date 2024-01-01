@@ -15,12 +15,12 @@ import org.openlca.io.Xml;
 
 public class ActorExport {
 
-	private final ExportConfig config;
+	private final ILCDExport exp;
 	private Actor actor;
 	private String baseUri;
 
-	public ActorExport(ExportConfig config) {
-		this.config = config;
+	public ActorExport(ILCDExport exp) {
+		this.exp = exp;
 	}
 
 	public void setBaseUri(String baseUri) {
@@ -28,8 +28,8 @@ public class ActorExport {
 	}
 
 	public Contact run(Actor actor) {
-		if (config.store.contains(Contact.class, actor.refId))
-			return config.store.get(Contact.class, actor.refId);
+		if (exp.store.contains(Contact.class, actor.refId))
+			return exp.store.get(Contact.class, actor.refId);
 		this.actor = actor;
 		Contact contact = new Contact();
 		contact.version = "1.1";
@@ -37,7 +37,7 @@ public class ActorExport {
 		contact.contactInfo = info;
 		info.dataSetInfo = makeDataSetInfo();
 		contact.adminInfo = makeAdminInfo();
-		config.store.put(contact);
+		exp.store.put(contact);
 		this.actor = null;
 		return contact;
 	}
@@ -45,7 +45,7 @@ public class ActorExport {
 	private DataSetInfo makeDataSetInfo() {
 		DataSetInfo info = new DataSetInfo();
 		info.uuid = actor.refId;
-		LangString.set(info.name, actor.name, config.lang);
+		LangString.set(info.name, actor.name, exp.lang);
 		info.email = actor.email;
 		info.telefax = actor.telefax;
 		info.telephone = actor.telephone;
@@ -53,7 +53,7 @@ public class ActorExport {
 		addAddress(info);
 		if (actor.description != null) {
 			LangString.set(info.description,
-					actor.description, config.lang);
+					actor.description, exp.lang);
 		}
 		addClassification(info);
 		return info;
@@ -68,7 +68,7 @@ public class ActorExport {
 		if (actor.city != null)
 			address += " " + actor.city;
 		LangString.set(dataSetInfo.contactAddress, address,
-				config.lang);
+				exp.lang);
 	}
 
 	private void addClassification(DataSetInfo dataSetInfo) {

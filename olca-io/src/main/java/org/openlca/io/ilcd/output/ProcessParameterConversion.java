@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 class ProcessParameterConversion {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ExportConfig config;
+	private final ILCDExport config;
 
-	public ProcessParameterConversion(ExportConfig config) {
+	public ProcessParameterConversion(ILCDExport config) {
 		this.config = config;
 	}
 
@@ -85,13 +85,10 @@ class ProcessParameterConversion {
 	private String getScope(ParameterScope type) {
 		if (type == null)
 			return "unspecified";
-		switch (type) {
-		case GLOBAL:
-			return "global";
-		case PROCESS:
-			return "process";
-		default:
-			return "unspecified";
-		}
+		return switch (type) {
+			case GLOBAL -> "global";
+			case PROCESS -> "process";
+			default -> "unspecified";
+		};
 	}
 }
