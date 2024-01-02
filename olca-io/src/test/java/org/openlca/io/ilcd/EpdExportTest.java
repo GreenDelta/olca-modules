@@ -2,14 +2,16 @@ package org.openlca.io.ilcd;
 
 import static org.junit.Assert.*;
 
-import jakarta.xml.bind.JAXB;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.io.MemDataStore;
 import org.openlca.ilcd.io.XmlBinder;
@@ -28,9 +30,16 @@ public class EpdExportTest {
 		var units = UnitGroup.of("Mass units", "kg");
 		var mass = FlowProperty.of("Mass", units);
 		var p = Flow.product("Product", mass);
+		var result = Result.of("Some product - A1-A3", p);
+		var actor = Actor.of("Actor");
 		var epd = Epd.of("Some EPD", p);
 		epd.category = CategoryDao.sync(db, ModelType.EPD, "Some", "Category");
-		db.insert(units, mass, p, epd);
+		epd.programOperator = actor;
+		epd.verifier = actor;
+		epd.manufacturer = actor;
+		epd.modules.add(EpdModule.of("A1-A3", result));
+
+		db.insert(units, mass, p, actor, result, epd);
 
 		var store = new MemDataStore();
 		new Export(db, store).write(epd);

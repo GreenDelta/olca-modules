@@ -42,7 +42,7 @@ import static org.junit.Assert.*;
  * database of the test session.
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ILCDImportExportTest {
+public class ImportExportTest {
 
 	private static ImportConfig importConf;
 	private static Export export;
@@ -75,7 +75,7 @@ public class ILCDImportExportTest {
 	}
 
 	private static <T extends IDataSet> void put(String file, Class<T> clazz) {
-		var in = ILCDImportExportTest.class.getResourceAsStream(file);
+		var in = ImportExportTest.class.getResourceAsStream(file);
 		assertNotNull(in);
 		T obj = JAXB.unmarshal(in, clazz);
 		importConf.store().put(obj);
