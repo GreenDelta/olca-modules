@@ -25,9 +25,10 @@ public class FlowPropertyExport {
 		this.baseUri = baseUri;
 	}
 
-	public FlowProperty run(org.openlca.core.model.FlowProperty property) {
-		if (exp.store.contains(FlowProperty.class, property.refId))
-			return exp.store.get(FlowProperty.class, property.refId);
+	public void run(org.openlca.core.model.FlowProperty property) {
+		if (property == null
+				|| exp.store.contains(FlowProperty.class, property.refId))
+			return;
 		this.flowProperty = property;
 		FlowProperty iProperty = new FlowProperty();
 		iProperty.version = "1.1";
@@ -38,7 +39,6 @@ public class FlowPropertyExport {
 		iProperty.adminInfo = makeAdminInfo();
 		exp.store.put(iProperty);
 		this.flowProperty = null;
-		return iProperty;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

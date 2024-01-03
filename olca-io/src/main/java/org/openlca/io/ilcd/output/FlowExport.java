@@ -31,9 +31,9 @@ public class FlowExport {
 		this.exp = exp;
 	}
 
-	public Flow run(org.openlca.core.model.Flow flow) {
-		if (exp.store.contains(Flow.class, flow.refId))
-			return exp.store.get(Flow.class, flow.refId);
+	public void write(org.openlca.core.model.Flow flow) {
+		if (flow == null || exp.store.contains(Flow.class, flow.refId))
+			return;
 		this.flow = flow;
 		var iFlow = new Flow();
 		iFlow.version = "1.1";
@@ -49,7 +49,6 @@ public class FlowExport {
 		addLocation(iFlow);
 		exp.store.put(iFlow);
 		this.flow = null;
-		return iFlow;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

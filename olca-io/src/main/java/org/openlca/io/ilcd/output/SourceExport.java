@@ -32,9 +32,9 @@ public class SourceExport {
 		this.baseUri = baseUri;
 	}
 
-	public Source run(org.openlca.core.model.Source source) {
-		if (exp.store.contains(Source.class, source.refId))
-			return exp.store.get(Source.class, source.refId);
+	public void run(org.openlca.core.model.Source source) {
+		if (source == null || exp.store.contains(Source.class, source.refId))
+			return;
 		this.source = source;
 		log.trace("Run source export with {}", source);
 		Source iSource = new Source();
@@ -51,7 +51,6 @@ public class SourceExport {
 			addFileRef(dataSetInfo, extFile);
 			exp.store.put(iSource, new File[]{extFile});
 		}
-		return iSource;
 	}
 
 	private File getExternalFile() {

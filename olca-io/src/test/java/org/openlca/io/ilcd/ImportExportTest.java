@@ -87,7 +87,7 @@ public class ImportExportTest {
 		var contact = importConf.store().get(Contact.class, id);
 		var actor = new ContactImport(importConf).run(contact);
 		assertEquals(id, actor.refId);
-		new ActorExport(export).run(actor);
+		new ActorExport(export).write(actor);
 		assertTrue(store.contains(Contact.class, id));
 	}
 
@@ -107,7 +107,7 @@ public class ImportExportTest {
 		var dataSet = importConf.store().get(UnitGroup.class, id);
 		var group = new UnitGroupImport(importConf).run(dataSet);
 		assertEquals(id, group.refId);
-		new UnitGroupExport(export).run(group);
+		new UnitGroupExport(export).write(group);
 		assertTrue(store.contains(UnitGroup.class, id));
 	}
 
@@ -127,7 +127,7 @@ public class ImportExportTest {
 		var dataSet = importConf.store().get(Flow.class, id);
 		var syncFlow = new FlowImport(importConf).run(dataSet);
 		assertEquals(id, syncFlow.flow().refId);
-		new FlowExport(export).run(syncFlow.flow());
+		new FlowExport(export).write(syncFlow.flow());
 		assertTrue(store.contains(Flow.class, id));
 	}
 
@@ -137,7 +137,7 @@ public class ImportExportTest {
 		var dataSet = importConf.store().get(Process.class, id);
 		var process = new ProcessImport(importConf).run(dataSet);
 		assertEquals(id, process.refId);
-		new ProcessExport(export).run(process);
+		new ProcessExport(export).write(process);
 		assertTrue(store.contains(Process.class, id));
 	}
 

@@ -22,18 +22,17 @@ public class ImpactMethodExport {
 		this.exp = exp;
 	}
 
-	public void run(ImpactMethod method) {
+	public void write(ImpactMethod method) {
 		if (method == null)
 			return;
-		if (exp.store.contains(LCIAMethod.class, method.refId))
-			return;
-		for (ImpactCategory impact : method.impactCategories) {
-			LCIAMethod lciaMethod = new LCIAMethod();
-			putAttribute("olca_method_uuid", method.refId,
-					lciaMethod.otherAttributes);
-			addMethodInfo(method, impact, lciaMethod);
-			addFactors(impact, lciaMethod);
-			exp.store.put(lciaMethod);
+		for (var impact : method.impactCategories) {
+			if (exp.store.contains(LCIAMethod.class, impact.refId))
+				continue;
+			var m = new LCIAMethod();
+			putAttribute("olca_method_uuid", method.refId, m.otherAttributes);
+			addMethodInfo(method, impact, m);
+			addFactors(impact, m);
+			exp.store.put(m);
 		}
 	}
 

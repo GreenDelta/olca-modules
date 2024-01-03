@@ -42,9 +42,9 @@ public class ProcessExport {
 		this.exp = exp;
 	}
 
-	public Process run(org.openlca.core.model.Process p) {
-		if (exp.store.contains(Process.class, p.refId))
-			return exp.store.get(Process.class, p.refId);
+	public void write(org.openlca.core.model.Process p) {
+		if (p == null || exp.store.contains(Process.class, p.refId))
+			return;
 		log.trace("Run process export with {}", p);
 		this.process = p;
 		this.doc = p.documentation;
@@ -67,7 +67,6 @@ public class ProcessExport {
 		Process iProcess = builder.getProcess();
 		new ExchangeConversion(p, exp).run(iProcess);
 		exp.store.put(iProcess);
-		return iProcess;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

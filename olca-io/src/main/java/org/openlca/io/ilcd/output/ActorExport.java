@@ -25,9 +25,9 @@ public class ActorExport {
 		this.baseUri = baseUri;
 	}
 
-	public Contact run(Actor actor) {
-		if (exp.store.contains(Contact.class, actor.refId))
-			return exp.store.get(Contact.class, actor.refId);
+	public void write(Actor actor) {
+		if (actor == null || exp.store.contains(Contact.class, actor.refId))
+			return;
 		this.actor = actor;
 		Contact contact = new Contact();
 		contact.version = "1.1";
@@ -37,7 +37,6 @@ public class ActorExport {
 		contact.adminInfo = makeAdminInfo();
 		exp.store.put(contact);
 		this.actor = null;
-		return contact;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

@@ -28,9 +28,9 @@ public class UnitGroupExport {
 		this.baseUri = baseUri;
 	}
 
-	public UnitGroup run(org.openlca.core.model.UnitGroup unitGroup) {
+	public void write(org.openlca.core.model.UnitGroup unitGroup) {
 		if (exp.store.contains(UnitGroup.class, unitGroup.refId))
-			return exp.store.get(UnitGroup.class, unitGroup.refId);
+			return;
 		this.unitGroup = unitGroup;
 		UnitGroup iUnitGroup = new UnitGroup();
 		iUnitGroup.version = "1.1";
@@ -42,7 +42,6 @@ public class UnitGroupExport {
 		makeUnits(iUnitGroup);
 		exp.store.put(iUnitGroup);
 		this.unitGroup = null;
-		return iUnitGroup;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

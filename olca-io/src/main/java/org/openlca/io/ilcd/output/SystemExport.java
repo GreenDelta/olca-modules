@@ -45,11 +45,9 @@ public class SystemExport {
 		this.exp = exp;
 	}
 
-	public Model run(ProductSystem system) {
-		if (system == null)
-			return null;
-		if (exp.store.contains(Model.class, system.refId))
-			return exp.store.get(Model.class, system.refId);
+	public void write(ProductSystem system) {
+		if (system == null || exp.store.contains(Model.class, system.refId))
+			return;
 		this.system = system;
 		log.trace("Run product system export with {}", system);
 		loadMaps();
@@ -57,7 +55,6 @@ public class SystemExport {
 		mapLinks(model);
 		exp.store.put(model);
 		this.system = null;
-		return model;
 	}
 
 	private void loadMaps() {

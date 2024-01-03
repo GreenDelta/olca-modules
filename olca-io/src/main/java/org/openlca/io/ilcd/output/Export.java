@@ -52,21 +52,21 @@ public class Export {
 			return;
 		try {
 			if (e instanceof Epd epd) {
-				new EpdExport(this).run(epd);
+				new EpdExport(this).write(epd);
 			} else if (e instanceof ImpactMethod method) {
-				new ImpactMethodExport(this).run(method);
+				new ImpactMethodExport(this).write(method);
 			} else if (e instanceof ProductSystem system) {
-				new SystemExport(this).run(system);
+				new SystemExport(this).write(system);
 			} else if (e instanceof Process process) {
-				new ProcessExport(this).run(process);
+				new ProcessExport(this).write(process);
 			} else if (e instanceof Flow flow) {
-				new FlowExport(this).run(flow);
+				new FlowExport(this).write(flow);
 			} else if (e instanceof FlowProperty prop) {
 				new FlowPropertyExport(this).run(prop);
 			} else if (e instanceof UnitGroup group) {
-				new UnitGroupExport(this).run(group);
+				new UnitGroupExport(this).write(group);
 			} else if (e instanceof Actor actor) {
-				new ActorExport(this).run(actor);
+				new ActorExport(this).write(actor);
 			} else if (e instanceof Source source) {
 				new SourceExport(this).run(source);
 			} else {

@@ -28,7 +28,7 @@ public class EpdExport {
 		this.exp = exp;
 	}
 
-	public void run(Epd epd) {
+	public void write(Epd epd) {
 		if (epd == null || exp.store.contains(Process.class, epd.refId))
 			return;
 
