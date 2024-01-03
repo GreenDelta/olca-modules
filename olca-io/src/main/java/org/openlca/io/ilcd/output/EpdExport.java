@@ -18,6 +18,8 @@ import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.io.Xml;
 
+import java.util.HashMap;
+
 public class EpdExport {
 
 	private final Export exp;
@@ -26,11 +28,11 @@ public class EpdExport {
 		this.exp = exp;
 	}
 
-	public Process run(Epd epd) {
-		var p = new Process();
-		if (epd == null)
-			return p;
+	public void run(Epd epd) {
+		if (epd == null || exp.store.contains(Process.class, epd.refId))
+			return;
 
+		var p = new Process();
 		var info = Processes.forceDataSetInfo(p);
 		info.uuid = epd.refId;
 		var name = Processes.forceProcessName(p);
@@ -45,41 +47,9 @@ public class EpdExport {
 		writePublication(epd, p);
 
 		var ext = new EpdDataSet(p);
-
-
-		for (var m : epd.modules) {
-			if (m.result == null)
-				continue;
-
-			var module = new Module();
-			module.name = m.name;
-
-			for (var r : m.result.impactResults) {
-				if (r.indicator == null)
-					continue;
-				exp.write(r.indicator);
-
-				var ir = new IndicatorResult();
-				ir.indicator = new Indicator();
-				ir.indicator.name = r.indicator.name;
-				ir.indicator.uuid = r.indicator.refId;
-				ir.indicator.unit = r.indicator.referenceUnit;
-				ir.indicator.type = Type.LCIA;
-
-				ext.results.add(ir);
-
-				var amount = new Amount();
-				amount.value = r.amount;
-				amount.module = module;
-
-				ir.amounts.add(amount);
-			}
-
-		}
+		writeResults(epd, ext);
 		EpdExtensions.write(ext);
-
 		exp.store.put(p);
-		return p;
 	}
 
 	private void writeRefFlow(Epd epd, Process process) {
@@ -122,4 +92,34 @@ public class EpdExport {
 		}
 	}
 
+	private void writeResults(Epd epd, EpdDataSet ext) {
+		var results = new HashMap<String, IndicatorResult>();
+		for (var m : epd.modules) {
+			if (m.result == null)
+				continue;
+			var module = new Module();
+			module.name = m.name;
+
+			for (var r : m.result.impactResults) {
+				if (r.indicator == null)
+					continue;
+				var result = results.computeIfAbsent(r.indicator.refId, id -> {
+					exp.write(r.indicator);
+					var ir = new IndicatorResult();
+					ir.indicator = new Indicator();
+					ir.indicator.name = r.indicator.name;
+					ir.indicator.uuid = r.indicator.refId;
+					ir.indicator.unit = r.indicator.referenceUnit;
+					ir.indicator.type = Type.LCIA;
+					ext.results.add(ir);
+					return  ir;
+				});
+
+				var amount = new Amount();
+				amount.value = r.amount;
+				amount.module = module;
+				result.amounts.add(amount);
+			}
+		}
+	}
 }

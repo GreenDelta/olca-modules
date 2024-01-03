@@ -10,6 +10,8 @@ import org.openlca.core.model.Epd;
 import org.openlca.core.model.EpdModule;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.UnitGroup;
@@ -30,8 +32,12 @@ public class EpdExportTest {
 		var units = UnitGroup.of("Mass units", "kg");
 		var mass = FlowProperty.of("Mass", units);
 		var p = Flow.product("Product", mass);
-		var result = Result.of("Some product - A1-A3", p);
 		var actor = Actor.of("Actor");
+
+		var impact = ImpactCategory.of("GWP", "CO2eq.");
+		var result = Result.of("Some product - A1-A3", p);
+		result.impactResults.add(ImpactResult.of(impact, 42));
+
 		var epd = Epd.of("Some EPD", p);
 		epd.category = CategoryDao.sync(db, ModelType.EPD, "Some", "Category");
 		epd.programOperator = actor;
@@ -39,8 +45,7 @@ public class EpdExportTest {
 		epd.manufacturer = actor;
 		epd.modules.add(EpdModule.of("A1-A3", result));
 
-		db.insert(units, mass, p, actor, result, epd);
-
+		db.insert(units, mass, p, actor, impact, result, epd);
 		var store = new MemDataStore();
 		new Export(db, store).write(epd);
 		var iEpd = store.get(Process.class, epd.refId);
@@ -53,5 +58,4 @@ public class EpdExportTest {
 		store.close();
 
 	}
-
 }
