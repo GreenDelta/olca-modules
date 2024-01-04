@@ -55,6 +55,8 @@ public class Export {
 				new EpdExport(this).write(epd);
 			} else if (e instanceof ImpactMethod method) {
 				new ImpactMethodExport(this).write(method);
+			} else if (e instanceof ImpactCategory impact) {
+				new ImpactCategoryExport(this).write(impact);
 			} else if (e instanceof ProductSystem system) {
 				new SystemExport(this).write(system);
 			} else if (e instanceof Process process) {
