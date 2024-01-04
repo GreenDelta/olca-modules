@@ -3,11 +3,17 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Version;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
 import org.openlca.ilcd.methods.LCIAMethod;
 import org.openlca.ilcd.methods.MethodInfo;
+import org.openlca.ilcd.methods.QuantitativeReference;
+import org.openlca.ilcd.util.Methods;
+import org.openlca.io.Xml;
+import org.openlca.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +41,23 @@ public class ImpactCategoryExport {
 		m.methodInfo.dataSetInfo = info;
 		info.uuid = impact.refId;
 		info.methods.addAll(methodsOf(impact));
+		exp.add(info.name, impact.name);
 		info.impactCategories.add(impact.name);
 		exp.add(info.comment, impact.description);
+		Categories.toClassification(impact.category)
+				.ifPresent(info.classifications::add);
+
+		if (Strings.notEmpty(impact.referenceUnit)) {
+			var qRef = new QuantitativeReference();
+			qRef.quantity = new Ref();
+			exp.add(qRef.quantity.name, impact.referenceUnit);
+		}
+
+		var pub = Methods.forcePublication(m);
+		pub.version = Version.asString(impact.version);
+		pub.lastRevision = Xml.calendar(impact.lastChange);
+		var entry = Methods.forceDataEntry(m);
+		entry.timeStamp = Xml.calendar(impact.lastChange);
 	}
 
 	private List<String> methodsOf(ImpactCategory impact) {
