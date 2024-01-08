@@ -1,13 +1,9 @@
 package org.openlca.io.ilcd.output;
 
-import java.io.File;
-
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataSetInfo;
@@ -19,24 +15,26 @@ import org.openlca.io.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class SourceExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final ExportConfig config;
+	private final Export exp;
 	private String baseUri;
 	private org.openlca.core.model.Source source;
 
-	public SourceExport(ExportConfig config) {
-		this.config = config;
+	public SourceExport(Export exp) {
+		this.exp = exp;
 	}
 
 	public void setBaseUri(String baseUri) {
 		this.baseUri = baseUri;
 	}
 
-	public Source run(org.openlca.core.model.Source source) {
-		if (config.store.contains(Source.class, source.refId))
-			return config.store.get(Source.class, source.refId);
+	public void run(org.openlca.core.model.Source source) {
+		if (source == null || exp.store.contains(Source.class, source.refId))
+			return;
 		this.source = source;
 		log.trace("Run source export with {}", source);
 		Source iSource = new Source();
@@ -48,19 +46,18 @@ public class SourceExport {
 		info.dataSetInfo = dataSetInfo;
 		File extFile = getExternalFile();
 		if (extFile == null)
-			config.store.put(iSource);
+			exp.store.put(iSource);
 		else {
 			addFileRef(dataSetInfo, extFile);
-			config.store.put(iSource, new File[] { extFile });
+			exp.store.put(iSource, new File[]{extFile});
 		}
-		return iSource;
 	}
 
 	private File getExternalFile() {
 		String name = source.externalFile;
 		if (name == null)
 			return null;
-		File dbDir = config.db.getFileStorageLocation();
+		File dbDir = exp.db.getFileStorageLocation();
 		if (dbDir == null)
 			return null;
 		String path = FileStore.getPath(ModelType.SOURCE, source.refId);
@@ -73,19 +70,13 @@ public class SourceExport {
 
 	private DataSetInfo makeDateSetInfo() {
 		log.trace("Create data set information.");
-		DataSetInfo info = new DataSetInfo();
+		var info = new DataSetInfo();
 		info.uuid = source.refId;
-		LangString.set(info.name, source.name, config.lang);
-		if (source.description != null) {
-			LangString.set(info.description,
-					source.description, config.lang);
-		}
+		exp.add(info.name, source.name);
+		exp.add(info.description, source.description);
 		addTextReference(info);
-		CategoryConverter converter = new CategoryConverter();
-		Classification c = converter.getClassification(
-				source.category);
-		if (c != null)
-			info.classifications.add(c);
+		Categories.toClassification(source.category)
+				.ifPresent(info.classifications::add);
 		return info;
 	}
 
