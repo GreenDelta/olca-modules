@@ -20,6 +20,36 @@ public class Upgrade12 implements IUpgrade {
 	public void exec(IDatabase db) {
 		var u = new DbUtil(db);
 
+		addOtherProperties(u);
+		updateProcessDocs(u);
+	}
+
+	private void updateProcessDocs(DbUtil u) {
+		u.renameColumn("tbl_process_docs",
+				"completeness", "data_completeness CLOB(64 K)");
+		u.renameColumn("tbl_process_docs",
+				"sampling", "sampling_procedure CLOB(64 K)");
+		u.renameColumn("tbl_process_docs",
+				"f_dataset_owner", "f_data_owner BIGINT");
+		u.renameColumn("tbl_process_docs",
+				"restrictions", "access_restrictions CLOB(64 K)");
+
+		u.createColumn("tbl_process_docs", "use_advice CLOB(64 K)");
+		u.createColumn("tbl_process_docs", "review_type VARCHAR(255)");
+		u.createColumn("tbl_process_docs", "f_review_report BIGINT");
+
+		u.createTable("tbl_compliance_declarations", """
+				CREATE TABLE tbl_compliance_declarations (
+				 	id        BIGINT NOT NULL,
+				  f_owner   BIGINT,
+				  f_source  BIGINT,
+				  details   CLOB(64 K),
+				  PRIMARY KEY (id)
+				)
+				""");
+	}
+
+	private void addOtherProperties(DbUtil u) {
 		var tables = List.of(
 				"tbl_actors",
 				"tbl_categories",

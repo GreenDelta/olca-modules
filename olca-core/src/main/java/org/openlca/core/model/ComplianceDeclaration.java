@@ -22,8 +22,8 @@ public class ComplianceDeclaration extends AbstractEntity
 	/**
 	 * Description of compliance details.
 	 */
-	@Column(name = "details")
 	@Lob
+	@Column(name = "details")
 	public String details;
 
 	@Override

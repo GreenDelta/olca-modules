@@ -1,10 +1,10 @@
 package org.openlca.core.model;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import jakarta.persistence.*;
 
 /**
  * Contains the general documentation fields of a process that are not used for
@@ -66,8 +66,8 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 
 	@OneToMany
 	@JoinTable(name = "tbl_source_links", joinColumns = {
-			@JoinColumn(name = "f_owner") }, inverseJoinColumns = {
-			@JoinColumn(name = "f_source") })
+			@JoinColumn(name = "f_owner")}, inverseJoinColumns = {
+			@JoinColumn(name = "f_source")})
 	public final List<Source> sources = new ArrayList<>();
 
 	@Lob
@@ -86,7 +86,7 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 
 	// region review
 
-	@Column(name="review_type")
+	@Column(name = "review_type")
 	public String reviewType;
 
 	@Lob
@@ -101,7 +101,7 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	@JoinColumn(name = "f_review_report")
 	public Source reviewReport;
 
-  // endregion
+	// endregion
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -113,6 +113,7 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	@Column(name = "intended_application")
 	public String intendedApplication;
 
+	@Lob
 	@Column(name = "project")
 	public String project;
 
@@ -164,39 +165,44 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	public ProcessDoc copy() {
 		var clone = new ProcessDoc();
 
-		clone.technology = technology;
-		clone.time = time;
 		clone.validFrom = validFrom;
 		clone.validUntil = validUntil;
+		clone.time = time;
+		clone.geography = geography;
+		clone.technology = technology;
 
+		clone.inventoryMethod = inventoryMethod;
+		clone.modelingConstants = modelingConstants;
+
+		clone.dataCompleteness = dataCompleteness;
+		clone.dataSelection = dataSelection;
+		clone.dataTreatment = dataTreatment;
+		clone.sources.addAll(sources);
+		clone.samplingProcedure = samplingProcedure;
+		clone.dataCollectionPeriod = dataCollectionPeriod;
 		clone.useAdvice = useAdvice;
+
+		clone.reviewType = reviewType;
+		clone.reviewDetails = reviewDetails;
+		clone.reviewer = reviewer;
+		clone.reviewReport = reviewReport;
 
 		for (var c : complianceDeclarations) {
 			clone.complianceDeclarations.add(c.copy());
 		}
 
-		clone.dataCollectionPeriod = dataCollectionPeriod;
-		clone.dataCompleteness = dataCompleteness;
-		clone.dataSelection = dataSelection;
-		clone.reviewDetails = reviewDetails;
-		clone.dataTreatment = dataTreatment;
-		clone.inventoryMethod = inventoryMethod;
-		clone.modelingConstants = modelingConstants;
-		clone.reviewer = reviewer;
-		clone.samplingProcedure = samplingProcedure;
-		clone.sources.addAll(sources);
-
-		clone.accessRestrictions = accessRestrictions;
-		clone.copyright = copyright;
-		clone.creationDate = creationDate;
-		clone.dataDocumentor = dataDocumentor;
-		clone.dataGenerator = dataGenerator;
-		clone.dataOwner = dataOwner;
 		clone.intendedApplication = intendedApplication;
 		clone.project = project;
-		clone.publication = publication;
-		clone.geography = geography;
+
+		clone.dataGenerator = dataGenerator;
+		clone.dataDocumentor = dataDocumentor;
+
+		clone.creationDate = creationDate;
 		clone.precedingDataSet = precedingDataSet;
+		clone.publication = publication;
+		clone.dataOwner = dataOwner;
+		clone.copyright = copyright;
+		clone.accessRestrictions = accessRestrictions;
 
 		return clone;
 	}

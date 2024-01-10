@@ -290,35 +290,53 @@ CREATE INDEX idx_process_ref_id ON tbl_processes(ref_id);
 CREATE TABLE tbl_process_docs (
 
     id                      BIGINT NOT NULL,
-    geography               CLOB(64 K),
-    technology              CLOB(64 K),
-    time                    CLOB(64 K),
+
     valid_from              DATE,
     valid_until             DATE,
+    time                    CLOB(64 K),
+    geography               CLOB(64 K),
+    technology              CLOB(64 K),
 
-    modeling_constants      CLOB(64 K),
-    data_treatment          CLOB(64 K),
-    sampling                CLOB(64 K),
-    completeness            CLOB(64 K),
-    review_details          CLOB(64 K),
     inventory_method        CLOB(64 K),
-    data_collection_period  CLOB(64 K),
-    data_selection          CLOB(64 K),
-    f_reviewer              BIGINT,
+    modeling_constants      CLOB(64 K),
 
-    project                 CLOB(64 K),
-    creation_date           TIMESTAMP,
+    data_completeness       CLOB(64 K),
+    data_selection          CLOB(64 K),
+    data_treatment          CLOB(64 K),
+    sampling_procedure      CLOB(64 K),
+    data_collection_period  CLOB(64 K),
+    use_advice              CLOB(64 K),
+
+    review_type             VARCHAR(255),
+    review_details          CLOB(64 K),
+    f_reviewer              BIGINT,
+    f_review_report         BIGINT,
+
     intended_application    CLOB(64 K),
-    restrictions            CLOB(64 K),
-    copyright               SMALLINT default 0,
+    project                 CLOB(64 K),
+
     f_data_generator        BIGINT,
-    f_dataset_owner         BIGINT,
     f_data_documentor       BIGINT,
-    f_publication           BIGINT,
+
+    creation_date           TIMESTAMP,
     preceding_dataset       VARCHAR(255),
+    f_publication           BIGINT,
+    f_data_owner            BIGINT,
+    copyright               SMALLINT default 0,
+    access_restrictions     CLOB(64 K),
 
     PRIMARY KEY (id)
 
+);
+
+CREATE TABLE tbl_compliance_declarations (
+
+  id        BIGINT NOT NULL,
+  f_owner   BIGINT,
+  f_source  BIGINT,
+  details   CLOB(64 K),
+
+  PRIMARY KEY (id)
 );
 
 
