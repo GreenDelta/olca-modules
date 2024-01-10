@@ -9,7 +9,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
@@ -404,7 +404,7 @@ class ProcessWriter {
 
 	private void writeProcessDoc(Process p) {
 		if (p.documentation == null) {
-			p.documentation = new ProcessDocumentation();
+			p.documentation = new ProcessDoc();
 		}
 		var doc = p.documentation;
 
@@ -514,7 +514,7 @@ class ProcessWriter {
 		w.ln();
 
 		w.ln("Collection method");
-		w.ln(doc.sampling);
+		w.ln(doc.samplingProcedure);
 		w.ln();
 
 		w.ln("Data treatment");
@@ -563,17 +563,17 @@ class ProcessWriter {
 			fn.accept("Geography", doc.geography);
 			fn.accept("Technology", doc.technology);
 			fn.accept("Intended application", doc.intendedApplication);
-			if (doc.dataSetOwner != null) {
-				fn.accept("Data set owner", doc.dataSetOwner.name);
+			if (doc.dataOwner != null) {
+				fn.accept("Data set owner", doc.dataOwner.name);
 			}
 			if (doc.publication != null) {
 				fn.accept("Publication", doc.publication.name);
 			}
-			fn.accept("Access and use restrictions", doc.restrictions);
+			fn.accept("Access and use restrictions", doc.accessRestrictions);
 			fn.accept("Project", doc.project);
 			fn.accept("Copyright", doc.copyright ? "Yes" : "No");
 			fn.accept("Modeling constants", doc.modelingConstants);
-			fn.accept("Data completeness", doc.completeness);
+			fn.accept("Data completeness", doc.dataCompleteness);
 			fn.accept("Data selection", doc.dataSelection);
 			if (doc.reviewer != null) {
 				fn.accept("Reviewer", doc.reviewer.name);

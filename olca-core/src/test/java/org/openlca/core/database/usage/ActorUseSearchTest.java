@@ -6,7 +6,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 
 public class ActorUseSearchTest {
 
@@ -28,12 +28,12 @@ public class ActorUseSearchTest {
 	}
 
 	private Process createProcess(Actor actor) {
-		var documentation = new ProcessDocumentation();
+		var documentation = new ProcessDoc();
 		var process = new Process();
 		process.name = "process";
 		process.documentation = documentation;
 		process.documentation.reviewer = actor;
-		process.documentation.dataSetOwner = actor;
+		process.documentation.dataOwner = actor;
 		process.documentation.dataGenerator = actor;
 		process.documentation.dataDocumentor = actor;
 		return db.insert(process);

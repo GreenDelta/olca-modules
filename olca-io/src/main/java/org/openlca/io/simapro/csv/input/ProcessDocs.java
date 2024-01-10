@@ -1,7 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.util.Strings;
@@ -21,7 +21,7 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 			.join("Generator", block.generator())
 			.value();
 		if (process.documentation == null) {
-			process.documentation = new ProcessDocumentation();
+			process.documentation = new ProcessDoc();
 		}
 		mapSources();
 		mapDocFields();
@@ -43,7 +43,7 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 	private void mapDocFields() {
 		var doc = process.documentation;
 		doc.dataTreatment = block.dataTreatment();
-		doc.sampling = block.collectionMethod();
+		doc.samplingProcedure = block.collectionMethod();
 		doc.reviewDetails = block.verification();
 		doc.inventoryMethod = block.allocationRules();
 		doc.creationDate = block.date();

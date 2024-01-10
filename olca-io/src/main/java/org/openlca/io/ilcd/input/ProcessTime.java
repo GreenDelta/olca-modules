@@ -1,6 +1,6 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.ilcd.util.TimeExtension;
 
 import java.util.Calendar;
@@ -20,27 +20,27 @@ class ProcessTime {
 		this.config = config;
 	}
 
-	public void map(ProcessDocumentation documentation) {
+	public void map(ProcessDoc documentation) {
 		if (ilcdTime != null) {
 			mapValues(documentation);
 		}
 	}
 
-	private void mapValues(ProcessDocumentation doc) {
+	private void mapValues(ProcessDoc doc) {
 		TimeExtension extension = new TimeExtension(ilcdTime);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
 		doc.time = config.str(ilcdTime.description);
 	}
 
-	private void mapStartDate(TimeExtension extension, ProcessDocumentation doc) {
+	private void mapStartDate(TimeExtension extension, ProcessDoc doc) {
 		Date startDate = extension.getStartDate();
 		if (startDate == null)
 			startDate = date(ilcdTime.referenceYear);
 		doc.validFrom = startDate;
 	}
 
-	private void mapEndDate(TimeExtension extension, ProcessDocumentation doc) {
+	private void mapEndDate(TimeExtension extension, ProcessDoc doc) {
 		Date endDate = extension.getEndDate();
 		if (endDate == null)
 			endDate = date(ilcdTime.validUntil);

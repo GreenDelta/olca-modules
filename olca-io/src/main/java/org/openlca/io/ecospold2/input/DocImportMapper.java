@@ -7,7 +7,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.util.KeyGen;
@@ -37,7 +37,7 @@ class DocImportMapper {
 	private IDatabase database;
 
 	private Process process;
-	private ProcessDocumentation doc;
+	private ProcessDoc doc;
 
 	public DocImportMapper(IDatabase database) {
 		this.database = database;
@@ -47,7 +47,7 @@ class DocImportMapper {
 		if (ds == null || process == null)
 			return;
 		this.process = process;
-		this.doc = new ProcessDocumentation();
+		this.doc = new ProcessDoc();
 		process.documentation = doc;
 		Activity a = Spold2.getActivity(ds);
 		if (a != null) {
@@ -64,7 +64,7 @@ class DocImportMapper {
 		if (repri == null)
 			return;
 		doc.dataTreatment = repri.extrapolations;
-		doc.sampling = repri.samplingProcedure;
+		doc.samplingProcedure = repri.samplingProcedure;
 	}
 
 	private void mapTechnology(DataSet ds) {

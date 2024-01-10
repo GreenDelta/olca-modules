@@ -6,7 +6,7 @@ import java.util.function.LongFunction;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoAllocationFactor;
@@ -65,7 +65,7 @@ public class ProcessWriter {
     return proto.build();
   }
 
-	private ProtoProcessDocumentation.Builder mapDocOf(ProcessDocumentation d) {
+	private ProtoProcessDocumentation.Builder mapDocOf(ProcessDoc d) {
 		var proto = ProtoProcessDocumentation.newBuilder();
 		if (d == null)
 			return proto;
@@ -73,14 +73,14 @@ public class ProcessWriter {
 		proto.setTimeDescription(Strings.orEmpty(d.time));
 		proto.setTechnologyDescription(Strings.orEmpty(d.technology));
 		proto.setDataCollectionDescription(Strings.orEmpty(d.dataCollectionPeriod));
-		proto.setCompletenessDescription(Strings.orEmpty(d.completeness));
+		proto.setCompletenessDescription(Strings.orEmpty(d.dataCompleteness));
 		proto.setDataSelectionDescription(Strings.orEmpty(d.dataSelection));
 		proto.setReviewDetails(Strings.orEmpty(d.reviewDetails));
 		proto.setDataTreatmentDescription(Strings.orEmpty(d.dataTreatment));
 		proto.setInventoryMethodDescription(Strings.orEmpty(d.inventoryMethod));
 		proto.setModelingConstantsDescription(Strings.orEmpty(d.modelingConstants));
-		proto.setSamplingDescription(Strings.orEmpty(d.sampling));
-		proto.setRestrictionsDescription(Strings.orEmpty(d.restrictions));
+		proto.setSamplingDescription(Strings.orEmpty(d.samplingProcedure));
+		proto.setRestrictionsDescription(Strings.orEmpty(d.accessRestrictions));
 		proto.setIsCopyrightProtected(d.copyright);
 		proto.setIntendedApplication(Strings.orEmpty(d.intendedApplication));
 		proto.setProjectDescription(Strings.orEmpty(d.project));
@@ -92,7 +92,7 @@ public class ProcessWriter {
 		config.dep(d.reviewer, proto::setReviewer);
 		config.dep(d.dataDocumentor, proto::setDataDocumentor);
 		config.dep(d.dataGenerator, proto::setDataGenerator);
-		config.dep(d.dataSetOwner, proto::setDataSetOwner);
+		config.dep(d.dataOwner, proto::setDataSetOwner);
 		config.dep(d.publication, proto::setPublication);
 		d.sources.forEach(source -> config.dep(source, proto::addSources));
 

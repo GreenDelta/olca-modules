@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.Ref;
@@ -19,7 +19,7 @@ class ProcessAdminInfo {
 
 	private final Export exp;
 	private Process process;
-	private ProcessDocumentation doc;
+	private ProcessDoc doc;
 	private AdminInfo iAdminInfo;
 
 	ProcessAdminInfo(Export exp) {
@@ -65,8 +65,8 @@ class ProcessAdminInfo {
 		}
 		pub.version = Version.asString(process.version);
 		pub.copyright = doc.copyright;
-		pub.owner = exp.writeRef(doc.dataSetOwner);
-		exp.add(pub.accessRestrictions, doc.restrictions);
+		pub.owner = exp.writeRef(doc.dataOwner);
+		exp.add(pub.accessRestrictions, doc.accessRestrictions);
 		pub.republication = exp.writeRef(doc.publication);
 	}
 

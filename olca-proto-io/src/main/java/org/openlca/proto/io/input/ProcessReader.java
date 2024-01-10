@@ -8,7 +8,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.proto.ProtoProcess;
@@ -56,19 +56,19 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 		mapAllocationFactors(p, proto);
 	}
 
-	private ProcessDocumentation mapDoc(ProtoProcessDocumentation proto) {
-		var doc = new ProcessDocumentation();
+	private ProcessDoc mapDoc(ProtoProcessDocumentation proto) {
+		var doc = new ProcessDoc();
 		doc.time = proto.getTimeDescription();
 		doc.technology = proto.getTechnologyDescription();
 		doc.dataCollectionPeriod = proto.getDataCollectionDescription();
-		doc.completeness = proto.getCompletenessDescription();
+		doc.dataCompleteness = proto.getCompletenessDescription();
 		doc.dataSelection = proto.getDataSelectionDescription();
 		doc.reviewDetails = proto.getReviewDetails();
 		doc.dataTreatment = proto.getDataTreatmentDescription();
 		doc.inventoryMethod = proto.getInventoryMethodDescription();
 		doc.modelingConstants = proto.getModelingConstantsDescription();
-		doc.sampling = proto.getSamplingDescription();
-		doc.restrictions = proto.getRestrictionsDescription();
+		doc.samplingProcedure = proto.getSamplingDescription();
+		doc.accessRestrictions = proto.getRestrictionsDescription();
 		doc.intendedApplication = proto.getIntendedApplication();
 		doc.project = proto.getProjectDescription();
 		doc.geography = proto.getGeographyDescription();
@@ -80,7 +80,7 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 		doc.reviewer = Util.getActor(resolver, proto.getReviewer());
 		doc.dataDocumentor = Util.getActor(resolver, proto.getDataDocumentor());
 		doc.dataGenerator = Util.getActor(resolver, proto.getDataGenerator());
-		doc.dataSetOwner = Util.getActor(resolver, proto.getDataSetOwner());
+		doc.dataOwner = Util.getActor(resolver, proto.getDataSetOwner());
 		doc.publication = Util.getSource(resolver, proto.getPublication());
 
 		for (int i = 0; i < proto.getSourcesCount(); i++) {

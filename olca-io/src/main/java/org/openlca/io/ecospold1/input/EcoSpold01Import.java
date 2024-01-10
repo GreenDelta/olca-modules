@@ -24,7 +24,7 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IAllocation;
 import org.openlca.ecospold.IEcoSpold;
@@ -249,7 +249,7 @@ public class EcoSpold01Import implements Import {
 
 		p = new Process();
 		p.refId = id;
-		ProcessDocumentation doc = new ProcessDocumentation();
+		ProcessDoc doc = new ProcessDoc();
 		p.documentation = doc;
 
 		IReferenceFunction refFun = ds.getReferenceFunction();
@@ -286,7 +286,7 @@ public class EcoSpold01Import implements Import {
 	}
 
 	private void mapTimeAndGeography(DataSet ds, Process p,
-			ProcessDocumentation doc) {
+			ProcessDoc doc) {
 		ProcessTime time = new ProcessTime(ds.getTimePeriod());
 		time.map(doc);
 		if (ds.getGeography() != null) {
@@ -299,7 +299,7 @@ public class EcoSpold01Import implements Import {
 		}
 	}
 
-	private void mapActors(ProcessDocumentation doc, DataSet ds) {
+	private void mapActors(ProcessDoc doc, DataSet ds) {
 		Map<Integer, Actor> actors = new HashMap<>();
 		for (IPerson person : ds.getPersons()) {
 			Actor actor = db.findActor(person, ES1KeyGen.forPerson(person));
@@ -407,7 +407,7 @@ public class EcoSpold01Import implements Import {
 		process.quantitativeReference = exchange;
 	}
 
-	private void mapSources(ProcessDocumentation doc, DataSet dataSet) {
+	private void mapSources(ProcessDoc doc, DataSet dataSet) {
 		Map<Integer, Source> sources = new HashMap<>();
 		for (ISource source : dataSet.getSources()) {
 			Source s = db.findSource(source, ES1KeyGen.forSource(source));

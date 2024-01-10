@@ -5,7 +5,7 @@ import java.util.Date;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ecospold.IDataGeneratorAndPublication;
@@ -61,7 +61,7 @@ class Mapper {
 	}
 
 	public static void mapModellingAndValidation(DataSet dataSet,
-			ProcessDocumentation doc) {
+			ProcessDoc doc) {
 		IValidation validation = dataSet.getValidation();
 		if (validation != null) {
 			String evaluation = Joiner
@@ -74,13 +74,13 @@ class Mapper {
 		IRepresentativeness representativeness = dataSet
 				.getRepresentativeness();
 		if (representativeness != null)
-			doc.sampling = representativeness.getSamplingProcedure();
+			doc.samplingProcedure = representativeness.getSamplingProcedure();
 	}
 
 	public static void mapAdminInfo(DataSet dataSet, Process process) {
 		if (process == null || process.documentation == null)
 			return;
-		ProcessDocumentation doc = process.documentation;
+		ProcessDoc doc = process.documentation;
 		mapDataGeneratorAndPublication(dataSet, doc);
 		IDataSetInformation info = dataSet.getDataSetInformation();
 		if (info != null && info.getTimestamp() != null) {
@@ -92,7 +92,7 @@ class Mapper {
 	}
 
 	private static void mapDataGeneratorAndPublication(DataSet dataSet,
-			ProcessDocumentation doc) {
+			ProcessDoc doc) {
 		IDataGeneratorAndPublication gen = dataSet
 				.getDataGeneratorAndPublication();
 		if (gen == null)
@@ -103,16 +103,16 @@ class Mapper {
 			return;
 		switch (restrictedTo) {
 		case 0:
-			doc.restrictions = "All information can be accessed by everybody.";
+			doc.accessRestrictions = "All information can be accessed by everybody.";
 			break;
 		case 2:
-			doc.restrictions = "Ecoinvent clients have access to LCI results "
+			doc.accessRestrictions = "Ecoinvent clients have access to LCI results "
 			+ "but not to unit process raw data. Members of "
 			+ "the ecoinvent quality network (ecoinvent centre) "
 			+ "have access to all information.";
 			break;
 		case 3:
-			doc.restrictions = "The ecoinvent administrator has full access to "
+			doc.accessRestrictions = "The ecoinvent administrator has full access to "
 			+ "information. Via the web only LCI results are "
 			+ "accessible (for ecoinvent clients and "
 			+ "for members of the ecoinvent centre).";

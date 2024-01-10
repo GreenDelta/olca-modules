@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.commons.ModellingApproach;
@@ -36,7 +36,7 @@ public class ProcessExport {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final Export exp;
 	private org.openlca.core.model.Process process;
-	private ProcessDocumentation doc;
+	private ProcessDoc doc;
 
 	public ProcessExport(Export exp) {
 		this.exp = exp;
@@ -184,7 +184,7 @@ public class ProcessExport {
 			return null;
 		var iRepri = new Representativeness();
 
-		exp.add(iRepri.completeness, doc.completeness);
+		exp.add(iRepri.completeness, doc.dataCompleteness);
 		exp.add(iRepri.completenessComment, "None.");
 		exp.add(iRepri.dataSelection, doc.dataSelection);
 		exp.add(iRepri.dataSelectionComment, "None.");
@@ -196,7 +196,7 @@ public class ProcessExport {
 				iRepri.sources.add(ref);
 		}
 
-		exp.add(iRepri.samplingProcedure, doc.sampling);
+		exp.add(iRepri.samplingProcedure, doc.samplingProcedure);
 		exp.add(iRepri.dataCollectionPeriod, doc.dataCollectionPeriod);
 
 		return iRepri;

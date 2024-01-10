@@ -16,7 +16,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.ecospold2.UncertaintyConverter;
@@ -95,7 +95,7 @@ public class EcoSpold2Export implements Runnable {
 		for (ProcessDescriptor descriptor : descriptors) {
 			ProcessDao dao = new ProcessDao(db);
 			Process process = dao.getForId(descriptor.id);
-			ProcessDocumentation doc = process.documentation;
+			ProcessDoc doc = process.documentation;
 			if (doc == null) {
 				log.warn("no process entity or documentation for {} found",
 						descriptor);
@@ -111,7 +111,7 @@ public class EcoSpold2Export implements Runnable {
 		ds.masterData = new UserMasterData();
 		mapActivity(process, ds);
 		mapLocation(process, ds);
-		ProcessDoc.map(process, ds);
+		org.openlca.io.ecospold2.output.ProcessDoc.map(process, ds);
 		mapExchanges(process, ds);
 		mapParameters(process, ds);
 		MasterData.writeIndexEntry(ds);

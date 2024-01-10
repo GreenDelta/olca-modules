@@ -37,7 +37,7 @@ public class BaseDaoTest {
 		Parameter.class,
 		Process.class,
 		ProcessGroupSet.class,
-		ProcessDocumentation.class,
+		ProcessDoc.class,
 		ProductSystem.class,
 		Project.class,
 		SocialIndicator.class,

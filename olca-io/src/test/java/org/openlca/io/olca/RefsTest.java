@@ -30,7 +30,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -110,8 +110,8 @@ public class RefsTest {
 			proc.socialDqSystem = dqs;
 			SocialAspect.of(proc, social).source = source;
 
-			var doc = proc.documentation = new ProcessDocumentation();
-			doc.dataSetOwner = actor;
+			var doc = proc.documentation = new ProcessDoc();
+			doc.dataOwner = actor;
 			doc.dataGenerator = actor;
 			doc.dataDocumentor = actor;
 			doc.publication = source;
@@ -285,7 +285,7 @@ public class RefsTest {
 			check(p.exchangeDqSystem, "dqs");
 			check(p.socialDqSystem, "dqs");
 			var doc = p.documentation;
-			check(doc.dataSetOwner, "actor");
+			check(doc.dataOwner, "actor");
 			check(doc.dataGenerator, "actor");
 			check(doc.dataDocumentor, "actor");
 			check(doc.publication, "source");

@@ -48,14 +48,14 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(o, "timeDescription", d.time);
 		Json.put(o, "technologyDescription", d.technology);
 		Json.put(o, "dataCollectionDescription", d.dataCollectionPeriod);
-		Json.put(o, "completenessDescription", d.completeness);
+		Json.put(o, "completenessDescription", d.dataCompleteness);
 		Json.put(o, "dataSelectionDescription", d.dataSelection);
 		Json.put(o, "reviewDetails", d.reviewDetails);
 		Json.put(o, "dataTreatmentDescription", d.dataTreatment);
 		Json.put(o, "inventoryMethodDescription", d.inventoryMethod);
 		Json.put(o, "modelingConstantsDescription", d.modelingConstants);
-		Json.put(o, "samplingDescription", d.sampling);
-		Json.put(o, "restrictionsDescription", d.restrictions);
+		Json.put(o, "samplingDescription", d.samplingProcedure);
+		Json.put(o, "restrictionsDescription", d.accessRestrictions);
 		Json.put(o, "isCopyrightProtected", d.copyright);
 		Json.put(o, "intendedApplication", d.intendedApplication);
 		Json.put(o, "projectDescription", d.project);
@@ -67,7 +67,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(o, "reviewer", exp.handleRef(d.reviewer));
 		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
 		Json.put(o, "dataGenerator", exp.handleRef(d.dataGenerator));
-		Json.put(o, "dataSetOwner", exp.handleRef(d.dataSetOwner));
+		Json.put(o, "dataSetOwner", exp.handleRef(d.dataOwner));
 		Json.put(o, "publication", exp.handleRef(d.publication));
 		Json.put(o, "sources", exp.handleRefs(d.sources));
 		return o;

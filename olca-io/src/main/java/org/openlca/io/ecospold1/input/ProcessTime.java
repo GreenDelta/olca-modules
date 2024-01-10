@@ -4,7 +4,7 @@ import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.ecospold.ITimePeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ class ProcessTime {
 		this.timePeriod = timePeriod;
 	}
 
-	public void map(ProcessDocumentation doc) {
+	public void map(ProcessDoc doc) {
 		if (timePeriod != null && doc != null) {
 			doc.time = timePeriod.getText();
 			doc.validFrom = getStartDate();

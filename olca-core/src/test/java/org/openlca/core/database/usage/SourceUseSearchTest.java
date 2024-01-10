@@ -9,7 +9,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.Source;
 
 public class SourceUseSearchTest {
@@ -25,7 +25,7 @@ public class SourceUseSearchTest {
 		source = db.insert(Source.of("test source"));
 		process = new Process();
 		process.name = "test process";
-		process.documentation = new ProcessDocumentation();
+		process.documentation = new ProcessDoc();
 		process = db.insert(process);
 		method = db.insert(ImpactMethod.of("test method"));
 		dqSystem = db.insert( new DQSystem());

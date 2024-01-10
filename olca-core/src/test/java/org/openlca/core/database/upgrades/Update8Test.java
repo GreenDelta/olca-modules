@@ -13,7 +13,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -64,7 +64,7 @@ public class Update8Test {
 
 		ProcessDao dao = new ProcessDao(db);
 		Process proc = new Process();
-		proc.documentation = new ProcessDocumentation();
+		proc.documentation = new ProcessDoc();
 		proc.documentation.sources.add(source);
 		proc.documentation.precedingDataSet = "ABC123";
 		dao.insert(proc);

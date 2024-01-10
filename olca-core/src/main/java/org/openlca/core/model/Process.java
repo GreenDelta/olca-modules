@@ -35,7 +35,7 @@ public class Process extends ParameterizedEntity implements CalculationTarget {
 
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_process_doc")
-	public ProcessDocumentation documentation;
+	public ProcessDoc documentation;
 
 	@Column(name = "process_type")
 	@Enumerated(EnumType.STRING)

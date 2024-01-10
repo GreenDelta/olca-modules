@@ -162,7 +162,7 @@ class ProcessImport {
 		doc.reviewer = conf.swap(doc.reviewer);
 		doc.dataGenerator = conf.swap(doc.dataGenerator);
 		doc.dataDocumentor = conf.swap(doc.dataDocumentor);
-		doc.dataSetOwner = conf.swap(doc.dataSetOwner);
+		doc.dataOwner = conf.swap(doc.dataOwner);
 		doc.publication = conf.swap(doc.publication);
 		var sources = doc.sources.stream()
 				.map(conf::swap)

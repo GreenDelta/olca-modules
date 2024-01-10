@@ -8,7 +8,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
@@ -91,8 +91,8 @@ public class ProcessImport {
 		}
 	}
 
-	private ProcessDocumentation mapDocumentation() {
-		var doc = new ProcessDocumentation();
+	private ProcessDoc mapDocumentation() {
+		var doc = new ProcessDoc();
 		var processTime = new ProcessTime(ilcdProcess.getTime(), config);
 		processTime.map(doc);
 		mapGeography(doc);
@@ -108,7 +108,7 @@ public class ProcessImport {
 		return doc;
 	}
 
-	private void mapGeography(ProcessDocumentation doc) {
+	private void mapGeography(ProcessDoc doc) {
 		var loc = Processes.getLocation(ilcdProcess.getValue());
 		if (loc == null)
 			return;
@@ -116,21 +116,21 @@ public class ProcessImport {
 		process.location = config.locationOf(loc.code);
 	}
 
-	private void mapTechnology(ProcessDocumentation doc) {
+	private void mapTechnology(ProcessDoc doc) {
 		var iTech = ilcdProcess.getTechnology();
 		if (iTech != null) {
 			doc.technology = config.str(iTech.description);
 		}
 	}
 
-	private void mapPublication(ProcessDocumentation doc) {
+	private void mapPublication(ProcessDoc doc) {
 		var iPub = ilcdProcess.getPublication();
 		if (iPub != null) {
 
 			// data set owner
 			Ref ownerRef = iPub.owner;
 			if (ownerRef != null) {
-				doc.dataSetOwner = fetchActor(ownerRef);
+				doc.dataOwner = fetchActor(ownerRef);
 			}
 
 			// publication
@@ -140,7 +140,7 @@ public class ProcessImport {
 			}
 
 			// access and use restrictions
-			doc.restrictions = config.str(iPub.accessRestrictions);
+			doc.accessRestrictions = config.str(iPub.accessRestrictions);
 
 			// version
 			process.version = Version.fromString(
@@ -154,7 +154,7 @@ public class ProcessImport {
 		}
 	}
 
-	private void mapDataEntry(ProcessDocumentation doc) {
+	private void mapDataEntry(ProcessDoc doc) {
 		var iEntry = ilcdProcess.getDataEntry();
 		if (iEntry == null)
 			return;
@@ -168,7 +168,7 @@ public class ProcessImport {
 		}
 	}
 
-	private void mapDataGenerator(ProcessDocumentation doc) {
+	private void mapDataGenerator(ProcessDoc doc) {
 		if (ilcdProcess.getDataGenerator() != null) {
 			List<Ref> refs = ilcdProcess.getDataGenerator().contacts;
 			if (!refs.isEmpty()) {
@@ -178,7 +178,7 @@ public class ProcessImport {
 		}
 	}
 
-	private void mapComissionerAndGoal(ProcessDocumentation doc) {
+	private void mapComissionerAndGoal(ProcessDoc doc) {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			var cag = ilcdProcess.getCommissionerAndGoal();
 			doc.intendedApplication = config.str(cag.intendedApplications);
@@ -186,7 +186,7 @@ public class ProcessImport {
 		}
 	}
 
-	private void mapLciMethod(ProcessDocumentation doc) {
+	private void mapLciMethod(ProcessDoc doc) {
 		if (ilcdProcess.getProcessType() != null) {
 			process.processType = switch (ilcdProcess.getProcessType()) {
 				case UNIT_PROCESS_BLACK_BOX, UNIT_PROCESS -> ProcessType.UNIT_PROCESS;
@@ -217,18 +217,18 @@ public class ProcessImport {
 		};
 	}
 
-	private void mapRepresentativeness(ProcessDocumentation doc) {
+	private void mapRepresentativeness(ProcessDoc doc) {
 		var r = ilcdProcess.getRepresentativeness();
 		if (r == null)
 			return;
-		doc.completeness = config.str(r.completeness);
+		doc.dataCompleteness = config.str(r.completeness);
 		doc.dataSelection = config.str(r.dataSelection);
 		doc.dataTreatment = config.str(r.dataTreatment);
-		doc.sampling = config.str(r.samplingProcedure);
+		doc.samplingProcedure = config.str(r.samplingProcedure);
 		doc.dataCollectionPeriod = config.str(r.dataCollectionPeriod);
 	}
 
-	private void addSources(ProcessDocumentation doc) {
+	private void addSources(ProcessDoc doc) {
 		List<Ref> refs = ilcdProcess.getAllSources();
 		for (Ref ref : refs) {
 			if (ref == null)
@@ -241,7 +241,7 @@ public class ProcessImport {
 
 	}
 
-	private void mapReviews(ProcessDocumentation doc) {
+	private void mapReviews(ProcessDoc doc) {
 		if (ilcdProcess.getReviews().isEmpty())
 			return;
 		var review = ilcdProcess.getReviews().get(0);

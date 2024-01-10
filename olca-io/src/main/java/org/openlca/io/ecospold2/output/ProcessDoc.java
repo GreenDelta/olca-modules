@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.Version;
 
 import spold2.ActivityDescription;
@@ -27,7 +26,7 @@ import spold2.Time;
 class ProcessDoc {
 
 	private final Process process;
-	private final ProcessDocumentation doc;
+	private final org.openlca.core.model.ProcessDoc doc;
 	private final DataSet dataSet;
 
 	private ProcessDoc(Process process, DataSet dataSet) {
@@ -86,7 +85,7 @@ class ProcessDoc {
 		Representativeness repri = Spold2.representativeness(dataSet);
 		repri.systemModelId = "06590a66-662a-4885-8494-ad0cf410f956";
 		repri.systemModelName = "Allocation, ecoinvent default";
-		repri.samplingProcedure = doc.sampling;
+		repri.samplingProcedure = doc.samplingProcedure;
 		repri.extrapolations = doc.dataTreatment;
 	}
 

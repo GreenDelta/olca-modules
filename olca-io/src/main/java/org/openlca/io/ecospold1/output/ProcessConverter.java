@@ -6,7 +6,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
@@ -67,7 +67,7 @@ class ProcessConverter {
 		mapAdminInfo(doc, dataSet);
 	}
 
-	private void mapDataSetInformation(ProcessDocumentation doc, DataSet ds) {
+	private void mapDataSetInformation(ProcessDoc doc, DataSet ds) {
 		var info = factory.createDataSetInformation();
 		ds.setDataSetInformation(info);
 		info.setEnergyValues(0);
@@ -96,7 +96,7 @@ class ProcessConverter {
 				: 1;
 	}
 
-	private void mapGeography(ProcessDocumentation doc, DataSet dataSet) {
+	private void mapGeography(ProcessDoc doc, DataSet dataSet) {
 		IGeography geography = factory.createGeography();
 		dataSet.setGeography(geography);
 		Location location = process.location;
@@ -110,22 +110,22 @@ class ProcessConverter {
 			geography.setLocation("GLO");
 	}
 
-	private void mapModelingAndValidation(ProcessDocumentation doc,
-			DataSet dataSet) {
+	private void mapModelingAndValidation(ProcessDoc doc,
+                                          DataSet dataSet) {
 		mapValidation(doc, dataSet);
 		for (Source source : doc.sources)
 			actorSourceMapper.map(source, dataSet);
-		if (doc.sampling == null)
+		if (doc.samplingProcedure == null)
 			return;
 		var repr = dataSet.getRepresentativeness();
 		if (repr == null) {
 			repr = factory.createRepresentativeness();
 			dataSet.setRepresentativeness(repr);
 		}
-		repr.setSamplingProcedure(doc.sampling);
+		repr.setSamplingProcedure(doc.samplingProcedure);
 	}
 
-	private void mapValidation(ProcessDocumentation doc, DataSet dataSet) {
+	private void mapValidation(ProcessDoc doc, DataSet dataSet) {
 		if (doc.reviewer == null)
 			return;
 		var validation = dataSet.getValidation();
@@ -143,7 +143,7 @@ class ProcessConverter {
 						: "none");
 	}
 
-	private void mapAdminInfo(ProcessDocumentation doc, DataSet dataset) {
+	private void mapAdminInfo(ProcessDoc doc, DataSet dataset) {
 		var generator = dataset.getDataGeneratorAndPublication();
 		if (generator == null) {
 			generator = factory.createDataGeneratorAndPublication();
@@ -163,7 +163,7 @@ class ProcessConverter {
 		}
 	}
 
-	private void mapEntryBy(ProcessDocumentation doc, DataSet dataset) {
+	private void mapEntryBy(ProcessDoc doc, DataSet dataset) {
 		if (doc.dataDocumentor == null)
 			return;
 		int n = actorSourceMapper.map(doc.dataDocumentor, dataset);
@@ -175,13 +175,13 @@ class ProcessConverter {
 		entryBy.setPerson(n);
 	}
 
-	private void mapTechnology(ProcessDocumentation doc, DataSet dataset) {
+	private void mapTechnology(ProcessDoc doc, DataSet dataset) {
 		ITechnology technology = factory.createTechnology();
 		technology.setText(doc.technology);
 		dataset.setTechnology(technology);
 	}
 
-	private void mapTime(ProcessDocumentation doc, DataSet dataset) {
+	private void mapTime(ProcessDoc doc, DataSet dataset) {
 		var time = factory.createTimePeriod();
 		time.setDataValidForEntirePeriod(true);
 		if (doc.validFrom != null)

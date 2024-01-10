@@ -12,7 +12,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDocumentation;
+import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Source;
@@ -48,7 +48,7 @@ public class WriterTest {
 	@Test
 	public void testWriteDocumentationSources() {
 		var process = new Process();
-		var doc = new ProcessDocumentation();
+		var doc = new ProcessDoc();
 		IntStream.range(0, 3)
 			.mapToObj((index) -> Source.of("source" + index))
 			.forEach(doc.sources::add);
@@ -67,7 +67,7 @@ public class WriterTest {
 	@Test
 	public void testWriteDocumentation() {
 		var process = new Process();
-		var doc = new ProcessDocumentation();
+		var doc = new ProcessDoc();
 		doc.technology = "technology";
 		doc.copyright = true;
 		doc.reviewer = Actor.of("actor");

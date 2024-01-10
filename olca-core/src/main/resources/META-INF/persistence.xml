@@ -23,7 +23,7 @@
 		<class>org.openlca.core.model.Parameter</class>
 		<class>org.openlca.core.model.ParameterRedef</class>
 		<class>org.openlca.core.model.Process</class>
-		<class>org.openlca.core.model.ProcessDocumentation</class>
+		<class>org.openlca.core.model.ProcessDoc</class>
 		<class>org.openlca.core.model.ProcessGroupSet</class>
 		<class>org.openlca.core.model.ProcessLink</class>
 		<class>org.openlca.core.model.ProductSystem</class>
