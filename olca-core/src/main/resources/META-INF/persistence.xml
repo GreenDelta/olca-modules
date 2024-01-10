@@ -9,6 +9,7 @@
 		<class>org.openlca.core.model.Actor</class>
 		<class>org.openlca.core.model.AllocationFactor</class>
 		<class>org.openlca.core.model.Category</class>
+		<class>org.openlca.core.model.ComplianceDeclaration</class>
 		<class>org.openlca.core.model.Currency</class>
 		<class>org.openlca.core.model.Exchange</class>
 		<class>org.openlca.core.model.Flow</class>

@@ -61,6 +61,22 @@ public class UpgradeChainTest {
 		for (var table : catEntityTables) {
 			u.dropColumn(table, "other_properties");
 		}
+		String[][] renamed12 = {
+				{"data_completeness", "completeness CLOB(64 K)"},
+				{"sampling_procedure", "sampling CLOB(64 K)"},
+				{"f_data_owner", "f_dataset_owner BIGINT"},
+				{"access_restrictions", "restrictions CLOB(64 K)"}
+		};
+		for (var r : renamed12) {
+			u.renameColumn("tbl_process_docs", r[0], r[1]);
+		}
+		String[] added12 = {
+			"use_advice", "review_type", "f_review_report"
+		};
+		for (var a : added12) {
+			u.dropColumn("tbl_process_docs", a);
+		}
+		u.dropTable("tbl_compliance_declarations");
 
 		// roll back Upgrade11
 		u.dropTable("tbl_epds");
@@ -208,6 +224,13 @@ public class UpgradeChainTest {
 					"column other_properties missing in table " + table,
 					u.columnExists(table, "other_properties"));
 		}
+		for (var r : renamed12) {
+			assertTrue(u.columnExists("tbl_process_docs", r[0]));
+		}
+		for (var a : added12) {
+			assertTrue(u.columnExists("tbl_process_docs", a));
+		}
+		assertTrue(u.tableExists("tbl_compliance_declarations"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

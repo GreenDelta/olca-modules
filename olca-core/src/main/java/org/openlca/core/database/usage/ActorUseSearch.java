@@ -43,7 +43,7 @@ public record ActorUseSearch(IDatabase db) implements UsageSearch {
 		var sql = """
 			select p.id,
 				doc.f_reviewer,
-			  doc.f_dataset_owner,
+			  doc.f_data_owner,
 			  doc.f_data_generator,
 			  doc.f_data_documentor
 			from tbl_processes p inner join tbl_process_docs doc
