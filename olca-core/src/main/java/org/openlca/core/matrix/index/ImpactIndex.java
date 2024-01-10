@@ -20,7 +20,7 @@ import gnu.trove.map.hash.TLongIntHashMap;
 /**
  * Maps a set of impact categories to a matrix index. Note that the index
  * maps the IDs of the impacts so that each impact category needs a unique
- * ID > 0 (which is the case when it is stored in a database).
+ * ID &gt; 0 (which is the case when it is stored in a database).
  */
 public class ImpactIndex implements MatrixIndex<ImpactDescriptor> {
 

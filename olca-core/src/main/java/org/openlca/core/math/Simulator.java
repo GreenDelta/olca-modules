@@ -46,12 +46,10 @@ import org.slf4j.LoggerFactory;
  * is a sub-system of $s_j$, of all product systems $S$ of the recursively
  * expanded sub-system dependencies.
  * <p>
- * $S$ is a [strict partial ordered
- * set](https://en.wikipedia.org/wiki/Partially_ordered_set#Strict_and_non-strict_partial_orders)
+ * $S$ is a strict partially ordered set
  * as we do not allow cycles in the sub-system dependencies. Thus, we can define
- * a linear order of all systems via [topological
- * sorting](https://en.wikipedia.org/wiki/Topological_sorting) which maps each
- * product system $s_i$ to a position $pos_i$ with $pos_i < pos_j$ when $s_i
+ * a linear order of all systems via topological sorting which maps each
+ * product system $s_i$ to a position $pos_i$ with $pos_i &lt; pos_j$ when $s_i
  * \prec s_j$.
  * <p>
  * In the simulation, we then run the number generation and calculation for each

@@ -18,9 +18,9 @@ import com.google.gson.JsonObject;
 
 /**
  * A minimal converter of GeoJSON to KML (as used in openLCA).
- * 
- * @see https://developers.google.com/kml/documentation/kmlreference
- * @see http://geojson.org/geojson-spec.html
+ *
+ * @see <a href="https://developers.google.com/kml/documentation/kmlreference">...</a>
+ * @see <a href="http://geojson.org/geojson-spec.html">...</a>
  */
 public class GeoJson2Kml {
 

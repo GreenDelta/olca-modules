@@ -66,8 +66,8 @@ public class FlowTable {
 
 	/**
 	 * Try to determine the (impact) directions of the given flows. Returns a map
-	 * that associates an integer value $v$ to each flow ID. A value $v < 0$ means
-	 * that the corresponding flow is an input flow and a value $v > 0$ that it is
+	 * that associates an integer value $v$ to each flow ID. A value $v &lt; 0$ means
+	 * that the corresponding flow is an input flow and a value $v &gt; 0$ that it is
 	 * an output flow. The larger $|v|$ is the more certain is this classification.
 	 * A value of $v = 0$ means that the flow direction cannot be determined from
 	 * the information in the database. Also, product and waste flows will always
