@@ -3,10 +3,9 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Methods;
 import org.openlca.util.Strings;
@@ -16,10 +15,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ImpactImport {
 
 	private final ImportConfig config;
-	private final LCIAMethod dataSet;
+	private final org.openlca.ilcd.methods.ImpactMethod dataSet;
 	private final AtomicBoolean hasRefErrors;
 
-	public ImpactImport(ImportConfig config, LCIAMethod dataSet) {
+	public ImpactImport(ImportConfig config, ImpactMethod dataSet) {
 		this.config = config;
 		this.dataSet = dataSet;
 		this.hasRefErrors = new AtomicBoolean(false);
@@ -29,7 +28,7 @@ public class ImpactImport {
 		var impact = config.db().get(ImpactCategory.class, id);
 		if (impact != null)
 			return impact;
-		var dataSet = config.store().get(LCIAMethod.class, id);
+		var dataSet = config.store().get(ImpactMethod.class, id);
 		if (dataSet == null) {
 			config.log().error("invalid reference in ILCD data set:" +
 					" impact method '" + id + "' does not exist");
@@ -153,7 +152,8 @@ public class ImpactImport {
 			var m = config.impactMethodOf(name);
 			if (m == null)
 				continue;
-			var method = config.db().get(ImpactMethod.class, m.id);
+			var method = config.db().get(
+					org.openlca.core.model.ImpactMethod.class, m.id);
 			if (method == null) {
 				config.log().error("could not load created method: " + m.refId);
 				continue;

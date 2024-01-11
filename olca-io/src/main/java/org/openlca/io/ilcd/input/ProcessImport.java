@@ -13,7 +13,7 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.processes.Method;
+import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.Processes;
@@ -195,14 +195,14 @@ public class ProcessImport {
 		}
 		var iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			doc.inventoryMethod = config.str(iMethod.principleComment);
+			doc.inventoryMethod = config.str(iMethod.principleDeviations);
 			doc.modelingConstants = config.str(iMethod.constants);
 			process.defaultAllocationMethod = getAllocation(iMethod);
 		}
 	}
 
-	private AllocationMethod getAllocation(Method iMethod) {
-		var approaches = iMethod.approaches;
+	private AllocationMethod getAllocation(InventoryMethod m) {
+		var approaches = m.approaches;
 		if (approaches.isEmpty())
 			return null;
 		var first = approaches.get(0);

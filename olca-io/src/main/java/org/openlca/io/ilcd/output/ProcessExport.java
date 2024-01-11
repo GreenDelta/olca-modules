@@ -11,7 +11,7 @@ import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.Geography;
-import org.openlca.ilcd.processes.Method;
+import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Representativeness;
@@ -49,7 +49,7 @@ public class ProcessExport {
 		this.process = p;
 		this.doc = p.documentation;
 
-		ProcessBuilder builder = ProcessBuilder.makeProcess()
+		var builder = ProcessBuilder.makeProcess()
 				.with(makeLciMethod())
 				.withAdminInfo(new ProcessAdminInfo(exp).create(p))
 				.withDataSetInfo(makeDataSetInfo())
@@ -144,9 +144,9 @@ public class ProcessExport {
 		return iTechnology;
 	}
 
-	private Method makeLciMethod() {
+	private InventoryMethod makeLciMethod() {
 		log.trace("Create process LCI method.");
-		Method iMethod = new Method();
+		var iMethod = new InventoryMethod();
 		if (process.processType != null) {
 			iMethod.processType = process.processType == ProcessType.UNIT_PROCESS
 					? org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX
@@ -156,7 +156,7 @@ public class ProcessExport {
 		iMethod.principle = ModellingPrinciple.OTHER;
 
 		if (doc != null) {
-			exp.add(iMethod.principleComment, doc.inventoryMethod);
+			exp.add(iMethod.principleDeviations, doc.inventoryMethod);
 			exp.add(iMethod.constants, doc.modelingConstants);
 		}
 

@@ -1,28 +1,26 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.util.Categories;
-import org.openlca.ilcd.util.ContactBag;
+import org.openlca.ilcd.util.Contacts;
 
 public class ContactImport {
 
 	private final ImportConfig config;
-	private ContactBag ilcdContact;
+	private Contact contact;
 	private Actor actor;
 
 	public ContactImport(ImportConfig config) {
 		this.config = config;
 	}
 
-	public Actor run(Contact dataSet) {
-		this.ilcdContact = new ContactBag(dataSet, config.langOrder());
-		var actor = config.db().get(Actor.class, ilcdContact.getId());
+	public Actor run(Contact contact) {
+		this.contact = contact;
+		var actor = config.db().get(Actor.class, contact.getUUID());
 		return actor != null
 			? actor
 			: createNew();
@@ -43,7 +41,7 @@ public class ContactImport {
 
 	private Actor createNew() {
 		actor = new Actor();
-		var path = Categories.getPath(ilcdContact.getValue());
+		var path = Categories.getPath(contact);
 		actor.category = new CategoryDao(config.db())
 				.sync(ModelType.ACTOR, path);
 		setDescriptionAttributes();
@@ -52,24 +50,29 @@ public class ContactImport {
 	}
 
 	private void setDescriptionAttributes() {
-		actor.refId = ilcdContact.getId();
-		actor.name = ilcdContact.getName();
-		actor.description = ilcdContact.getComment();
-		actor.address = ilcdContact.getContactAddress();
+		actor.refId = contact.getUUID();
+
+		var info = Contacts.getDataSetInfo(contact);
+		actor.name = config.str(info.name);
+		actor.description = config.str(info.description);
+		actor.address = config.str(info.contactAddress);
 		if (actor.address == null) {
-			actor.address = ilcdContact.getCentralContactPoint();
+			actor.address = config.str(info.centralContactPoint);
 		}
-		actor.email = ilcdContact.getEmail();
-		actor.telefax = ilcdContact.getTelefax();
-		actor.telephone = ilcdContact.getTelephone();
-		actor.website = ilcdContact.getWebSite();
+		actor.email = info.email;
+		actor.telefax = info.telefax;
+		actor.telephone = info.telephone;
+		actor.website = info.webSite;
 	}
 
 	private void setVersionTime() {
-		String v = ilcdContact.getVersion();
+		String v = contact.getVersion();
 		actor.version = Version.fromString(v).getValue();
-		Date time = ilcdContact.getTimeStamp();
-		if (time != null)
-			actor.lastChange = time.getTime();
+		var entry = Contacts.getDataEntry(contact);
+		if (entry.timeStamp != null) {
+			actor.lastChange = entry.timeStamp
+					.toGregorianCalendar()
+					.getTimeInMillis();
+		}
 	}
 }

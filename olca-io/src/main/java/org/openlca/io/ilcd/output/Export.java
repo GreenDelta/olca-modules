@@ -122,7 +122,7 @@ public class Export {
 		if (e instanceof Flow)
 			return DataSetType.FLOW;
 		if (e instanceof ImpactCategory || e instanceof ImpactMethod)
-			return DataSetType.LCIA_METHOD;
+			return DataSetType.IMPACT_METHOD;
 		if (e instanceof Process || e instanceof Epd)
 			return DataSetType.PROCESS;
 		if (e instanceof ProductSystem)
@@ -141,7 +141,7 @@ public class Export {
 			case FLOW -> "flows";
 			case PROCESS -> "processes";
 			case MODEL -> "lifecyclemodels";
-			case LCIA_METHOD -> "lciamethods";
+			case IMPACT_METHOD -> "lciamethods";
 			case EXTERNAL_FILE -> "external_docs";
 		};
 	}

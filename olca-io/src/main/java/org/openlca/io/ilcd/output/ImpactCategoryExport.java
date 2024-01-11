@@ -8,7 +8,7 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.methods.DataSetInfo;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.FactorList;
-import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.methods.MethodInfo;
 import org.openlca.ilcd.methods.QuantitativeReference;
 import org.openlca.ilcd.util.Methods;
@@ -27,15 +27,15 @@ public class ImpactCategoryExport {
 	}
 
 	public void write(ImpactCategory impact) {
-		if (impact == null || exp.store.contains(LCIAMethod.class, impact.refId))
+		if (impact == null || exp.store.contains(ImpactMethod.class, impact.refId))
 			return;
-		var m = new LCIAMethod();
+		var m = new ImpactMethod();
 		addMetaData(impact, m);
 		addFactors(impact, m);
 		exp.store.put(m);
 	}
 
-	private void addMetaData(ImpactCategory impact, LCIAMethod m) {
+	private void addMetaData(ImpactCategory impact, ImpactMethod m) {
 		m.methodInfo = new MethodInfo();
 		var info = new DataSetInfo();
 		m.methodInfo.dataSetInfo = info;
@@ -76,7 +76,7 @@ public class ImpactCategoryExport {
 		return names;
 	}
 
-	private void addFactors(ImpactCategory impact, LCIAMethod m) {
+	private void addFactors(ImpactCategory impact, ImpactMethod m) {
 		var list = new FactorList();
 		m.characterisationFactors = list;
 		for (var factor : impact.impactFactors) {

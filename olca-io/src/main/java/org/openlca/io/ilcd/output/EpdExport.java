@@ -41,7 +41,7 @@ public class EpdExport {
 		Categories.toClassification(epd.category)
 				.ifPresent(info.classifications::add);
 
-		Processes.forceMethod(p).processType = ProcessType.EPD;
+		Processes.forceInventoryMethod(p).processType = ProcessType.EPD;
 		writeRefFlow(epd, p);
 		writeReview(epd, p);
 		writePublication(epd, p);

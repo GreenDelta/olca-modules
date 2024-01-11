@@ -1,7 +1,6 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.ilcd.methods.LCIAMethod;
 
 public class ImpactMethodExport {
 
@@ -15,7 +14,8 @@ public class ImpactMethodExport {
 		if (method == null)
 			return;
 		for (var impact : method.impactCategories) {
-			if (exp.store.contains(LCIAMethod.class, impact.refId))
+			if (exp.store.contains(
+					org.openlca.ilcd.methods.ImpactMethod.class, impact.refId))
 				continue;
 			exp.write(impact);
 		}

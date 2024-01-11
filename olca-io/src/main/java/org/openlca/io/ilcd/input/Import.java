@@ -6,7 +6,7 @@ import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
-import org.openlca.ilcd.methods.LCIAMethod;
+import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
@@ -51,7 +51,7 @@ public class Import implements org.openlca.io.Import {
 			importAll(Flow.class);
 		}
 		importAll(Process.class);
-		importAll(LCIAMethod.class);
+		importAll(ImpactMethod.class);
 		importAll(Model.class);
 	}
 
@@ -84,13 +84,13 @@ public class Import implements org.openlca.io.Import {
 			} else if (dataSet instanceof Flow flow) {
 				new FlowImport(config).run(flow);
 			} else if (dataSet instanceof Process process) {
-				var method = Processes.getMethod(process);
+				var method = Processes.getInventoryMethod(process);
 				if (method != null && method.processType == ProcessType.EPD) {
 					new EpdImport(config, process).run();
 				} else {
 					new ProcessImport(config).run(process);
 				}
-			} else if (dataSet instanceof LCIAMethod impact) {
+			} else if (dataSet instanceof ImpactMethod impact) {
 				new ImpactImport(config, impact).run();
 			} else if (dataSet instanceof Model model) {
 				new ModelImport(config).run(model);

@@ -46,7 +46,7 @@ public class ActorExport {
 		info.email = actor.email;
 		info.telefax = actor.telefax;
 		info.telephone = actor.telephone;
-		info.wwwAddress = actor.website;
+		info.webSite = actor.website;
 		addAddress(info);
 		exp.add(info.description, actor.description);
 		Categories.toClassification(actor.category)
