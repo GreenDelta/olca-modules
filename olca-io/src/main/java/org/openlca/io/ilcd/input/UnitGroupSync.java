@@ -7,7 +7,6 @@ import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroupBag;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * Synchronisation of an existing unit group in the database with an imported
  * unit group data set. A synchronisation is only done if the openLCA extensions
  * are available in the ILCD data set (which is basically only the unit ID).
- *
+ * <p>
  * The synchronisation adds new units to a unit-group data set in openLCA if it
  * is not yet contained in the database. If there is a new unit there are two
  * possible cases:
@@ -35,13 +34,12 @@ class UnitGroupSync {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final UnitGroup olcaGroup;
 	private final UnitGroupBag ilcdGroup;
-	private final ImportConfig config;
+	private final Import imp;
 
-	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup,
-			ImportConfig config) {
+	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup, Import imp) {
 		this.olcaGroup = olcaGroup;
 		this.ilcdGroup = ilcdGroup;
-		this.config = config;
+		this.imp = imp;
 	}
 
 	public void run(IDatabase database) {
@@ -86,7 +84,7 @@ class UnitGroupSync {
 			unit.refId = id;
 			unit.name = ilcdUnit.name;
 			unit.conversionFactor = factor * ilcdUnit.factor;
-			unit.description = config.str(ilcdUnit.comment);
+			unit.description = imp.str(ilcdUnit.comment);
 			olcaGroup.units.add(unit);
 			changed = true;
 		}

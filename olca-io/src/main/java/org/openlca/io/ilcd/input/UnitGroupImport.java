@@ -14,47 +14,47 @@ import org.openlca.ilcd.util.UnitGroupBag;
 
 public class UnitGroupImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private UnitGroupBag ilcdUnitGroup;
 	private UnitGroup unitGroup;
 
-	public UnitGroupImport(ImportConfig config) {
-		this.config = config;
+	public UnitGroupImport(Import imp) {
+		this.imp = imp;
 	}
 
 	public UnitGroup run(org.openlca.ilcd.units.UnitGroup dataSet) {
-		this.ilcdUnitGroup = new UnitGroupBag(dataSet, config.langOrder());
-		var group = config.db().get(UnitGroup.class, dataSet.getUUID());
+		this.ilcdUnitGroup = new UnitGroupBag(dataSet, imp.langOrder());
+		var group = imp.db().get(UnitGroup.class, dataSet.getUUID());
 		if (group != null) {
-			new UnitGroupSync(group, ilcdUnitGroup, config).run(config.db());
+			new UnitGroupSync(group, ilcdUnitGroup, imp).run(imp.db());
 			return group;
 		}
 		return createNew();
 	}
 
-	public static UnitGroup get(ImportConfig config, String id) {
-		var group = config.db().get(UnitGroup.class, id);
+	public static UnitGroup get(Import imp, String id) {
+		var group = imp.db().get(UnitGroup.class, id);
 		if (group != null)
 			// TODO: check if reference unit is in database!
 			return group;
-		var dataSet = config.store().get(
+		var dataSet = imp.store().get(
 			org.openlca.ilcd.units.UnitGroup.class, id);
 		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
+			imp.log().error("invalid reference in ILCD data set:" +
 				" unit group '" + id + "' does not exist");
 			return null;
 		}
-		return new UnitGroupImport(config).run(dataSet);
+		return new UnitGroupImport(imp).run(dataSet);
 	}
 
 	private UnitGroup createNew() {
 		unitGroup = new UnitGroup();
 		var path = Categories.getPath(ilcdUnitGroup.getValue());
-		unitGroup.category = new CategoryDao(config.db())
+		unitGroup.category = new CategoryDao(imp.db())
 				.sync(ModelType.UNIT_GROUP, path);
 		mapDescriptionAttributes();
 		createUnits();
-		return config.insert(unitGroup);
+		return imp.insert(unitGroup);
 	}
 
 	private void mapDescriptionAttributes() {
@@ -90,7 +90,7 @@ public class UnitGroupImport {
 			: UUID.randomUUID().toString();
 
 		oUnit.name = iUnit.name;
-		oUnit.description = config.str(iUnit.comment);
+		oUnit.description = imp.str(iUnit.comment);
 		oUnit.conversionFactor = iUnit.factor;
 	}
 

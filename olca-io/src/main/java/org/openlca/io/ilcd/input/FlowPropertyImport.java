@@ -13,32 +13,32 @@ import java.util.Date;
 
 public class FlowPropertyImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private FlowPropertyBag ilcdProperty;
 	private FlowProperty property;
 
-	public FlowPropertyImport(ImportConfig config) {
-		this.config = config;
+	public FlowPropertyImport(Import imp) {
+		this.imp = imp;
 	}
 
 	public FlowProperty run(
 			org.openlca.ilcd.flowproperties.FlowProperty dataSet) {
-		this.ilcdProperty = new FlowPropertyBag(dataSet, config.langOrder());
-		var prop = config.db().get(FlowProperty.class, dataSet.getUUID());
+		this.ilcdProperty = new FlowPropertyBag(dataSet, imp.langOrder());
+		var prop = imp.db().get(FlowProperty.class, dataSet.getUUID());
 		return prop != null
-			? prop
-			: createNew();
+				? prop
+				: createNew();
 	}
 
-	public static FlowProperty get(ImportConfig config, String id) {
+	public static FlowProperty get(Import config, String id) {
 		var property = config.db().get(FlowProperty.class, id);
 		if (property != null)
 			return property;
 		var dataSet = config.store().get(
-			org.openlca.ilcd.flowproperties.FlowProperty.class, id);
+				org.openlca.ilcd.flowproperties.FlowProperty.class, id);
 		if (dataSet == null) {
 			config.log().error("invalid reference in ILCD data set:" +
-				" flow property '" + id + "' does not exist");
+					" flow property '" + id + "' does not exist");
 			return null;
 		}
 		return new FlowPropertyImport(config).run(dataSet);
@@ -47,14 +47,14 @@ public class FlowPropertyImport {
 	private FlowProperty createNew() {
 		property = new FlowProperty();
 		var path = Categories.getPath(ilcdProperty.getValue());
-		property.category = new CategoryDao(config.db())
+		property.category = new CategoryDao(imp.db())
 				.sync(ModelType.FLOW_PROPERTY, path);
 		mapDescriptionAttributes();
 		Ref unitGroupRef = ilcdProperty.getUnitGroupReference();
 		if (unitGroupRef != null) {
-			property.unitGroup = UnitGroupImport.get(config, unitGroupRef.uuid);
+			property.unitGroup = UnitGroupImport.get(imp, unitGroupRef.uuid);
 		}
-		return config.insert(property);
+		return imp.insert(property);
 	}
 
 	private void mapDescriptionAttributes() {

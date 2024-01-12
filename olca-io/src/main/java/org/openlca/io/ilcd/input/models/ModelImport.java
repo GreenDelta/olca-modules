@@ -22,7 +22,7 @@ import org.openlca.ilcd.models.ProcessInstance;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Models;
-import org.openlca.io.ilcd.input.ImportConfig;
+import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.util.Strings;
 
@@ -31,37 +31,37 @@ import org.openlca.util.Strings;
  */
 public class ModelImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private ProductSystem system;
 	private int connectorCount = 0;
 
-	public ModelImport(ImportConfig config) {
-		this.config = config;
+	public ModelImport(Import imp) {
+		this.imp = imp;
 	}
 
 	public ProductSystem run(Model model) {
 		if (model == null)
 			return null;
-		var dao = new ProductSystemDao(config.db());
+		var dao = new ProductSystemDao(imp.db());
 		system = dao.getForRefId(model.getUUID());
 		if (system != null)
 			return system;
 		String origin = Models.getOrigin(model);
 		if (Strings.nullOrEqual("openLCA", origin)
-			|| !config.hasGabiGraphSupport()) {
+				|| !imp.hasGabiGraphSupport()) {
 			system = new ProductSystem();
 			IO.mapMetaData(model, system);
 			String[] path = Categories.getPath(model);
-			system.category = new CategoryDao(config.db())
-				.sync(ModelType.PRODUCT_SYSTEM, path);
+			system.category = new CategoryDao(imp.db())
+					.sync(ModelType.PRODUCT_SYSTEM, path);
 			mapModel(model);
 			system = dao.insert(system);
-			config.log().imported(system);
+			imp.log().imported(system);
 			return system;
 		} else {
-			Graph g = Graph.build(model, config.db());
+			Graph g = Graph.build(model, imp.db());
 			g = Transformation.on(g);
-			return new GraphSync(config).sync(model, g);
+			return new GraphSync(imp).sync(model, g);
 		}
 	}
 
@@ -106,7 +106,7 @@ public class ModelImport {
 		for (var pi : tech.processes) {
 			if (pi.process == null)
 				continue;
-			var process = ProcessImport.get(config, pi.process.uuid);
+			var process = ProcessImport.get(imp, pi.process.uuid);
 			if (process == null)
 				continue;
 			if (refProcess == pi.id) {
@@ -159,7 +159,7 @@ public class ModelImport {
 				}
 			}
 		}
-		var dao = new FlowDao(config.db());
+		var dao = new FlowDao(imp.db());
 		var map = new HashMap<String, Flow>();
 		for (var flow : dao.getForRefIds(usedFlows)) {
 			map.put(flow.refId, flow);
@@ -168,7 +168,7 @@ public class ModelImport {
 	}
 
 	private void addLink(Process out, Process in, Flow flow,
-	                     Integer exchangeId) {
+			Integer exchangeId) {
 		boolean isWaste = flow.flowType == FlowType.WASTE_FLOW;
 		var link = new ProcessLink();
 		link.flowId = flow.id;
@@ -205,11 +205,11 @@ public class ModelImport {
 		var input = p.input(outFlow, 1);
 		var output = p.output(inFlow, 1);
 		p.quantitativeReference = outFlow.flowType == FlowType.WASTE_FLOW
-			? input
-			: output;
-		p = config.db().insert(p);
-		config.log().warn(p,
-			"created connector process to map eILCD link with different flows");
+				? input
+				: output;
+		p = imp.db().insert(p);
+		imp.log().warn(p,
+				"created connector process to map eILCD link with different flows");
 		system.processes.add(p.id);
 		return p;
 	}

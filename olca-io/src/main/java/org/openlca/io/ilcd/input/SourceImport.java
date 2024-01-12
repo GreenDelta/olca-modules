@@ -17,31 +17,31 @@ import java.util.List;
 
 public class SourceImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private SourceBag ilcdSource;
 	private Source source;
 
-	public SourceImport(ImportConfig config) {
-		this.config = config;
+	public SourceImport(Import imp) {
+		this.imp = imp;
 	}
 
 	public Source run(org.openlca.ilcd.sources.Source dataSet) {
-		this.ilcdSource = new SourceBag(dataSet, config.langOrder());
-		var source = config.db().get(Source.class, dataSet.getUUID());
+		this.ilcdSource = new SourceBag(dataSet, imp.langOrder());
+		var source = imp.db().get(Source.class, dataSet.getUUID());
 		return source != null
-			? source
-			: createNew();
+				? source
+				: createNew();
 	}
 
-	public static Source get(ImportConfig config, String sourceId) {
+	public static Source get(Import config, String sourceId) {
 		var source = config.db().get(Source.class, sourceId);
 		if (source != null)
 			return source;
 		var dataSet = config.store().get(
-			org.openlca.ilcd.sources.Source.class, sourceId);
+				org.openlca.ilcd.sources.Source.class, sourceId);
 		if (dataSet == null) {
 			config.log().error("invalid reference in ILCD data set:" +
-				" source '" + sourceId + "' does not exist");
+					" source '" + sourceId + "' does not exist");
 			return null;
 		}
 		return new SourceImport(config).run(dataSet);
@@ -50,11 +50,11 @@ public class SourceImport {
 	private Source createNew() {
 		source = new Source();
 		String[] path = Categories.getPath(ilcdSource.getValue());
-		source.category = new CategoryDao(config.db())
+		source.category = new CategoryDao(imp.db())
 				.sync(ModelType.SOURCE, path);
 		setDescriptionAttributes();
 		importExternalFile();
-		return config.insert(source);
+		return imp.insert(source);
 	}
 
 	private void setDescriptionAttributes() {
@@ -71,15 +71,15 @@ public class SourceImport {
 
 	private void importExternalFile() {
 		List<String> uris = ilcdSource.getExternalFileURIs();
-		File dbDir = config.db().getFileStorageLocation();
+		File dbDir = imp.db().getFileStorageLocation();
 		if (uris.isEmpty() || dbDir == null)
 			return;
 		String uri = uris.get(0);
 		try {
 			copyFile(dbDir, uri);
 		} catch (Exception e) {
-			config.log().warn("failed to import external file "
-				+ uri + ": " + e.getMessage());
+			imp.log().warn("failed to import external file "
+					+ uri + ": " + e.getMessage());
 		}
 	}
 
@@ -95,7 +95,7 @@ public class SourceImport {
 		File dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		try (InputStream in = config.store().getExternalDocument(
+		try (InputStream in = imp.store().getExternalDocument(
 				ilcdSource.getId(), fileName)) {
 			if (in == null)
 				return;

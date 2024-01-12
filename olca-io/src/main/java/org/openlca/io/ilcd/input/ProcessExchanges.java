@@ -18,11 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class ProcessExchanges {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private final AtomicBoolean hasRefErrors;
 
-	ProcessExchanges(ImportConfig config) {
-		this.config = config;
+	ProcessExchanges(Import imp) {
+		this.imp = imp;
 		this.hasRefErrors = new AtomicBoolean(false);
 	}
 
@@ -32,16 +32,16 @@ class ProcessExchanges {
 		var mappedExchanges = new ArrayList<MappedExchange>();
 		for (var origin : iProcess.getExchanges()) {
 			if (origin.flow == null || Strings.nullOrEmpty(origin.flow.uuid)) {
-				config.log().warn("invalid flow references in process "
+				imp.log().warn("invalid flow references in process "
 						+ iProcess.getId());
 				continue;
 			}
 
-			var flow = FlowImport.get(config, origin.flow.uuid);
+			var flow = FlowImport.get(imp, origin.flow.uuid);
 			if (flow.isEmpty()) {
 				if (!hasRefErrors.get()) {
 					hasRefErrors.set(true);
-					config.log().error("missing flows in process: "
+					imp.log().error("missing flows in process: "
 							+ iProcess.getId() + "; e.g." + origin.flow.uuid);
 				}
 				continue;
@@ -50,13 +50,13 @@ class ProcessExchanges {
 			var mapped = MappedExchange.of(flow, origin);
 			mappedExchanges.add(mapped);
 			if (mapped.hasExtensionError()) {
-				config.log().warn("invalid exchange extensions in process: "
+				imp.log().warn("invalid exchange extensions in process: "
 						+ iProcess.getId());
 			}
 
 			var exchange = mapped.exchange();
-			exchange.description = config.str(origin.comment);
-			exchange.location = config.locationOf(origin.location);
+			exchange.description = imp.str(origin.comment);
+			exchange.location = imp.cache.locationOf(origin.location);
 
 			// we take the internal IDs from ILCD
 			maxID = Math.max(maxID, exchange.internalId);
@@ -64,7 +64,7 @@ class ProcessExchanges {
 			// add a possible mapped provider
 			var providerId = mapped.providerId();
 			if (providerId != null) {
-				config.providers().add(providerId, exchange);
+				imp.providers().add(providerId, exchange);
 			}
 
 			process.exchanges.add(exchange);
@@ -107,7 +107,7 @@ class ProcessExchanges {
 	}
 
 	private void createAllocationFactor(Exchange exchange, long productId,
-																			double fraction, Process process) {
+			double fraction, Process process) {
 		if (exchange.flow == null)
 			return;
 		var factor = new AllocationFactor();

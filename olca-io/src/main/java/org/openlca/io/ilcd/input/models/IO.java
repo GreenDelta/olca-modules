@@ -54,8 +54,9 @@ class IO {
 			var s = LangString.getFirst(part, "en");
 			if (Strings.nullOrEmpty(s))
 				continue;
-			if (name.length() > 0)
+			if (!name.isEmpty()) {
 				name.append("; ");
+			}
 			name.append(s.trim());
 		}
 		return name.toString();

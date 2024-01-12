@@ -17,44 +17,44 @@ import java.util.Objects;
 
 public class FlowImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private FlowBag ilcdFlow;
 	private Flow flow;
 
-	public FlowImport(ImportConfig config) {
-		this.config = config;
+	public FlowImport(Import imp) {
+		this.imp = imp;
 	}
 
 	public SyncFlow run(org.openlca.ilcd.flows.Flow dataSet) {
-		return config.flowSync().createIfAbsent(
+		return imp.flowSync().createIfAbsent(
 			dataSet.getUUID(), () -> createNew(dataSet));
 	}
 
-	public static SyncFlow get(ImportConfig config, String id) {
-		return config.flowSync().createIfAbsent(id, () -> {
-			var dataSet = config.store().get(org.openlca.ilcd.flows.Flow.class, id);
+	public static SyncFlow get(Import imp, String id) {
+		return imp.flowSync().createIfAbsent(id, () -> {
+			var dataSet = imp.store().get(org.openlca.ilcd.flows.Flow.class, id);
 			if (dataSet == null) {
 				return null;
 			}
-			return new FlowImport(config).createNew(dataSet);
+			return new FlowImport(imp).createNew(dataSet);
 		});
 	}
 
 	private Flow createNew(org.openlca.ilcd.flows.Flow dataSet) {
-		this.ilcdFlow = new FlowBag(dataSet, config.langOrder());
+		this.ilcdFlow = new FlowBag(dataSet, imp.langOrder());
 		flow = new Flow();
 		String[] path = Categories.getPath(ilcdFlow.flow);
-		flow.category = new CategoryDao(config.db())
+		flow.category = new CategoryDao(imp.db())
 			.sync(ModelType.FLOW, path);
 		createAndMapContent();
 		if (flow.referenceFlowProperty == null) {
-			config.log().error("Could not import flow "
+			imp.log().error("Could not import flow "
 				+ flow.refId + " because the "
 				+ "reference flow property of this flow "
 				+ "could not be imported.");
 			return null;
 		}
-		return config.insert(flow);
+		return imp.insert(flow);
 	}
 
 	private void createAndMapContent() {
@@ -72,8 +72,8 @@ public class FlowImport {
 		flow.lastChange = time != null
 			? time.getTime()
 			: System.currentTimeMillis();
-		var locationCode = config.str(ilcdFlow.getLocation());
-		flow.location = config.locationOf(locationCode);
+		var locationCode = imp.str(ilcdFlow.getLocation());
+		flow.location = imp.cache.locationOf(locationCode);
 		addFlowProperties();
 	}
 
@@ -84,7 +84,7 @@ public class FlowImport {
 		for (FlowPropertyRef ref : refs) {
 			if (ref == null || ref.flowProperty == null || ref.meanValue == 0)
 				continue;
-			var property = FlowPropertyImport.get(config, ref.flowProperty.uuid);
+			var property = FlowPropertyImport.get(imp, ref.flowProperty.uuid);
 			if (property == null)
 				continue;
 			flow.property(property, ref.meanValue);
@@ -101,21 +101,21 @@ public class FlowImport {
 		// of items" and set this as the reference flow property if possible
 		if (!addItems)
 			return;
-		var num = config.db().get(
+		var num = imp.db().get(
 				FlowProperty.class, "01846770-4cfe-4a25-8ad9-919d8d378345");
 		if (num == null) {
-			config.log().error("flow " + flow.refId
+			imp.log().error("flow " + flow.refId
 					+ " has a reference flow property with a factor != 1");
 			return;
 		}
 		for (var f : flow.flowPropertyFactors) {
 			if (Objects.equals(f.flowProperty, num)) {
-				config.log().error("flow " + flow.refId
+				imp.log().error("flow " + flow.refId
 						+ " has a reference flow property with a factor != 1");
 				return;
 			}
 		}
-		config.log().warn("flow " + flow.refId + " has a reference " +
+		imp.log().warn("flow " + flow.refId + " has a reference " +
 				"flow property with a factor != 1; added 'Number of items' " +
 				"as reference flow property");
 		flow.property(num, 1);

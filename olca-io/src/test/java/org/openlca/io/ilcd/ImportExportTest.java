@@ -23,7 +23,7 @@ import org.openlca.io.Tests;
 import org.openlca.io.ilcd.input.ContactImport;
 import org.openlca.io.ilcd.input.FlowImport;
 import org.openlca.io.ilcd.input.FlowPropertyImport;
-import org.openlca.io.ilcd.input.ImportConfig;
+import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
@@ -44,7 +44,7 @@ import static org.junit.Assert.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ImportExportTest {
 
-	private static ImportConfig importConf;
+	private static Import imp;
 	private static Export export;
 	private static File zip;
 	private static DataStore store;
@@ -54,18 +54,14 @@ public class ImportExportTest {
 		zip = Files.createTempFile("_olca_ilcd_export_test", ".zip").toFile();
 		assertTrue(zip.delete());
 		store = new ZipStore(zip);
-		importConf = new ImportConfig(new MemDataStore(), Tests.getDb());
+		imp = Import.of(new MemDataStore(), Tests.getDb());
 		export = new Export(Tests.getDb(), store);
-		put("contact.xml",
-			Contact.class);
+		put("contact.xml", Contact.class);
 		put("source.xml", Source.class);
-		put("unit.xml",
-			UnitGroup.class);
-		put("flowproperty.xml",
-			FlowProperty.class);
+		put("unit.xml", UnitGroup.class);
+		put("flowproperty.xml", FlowProperty.class);
 		put("flow.xml", Flow.class);
-		put("process.xml",
-			Process.class);
+		put("process.xml", Process.class);
 	}
 
 	@AfterClass
@@ -78,14 +74,14 @@ public class ImportExportTest {
 		var in = ImportExportTest.class.getResourceAsStream(file);
 		assertNotNull(in);
 		T obj = JAXB.unmarshal(in, clazz);
-		importConf.store().put(obj);
+		imp.store().put(obj);
 	}
 
 	@Test
 	public void testA_Contact() {
 		var id = "177ca340-ffa2-11da-92e3-0800200c9a66";
-		var contact = importConf.store().get(Contact.class, id);
-		var actor = new ContactImport(importConf).run(contact);
+		var contact = imp.store().get(Contact.class, id);
+		var actor = new ContactImport(imp).run(contact);
 		assertEquals(id, actor.refId);
 		new ActorExport(export).write(actor);
 		assertTrue(store.contains(Contact.class, id));
@@ -94,8 +90,8 @@ public class ImportExportTest {
 	@Test
 	public void testB_Source() {
 		var id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
-		var dataSet = importConf.store().get(Source.class, id);
-		var source = new SourceImport(importConf).run(dataSet);
+		var dataSet = imp.store().get(Source.class, id);
+		var source = new SourceImport(imp).run(dataSet);
 		assertEquals(id, source.refId);
 		new SourceExport(export).run(source);
 		assertTrue(store.contains(Source.class, id));
@@ -104,8 +100,8 @@ public class ImportExportTest {
 	@Test
 	public void testC_Units() {
 		String id = "93a60a57-a4c8-11da-a746-0800200c9a66";
-		var dataSet = importConf.store().get(UnitGroup.class, id);
-		var group = new UnitGroupImport(importConf).run(dataSet);
+		var dataSet = imp.store().get(UnitGroup.class, id);
+		var group = new UnitGroupImport(imp).run(dataSet);
 		assertEquals(id, group.refId);
 		new UnitGroupExport(export).write(group);
 		assertTrue(store.contains(UnitGroup.class, id));
@@ -114,8 +110,8 @@ public class ImportExportTest {
 	@Test
 	public void testD_FlowProp() {
 		String id = "93a60a56-a3c8-11da-a746-0800200b9a66";
-		var dataSet = importConf.store().get(FlowProperty.class, id);
-		var prop = new FlowPropertyImport(importConf).run(dataSet);
+		var dataSet = imp.store().get(FlowProperty.class, id);
+		var prop = new FlowPropertyImport(imp).run(dataSet);
 		assertEquals(id, prop.refId);
 		new FlowPropertyExport(export).run(prop);
 		assertTrue(store.contains(FlowProperty.class, id));
@@ -124,8 +120,8 @@ public class ImportExportTest {
 	@Test
 	public void testE_Flow() {
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
-		var dataSet = importConf.store().get(Flow.class, id);
-		var syncFlow = new FlowImport(importConf).run(dataSet);
+		var dataSet = imp.store().get(Flow.class, id);
+		var syncFlow = new FlowImport(imp).run(dataSet);
 		assertEquals(id, syncFlow.flow().refId);
 		new FlowExport(export).write(syncFlow.flow());
 		assertTrue(store.contains(Flow.class, id));
@@ -134,8 +130,8 @@ public class ImportExportTest {
 	@Test
 	public void testF_Process() {
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
-		var dataSet = importConf.store().get(Process.class, id);
-		var process = new ProcessImport(importConf).run(dataSet);
+		var dataSet = imp.store().get(Process.class, id);
+		var process = new ProcessImport(imp).run(dataSet);
 		assertEquals(id, process.refId);
 		new ProcessExport(export).write(process);
 		assertTrue(store.contains(Process.class, id));

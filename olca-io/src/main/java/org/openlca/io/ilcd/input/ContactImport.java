@@ -10,54 +10,54 @@ import org.openlca.ilcd.util.Contacts;
 
 public class ContactImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private Contact contact;
 	private Actor actor;
 
-	public ContactImport(ImportConfig config) {
-		this.config = config;
+	public ContactImport(Import imp) {
+		this.imp = imp;
 	}
 
 	public Actor run(Contact contact) {
 		this.contact = contact;
-		var actor = config.db().get(Actor.class, contact.getUUID());
+		var actor = imp.db().get(Actor.class, contact.getUUID());
 		return actor != null
-			? actor
-			: createNew();
+				? actor
+				: createNew();
 	}
 
-	public static Actor get(ImportConfig config, String id) {
-		var actor = config.db().get(Actor.class, id);
+	public static Actor get(Import imp, String id) {
+		var actor = imp.db().get(Actor.class, id);
 		if (actor != null)
 			return actor;
-		var dataSet = config.store().get(Contact.class, id);
+		var dataSet = imp.store().get(Contact.class, id);
 		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
-				" contact '" + id + "' does not exist");
+			imp.log().error("invalid reference in ILCD data set:" +
+					" contact '" + id + "' does not exist");
 			return null;
 		}
-		return new ContactImport(config).run(dataSet);
+		return new ContactImport(imp).run(dataSet);
 	}
 
 	private Actor createNew() {
 		actor = new Actor();
 		var path = Categories.getPath(contact);
-		actor.category = new CategoryDao(config.db())
+		actor.category = new CategoryDao(imp.db())
 				.sync(ModelType.ACTOR, path);
 		setDescriptionAttributes();
 		setVersionTime();
-		return config.insert(actor);
+		return imp.insert(actor);
 	}
 
 	private void setDescriptionAttributes() {
 		actor.refId = contact.getUUID();
 
 		var info = Contacts.getDataSetInfo(contact);
-		actor.name = config.str(info.name);
-		actor.description = config.str(info.description);
-		actor.address = config.str(info.contactAddress);
+		actor.name = imp.str(info.name);
+		actor.description = imp.str(info.description);
+		actor.address = imp.str(info.contactAddress);
 		if (actor.address == null) {
-			actor.address = config.str(info.centralContactPoint);
+			actor.address = imp.str(info.centralContactPoint);
 		}
 		actor.email = info.email;
 		actor.telefax = info.telefax;

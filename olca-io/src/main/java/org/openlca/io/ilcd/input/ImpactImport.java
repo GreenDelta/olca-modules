@@ -14,31 +14,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ImpactImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private final org.openlca.ilcd.methods.ImpactMethod dataSet;
 	private final AtomicBoolean hasRefErrors;
 
-	public ImpactImport(ImportConfig config, ImpactMethod dataSet) {
-		this.config = config;
+	public ImpactImport(Import imp, ImpactMethod dataSet) {
+		this.imp = imp;
 		this.dataSet = dataSet;
 		this.hasRefErrors = new AtomicBoolean(false);
 	}
 
-	public static ImpactCategory get(ImportConfig config, String id) {
-		var impact = config.db().get(ImpactCategory.class, id);
+	public static ImpactCategory get(Import imp, String id) {
+		var impact = imp.db().get(ImpactCategory.class, id);
 		if (impact != null)
 			return impact;
-		var dataSet = config.store().get(ImpactMethod.class, id);
+		var dataSet = imp.store().get(ImpactMethod.class, id);
 		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
+			imp.log().error("invalid reference in ILCD data set:" +
 					" impact method '" + id + "' does not exist");
 			return null;
 		}
-		return new ImpactImport(config, dataSet).createNew();
+		return new ImpactImport(imp, dataSet).createNew();
 	}
 
 	public ImpactCategory run() {
-		var impact = config.db().get(ImpactCategory.class, dataSet.getUUID());
+		var impact = imp.db().get(ImpactCategory.class, dataSet.getUUID());
 		return impact != null
 				? impact
 				: createNew();
@@ -48,17 +48,17 @@ public class ImpactImport {
 		var impact = new ImpactCategory();
 		impact.refId = dataSet.getUUID();
 		impact.name = name();
-		config.log().info("import impact category: " + impact.name);
-		impact.category = new CategoryDao(config.db())
+		imp.log().info("import impact category: " + impact.name);
+		impact.category = new CategoryDao(imp.db())
 				.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(dataSet));
 
 		var info = Methods.getDataSetInfo(dataSet);
 		if (info != null) {
-			impact.description = config.str(info.comment);
+			impact.description = imp.str(info.comment);
 		}
 		var qref = Methods.getQuantitativeReference(dataSet);
 		if (qref != null && qref.quantity != null) {
-			impact.referenceUnit = config.str(qref.quantity.name);
+			impact.referenceUnit = imp.str(qref.quantity.name);
 		}
 
 		// timestamp
@@ -77,9 +77,9 @@ public class ImpactImport {
 		}
 
 		appendFactors(impact);
-		impact = config.insert(impact);
+		impact = imp.insert(impact);
 		appendToMethods(impact);
-		config.log().imported(impact);
+		imp.log().imported(impact);
 		return impact;
 	}
 
@@ -89,7 +89,7 @@ public class ImpactImport {
 			return "- none -";
 
 		// we have in principle 3 places where we can find the name
-		var name = config.str(info.name);
+		var name = imp.str(info.name);
 		if (Strings.nullOrEmpty(name)) {
 			name = info.impactCategories.stream()
 					.filter(Strings::notEmpty)
@@ -115,11 +115,11 @@ public class ImpactImport {
 			if (factor.flow == null)
 				continue;
 
-			var syncFlow = FlowImport.get(config, factor.flow.uuid);
+			var syncFlow = FlowImport.get(imp, factor.flow.uuid);
 			if (syncFlow.isEmpty()) {
 				if (!hasRefErrors.get()) {
 					hasRefErrors.set(true);
-					config.log().error("impact category " + impact.refId
+					imp.log().error("impact category " + impact.refId
 							+ " has invalid data set references; e.g. flow: "
 							+ factor.flow.uuid);
 				}
@@ -130,7 +130,7 @@ public class ImpactImport {
 			f.flow = syncFlow.flow();
 			f.flowPropertyFactor = syncFlow.property();
 			f.unit = syncFlow.unit();
-			f.location = config.locationOf(factor.location);
+			f.location = imp.cache.locationOf(factor.location);
 			if (syncFlow.isMapped()) {
 				var cf = syncFlow.mapFactor();
 				f.value = cf != 1 && cf != 0
@@ -149,17 +149,17 @@ public class ImpactImport {
 		if (info == null)
 			return;
 		for (var name : info.methods) {
-			var m = config.impactMethodOf(name);
+			var m = imp.cache.impactMethodOf(name);
 			if (m == null)
 				continue;
-			var method = config.db().get(
+			var method = imp.db().get(
 					org.openlca.core.model.ImpactMethod.class, m.id);
 			if (method == null) {
-				config.log().error("could not load created method: " + m.refId);
+				imp.log().error("could not load created method: " + m.refId);
 				continue;
 			}
 			method.impactCategories.add(impact);
-			config.db().update(method);
+			imp.db().update(method);
 		}
 	}
 }

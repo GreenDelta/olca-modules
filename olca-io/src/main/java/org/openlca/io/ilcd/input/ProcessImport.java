@@ -22,47 +22,47 @@ import org.openlca.util.Strings;
 
 public class ProcessImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private final ProcessExchanges exchanges;
 	private ProcessBag ilcdProcess;
 	private Process process;
 
-	public ProcessImport(ImportConfig config) {
-		this.config = config;
-		this.exchanges = new ProcessExchanges(config);
+	public ProcessImport(Import imp) {
+		this.imp = imp;
+		this.exchanges = new ProcessExchanges(imp);
 	}
 
 	public Process run(org.openlca.ilcd.processes.Process dataSet) {
-		this.ilcdProcess = new ProcessBag(dataSet, config.langOrder());
-		var process = config.db().get(Process.class, dataSet.getUUID());
+		this.ilcdProcess = new ProcessBag(dataSet, imp.langOrder());
+		var process = imp.db().get(Process.class, dataSet.getUUID());
 		return process != null
 			? process
 			: createNew();
 	}
 
-	public static Process get(ImportConfig config, String id) {
-		var process = config.db().get(Process.class, id);
+	public static Process get(Import imp, String id) {
+		var process = imp.db().get(Process.class, id);
 		if (process != null)
 			return process;
-		var dataSet = config.store().get(
+		var dataSet = imp.store().get(
 			org.openlca.ilcd.processes.Process.class, id);
 		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
+			imp.log().error("invalid reference in ILCD data set:" +
 				" process '" + id + "' does not exist");
 			return null;
 		}
-		return new ProcessImport(config).run(dataSet);
+		return new ProcessImport(imp).run(dataSet);
 	}
 
 	private Process createNew() {
 		process = new Process();
 		String[] path = Categories.getPath(ilcdProcess.getValue());
-		process.category = new CategoryDao(config.db())
+		process.category = new CategoryDao(imp.db())
 			.sync(ModelType.PROCESS, path);
 		createAndMapContent();
 		org.openlca.util.Processes.fixInternalIds(process);
-		process = config.insert(process);
-		config.providers().pop(process);
+		process = imp.insert(process);
+		imp.providers().pop(process);
 		return process;
 	}
 
@@ -70,22 +70,21 @@ public class ProcessImport {
 		var dataSet = ilcdProcess.getValue();
 		process.refId = dataSet.getUUID();
 		process.name = Strings.cut(
-			Processes.fullName(dataSet, config.langOrder()), 2024);
+			Processes.fullName(dataSet, imp.langOrder()), 2024);
 		var info = Processes.getDataSetInfo(dataSet);
 		if (info != null) {
-			process.description = config.str(info.comment);
+			process.description = imp.str(info.comment);
 		}
 
 		process.documentation = mapDocumentation();
 
-		new ProcessParameterConversion(process, config)
-			.run(ilcdProcess);
+		new ProcessParameterConversion(process, imp).run(ilcdProcess);
 		exchanges.map(ilcdProcess, process);
 
 		// set the DQ system for exchanges if needed
 		for (var e : process.exchanges) {
 			if (Strings.notEmpty(e.dqEntry)) {
-				process.exchangeDqSystem = DQSystems.ecoinvent(config.db());
+				process.exchangeDqSystem = DQSystems.ecoinvent(imp.db());
 				break;
 			}
 		}
@@ -93,7 +92,7 @@ public class ProcessImport {
 
 	private ProcessDoc mapDocumentation() {
 		var doc = new ProcessDoc();
-		var processTime = new ProcessTime(ilcdProcess.getTime(), config);
+		var processTime = new ProcessTime(ilcdProcess.getTime(), imp);
 		processTime.map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
@@ -112,14 +111,14 @@ public class ProcessImport {
 		var loc = Processes.getLocation(ilcdProcess.getValue());
 		if (loc == null)
 			return;
-		doc.geography = config.str(loc.description);
-		process.location = config.locationOf(loc.code);
+		doc.geography = imp.str(loc.description);
+		process.location = imp.cache.locationOf(loc.code);
 	}
 
 	private void mapTechnology(ProcessDoc doc) {
 		var iTech = ilcdProcess.getTechnology();
 		if (iTech != null) {
-			doc.technology = config.str(iTech.description);
+			doc.technology = imp.str(iTech.description);
 		}
 	}
 
@@ -140,7 +139,7 @@ public class ProcessImport {
 			}
 
 			// access and use restrictions
-			doc.accessRestrictions = config.str(iPub.accessRestrictions);
+			doc.accessRestrictions = imp.str(iPub.accessRestrictions);
 
 			// version
 			process.version = Version.fromString(
@@ -181,8 +180,8 @@ public class ProcessImport {
 	private void mapComissionerAndGoal(ProcessDoc doc) {
 		if (ilcdProcess.getCommissionerAndGoal() != null) {
 			var cag = ilcdProcess.getCommissionerAndGoal();
-			doc.intendedApplication = config.str(cag.intendedApplications);
-			doc.project = config.str(cag.project);
+			doc.intendedApplication = imp.str(cag.intendedApplications);
+			doc.project = imp.str(cag.project);
 		}
 	}
 
@@ -195,8 +194,8 @@ public class ProcessImport {
 		}
 		var iMethod = ilcdProcess.getLciMethod();
 		if (iMethod != null) {
-			doc.inventoryMethod = config.str(iMethod.principleDeviations);
-			doc.modelingConstants = config.str(iMethod.constants);
+			doc.inventoryMethod = imp.str(iMethod.principleDeviations);
+			doc.modelingConstants = imp.str(iMethod.constants);
 			process.defaultAllocationMethod = getAllocation(iMethod);
 		}
 	}
@@ -221,11 +220,11 @@ public class ProcessImport {
 		var r = ilcdProcess.getRepresentativeness();
 		if (r == null)
 			return;
-		doc.dataCompleteness = config.str(r.completeness);
-		doc.dataSelection = config.str(r.dataSelection);
-		doc.dataTreatment = config.str(r.dataTreatment);
-		doc.samplingProcedure = config.str(r.samplingProcedure);
-		doc.dataCollectionPeriod = config.str(r.dataCollectionPeriod);
+		doc.dataCompleteness = imp.str(r.completeness);
+		doc.dataSelection = imp.str(r.dataSelection);
+		doc.dataTreatment = imp.str(r.dataTreatment);
+		doc.samplingProcedure = imp.str(r.samplingProcedure);
+		doc.dataCollectionPeriod = imp.str(r.dataCollectionPeriod);
 	}
 
 	private void addSources(ProcessDoc doc) {
@@ -249,10 +248,10 @@ public class ProcessImport {
 			Ref ref = review.reviewers.get(0);
 			doc.reviewer = fetchActor(ref);
 		}
-		doc.reviewDetails = config.str(review.details);
+		doc.reviewDetails = imp.str(review.details);
 		var dq = DQEntry.get(review);
 		if (dq != null) {
-			var dqs = DQSystems.ilcd(config.db());
+			var dqs = DQSystems.ilcd(imp.db());
 			if (dqs != null) {
 				process.dqSystem = dqs;
 				process.dqEntry = dq;
@@ -262,13 +261,13 @@ public class ProcessImport {
 
 	private Actor fetchActor(Ref ref) {
 		return ref != null
-			? ContactImport.get(config, ref.uuid)
+			? ContactImport.get(imp, ref.uuid)
 			: null;
 	}
 
 	private Source fetchSource(Ref ref) {
 		return ref != null
-			? SourceImport.get(config, ref.uuid)
+			? SourceImport.get(imp, ref.uuid)
 			: null;
 	}
 

@@ -14,13 +14,13 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.ilcd.models.Model;
-import org.openlca.io.ilcd.input.ImportConfig;
+import org.openlca.io.ilcd.input.Import;
 
 /**
  * Synchronizes a transformed graph with a database. It assumes that all
  * processes and link flows are created new.
  */
-record GraphSync(ImportConfig config) {
+record GraphSync(Import imp) {
 
 	ProductSystem sync(Model model, Graph g) {
 
@@ -39,8 +39,8 @@ record GraphSync(ImportConfig config) {
 		syncProcesses(g);
 		ProductSystem system = new ProductSystem();
 		IO.mapMetaData(model, system);
-		system.category = new CategoryDao(config.db())
-			.sync(ModelType.PRODUCT_SYSTEM, "eILCD models");
+		system.category = new CategoryDao(imp.db())
+				.sync(ModelType.PRODUCT_SYSTEM, "eILCD models");
 		mapGraph(g, system);
 		mapQRef(g, system);
 		mapParams(g, system);
@@ -86,7 +86,7 @@ record GraphSync(ImportConfig config) {
 		}
 		names.add(0, "eILCD models");
 		String[] path = names.toArray(new String[0]);
-		c = new CategoryDao(config.db()).sync(type, path);
+		c = new CategoryDao(imp.db()).sync(type, path);
 		e.category = c;
 	}
 
@@ -141,11 +141,11 @@ record GraphSync(ImportConfig config) {
 	}
 
 	private <T extends RootEntity> T insert(T e) {
-		var r = config.db().insert(e);
+		var r = imp.db().insert(e);
 		if (r instanceof ProductSystem) {
-			config.log().imported(r);
+			imp.log().imported(r);
 		} else {
-			config.log().warn(r, "created copy for eILCD model");
+			imp.log().warn(r, "created copy for eILCD model");
 		}
 		return r;
 	}

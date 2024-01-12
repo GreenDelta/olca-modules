@@ -21,22 +21,22 @@ import org.openlca.util.Strings;
 
 public class EpdImport {
 
-	private final ImportConfig config;
+	private final Import imp;
 	private final Process dataSet;
 	private final EpdDataSet epd;
 	private final AtomicBoolean hasRefError;
 
-	public EpdImport(ImportConfig config, Process dataSet) {
-		this.config = config;
+	public EpdImport(Import imp, Process dataSet) {
+		this.imp = imp;
 		this.dataSet = dataSet;
 		this.epd = EpdExtensions.read(dataSet);
 		this.hasRefError = new AtomicBoolean(false);
 	}
 
 	public void run() {
-		var oEpd = config.db().get(Epd.class, dataSet.getUUID());
+		var oEpd = imp.db().get(Epd.class, dataSet.getUUID());
 		if (oEpd != null) {
-			config.log().skipped(oEpd);
+			imp.log().skipped(oEpd);
 			return;
 		}
 
@@ -45,14 +45,14 @@ public class EpdImport {
 		oEpd.refId = dataSet.getUUID();
 		oEpd.lastChange = System.currentTimeMillis();
 		oEpd.name = Strings.cut(
-			Processes.fullName(dataSet, config.langOrder()), 2048);
+			Processes.fullName(dataSet, imp.langOrder()), 2048);
 		var path = Categories.getPath(dataSet);
-		oEpd.category = new CategoryDao(config.db()).sync(ModelType.EPD, path);
+		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
 		oEpd.tags = tags();
 
 		var info = Processes.getDataSetInfo(dataSet);
 		if (info != null) {
-			oEpd.description = config.str(info.comment);
+			oEpd.description = imp.str(info.comment);
 		}
 		oEpd.verifier = verifier();
 		oEpd.programOperator = operator();
@@ -74,11 +74,11 @@ public class EpdImport {
 			var suffix = scope.toString();
 
 			var refId = KeyGen.get(dataSet.getUUID(), suffix);
-			var result = config.db().get(Result.class, refId);
+			var result = imp.db().get(Result.class, refId);
 			if (result != null) {
 				var module = EpdModule.of(scope.toString(), result);
 				oEpd.modules.add(module);
-				config.log().skipped(result);
+				imp.log().skipped(result);
 				continue;
 			}
 
@@ -88,10 +88,10 @@ public class EpdImport {
 
 			// meta-data
 			result.name = Strings.cut(
-				Processes.fullName(dataSet, config.langOrder()),
+				Processes.fullName(dataSet, imp.langOrder()),
 				2044 - suffix.length()) + " - " + suffix;
-			config.log().info("import EPD result: " + result.name);
-			result.category = new CategoryDao(config.db())
+			imp.log().info("import EPD result: " + result.name);
+			result.category = new CategoryDao(imp.db())
 				.sync(ModelType.RESULT, path);
 
 			if (refFlow != null) {
@@ -101,11 +101,11 @@ public class EpdImport {
 			}
 
 			addResultsOf(scope, result);
-			result = config.insert(result);
+			result = imp.insert(result);
 			oEpd.modules.add(EpdModule.of(scope.toString(), result));
 		}
 
-		config.insert(oEpd);
+		imp.insert(oEpd);
 	}
 
 	private FlowResult getRefFlow() {
@@ -119,11 +119,11 @@ public class EpdImport {
 			.orElse(null);
 		if (exchange == null || exchange.flow == null)
 			return null;
-		var f = FlowImport.get(config, exchange.flow.uuid);
+		var f = FlowImport.get(imp, exchange.flow.uuid);
 		if (f.isEmpty()) {
 			if (!hasRefError.get()) {
 				hasRefError.set(true);
-				config.log().error("EPD " + dataSet.getUUID()
+				imp.log().error("EPD " + dataSet.getUUID()
 						+ " has invalid references; e.g. flow: " + exchange.flow.uuid);
 			}
 			return null;
@@ -169,7 +169,7 @@ public class EpdImport {
 
 		// handle LCIA indicators
 		if (indicator.type == Indicator.Type.LCIA) {
-			var impact = ImpactImport.get(config, indicator.uuid);
+			var impact = ImpactImport.get(imp, indicator.uuid);
 
 			// found an impact
 			if (impact != null) {
@@ -178,7 +178,7 @@ public class EpdImport {
 					// indicator units are sometimes missing in
 					// LCIA data sets of ILCD packages
 					impact.referenceUnit = indicator.unit;
-					config.db().update(impact);
+					imp.db().update(impact);
 				}
 				return impact;
 			}
@@ -186,19 +186,19 @@ public class EpdImport {
 			// create a new impact category
 			impact = ImpactCategory.of(indicator.name, indicator.unit);
 			impact.refId = indicator.uuid;
-			return config.db().insert(impact);
+			return imp.db().insert(impact);
 		}
 
 		// handle LCI indicators
 		var refId = KeyGen.get("impact", indicator.uuid);
-		var impact = config.db().get(ImpactCategory.class, refId);
+		var impact = imp.db().get(ImpactCategory.class, refId);
 		if (impact != null)
 			return impact;
 		impact = ImpactCategory.of(indicator.name, indicator.unit);
 		impact.refId = refId;
-		var f = FlowImport.get(config, indicator.uuid);
+		var f = FlowImport.get(imp, indicator.uuid);
 		if (f.isEmpty()) {
-			return config.db().insert(impact);
+			return imp.db().insert(impact);
 		}
 
 		// add a factor for the ILCD+EPD flow
@@ -210,7 +210,7 @@ public class EpdImport {
 		var factor = impact.factor(f.flow(), value);
 		factor.flowPropertyFactor = f.property();
 		factor.unit = f.unit();
-		return config.db().insert(impact);
+		return imp.db().insert(impact);
 	}
 
 	private Actor operator() {
@@ -218,7 +218,7 @@ public class EpdImport {
 		if (pub == null || pub.registrationAuthority == null)
 			return null;
 		var id = pub.registrationAuthority.uuid;
-		return ContactImport.get(config, id);
+		return ContactImport.get(imp, id);
 	}
 
 	private Actor manufacturer() {
@@ -226,7 +226,7 @@ public class EpdImport {
 		if (pub == null || pub.owner == null)
 			return null;
 		var id = pub.owner.uuid;
-		return ContactImport.get(config, id);
+		return ContactImport.get(imp, id);
 	}
 
 	private Actor verifier() {
@@ -239,7 +239,7 @@ public class EpdImport {
 		var ref = Lists.first(review.reviewers).orElse(null);
 		if (ref == null)
 			return null;
-		return ContactImport.get(config, ref.uuid);
+		return ContactImport.get(imp, ref.uuid);
 	}
 
 	private String tags() {
@@ -250,7 +250,7 @@ public class EpdImport {
 		for (var decl : decls) {
 			if (decl.system == null)
 				continue;
-			var sys = config.str(decl.system.name);
+			var sys = imp.str(decl.system.name);
 			if (Strings.nullOrEmpty(sys))
 				continue;
 			if (!tags.isEmpty()) {

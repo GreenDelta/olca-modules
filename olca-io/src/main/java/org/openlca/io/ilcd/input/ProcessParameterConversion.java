@@ -22,12 +22,12 @@ class ProcessParameterConversion {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Process olcaProcess;
 	private final ParameterDao dao;
-	private final ImportConfig config;
+	private final Import imp;
 
-	public ProcessParameterConversion(Process olcaProcess, ImportConfig config) {
+	public ProcessParameterConversion(Process olcaProcess, Import imp) {
 		this.olcaProcess = olcaProcess;
-		this.config = config;
-		this.dao = new ParameterDao(config.db());
+		this.imp = imp;
+		this.dao = new ParameterDao(imp.db());
 	}
 
 	public void run(ProcessBag ilcdProcess) {
@@ -50,7 +50,7 @@ class ProcessParameterConversion {
 		Parameter param = new Parameter();
 		param.scope = scope;
 		param.name = iParameter.name;
-		param.description = config.str(iParameter.comment);
+		param.description = imp.str(iParameter.comment);
 		Double mean = iParameter.mean;
 		if (mean != null)
 			param.value = mean;
