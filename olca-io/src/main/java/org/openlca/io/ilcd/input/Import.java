@@ -5,6 +5,7 @@ import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.RootEntity;
+import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
@@ -30,7 +31,6 @@ public class Import implements org.openlca.io.Import {
 
 	private final DataStore store;
 	private final IDatabase db;
-	private final FlowSync flowSync;
 	private final ImportLog log;
 
 	private boolean allFlows;
@@ -41,6 +41,7 @@ public class Import implements org.openlca.io.Import {
 	private volatile boolean canceled = false;
 
 	final ImportCache cache;
+	final FlowSync flowSync;
 
 	private Import(DataStore store, IDatabase db, FlowMap flowMap) {
 		this.store = Objects.requireNonNull(store);
@@ -127,19 +128,11 @@ public class Import implements org.openlca.io.Import {
 		return db;
 	}
 
-	public boolean withAllFlows() {
-		return allFlows;
-	}
-
 	String[] langOrder() {
 		return langOrder;
 	}
 
-	public FlowSync flowSync() {
-		return flowSync;
-	}
-
-	public ExchangeProviderQueue providers() {
+	ExchangeProviderQueue providers() {
 		if (providers == null) {
 			providers = ExchangeProviderQueue.create(db);
 		}
@@ -168,7 +161,7 @@ public class Import implements org.openlca.io.Import {
 		try {
 			var it = store.iterator(type);
 			while (!canceled && it.hasNext()) {
-				importOf(it.next());
+				write(it.next());
 			}
 		} catch (Exception e) {
 			log.error("Import of data of type "
@@ -176,7 +169,33 @@ public class Import implements org.openlca.io.Import {
 		}
 	}
 
-	private <T extends IDataSet> void importOf(T dataSet) {
+	public void write(DataSetType type, String id) {
+		if (type == null || id == null)
+			return;
+		switch (type) {
+			case CONTACT -> ContactImport.get(this, id);
+			case SOURCE -> SourceImport.get(this, id);
+			case UNIT_GROUP -> UnitGroupImport.get(this, id);
+			case FLOW_PROPERTY -> FlowPropertyImport.get(this, id);
+			case FLOW -> FlowImport.get(this, id);
+			case IMPACT_METHOD -> ImpactImport.get(this, id);
+			case MODEL -> ModelImport.get(this, id);
+			case PROCESS -> {
+				var ds = store.get(Process.class, id);
+				if (ds == null) {
+					log.error("process or EPD '" + id + "' not found");
+					return;
+				}
+				if (Processes.getInventoryMethod(ds).processType == ProcessType.EPD) {
+					new EpdImport(this, ds).run();
+				} else {
+					new ProcessImport(this).run(ds);
+				}
+			}
+		}
+	}
+
+	public <T extends IDataSet> void write(T dataSet) {
 		if (dataSet == null)
 			return;
 		try {

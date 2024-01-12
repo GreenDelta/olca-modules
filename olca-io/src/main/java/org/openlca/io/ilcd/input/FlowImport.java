@@ -26,12 +26,12 @@ public class FlowImport {
 	}
 
 	public SyncFlow run(org.openlca.ilcd.flows.Flow dataSet) {
-		return imp.flowSync().createIfAbsent(
+		return imp.flowSync.createIfAbsent(
 			dataSet.getUUID(), () -> createNew(dataSet));
 	}
 
 	public static SyncFlow get(Import imp, String id) {
-		return imp.flowSync().createIfAbsent(id, () -> {
+		return imp.flowSync.createIfAbsent(id, () -> {
 			var dataSet = imp.store().get(org.openlca.ilcd.flows.Flow.class, id);
 			if (dataSet == null) {
 				return null;

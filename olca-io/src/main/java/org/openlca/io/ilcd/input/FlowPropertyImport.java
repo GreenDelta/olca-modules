@@ -30,18 +30,18 @@ public class FlowPropertyImport {
 				: createNew();
 	}
 
-	public static FlowProperty get(Import config, String id) {
-		var property = config.db().get(FlowProperty.class, id);
+	public static FlowProperty get(Import imp, String id) {
+		var property = imp.db().get(FlowProperty.class, id);
 		if (property != null)
 			return property;
-		var dataSet = config.store().get(
+		var dataSet = imp.store().get(
 				org.openlca.ilcd.flowproperties.FlowProperty.class, id);
 		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
+			imp.log().error("invalid reference in ILCD data set:" +
 					" flow property '" + id + "' does not exist");
 			return null;
 		}
-		return new FlowPropertyImport(config).run(dataSet);
+		return new FlowPropertyImport(imp).run(dataSet);
 	}
 
 	private FlowProperty createNew() {

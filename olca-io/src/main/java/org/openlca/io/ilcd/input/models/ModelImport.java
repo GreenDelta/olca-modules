@@ -39,6 +39,18 @@ public class ModelImport {
 		this.imp = imp;
 	}
 
+	public static ProductSystem get(Import imp, String id) {
+		var system = imp.db().get(ProductSystem.class, id);
+		if (system != null)
+			return system;
+		var ds = imp.store().get(Model.class, id);
+		if (ds == null) {
+			imp.log().error("life cycle model '" + id + "' does not exist");
+			return null;
+		}
+		return new ModelImport(imp).run(ds);
+	}
+
 	public ProductSystem run(Model model) {
 		if (model == null)
 			return null;
