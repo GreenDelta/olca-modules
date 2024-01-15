@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd;
 
-import java.io.File;
-import java.nio.file.Files;
-
 import jakarta.xml.bind.JAXB;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,12 +25,15 @@ import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.io.ilcd.input.SourceImport;
 import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.output.ActorExport;
+import org.openlca.io.ilcd.output.Export;
 import org.openlca.io.ilcd.output.FlowExport;
 import org.openlca.io.ilcd.output.FlowPropertyExport;
-import org.openlca.io.ilcd.output.Export;
 import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
+
+import java.io.File;
+import java.nio.file.Files;
 
 import static org.junit.Assert.*;
 
@@ -90,8 +90,8 @@ public class ImportExportTest {
 	@Test
 	public void testB_Source() {
 		var id = "2c699413-f88b-4cb5-a56d-98cb4068472f";
-		var dataSet = imp.store().get(Source.class, id);
-		var source = new SourceImport(imp).run(dataSet);
+		var ds = imp.store().get(Source.class, id);
+		var source = new SourceImport(imp, ds).run();
 		assertEquals(id, source.refId);
 		new SourceExport(export).run(source);
 		assertTrue(store.contains(Source.class, id));
@@ -110,8 +110,8 @@ public class ImportExportTest {
 	@Test
 	public void testD_FlowProp() {
 		String id = "93a60a56-a3c8-11da-a746-0800200b9a66";
-		var dataSet = imp.store().get(FlowProperty.class, id);
-		var prop = new FlowPropertyImport(imp).run(dataSet);
+		var ds = imp.store().get(FlowProperty.class, id);
+		var prop = new FlowPropertyImport(imp, ds).run();
 		assertEquals(id, prop.refId);
 		new FlowPropertyExport(export).run(prop);
 		assertTrue(store.contains(FlowProperty.class, id));

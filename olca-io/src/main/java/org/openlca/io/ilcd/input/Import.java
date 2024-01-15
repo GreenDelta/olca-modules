@@ -202,11 +202,11 @@ public class Import implements org.openlca.io.Import {
 			if (dataSet instanceof Contact contact) {
 				new ContactImport(this).run(contact);
 			} else if (dataSet instanceof Source source) {
-				new SourceImport(this).run(source);
+				new SourceImport(this, source).run();
 			} else if (dataSet instanceof UnitGroup group) {
 				new UnitGroupImport(this).run(group);
 			} else if (dataSet instanceof FlowProperty prop) {
-				new FlowPropertyImport(this).run(prop);
+				new FlowPropertyImport(this, prop).run();
 			} else if (dataSet instanceof Flow flow) {
 				new FlowImport(this).run(flow);
 			} else if (dataSet instanceof Process process) {

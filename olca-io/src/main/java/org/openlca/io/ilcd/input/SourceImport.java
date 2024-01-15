@@ -6,75 +6,79 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
-import org.openlca.ilcd.util.SourceBag;
+import org.openlca.ilcd.util.Sources;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Date;
-import java.util.List;
 
 public class SourceImport {
 
 	private final Import imp;
-	private SourceBag ilcdSource;
+	private final org.openlca.ilcd.sources.Source ds;
 	private Source source;
 
-	public SourceImport(Import imp) {
+	public SourceImport(Import imp, org.openlca.ilcd.sources.Source ds) {
 		this.imp = imp;
+		this.ds = ds;
 	}
 
-	public Source run(org.openlca.ilcd.sources.Source dataSet) {
-		this.ilcdSource = new SourceBag(dataSet, imp.langOrder());
-		var source = imp.db().get(Source.class, dataSet.getUUID());
+	public Source run() {
+		var source = imp.db().get(Source.class, ds.getUUID());
 		return source != null
 				? source
 				: createNew();
 	}
 
-	public static Source get(Import config, String sourceId) {
-		var source = config.db().get(Source.class, sourceId);
+	public static Source get(Import imp, String sourceId) {
+		var source = imp.db().get(Source.class, sourceId);
 		if (source != null)
 			return source;
-		var dataSet = config.store().get(
+		var ds = imp.store().get(
 				org.openlca.ilcd.sources.Source.class, sourceId);
-		if (dataSet == null) {
-			config.log().error("invalid reference in ILCD data set:" +
+		if (ds == null) {
+			imp.log().error("invalid reference in ILCD data set:" +
 					" source '" + sourceId + "' does not exist");
 			return null;
 		}
-		return new SourceImport(config).run(dataSet);
+		return new SourceImport(imp, ds).run();
 	}
 
 	private Source createNew() {
 		source = new Source();
-		String[] path = Categories.getPath(ilcdSource.getValue());
 		source.category = new CategoryDao(imp.db())
-				.sync(ModelType.SOURCE, path);
+				.sync(ModelType.SOURCE, Categories.getPath(ds));
 		setDescriptionAttributes();
 		importExternalFile();
 		return imp.insert(source);
 	}
 
 	private void setDescriptionAttributes() {
-		source.refId = ilcdSource.getId();
-		source.name = ilcdSource.getShortName();
-		source.description = ilcdSource.getComment();
-		source.textReference = ilcdSource.getSourceCitation();
-		String v = ilcdSource.getVersion();
-		source.version = Version.fromString(v).getValue();
-		Date time = ilcdSource.getTimeStamp();
-		if (time != null)
-			source.lastChange = time.getTime();
+		source.refId = ds.getUUID();
+		var info = Sources.getDataSetInfo(ds);
+		if (info != null) {
+			source.name = imp.str(info.name);
+			source.description = imp.str(info.description);
+			source.textReference = info.citation;
+		}
+
+		source.version = Version.fromString(ds.getVersion()).getValue();
+		var entry = Sources.getDataEntry(ds);
+		if (entry != null && entry.timeStamp != null) {
+			source.lastChange = entry.timeStamp
+					.toGregorianCalendar()
+					.getTimeInMillis();
+		}
 	}
 
 	private void importExternalFile() {
-		List<String> uris = ilcdSource.getExternalFileURIs();
+		var fileRefs = Sources.getFileRefs(ds);
 		File dbDir = imp.db().getFileStorageLocation();
-		if (uris.isEmpty() || dbDir == null)
+		if (fileRefs.isEmpty() || dbDir == null)
 			return;
-		String uri = uris.get(0);
+		var fileRef = fileRefs.get(0);
+		if (fileRef == null)
+			return;
+		var uri = fileRef.uri;
 		try {
 			copyFile(dbDir, uri);
 		} catch (Exception e) {
@@ -84,22 +88,20 @@ public class SourceImport {
 	}
 
 	private void copyFile(File dbDir, String uri) throws Exception {
-		String fileName = new File(uri).getName();
-		String path = FileStore.getPath(ModelType.SOURCE, source.refId);
-		File docDir = new File(dbDir, path);
+		var fileName = new File(uri).getName();
+		var path = FileStore.getPath(ModelType.SOURCE, source.refId);
+		var docDir = new File(dbDir, path);
 		if (!docDir.exists()) {
-			if (!docDir.mkdirs()) {
-				throw new IOException("failed to create " + docDir);
-			}
+			Files.createDirectories(docDir.toPath());
 		}
-		File dbFile = new File(docDir, fileName);
+		var dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		try (InputStream in = imp.store().getExternalDocument(
-				ilcdSource.getId(), fileName)) {
-			if (in == null)
-				return;
-			Files.copy(in, dbFile.toPath());
+		var stream = imp.store().getExternalDocument(ds.getUUID(), fileName);
+		if (stream == null)
+			return;
+		try (stream) {
+			Files.copy(stream, dbFile.toPath());
 			source.externalFile = fileName;
 		}
 	}

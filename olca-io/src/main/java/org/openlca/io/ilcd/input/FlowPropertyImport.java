@@ -5,26 +5,23 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.util.Categories;
-import org.openlca.ilcd.util.FlowPropertyBag;
-
-import java.util.Date;
+import org.openlca.ilcd.util.FlowProperties;
 
 public class FlowPropertyImport {
 
 	private final Import imp;
-	private FlowPropertyBag ilcdProperty;
-	private FlowProperty property;
+	private final org.openlca.ilcd.flowproperties.FlowProperty ds;
+	private FlowProperty prop;
 
-	public FlowPropertyImport(Import imp) {
+	public FlowPropertyImport(
+			Import imp, org.openlca.ilcd.flowproperties.FlowProperty ds) {
 		this.imp = imp;
+		this.ds = ds;
 	}
 
-	public FlowProperty run(
-			org.openlca.ilcd.flowproperties.FlowProperty dataSet) {
-		this.ilcdProperty = new FlowPropertyBag(dataSet, imp.langOrder());
-		var prop = imp.db().get(FlowProperty.class, dataSet.getUUID());
+	public FlowProperty run() {
+		var prop = imp.db().get(FlowProperty.class, ds.getUUID());
 		return prop != null
 				? prop
 				: createNew();
@@ -34,40 +31,43 @@ public class FlowPropertyImport {
 		var property = imp.db().get(FlowProperty.class, id);
 		if (property != null)
 			return property;
-		var dataSet = imp.store().get(
+		var ds = imp.store().get(
 				org.openlca.ilcd.flowproperties.FlowProperty.class, id);
-		if (dataSet == null) {
+		if (ds == null) {
 			imp.log().error("invalid reference in ILCD data set:" +
 					" flow property '" + id + "' does not exist");
 			return null;
 		}
-		return new FlowPropertyImport(imp).run(dataSet);
+		return new FlowPropertyImport(imp, ds).run();
 	}
 
 	private FlowProperty createNew() {
-		property = new FlowProperty();
-		var path = Categories.getPath(ilcdProperty.getValue());
-		property.category = new CategoryDao(imp.db())
-				.sync(ModelType.FLOW_PROPERTY, path);
+		prop = new FlowProperty();
+		prop.category = new CategoryDao(imp.db())
+				.sync(ModelType.FLOW_PROPERTY, Categories.getPath(ds));
 		mapDescriptionAttributes();
-		Ref unitGroupRef = ilcdProperty.getUnitGroupReference();
-		if (unitGroupRef != null) {
-			property.unitGroup = UnitGroupImport.get(imp, unitGroupRef.uuid);
+		var ref = FlowProperties.getUnitGroupRef(ds);
+		if (ref != null) {
+			prop.unitGroup = UnitGroupImport.get(imp, ref.uuid);
 		}
-		return imp.insert(property);
+		return imp.insert(prop);
 	}
 
 	private void mapDescriptionAttributes() {
-		property.flowPropertyType = FlowPropertyType.PHYSICAL; // default
-		property.refId = ilcdProperty.getId();
-		property.name = ilcdProperty.getName();
-		property.description = ilcdProperty.getComment();
+		prop.flowPropertyType = FlowPropertyType.PHYSICAL; // default
+		prop.refId = ds.getUUID();
+		var info = FlowProperties.getDataSetInfo(ds);
+		if (info != null) {
+			prop.name = imp.str(info.name);
+			prop.description = imp.str(info.generalComment);
+		}
 
-		String v = ilcdProperty.getVersion();
-		property.version = Version.fromString(v).getValue();
-		Date time = ilcdProperty.getTimeStamp();
-		if (time != null) {
-			property.lastChange = time.getTime();
+		prop.version = Version.fromString(ds.getVersion()).getValue();
+		var entry = FlowProperties.getDataEntry(ds);
+		if (entry != null && entry.timeStamp != null) {
+			prop.lastChange = entry.timeStamp
+					.toGregorianCalendar()
+					.getTimeInMillis();
 		}
 	}
 }
