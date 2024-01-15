@@ -4,12 +4,16 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.docext.Completeness;
+import org.openlca.ilcd.commons.FlowCompleteness;
+import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.DataSetInfo;
+import org.openlca.ilcd.processes.FlowCompletenessEntry;
 import org.openlca.ilcd.processes.Geography;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.processes.Process;
@@ -17,6 +21,7 @@ import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.util.ProcessBuilder;
+import org.openlca.ilcd.util.Processes;
 import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -64,9 +69,10 @@ public class ProcessExport {
 		if (qRef != null) {
 			builder.withReferenceFlowId(qRef.internalId);
 		}
-		Process iProcess = builder.getProcess();
-		new ExchangeConversion(p, exp).run(iProcess);
-		exp.store.put(iProcess);
+		var ds = builder.getProcess();
+		mapCompleteness(ds);
+		new ExchangeConversion(p, exp).run(ds);
+		exp.store.put(ds);
 	}
 
 	private DataSetInfo makeDataSetInfo() {
@@ -219,5 +225,25 @@ public class ProcessExport {
 		}
 		exp.add(review.details, doc.reviewDetails);
 		return reviews;
+	}
+
+	private void mapCompleteness(Process ds) {
+		var c = Completeness.readFrom(process);
+		if (c.isEmpty())
+			return;
+		var target = Processes.forceCompleteness(ds);
+		target.productCompleteness = FlowCompleteness
+				.fromValue(c.get("Product model"))
+				.orElse(null);
+		for (var impact : ImpactCategory.values()) {
+			var value = FlowCompleteness.fromValue(c.get(impact.value()))
+					.orElse(null);
+			if (value == null)
+				continue;
+			var e = new FlowCompletenessEntry();
+			e.impact = impact;
+			e.value = value;
+			target.entries.add(e);
+		}
 	}
 }

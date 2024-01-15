@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
-import java.util.List;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
@@ -12,6 +9,7 @@ import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.docext.Completeness;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Categories;
@@ -19,6 +17,9 @@ import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
+
+import java.util.Date;
+import java.util.List;
 
 public class ProcessImport {
 
@@ -44,14 +45,13 @@ public class ProcessImport {
 		var process = imp.db().get(Process.class, id);
 		if (process != null)
 			return process;
-		var dataSet = imp.store().get(
-			org.openlca.ilcd.processes.Process.class, id);
-		if (dataSet == null) {
+		var ds = imp.store().get(org.openlca.ilcd.processes.Process.class, id);
+		if (ds == null) {
 			imp.log().error("invalid reference in ILCD data set:" +
 				" process '" + id + "' does not exist");
 			return null;
 		}
-		return new ProcessImport(imp).run(dataSet);
+		return new ProcessImport(imp).run(ds);
 	}
 
 	private Process createNew() {
@@ -77,6 +77,7 @@ public class ProcessImport {
 		}
 
 		process.documentation = mapDocumentation();
+		mapCompleteness();
 
 		new ProcessParameterConversion(process, imp).run(ilcdProcess);
 		exchanges.map(ilcdProcess, process);
@@ -269,6 +270,24 @@ public class ProcessImport {
 		return ref != null
 			? SourceImport.get(imp, ref.uuid)
 			: null;
+	}
+
+	private void mapCompleteness() {
+		var c = Processes.getCompleteness(ilcdProcess.getValue());
+		if (c == null)
+			return;
+		var target = new Completeness();
+		if (c.productCompleteness != null) {
+			target.put("Product model", c.productCompleteness.value());
+		}
+		for (var e : c.entries) {
+			if (e.impact == null || e.value == null)
+				continue;
+			target.put(e.impact.value(), e.value.value());
+		}
+		if (!target.isEmpty()) {
+			target.writeTo(process);
+		}
 	}
 
 }
