@@ -38,7 +38,7 @@ public record DQSystemReader(EntityResolver resolver)
 	private void mapIndicators(DQSystem system, JsonObject json) {
 		system.indicators.clear();
 		var indicators = Json.getArray(json, "indicators");
-		if (indicators == null || indicators.size() == 0)
+		if (indicators == null || indicators.isEmpty())
 			return;
 		for (var e : indicators) {
 			if (!e.isJsonObject())
@@ -54,7 +54,7 @@ public record DQSystemReader(EntityResolver resolver)
 
 	private void mapScores(DQIndicator indicator, JsonObject indicatorJson) {
 		var array = Json.getArray(indicatorJson, "scores");
-		if (array == null || array.size() == 0)
+		if (array == null || array.isEmpty())
 			return;
 		for (var e : array) {
 			if (!e.isJsonObject())

@@ -15,6 +15,7 @@ public record ParameterWriter(JsonExport exp) implements JsonWriter<Parameter> {
 	public JsonObject write(Parameter param) {
 		var obj = new JsonObject();
 		mapAttr(obj, param);
+		Util.mapOtherProperties(param, obj);
 		GlobalParameters.sync(param, exp);
 		return obj;
 	}

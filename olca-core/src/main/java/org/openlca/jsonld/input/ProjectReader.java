@@ -51,7 +51,7 @@ public record ProjectReader(EntityResolver resolver)
 	private void mapVariants(JsonObject json, Project p) {
 		p.variants.clear();
 		var array = Json.getArray(json, "variants");
-		if (array == null || array.size() == 0)
+		if (array == null || array.isEmpty())
 			return;
 		for (var e : array) {
 			if (!e.isJsonObject())
@@ -83,7 +83,7 @@ public record ProjectReader(EntityResolver resolver)
 
 			// parameter redefinitions
 			var redefs = Json.getArray(obj, "parameterRedefs");
-			if (redefs != null && redefs.size() > 0) {
+			if (redefs != null && !redefs.isEmpty()) {
 				v.parameterRedefs.addAll(ParameterReader.readRedefs(redefs, resolver));
 			}
 

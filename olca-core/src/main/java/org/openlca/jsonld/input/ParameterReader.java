@@ -49,7 +49,7 @@ public record ParameterReader(EntityResolver resolver)
 
 	public static List<ParameterRedef> readRedefs(
 			JsonArray array, EntityResolver resolver) {
-		if (array == null || array.size() == 0)
+		if (array == null || array.isEmpty())
 			return Collections.emptyList();
 		var redefs = new ArrayList<ParameterRedef>();
 		for (var elem : array) {

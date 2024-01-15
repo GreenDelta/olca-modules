@@ -47,6 +47,12 @@ class Util {
         ? String.join(",", tags)
         : null;
     }
+
+		// other properties
+		var extProps = Json.getObject(obj, "otherProperties");
+		if (extProps != null) {
+			re.writeOtherProperties(extProps);
+		}
   }
 
 	static long getVersion(JsonObject obj) {

@@ -61,7 +61,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 	private void mapParameters(ImpactCategory impact, JsonObject json) {
 		impact.parameters.clear();
 		var parameters = Json.getArray(json, "parameters");
-		if (parameters == null || parameters.size() == 0)
+		if (parameters == null || parameters.isEmpty())
 			return;
 		for (var e : parameters) {
 			if (!e.isJsonObject())

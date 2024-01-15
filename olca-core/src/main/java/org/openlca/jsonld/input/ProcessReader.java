@@ -68,7 +68,7 @@ public class ProcessReader implements EntityReader<Process> {
 	private void mapParameters(JsonObject json, Process p) {
 		p.parameters.clear();
 		var parameters = Json.getArray(json, "parameters");
-		if (parameters == null || parameters.size() == 0)
+		if (parameters == null || parameters.isEmpty())
 			return;
 		for (var e : parameters) {
 			if (!e.isJsonObject())
@@ -92,7 +92,7 @@ public class ProcessReader implements EntityReader<Process> {
 		p.exchanges.clear();
 
 		var array = Json.getArray(json, "exchanges");
-		if (array == null || array.size() == 0)
+		if (array == null || array.isEmpty())
 			return;
 
 		p.lastInternalId = Json.getInt(json, "lastInternalId", 0);

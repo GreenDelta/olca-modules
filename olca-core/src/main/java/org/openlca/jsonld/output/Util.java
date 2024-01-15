@@ -11,15 +11,24 @@ import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
-public class Util {
+class Util {
 
-	public static <T extends RootEntity> JsonObject init(T entity) {
+	static <T extends RootEntity> JsonObject init(T entity) {
 		var obj = new JsonObject();
 		mapBasicAttributes(entity, obj);
+		mapOtherProperties(entity, obj);
 		return obj;
 	}
 
-	public static void mapBasicAttributes(RefEntity entity, JsonObject obj) {
+	static <T extends RootEntity> void mapOtherProperties(
+			T entity, JsonObject obj) {
+		if (entity.otherProperties != null) {
+			var extProps = entity.readOtherProperties();
+			obj.add("otherProperties", extProps);
+		}
+	}
+
+	static void mapBasicAttributes(RefEntity entity, JsonObject obj) {
 		if (entity == null || obj == null)
 			return;
 		var type = entity.getClass().getSimpleName();
@@ -45,7 +54,7 @@ public class Util {
 					.map(String::trim)
 					.filter(tag -> !Strings.nullOrEmpty(tag))
 					.forEach(tags::add);
-				if (tags.size() > 0) {
+				if (!tags.isEmpty()) {
 					obj.add("tags", tags);
 				}
 			}

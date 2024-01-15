@@ -45,7 +45,7 @@ public record UnitGroupReader(EntityResolver resolver)
 		group.units.clear();
 
 		var array = Json.getArray(json, "units");
-		if (array == null || array.size() == 0)
+		if (array == null || array.isEmpty())
 			return;
 		for (JsonElement e : array) {
 			if (!e.isJsonObject())
