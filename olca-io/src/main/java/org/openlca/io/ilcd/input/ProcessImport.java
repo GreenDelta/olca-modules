@@ -9,7 +9,7 @@ import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.docext.Completeness;
+import org.openlca.core.model.doc.Completeness;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Categories;

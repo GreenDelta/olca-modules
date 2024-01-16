@@ -1,6 +1,7 @@
 package org.openlca.core.model;
 
 import jakarta.persistence.*;
+import org.openlca.core.model.doc.Review;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,28 +85,13 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 
 	// endregion
 
-	// region review
-
-	@Column(name = "review_type")
-	public String reviewType;
-
-	@Lob
-	@Column(name = "review_details")
-	public String reviewDetails;
-
-	@OneToOne
-	@JoinColumn(name = "f_reviewer")
-	public Actor reviewer;
-
-	@OneToOne
-	@JoinColumn(name = "f_review_report")
-	public Source reviewReport;
-
-	// endregion
-
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
 	public final List<ComplianceDeclaration> complianceDeclarations = new ArrayList<>();
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_owner")
+	public final List<Review> reviews = new ArrayList<>();
 
 	// region goal & scope
 
@@ -182,13 +168,11 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 		clone.dataCollectionPeriod = dataCollectionPeriod;
 		clone.useAdvice = useAdvice;
 
-		clone.reviewType = reviewType;
-		clone.reviewDetails = reviewDetails;
-		clone.reviewer = reviewer;
-		clone.reviewReport = reviewReport;
-
 		for (var c : complianceDeclarations) {
 			clone.complianceDeclarations.add(c.copy());
+		}
+		for (var r : reviews) {
+			clone.reviews.add(r.copy());
 		}
 
 		clone.intendedApplication = intendedApplication;

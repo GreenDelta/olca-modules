@@ -1,4 +1,4 @@
-package org.openlca.core.model.docext;
+package org.openlca.core.model.doc;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,6 +10,10 @@ import org.openlca.util.Strings;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Documents completeness aspects of a dataset. Values of this class are
+ * currently stored in the {@code otherProperties} extension of a dataset.
+ */
 public class Completeness {
 
 	private final Map<String, String> map = new HashMap<>();
