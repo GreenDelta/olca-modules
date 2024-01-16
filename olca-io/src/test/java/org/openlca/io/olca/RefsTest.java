@@ -41,6 +41,7 @@ import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.doc.Review;
 
 /**
  * Tests that references between entities a correctly set in a database import.
@@ -115,8 +116,12 @@ public class RefsTest {
 			doc.dataGenerator = actor;
 			doc.dataDocumentor = actor;
 			doc.publication = source;
-			doc.reviewer = actor;
 			doc.sources.add(source);
+
+			var rev = new Review();
+			rev.report = source;
+			rev.reviewer = actor;
+			doc.reviews.add(rev);
 		};
 
 		var pP = Process.of("pP", p);
@@ -289,7 +294,8 @@ public class RefsTest {
 			check(doc.dataGenerator, "actor");
 			check(doc.dataDocumentor, "actor");
 			check(doc.publication, "source");
-			check(doc.reviewer, "actor");
+			check(doc.reviews.get(0).reviewer, "actor");
+			check(doc.reviews.get(0).report, "source");
 			check(doc.sources.get(0), "source");
 
 			// quantitative reference
