@@ -177,7 +177,7 @@ class FlowImport {
 			String locKey = KeyGen.get(locationCode);
 			flow.location = db.findLocation(locationCode, locKey);
 		}
-		flow.flowType = Mapper.getFlowType(inExchange);
+		flow.flowType = Util.getFlowType(inExchange);
 	}
 
 	private void mapDataSetData(DataSet dataset, Flow flow) {

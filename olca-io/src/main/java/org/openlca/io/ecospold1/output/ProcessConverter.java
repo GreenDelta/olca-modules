@@ -110,37 +110,35 @@ class ProcessConverter {
 			geography.setLocation("GLO");
 	}
 
-	private void mapModelingAndValidation(ProcessDoc doc,
-                                          DataSet dataSet) {
-		mapValidation(doc, dataSet);
+	private void mapModelingAndValidation(ProcessDoc doc, DataSet ds) {
+		mapValidation(doc, ds);
 		for (Source source : doc.sources)
-			actorSourceMapper.map(source, dataSet);
+			actorSourceMapper.map(source, ds);
 		if (doc.samplingProcedure == null)
 			return;
-		var repr = dataSet.getRepresentativeness();
+		var repr = ds.getRepresentativeness();
 		if (repr == null) {
 			repr = factory.createRepresentativeness();
-			dataSet.setRepresentativeness(repr);
+			ds.setRepresentativeness(repr);
 		}
 		repr.setSamplingProcedure(doc.samplingProcedure);
 	}
 
-	private void mapValidation(ProcessDoc doc, DataSet dataSet) {
-		if (doc.reviewer == null)
+	private void mapValidation(ProcessDoc doc, DataSet ds) {
+		if (doc.reviews.isEmpty())
 			return;
-		var validation = dataSet.getValidation();
+		var r = doc.reviews.get(0);
+		var validation = ds.getValidation();
 		if (validation == null) {
 			validation = factory.createValidation();
-			dataSet.setValidation(validation);
+			ds.setValidation(validation);
 		}
-		int reviewer = actorSourceMapper.map(doc.reviewer, dataSet);
+		int reviewer = actorSourceMapper.map(r.reviewer, ds);
 		if (reviewer > 0) {
 			validation.setProofReadingValidator(reviewer);
 		}
 		validation.setProofReadingDetails(
-				doc.reviewDetails != null
-						? doc.reviewDetails
-						: "none");
+				r.details != null ? r.details : "none");
 	}
 
 	private void mapAdminInfo(ProcessDoc doc, DataSet dataset) {

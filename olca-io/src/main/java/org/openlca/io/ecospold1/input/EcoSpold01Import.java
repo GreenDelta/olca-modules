@@ -190,7 +190,7 @@ public class EcoSpold01Import implements Import {
 			}
 			actor = new Actor();
 			actor.refId = id;
-			Mapper.mapPerson(person, actor);
+			Util.mapPerson(person, actor);
 			db.put(actor, id);
 			log.imported(actor);
 		}
@@ -206,7 +206,7 @@ public class EcoSpold01Import implements Import {
 			}
 			oSource = new Source();
 			oSource.refId = id;
-			Mapper.mapSource(eSource, oSource);
+			Util.mapSource(eSource, oSource);
 			db.put(oSource, id);
 			log.imported(oSource);
 		}
@@ -252,11 +252,12 @@ public class EcoSpold01Import implements Import {
 		ProcessDoc doc = new ProcessDoc();
 		p.documentation = doc;
 
-		IReferenceFunction refFun = ds.getReferenceFunction();
-		if (refFun != null)
+		var refFun = ds.getReferenceFunction();
+		if (refFun != null) {
 			mapReferenceFunction(refFun, p);
+		}
 
-		p.processType = Mapper.getProcessType(ds);
+		p.processType = Util.getProcessType(ds);
 		mapTimeAndGeography(ds, p, doc);
 
 		if (ds.getTechnology() != null
@@ -269,14 +270,13 @@ public class EcoSpold01Import implements Import {
 		if (p.quantitativeReference == null)
 			createProductFromRefFun(ds, p);
 
-		if (ds.getAllocations() != null
-				&& ds.getAllocations().size() > 0) {
+		if (ds.getAllocations() != null && !ds.getAllocations().isEmpty()) {
 			mapAllocations(p, ds.getAllocations());
 			p.defaultAllocationMethod = AllocationMethod.CAUSAL;
 		}
 
-		Mapper.mapModellingAndValidation(ds, doc);
-		Mapper.mapAdminInfo(ds, p);
+		Util.mapModellingAndValidation(ds, doc);
+		Util.mapAdminInfo(ds, p);
 		mapActors(doc, ds);
 		mapSources(doc, ds);
 
@@ -309,12 +309,15 @@ public class EcoSpold01Import implements Import {
 		if (ds.getDataGeneratorAndPublication() != null)
 			doc.dataGenerator = actors.get(ds
 					.getDataGeneratorAndPublication().getPerson());
-		if (ds.getValidation() != null)
-			doc.reviewer = actors.get(ds.getValidation()
-					.getProofReadingValidator());
-		if (ds.getDataEntryBy() != null)
-			doc.dataDocumentor = actors.get(ds.getDataEntryBy()
-					.getPerson());
+		if (ds.getValidation() != null) {
+			var reviewer = actors.get(ds.getValidation().getProofReadingValidator());
+			if (reviewer != null) {
+				Util.reviewOf(doc).reviewer = reviewer;
+			}
+		}
+		if (ds.getDataEntryBy() != null) {
+			doc.dataDocumentor = actors.get(ds.getDataEntryBy().getPerson());
+		}
 	}
 
 	private void mapAllocations(Process process,
