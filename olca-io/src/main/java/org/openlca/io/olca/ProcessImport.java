@@ -159,7 +159,6 @@ class ProcessImport {
 		if (copy.documentation == null)
 			return;
 		var doc = copy.documentation;
-		doc.reviewer = conf.swap(doc.reviewer);
 		doc.dataGenerator = conf.swap(doc.dataGenerator);
 		doc.dataDocumentor = conf.swap(doc.dataDocumentor);
 		doc.dataOwner = conf.swap(doc.dataOwner);
@@ -170,6 +169,10 @@ class ProcessImport {
 				.toList();
 		doc.sources.clear();
 		doc.sources.addAll(sources);
+		for (var rev : doc.reviews) {
+			rev.reviewer = conf.swap(rev.reviewer);
+			rev.report = conf.swap(rev.report);
+		}
 	}
 
 	private void swapDefaultProviders() {

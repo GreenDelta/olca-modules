@@ -2,7 +2,6 @@ package org.openlca.io.simapro.csv.output;
 
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
@@ -15,18 +14,14 @@ import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.util.Exchanges;
-import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static org.openlca.io.simapro.csv.output.Util.uncertainty;
@@ -40,7 +35,7 @@ import static org.openlca.io.simapro.csv.output.Util.uncertainty;
 class ProcessWriter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final SimaProExport config;
+	private final SimaProExport exp;
 	private final CsvWriter w;
 
 	private final FlowClassifier flows;
@@ -50,19 +45,19 @@ class ProcessWriter {
 	private final Set<Flow> linkedFlows = new HashSet<>();
 	private final Set<Flow> providerFlows = new HashSet<>();
 
-	ProcessWriter(SimaProExport config, CsvWriter writer) {
-		this.config = config;
+	ProcessWriter(SimaProExport exp, CsvWriter writer) {
+		this.exp = exp;
 		this.units = new UnitMap();
-		this.products = ProductLabeler.of(config);
-		this.flows = config.flowMap != null
-				? FlowClassifier.of(units, config.flowMap)
+		this.products = ProductLabeler.of(exp);
+		this.flows = exp.flowMap != null
+				? FlowClassifier.of(units, exp.flowMap)
 				: FlowClassifier.of(units);
 		this.w = writer;
 	}
 
 	void write() {
-		var dao = new ProcessDao(config.db);
-		for (var descriptor : config.processes) {
+		var dao = new ProcessDao(exp.db);
+		for (var descriptor : exp.processes) {
 			var process = dao.getForId(descriptor.id);
 			if (process == null)
 				continue;
@@ -190,7 +185,7 @@ class ProcessWriter {
 			w.endSection();
 		}
 
-		var globals = new ParameterDao(config.db)
+		var globals = new ParameterDao(exp.db)
 				.getGlobalParameters();
 
 		w.ln("Project Input parameters");
@@ -227,7 +222,7 @@ class ProcessWriter {
 			if (!e.isAvoided || !Exchanges.isProduct(e))
 				continue;
 			linkedFlows.add(e.flow);
-			var ref = toReferenceAmount(e);
+			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
@@ -290,7 +285,7 @@ class ProcessWriter {
 		w.ln("Products");
 		for (var e : outputs) {
 			providerFlows.add(e.flow);
-			var ref = toReferenceAmount(e);
+			var ref = Util.toReferenceAmount(e);
 
 			double allocation = 100;
 			for (var f : p.allocationFactors) {
@@ -307,7 +302,7 @@ class ProcessWriter {
 					ref.amount,
 					allocation,
 					"not defined",
-					CategoryPath.of(config, e.flow).path(),
+					CategoryPath.of(exp, e.flow).path(),
 					e.description);
 		}
 		w.ln();
@@ -322,12 +317,12 @@ class ProcessWriter {
 		w.ln("Waste treatment");
 		for (var e : inputs) {
 			providerFlows.add(e.flow);
-			var ref = toReferenceAmount(e);
+			var ref = Util.toReferenceAmount(e);
 			w.ln(products.labelOf(e.flow, p),
 					units.get(ref.unit),
 					ref.amount,
 					"All waste types",
-					CategoryPath.of(config, e.flow).path(),
+					CategoryPath.of(exp, e.flow).path(),
 					e.description);
 		}
 		w.ln();
@@ -339,7 +334,7 @@ class ProcessWriter {
 			if (!Exchanges.isLinkable(e) || !Exchanges.isProduct(e) || e.isAvoided)
 				continue;
 			linkedFlows.add(e.flow);
-			var ref = toReferenceAmount(e);
+			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
@@ -356,7 +351,7 @@ class ProcessWriter {
 			if (!Exchanges.isLinkable(e) || !Exchanges.isWaste(e) || e.isAvoided)
 				continue;
 			linkedFlows.add(e.flow);
-			var ref = toReferenceAmount(e);
+			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
 					units.get(ref.unit),
@@ -379,7 +374,7 @@ class ProcessWriter {
 			var mapping = flows.mappingOf(e.flow);
 			if (mapping == null) {
 				// we have an unmapped flow
-				var ref = toReferenceAmount(e);
+				var ref = Util.toReferenceAmount(e);
 				var u = uncertainty(ref.amount, ref.uncertainty, 1);
 				w.ln(e.flow.name,
 						comp.sub().toString(),
@@ -411,7 +406,7 @@ class ProcessWriter {
 		w.ln("Process");
 		w.ln();
 
-		var categoryType = categoryTypeOf(p);
+		var categoryType = Util.categoryTypeOf(exp, p);
 		w.ln("Category type");
 		w.ln(categoryType.toString());
 		w.ln();
@@ -522,11 +517,11 @@ class ProcessWriter {
 		w.ln();
 
 		w.ln("Verification");
-		w.ln(doc.reviewDetails);
+		w.ln(Util.reviewDetailsOf(p));
 		w.ln();
 
 		w.ln("Comment");
-		w.ln(comment(p));
+		w.ln(Util.commentOf(p));
 		w.ln();
 
 		w.ln("Allocation rules");
@@ -538,93 +533,4 @@ class ProcessWriter {
 		w.ln();
 	}
 
-	private ProcessCategory categoryTypeOf(Process p) {
-		for (var e : p.exchanges) {
-			if (Exchanges.isProviderFlow(e) && Exchanges.isWaste(e))
-				return ProcessCategory.WASTE_TREATMENT;
-		}
-		return CategoryPath.of(config, p).type();
-	}
-
-	private String comment(Process p) {
-		var sections = new ArrayList<String>();
-		var texts = new ArrayList<String>();
-		BiConsumer<String, String> fn = (title, text) -> {
-			if (Strings.nullOrEmpty(text))
-				return;
-			sections.add(title);
-			texts.add(text);
-		};
-
-		fn.accept("Description", p.description);
-		if (p.documentation != null) {
-			var doc = p.documentation;
-			fn.accept("Time", doc.time);
-			fn.accept("Geography", doc.geography);
-			fn.accept("Technology", doc.technology);
-			fn.accept("Intended application", doc.intendedApplication);
-			if (doc.dataOwner != null) {
-				fn.accept("Data set owner", doc.dataOwner.name);
-			}
-			if (doc.publication != null) {
-				fn.accept("Publication", doc.publication.name);
-			}
-			fn.accept("Access and use restrictions", doc.accessRestrictions);
-			fn.accept("Project", doc.project);
-			fn.accept("Copyright", doc.copyright ? "Yes" : "No");
-			fn.accept("Modeling constants", doc.modelingConstants);
-			fn.accept("Data completeness", doc.dataCompleteness);
-			fn.accept("Data selection", doc.dataSelection);
-			if (doc.reviewer != null) {
-				fn.accept("Reviewer", doc.reviewer.name);
-			}
-		}
-
-		if (texts.isEmpty())
-			return "";
-		if (texts.size() == 1)
-			return texts.get(0);
-
-		var buff = new StringBuilder();
-		for (int i = 0; i < sections.size(); i++) {
-			buff.append("# ")
-					.append(sections.get(i))
-					.append('\n')
-					.append(texts.get(i))
-					.append("\n\n");
-		}
-
-		return buff.toString();
-	}
-
-	/**
-	 * In SimaPro you cannot have multiple flow properties for a flow. Thus, we
-	 * convert everything into the reference flow property and unit. Otherwise,
-	 * the SimaPro import will throw errors when the same flow is present with
-	 * units from different quantities.
-	 */
-	public Exchange toReferenceAmount(Exchange e) {
-		if (e == null || e.flow == null)
-			return e;
-		var refProp = e.flow.getReferenceFactor();
-		var refUnit = e.flow.getReferenceUnit();
-		if (Objects.equals(refProp, e.flowPropertyFactor)
-				&& Objects.equals(refUnit, e.unit))
-			return e;
-		var clone = e.copy();
-		clone.flowPropertyFactor = refProp;
-		clone.unit = refUnit;
-		clone.amount = ReferenceAmount.get(e);
-		if (e.amount == 0) {
-			return clone;
-		}
-		var factor = clone.amount / e.amount;
-		if (Strings.notEmpty(clone.formula)) {
-			clone.formula = factor + " * (" + clone.formula + ")";
-		}
-		if (clone.uncertainty != null) {
-			clone.uncertainty.scale(factor);
-		}
-		return clone;
-	}
 }

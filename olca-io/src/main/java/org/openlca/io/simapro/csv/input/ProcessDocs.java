@@ -3,6 +3,7 @@ package org.openlca.io.simapro.csv.input;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.Review;
 import org.openlca.simapro.csv.process.ProcessBlock;
 import org.openlca.util.Strings;
 
@@ -44,13 +45,17 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 		var doc = process.documentation;
 		doc.dataTreatment = block.dataTreatment();
 		doc.samplingProcedure = block.collectionMethod();
-		doc.reviewDetails = block.verification();
 		doc.inventoryMethod = block.allocationRules();
 		doc.creationDate = block.date();
 		if (block.systemDescription() != null) {
 			doc.project = Text.of("System", block.systemDescription().name())
 				.join("Comment", block.systemDescription().comment())
 				.value();
+		}
+		if (Strings.notEmpty(block.verification())) {
+			var r = new Review();
+			r.details = block.verification();
+			doc.reviews.add(r);
 		}
 	}
 

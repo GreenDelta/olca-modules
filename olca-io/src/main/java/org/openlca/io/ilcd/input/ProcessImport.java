@@ -242,6 +242,9 @@ public class ProcessImport {
 	}
 
 	private void mapReviews(ProcessDoc doc) {
+		// TODO: #model-doc map reviews; take the data quality entry of the first
+		// review as value for the overall dataset
+		/*
 		if (ilcdProcess.getReviews().isEmpty())
 			return;
 		var review = ilcdProcess.getReviews().get(0);
@@ -258,6 +261,7 @@ public class ProcessImport {
 				process.dqEntry = dq;
 			}
 		}
+		*/
 	}
 
 	private Actor fetchActor(Ref ref) {

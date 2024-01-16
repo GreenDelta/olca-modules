@@ -10,7 +10,6 @@ import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.processes.DataSetInfo;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
@@ -27,7 +26,6 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -209,7 +207,8 @@ public class ProcessExport {
 	}
 
 	private List<Review> makeReviews() {
-		log.trace("Create process reviews.");
+		// TODO: #model-doc map reviews to ILCD
+		/*
 		List<Review> reviews = new ArrayList<>();
 		if (doc == null)
 			return reviews;
@@ -225,6 +224,8 @@ public class ProcessExport {
 		}
 		exp.add(review.details, doc.reviewDetails);
 		return reviews;
+		 */
+		return List.of();
 	}
 
 	private void mapCompleteness(Process ds) {
