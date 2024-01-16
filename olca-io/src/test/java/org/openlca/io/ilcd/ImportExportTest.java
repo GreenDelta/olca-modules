@@ -100,8 +100,8 @@ public class ImportExportTest {
 	@Test
 	public void testC_Units() {
 		String id = "93a60a57-a4c8-11da-a746-0800200c9a66";
-		var dataSet = imp.store().get(UnitGroup.class, id);
-		var group = new UnitGroupImport(imp).run(dataSet);
+		var ds = imp.store().get(UnitGroup.class, id);
+		var group = new UnitGroupImport(imp, ds).run();
 		assertEquals(id, group.refId);
 		new UnitGroupExport(export).write(group);
 		assertTrue(store.contains(UnitGroup.class, id));

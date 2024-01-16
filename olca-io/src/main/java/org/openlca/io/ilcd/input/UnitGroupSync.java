@@ -8,7 +8,7 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.UnitExtension;
-import org.openlca.ilcd.util.UnitGroupBag;
+import org.openlca.ilcd.util.UnitGroups;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,19 +32,20 @@ import org.slf4j.LoggerFactory;
 class UnitGroupSync {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final UnitGroup olcaGroup;
-	private final UnitGroupBag ilcdGroup;
+	private final UnitGroup group;
+	private final org.openlca.ilcd.units.UnitGroup ds;
 	private final Import imp;
 
-	public UnitGroupSync(UnitGroup olcaGroup, UnitGroupBag ilcdGroup, Import imp) {
-		this.olcaGroup = olcaGroup;
-		this.ilcdGroup = ilcdGroup;
+	public UnitGroupSync(
+			UnitGroup group, org.openlca.ilcd.units.UnitGroup ds, Import imp) {
+		this.group = group;
+		this.ds = ds;
 		this.imp = imp;
 	}
 
-	public void run(IDatabase database) {
+	public void run(IDatabase db) {
 		try {
-			Unit olcaRefUnit = olcaGroup.referenceUnit;
+			Unit olcaRefUnit = group.referenceUnit;
 			org.openlca.ilcd.units.Unit ilcdRefUnit = findRefUnit(olcaRefUnit);
 			if (ilcdRefUnit == null)
 				return;
@@ -52,9 +53,9 @@ class UnitGroupSync {
 					/ ilcdRefUnit.factor;
 			boolean changed = syncUnits(factor);
 			if (changed) {
-				olcaGroup.lastChange = Calendar.getInstance().getTimeInMillis();
-				Version.incUpdate(olcaGroup);
-				new UnitGroupDao(database).update(olcaGroup);
+				group.lastChange = Calendar.getInstance().getTimeInMillis();
+				Version.incUpdate(group);
+				new UnitGroupDao(db).update(group);
 			}
 		} catch (Exception e) {
 			log.error("Failed to sync. unit groups", e);
@@ -64,35 +65,35 @@ class UnitGroupSync {
 	private org.openlca.ilcd.units.Unit findRefUnit(Unit olcaRefUnit) {
 		if (olcaRefUnit == null)
 			return null;
-		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
-			UnitExtension ext = new UnitExtension(ilcdUnit);
-			String id = ext.getUnitId();
+		for (var unit : UnitGroups.getUnits(ds)) {
+			var ext = new UnitExtension(unit);
+			var id = ext.getUnitId();
 			if (id != null && id.equals(olcaRefUnit.refId))
-				return ilcdUnit;
+				return unit;
 		}
 		return null;
 	}
 
 	private boolean syncUnits(double factor) {
 		boolean changed = false;
-		for (org.openlca.ilcd.units.Unit ilcdUnit : ilcdGroup.getUnits()) {
-			UnitExtension ext = new UnitExtension(ilcdUnit);
+		for (var ilcdUnit : UnitGroups.getUnits(ds)) {
+			var ext = new UnitExtension(ilcdUnit);
 			String id = ext.getUnitId();
 			if (id == null || containsUnit(id))
 				continue;
-			Unit unit = new Unit();
+			var unit = new Unit();
 			unit.refId = id;
 			unit.name = ilcdUnit.name;
 			unit.conversionFactor = factor * ilcdUnit.factor;
 			unit.description = imp.str(ilcdUnit.comment);
-			olcaGroup.units.add(unit);
+			group.units.add(unit);
 			changed = true;
 		}
 		return changed;
 	}
 
 	private boolean containsUnit(String id) {
-		for (Unit unit : olcaGroup.units) {
+		for (Unit unit : group.units) {
 			if (id.equals(unit.refId))
 				return true;
 		}

@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Date;
-import java.util.UUID;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
@@ -10,23 +7,25 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.UnitExtension;
-import org.openlca.ilcd.util.UnitGroupBag;
+import org.openlca.ilcd.util.UnitGroups;
+
+import java.util.UUID;
 
 public class UnitGroupImport {
 
 	private final Import imp;
-	private UnitGroupBag ilcdUnitGroup;
+	private final org.openlca.ilcd.units.UnitGroup ds;
 	private UnitGroup unitGroup;
 
-	public UnitGroupImport(Import imp) {
+	public UnitGroupImport(Import imp, org.openlca.ilcd.units.UnitGroup ds) {
 		this.imp = imp;
+		this.ds = ds;
 	}
 
-	public UnitGroup run(org.openlca.ilcd.units.UnitGroup dataSet) {
-		this.ilcdUnitGroup = new UnitGroupBag(dataSet, imp.langOrder());
-		var group = imp.db().get(UnitGroup.class, dataSet.getUUID());
+	public UnitGroup run() {
+		var group = imp.db().get(UnitGroup.class, ds.getUUID());
 		if (group != null) {
-			new UnitGroupSync(group, ilcdUnitGroup, imp).run(imp.db());
+			new UnitGroupSync(group, this.ds, imp).run(imp.db());
 			return group;
 		}
 		return createNew();
@@ -37,19 +36,19 @@ public class UnitGroupImport {
 		if (group != null)
 			// TODO: check if reference unit is in database!
 			return group;
-		var dataSet = imp.store().get(
+		var ds = imp.store().get(
 			org.openlca.ilcd.units.UnitGroup.class, id);
-		if (dataSet == null) {
+		if (ds == null) {
 			imp.log().error("invalid reference in ILCD data set:" +
 				" unit group '" + id + "' does not exist");
 			return null;
 		}
-		return new UnitGroupImport(imp).run(dataSet);
+		return new UnitGroupImport(imp, ds).run();
 	}
 
 	private UnitGroup createNew() {
 		unitGroup = new UnitGroup();
-		var path = Categories.getPath(ilcdUnitGroup.getValue());
+		var path = Categories.getPath(ds);
 		unitGroup.category = new CategoryDao(imp.db())
 				.sync(ModelType.UNIT_GROUP, path);
 		mapDescriptionAttributes();
@@ -58,21 +57,28 @@ public class UnitGroupImport {
 	}
 
 	private void mapDescriptionAttributes() {
-		unitGroup.refId = ilcdUnitGroup.getId();
-		unitGroup.name = ilcdUnitGroup.getName();
-		unitGroup.description = ilcdUnitGroup.getComment();
-		String v = ilcdUnitGroup.getVersion();
-		unitGroup.version = Version.fromString(v).getValue();
-		Date time = ilcdUnitGroup.getTimeStamp();
-		if (time != null)
-			unitGroup.lastChange = time.getTime();
+		unitGroup.refId = ds.getUUID();
+		var info = UnitGroups.getDataSetInfo(ds);
+		if (info != null) {
+			unitGroup.name = imp.str(info.name);
+			unitGroup.description = imp.str(info.generalComment);
+		}
+		unitGroup.version = Version.fromString(ds.getVersion()).getValue();
+
+		var entry = UnitGroups.getDataEntry(ds);
+		if (entry != null && entry.timeStamp != null) {
+			unitGroup.lastChange = entry.timeStamp
+					.toGregorianCalendar()
+					.getTimeInMillis();
+		}
 	}
 
 	private void createUnits() {
-		Integer refUnitId = ilcdUnitGroup.getReferenceUnitId();
-		for (var iUnit : ilcdUnitGroup.getUnits()) {
-			if (iUnit == null)
-				continue;
+		var qref = UnitGroups.getQuantitativeReference(ds);
+		Integer refUnitId = qref != null
+				? qref.referenceUnit
+				: null;
+		for (var iUnit : UnitGroups.getUnits(ds)) {
 			Unit oUnit = new Unit();
 			unitGroup.units.add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);
@@ -88,7 +94,6 @@ public class UnitGroupImport {
 		oUnit.refId = extension.isValid()
 			? extension.getUnitId()
 			: UUID.randomUUID().toString();
-
 		oUnit.name = iUnit.name;
 		oUnit.description = imp.str(iUnit.comment);
 		oUnit.conversionFactor = iUnit.factor;

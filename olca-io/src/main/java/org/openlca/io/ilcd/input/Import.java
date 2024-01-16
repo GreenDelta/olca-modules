@@ -204,7 +204,7 @@ public class Import implements org.openlca.io.Import {
 			} else if (dataSet instanceof Source source) {
 				new SourceImport(this, source).run();
 			} else if (dataSet instanceof UnitGroup group) {
-				new UnitGroupImport(this).run(group);
+				new UnitGroupImport(this, group).run();
 			} else if (dataSet instanceof FlowProperty prop) {
 				new FlowPropertyImport(this, prop).run();
 			} else if (dataSet instanceof Flow flow) {

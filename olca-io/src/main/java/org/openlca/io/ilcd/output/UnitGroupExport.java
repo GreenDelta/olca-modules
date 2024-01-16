@@ -62,9 +62,9 @@ public class UnitGroupExport {
 		return qRef;
 	}
 
-	private void makeUnits(UnitGroup iUnitGroup) {
+	private void makeUnits(UnitGroup ds) {
 		Unit refUnit = unitGroup.referenceUnit;
-		var units = UnitGroups.units(iUnitGroup);
+		var units = UnitGroups.forceUnits(ds);
 		int pos = 1;
 		for (Unit unit : unitGroup.units) {
 			org.openlca.ilcd.units.Unit iUnit = makeUnit(unit);
