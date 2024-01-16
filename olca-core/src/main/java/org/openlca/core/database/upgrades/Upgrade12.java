@@ -35,8 +35,6 @@ public class Upgrade12 implements IUpgrade {
 				"restrictions", "access_restrictions CLOB(64 K)");
 
 		u.createColumn("tbl_process_docs", "use_advice CLOB(64 K)");
-		u.createColumn("tbl_process_docs", "review_type VARCHAR(255)");
-		u.createColumn("tbl_process_docs", "f_review_report BIGINT");
 
 		u.createTable("tbl_compliance_declarations", """
 				CREATE TABLE tbl_compliance_declarations (
@@ -47,6 +45,24 @@ public class Upgrade12 implements IUpgrade {
 				  PRIMARY KEY (id)
 				)
 				""");
+
+		u.createTable("tbl_reviews", """
+				CREATE TABLE tbl_reviews (
+
+				  id           BIGINT NOT NULL,
+				  f_owner      BIGINT,
+				  review_type  VARCHAR(255),
+				  scopes       CLOB(64 K),
+				  details      CLOB(64 K),
+				  f_reviewer   BIGINT,
+				  f_report     BIGINT,
+
+				  PRIMARY KEY (id)
+				)
+				""");
+
+		// TODO: #model-doc copy review data from processes
+
 	}
 
 	private void addOtherProperties(DbUtil u) {

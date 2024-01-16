@@ -3,14 +3,14 @@ package org.openlca.core.model.doc;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Convert;
+import jakarta.persistence.Converter;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Convert
+@Converter
 public class ReviewScopeConverter
 		implements AttributeConverter<List<ReviewScope>, String> {
 

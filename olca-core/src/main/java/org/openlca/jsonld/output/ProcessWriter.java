@@ -50,7 +50,6 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(o, "dataCollectionDescription", d.dataCollectionPeriod);
 		Json.put(o, "completenessDescription", d.dataCompleteness);
 		Json.put(o, "dataSelectionDescription", d.dataSelection);
-		Json.put(o, "reviewDetails", d.reviewDetails);
 		Json.put(o, "dataTreatmentDescription", d.dataTreatment);
 		Json.put(o, "inventoryMethodDescription", d.inventoryMethod);
 		Json.put(o, "modelingConstantsDescription", d.modelingConstants);
@@ -64,12 +63,14 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		Json.put(o, "validFrom", Json.asDate(d.validFrom));
 		Json.put(o, "validUntil", Json.asDate(d.validUntil));
 
-		Json.put(o, "reviewer", exp.handleRef(d.reviewer));
 		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
 		Json.put(o, "dataGenerator", exp.handleRef(d.dataGenerator));
 		Json.put(o, "dataSetOwner", exp.handleRef(d.dataOwner));
 		Json.put(o, "publication", exp.handleRef(d.publication));
 		Json.put(o, "sources", exp.handleRefs(d.sources));
+
+		// TODO: #model-doc write reviews
+
 		return o;
 	}
 

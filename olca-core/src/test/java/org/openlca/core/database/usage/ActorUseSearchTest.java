@@ -12,6 +12,8 @@ public class ActorUseSearchTest {
 
 	private final IDatabase db = Tests.getDb();
 
+	// TODO: #model-doc search for reviewers
+
 	@Test
 	public void testFindNoUsage() {
 		var actor = db.insert(Actor.of("actor"));
@@ -32,7 +34,6 @@ public class ActorUseSearchTest {
 		var process = new Process();
 		process.name = "process";
 		process.documentation = documentation;
-		process.documentation.reviewer = actor;
 		process.documentation.dataOwner = actor;
 		process.documentation.dataGenerator = actor;
 		process.documentation.dataDocumentor = actor;

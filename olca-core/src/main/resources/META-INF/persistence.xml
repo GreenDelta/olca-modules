@@ -45,6 +45,8 @@
 		<class>org.openlca.core.model.ImpactResult</class>
 		<class>org.openlca.core.model.Epd</class>
 		<class>org.openlca.core.model.EpdModule</class>
+		<class>org.openlca.core.model.doc.Review</class>
+		<class>org.openlca.core.model.doc.ReviewScopeConverter</class>
 
 		<shared-cache-mode>ALL</shared-cache-mode>
 

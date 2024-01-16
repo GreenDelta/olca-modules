@@ -7,6 +7,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Source;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tbl_reviews")
-public class Review implements Copyable<Review> {
+public class Review extends AbstractEntity implements Copyable<Review> {
 
 	@Column(name = "review_type")
 	public String type;
@@ -35,7 +36,7 @@ public class Review implements Copyable<Review> {
 	public Actor reviewer;
 
 	@OneToOne
-	@JoinColumn(name = "f_review_report")
+	@JoinColumn(name = "f_report")
 	public Source report;
 
 	@Override

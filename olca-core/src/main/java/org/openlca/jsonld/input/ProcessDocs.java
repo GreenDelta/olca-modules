@@ -17,13 +17,15 @@ class ProcessDocs {
 		if (docJson == null)
 			return doc;
 		mapSimpleFields(doc, docJson);
-		doc.reviewer = actor(docJson, "reviewer", resolver);
 		doc.dataDocumentor = actor(docJson, "dataDocumentor", resolver);
 		doc.dataGenerator = actor(docJson, "dataGenerator", resolver);
 		doc.dataOwner = actor(docJson, "dataSetOwner", resolver);
 		String pupId = Json.getRefId(docJson, "publication");
 		doc.publication = resolver.get(Source.class, pupId);
 		addSources(docJson, doc, resolver);
+
+		// TODO: #model-doc read reviews; also support review data from older versions
+
 		return doc;
 	}
 
@@ -40,7 +42,6 @@ class ProcessDocs {
 			"dataCollectionDescription");
 		doc.dataCompleteness = Json.getString(json, "completenessDescription");
 		doc.dataSelection = Json.getString(json, "dataSelectionDescription");
-		doc.reviewDetails = Json.getString(json, "reviewDetails");
 		doc.dataTreatment = Json.getString(json, "dataTreatmentDescription");
 		doc.inventoryMethod = Json.getString(json, "inventoryMethodDescription");
 		doc.modelingConstants = Json.getString(json,

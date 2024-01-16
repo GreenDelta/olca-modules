@@ -307,11 +307,6 @@ CREATE TABLE tbl_process_docs (
     data_collection_period  CLOB(64 K),
     use_advice              CLOB(64 K),
 
-    review_type             VARCHAR(255),
-    review_details          CLOB(64 K),
-    f_reviewer              BIGINT,
-    f_review_report         BIGINT,
-
     intended_application    CLOB(64 K),
     project                 CLOB(64 K),
 
@@ -335,6 +330,20 @@ CREATE TABLE tbl_compliance_declarations (
   f_owner   BIGINT,
   f_source  BIGINT,
   details   CLOB(64 K),
+
+  PRIMARY KEY (id)
+);
+
+
+CREATE TABLE tbl_reviews (
+
+  id           BIGINT NOT NULL,
+  f_owner      BIGINT,
+  review_type  VARCHAR(255),
+  scopes       CLOB(64 K),
+  details      CLOB(64 K),
+  f_reviewer   BIGINT,
+  f_report     BIGINT,
 
   PRIMARY KEY (id)
 );
