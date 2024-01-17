@@ -10,6 +10,8 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.Completeness;
+import org.openlca.core.model.doc.Review;
+import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Categories;
@@ -18,7 +20,6 @@ import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
 
 import java.util.Date;
-import java.util.List;
 
 public class ProcessImport {
 
@@ -239,26 +240,45 @@ public class ProcessImport {
 	}
 
 	private void mapReviews(ProcessDoc doc) {
-		// TODO: #model-doc map reviews; take the data quality entry of the first
-		// review as value for the overall dataset
-		/*
-		if (ilcdProcess.getReviews().isEmpty())
-			return;
-		var review = ilcdProcess.getReviews().get(0);
-		if (!review.reviewers.isEmpty()) {
-			Ref ref = review.reviewers.get(0);
-			doc.reviewer = fetchActor(ref);
-		}
-		doc.reviewDetails = imp.str(review.details);
-		var dq = DQEntry.get(review);
-		if (dq != null) {
-			var dqs = DQSystems.ilcd(imp.db());
-			if (dqs != null) {
-				process.dqSystem = dqs;
-				process.dqEntry = dq;
+		for (var r : Processes.getReviews(ds)) {
+
+			var rev = new Review();
+			doc.reviews.add(rev);
+			rev.type = r.type != null ? r.type.value() : null;
+			rev.details = imp.str(r.details);
+			rev.report = fetchSource(r.report);
+			for (var ref : r.reviewers) {
+				var reviewer = fetchActor(ref);
+				if (reviewer != null) {
+					rev.reviewers.add(reviewer);
+				}
+			}
+
+			for (var s : r.scopes) {
+				if (s.name == null)
+					continue;
+				var scope = new ReviewScope(s.name.value());
+				rev.scopes.add(scope);
+				for (var m : s.methods) {
+					if (m.name == null)
+						continue;
+					scope.methods.add(m.name.value());
+				}
+			}
+
+			// take the first best data quality entry as
+			// data quality statement of the dataset
+			if (process.dqEntry != null)
+				continue;
+			var dq = DQEntry.get(r);
+			if (dq != null) {
+				var dqs = DQSystems.ilcd(imp.db());
+				if (dqs != null) {
+					process.dqSystem = dqs;
+					process.dqEntry = dq;
+				}
 			}
 		}
-		*/
 	}
 
 	private Actor fetchActor(Ref ref) {
