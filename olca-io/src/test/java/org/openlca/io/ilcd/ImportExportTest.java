@@ -130,8 +130,8 @@ public class ImportExportTest {
 	@Test
 	public void testF_Process() {
 		String id = "76d6aaa4-37e2-40b2-994c-03292b600074";
-		var dataSet = imp.store().get(Process.class, id);
-		var process = new ProcessImport(imp).run(dataSet);
+		var ds = imp.store().get(Process.class, id);
+		var process = new ProcessImport(imp, ds).run();
 		assertEquals(id, process.refId);
 		new ProcessExport(export).write(process);
 		assertTrue(store.contains(Process.class, id));

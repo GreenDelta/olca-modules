@@ -189,7 +189,7 @@ public class Import implements org.openlca.io.Import {
 				if (Processes.getInventoryMethod(ds).processType == ProcessType.EPD) {
 					new EpdImport(this, ds).run();
 				} else {
-					new ProcessImport(this).run(ds);
+					new ProcessImport(this, ds).run();
 				}
 			}
 		}
@@ -214,7 +214,7 @@ public class Import implements org.openlca.io.Import {
 				if (method != null && method.processType == ProcessType.EPD) {
 					new EpdImport(this, process).run();
 				} else {
-					new ProcessImport(this).run(process);
+					new ProcessImport(this, process).run();
 				}
 			} else if (dataSet instanceof ImpactMethod impact) {
 				new ImpactImport(this, impact).run();
