@@ -208,7 +208,7 @@ public class Import implements org.openlca.io.Import {
 			} else if (dataSet instanceof FlowProperty prop) {
 				new FlowPropertyImport(this, prop).run();
 			} else if (dataSet instanceof Flow flow) {
-				new FlowImport(this).run(flow);
+				new FlowImport(this, flow).run();
 			} else if (dataSet instanceof Process process) {
 				var method = Processes.getInventoryMethod(process);
 				if (method != null && method.processType == ProcessType.EPD) {

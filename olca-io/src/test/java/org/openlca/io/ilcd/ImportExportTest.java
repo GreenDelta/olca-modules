@@ -120,8 +120,8 @@ public class ImportExportTest {
 	@Test
 	public void testE_Flow() {
 		String id = "0d7a3ad1-6556-11dd-ad8b-0800200c9a66";
-		var dataSet = imp.store().get(Flow.class, id);
-		var syncFlow = new FlowImport(imp).run(dataSet);
+		var ds = imp.store().get(Flow.class, id);
+		var syncFlow = new FlowImport(imp, ds).run();
 		assertEquals(id, syncFlow.flow().refId);
 		new FlowExport(export).write(syncFlow.flow());
 		assertTrue(store.contains(Flow.class, id));

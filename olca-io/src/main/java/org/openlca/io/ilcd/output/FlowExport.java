@@ -45,7 +45,7 @@ public class FlowExport {
 		qRef.referenceFlowProperty = 0;
 		iFlow.adminInfo = makeAdminInfo();
 		iFlow.modelling = makeModellingInfo();
-		makeFlowProperties(Flows.flowProperties(iFlow));
+		makeFlowProperties(Flows.forceFlowProperties(iFlow));
 		addLocation(iFlow);
 		exp.store.put(iFlow);
 		this.flow = null;
