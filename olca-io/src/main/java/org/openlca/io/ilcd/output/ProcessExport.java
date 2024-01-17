@@ -10,16 +10,13 @@ import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.commons.Time;
-import org.openlca.ilcd.processes.DataSetInfo;
+import org.openlca.ilcd.commons.ReviewMethod;
+import org.openlca.ilcd.commons.ReviewScope;
+import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
-import org.openlca.ilcd.processes.Geography;
-import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.ProcessName;
-import org.openlca.ilcd.processes.Representativeness;
 import org.openlca.ilcd.processes.Review;
-import org.openlca.ilcd.util.ProcessBuilder;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.util.Strings;
@@ -29,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 /**
  * The export of an openLCA process to an ILCD process data set.
@@ -52,30 +48,32 @@ public class ProcessExport {
 		this.process = p;
 		this.doc = p.documentation;
 
-		var builder = ProcessBuilder.makeProcess()
-				.with(makeLciMethod())
-				.withAdminInfo(new ProcessAdminInfo(exp).create(p))
-				.withDataSetInfo(makeDataSetInfo())
-				.withGeography(makeGeography())
-				.withParameters(new ProcessParameterConversion(exp).run(p))
-				.withRepresentativeness(makeRepresentativeness())
-				.withReviews(makeReviews())
-				.withTechnology(makeTechnology())
-				.withTime(makeTime());
+		var ds = new Process();
+		mapDataSetInfo(ds);
+		mapTime(ds);
+		mapGeography(ds);
+		mapTechnology(ds);
+		mapInventoryMethod(ds);
+		mapRepresentativeness(ds);
+		mapReviews(ds);
+		mapCompleteness(ds);
 
+		ds.adminInfo = new ProcessAdminInfo(exp).create(p);
+		var params = new ProcessParameterConversion(exp).run(p);
+		if (!params.isEmpty()) {
+			Processes.forceParameters(ds).addAll(params);
+		}
 		Exchange qRef = p.quantitativeReference;
 		if (qRef != null) {
-			builder.withReferenceFlowId(qRef.internalId);
+			Processes.forceReferenceFlows(ds).add(qRef.internalId);
 		}
-		var ds = builder.getProcess();
-		mapCompleteness(ds);
+
 		new ExchangeConversion(p, exp).run(ds);
 		exp.store.put(ds);
 	}
 
-	private DataSetInfo makeDataSetInfo() {
-		log.trace("Create data set info.");
-		var info = new DataSetInfo();
+	private void mapDataSetInfo(Process ds) {
+		var info = Processes.forceDataSetInfo(ds);
 		info.uuid = process.refId;
 		var processName = new ProcessName();
 		info.name = processName;
@@ -83,25 +81,22 @@ public class ProcessExport {
 		exp.add(info.comment, process.description);
 		Categories.toClassification(process.category)
 				.ifPresent(info.classifications::add);
-		return info;
 	}
 
-	private org.openlca.ilcd.commons.Time makeTime() {
-		log.trace("Create process time.");
-		Time iTime = new Time();
+	private void mapTime(Process ds) {
 		if (doc == null)
-			return iTime;
-		var extension = new TimeExtension(iTime);
+			return;
+		var time = Processes.forceTime(ds);
+		var ext = new TimeExtension(time);
 		if (doc.validFrom != null) {
-			iTime.referenceYear = getYear(doc.validFrom);
-			extension.setStartDate(doc.validFrom);
+			time.referenceYear = getYear(doc.validFrom);
+			ext.setStartDate(doc.validFrom);
 		}
 		if (doc.validUntil != null) {
-			iTime.validUntil = getYear(doc.validUntil);
-			extension.setEndDate(doc.validUntil);
+			time.validUntil = getYear(doc.validUntil);
+			ext.setEndDate(doc.validUntil);
 		}
-		exp.add(iTime.description, doc.time);
-		return iTime;
+		exp.add(time.description, doc.time);
 	}
 
 	private Integer getYear(Date date) {
@@ -112,63 +107,50 @@ public class ProcessExport {
 		return cal.get(Calendar.YEAR);
 	}
 
-	private Geography makeGeography() {
-		log.trace("Create process geography.");
+	private void mapGeography(Process ds) {
 		if (doc == null)
-			return null;
+			return;
 		if (process.location == null && doc.geography == null)
-			return null;
-		var geography = new Geography();
-		var iLoc = new org.openlca.ilcd.processes.Location();
-		geography.location = iLoc;
+			return;
+		var loc = Processes.forceLocation(ds);
 		if (process.location != null) {
 			var oLoc = process.location;
-			iLoc.code = oLoc.code;
+			loc.code = oLoc.code;
 			// do not write (0.0, 0.0) locations; these are the default
 			// location coordinates in openLCA but probably never a valid
 			// process location, right?
 			if (!(oLoc.latitude == 0.0 && oLoc.longitude == 0.0)) {
-				iLoc.latitudeAndLongitude = oLoc.latitude + ";" + oLoc.longitude;
+				loc.latitudeAndLongitude = oLoc.latitude + ";" + oLoc.longitude;
 			}
 		}
-		exp.add(iLoc.description, doc.geography);
-		return geography;
+		exp.add(loc.description, doc.geography);
 	}
 
-	private org.openlca.ilcd.processes.Technology makeTechnology() {
-		log.trace("Create process technology.");
+	private void mapTechnology(Process ds) {
 		if (doc == null)
-			return null;
-
-		org.openlca.ilcd.processes.Technology iTechnology = null;
+			return;
 		if (Strings.notEmpty(doc.technology)) {
-			iTechnology = new org.openlca.ilcd.processes.Technology();
-			exp.add(iTechnology.description, doc.technology);
+			var tech = Processes.forceTechnology(ds);
+			exp.add(tech.description, doc.technology);
 		}
-		return iTechnology;
 	}
 
-	private InventoryMethod makeLciMethod() {
-		log.trace("Create process LCI method.");
-		var iMethod = new InventoryMethod();
+	private void mapInventoryMethod(Process ds) {
+		var method = Processes.forceInventoryMethod(ds);
 		if (process.processType != null) {
-			iMethod.processType = process.processType == ProcessType.UNIT_PROCESS
+			method.processType = process.processType == ProcessType.UNIT_PROCESS
 					? org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX
 					: org.openlca.ilcd.commons.ProcessType.LCI_RESULT;
 		}
-
-		iMethod.principle = ModellingPrinciple.OTHER;
-
+		method.principle = ModellingPrinciple.OTHER;
 		if (doc != null) {
-			exp.add(iMethod.principleDeviations, doc.inventoryMethod);
-			exp.add(iMethod.constants, doc.modelingConstants);
+			exp.add(method.principleDeviations, doc.inventoryMethod);
+			exp.add(method.constants, doc.modelingConstants);
 		}
-
 		var allocation = getAllocationMethod();
-		if (allocation != null)
-			iMethod.approaches.add(allocation);
-
-		return iMethod;
+		if (allocation != null) {
+			method.approaches.add(allocation);
+		}
 	}
 
 	private ModellingApproach getAllocationMethod() {
@@ -182,50 +164,54 @@ public class ProcessExport {
 		};
 	}
 
-	private Representativeness makeRepresentativeness() {
-		log.trace("Create process representativeness.");
+	private void mapRepresentativeness(Process ds) {
 		if (doc == null)
-			return null;
-		var iRepri = new Representativeness();
-
-		exp.add(iRepri.completeness, doc.dataCompleteness);
-		exp.add(iRepri.completenessComment, "None.");
-		exp.add(iRepri.dataSelection, doc.dataSelection);
-		exp.add(iRepri.dataSelectionComment, "None.");
-		exp.add(iRepri.dataTreatment, doc.dataTreatment);
-
+			return;
+		var rep = Processes.forceRepresentativeness(ds);
+		exp.add(rep.completeness, doc.dataCompleteness);
+		exp.add(rep.completenessComment, "None.");
+		exp.add(rep.dataSelection, doc.dataSelection);
+		exp.add(rep.dataSelectionComment, "None.");
+		exp.add(rep.dataTreatment, doc.dataTreatment);
+		exp.add(rep.samplingProcedure, doc.samplingProcedure);
+		exp.add(rep.dataCollectionPeriod, doc.dataCollectionPeriod);
 		for (Source source : doc.sources) {
 			Ref ref = exp.writeRef(source);
-			if (ref != null)
-				iRepri.sources.add(ref);
+			if (ref != null) {
+				rep.sources.add(ref);
+			}
 		}
-
-		exp.add(iRepri.samplingProcedure, doc.samplingProcedure);
-		exp.add(iRepri.dataCollectionPeriod, doc.dataCollectionPeriod);
-
-		return iRepri;
 	}
 
-	private List<Review> makeReviews() {
-		// TODO: #model-doc map reviews to ILCD
-		/*
-		List<Review> reviews = new ArrayList<>();
-		if (doc == null)
-			return reviews;
-		if (doc.reviewer == null && doc.reviewDetails == null)
-			return reviews;
-		Review review = new Review();
-		reviews.add(review);
-		review.type = ReviewType.NOT_REVIEWED;
-		if (doc.reviewer != null) {
-			Ref ref = exp.writeRef(doc.reviewer);
-			if (ref != null)
-				review.reviewers.add(ref);
+	private void mapReviews(Process ds) {
+		if (doc == null || doc.reviews.isEmpty())
+			return;
+		var reviews = Processes.forceReviews(ds);
+		for (var r : doc.reviews) {
+			var rev = new Review();
+			reviews.add(rev);
+			rev.type = ReviewType.fromValue(r.type).orElse(null);
+			rev.report = exp.writeRef(r.report);
+			exp.add(rev.details, r.details);
+			var reviewer = exp.writeRef(r.reviewer);
+			if (reviewer != null) {
+				rev.reviewers.add(reviewer);
+			}
+			for (var s : r.scopes) {
+				var scope = new Review.Scope();
+				scope.name = ReviewScope.fromValue(s.name).orElse(null);
+				if (scope.name == null)
+					continue;
+				rev.scopes.add(scope);
+				for (var m : s.methods) {
+					ReviewMethod.fromValue(m).ifPresent(method -> {
+						var entry = new Review.Method();
+						entry.name = method;
+						scope.methods.add(entry);
+					});
+				}
+			}
 		}
-		exp.add(review.details, doc.reviewDetails);
-		return reviews;
-		 */
-		return List.of();
 	}
 
 	private void mapCompleteness(Process ds) {

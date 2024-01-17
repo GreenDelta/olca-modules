@@ -79,6 +79,10 @@ public class Export {
 		}
 	}
 
+	/**
+	 * Writes the entity and returns a reference to it. Returns {@code null}
+	 * when the entity is {@code null}.
+	 */
 	Ref writeRef(RootEntity e) {
 		if (e == null)
 			return null;
