@@ -1,13 +1,12 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.List;
-import java.util.Map;
-
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.Processes;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Maps the reference flow of an ILCD process to an openLCA process. An ILCD
@@ -17,7 +16,7 @@ import org.openlca.ilcd.util.Processes;
  */
 class RefFlow {
 
-	private final ProcessBag iProcess;
+	private final org.openlca.ilcd.processes.Process ds;
 	private final Process oProcess;
 	private final Map<Integer, Exchange> map;
 
@@ -25,24 +24,28 @@ class RefFlow {
 	 * Map the reference flows. The given map (int -> Exchange) maps the ILCD
 	 * exchange IDs to the respective openLCA exchanges.
 	 */
-	public static void map(ProcessBag iProcess, Process oProcess,
+	public static void map(
+			org.openlca.ilcd.processes.Process ds,
+			Process oProcess,
 			Map<Integer, Exchange> map) {
-		if (iProcess == null || oProcess == null
+		if (ds == null || oProcess == null
 				|| map == null || map.isEmpty()) {
 			return;
 		}
-		new RefFlow(iProcess, oProcess, map).map();
+		new RefFlow(ds, oProcess, map).map();
 	}
 
-	private RefFlow(ProcessBag iProcess, Process oProcess,
+	private RefFlow(
+			org.openlca.ilcd.processes.Process ds,
+			Process oProcess,
 			Map<Integer, Exchange> map) {
-		this.iProcess = iProcess;
+		this.ds = ds;
 		this.oProcess = oProcess;
 		this.map = map;
 	}
 
 	private void map() {
-		List<Integer> refFlowIds = iProcess.getReferenceFlowIds();
+		List<Integer> refFlowIds = Processes.getReferenceFlows(ds);
 		Exchange e = null;
 		if (refFlowIds != null) {
 			e = find(refFlowIds);

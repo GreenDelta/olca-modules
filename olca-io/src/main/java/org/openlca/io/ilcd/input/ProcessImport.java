@@ -13,7 +13,6 @@ import org.openlca.core.model.doc.Completeness;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Categories;
-import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
@@ -24,21 +23,21 @@ import java.util.List;
 public class ProcessImport {
 
 	private final Import imp;
+	private final org.openlca.ilcd.processes.Process ds;
 	private final ProcessExchanges exchanges;
-	private ProcessBag ilcdProcess;
 	private Process process;
 
-	public ProcessImport(Import imp) {
+	public ProcessImport(Import imp, org.openlca.ilcd.processes.Process ds) {
 		this.imp = imp;
+		this.ds = ds;
 		this.exchanges = new ProcessExchanges(imp);
 	}
 
-	public Process run(org.openlca.ilcd.processes.Process dataSet) {
-		this.ilcdProcess = new ProcessBag(dataSet, imp.langOrder());
-		var process = imp.db().get(Process.class, dataSet.getUUID());
+	public Process run() {
+		var process = imp.db().get(Process.class, ds.getUUID());
 		return process != null
-			? process
-			: createNew();
+				? process
+				: createNew();
 	}
 
 	public static Process get(Import imp, String id) {
@@ -48,17 +47,17 @@ public class ProcessImport {
 		var ds = imp.store().get(org.openlca.ilcd.processes.Process.class, id);
 		if (ds == null) {
 			imp.log().error("invalid reference in ILCD data set:" +
-				" process '" + id + "' does not exist");
+					" process '" + id + "' does not exist");
 			return null;
 		}
-		return new ProcessImport(imp).run(ds);
+		return new ProcessImport(imp, ds).run();
 	}
 
 	private Process createNew() {
 		process = new Process();
-		String[] path = Categories.getPath(ilcdProcess.getValue());
+		String[] path = Categories.getPath(ds);
 		process.category = new CategoryDao(imp.db())
-			.sync(ModelType.PROCESS, path);
+				.sync(ModelType.PROCESS, path);
 		createAndMapContent();
 		org.openlca.util.Processes.fixInternalIds(process);
 		process = imp.insert(process);
@@ -67,11 +66,10 @@ public class ProcessImport {
 	}
 
 	private void createAndMapContent() {
-		var dataSet = ilcdProcess.getValue();
-		process.refId = dataSet.getUUID();
+		process.refId = ds.getUUID();
 		process.name = Strings.cut(
-			Processes.fullName(dataSet, imp.langOrder()), 2024);
-		var info = Processes.getDataSetInfo(dataSet);
+				Processes.getFullName(ds, imp.langOrder()), 2024);
+		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {
 			process.description = imp.str(info.comment);
 		}
@@ -79,8 +77,8 @@ public class ProcessImport {
 		process.documentation = mapDocumentation();
 		mapCompleteness();
 
-		new ProcessParameterConversion(process, imp).run(ilcdProcess);
-		exchanges.map(ilcdProcess, process);
+		new ProcessParameterConversion(process, imp).run(ds);
+		exchanges.map(ds, process);
 
 		// set the DQ system for exchanges if needed
 		for (var e : process.exchanges) {
@@ -93,15 +91,14 @@ public class ProcessImport {
 
 	private ProcessDoc mapDocumentation() {
 		var doc = new ProcessDoc();
-		var processTime = new ProcessTime(ilcdProcess.getTime(), imp);
-		processTime.map(doc);
+		new ProcessTime(Processes.getTime(ds), imp).map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
 		mapPublication(doc);
 		mapDataEntry(doc);
 		mapDataGenerator(doc);
-		mapComissionerAndGoal(doc);
-		mapLciMethod(doc);
+		mapGoal(doc);
+		mapInventoryMethod(doc);
 		mapRepresentativeness(doc);
 		mapReviews(doc);
 		addSources(doc);
@@ -109,7 +106,7 @@ public class ProcessImport {
 	}
 
 	private void mapGeography(ProcessDoc doc) {
-		var loc = Processes.getLocation(ilcdProcess.getValue());
+		var loc = Processes.getLocation(ds);
 		if (loc == null)
 			return;
 		doc.geography = imp.str(loc.description);
@@ -117,87 +114,87 @@ public class ProcessImport {
 	}
 
 	private void mapTechnology(ProcessDoc doc) {
-		var iTech = ilcdProcess.getTechnology();
-		if (iTech != null) {
-			doc.technology = imp.str(iTech.description);
+		var tech = Processes.getTechnology(ds);
+		if (tech != null) {
+			doc.technology = imp.str(tech.description);
 		}
 	}
 
 	private void mapPublication(ProcessDoc doc) {
-		var iPub = ilcdProcess.getPublication();
-		if (iPub != null) {
+		var pub = Processes.getPublication(ds);
+		if (pub != null) {
 
 			// data set owner
-			Ref ownerRef = iPub.owner;
+			Ref ownerRef = pub.owner;
 			if (ownerRef != null) {
 				doc.dataOwner = fetchActor(ownerRef);
 			}
 
 			// publication
-			Ref publicationRef = iPub.republication;
+			Ref publicationRef = pub.republication;
 			if (publicationRef != null) {
 				doc.publication = fetchSource(publicationRef);
 			}
 
 			// access and use restrictions
-			doc.accessRestrictions = imp.str(iPub.accessRestrictions);
+			doc.accessRestrictions = imp.str(pub.accessRestrictions);
 
 			// version
 			process.version = Version.fromString(
-				iPub.version).getValue();
+					pub.version).getValue();
 
 			// copyright
-			if (iPub.copyright != null) {
-				doc.copyright = iPub.copyright;
+			if (pub.copyright != null) {
+				doc.copyright = pub.copyright;
 			}
 
 		}
 	}
 
 	private void mapDataEntry(ProcessDoc doc) {
-		var iEntry = ilcdProcess.getDataEntry();
-		if (iEntry == null)
+		var entry = Processes.getDataEntry(ds);
+		if (entry == null)
 			return;
-		if (iEntry.timeStamp != null) {
-			Date tStamp = iEntry.timeStamp.toGregorianCalendar().getTime();
+		if (entry.timeStamp != null) {
+			Date tStamp = entry.timeStamp.toGregorianCalendar().getTime();
 			doc.creationDate = tStamp;
 			process.lastChange = tStamp.getTime();
 		}
-		if (iEntry.documentor != null) {
-			doc.dataDocumentor = fetchActor(iEntry.documentor);
+		if (entry.documentor != null) {
+			doc.dataDocumentor = fetchActor(entry.documentor);
 		}
 	}
 
 	private void mapDataGenerator(ProcessDoc doc) {
-		if (ilcdProcess.getDataGenerator() != null) {
-			List<Ref> refs = ilcdProcess.getDataGenerator().contacts;
-			if (!refs.isEmpty()) {
-				Ref generatorRef = refs.get(0);
-				doc.dataGenerator = fetchActor(generatorRef);
+		var gen = Processes.getDataGenerator(ds);
+		if (gen != null) {
+			if (!gen.contacts.isEmpty()) {
+				doc.dataGenerator = fetchActor(gen.contacts.get(0));
 			}
 		}
 	}
 
-	private void mapComissionerAndGoal(ProcessDoc doc) {
-		if (ilcdProcess.getCommissionerAndGoal() != null) {
-			var cag = ilcdProcess.getCommissionerAndGoal();
-			doc.intendedApplication = imp.str(cag.intendedApplications);
-			doc.project = imp.str(cag.project);
+	private void mapGoal(ProcessDoc doc) {
+		var goal = Processes.getCommissionerAndGoal(ds);
+		if (goal != null) {
+			doc.intendedApplication = imp.str(goal.intendedApplications);
+			doc.project = imp.str(goal.project);
 		}
 	}
 
-	private void mapLciMethod(ProcessDoc doc) {
-		if (ilcdProcess.getProcessType() != null) {
-			process.processType = switch (ilcdProcess.getProcessType()) {
+	private void mapInventoryMethod(ProcessDoc doc) {
+		var type = Processes.getProcessType(ds);
+		if (type != null) {
+			process.processType = switch (type) {
 				case UNIT_PROCESS_BLACK_BOX, UNIT_PROCESS -> ProcessType.UNIT_PROCESS;
 				default -> ProcessType.LCI_RESULT;
 			};
 		}
-		var iMethod = ilcdProcess.getLciMethod();
-		if (iMethod != null) {
-			doc.inventoryMethod = imp.str(iMethod.principleDeviations);
-			doc.modelingConstants = imp.str(iMethod.constants);
-			process.defaultAllocationMethod = getAllocation(iMethod);
+		var method = Processes.getInventoryMethod(ds);
+		if (method != null) {
+			doc.inventoryMethod = imp.str(method.principleDeviations);
+			doc.modelingConstants = imp.str(method.constants);
+			process.defaultAllocationMethod = getAllocation(method);
 		}
 	}
 
@@ -208,17 +205,18 @@ public class ProcessImport {
 		var first = approaches.get(0);
 		return switch (first) {
 			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT,
-				ALLOCATION_MARGINAL_CAUSALITY,
-				ALLOCATION_ABILITY_TO_BEAR,
-				ALLOCATION_ELEMENT_CONTENT -> AllocationMethod.CAUSAL;
+					ALLOCATION_MARGINAL_CAUSALITY,
+					ALLOCATION_ABILITY_TO_BEAR,
+					ALLOCATION_ELEMENT_CONTENT -> AllocationMethod.CAUSAL;
 			case ALLOCATION_MARKET_VALUE,
-				SUBSTITUTION_AVERAGE_MARKET_PRICE_CORRECTION -> AllocationMethod.ECONOMIC;
+					SUBSTITUTION_AVERAGE_MARKET_PRICE_CORRECTION ->
+					AllocationMethod.ECONOMIC;
 			default -> AllocationMethod.PHYSICAL;
 		};
 	}
 
 	private void mapRepresentativeness(ProcessDoc doc) {
-		var r = ilcdProcess.getRepresentativeness();
+		var r = Processes.getRepresentativeness(ds);
 		if (r == null)
 			return;
 		doc.dataCompleteness = imp.str(r.completeness);
@@ -229,8 +227,7 @@ public class ProcessImport {
 	}
 
 	private void addSources(ProcessDoc doc) {
-		List<Ref> refs = ilcdProcess.getAllSources();
-		for (Ref ref : refs) {
+		for (Ref ref : ProcessSources.allOf(ds)) {
 			if (ref == null)
 				continue;
 			Source source = fetchSource(ref);
@@ -266,18 +263,18 @@ public class ProcessImport {
 
 	private Actor fetchActor(Ref ref) {
 		return ref != null
-			? ContactImport.get(imp, ref.uuid)
-			: null;
+				? ContactImport.get(imp, ref.uuid)
+				: null;
 	}
 
 	private Source fetchSource(Ref ref) {
 		return ref != null
-			? SourceImport.get(imp, ref.uuid)
-			: null;
+				? SourceImport.get(imp, ref.uuid)
+				: null;
 	}
 
 	private void mapCompleteness() {
-		var c = Processes.getCompleteness(ilcdProcess.getValue());
+		var c = Processes.getCompleteness(ds);
 		if (c == null)
 			return;
 		var target = new Completeness();

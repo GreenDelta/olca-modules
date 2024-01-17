@@ -1,16 +1,16 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.List;
-
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.ParameterExtension;
-import org.openlca.ilcd.util.ProcessBag;
+import org.openlca.ilcd.util.Processes;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Adds the parameters of an ILCD process data set to an openLCA process data
@@ -30,14 +30,11 @@ class ProcessParameterConversion {
 		this.dao = new ParameterDao(imp.db());
 	}
 
-	public void run(ProcessBag ilcdProcess) {
-		List<org.openlca.ilcd.processes.Parameter> iParameters = ilcdProcess
-				.getParameters();
-		for (org.openlca.ilcd.processes.Parameter iParameter : iParameters) {
-			if (iParameter.name == null
-					|| iParameter.name.startsWith("temp_olca_param"))
+	public void run(org.openlca.ilcd.processes.Process ds) {
+		for (var p : Processes.getParameters(ds)) {
+			if (p.name == null || p.name.startsWith("temp_olca_param"))
 				continue;
-			Parameter param = convertParameter(iParameter);
+			var param = convertParameter(p);
 			addOrInsert(param);
 		}
 	}

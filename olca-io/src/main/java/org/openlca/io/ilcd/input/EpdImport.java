@@ -45,7 +45,7 @@ public class EpdImport {
 		oEpd.refId = dataSet.getUUID();
 		oEpd.lastChange = System.currentTimeMillis();
 		oEpd.name = Strings.cut(
-			Processes.fullName(dataSet, imp.langOrder()), 2048);
+			Processes.getFullName(dataSet, imp.langOrder()), 2048);
 		var path = Categories.getPath(dataSet);
 		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
 		oEpd.tags = tags();
@@ -88,7 +88,7 @@ public class EpdImport {
 
 			// meta-data
 			result.name = Strings.cut(
-				Processes.fullName(dataSet, imp.langOrder()),
+				Processes.getFullName(dataSet, imp.langOrder()),
 				2044 - suffix.length()) + " - " + suffix;
 			imp.log().info("import EPD result: " + result.name);
 			result.category = new CategoryDao(imp.db())

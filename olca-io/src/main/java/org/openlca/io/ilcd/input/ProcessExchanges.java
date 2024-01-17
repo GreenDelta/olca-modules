@@ -4,7 +4,6 @@ import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
-import org.openlca.ilcd.util.ProcessBag;
 import org.openlca.util.Strings;
 
 import java.util.ArrayList;
@@ -26,14 +25,13 @@ class ProcessExchanges {
 		this.hasRefErrors = new AtomicBoolean(false);
 	}
 
-	void map(ProcessBag iProcess, Process process) {
+	void map(org.openlca.ilcd.processes.Process ds, Process process) {
 		int maxID = 0;
 
 		var mappedExchanges = new ArrayList<MappedExchange>();
-		for (var origin : iProcess.getExchanges()) {
+		for (var origin : ds.exchanges) {
 			if (origin.flow == null || Strings.nullOrEmpty(origin.flow.uuid)) {
-				imp.log().warn("invalid flow references in process "
-						+ iProcess.getId());
+				imp.log().warn("invalid flow references in process {}" + ds.getUUID());
 				continue;
 			}
 
@@ -42,7 +40,7 @@ class ProcessExchanges {
 				if (!hasRefErrors.get()) {
 					hasRefErrors.set(true);
 					imp.log().error("missing flows in process: "
-							+ iProcess.getId() + "; e.g." + origin.flow.uuid);
+							+ ds.getUUID() + "; e.g." + origin.flow.uuid);
 				}
 				continue;
 			}
@@ -51,7 +49,7 @@ class ProcessExchanges {
 			mappedExchanges.add(mapped);
 			if (mapped.hasExtensionError()) {
 				imp.log().warn("invalid exchange extensions in process: "
-						+ iProcess.getId());
+						+ ds.getUUID());
 			}
 
 			var exchange = mapped.exchange();
@@ -78,7 +76,7 @@ class ProcessExchanges {
 		for (var m : mappedExchanges) {
 			mappedIndex.put(m.origin().id, m.exchange());
 		}
-		RefFlow.map(iProcess, process, mappedIndex);
+		RefFlow.map(ds, process, mappedIndex);
 	}
 
 
@@ -107,7 +105,7 @@ class ProcessExchanges {
 	}
 
 	private void createAllocationFactor(Exchange exchange, long productId,
-			double fraction, Process process) {
+																			double fraction, Process process) {
 		if (exchange.flow == null)
 			return;
 		var factor = new AllocationFactor();
