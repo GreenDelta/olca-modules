@@ -193,10 +193,13 @@ public class ProcessExport {
 			rev.type = ReviewType.fromValue(r.type).orElse(null);
 			rev.report = exp.writeRef(r.report);
 			exp.add(rev.details, r.details);
-			var reviewer = exp.writeRef(r.reviewer);
-			if (reviewer != null) {
-				rev.reviewers.add(reviewer);
+			for (var reviewer : r.reviewers) {
+				var ref = exp.writeRef(reviewer);
+				if (ref != null) {
+					rev.reviewers.add(ref);
+				}
 			}
+
 			for (var s : r.scopes) {
 				var scope = new Review.Scope();
 				scope.name = ReviewScope.fromValue(s.name).orElse(null);

@@ -97,7 +97,9 @@ public class ProcessWriter {
 		if (!d.reviews.isEmpty()) {
 			var rev = d.reviews.get(0);
 			proto.setReviewDetails(Strings.orEmpty(rev.details));
-			config.dep(rev.reviewer, proto::setReviewer);
+			if (!rev.reviewers.isEmpty()) {
+				config.dep(rev.reviewers.get(0), proto::setReviewer);
+			}
 		}
 
 		return proto;

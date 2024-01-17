@@ -4,7 +4,6 @@ import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.doc.Review;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.util.Exchanges;
 import org.openlca.util.Strings;
@@ -126,28 +125,25 @@ class Util {
 	}
 
 	static String reviewDetailsOf(Process p) {
-		var rev = reviewOf(p);
-		return rev != null
-				? rev.details
-				: null;
+		if (p == null || p.documentation == null)
+			return null;
+		for (var rev : p.documentation.reviews) {
+			if (Strings.notEmpty(rev.details))
+				return rev.details;
+		}
+		return null;
 	}
 
 	static String reviewerOf(Process p) {
-		var rev = reviewOf(p);
-		if (rev == null)
+		if (p == null || p.documentation == null)
 			return null;
-		return rev.reviewer != null
-				? rev.reviewer.name
-				: null;
+		for (var rev : p.documentation.reviews) {
+			if (!rev.reviewers.isEmpty())
+				return rev.reviewers.get(0).name;
+		}
+		return null;
 	}
 
-	private static Review reviewOf(Process p) {
-		if (p == null
-				|| p.documentation == null
-				|| p.documentation.reviews.isEmpty())
-			return null;
-		return p.documentation.reviews.get(0);
-	}
 
 	/**
 	 * In SimaPro you cannot have multiple flow properties for a flow. Thus, we

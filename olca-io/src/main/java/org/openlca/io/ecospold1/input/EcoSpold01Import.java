@@ -312,7 +312,7 @@ public class EcoSpold01Import implements Import {
 		if (ds.getValidation() != null) {
 			var reviewer = actors.get(ds.getValidation().getProofReadingValidator());
 			if (reviewer != null) {
-				Util.reviewOf(doc).reviewer = reviewer;
+				Util.reviewOf(doc).reviewers.add(reviewer);
 			}
 		}
 		if (ds.getDataEntryBy() != null) {

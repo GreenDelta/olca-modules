@@ -4,7 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import org.openlca.core.model.AbstractEntity;
@@ -31,9 +33,11 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 	@Column(name = "details")
 	public String details;
 
-	@OneToOne
-	@JoinColumn(name = "f_reviewer")
-	public Actor reviewer;
+	@OneToMany
+	@JoinTable(name = "tbl_source_links", joinColumns = {
+			@JoinColumn(name = "f_owner")}, inverseJoinColumns = {
+			@JoinColumn(name = "f_source")})
+	public final List<Actor> reviewers = new ArrayList<>();
 
 	@OneToOne
 	@JoinColumn(name = "f_report")
@@ -47,7 +51,7 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 			copy.scopes.add(scope.copy());
 		}
 		copy.details = details;
-		copy.reviewer = reviewer;
+		copy.reviewers.addAll(reviewers);
 		copy.report = report;
 		return copy;
 	}

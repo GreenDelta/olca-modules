@@ -1,9 +1,5 @@
 package org.openlca.io.olca;
 
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.Objects;
-
 import gnu.trove.list.array.TLongArrayList;
 import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.NativeSql;
@@ -12,6 +8,10 @@ import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Objects;
 
 class ProcessImport {
 
@@ -170,8 +170,13 @@ class ProcessImport {
 		doc.sources.clear();
 		doc.sources.addAll(sources);
 		for (var rev : doc.reviews) {
-			rev.reviewer = conf.swap(rev.reviewer);
 			rev.report = conf.swap(rev.report);
+			var reviewers = rev.reviewers.stream()
+					.map(conf::swap)
+					.filter(Objects::nonNull)
+					.toList();
+			rev.reviewers.clear();
+			rev.reviewers.addAll(reviewers);
 		}
 	}
 

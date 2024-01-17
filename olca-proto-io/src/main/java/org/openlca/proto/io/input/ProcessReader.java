@@ -101,7 +101,9 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 			return;
 		var review = new Review();
 		review.details = details;
-		review.reviewer = reviewer;
+		if (reviewer != null) {
+			review.reviewers.add(reviewer);
+		}
 		doc.reviews.add(review);
 	}
 

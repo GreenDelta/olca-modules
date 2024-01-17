@@ -20,7 +20,7 @@ public class ReviewTest {
 		var p = new Process();
 		p.documentation = new ProcessDoc();
 		var r = new Review();
-		r.reviewer = a;
+		r.reviewers.add(a);
 		r.report = s;
 		r.type = "Internal review";
 		var scope = new ReviewScope("Raw data");
@@ -32,7 +32,7 @@ public class ReviewTest {
 
 		p = db.get(Process.class, p.id);
 		r = p.documentation.reviews.get(0);
-		assertEquals(a.refId, r.reviewer.refId);
+		assertEquals(a.refId, r.reviewers.get(0).refId);
 		assertEquals(s.refId, r.report.refId);
 		assertEquals("Internal review", r.type);
 		scope = r.scopes.get(0);

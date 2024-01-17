@@ -54,10 +54,16 @@ public class Upgrade12 implements IUpgrade {
 				  review_type  VARCHAR(255),
 				  scopes       CLOB(64 K),
 				  details      CLOB(64 K),
-				  f_reviewer   BIGINT,
 				  f_report     BIGINT,
 
 				  PRIMARY KEY (id)
+				)
+				""");
+
+		u.createTable("tbl_actor_links", """
+				CREATE TABLE tbl_actor_links (
+				    f_owner  BIGINT,
+				    f_actor  BIGINT
 				)
 				""");
 

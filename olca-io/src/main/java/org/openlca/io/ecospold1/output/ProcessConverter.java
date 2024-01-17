@@ -133,12 +133,15 @@ class ProcessConverter {
 			validation = factory.createValidation();
 			ds.setValidation(validation);
 		}
-		int reviewer = actorSourceMapper.map(r.reviewer, ds);
-		if (reviewer > 0) {
-			validation.setProofReadingValidator(reviewer);
-		}
 		validation.setProofReadingDetails(
 				r.details != null ? r.details : "none");
+
+		if (!r.reviewers.isEmpty()) {
+			int reviewer = actorSourceMapper.map(r.reviewers.get(0), ds);
+			if (reviewer > 0) {
+				validation.setProofReadingValidator(reviewer);
+			}
+		}
 	}
 
 	private void mapAdminInfo(ProcessDoc doc, DataSet dataset) {

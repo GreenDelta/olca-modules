@@ -75,7 +75,7 @@ public class WriterTest {
 		doc.validUntil = date.getTime();
 		process.documentation = doc;
 		var rev = new Review();
-		rev.reviewer = Actor.of("actor");
+		rev.reviewers.add(Actor.of("actor"));
 		doc.reviews.add(rev);
 
 		var config = WriterConfig.of(InMemoryStore.create());

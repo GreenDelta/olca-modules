@@ -120,7 +120,7 @@ public class RefsTest {
 
 			var rev = new Review();
 			rev.report = source;
-			rev.reviewer = actor;
+			rev.reviewers.add(actor);
 			doc.reviews.add(rev);
 		};
 
@@ -294,7 +294,7 @@ public class RefsTest {
 			check(doc.dataGenerator, "actor");
 			check(doc.dataDocumentor, "actor");
 			check(doc.publication, "source");
-			check(doc.reviews.get(0).reviewer, "actor");
+			check(doc.reviews.get(0).reviewers.get(0), "actor");
 			check(doc.reviews.get(0).report, "source");
 			check(doc.sources.get(0), "source");
 
