@@ -11,6 +11,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.core.model.doc.Review;
 import org.openlca.proto.ProtoProcess;
 import org.openlca.proto.ProtoProcessDocumentation;
 import org.openlca.proto.ProtoProcessType;
@@ -63,7 +64,6 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 		doc.dataCollectionPeriod = proto.getDataCollectionDescription();
 		doc.dataCompleteness = proto.getCompletenessDescription();
 		doc.dataSelection = proto.getDataSelectionDescription();
-		doc.reviewDetails = proto.getReviewDetails();
 		doc.dataTreatment = proto.getDataTreatmentDescription();
 		doc.inventoryMethod = proto.getInventoryMethodDescription();
 		doc.modelingConstants = proto.getModelingConstantsDescription();
@@ -77,11 +77,12 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 		doc.validUntil = Util.dateOf(proto.getValidUntil()).orElse(null);
 		doc.creationDate = Util.dateOf(proto.getCreationDate()).orElse(null);
 
-		doc.reviewer = Util.getActor(resolver, proto.getReviewer());
 		doc.dataDocumentor = Util.getActor(resolver, proto.getDataDocumentor());
 		doc.dataGenerator = Util.getActor(resolver, proto.getDataGenerator());
 		doc.dataOwner = Util.getActor(resolver, proto.getDataSetOwner());
 		doc.publication = Util.getSource(resolver, proto.getPublication());
+
+		mapReview(proto, doc);
 
 		for (int i = 0; i < proto.getSourcesCount(); i++) {
 			var ref = proto.getSources(i);
@@ -91,6 +92,17 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 			}
 		}
 		return doc;
+	}
+
+	private void mapReview(ProtoProcessDocumentation proto, ProcessDoc doc) {
+		var details = proto.getReviewDetails();
+		var reviewer = Util.getActor(resolver, proto.getReviewer());
+		if (Strings.nullOrEmpty(details) && reviewer == null)
+			return;
+		var review = new Review();
+		review.details = details;
+		review.reviewer = reviewer;
+		doc.reviews.add(review);
 	}
 
 	private void mapParameters(Process p, ProtoProcess proto) {

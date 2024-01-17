@@ -75,7 +75,6 @@ public class ProcessWriter {
 		proto.setDataCollectionDescription(Strings.orEmpty(d.dataCollectionPeriod));
 		proto.setCompletenessDescription(Strings.orEmpty(d.dataCompleteness));
 		proto.setDataSelectionDescription(Strings.orEmpty(d.dataSelection));
-		proto.setReviewDetails(Strings.orEmpty(d.reviewDetails));
 		proto.setDataTreatmentDescription(Strings.orEmpty(d.dataTreatment));
 		proto.setInventoryMethodDescription(Strings.orEmpty(d.inventoryMethod));
 		proto.setModelingConstantsDescription(Strings.orEmpty(d.modelingConstants));
@@ -89,12 +88,17 @@ public class ProcessWriter {
 		proto.setValidFrom(Strings.orEmpty(Json.asDate(d.validFrom)));
 		proto.setValidUntil(Strings.orEmpty(Json.asDate(d.validUntil)));
 
-		config.dep(d.reviewer, proto::setReviewer);
 		config.dep(d.dataDocumentor, proto::setDataDocumentor);
 		config.dep(d.dataGenerator, proto::setDataGenerator);
 		config.dep(d.dataOwner, proto::setDataSetOwner);
 		config.dep(d.publication, proto::setPublication);
 		d.sources.forEach(source -> config.dep(source, proto::addSources));
+
+		if (!d.reviews.isEmpty()) {
+			var rev = d.reviews.get(0);
+			proto.setReviewDetails(Strings.orEmpty(rev.details));
+			config.dep(rev.reviewer, proto::setReviewer);
+		}
 
 		return proto;
 	}

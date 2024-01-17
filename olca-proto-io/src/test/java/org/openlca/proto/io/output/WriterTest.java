@@ -17,6 +17,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.store.InMemoryStore;
 import org.openlca.proto.ProtoFlowType;
 
@@ -70,10 +71,12 @@ public class WriterTest {
 		var doc = new ProcessDoc();
 		doc.technology = "technology";
 		doc.copyright = true;
-		doc.reviewer = Actor.of("actor");
 		var date = new GregorianCalendar(2022, Calendar.SEPTEMBER, 16);
 		doc.validUntil = date.getTime();
 		process.documentation = doc;
+		var rev = new Review();
+		rev.reviewer = Actor.of("actor");
+		doc.reviews.add(rev);
 
 		var config = WriterConfig.of(InMemoryStore.create());
 		var proto = new ProcessWriter(config).write(process);
