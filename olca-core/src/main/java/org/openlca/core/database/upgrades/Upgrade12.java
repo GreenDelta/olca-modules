@@ -1,8 +1,13 @@
 package org.openlca.core.database.upgrades;
 
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.List;
+import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 
 public class Upgrade12 implements IUpgrade {
 
@@ -25,6 +30,7 @@ public class Upgrade12 implements IUpgrade {
 	}
 
 	private void updateProcessDocs(DbUtil u) {
+		AtomicLong nextID = new AtomicLong(u.getLastID() + 1L);
 		u.renameColumn("tbl_process_docs",
 				"completeness", "data_completeness CLOB(64 K)");
 		u.renameColumn("tbl_process_docs",
@@ -67,8 +73,43 @@ public class Upgrade12 implements IUpgrade {
 				)
 				""");
 
-		// TODO: #model-doc copy review data from processes
-
+		// Copy review_details, id from tbl_process_docs to tbl_reviews
+		var sql = NativeSql.on(u.db);
+		var docIds = new ArrayList<Long>();
+		var reviews = new ArrayList<String>();
+		var reviewerIds = new ArrayList<Long>();
+		sql.query("SELECT id, review_details, f_reviewer FROM tbl_process_docs", r -> {
+			docIds.add(r.getLong(1));
+			reviews.add(r.getString(2));
+			reviewerIds.add(r.getLong(3));
+			return true;
+		});
+		if (docIds.isEmpty() || reviews.isEmpty() || reviewerIds.isEmpty())
+			return;
+		String stmt = "insert into tbl_reviews (id, f_owner, details) values (?, ?, ?)";
+		NativeSql.on(u.db).batchInsert(stmt, 1,
+				(int i, PreparedStatement ps) -> {
+					ps.setLong(1, nextID.incrementAndGet());
+					ps.setLong(2, docIds.get(i));
+					ps.setString(3, reviews.get(i));
+					return true;
+				});
+		// For each review copy f_reviewer from tbl_process_docs to tbl_actor_links
+		// and id from tbl_reviews to tbl_actor_links
+		var reviewIds = new ArrayList<Long>();
+		sql.query("SELECT id FROM tbl_reviews", r -> {
+			reviewIds.add(r.getLong(1));
+			return true;
+		});
+		if (reviewIds.isEmpty())
+			return;
+		String stmt2 = "insert into tbl_actor_links (f_owner, f_actor) values (?, ?)";
+		NativeSql.on(u.db).batchInsert(stmt2, 1,
+				(int i, PreparedStatement ps) -> {
+					ps.setLong(1, reviewIds.get(i));
+					ps.setLong(2, reviewerIds.get(i));
+					return true;
+				});
 	}
 
 	private void addOtherProperties(DbUtil u) {
