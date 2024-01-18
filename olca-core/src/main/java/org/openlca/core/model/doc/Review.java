@@ -34,9 +34,9 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 	public String details;
 
 	@OneToMany
-	@JoinTable(name = "tbl_source_links", joinColumns = {
+	@JoinTable(name = "tbl_actor_links", joinColumns = {
 			@JoinColumn(name = "f_owner")}, inverseJoinColumns = {
-			@JoinColumn(name = "f_source")})
+			@JoinColumn(name = "f_actor")})
 	public final List<Actor> reviewers = new ArrayList<>();
 
 	@OneToOne
