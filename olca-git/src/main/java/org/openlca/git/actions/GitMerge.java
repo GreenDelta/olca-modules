@@ -121,8 +121,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
 		var importHelper = new ImportHelper(repo, database, descriptors, gitIndex, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
-		importHelper.runImport(gitStore);
 		importHelper.delete(deleted);
+		importHelper.runImport(gitStore);
 		// TODO unmount libs removed from package info; not yet supported
 		var result = gitStore.getResults();
 		deleted.forEach(ref -> result.add(ref, ImportState.DELETED));
