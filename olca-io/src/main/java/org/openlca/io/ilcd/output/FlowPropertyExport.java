@@ -1,10 +1,7 @@
 package org.openlca.io.ilcd.output;
 
-import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flowproperties.AdminInfo;
 import org.openlca.ilcd.flowproperties.DataSetInfo;
@@ -16,21 +13,22 @@ import org.openlca.io.Xml;
 
 public class FlowPropertyExport {
 
-	private final ExportConfig config;
+	private final Export exp;
 	private org.openlca.core.model.FlowProperty flowProperty;
 	private String baseUri;
 
-	public FlowPropertyExport(ExportConfig config) {
-		this.config = config;
+	public FlowPropertyExport(Export exp) {
+		this.exp = exp;
 	}
 
 	public void setBaseUri(String baseUri) {
 		this.baseUri = baseUri;
 	}
 
-	public FlowProperty run(org.openlca.core.model.FlowProperty property) {
-		if (config.store.contains(FlowProperty.class, property.refId))
-			return config.store.get(FlowProperty.class, property.refId);
+	public void run(org.openlca.core.model.FlowProperty property) {
+		if (property == null
+				|| exp.store.contains(FlowProperty.class, property.refId))
+			return;
 		this.flowProperty = property;
 		FlowProperty iProperty = new FlowProperty();
 		iProperty.version = "1.1";
@@ -39,32 +37,24 @@ public class FlowPropertyExport {
 		info.dataSetInfo = makeDataSetInfo();
 		info.quantitativeReference = makeUnitGroupRef();
 		iProperty.adminInfo = makeAdminInfo();
-		config.store.put(iProperty);
+		exp.store.put(iProperty);
 		this.flowProperty = null;
-		return iProperty;
 	}
 
 	private DataSetInfo makeDataSetInfo() {
-		DataSetInfo dataSetInfo = new DataSetInfo();
-		dataSetInfo.uuid = flowProperty.refId;
-		LangString.set(dataSetInfo.name, flowProperty.name,
-				config.lang);
-		if (flowProperty.description != null) {
-			LangString.set(dataSetInfo.generalComment,
-					flowProperty.description, config.lang);
-		}
-		CategoryConverter converter = new CategoryConverter();
-		Classification c = converter.getClassification(
-				flowProperty.category);
-		if (c != null)
-			dataSetInfo.classifications.add(c);
-		return dataSetInfo;
+		var info = new DataSetInfo();
+		info.uuid = flowProperty.refId;
+		exp.add(info.name, flowProperty.name);
+		exp.add(info.generalComment, flowProperty.description);
+		Categories.toClassification(flowProperty.category)
+				.ifPresent(info.classifications::add);
+		return info;
 	}
 
 	private QuantitativeReference makeUnitGroupRef() {
-		QuantitativeReference qRef = new QuantitativeReference();
-		UnitGroup unitGroup = flowProperty.unitGroup;
-		qRef.unitGroup = Export.of(unitGroup, config);
+		var qRef = new QuantitativeReference();
+		var unitGroup = flowProperty.unitGroup;
+		qRef.unitGroup = exp.writeRef(unitGroup);
 		return qRef;
 	}
 

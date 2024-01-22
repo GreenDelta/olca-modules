@@ -42,7 +42,7 @@ public record ImpactMethodReader(EntityResolver resolver)
 	private void mapCategories(JsonObject json, ImpactMethod method) {
 		method.impactCategories.clear();
 		var array = Json.getArray(json, "impactCategories");
-		if (array == null || array.size() == 0)
+		if (array == null || array.isEmpty())
 			return;
 		for (var e : array) {
 			if (!e.isJsonObject())
@@ -76,8 +76,7 @@ public record ImpactMethodReader(EntityResolver resolver)
 			var nwSet = nwSets.computeIfAbsent(refId, rid -> new NwSet());
 			method.nwSets.add(nwSet);
 			Util.mapBase(nwSet, nwObj, resolver);
-			nwSet.weightedScoreUnit = Json.getString(
-				json, "weightedScoreUnit");
+			nwSet.weightedScoreUnit = Json.getString(nwObj, "weightedScoreUnit");
 			nwSet.factors.clear();
 			Json.stream(Json.getArray(nwObj, "factors"))
 				.filter(JsonElement::isJsonObject)

@@ -7,8 +7,6 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.ilcd.commons.ExchangeDirection;
-import org.openlca.ilcd.commons.LangString;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.processes.ParameterSection;
 import org.openlca.ilcd.processes.ProcessInfo;
@@ -17,40 +15,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.Map;
 
 class ExchangeConversion {
 
-	private final ExportConfig config;
+	private final Export exp;
 	private org.openlca.ilcd.processes.Process iProcess;
 	private final Process process;
 
-	public ExchangeConversion(Process process, ExportConfig config) {
+	public ExchangeConversion(Process process, Export exp) {
 		this.process = process;
-		this.config = config;
+		this.exp = exp;
 	}
 
 	public void run(org.openlca.ilcd.processes.Process iProcess) {
 		this.iProcess = iProcess;
-		Map<Exchange, org.openlca.ilcd.processes.Exchange> map = new HashMap<>();
-		for (Exchange oExchange : process.exchanges) {
-			org.openlca.ilcd.processes.Exchange iExchange = mapExchange(
-					oExchange);
+		var map = new HashMap<Exchange, org.openlca.ilcd.processes.Exchange>();
+		for (var oExchange : process.exchanges) {
+			var iExchange = mapExchange(oExchange);
 			map.put(oExchange, iExchange);
 		}
 		iProcess.exchanges.addAll(map.values());
 		AllocationFactors.map(process, map);
 	}
 
-	private org.openlca.ilcd.processes.Exchange mapExchange(
-			Exchange oExchange) {
+	private org.openlca.ilcd.processes.Exchange mapExchange(Exchange oExchange) {
 		var iExchange = new org.openlca.ilcd.processes.Exchange();
 		iExchange.id = oExchange.internalId;
-		if (oExchange.description != null) {
-			LangString.set(iExchange.comment,
-					oExchange.description, config.lang);
-		}
-		mapFlow(oExchange, iExchange);
+		exp.add(iExchange.comment, oExchange.description);
+		iExchange.flow = exp.writeRef(oExchange.flow);
 		iExchange.direction = oExchange.isInput
 				? ExchangeDirection.INPUT
 				: ExchangeDirection.OUTPUT;
@@ -111,7 +103,7 @@ class ExchangeConversion {
 		if (provider == 0)
 			return;
 		try {
-			ProcessDao dao = new ProcessDao(config.db);
+			ProcessDao dao = new ProcessDao(exp.db);
 			ProcessDescriptor d = dao.getDescriptor(provider);
 			if (d != null) {
 				ext.setDefaultProvider(d.refId);
@@ -157,15 +149,4 @@ class ExchangeConversion {
 		}
 		list.parameters.add(parameter);
 	}
-
-	private void mapFlow(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		if (oExchange.flow != null) {
-			Ref ref = Export.of(oExchange.flow, config);
-			if (ref != null) {
-				iExchange.flow = ref;
-			}
-		}
-	}
-
 }

@@ -3,12 +3,9 @@ package org.openlca.io.ilcd.output;
 import java.util.List;
 
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.FlowType;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.flows.AdminInfo;
-import org.openlca.ilcd.flows.CompartmentList;
 import org.openlca.ilcd.flows.DataEntry;
 import org.openlca.ilcd.flows.DataSetInfo;
 import org.openlca.ilcd.flows.Flow;
@@ -26,66 +23,57 @@ import org.openlca.io.Xml;
 
 public class FlowExport {
 
-	private final ExportConfig config;
+	private final Export exp;
 	private org.openlca.core.model.Flow flow;
 	private String baseUri;
 
-	public FlowExport(ExportConfig config) {
-		this.config = config;
+	public FlowExport(Export exp) {
+		this.exp = exp;
 	}
 
-	public Flow run(org.openlca.core.model.Flow flow) {
-		if (config.store.contains(Flow.class, flow.refId))
-			return config.store.get(Flow.class, flow.refId);
+	public void write(org.openlca.core.model.Flow flow) {
+		if (flow == null || exp.store.contains(Flow.class, flow.refId))
+			return;
 		this.flow = flow;
-		Flow iFlow = new Flow();
+		var iFlow = new Flow();
 		iFlow.version = "1.1";
 		FlowInfo info = new FlowInfo();
 		iFlow.flowInfo = info;
 		info.dataSetInfo = makeDataSetInfo();
-		QuantitativeReference qRef = new QuantitativeReference();
+		var qRef = new QuantitativeReference();
 		info.quantitativeReference = qRef;
 		qRef.referenceFlowProperty = 0;
 		iFlow.adminInfo = makeAdminInfo();
 		iFlow.modelling = makeModellingInfo();
 		makeFlowProperties(Flows.flowProperties(iFlow));
 		addLocation(iFlow);
-		config.store.put(iFlow);
+		exp.store.put(iFlow);
 		this.flow = null;
-		return iFlow;
 	}
 
 	private DataSetInfo makeDataSetInfo() {
-		DataSetInfo info = new DataSetInfo();
+		var info = new DataSetInfo();
 		info.uuid = flow.refId;
-		FlowName flowName = new FlowName();
+		var flowName = new FlowName();
 		info.name = flowName;
-		LangString.set(flowName.baseName, flow.name,
-			config.lang);
-		if (flow.description != null)
-			LangString.set(info.generalComment,
-				flow.description, config.lang);
+		exp.add(flowName.baseName, flow.name);
+		exp.add(info.generalComment, flow.description);
 		info.casNumber = flow.casNumber;
 		info.sumFormula = flow.formula;
-		if (flow.synonyms != null)
-			LangString.set(info.synonyms, flow.synonyms,
-				config.lang);
+		exp.add(info.synonyms, flow.synonyms);
 		makeCategoryInfo(info);
 		return info;
 	}
 
 	private void makeCategoryInfo(DataSetInfo dataSetInfo) {
-		CategoryConverter converter = new CategoryConverter();
-		FlowCategoryInfo info = new FlowCategoryInfo();
+		var info = new FlowCategoryInfo();
 		dataSetInfo.classificationInformation = info;
 		if (flow.flowType == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
-			CompartmentList categorization = converter
-				.getElementaryFlowCategory(flow.category);
-			info.compartmentLists.add(categorization);
+			Categories.toCompartments(flow.category)
+					.ifPresent(info.compartmentLists::add);
 		} else {
-			Classification classification = converter
-				.getClassification(flow.category);
-			info.classifications.add(classification);
+			Categories.toClassification(flow.category)
+					.ifPresent(info.classifications::add);
 		}
 	}
 
@@ -100,18 +88,18 @@ public class FlowExport {
 			var propRef = new FlowPropertyRef();
 			refs.add(propRef);
 			var property = factor.flowProperty;
-			propRef.flowProperty = Export.of(property, config);
+			propRef.flowProperty = exp.writeRef(property);
 			propRef.dataSetInternalID = property.equals(refProp)
-				? 0
-				: pos++;
+					? 0
+					: pos++;
 			propRef.meanValue = factor.conversionFactor;
 		}
 	}
 
 	private void addLocation(org.openlca.ilcd.flows.Flow iFlow) {
 		if (flow != null && flow.location != null) {
-			Geography geography = new Geography();
-			LangString.set(geography.location, flow.location.code, config.lang);
+			var geography = new Geography();
+			exp.add(geography.location, flow.location.code);
 			iFlow.flowInfo.geography = geography;
 		}
 	}
@@ -148,16 +136,10 @@ public class FlowExport {
 	private FlowType getFlowType() {
 		if (flow.flowType == null)
 			return FlowType.OTHER_FLOW;
-		switch (flow.flowType) {
-			case ELEMENTARY_FLOW:
-				return FlowType.ELEMENTARY_FLOW;
-			case PRODUCT_FLOW:
-				return FlowType.PRODUCT_FLOW;
-			case WASTE_FLOW:
-				return FlowType.WASTE_FLOW;
-			default:
-				return FlowType.OTHER_FLOW;
-		}
+		return switch (flow.flowType) {
+			case ELEMENTARY_FLOW -> FlowType.ELEMENTARY_FLOW;
+			case PRODUCT_FLOW -> FlowType.PRODUCT_FLOW;
+			case WASTE_FLOW -> FlowType.WASTE_FLOW;
+		};
 	}
-
 }

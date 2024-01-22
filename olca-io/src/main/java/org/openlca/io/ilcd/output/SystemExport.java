@@ -1,11 +1,5 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
@@ -15,29 +9,31 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.commons.DataSetType;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.models.Connection;
-import org.openlca.ilcd.models.DataSetInfo;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.models.ModelName;
 import org.openlca.ilcd.models.Modelling;
 import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
-import org.openlca.ilcd.models.QuantitativeReference;
 import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class SystemExport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ExportConfig config;
+	private final Export exp;
 	private ProductSystem system;
 
 	private final Map<Long, Integer> processIDs = new HashMap<>();
@@ -45,32 +41,29 @@ public class SystemExport {
 	private final Map<Long, ProcessDescriptor> processes = new HashMap<>();
 	private final Map<Long, FlowDescriptor> flows = new HashMap<>();
 
-	public SystemExport(ExportConfig config) {
-		this.config = config;
+	public SystemExport(Export exp) {
+		this.exp = exp;
 	}
 
-	public Model run(ProductSystem system) {
-		if (system == null)
-			return null;
-		if (config.store.contains(Model.class, system.refId))
-			return config.store.get(Model.class, system.refId);
+	public void write(ProductSystem system) {
+		if (system == null || exp.store.contains(Model.class, system.refId))
+			return;
 		this.system = system;
 		log.trace("Run product system export with {}", system);
 		loadMaps();
 		Model model = initModel();
 		mapLinks(model);
-		config.store.put(model);
+		exp.store.put(model);
 		this.system = null;
-		return model;
 	}
 
 	private void loadMaps() {
-		ProcessDao pDao = new ProcessDao(config.db);
+		ProcessDao pDao = new ProcessDao(exp.db);
 		for (ProcessDescriptor pd : pDao.getDescriptors()) {
 			processes.put(pd.id, pd);
 			processIDs.put(pd.id, processIDs.size());
 		}
-		FlowDao fDao = new FlowDao(config.db);
+		FlowDao fDao = new FlowDao(exp.db);
 		for (FlowDescriptor fd : fDao.getDescriptors()) {
 			flows.put(fd.id, fd);
 		}
@@ -79,7 +72,7 @@ public class SystemExport {
 				.collect(Collectors.toSet());
 		String query = "SELECT id, internal_id FROM tbl_exchanges";
 		try {
-			NativeSql.on(config.db).query(query, r -> {
+			NativeSql.on(exp.db).query(query, r -> {
 				long id = r.getLong(1);
 				if (exchanges.contains(id)) {
 					exchangeIDs.put(id, r.getInt(2));
@@ -96,21 +89,17 @@ public class SystemExport {
 		Models.setOrigin(model, "openLCA");
 		model.version = "1.1";
 		model.locations = "../ILCDLocations.xml";
-		DataSetInfo info = Models.forceDataSetInfo(model);
+		var info = Models.forceDataSetInfo(model);
 		info.uuid = system.refId;
 		ModelName name = Models.forceModelName(model);
-		name.name.add(LangString.of(system.name, config.lang));
-		if (system.description != null) {
-			info.comment
-					.add(LangString.of(system.description, config.lang));
-		}
-		CategoryConverter conv = new CategoryConverter();
-		Classification c = conv.getClassification(system.category);
-		if (c != null)
-			Models.forceClassifications(model).add(c);
+		exp.add(name.name, system.name);
+		exp.add(info.comment, system.description);
+		Categories.toClassification(system.category)
+				.ifPresent(c -> Models.forceClassifications(model).add(c));
+
 		if (system.referenceProcess != null) {
 			long refId = system.referenceProcess.id;
-			QuantitativeReference qRef = Models.forceQuantitativeReference(model);
+			var qRef = Models.forceQuantitativeReference(model);
 			qRef.refProcess = processIDs.getOrDefault(refId, -1);
 		}
 		Models.forcePublication(model).version = Version
@@ -147,9 +136,9 @@ public class SystemExport {
 		var pi = new ProcessInstance();
 		pi.id = processIDs.getOrDefault(id, -1);
 		var d = processes.get(id);
-		if (!config.store.contains(Process.class, d.refId)) {
-			var dao = new ProcessDao(config.db);
-			Export.of(dao.getForId(d.id), config);
+		if (!exp.store.contains(Process.class, d.refId)) {
+			var dao = new ProcessDao(exp.db);
+			exp.write(dao.getForId(d.id));
 		}
 		pi.process = toRef(d);
 
@@ -157,9 +146,9 @@ public class SystemExport {
 		if (system.parameterSets.isEmpty())
 			return pi;
 		var set = system.parameterSets.stream()
-			.filter(s -> s.isBaseline)
-			.findAny()
-			.orElse(system.parameterSets.get(0));
+				.filter(s -> s.isBaseline)
+				.findAny()
+				.orElse(system.parameterSets.get(0));
 		for (var redef : set.parameters) {
 			Long context = redef.contextId;
 			if (redef.contextId == null || context != id)
@@ -211,7 +200,7 @@ public class SystemExport {
 		ref.uuid = d.refId;
 		ref.uri = "../processes/" + ref.uuid + ".xml";
 		ref.version = Version.asString(d.version);
-		ref.name.add(LangString.of(d.name, config.lang));
+		exp.add(ref.name, d.name);
 		return ref;
 	}
 }

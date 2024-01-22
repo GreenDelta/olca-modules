@@ -146,16 +146,12 @@ class UncertaintyConverter {
 	}
 
 	private Double getUncertaintyParam(int param, Exchange oExchange) {
-		Uncertainty uncertainty = oExchange.uncertainty;
-		switch (param) {
-		case 1:
-			return uncertainty.parameter1;
-		case 2:
-			return uncertainty.parameter2;
-		case 3:
-			return uncertainty.parameter3;
-		default:
-			return null;
-		}
+		var uncertainty = oExchange.uncertainty;
+		return switch (param) {
+			case 1 -> uncertainty.parameter1;
+			case 2 -> uncertainty.parameter2;
+			case 3 -> uncertainty.parameter3;
+			default -> null;
+		};
 	}
 }

@@ -1,12 +1,9 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.ProcessDocumentation;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.ilcd.commons.Classification;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.Ref;
@@ -37,27 +34,27 @@ import java.util.List;
 public class ProcessExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final ExportConfig config;
+	private final Export exp;
 	private org.openlca.core.model.Process process;
 	private ProcessDocumentation doc;
 
-	public ProcessExport(ExportConfig config) {
-		this.config = config;
+	public ProcessExport(Export exp) {
+		this.exp = exp;
 	}
 
-	public Process run(org.openlca.core.model.Process p) {
-		if (config.store.contains(Process.class, p.refId))
-			return config.store.get(Process.class, p.refId);
+	public void write(org.openlca.core.model.Process p) {
+		if (p == null || exp.store.contains(Process.class, p.refId))
+			return;
 		log.trace("Run process export with {}", p);
 		this.process = p;
 		this.doc = p.documentation;
 
 		ProcessBuilder builder = ProcessBuilder.makeProcess()
 				.with(makeLciMethod())
-				.withAdminInfo(new ProcessAdminInfo(config).create(p))
+				.withAdminInfo(new ProcessAdminInfo(exp).create(p))
 				.withDataSetInfo(makeDataSetInfo())
 				.withGeography(makeGeography())
-				.withParameters(new ProcessParameterConversion(config).run(p))
+				.withParameters(new ProcessParameterConversion(exp).run(p))
 				.withRepresentativeness(makeRepresentativeness())
 				.withReviews(makeReviews())
 				.withTechnology(makeTechnology())
@@ -68,32 +65,21 @@ public class ProcessExport {
 			builder.withReferenceFlowId(qRef.internalId);
 		}
 		Process iProcess = builder.getProcess();
-		new ExchangeConversion(p, config).run(iProcess);
-		config.store.put(iProcess);
-		return iProcess;
+		new ExchangeConversion(p, exp).run(iProcess);
+		exp.store.put(iProcess);
 	}
 
 	private DataSetInfo makeDataSetInfo() {
 		log.trace("Create data set info.");
-		DataSetInfo dataSetInfo = new DataSetInfo();
-		dataSetInfo.uuid = process.refId;
-		ProcessName processName = new ProcessName();
-		dataSetInfo.name = processName;
-		s(processName.name, process.name);
-		s(dataSetInfo.comment, process.description);
-		addClassification(dataSetInfo);
-		return dataSetInfo;
-	}
-
-	private void addClassification(DataSetInfo dataSetInfo) {
-		log.trace("Add classification");
-		if (process.category != null) {
-			CategoryConverter converter = new CategoryConverter();
-			Classification c = converter.getClassification(
-					process.category);
-			if (c != null)
-				dataSetInfo.classifications.add(c);
-		}
+		var info = new DataSetInfo();
+		info.uuid = process.refId;
+		var processName = new ProcessName();
+		info.name = processName;
+		exp.add(processName.name, process.name);
+		exp.add(info.comment, process.description);
+		Categories.toClassification(process.category)
+				.ifPresent(info.classifications::add);
+		return info;
 	}
 
 	private org.openlca.ilcd.commons.Time makeTime() {
@@ -101,7 +87,7 @@ public class ProcessExport {
 		Time iTime = new Time();
 		if (doc == null)
 			return iTime;
-		TimeExtension extension = new TimeExtension(iTime);
+		var extension = new TimeExtension(iTime);
 		if (doc.validFrom != null) {
 			iTime.referenceYear = getYear(doc.validFrom);
 			extension.setStartDate(doc.validFrom);
@@ -110,14 +96,14 @@ public class ProcessExport {
 			iTime.validUntil = getYear(doc.validUntil);
 			extension.setEndDate(doc.validUntil);
 		}
-		s(iTime.description, doc.time);
+		exp.add(iTime.description, doc.time);
 		return iTime;
 	}
 
 	private Integer getYear(Date date) {
 		if (date == null)
 			return null;
-		GregorianCalendar cal = new GregorianCalendar();
+		var cal = new GregorianCalendar();
 		cal.setTime(date);
 		return cal.get(Calendar.YEAR);
 	}
@@ -128,11 +114,11 @@ public class ProcessExport {
 			return null;
 		if (process.location == null && doc.geography == null)
 			return null;
-		Geography geography = new Geography();
-		org.openlca.ilcd.processes.Location iLoc = new org.openlca.ilcd.processes.Location();
+		var geography = new Geography();
+		var iLoc = new org.openlca.ilcd.processes.Location();
 		geography.location = iLoc;
 		if (process.location != null) {
-			Location oLoc = process.location;
+			var oLoc = process.location;
 			iLoc.code = oLoc.code;
 			// do not write (0.0, 0.0) locations; these are the default
 			// location coordinates in openLCA but probably never a valid
@@ -141,7 +127,7 @@ public class ProcessExport {
 				iLoc.latitudeAndLongitude = oLoc.latitude + ";" + oLoc.longitude;
 			}
 		}
-		s(iLoc.description, doc.geography);
+		exp.add(iLoc.description, doc.geography);
 		return geography;
 	}
 
@@ -153,8 +139,7 @@ public class ProcessExport {
 		org.openlca.ilcd.processes.Technology iTechnology = null;
 		if (Strings.notEmpty(doc.technology)) {
 			iTechnology = new org.openlca.ilcd.processes.Technology();
-			s(iTechnology.description,
-					doc.technology);
+			exp.add(iTechnology.description, doc.technology);
 		}
 		return iTechnology;
 	}
@@ -163,23 +148,19 @@ public class ProcessExport {
 		log.trace("Create process LCI method.");
 		Method iMethod = new Method();
 		if (process.processType != null) {
-			if (process.processType == ProcessType.UNIT_PROCESS) {
-				iMethod.processType = org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX;
-			} else {
-				iMethod.processType = org.openlca.ilcd.commons.ProcessType.LCI_RESULT;
-			}
+			iMethod.processType = process.processType == ProcessType.UNIT_PROCESS
+					? org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX
+					: org.openlca.ilcd.commons.ProcessType.LCI_RESULT;
 		}
 
 		iMethod.principle = ModellingPrinciple.OTHER;
 
 		if (doc != null) {
-			s(iMethod.principleComment,
-					doc.inventoryMethod);
-			s(iMethod.constants,
-					doc.modelingConstants);
+			exp.add(iMethod.principleComment, doc.inventoryMethod);
+			exp.add(iMethod.constants, doc.modelingConstants);
 		}
 
-		ModellingApproach allocation = getAllocationMethod();
+		var allocation = getAllocationMethod();
 		if (allocation != null)
 			iMethod.approaches.add(allocation);
 
@@ -201,22 +182,22 @@ public class ProcessExport {
 		log.trace("Create process representativeness.");
 		if (doc == null)
 			return null;
-		Representativeness iRepri = new Representativeness();
+		var iRepri = new Representativeness();
 
-		s(iRepri.completeness, doc.completeness);
-		s(iRepri.completenessComment, "None.");
-		s(iRepri.dataSelection, doc.dataSelection);
-		s(iRepri.dataSelectionComment, "None.");
-		s(iRepri.dataTreatment, doc.dataTreatment);
+		exp.add(iRepri.completeness, doc.completeness);
+		exp.add(iRepri.completenessComment, "None.");
+		exp.add(iRepri.dataSelection, doc.dataSelection);
+		exp.add(iRepri.dataSelectionComment, "None.");
+		exp.add(iRepri.dataTreatment, doc.dataTreatment);
 
 		for (Source source : doc.sources) {
-			Ref ref = Export.of(source, config);
+			Ref ref = exp.writeRef(source);
 			if (ref != null)
 				iRepri.sources.add(ref);
 		}
 
-		s(iRepri.samplingProcedure, doc.sampling);
-		s(iRepri.dataCollectionPeriod, doc.dataCollectionPeriod);
+		exp.add(iRepri.samplingProcedure, doc.sampling);
+		exp.add(iRepri.dataCollectionPeriod, doc.dataCollectionPeriod);
 
 		return iRepri;
 	}
@@ -232,18 +213,11 @@ public class ProcessExport {
 		reviews.add(review);
 		review.type = ReviewType.NOT_REVIEWED;
 		if (doc.reviewer != null) {
-			Ref ref = Export.of(doc.reviewer, config);
+			Ref ref = exp.writeRef(doc.reviewer);
 			if (ref != null)
 				review.reviewers.add(ref);
 		}
-		s(review.details, doc.reviewDetails);
+		exp.add(review.details, doc.reviewDetails);
 		return reviews;
 	}
-
-	private void s(List<LangString> list, String val) {
-		if (Strings.nullOrEmpty(val))
-			return;
-		LangString.set(list, val, config.lang);
-	}
-
 }

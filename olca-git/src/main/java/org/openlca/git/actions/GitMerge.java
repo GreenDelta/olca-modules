@@ -23,8 +23,10 @@ import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.Constants;
+import org.openlca.git.util.TypedRefIdSet;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.jsonld.LibraryLink;
 
@@ -75,8 +77,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var mountResult = mountLibraries();
 		if (mountResult == MergeResult.MOUNT_ERROR || mountResult == MergeResult.ABORTED)
 			return mountResult;
-		importData();
-		deleteData();
+		var imported = importData();
+		deleteData(imported);
 		unmountLibraries();
 		if (applyStash)
 			return MergeResult.SUCCESS;
@@ -108,24 +110,27 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		return true;
 	}
 
-	private void importData() {
+	private List<Reference> importData() {
 		var addedOrChanged = diffs.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
 				.map(d -> d.toReference(Side.NEW))
 				.collect(Collectors.toList());
 		if (addedOrChanged.isEmpty())
-			return;
+			return addedOrChanged;
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
 		var mergeResults = ImportData.from(gitStore)
 				.with(progressMonitor)
 				.into(repo.database)
 				.run();
 		this.mergeResults.addAll(mergeResults);
+		return addedOrChanged;
 	}
 
-	private void deleteData() {
+	private void deleteData(List<Reference> imported) {
+		var dontDelete = new TypedRefIdSet(imported);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
+				.filter(d -> !dontDelete.contains(d))
 				.map(d -> d.toReference(Side.OLD))
 				.collect(Collectors.toList());
 		if (deleted.isEmpty())

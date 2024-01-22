@@ -1,4 +1,4 @@
-package org.openlca.io.ilcd;
+package org.openlca.io.ilcd.input;
 
 import org.openlca.core.io.ImportLog;
 import org.openlca.ilcd.commons.IDataSet;
@@ -12,24 +12,14 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.Processes;
-import org.openlca.io.Import;
-import org.openlca.io.ilcd.input.ContactImport;
-import org.openlca.io.ilcd.input.EpdImport;
-import org.openlca.io.ilcd.input.FlowImport;
-import org.openlca.io.ilcd.input.FlowPropertyImport;
-import org.openlca.io.ilcd.input.ImpactImport;
-import org.openlca.io.ilcd.input.ImportConfig;
-import org.openlca.io.ilcd.input.ProcessImport;
-import org.openlca.io.ilcd.input.SourceImport;
-import org.openlca.io.ilcd.input.UnitGroupImport;
 import org.openlca.io.ilcd.input.models.ModelImport;
 
-public class ILCDImport implements Import {
+public class Import implements org.openlca.io.Import {
 
 	private volatile boolean canceled = false;
 	private final ImportConfig config;
 
-	public ILCDImport(ImportConfig config) {
+	public Import(ImportConfig config) {
 		this.config = config;
 	}
 

@@ -1,17 +1,5 @@
 package org.openlca.io.simapro.csv.output;
 
-import static org.openlca.io.simapro.csv.output.Util.*;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.ReferenceAmount;
@@ -31,6 +19,18 @@ import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+
+import static org.openlca.io.simapro.csv.output.Util.uncertainty;
+
 /**
  * Writes a set of processes to a SimaPro CSV file. It is not an official export
  * that is exposed to the openLCA user interface as there are too many edge
@@ -47,8 +47,8 @@ class ProcessWriter {
 	private final UnitMap units;
 	private final ProductLabeler products;
 
-	private final Set<Flow> inputProducts = new HashSet<>();
-	private final Set<Flow> outputProducts = new HashSet<>();
+	private final Set<Flow> linkedFlows = new HashSet<>();
+	private final Set<Flow> providerFlows = new HashSet<>();
 
 	ProcessWriter(SimaProExport config, CsvWriter writer) {
 		this.config = config;
@@ -76,8 +76,8 @@ class ProcessWriter {
 	}
 
 	private void writeDummies() {
-		for (Flow flow : inputProducts) {
-			if (outputProducts.contains(flow))
+		for (Flow flow : linkedFlows) {
+			if (providerFlows.contains(flow))
 				continue;
 			var p = Process.of("Dummy: " + flow.name, flow);
 			p.id = flow.id;
@@ -219,39 +219,14 @@ class ProcessWriter {
 
 	private void writeProcess(Process p) {
 		writeProcessDoc(p);
-
-		w.ln("Products");
-		for (Exchange e : p.exchanges) {
-			if (!Exchanges.isProviderFlow(e))
-				continue;
-			outputProducts.add(e.flow);
-			var ref = toReferenceAmount(e);
-
-			double allocation = 100;
-			for (var f : p.allocationFactors) {
-				if (f.method != AllocationMethod.PHYSICAL)
-					continue;
-				if (f.productId == e.flow.id) {
-					allocation = 100 * f.value;
-					break;
-				}
-			}
-
-			w.ln(products.labelOf(e.flow, p),
-					units.get(ref.unit),
-					ref.amount,
-					allocation,
-					"not defined",
-					CategoryPath.of(config, e.flow).path(),
-					e.description);
-		}
-		w.ln();
+		writeProductOutputs(p);
+		writeWasteInputs(p);
 
 		w.ln("Avoided products");
 		for (var e : p.exchanges) {
-			if (!e.isAvoided)
+			if (!e.isAvoided || !Exchanges.isProduct(e))
 				continue;
-			inputProducts.add(e.flow);
+			linkedFlows.add(e.flow);
 			var ref = toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
@@ -276,8 +251,7 @@ class ProcessWriter {
 		writeElemExchanges(p, ElementaryFlowType.SOCIAL_ISSUES);
 		writeElemExchanges(p, ElementaryFlowType.ECONOMIC_ISSUES);
 
-		w.ln("Waste to treatment");
-		w.ln();
+		writeWasteOutputs(p);
 
 		// input parameters
 		w.ln("Input parameters");
@@ -306,12 +280,82 @@ class ProcessWriter {
 		w.endSection();
 	}
 
+	private void writeProductOutputs(Process p) {
+		var outputs = p.exchanges.stream()
+				.filter(e -> Exchanges.isProviderFlow(e) && Exchanges.isProduct(e))
+				.toList();
+		if (outputs.isEmpty())
+			return;
+
+		w.ln("Products");
+		for (var e : outputs) {
+			providerFlows.add(e.flow);
+			var ref = toReferenceAmount(e);
+
+			double allocation = 100;
+			for (var f : p.allocationFactors) {
+				if (f.method != AllocationMethod.PHYSICAL)
+					continue;
+				if (f.productId == e.flow.id) {
+					allocation = 100 * f.value;
+					break;
+				}
+			}
+
+			w.ln(products.labelOf(e.flow, p),
+					units.get(ref.unit),
+					ref.amount,
+					allocation,
+					"not defined",
+					CategoryPath.of(config, e.flow).path(),
+					e.description);
+		}
+		w.ln();
+	}
+
+	private void writeWasteInputs(Process p) {
+		var inputs = p.exchanges.stream()
+				.filter(e -> Exchanges.isProviderFlow(e) && Exchanges.isWaste(e))
+				.toList();
+		if (inputs.isEmpty())
+			return;
+		w.ln("Waste treatment");
+		for (var e : inputs) {
+			providerFlows.add(e.flow);
+			var ref = toReferenceAmount(e);
+			w.ln(products.labelOf(e.flow, p),
+					units.get(ref.unit),
+					ref.amount,
+					"All waste types",
+					CategoryPath.of(config, e.flow).path(),
+					e.description);
+		}
+		w.ln();
+	}
+
 	private void writeProductInputs(Process p) {
 		w.ln("Materials/fuels");
 		for (var e : p.exchanges) {
-			if (!Exchanges.isLinkable(e))
+			if (!Exchanges.isLinkable(e) || !Exchanges.isProduct(e) || e.isAvoided)
 				continue;
-			inputProducts.add(e.flow);
+			linkedFlows.add(e.flow);
+			var ref = toReferenceAmount(e);
+			var u = uncertainty(ref.amount, ref.uncertainty, 1);
+			w.ln(products.labelOfInput(e),
+					units.get(ref.unit),
+					ref.amount,
+					u[0], u[1], u[2], u[3],
+					e.description);
+		}
+		w.ln();
+	}
+
+	private void writeWasteOutputs(Process p) {
+		w.ln("Waste to treatment");
+		for (var e : p.exchanges) {
+			if (!Exchanges.isLinkable(e) || !Exchanges.isWaste(e) || e.isAvoided)
+				continue;
+			linkedFlows.add(e.flow);
 			var ref = toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfInput(e),
@@ -367,7 +411,7 @@ class ProcessWriter {
 		w.ln("Process");
 		w.ln();
 
-		var categoryType = CategoryPath.of(config, p).type();
+		var categoryType = categoryTypeOf(p);
 		w.ln("Category type");
 		w.ln(categoryType.toString());
 		w.ln();
@@ -492,6 +536,14 @@ class ProcessWriter {
 		w.ln("System description");
 		w.ln("", "");
 		w.ln();
+	}
+
+	private ProcessCategory categoryTypeOf(Process p) {
+		for (var e : p.exchanges) {
+			if (Exchanges.isProviderFlow(e) && Exchanges.isWaste(e))
+				return ProcessCategory.WASTE_TREATMENT;
+		}
+		return CategoryPath.of(config, p).type();
 	}
 
 	private String comment(Process p) {

@@ -389,8 +389,10 @@ public class Sankey<T> {
 
 		private void add(Node existing, Node provider) {
 			existing.providers.add(provider);
-			handled.put(provider.index, provider);
-			sankey.nodeCount++;
+			if (!handled.containsKey(provider.index)) {
+				handled.put(provider.index, provider);
+				sankey.nodeCount++;
+			}
 		}
 
 		/**

@@ -29,4 +29,16 @@ public class Exchanges {
 			return false;
 		return (type == FlowType.PRODUCT_FLOW) == e.isInput;
 	}
+
+	public static boolean isProduct(Exchange e) {
+		return e != null
+				&& e.flow != null
+				&& e.flow.flowType == FlowType.PRODUCT_FLOW;
+	}
+
+	public static boolean isWaste(Exchange e) {
+		return e != null
+				&& e.flow != null
+				&& e.flow.flowType == FlowType.WASTE_FLOW;
+	}
 }
