@@ -30,6 +30,7 @@ import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.Diffs;
 import org.openlca.git.util.History;
 import org.openlca.git.util.Repositories;
+import org.openlca.git.util.TypedRefIdSet;
 import org.openlca.git.writer.DbCommitWriter;
 
 public class GitMerge extends GitProgressAction<Boolean> {
@@ -103,13 +104,16 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		Compatibility.checkRepositoryClientVersion(repo);
 		var commonParent = localHistory.commonParentOf(getRef());
 		var diffs = Diffs.of(repo, commonParent).with(remoteCommit);
-		var deleted = diffs.stream()
-				.filter(d -> d.diffType == DiffType.DELETED)
-				.map(d -> d.toReference(Side.OLD))
-				.collect(Collectors.toList());
 		var addedOrChanged = diffs.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
 				.map(d -> d.toReference(Side.NEW))
+				.collect(Collectors.toList());
+		// prevent moved datasets from being deleted after being added with different category
+		var dontDelete = new TypedRefIdSet(addedOrChanged);
+		var deleted = diffs.stream()
+				.filter(d -> d.diffType == DiffType.DELETED)
+				.filter(d -> !dontDelete.contains(d))
+				.map(d -> d.toReference(Side.OLD))
 				.collect(Collectors.toList());
 		var ahead = !applyStash
 				? localHistory.getAheadOf(Constants.REMOTE_REF)
@@ -121,8 +125,8 @@ public class GitMerge extends GitProgressAction<Boolean> {
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
 		var importHelper = new ImportHelper(repo, database, descriptors, gitIndex, progressMonitor);
 		importHelper.conflictResolver = conflictResolver;
-		importHelper.delete(deleted);
 		importHelper.runImport(gitStore);
+		importHelper.delete(deleted);
 		// TODO unmount libs removed from package info; not yet supported
 		var result = gitStore.getResults();
 		deleted.forEach(ref -> result.add(ref, ImportState.DELETED));
