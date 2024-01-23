@@ -1,18 +1,23 @@
 package org.openlca.core.model.doc;
 
+import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
+import java.util.Map;
+
 @Converter
-public class ComplianceAspectConverter extends SimpleMapConverter {
+public class ComplianceAspectConverter implements
+		AttributeConverter<Map<String, String>, String> {
+
+	private final SimpleMapConverter conv = new SimpleMapConverter("aspect", "value");
 
 	@Override
-	String keySlot() {
-		return "aspect";
+	public String convertToDatabaseColumn(Map<String, String> map) {
+		return conv.convertToDatabaseColumn(map);
 	}
 
 	@Override
-	String valSlot() {
-		return "value";
+	public Map<String, String> convertToEntityAttribute(String dbData) {
+		return conv.convertToEntityAttribute(dbData);
 	}
-
 }

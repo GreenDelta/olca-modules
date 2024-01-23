@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import jakarta.persistence.AttributeConverter;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
@@ -17,12 +16,15 @@ import java.util.Optional;
  * Converts a map into a JSON array of objects with key-value-pairs,
  * and the other way around.
  */
-abstract class SimpleMapConverter implements
-		AttributeConverter<Map<String, String>, String> {
+class SimpleMapConverter {
 
-	abstract String keySlot();
+	private final String keySlot;
+	private final String valSlot;
 
-	abstract String valSlot();
+	SimpleMapConverter(String keySlot, String valSlot) {
+		this.keySlot = keySlot;
+		this.valSlot = valSlot;
+	}
 
 	public Optional<JsonArray> toJson(Map<String, String> map) {
 		if (map == null || map.isEmpty())
@@ -33,8 +35,8 @@ abstract class SimpleMapConverter implements
 					|| Strings.nullOrEmpty(e.getValue()))
 				continue;
 			var obj = new JsonObject();
-			Json.put(obj, keySlot(), e.getKey());
-			Json.put(obj, valSlot(), e.getValue());
+			Json.put(obj, keySlot, e.getKey());
+			Json.put(obj, valSlot, e.getValue());
 			array.add(obj);
 		}
 		return Optional.of(array);
@@ -49,8 +51,8 @@ abstract class SimpleMapConverter implements
 			if (!i.isJsonObject())
 				continue;
 			var obj = i.getAsJsonObject();
-			var key = Json.getString(obj, keySlot());
-			var val = Json.getString(obj, valSlot());
+			var key = Json.getString(obj, keySlot);
+			var val = Json.getString(obj, valSlot);
 			if (Strings.nullOrEmpty(key) || Strings.nullOrEmpty(val))
 				continue;
 			map.put(key, val);
@@ -58,16 +60,14 @@ abstract class SimpleMapConverter implements
 		return map;
 	}
 
-	@Override
-	public String convertToDatabaseColumn(Map<String, String> map) {
+	String convertToDatabaseColumn(Map<String, String> map) {
 		var array = toJson(map).orElse(null);
 		return array != null
 				? new Gson().toJson(array)
 				: null;
 	}
 
-	@Override
-	public Map<String, String> convertToEntityAttribute(String dbData) {
+	Map<String, String> convertToEntityAttribute(String dbData) {
 		var map = new HashMap<String, String>();
 		if (Strings.nullOrEmpty(dbData))
 			return map;
