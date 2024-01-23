@@ -3,17 +3,18 @@ package org.openlca.core.model;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 
 import static org.junit.Assert.assertEquals;
 
-public class ReviewTest {
+public class ProcessDocTest {
 
 	private final IDatabase db = Tests.getDb();
 
 	@Test
-	public void testReadWrite() {
+	public void testReviews() {
 
 		var a = Actor.of("A");
 		var s = Source.of("S");
@@ -40,6 +41,29 @@ public class ReviewTest {
 		assertEquals("Simple math checks", scope.methods.get(0));
 		assertEquals("all fine", r.details);
 		db.delete(p, a, s);
+	}
+
+	@Test
+	public void testComplianceDeclarations() {
+		var system = Source.of("Compliance system");
+		var p = new Process();
+		var doc = p.documentation = new ProcessDoc();
+		var dec = new ComplianceDeclaration();
+		dec.system = system;
+		dec.details = "some details";
+		dec.aspects.put("Nomenclature", "Fully compliant");
+		dec.aspects.put("Documentation", "Not compliant");
+		doc.complianceDeclarations.add(dec);
+
+		db.insert(system, p);
+		p = db.get(Process.class, p.id);
+		dec = p.documentation.complianceDeclarations.get(0);
+		assertEquals(dec.system , system);
+		assertEquals("some details", dec.details);
+		assertEquals("Fully compliant", dec.aspects.get("Nomenclature"));
+		assertEquals("Not compliant", dec.aspects.get("Documentation"));
+
+		db.delete(p, system);
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.openlca.core.model;
 
 import jakarta.persistence.*;
+import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.Review;
 
 import java.util.ArrayList;

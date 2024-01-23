@@ -1,11 +1,18 @@
-package org.openlca.core.model;
+package org.openlca.core.model.doc;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.Copyable;
+import org.openlca.core.model.Source;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "tbl_compliance_declarations")
@@ -16,8 +23,8 @@ public class ComplianceDeclaration extends AbstractEntity
 	 * The source that describes and references the compliance system.
 	 */
 	@OneToOne
-	@JoinColumn(name = "f_source")
-	public Source source;
+	@JoinColumn(name = "f_system")
+	public Source system;
 
 	/**
 	 * Description of compliance details.
@@ -26,11 +33,17 @@ public class ComplianceDeclaration extends AbstractEntity
 	@Column(name = "details")
 	public String details;
 
+	@Lob
+	@Column(name = "aspects")
+	@Convert(converter = ComplianceAspectConverter.class)
+	public final Map<String, String> aspects = new HashMap<>();
+
 	@Override
 	public ComplianceDeclaration copy() {
 		var copy = new ComplianceDeclaration();
-		copy.source = source;
+		copy.system = system;
 		copy.details = details;
+		copy.aspects.putAll(aspects);
 		return copy;
 	}
 }
