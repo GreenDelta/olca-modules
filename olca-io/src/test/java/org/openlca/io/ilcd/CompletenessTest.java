@@ -6,7 +6,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.doc.Completeness;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.io.MemDataStore;
@@ -31,25 +31,27 @@ public class CompletenessTest {
 		db.insert(units, mass, p);
 
 		var process = Process.of("P", p);
-		var completeness = new Completeness();
-		completeness.put("Product model", allQuantified);
+		var doc = process.documentation = new ProcessDoc();
+		doc.flowCompleteness.put("Product model", allQuantified);
 		for (var impact : ImpactCategory.values()) {
-			completeness.put(impact.value(), allQuantified);
+			doc.flowCompleteness.put(impact.value(), allQuantified);
 		}
-		completeness.writeTo(process);
 
 		var store = new MemDataStore();
 		new Export(db, store).write(process);
+
 		Import.of(store, db).run();
 		process = db.get(Process.class, process.refId);
 		// var ds = store.get(org.openlca.ilcd.processes.Process.class, process.refId);
 		// System.out.println(Xml.toString(ds));
 
 		assertNotNull(process);
-		completeness = Completeness.readFrom(process);
-		assertEquals(allQuantified, completeness.get("Product model"));
+		var c = process.documentation.flowCompleteness;
+		assertEquals(allQuantified, c.get("Product model"));
 		for (var impact : ImpactCategory.values()) {
-			assertEquals(allQuantified, completeness.get(impact.value()));
+			assertEquals(allQuantified, c.get(impact.value()));
 		}
+
+		db.delete(process, p, mass, units);
 	}
 }

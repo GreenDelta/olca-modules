@@ -9,7 +9,6 @@ import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.doc.Completeness;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.ilcd.commons.Ref;
@@ -75,8 +74,11 @@ public class ProcessImport {
 			process.description = imp.str(info.comment);
 		}
 
-		process.documentation = mapDocumentation();
-		mapCompleteness();
+		if (process.documentation == null) {
+			process.documentation = new ProcessDoc();
+		}
+		mapDocumentation(process.documentation);
+		mapCompleteness(process.documentation);
 
 		new ProcessParameterConversion(process, imp).run(ds);
 		exchanges.map(ds, process);
@@ -90,8 +92,7 @@ public class ProcessImport {
 		}
 	}
 
-	private ProcessDoc mapDocumentation() {
-		var doc = new ProcessDoc();
+	private void mapDocumentation(ProcessDoc doc) {
 		new ProcessTime(Processes.getTime(ds), imp).map(doc);
 		mapGeography(doc);
 		mapTechnology(doc);
@@ -103,7 +104,6 @@ public class ProcessImport {
 		mapRepresentativeness(doc);
 		mapReviews(doc);
 		addSources(doc);
-		return doc;
 	}
 
 	private void mapGeography(ProcessDoc doc) {
@@ -293,11 +293,11 @@ public class ProcessImport {
 				: null;
 	}
 
-	private void mapCompleteness() {
+	private void mapCompleteness(ProcessDoc doc) {
 		var c = Processes.getCompleteness(ds);
 		if (c == null)
 			return;
-		var target = new Completeness();
+		var target = doc.flowCompleteness;
 		if (c.productCompleteness != null) {
 			target.put("Product model", c.productCompleteness.value());
 		}
@@ -305,9 +305,6 @@ public class ProcessImport {
 			if (e.impact == null || e.value == null)
 				continue;
 			target.put(e.impact.value(), e.value.value());
-		}
-		if (!target.isEmpty()) {
-			target.writeTo(process);
 		}
 	}
 

@@ -4,7 +4,6 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.doc.Completeness;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
@@ -218,9 +217,9 @@ public class ProcessExport {
 	}
 
 	private void mapCompleteness(Process ds) {
-		var c = Completeness.readFrom(process);
-		if (c.isEmpty())
+		if (doc == null || doc.flowCompleteness.isEmpty())
 			return;
+		var c = doc.flowCompleteness;
 		var target = Processes.forceCompleteness(ds);
 		target.productCompleteness = FlowCompleteness
 				.fromValue(c.get("Product model"))
