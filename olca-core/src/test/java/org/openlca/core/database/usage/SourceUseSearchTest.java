@@ -9,7 +9,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
 
 public class SourceUseSearchTest {

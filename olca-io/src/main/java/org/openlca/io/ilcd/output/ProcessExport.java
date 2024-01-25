@@ -1,7 +1,7 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.Completeness;

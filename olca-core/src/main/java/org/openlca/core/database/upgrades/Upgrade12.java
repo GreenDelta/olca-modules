@@ -35,6 +35,7 @@ public class Upgrade12 implements IUpgrade {
 				"restrictions", "access_restrictions CLOB(64 K)");
 
 		u.createColumn("tbl_process_docs", "use_advice CLOB(64 K)");
+		u.createColumn("tbl_process_docs", "flow_completeness CLOB(64 K)");
 
 		u.createTable("tbl_compliance_declarations", """
 				CREATE TABLE tbl_compliance_declarations (
@@ -55,6 +56,7 @@ public class Upgrade12 implements IUpgrade {
 				  review_type  VARCHAR(255),
 				  scopes       CLOB(64 K),
 				  details      CLOB(64 K),
+				  assessment   CLOB(64 K),
 				  f_report     BIGINT,
 
 				  PRIMARY KEY (id)

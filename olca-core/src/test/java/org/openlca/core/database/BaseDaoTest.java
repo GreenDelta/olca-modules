@@ -6,6 +6,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.usage.UsageSearch;
 import org.openlca.core.model.*;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

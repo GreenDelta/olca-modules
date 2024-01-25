@@ -2,7 +2,7 @@ package org.openlca.jsonld.input;
 
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
 

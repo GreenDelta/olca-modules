@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.doc.ComplianceDeclaration;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 
@@ -20,6 +21,7 @@ public class ProcessDocTest {
 		var s = Source.of("S");
 		var p = new Process();
 		p.documentation = new ProcessDoc();
+
 		var r = new Review();
 		r.reviewers.add(a);
 		r.report = s;
@@ -28,7 +30,10 @@ public class ProcessDocTest {
 		scope.methods.add("Simple math checks");
 		r.scopes.add(scope);
 		r.details = "all fine";
+		r.assessment.put("Documentation", "Very good");
+		r.assessment.put("Model", "OK");
 		p.documentation.reviews.add(r);
+
 		db.insert(a, s, p);
 
 		p = db.get(Process.class, p.id);
@@ -40,6 +45,8 @@ public class ProcessDocTest {
 		assertEquals("Raw data", scope.name);
 		assertEquals("Simple math checks", scope.methods.get(0));
 		assertEquals("all fine", r.details);
+		assertEquals("Very good", r.assessment.get("Documentation"));
+		assertEquals("OK", r.assessment.get("Model"));
 		db.delete(p, a, s);
 	}
 
@@ -64,6 +71,20 @@ public class ProcessDocTest {
 		assertEquals("Not compliant", dec.aspects.get("Documentation"));
 
 		db.delete(p, system);
+	}
+
+	@Test
+	public void testFlowCompleteness() {
+		var p = new Process();
+		var doc = p.documentation = new ProcessDoc();
+		doc.flowCompleteness.put("Product flows", "All flows");
+		doc.flowCompleteness.put("Climate change", "Flows missing");
+
+		db.insert(p);
+		p = db.get(Process.class, p.id);
+		var c = p.documentation.flowCompleteness;
+		assertEquals("All flows", c.get("Product flows"));
+		assertEquals("Flows missing", c.get("Climate change"));
 	}
 
 }

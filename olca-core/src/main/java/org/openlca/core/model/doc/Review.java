@@ -15,7 +15,9 @@ import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Source;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "tbl_reviews")
@@ -42,6 +44,11 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 	@OneToOne
 	@JoinColumn(name = "f_report")
 	public Source report;
+
+	@Lob
+	@Column(name = "assessment")
+	@Convert(converter = AspectTable.class)
+	public final Map<String, String> assessment = new HashMap<>();
 
 	@Override
 	public Review copy() {

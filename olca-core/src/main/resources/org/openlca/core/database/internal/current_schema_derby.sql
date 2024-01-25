@@ -312,6 +312,7 @@ CREATE TABLE tbl_process_docs (
     sampling_procedure      CLOB(64 K),
     data_collection_period  CLOB(64 K),
     use_advice              CLOB(64 K),
+    flow_completeness       CLOB(64 K),
 
     intended_application    CLOB(64 K),
     project                 CLOB(64 K),
@@ -349,6 +350,7 @@ CREATE TABLE tbl_reviews (
   review_type  VARCHAR(255),
   scopes       CLOB(64 K),
   details      CLOB(64 K),
+  assessment   CLOB(64 K),
   f_report     BIGINT,
 
   PRIMARY KEY (id)

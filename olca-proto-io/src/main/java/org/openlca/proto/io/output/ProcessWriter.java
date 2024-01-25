@@ -6,7 +6,7 @@ import java.util.function.LongFunction;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.jsonld.Json;
 import org.openlca.proto.ProtoAllocationFactor;

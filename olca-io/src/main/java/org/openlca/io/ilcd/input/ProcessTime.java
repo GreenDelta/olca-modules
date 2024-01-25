@@ -1,6 +1,6 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ilcd.commons.Time;
 import org.openlca.ilcd.util.TimeExtension;
 

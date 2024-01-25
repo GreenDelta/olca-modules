@@ -1,12 +1,16 @@
-package org.openlca.core.model;
+package org.openlca.core.model.doc;
 
 import jakarta.persistence.*;
-import org.openlca.core.model.doc.ComplianceDeclaration;
-import org.openlca.core.model.doc.Review;
+import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Copyable;
+import org.openlca.core.model.Source;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Contains the general documentation fields of a process that are not used for
@@ -85,6 +89,11 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	public String useAdvice;
 
 	// endregion
+
+	@Lob
+	@Column(name = "flow_completeness")
+	@Convert(converter = AspectTable.class)
+	public final Map<String, String> flowCompleteness = new HashMap<>();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -169,6 +178,7 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 		clone.dataCollectionPeriod = dataCollectionPeriod;
 		clone.useAdvice = useAdvice;
 
+		clone.flowCompleteness.putAll(flowCompleteness);
 		for (var c : complianceDeclarations) {
 			clone.complianceDeclarations.add(c.copy());
 		}

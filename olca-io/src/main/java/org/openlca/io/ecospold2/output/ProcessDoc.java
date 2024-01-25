@@ -26,7 +26,7 @@ import spold2.Time;
 class ProcessDoc {
 
 	private final Process process;
-	private final org.openlca.core.model.ProcessDoc doc;
+	private final org.openlca.core.model.doc.ProcessDoc doc;
 	private final DataSet dataSet;
 
 	private ProcessDoc(Process process, DataSet dataSet) {

@@ -7,7 +7,7 @@ import org.openlca.core.database.SourceDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
 import org.openlca.util.KeyGen;

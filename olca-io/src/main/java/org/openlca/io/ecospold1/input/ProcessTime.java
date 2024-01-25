@@ -4,7 +4,7 @@ import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ecospold.ITimePeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

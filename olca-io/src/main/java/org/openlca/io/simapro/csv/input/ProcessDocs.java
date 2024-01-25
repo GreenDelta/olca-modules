@@ -1,7 +1,7 @@
 package org.openlca.io.simapro.csv.input;
 
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessDoc;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.Review;
 import org.openlca.simapro.csv.process.ProcessBlock;

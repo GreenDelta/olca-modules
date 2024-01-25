@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.openlca.core.model.doc.ProcessDoc;
 
 @Entity
 @Table(name = "tbl_processes")
