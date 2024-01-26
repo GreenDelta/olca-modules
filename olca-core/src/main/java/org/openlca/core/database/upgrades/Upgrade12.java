@@ -79,16 +79,24 @@ public class Upgrade12 implements IUpgrade {
 			return true;
 		});
 		if (reviewUpdateInfos.isEmpty()) return;
+
+		// Remove items with empty review
+		for (int i = 0; i < reviewUpdateInfos.size(); i++) {
+			var r = reviewUpdateInfos.get(i);
+			if (r.reviewDetail() == null || r.reviewDetail() == "")
+				reviewUpdateInfos.remove(i);
+		}
 		String stmt = "insert into tbl_reviews (id, f_owner, details) values (?, ?, ?)";
-		NativeSql.on(u.db).batchInsert(stmt, 1,
+		NativeSql.on(u.db).batchInsert(stmt, reviewUpdateInfos.size(),
 				(int i, PreparedStatement ps) -> {
-					var info = reviewUpdateInfos.get(i);
+					var r = reviewUpdateInfos.get(i);
 					ps.setLong(1, ReviewUpdateInfo.nextId.incrementAndGet());
-					ps.setLong(2, info.docId());
-					ps.setString(3, info.reviewDetail());
+					ps.setLong(2, r.docId());
+					ps.setString(3, r.reviewDetail());
 					return true;
 				});
 		u.setLastID(ReviewUpdateInfo.nextId.get() + 1L);
+
 		// For each review copy f_reviewer from tbl_process_docs to tbl_actor_links
 		// and id from tbl_reviews to tbl_actor_links
 		var reviewIds = new ArrayList<ReviewUpdateInfo>();
@@ -98,13 +106,22 @@ public class Upgrade12 implements IUpgrade {
 			return true;
 		});
 		if (reviewIds.isEmpty()) return;
+
+		// Remove items with empty reviewer
+		for (int i = 0; i < reviewIds.size(); i++) {
+			var r = reviewUpdateInfos.get(i);
+			if (r.reviewerId() == 0) {
+				reviewIds.remove(i);
+				reviewUpdateInfos.remove(i);
+			}
+		}
 		String stmt2 = "insert into tbl_actor_links (f_owner, f_actor) values (?, ?)";
-		NativeSql.on(u.db).batchInsert(stmt2, 1,
+		NativeSql.on(u.db).batchInsert(stmt2, reviewIds.size(),
 				(int i, PreparedStatement ps) -> {
-					var info = reviewUpdateInfos.get(i);
-					var reviewId = reviewIds.get(i);
-					ps.setLong(1, reviewId.reviewId());
-					ps.setLong(2, info.reviewerId());
+					var r = reviewUpdateInfos.get(i);
+					var id = reviewIds.get(i);
+					ps.setLong(1, id.reviewId());
+					ps.setLong(2, r.reviewerId());
 					return true;
 				});
 		u.setLastID(ReviewUpdateInfo.nextId.get() + 1L);
