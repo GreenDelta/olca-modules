@@ -113,8 +113,10 @@ public abstract class CommitWriter {
 			var previousWasDeleted = false;
 			while (walk.next()) {
 				var name = walk.getNameString();
-				if (name.equals(RepositoryInfo.FILE_NAME))
+				if (name.equals(RepositoryInfo.FILE_NAME)) {
+					appendRepositoryInfo(tree);
 					continue;
+				}
 				if (previousWasDeleted && isBinaryOf(name, previous))
 					continue;
 				previous = name;
@@ -138,9 +140,6 @@ public abstract class CommitWriter {
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix))
 			return null;
-		if (Strings.nullOrEmpty(prefix)) {
-			appendRepositoryInfo(tree);
-		}
 		try {
 			var newId = objectInserter.insert(tree);
 			return newId;

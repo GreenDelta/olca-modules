@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
@@ -75,6 +76,9 @@ public class ChangeIterator extends EntryIterator {
 			}
 			added.add(name);
 		});
+		if (parent == null) {
+			list.add(new TreeEntry(RepositoryInfo.FILE_NAME, FileMode.REGULAR_FILE));
+		}
 		if (!prefix.contains("/"))
 			return list;
 		var parentChange = parent != null ? parent.getEntryData() : null;
