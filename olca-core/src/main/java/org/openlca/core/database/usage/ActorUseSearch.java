@@ -24,10 +24,11 @@ public record ActorUseSearch(IDatabase db) implements UsageSearch {
 		if (ids.isEmpty())
 			return Collections.emptySet();
 		try {
-			var exec = Executors.newFixedThreadPool(2);
+			var exec = Executors.newFixedThreadPool(3);
 			var results = List.of(
-				exec.submit(() -> findInProcessDocs(ids)),
-				exec.submit(() -> findInEpds(ids)));
+					exec.submit(() -> findInProcessDocs(ids)),
+					exec.submit(() -> findInReviews(ids)),
+					exec.submit(() -> findInEpds(ids)));
 			exec.shutdown();
 			var descriptors = new HashSet<RootDescriptor>();
 			for (var r : results) {
@@ -41,30 +42,43 @@ public record ActorUseSearch(IDatabase db) implements UsageSearch {
 
 	private List<? extends RootDescriptor> findInProcessDocs(TLongSet ids) {
 		var sql = """
-			select p.id,
-				doc.f_reviewer,
-			  doc.f_data_owner,
-			  doc.f_data_generator,
-			  doc.f_data_documentor
-			from tbl_processes p inner join tbl_process_docs doc
-			on p.f_process_doc = doc.id
-			""";
-		return collect(ids, sql, Process.class, 5);
+				select p.id,
+				  doc.f_data_generator,
+					doc.f_data_documentor,
+				  doc.f_data_owner
+				from tbl_processes p inner join tbl_process_docs doc
+				on p.f_process_doc = doc.id
+				""";
+		return collect(ids, sql, Process.class, 4);
+	}
+
+	private List<? extends RootDescriptor> findInReviews(TLongSet ids) {
+		var sql = """
+				select p.id,
+					a.f_actor
+				from tbl_processes p inner join tbl_process_docs doc
+				on p.f_process_doc = doc.id
+				inner join tbl_reviews r
+				on doc.id = r.f_owner
+				inner join tbl_actor_links a
+				on r.id = a.f_owner
+				""";
+		return collect(ids, sql, Process.class, 2);
 	}
 
 	private List<? extends RootDescriptor> findInEpds(TLongSet ids) {
 		var sql = """
-			select id,
-				f_manufacturer,
-				f_verifier,
-				f_program_operator
-			from tbl_epds
-			""";
+				select id,
+					f_manufacturer,
+					f_verifier,
+					f_program_operator
+				from tbl_epds
+				""";
 		return collect(ids, sql, Epd.class, 4);
 	}
 
 	private List<? extends RootDescriptor> collect(
-		TLongSet ids, String query, Class<? extends RootEntity> type, int len) {
+			TLongSet ids, String query, Class<? extends RootEntity> type, int len) {
 		var collected = new HashSet<Long>();
 		NativeSql.on(db).query(query, r -> {
 			for (int col = 2; col <= len; col++) {
@@ -77,8 +91,8 @@ public record ActorUseSearch(IDatabase db) implements UsageSearch {
 			return true;
 		});
 		return collected.isEmpty()
-			? Collections.emptyList()
-			: db.getDescriptors(type, collected);
+				? Collections.emptyList()
+				: db.getDescriptors(type, collected);
 	}
 
 }
