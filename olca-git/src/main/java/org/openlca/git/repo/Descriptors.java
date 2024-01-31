@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -51,7 +52,7 @@ public class Descriptors {
 		categoriesById.clear();
 		loadCategories();
 	}
-	
+
 	static Descriptors of(IDatabase database) {
 		return new Descriptors(database);
 	}
@@ -107,7 +108,10 @@ public class Descriptors {
 		var descriptors = new DescriptorsMaps();
 		if (database == null)
 			return descriptors;
-		for (var descriptor : database.getDescriptors(type.getModelClass())) {
+		var fromDb = type == ModelType.PARAMETER
+				? new ParameterDao(database).getGlobalDescriptors()
+				: database.getDescriptors(type.getModelClass());
+		for (var descriptor : fromDb) {
 			var refId = descriptor.refId;
 			if (descriptors.byRefId.containsKey(refId)) {
 				var existing = descriptors.byRefId.get(refId).id;
