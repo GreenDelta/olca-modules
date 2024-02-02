@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.ilcd.commons.DataQualityIndicator;
 import org.openlca.ilcd.commons.Quality;
 import org.openlca.ilcd.commons.QualityIndicator;
 import org.openlca.ilcd.processes.Review;
@@ -8,16 +7,16 @@ import org.openlca.ilcd.processes.Review;
 class DQEntry {
 
 	static String get(Review review) {
-		if (review == null || review.indicators == null)
+		if (review == null || review.getIndicators().isEmpty())
 			return null;
 		String[] entry = new String[7];
-		for (DataQualityIndicator dqi : review.indicators) {
+		for (var dqi : review.getIndicators()) {
 			if (dqi == null)
 				continue;
-			int pos = pos(dqi.name) - 1;
+			int pos = pos(dqi.getName()) - 1;
 			if (pos < 0 || pos >= entry.length)
 				continue;
-			entry[pos] = val(dqi.value);
+			entry[pos] = val(dqi.getValue());
 		}
 		StringBuilder s = new StringBuilder("(");
 		for (int i = 0; i < entry.length; i++) {

@@ -6,7 +6,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
@@ -26,7 +25,7 @@ public class FlowImport {
 	}
 
 	public SyncFlow run() {
-		return imp.flowSync.createIfAbsent(ds.getUUID(), this::createNew);
+		return imp.flowSync.createIfAbsent(Flows.getUUID(ds), this::createNew);
 	}
 
 	public static SyncFlow get(Import imp, String id) {
@@ -55,7 +54,7 @@ public class FlowImport {
 	}
 
 	private void createAndMapContent() {
-		flow.refId = ds.getUUID();
+		flow.refId = Flows.getUUID(ds);
 		flow.name = Strings.cut(
 				Flows.getFullName(ds, imp.langOrder()), 2048);
 		flow.version = Version.fromString(
@@ -64,21 +63,21 @@ public class FlowImport {
 
 		var info = Flows.getDataSetInfo(ds);
 		if (info != null) {
-			flow.description = imp.str(info.generalComment);
-			flow.casNumber = info.casNumber;
-			flow.synonyms = imp.str(info.synonyms);
-			flow.formula = info.sumFormula;
+			flow.description = imp.str(info.getGeneralComment());
+			flow.casNumber = info.getCasNumber();
+			flow.synonyms = imp.str(info.getSynonyms());
+			flow.formula = info.getSumFormula();
 		}
 
 		var geo = Flows.getGeography(ds);
 		if (geo != null) {
-			var loc = imp.str(geo.location);
+			var loc = imp.str(geo.getLocation());
 			flow.location = imp.cache.locationOf(loc);
 		}
 
 		var entry = Flows.getDataEntry(ds);
-		if (entry != null && entry.timeStamp != null) {
-			flow.lastChange = entry.timeStamp
+		if (entry != null && entry.getTimeStamp() != null) {
+			flow.lastChange = entry.getTimeStamp()
 					.toGregorianCalendar()
 					.getTimeInMillis();
 		}
@@ -88,17 +87,18 @@ public class FlowImport {
 	private void addFlowProperties() {
 		Integer refID = Flows.getReferenceFlowPropertyID(ds);
 		boolean addItems = false;
-		var refs = Flows.getFlowProperties(ds);
-		for (FlowPropertyRef ref : refs) {
-			if (ref == null || ref.flowProperty == null || ref.meanValue == 0)
+		for (var ref :  Flows.getFlowProperties(ds)) {
+			if (ref == null
+					|| ref.getFlowProperty() == null
+					|| ref.getMeanValue() == 0)
 				continue;
-			var property = FlowPropertyImport.get(imp, ref.flowProperty.uuid);
-			if (property == null)
+			var prop = FlowPropertyImport.get(imp, ref.getFlowProperty().getUUID());
+			if (prop == null)
 				continue;
-			flow.property(property, ref.meanValue);
-			if (Objects.equals(refID, ref.dataSetInternalID)) {
-				flow.referenceFlowProperty = property;
-				addItems = ref.meanValue != 1;
+			flow.property(prop, ref.getMeanValue());
+			if (Objects.equals(refID, ref.getDataSetInternalID())) {
+				flow.referenceFlowProperty = prop;
+				addItems = ref.getMeanValue() != 1;
 			}
 		}
 

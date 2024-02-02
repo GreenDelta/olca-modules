@@ -1,8 +1,5 @@
 package org.openlca.io.ilcd.input.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
@@ -11,6 +8,9 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.util.Models;
 import org.openlca.util.Strings;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A utility class for mapping data between eILCD models and product systems.
@@ -35,11 +35,11 @@ class IO {
 	static void mapMetaData(Model model, ProductSystem system) {
 		if (model == null || system == null)
 			return;
-		system.refId = model.getUUID();
+		system.refId = Models.getUUID(model);
 		system.name = getName(model);
-		var pub = Models.getPublication(model);
-		if (pub != null && pub.version != null) {
-			system.version = Version.fromString(pub.version).getValue();
+		var version = Models.getVersion(model);
+		if (version != null) {
+			system.version = Version.fromString(version).getValue();
 		}
 	}
 
@@ -48,7 +48,10 @@ class IO {
 		if (mn == null)
 			return "";
 		var parts = List.of(
-			mn.name, mn.technicalDetails, mn.mixAndLocation, mn.flowProperties);
+				mn.getBaseName(),
+				mn.getTechnicalDetails(),
+				mn.getMixAndLocation(),
+				mn.getFlowProperties());
 		var name = new StringBuilder();
 		for (var part : parts) {
 			var s = LangString.getFirst(part, "en");

@@ -22,37 +22,38 @@ import org.openlca.util.Strings;
 public class EpdImport {
 
 	private final Import imp;
-	private final Process dataSet;
+	private final Process ds;
 	private final EpdDataSet epd;
 	private final AtomicBoolean hasRefError;
 
-	public EpdImport(Import imp, Process dataSet) {
+	public EpdImport(Import imp, Process ds) {
 		this.imp = imp;
-		this.dataSet = dataSet;
-		this.epd = EpdExtensions.read(dataSet);
+		this.ds = ds;
+		this.epd = EpdExtensions.read(ds);
 		this.hasRefError = new AtomicBoolean(false);
 	}
 
 	public void run() {
-		var oEpd = imp.db().get(Epd.class, dataSet.getUUID());
+		var id = Processes.getUUID(ds);
+		var oEpd = imp.db().get(Epd.class, id);
 		if (oEpd != null) {
 			imp.log().skipped(oEpd);
 			return;
 		}
 
 		oEpd = new Epd();
-		oEpd.urn = "ilcd:epd:" + dataSet.getUUID();
-		oEpd.refId = dataSet.getUUID();
+		oEpd.urn = "ilcd:epd:" + id;
+		oEpd.refId = id;
 		oEpd.lastChange = System.currentTimeMillis();
 		oEpd.name = Strings.cut(
-			Processes.getFullName(dataSet, imp.langOrder()), 2048);
-		var path = Categories.getPath(dataSet);
+			Processes.getFullName(ds, imp.langOrder()), 2048);
+		var path = Categories.getPath(ds);
 		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
 		oEpd.tags = tags();
 
-		var info = Processes.getDataSetInfo(dataSet);
+		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {
-			oEpd.description = imp.str(info.comment);
+			oEpd.description = imp.str(info.getComment());
 		}
 		oEpd.verifier = verifier();
 		oEpd.programOperator = operator();
@@ -73,7 +74,7 @@ public class EpdImport {
 		for (var scope : Scope.allOf(epd)) {
 			var suffix = scope.toString();
 
-			var refId = KeyGen.get(dataSet.getUUID(), suffix);
+			var refId = KeyGen.get(id, suffix);
 			var result = imp.db().get(Result.class, refId);
 			if (result != null) {
 				var module = EpdModule.of(scope.toString(), result);
@@ -88,7 +89,7 @@ public class EpdImport {
 
 			// meta-data
 			result.name = Strings.cut(
-				Processes.getFullName(dataSet, imp.langOrder()),
+				Processes.getFullName(ds, imp.langOrder()),
 				2044 - suffix.length()) + " - " + suffix;
 			imp.log().info("import EPD result: " + result.name);
 			result.category = new CategoryDao(imp.db())
@@ -109,22 +110,24 @@ public class EpdImport {
 	}
 
 	private FlowResult getRefFlow() {
-		var qRef = Processes.getQuantitativeReference(dataSet);
-		if (qRef == null || qRef.referenceFlows.isEmpty())
+		var qRef = Processes.getQuantitativeReference(ds);
+		if (qRef == null || qRef.getReferenceFlows().isEmpty())
 			return null;
 
-		var exchange = dataSet.exchanges.stream()
-			.filter(e -> qRef.referenceFlows.contains(e.id))
+		var exchange = ds.getExchanges().stream()
+			.filter(e -> qRef.getReferenceFlows().contains(e.getId()))
 			.findAny()
 			.orElse(null);
-		if (exchange == null || exchange.flow == null)
+		if (exchange == null || exchange.getFlow() == null)
 			return null;
-		var f = FlowImport.get(imp, exchange.flow.uuid);
+
+		var flowId = exchange.getFlow().getUUID();
+		var f = FlowImport.get(imp, flowId);
 		if (f.isEmpty()) {
 			if (!hasRefError.get()) {
 				hasRefError.set(true);
-				imp.log().error("EPD " + dataSet.getUUID()
-						+ " has invalid references; e.g. flow: " + exchange.flow.uuid);
+				imp.log().error("EPD " + Processes.getUUID(ds)
+						+ " has invalid references; e.g. flow: " + flowId);
 			}
 			return null;
 		}
@@ -135,9 +138,9 @@ public class EpdImport {
 		ref.flowPropertyFactor = f.property();
 		ref.unit = f.unit();
 
-		double amount = exchange.resultingAmount != null
-			? exchange.resultingAmount
-			: exchange.meanAmount;
+		double amount = exchange.getResultingAmount() != null
+			? exchange.getResultingAmount()
+			: exchange.getMeanAmount();
 		if (f.isMapped() && f.mapFactor() != 0) {
 			amount *= f.mapFactor();
 		}
@@ -214,43 +217,43 @@ public class EpdImport {
 	}
 
 	private Actor operator() {
-		var pub = Processes.getPublication(dataSet);
-		if (pub == null || pub.registrationAuthority == null)
+		var pub = Processes.getPublication(ds);
+		if (pub == null || pub.getRegistrationAuthority() == null)
 			return null;
-		var id = pub.registrationAuthority.uuid;
+		var id = pub.getRegistrationAuthority().getUUID();
 		return ContactImport.get(imp, id);
 	}
 
 	private Actor manufacturer() {
-		var pub = Processes.getPublication(dataSet);
-		if (pub == null || pub.owner == null)
+		var pub = Processes.getPublication(ds);
+		if (pub == null || pub.getOwner() == null)
 			return null;
-		var id = pub.owner.uuid;
+		var id = pub.getOwner().getUUID();
 		return ContactImport.get(imp, id);
 	}
 
 	private Actor verifier() {
-		var v = Processes.getValidation(dataSet);
+		var v = Processes.getValidation(ds);
 		if (v == null)
 			return null;
-		var review = Lists.first(v.reviews).orElse(null);
+		var review = Lists.first(v.getReviews()).orElse(null);
 		if (review == null)
 			return null;
-		var ref = Lists.first(review.reviewers).orElse(null);
+		var ref = Lists.first(review.getReviewers()).orElse(null);
 		if (ref == null)
 			return null;
-		return ContactImport.get(imp, ref.uuid);
+		return ContactImport.get(imp, ref.getUUID());
 	}
 
 	private String tags() {
-		var decls = Processes.getComplianceDeclarations(dataSet);
+		var decls = Processes.getComplianceDeclarations(ds);
 		if (Lists.isEmpty(decls))
 			return null;
 		var tags = new StringBuilder();
 		for (var decl : decls) {
-			if (decl.system == null)
+			if (decl.getSystem() == null)
 				continue;
-			var sys = imp.str(decl.system.name);
+			var sys = imp.str(decl.getSystem().getName());
 			if (Strings.nullOrEmpty(sys))
 				continue;
 			if (!tags.isEmpty()) {

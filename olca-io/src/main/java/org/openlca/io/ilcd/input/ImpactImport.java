@@ -7,7 +7,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.util.Categories;
-import org.openlca.ilcd.util.Methods;
+import org.openlca.ilcd.util.ImpactMethods;
 import org.openlca.util.Strings;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ImpactImport {
 
 	private final Import imp;
-	private final org.openlca.ilcd.methods.ImpactMethod dataSet;
+	private final org.openlca.ilcd.methods.ImpactMethod ds;
 	private final AtomicBoolean hasRefErrors;
 
-	public ImpactImport(Import imp, ImpactMethod dataSet) {
+	public ImpactImport(Import imp, ImpactMethod ds) {
 		this.imp = imp;
-		this.dataSet = dataSet;
+		this.ds = ds;
 		this.hasRefErrors = new AtomicBoolean(false);
 	}
 
@@ -28,17 +28,18 @@ public class ImpactImport {
 		var impact = imp.db().get(ImpactCategory.class, id);
 		if (impact != null)
 			return impact;
-		var dataSet = imp.store().get(ImpactMethod.class, id);
-		if (dataSet == null) {
+		var ds = imp.store().get(ImpactMethod.class, id);
+		if (ds == null) {
 			imp.log().error("invalid reference in ILCD data set:" +
 					" impact method '" + id + "' does not exist");
 			return null;
 		}
-		return new ImpactImport(imp, dataSet).createNew();
+		return new ImpactImport(imp, ds).createNew();
 	}
 
 	public ImpactCategory run() {
-		var impact = imp.db().get(ImpactCategory.class, dataSet.getUUID());
+		var impact = imp.db().get(
+				ImpactCategory.class, ImpactMethods.getUUID(ds));
 		return impact != null
 				? impact
 				: createNew();
@@ -46,34 +47,34 @@ public class ImpactImport {
 
 	private ImpactCategory createNew() {
 		var impact = new ImpactCategory();
-		impact.refId = dataSet.getUUID();
+		impact.refId = ImpactMethods.getUUID(ds);
 		impact.name = name();
 		imp.log().info("import impact category: " + impact.name);
 		impact.category = new CategoryDao(imp.db())
-				.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(dataSet));
+				.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(ds));
 
-		var info = Methods.getDataSetInfo(dataSet);
+		var info = ImpactMethods.getDataSetInfo(ds);
 		if (info != null) {
-			impact.description = imp.str(info.comment);
+			impact.description = imp.str(info.getComment());
 		}
-		var qref = Methods.getQuantitativeReference(dataSet);
-		if (qref != null && qref.quantity != null) {
-			impact.referenceUnit = imp.str(qref.quantity.name);
+		var qref = ImpactMethods.getQuantitativeReference(ds);
+		if (qref != null && qref.getQuantity() != null) {
+			impact.referenceUnit = imp.str(qref.getQuantity().getName());
 		}
 
 		// timestamp
-		var entry = Methods.getDataEntry(dataSet);
-		if (entry != null && entry.timeStamp != null) {
-			impact.lastChange = entry.timeStamp.toGregorianCalendar()
+		var entry = ImpactMethods.getDataEntry(ds);
+		if (entry != null && entry.getTimeStamp() != null) {
+			impact.lastChange = entry.getTimeStamp().toGregorianCalendar()
 					.getTimeInMillis();
 		} else {
 			impact.lastChange = System.currentTimeMillis();
 		}
 
 		// version
-		var pub = Methods.getPublication(dataSet);
-		if (pub != null && pub.version != null) {
-			impact.version = Version.fromString(pub.version).getValue();
+		var pub = ImpactMethods.getPublication(ds);
+		if (pub != null && pub.getVersion() != null) {
+			impact.version = Version.fromString(pub.getVersion()).getValue();
 		}
 
 		appendFactors(impact);
@@ -84,44 +85,44 @@ public class ImpactImport {
 	}
 
 	private String name() {
-		var info = Methods.getDataSetInfo(dataSet);
+		var info = ImpactMethods.getDataSetInfo(ds);
 		if (info == null)
 			return "- none -";
 
 		// we have in principle 3 places where we can find the name
-		var name = imp.str(info.name);
+		var name = imp.str(info.getName());
 		if (Strings.nullOrEmpty(name)) {
-			name = info.impactCategories.stream()
+			name = info.getImpactCategories().stream()
 					.filter(Strings::notEmpty)
 					.findAny()
 					.orElse(null);
 			if (Strings.nullOrEmpty(name)) {
-				name = info.indicator;
+				name = info.getIndicator();
 			}
 		}
 		if (Strings.nullOrEmpty(name))
 			return "- none -";
 
 		// add the reference year to the name if present
-		var time = Methods.getTime(dataSet);
-		if (time != null && time.referenceYear != null) {
-			name += " - " + time.referenceYear;
+		var time = ImpactMethods.getTime(ds);
+		if (time != null && time.getReferenceYear() != null) {
+			name += " - " + time.getReferenceYear();
 		}
 		return name;
 	}
 
 	private void appendFactors(ImpactCategory impact) {
-		for (var factor : Methods.getFactors(dataSet)) {
-			if (factor.flow == null)
+		for (var factor : ImpactMethods.getFactors(ds)) {
+			if (factor.getFlow() == null)
 				continue;
-
-			var syncFlow = FlowImport.get(imp, factor.flow.uuid);
+			var flowId = factor.getFlow().getUUID();
+			var syncFlow = FlowImport.get(imp, flowId);
 			if (syncFlow.isEmpty()) {
 				if (!hasRefErrors.get()) {
 					hasRefErrors.set(true);
 					imp.log().error("impact category " + impact.refId
 							+ " has invalid data set references; e.g. flow: "
-							+ factor.flow.uuid);
+							+ flowId);
 				}
 				continue;
 			}
@@ -130,14 +131,14 @@ public class ImpactImport {
 			f.flow = syncFlow.flow();
 			f.flowPropertyFactor = syncFlow.property();
 			f.unit = syncFlow.unit();
-			f.location = imp.cache.locationOf(factor.location);
+			f.location = imp.cache.locationOf(factor.getLocation());
 			if (syncFlow.isMapped()) {
 				var cf = syncFlow.mapFactor();
 				f.value = cf != 1 && cf != 0
-						? factor.meanValue / cf
-						: factor.meanValue;
+						? factor.getMeanValue() / cf
+						: factor.getMeanValue();
 			} else {
-				f.value = factor.meanValue;
+				f.value = factor.getMeanValue();
 			}
 
 			impact.impactFactors.add(f);
@@ -145,10 +146,10 @@ public class ImpactImport {
 	}
 
 	private void appendToMethods(ImpactCategory impact) {
-		var info = Methods.getDataSetInfo(dataSet);
+		var info = ImpactMethods.getDataSetInfo(ds);
 		if (info == null)
 			return;
-		for (var name : info.methods) {
+		for (var name : info.getMethods()) {
 			var m = imp.cache.impactMethodOf(name);
 			if (m == null)
 				continue;

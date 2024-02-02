@@ -17,8 +17,9 @@ record MappedExchange(
 		org.openlca.ilcd.processes.Exchange origin) {
 
 		var exchange = new Exchange();
-		exchange.internalId = origin.id;
-		exchange.isInput = origin.direction == ExchangeDirection.INPUT;
+		exchange.internalId = origin.getId();
+		exchange.isInput =
+				origin.getDirection() == ExchangeDirection.INPUT;
 		exchange.flow = syncFlow.flow();
 		exchange.unit = syncFlow.unit();
 		exchange.flowPropertyFactor = syncFlow.property();
@@ -34,15 +35,15 @@ record MappedExchange(
 		}
 
 		if (ext == null) {
-			var amount = origin.resultingAmount != null
-				? origin.resultingAmount
-				: origin.meanAmount;
+			var amount = origin.getResultingAmount() != null
+				? origin.getResultingAmount()
+				: origin.getMeanAmount();
 			exchange.amount = syncFlow.isMapped()
 				? syncFlow.mapFactor() * amount
 				: amount;
 
-			if (Strings.notEmpty(origin.variable)) {
-				var formula = origin.variable + " * " + origin.meanAmount;
+			if (Strings.notEmpty(origin.getVariable())) {
+				var formula = origin.getVariable() + " * " + origin.getMeanAmount();
 				exchange.formula = syncFlow.isMapped() && syncFlow.mapFactor() != 1
 					? syncFlow.mapFactor() + " * " + formula
 					: formula;

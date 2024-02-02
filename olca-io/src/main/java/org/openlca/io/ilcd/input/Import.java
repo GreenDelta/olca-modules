@@ -186,7 +186,7 @@ public class Import implements org.openlca.io.Import {
 					log.error("process or EPD '" + id + "' not found");
 					return;
 				}
-				if (Processes.getInventoryMethod(ds).processType == ProcessType.EPD) {
+				if (Processes.getProcessType(ds) == ProcessType.EPD) {
 					new EpdImport(this, ds).run();
 				} else {
 					new ProcessImport(this, ds).run();
@@ -200,7 +200,7 @@ public class Import implements org.openlca.io.Import {
 			return;
 		try {
 			if (dataSet instanceof Contact contact) {
-				new ContactImport(this).run(contact);
+				new ContactImport(this, contact).run();
 			} else if (dataSet instanceof Source source) {
 				new SourceImport(this, source).run();
 			} else if (dataSet instanceof UnitGroup group) {
@@ -210,8 +210,7 @@ public class Import implements org.openlca.io.Import {
 			} else if (dataSet instanceof Flow flow) {
 				new FlowImport(this, flow).run();
 			} else if (dataSet instanceof Process process) {
-				var method = Processes.getInventoryMethod(process);
-				if (method != null && method.processType == ProcessType.EPD) {
+				if (Processes.getProcessType(process) == ProcessType.EPD) {
 					new EpdImport(this, process).run();
 				} else {
 					new ProcessImport(this, process).run();

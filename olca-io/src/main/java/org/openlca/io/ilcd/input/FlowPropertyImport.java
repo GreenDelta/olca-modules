@@ -21,7 +21,8 @@ public class FlowPropertyImport {
 	}
 
 	public FlowProperty run() {
-		var prop = imp.db().get(FlowProperty.class, ds.getUUID());
+		var prop = imp.db().get(
+				FlowProperty.class, FlowProperties.getUUID(ds));
 		return prop != null
 				? prop
 				: createNew();
@@ -48,24 +49,24 @@ public class FlowPropertyImport {
 		mapDescriptionAttributes();
 		var ref = FlowProperties.getUnitGroupRef(ds);
 		if (ref != null) {
-			prop.unitGroup = UnitGroupImport.get(imp, ref.uuid);
+			prop.unitGroup = UnitGroupImport.get(imp, ref.getUUID());
 		}
 		return imp.insert(prop);
 	}
 
 	private void mapDescriptionAttributes() {
 		prop.flowPropertyType = FlowPropertyType.PHYSICAL; // default
-		prop.refId = ds.getUUID();
+		prop.refId = FlowProperties.getUUID(ds);
 		var info = FlowProperties.getDataSetInfo(ds);
 		if (info != null) {
-			prop.name = imp.str(info.name);
-			prop.description = imp.str(info.generalComment);
+			prop.name = imp.str(info.getName());
+			prop.description = imp.str(info.getGeneralComment());
 		}
 
 		prop.version = Version.fromString(ds.getVersion()).getValue();
 		var entry = FlowProperties.getDataEntry(ds);
-		if (entry != null && entry.timeStamp != null) {
-			prop.lastChange = entry.timeStamp
+		if (entry != null && entry.getTimeStamp() != null) {
+			prop.lastChange = entry.getTimeStamp()
 					.toGregorianCalendar()
 					.getTimeInMillis();
 		}

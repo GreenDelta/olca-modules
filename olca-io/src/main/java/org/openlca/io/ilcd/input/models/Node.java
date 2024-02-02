@@ -44,11 +44,11 @@ class Node implements Copyable<Node> {
 	}
 
 	static Node init(ProcessInstance pi, Process process) {
-		Node n = new Node(pi.id);
+		Node n = new Node(pi.getId());
 		n.process = process;
-		n.scalingFactor = pi.scalingFactor;
-		for (Parameter param : pi.parameters) {
-			n.params.put(param.name, param.value);
+		n.scalingFactor = pi.getScalingFactor();
+		for (Parameter param : pi.getParameters()) {
+			n.params.put(param.getName(), param.getValue());
 		}
 		return n;
 	}

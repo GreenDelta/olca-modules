@@ -5,10 +5,10 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.ilcd.commons.Ref;
@@ -17,8 +17,6 @@ import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
-
-import java.util.Date;
 
 public class ProcessImport {
 
@@ -34,7 +32,7 @@ public class ProcessImport {
 	}
 
 	public Process run() {
-		var process = imp.db().get(Process.class, ds.getUUID());
+		var process = imp.db().get(Process.class, Processes.getUUID(ds));
 		return process != null
 				? process
 				: createNew();
@@ -66,12 +64,12 @@ public class ProcessImport {
 	}
 
 	private void createAndMapContent() {
-		process.refId = ds.getUUID();
+		process.refId = Processes.getUUID(ds);
 		process.name = Strings.cut(
 				Processes.getFullName(ds, imp.langOrder()), 2024);
 		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {
-			process.description = imp.str(info.comment);
+			process.description = imp.str(info.getComment());
 		}
 
 		if (process.documentation == null) {
@@ -110,45 +108,27 @@ public class ProcessImport {
 		var loc = Processes.getLocation(ds);
 		if (loc == null)
 			return;
-		doc.geography = imp.str(loc.description);
-		process.location = imp.cache.locationOf(loc.code);
+		doc.geography = imp.str(loc.getDescription());
+		process.location = imp.cache.locationOf(loc.getCode());
 	}
 
 	private void mapTechnology(ProcessDoc doc) {
 		var tech = Processes.getTechnology(ds);
 		if (tech != null) {
-			doc.technology = imp.str(tech.description);
+			doc.technology = imp.str(tech.getDescription());
 		}
 	}
 
 	private void mapPublication(ProcessDoc doc) {
 		var pub = Processes.getPublication(ds);
-		if (pub != null) {
-
-			// data set owner
-			Ref ownerRef = pub.owner;
-			if (ownerRef != null) {
-				doc.dataOwner = fetchActor(ownerRef);
-			}
-
-			// publication
-			Ref publicationRef = pub.republication;
-			if (publicationRef != null) {
-				doc.publication = fetchSource(publicationRef);
-			}
-
-			// access and use restrictions
-			doc.accessRestrictions = imp.str(pub.accessRestrictions);
-
-			// version
-			process.version = Version.fromString(
-					pub.version).getValue();
-
-			// copyright
-			if (pub.copyright != null) {
-				doc.copyright = pub.copyright;
-			}
-
+		if (pub == null)
+			return;
+		doc.dataOwner = fetchActor(pub.getOwner());
+		doc.publication = fetchSource(pub.getRepublication());
+		doc.accessRestrictions = imp.str(pub.getAccessRestrictions());
+		process.version = Version.fromString(pub.getVersion()).getValue();
+		if (pub.getCopyright() != null) {
+			doc.copyright = pub.getCopyright();
 		}
 	}
 
@@ -156,31 +136,29 @@ public class ProcessImport {
 		var entry = Processes.getDataEntry(ds);
 		if (entry == null)
 			return;
-		if (entry.timeStamp != null) {
-			Date tStamp = entry.timeStamp.toGregorianCalendar().getTime();
-			doc.creationDate = tStamp;
-			process.lastChange = tStamp.getTime();
-		}
-		if (entry.documentor != null) {
-			doc.dataDocumentor = fetchActor(entry.documentor);
+		doc.dataDocumentor = fetchActor(entry.getDocumentor());
+		if (entry.getTimeStamp() != null) {
+			var time = entry.getTimeStamp()
+					.toGregorianCalendar()
+					.getTime();
+			doc.creationDate = time;
+			process.lastChange = time.getTime();
 		}
 	}
 
 	private void mapDataGenerator(ProcessDoc doc) {
 		var gen = Processes.getDataGenerator(ds);
-		if (gen != null) {
-			if (!gen.contacts.isEmpty()) {
-				doc.dataGenerator = fetchActor(gen.contacts.get(0));
-			}
-		}
+		if (gen == null || gen.getContacts().isEmpty())
+			return;
+		doc.dataGenerator = fetchActor(gen.getContacts().get(0));
 	}
 
 	private void mapGoal(ProcessDoc doc) {
 		var goal = Processes.getCommissionerAndGoal(ds);
-		if (goal != null) {
-			doc.intendedApplication = imp.str(goal.intendedApplications);
-			doc.project = imp.str(goal.project);
-		}
+		if (goal == null)
+			return;
+		doc.intendedApplication = imp.str(goal.getIntendedApplications());
+		doc.project = imp.str(goal.getProject());
 	}
 
 	private void mapInventoryMethod(ProcessDoc doc) {
@@ -193,14 +171,14 @@ public class ProcessImport {
 		}
 		var method = Processes.getInventoryMethod(ds);
 		if (method != null) {
-			doc.inventoryMethod = imp.str(method.principleDeviations);
-			doc.modelingConstants = imp.str(method.constants);
+			doc.inventoryMethod = imp.str(method.getPrincipleDeviations());
+			doc.modelingConstants = imp.str(method.getConstants());
 			process.defaultAllocationMethod = getAllocation(method);
 		}
 	}
 
 	private AllocationMethod getAllocation(InventoryMethod m) {
-		var approaches = m.approaches;
+		var approaches = m.getApproaches();
 		if (approaches.isEmpty())
 			return null;
 		var first = approaches.get(0);
@@ -220,11 +198,11 @@ public class ProcessImport {
 		var r = Processes.getRepresentativeness(ds);
 		if (r == null)
 			return;
-		doc.dataCompleteness = imp.str(r.completeness);
-		doc.dataSelection = imp.str(r.dataSelection);
-		doc.dataTreatment = imp.str(r.dataTreatment);
-		doc.samplingProcedure = imp.str(r.samplingProcedure);
-		doc.dataCollectionPeriod = imp.str(r.dataCollectionPeriod);
+		doc.dataCompleteness = imp.str(r.getCompleteness());
+		doc.dataSelection = imp.str(r.getDataSelection());
+		doc.dataTreatment = imp.str(r.getDataTreatment());
+		doc.samplingProcedure = imp.str(r.getSamplingProcedure());
+		doc.dataCollectionPeriod = imp.str(r.getDataCollectionPeriod());
 	}
 
 	private void addSources(ProcessDoc doc) {
@@ -244,25 +222,27 @@ public class ProcessImport {
 
 			var rev = new Review();
 			doc.reviews.add(rev);
-			rev.type = r.type != null ? r.type.value() : null;
-			rev.details = imp.str(r.details);
-			rev.report = fetchSource(r.report);
-			for (var ref : r.reviewers) {
+			rev.type = r.getType() != null
+					? r.getType().value()
+					: null;
+			rev.details = imp.str(r.getDetails());
+			rev.report = fetchSource(r.getReport());
+			for (var ref : r.getReviewers()) {
 				var reviewer = fetchActor(ref);
 				if (reviewer != null) {
 					rev.reviewers.add(reviewer);
 				}
 			}
 
-			for (var s : r.scopes) {
-				if (s.name == null)
+			for (var s : r.getScopes()) {
+				if (s.getName() == null)
 					continue;
-				var scope = new ReviewScope(s.name.value());
+				var scope = new ReviewScope(s.getName().value());
 				rev.scopes.add(scope);
-				for (var m : s.methods) {
-					if (m.name == null)
+				for (var m : s.getMethods()) {
+					if (m.getName() == null)
 						continue;
-					scope.methods.add(m.name.value());
+					scope.methods.add(m.getName().value());
 				}
 			}
 
@@ -282,14 +262,14 @@ public class ProcessImport {
 	}
 
 	private Actor fetchActor(Ref ref) {
-		return ref != null
-				? ContactImport.get(imp, ref.uuid)
+		return ref != null && ref.getUUID() != null
+				? ContactImport.get(imp, ref.getUUID())
 				: null;
 	}
 
 	private Source fetchSource(Ref ref) {
-		return ref != null
-				? SourceImport.get(imp, ref.uuid)
+		return ref != null && ref.getUUID() != null
+				? SourceImport.get(imp, ref.getUUID())
 				: null;
 	}
 
@@ -298,13 +278,13 @@ public class ProcessImport {
 		if (c == null)
 			return;
 		var target = doc.flowCompleteness;
-		if (c.productCompleteness != null) {
-			target.put("Product model", c.productCompleteness.value());
+		if (c.getProductCompleteness() != null) {
+			target.put("Product model", c.getProductCompleteness().value());
 		}
-		for (var e : c.entries) {
-			if (e.impact == null || e.value == null)
+		for (var e : c.getEntries()) {
+			if (e.getImpact() == null || e.getValue() == null)
 				continue;
-			target.put(e.impact.value(), e.value.value());
+			target.put(e.getImpact().value(), e.getValue().value());
 		}
 	}
 

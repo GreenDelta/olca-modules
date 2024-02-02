@@ -11,16 +11,21 @@ import org.openlca.ilcd.util.Contacts;
 public class ContactImport {
 
 	private final Import imp;
-	private Contact contact;
+	private final Contact ds;
 	private Actor actor;
 
-	public ContactImport(Import imp) {
+	public ContactImport(Import imp, Contact ds) {
 		this.imp = imp;
+		this.ds = ds;
 	}
 
-	public Actor run(Contact contact) {
-		this.contact = contact;
-		var actor = imp.db().get(Actor.class, contact.getUUID());
+	public Actor run() {
+		var id = Contacts.getUUID(ds);
+		if (id == null) {
+			imp.log().error("failed to read UUID from contact: " + ds);
+			return null;
+		}
+		var actor = imp.db().get(Actor.class, id);
 		return actor != null
 				? actor
 				: createNew();
@@ -30,18 +35,18 @@ public class ContactImport {
 		var actor = imp.db().get(Actor.class, id);
 		if (actor != null)
 			return actor;
-		var dataSet = imp.store().get(Contact.class, id);
-		if (dataSet == null) {
+		var ds = imp.store().get(Contact.class, id);
+		if (ds == null) {
 			imp.log().error("invalid reference in ILCD data set:" +
 					" contact '" + id + "' does not exist");
 			return null;
 		}
-		return new ContactImport(imp).run(dataSet);
+		return new ContactImport(imp, ds).run();
 	}
 
 	private Actor createNew() {
 		actor = new Actor();
-		var path = Categories.getPath(contact);
+		var path = Categories.getPath(ds);
 		actor.category = new CategoryDao(imp.db())
 				.sync(ModelType.ACTOR, path);
 		setDescriptionAttributes();
@@ -50,27 +55,27 @@ public class ContactImport {
 	}
 
 	private void setDescriptionAttributes() {
-		actor.refId = contact.getUUID();
+		actor.refId = Contacts.getUUID(ds);
 
-		var info = Contacts.getDataSetInfo(contact);
-		actor.name = imp.str(info.name);
-		actor.description = imp.str(info.description);
-		actor.address = imp.str(info.contactAddress);
+		var info = Contacts.getDataSetInfo(ds);
+		actor.name = imp.str(info.getName());
+		actor.description = imp.str(info.getDescription());
+		actor.address = imp.str(info.getContactAddress());
 		if (actor.address == null) {
-			actor.address = imp.str(info.centralContactPoint);
+			actor.address = imp.str(info.getCentralContactPoint());
 		}
-		actor.email = info.email;
-		actor.telefax = info.telefax;
-		actor.telephone = info.telephone;
-		actor.website = info.webSite;
+		actor.email = info.getEmail();
+		actor.telefax = info.getTelefax();
+		actor.telephone = info.getTelephone();
+		actor.website = info.getWebSite();
 	}
 
 	private void setVersionTime() {
-		String v = contact.getVersion();
+		String v = ds.getVersion();
 		actor.version = Version.fromString(v).getValue();
-		var entry = Contacts.getDataEntry(contact);
-		if (entry.timeStamp != null) {
-			actor.lastChange = entry.timeStamp
+		var entry = Contacts.getDataEntry(ds);
+		if (entry.getTimeStamp() != null) {
+			actor.lastChange = entry.getTimeStamp()
 					.toGregorianCalendar()
 					.getTimeInMillis();
 		}

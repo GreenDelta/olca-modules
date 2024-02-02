@@ -1,21 +1,20 @@
 package org.openlca.io.ilcd.input.models;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Process;
+import org.openlca.ilcd.models.Group;
+import org.openlca.ilcd.models.Model;
+import org.openlca.ilcd.util.Models;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Process;
-import org.openlca.ilcd.models.Group;
-import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.Technology;
-import org.openlca.ilcd.util.Models;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class Graph {
 
@@ -39,44 +38,47 @@ class Graph {
 	static Graph build(Model model, IDatabase db) {
 		Graph g = new Graph();
 		Logger log = LoggerFactory.getLogger(Graph.class);
-		if (model == null || model.info == null || db == null) {
+		if (model == null || model.getInfo() == null || db == null) {
 			log.warn("Invalid constraints; return empty index");
 			return g;
 		}
-		Technology tech = model.info.technology;
+		var tech = Models.getTechnology(model);
 		if (tech == null) {
 			log.warn("No processes in model; return empty index");
 			return g;
 		}
 
 		var groups = new HashMap<Integer, Group>();
-		for (var group : tech.groups) {
-			groups.put(group.id, group);
+		for (var group : tech.getGroups()) {
+			groups.put(group.getId(), group);
 		}
 
-		for (var pi : tech.processes) {
-			if (pi.process == null || pi.process.uuid == null) {
-				log.warn("Invalid process reference node={}", pi.id);
+		for (var pi : tech.getProcesses()) {
+			var processId = pi.getProcess() != null
+					? pi.getProcess().getUUID()
+					: null;
+			if (processId == null) {
+				log.warn("Invalid process reference node={}", pi.getId());
 				continue;
 			}
-			var process = db.get(Process.class, pi.process.uuid);
+			var process = db.get(Process.class, processId);
 			if (process == null) {
 				log.warn("Could not find process {}; skip node {}",
-					pi.process.uuid, pi.id);
+					processId, pi.getId());
 				continue;
 			}
 			var node = Node.init(pi, process);
-			if (!pi.groupRefs.isEmpty()) {
-				var gr = pi.groupRefs.get(0);
-				node.group = groups.get(gr.groupID);
+			if (!pi.getGroupRefs().isEmpty()) {
+				var gr = pi.getGroupRefs().get(0);
+				node.group = groups.get(gr.getGroupID());
 			}
 			g.putNode(node);
 		}
 		buildLinks(g, model);
 
-		var qRef = model.info.quantitativeReference;
-		if (qRef != null && qRef.refProcess != null) {
-			g.root = g.getNode(qRef.refProcess);
+		var qRef = Models.getQuantitativeReference(model);
+		if (qRef != null && qRef.getRefProcess() != null) {
+			g.root = g.getNode(qRef.getRefProcess());
 		}
 
 		return g;
@@ -88,32 +90,32 @@ class Graph {
 		// means upstream and input (especially for waste flows). We try to
 		// also support such things here...
 		for (var pi : Models.getProcesses(model)) {
-			var refNode = g.getNode(pi.id);
+			var refNode = g.getNode(pi.getId());
 			if (refNode == null)
 				continue;
-			for (var con : pi.connections) {
-				Exchange output = refNode.findOutput(con.outputFlow);
+			for (var con : pi.getConnections()) {
+				Exchange output = refNode.findOutput(con.getOutputFlow());
 				Exchange input = null;
 				if (output == null) {
-					input = refNode.findInput(con.outputFlow);
+					input = refNode.findInput(con.getOutputFlow());
 					if (input == null)
 						continue;
 				}
-				for (var dLink : con.downstreamLinks) {
+				for (var dLink : con.getDownstreamLinks()) {
 					Node provider;
 					Node recipient;
 					if (output != null) {
 						provider = refNode;
-						recipient = g.getNode(dLink.process);
+						recipient = g.getNode(dLink.getProcess());
 						if (recipient == null)
 							continue;
-						input = recipient.findInput(dLink.inputFlow);
+						input = recipient.findInput(dLink.getInputFlow());
 					} else {
 						recipient = refNode;
-						provider = g.getNode(dLink.process);
+						provider = g.getNode(dLink.getProcess());
 						if (provider == null)
 							continue;
-						output = provider.findOutput(dLink.inputFlow);
+						output = provider.findOutput(dLink.getInputFlow());
 					}
 					if (input == null || output == null)
 						continue;

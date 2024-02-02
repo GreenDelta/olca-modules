@@ -1,11 +1,5 @@
 package org.openlca.io.ilcd.input.models;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -25,6 +19,12 @@ import org.openlca.ilcd.util.Models;
 import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.util.Strings;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Imports an eILCD model as product system into an openLCA database.
@@ -55,7 +55,7 @@ public class ModelImport {
 		if (model == null)
 			return null;
 		var dao = new ProductSystemDao(imp.db());
-		system = dao.getForRefId(model.getUUID());
+		system = dao.getForRefId(Models.getUUID(model));
 		if (system != null)
 			return system;
 		String origin = Models.getOrigin(model);
@@ -83,21 +83,21 @@ public class ModelImport {
 			return;
 		var processes = syncProcesses(m, tech);
 		var flows = collectFlows(tech);
-		for (var pi : tech.processes) {
-			var outProcess = processes.get(pi.id);
+		for (var pi : tech.getProcesses()) {
+			var outProcess = processes.get(pi.getId());
 			if (outProcess == null)
 				continue;
-			for (var con : pi.connections) {
-				var outFlow = flows.get(con.outputFlow);
+			for (var con : pi.getConnections()) {
+				var outFlow = flows.get(con.getOutputFlow());
 				if (outFlow == null)
 					continue;
-				for (var link : con.downstreamLinks) {
-					var inFlow = flows.get(link.inputFlow);
-					var inProcess = processes.get(link.process);
+				for (var link : con.getDownstreamLinks()) {
+					var inFlow = flows.get(link.getInputFlow());
+					var inProcess = processes.get(link.getProcess());
 					if (inFlow == null || inProcess == null)
 						continue;
 					if (Objects.equals(inFlow, outFlow)) {
-						addLink(outProcess, inProcess, inFlow, link.linkedExchange);
+						addLink(outProcess, inProcess, inFlow, link.getLinkedExchange());
 					} else {
 						var connector = connector(outFlow, inFlow);
 						addLink(outProcess, connector, outFlow, null);
@@ -111,35 +111,35 @@ public class ModelImport {
 	private Map<Integer, Process> syncProcesses(Model m, Technology tech) {
 		var qRef = Models.getQuantitativeReference(m);
 		int refProcess = -1;
-		if (qRef != null && qRef.refProcess != null) {
-			refProcess = qRef.refProcess;
+		if (qRef != null && qRef.getRefProcess() != null) {
+			refProcess = qRef.getRefProcess();
 		}
 		var map = new HashMap<Integer, Process>();
-		for (var pi : tech.processes) {
-			if (pi.process == null)
+		for (var pi : tech.getProcesses()) {
+			if (pi.getProcess() == null)
 				continue;
-			var process = ProcessImport.get(imp, pi.process.uuid);
+			var process = ProcessImport.get(imp, pi.getProcess().getUUID());
 			if (process == null)
 				continue;
-			if (refProcess == pi.id) {
+			if (refProcess == pi.getId()) {
 				mapRefProcess(pi, process);
 			}
 			addParameterRedefs(pi, process);
 			system.processes.add(process.id);
-			map.put(pi.id, process);
+			map.put(pi.getId(), process);
 		}
 		return map;
 	}
 
 	private void addParameterRedefs(ProcessInstance pi, Process p) {
-		for (var param : pi.parameters) {
-			if (param.name == null || param.value == null)
+		for (var param : pi.getParameters()) {
+			if (param.getName() == null || param.getValue() == null)
 				continue;
 			var redef = new ParameterRedef();
 			redef.contextId = p.id;
 			redef.contextType = ModelType.PROCESS;
-			redef.name = param.name;
-			redef.value = param.value;
+			redef.name = param.getName();
+			redef.value = param.getValue();
 			IO.parametersSetOf(system).add(redef);
 		}
 	}
@@ -163,11 +163,11 @@ public class ModelImport {
 	 */
 	private Map<String, Flow> collectFlows(Technology tech) {
 		var usedFlows = new HashSet<String>();
-		for (var pi : tech.processes) {
-			for (var con : pi.connections) {
-				usedFlows.add(con.outputFlow);
-				for (var link : con.downstreamLinks) {
-					usedFlows.add(link.inputFlow);
+		for (var pi : tech.getProcesses()) {
+			for (var con : pi.getConnections()) {
+				usedFlows.add(con.getOutputFlow());
+				for (var link : con.getDownstreamLinks()) {
+					usedFlows.add(link.getInputFlow());
 				}
 			}
 		}
@@ -180,7 +180,7 @@ public class ModelImport {
 	}
 
 	private void addLink(Process out, Process in, Flow flow,
-			Integer exchangeId) {
+											 Integer exchangeId) {
 		boolean isWaste = flow.flowType == FlowType.WASTE_FLOW;
 		var link = new ProcessLink();
 		link.flowId = flow.id;
