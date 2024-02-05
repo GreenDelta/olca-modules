@@ -1,8 +1,6 @@
 package org.openlca.io.ilcd.input;
 
 import org.openlca.ilcd.commons.Ref;
-import org.openlca.ilcd.processes.ComplianceDeclaration;
-import org.openlca.ilcd.processes.ComplianceList;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.processes.Process;
@@ -32,13 +30,8 @@ class ProcessSources {
 	}
 
 	private static void complianceSystems(Process p, List<Ref> refs) {
-		if (p.modelling == null)
-			return;
-		ComplianceList list = p.modelling.complianceDeclarations;
-		if (list == null)
-			return;
-		for (ComplianceDeclaration decl : list.entries) {
-			Ref ref = decl.system;
+		for (var dec : Processes.getComplianceDeclarations(p)) {
+			var ref = dec.getSystem();
 			if (ref == null)
 				continue;
 			refs.add(ref);
@@ -49,7 +42,7 @@ class ProcessSources {
 		List<Ref> refs = new ArrayList<>();
 		if (repr == null)
 			return refs;
-		refs.addAll(repr.sources);
+		refs.addAll(repr.getSources());
 		return refs;
 	}
 
@@ -57,10 +50,10 @@ class ProcessSources {
 		List<Ref> refs = new ArrayList<>();
 		if (entry == null)
 			return refs;
-		if (entry.originalDataSet != null) {
-			refs.add(entry.originalDataSet);
+		if (entry.getOriginalDataSet() != null) {
+			refs.add(entry.getOriginalDataSet());
 		}
-		refs.addAll(entry.formats);
+		refs.addAll(entry.getFormats());
 		return refs;
 	}
 
@@ -68,15 +61,15 @@ class ProcessSources {
 		List<Ref> refs = new ArrayList<>();
 		if (method == null)
 			return refs;
-		refs.addAll(method.sources);
+		refs.addAll(method.getSources());
 		return refs;
 	}
 
 	private static List<Ref> getFrom(Publication pub) {
 		List<Ref> refs = new ArrayList<>();
-		if (pub == null || pub.republication == null)
+		if (pub == null || pub.getRepublication() == null)
 			return refs;
-		refs.add(pub.republication);
+		refs.add(pub.getRepublication());
 		return refs;
 	}
 
@@ -84,18 +77,18 @@ class ProcessSources {
 		List<Ref> refs = new ArrayList<>();
 		if (tec == null)
 			return refs;
-		if (tec.pictogram != null) {
-			refs.add(tec.pictogram);
+		if (tec.getPictogram() != null) {
+			refs.add(tec.getPictogram());
 		}
-		refs.addAll(tec.pictures);
+		refs.addAll(tec.getPictures());
 		return refs;
 	}
 
 	private static List<Ref> getFrom(Review rev) {
 		List<Ref> refs = new ArrayList<>();
-		if (rev == null || rev.report == null)
+		if (rev == null || rev.getReport() == null)
 			return refs;
-		refs.add(rev.report);
+		refs.add(rev.getReport());
 		return refs;
 	}
 

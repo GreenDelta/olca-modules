@@ -11,119 +11,109 @@ import org.openlca.ilcd.util.ExchangeExtension;
  */
 class UncertaintyConverter {
 
-	public void map(Exchange iExchange,
-			org.openlca.core.model.Exchange oExchange) {
-		if (iExchange.uncertaintyDistribution == null
-				|| iExchange.uncertaintyDistribution == UncertaintyDistribution.UNDEFINED)
+	public void map(Exchange i, org.openlca.core.model.Exchange o) {
+		if (i.getUncertaintyDistribution() == null
+				|| i.getUncertaintyDistribution() == UncertaintyDistribution.UNDEFINED)
 			return;
-		switch (iExchange.uncertaintyDistribution) {
-			case LOG_NORMAL -> mapLogNormal(iExchange, oExchange);
-			case NORMAL -> mapNormal(iExchange, oExchange);
-			case TRIANGULAR -> mapTriangular(iExchange, oExchange);
-			case UNIFORM -> mapUniform(iExchange, oExchange);
+		switch (i.getUncertaintyDistribution()) {
+			case LOG_NORMAL -> mapLogNormal(i, o);
+			case NORMAL -> mapNormal(i, o);
+			case TRIANGULAR -> mapTriangular(i, o);
+			case UNIFORM -> mapUniform(i, o);
 			default -> {
 			}
 		}
 	}
 
-	public void map(Parameter iParameter,
-			org.openlca.core.model.Parameter oParameter) {
-		if (iParameter.distribution == null
-				|| iParameter.distribution == UncertaintyDistribution.UNDEFINED)
+	public void map(Parameter i, org.openlca.core.model.Parameter o) {
+		if (i.getDistribution() == null
+				|| i.getDistribution() == UncertaintyDistribution.UNDEFINED)
 			return;
-		switch (iParameter.distribution) {
-			case LOG_NORMAL -> mapLogNormal(iParameter, oParameter);
-			case NORMAL -> mapNormal(iParameter, oParameter);
-			case TRIANGULAR -> mapTriangular(iParameter, oParameter);
-			case UNIFORM -> mapUniform(iParameter, oParameter);
+		switch (i.getDistribution()) {
+			case LOG_NORMAL -> mapLogNormal(i, o);
+			case NORMAL -> mapNormal(i, o);
+			case TRIANGULAR -> mapTriangular(i, o);
+			case UNIFORM -> mapUniform(i, o);
 			default -> {
 			}
 		}
 	}
 
-	private void mapLogNormal(Exchange iExchange,
-			org.openlca.core.model.Exchange oExchange) {
-		double mean = getAmount(iExchange);
-		Double sd = iExchange.relativeStandardDeviation95In;
+	private void mapLogNormal(Exchange i, org.openlca.core.model.Exchange o) {
+		double mean = getAmount(i);
+		Double sd = i.getRelativeStandardDeviation95In();
 		if (sd == null)
 			return;
-		oExchange.uncertainty = Uncertainty.logNormal(mean, sd);
+		o.uncertainty = Uncertainty.logNormal(mean, sd);
 	}
 
-	private void mapLogNormal(Parameter iParameter,
-			org.openlca.core.model.Parameter oParameter) {
-		Double mean = iParameter.mean;
-		Double std = iParameter.dispersion;
+	private void mapLogNormal(Parameter i, org.openlca.core.model.Parameter o) {
+		Double mean = i.getMean();
+		Double std = i.getDispersion();
 		if (mean == null || std == null)
 			return;
-		oParameter.uncertainty = Uncertainty.logNormal(mean, std);
+		o.uncertainty = Uncertainty.logNormal(mean, std);
 	}
 
-	private void mapNormal(Exchange iExchange,
-			org.openlca.core.model.Exchange oExchange) {
-		double mean = getAmount(iExchange);
-		Double sd = iExchange.relativeStandardDeviation95In;
+	private void mapNormal(Exchange i, org.openlca.core.model.Exchange o) {
+		double mean = getAmount(i);
+		Double sd = i.getRelativeStandardDeviation95In();
 		if (sd == null)
 			return;
-		oExchange.uncertainty = Uncertainty.normal(mean, sd);
+		o.uncertainty = Uncertainty.normal(mean, sd);
 	}
 
-	private void mapNormal(Parameter iParameter,
-			org.openlca.core.model.Parameter oParameter) {
-		Double mean = iParameter.mean;
-		Double std = iParameter.dispersion;
+	private void mapNormal(Parameter i, org.openlca.core.model.Parameter o) {
+		Double mean = i.getMean();
+		Double std = i.getDispersion();
 		if (mean == null || std == null)
 			return;
-		oParameter.uncertainty = Uncertainty.normal(mean, std);
+		o.uncertainty = Uncertainty.normal(mean, std);
 	}
 
-	private void mapTriangular(Exchange iExchange,
-			org.openlca.core.model.Exchange oExchange) {
-		Double min = iExchange.minimumAmount;
-		Double mode = new ExchangeExtension(iExchange).getMostLikelyValue();
-		Double max = iExchange.maximumAmount;
+	private void mapTriangular(Exchange i, org.openlca.core.model.Exchange o) {
+		Double min = i.getMinimumAmount();
+		Double mode = new ExchangeExtension(i).getMostLikelyValue();
+		Double max = i.getMaximumAmount();
 		if (min == null || mode == null || max == null)
 			return;
-		oExchange.uncertainty = Uncertainty.triangle(min, mode, max);
+		o.uncertainty = Uncertainty.triangle(min, mode, max);
 	}
 
-	private void mapTriangular(Parameter iParameter,
-			org.openlca.core.model.Parameter oParameter) {
-		Double min = iParameter.min;
-		Double mean = iParameter.mean;
-		Double max = iParameter.max;
+	private void mapTriangular(Parameter i,	org.openlca.core.model.Parameter o) {
+		Double min = i.getMin();
+		Double mean = i.getMean();
+		Double max = i.getMax();
 		if (min == null || mean == null || max == null)
 			return;
-		oParameter.uncertainty = Uncertainty.triangle(min, mean, max);
+		o.uncertainty = Uncertainty.triangle(min, mean, max);
 	}
 
-	private void mapUniform(Exchange iExchange,
-			org.openlca.core.model.Exchange oExchange) {
-		Double min = iExchange.minimumAmount;
-		Double max = iExchange.maximumAmount;
+	private void mapUniform(Exchange i, org.openlca.core.model.Exchange o) {
+		Double min = i.getMinimumAmount();
+		Double max = i.getMaximumAmount();
 		if (min == null || max == null)
 			return;
-		oExchange.uncertainty = Uncertainty.uniform(min, max);
+		o.uncertainty = Uncertainty.uniform(min, max);
 	}
 
-	private void mapUniform(Parameter iParameter,
-			org.openlca.core.model.Parameter oParameter) {
-		Double min = iParameter.min;
-		Double max = iParameter.max;
+	private void mapUniform(Parameter i, org.openlca.core.model.Parameter o) {
+		Double min = i.getMin();
+		Double max = i.getMax();
 		if (min == null || max == null)
 			return;
-		oParameter.uncertainty = Uncertainty.uniform(min, max);
+		o.uncertainty = Uncertainty.uniform(min, max);
 	}
 
-	private double getAmount(Exchange iExchange) {
-		ExchangeExtension ext = new ExchangeExtension(iExchange);
+	private double getAmount(Exchange i) {
+		var ext = new ExchangeExtension(i);
 		Double val = ext.getAmount();
 		if (val != null)
 			return val;
-		val = iExchange.resultingAmount;
+		val = i.getResultingAmount();
 		if (val != null)
 			return val;
-		return iExchange.meanAmount;
+		return i.getMeanAmount();
 	}
 
 }

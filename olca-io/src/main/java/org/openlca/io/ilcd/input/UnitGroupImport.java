@@ -23,7 +23,7 @@ public class UnitGroupImport {
 	}
 
 	public UnitGroup run() {
-		var group = imp.db().get(UnitGroup.class, ds.getUUID());
+		var group = imp.db().get(UnitGroup.class, UnitGroups.getUUID(ds));
 		if (group != null) {
 			new UnitGroupSync(group, this.ds, imp).run(imp.db());
 			return group;
@@ -57,17 +57,17 @@ public class UnitGroupImport {
 	}
 
 	private void mapDescriptionAttributes() {
-		unitGroup.refId = ds.getUUID();
+		unitGroup.refId = UnitGroups.getUUID(ds);
 		var info = UnitGroups.getDataSetInfo(ds);
 		if (info != null) {
-			unitGroup.name = imp.str(info.name);
-			unitGroup.description = imp.str(info.generalComment);
+			unitGroup.name = imp.str(info.getName());
+			unitGroup.description = imp.str(info.getGeneralComment());
 		}
 		unitGroup.version = Version.fromString(ds.getVersion()).getValue();
 
 		var entry = UnitGroups.getDataEntry(ds);
-		if (entry != null && entry.timeStamp != null) {
-			unitGroup.lastChange = entry.timeStamp
+		if (entry != null && entry.getTimeStamp() != null) {
+			unitGroup.lastChange = entry.getTimeStamp()
 					.toGregorianCalendar()
 					.getTimeInMillis();
 		}
@@ -76,13 +76,13 @@ public class UnitGroupImport {
 	private void createUnits() {
 		var qref = UnitGroups.getQuantitativeReference(ds);
 		Integer refUnitId = qref != null
-				? qref.referenceUnit
+				? qref.getReferenceUnit()
 				: null;
 		for (var iUnit : UnitGroups.getUnits(ds)) {
 			Unit oUnit = new Unit();
 			unitGroup.units.add(oUnit);
 			mapUnitAttributes(iUnit, oUnit);
-			if (refUnitId != null && refUnitId == iUnit.id) {
+			if (refUnitId != null && refUnitId == iUnit.getId()) {
 				unitGroup.referenceUnit = oUnit;
 			}
 		}
@@ -94,9 +94,9 @@ public class UnitGroupImport {
 		oUnit.refId = extension.isValid()
 			? extension.getUnitId()
 			: UUID.randomUUID().toString();
-		oUnit.name = iUnit.name;
-		oUnit.description = imp.str(iUnit.comment);
-		oUnit.conversionFactor = iUnit.factor;
+		oUnit.name = iUnit.getName();
+		oUnit.description = imp.str(iUnit.getComment());
+		oUnit.conversionFactor = iUnit.getFactor();
 	}
 
 }

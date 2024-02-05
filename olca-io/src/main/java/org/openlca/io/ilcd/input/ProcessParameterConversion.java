@@ -32,7 +32,7 @@ class ProcessParameterConversion {
 
 	public void run(org.openlca.ilcd.processes.Process ds) {
 		for (var p : Processes.getParameters(ds)) {
-			if (p.name == null || p.name.startsWith("temp_olca_param"))
+			if (p.getName() == null || p.getName().startsWith("temp_olca_param"))
 				continue;
 			var param = convertParameter(p);
 			addOrInsert(param);
@@ -46,9 +46,9 @@ class ProcessParameterConversion {
 			scope = ParameterScope.GLOBAL;
 		Parameter param = new Parameter();
 		param.scope = scope;
-		param.name = iParameter.name;
-		param.description = imp.str(iParameter.comment);
-		Double mean = iParameter.mean;
+		param.name = iParameter.getName();
+		param.description = imp.str(iParameter.getComment());
+		Double mean = iParameter.getMean();
 		if (mean != null)
 			param.value = mean;
 		new UncertaintyConverter().map(iParameter, param);
@@ -62,7 +62,7 @@ class ProcessParameterConversion {
 	}
 
 	private String getFormula(org.openlca.ilcd.processes.Parameter iParameter) {
-		String formula = iParameter.formula;
+		String formula = iParameter.getFormula();
 		if (formula == null)
 			return null;
 		try {

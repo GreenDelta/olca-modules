@@ -1,17 +1,8 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.*;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
@@ -21,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The entry point for the ILCD export of model components.
@@ -95,22 +87,23 @@ public class Export {
 	 * default language code of the export. It only adds the string when the given
 	 * value is a non-empty string.
 	 */
-	void add(List<LangString> list, String value) {
+	void add(Supplier<List<LangString>> str, String value) {
 		if (value == null || value.isEmpty())
 			return;
-		LangString.set(list, value, lang);
+		str.get().add(LangString.of(value, lang));
 	}
 
 	private Ref refOf(RootEntity e) {
 		if (e == null) {
 			return new Ref();
 		}
-		var ref = new Ref();
-		ref.version = "01.00.000";
-		add(ref.name, e.name);
-		ref.uuid = e.refId;
-		ref.type = refTypeOf(e);
-		ref.uri = "../" + pathOf(ref.type) + "/" + e.refId + ".xml";
+		var type = refTypeOf(e);
+		var ref = new Ref()
+				.withVersion(Version.asString(e.version))
+				.withType(type)
+				.withUUID(e.refId)
+				.withUri("../" + pathOf(type) + "/" + e.refId + ".xml");
+		add(ref::withName, e.name);
 		return ref;
 	}
 

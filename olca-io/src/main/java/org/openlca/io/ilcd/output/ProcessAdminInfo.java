@@ -1,14 +1,11 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.AdminInfo;
-import org.openlca.ilcd.processes.DataEntry;
-import org.openlca.ilcd.processes.DataGenerator;
-import org.openlca.ilcd.processes.Publication;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
 import org.openlca.util.Strings;
@@ -20,7 +17,7 @@ class ProcessAdminInfo {
 	private final Export exp;
 	private Process process;
 	private ProcessDoc doc;
-	private AdminInfo iAdminInfo;
+	private AdminInfo adminInfo;
 
 	ProcessAdminInfo(Export exp) {
 		this.exp = exp;
@@ -29,55 +26,51 @@ class ProcessAdminInfo {
 	AdminInfo create(Process process) {
 		this.process = process;
 		this.doc = process.documentation;
-		iAdminInfo = new AdminInfo();
+		adminInfo = new AdminInfo();
 		if (doc == null)
-			return iAdminInfo;
+			return adminInfo;
 		createDataGenerator();
 		createDataEntry();
 		createPublication();
 		createCommissionerAndGoal();
-		return iAdminInfo;
+		return adminInfo;
 	}
 
 	private void createDataEntry() {
-		var entry = new DataEntry();
-		iAdminInfo.dataEntry = entry;
-		entry.timeStamp = Xml.calendar(new Date());
-		entry.formats.add(Refs.ilcd());
-		entry.documentor = exp.writeRef(doc.dataDocumentor);
+		adminInfo.withDataEntry()
+				.withTimeStamp(Xml.calendar(new Date()))
+				.withDocumentor(exp.writeRef(doc.dataDocumentor))
+				.withFormats()
+				.add(Refs.ilcd());
 	}
 
 	private void createDataGenerator() {
-		if (doc.dataGenerator != null) {
-			var generator = new DataGenerator();
-			iAdminInfo.dataGenerator = generator;
-			Ref ref = exp.writeRef(doc.dataGenerator);
-			if (ref != null)
-				generator.contacts.add(ref);
+		Ref ref = exp.writeRef(doc.dataGenerator);
+		if (ref != null) {
+			adminInfo.withDataGenerator()
+					.withContacts()
+					.add(ref);
 		}
 	}
 
 	private void createPublication() {
-		var pub = new Publication();
-		iAdminInfo.publication = pub;
+		var pub = adminInfo.withPublication()
+				.withVersion(Version.asString(process.version))
+				.withCopyright(doc.copyright)
+				.withOwner(exp.writeRef(doc.dataOwner))
+				.withRepublication(exp.writeRef(doc.publication));
 		if (process.lastChange != 0) {
-			pub.lastRevision = Xml.calendar(process.lastChange);
+			pub.withLastRevision(Xml.calendar(process.lastChange));
 		}
-		pub.version = Version.asString(process.version);
-		pub.copyright = doc.copyright;
-		pub.owner = exp.writeRef(doc.dataOwner);
-		exp.add(pub.accessRestrictions, doc.accessRestrictions);
-		pub.republication = exp.writeRef(doc.publication);
+		exp.add(pub::withAccessRestrictions, doc.accessRestrictions);
 	}
 
 	private void createCommissionerAndGoal() {
 		if (Strings.nullOrEmpty(doc.intendedApplication)
 				&& Strings.nullOrEmpty(doc.project))
 			return;
-		var comAndGoal = new CommissionerAndGoal();
-		iAdminInfo.commissionerAndGoal = comAndGoal;
-		exp.add(comAndGoal.intendedApplications, doc.intendedApplication);
-		exp.add(comAndGoal.project, doc.project);
+		var comAndGoal = adminInfo.withCommissionerAndGoal();
+		exp.add(comAndGoal::withIntendedApplications, doc.intendedApplication);
+		exp.add(comAndGoal::withProject, doc.project);
 	}
-
 }

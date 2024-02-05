@@ -15,7 +15,6 @@ import org.openlca.ilcd.epd.model.Module;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
-import org.openlca.ilcd.util.Processes;
 import org.openlca.io.Xml;
 
 import java.util.HashMap;
@@ -33,15 +32,18 @@ public class EpdExport {
 			return;
 
 		var p = new Process();
-		var info = Processes.forceDataSetInfo(p);
-		info.uuid = epd.refId;
-		var name = Processes.forceProcessName(p);
-		exp.add(name.name, epd.name);
-		exp.add(info.comment, epd.description);
+		var info = p.withProcessInfo()
+				.getDataSetInfo()
+				.withUUID(epd.refId);
+		var name = info.withProcessName();
+		exp.add(name::withBaseName, epd.name);
+		exp.add(info::withComment, epd.description);
 		Categories.toClassification(epd.category)
-				.ifPresent(info.classifications::add);
+				.ifPresent(c -> info.withClassifications().add(c));
 
-		Processes.forceInventoryMethod(p).processType = ProcessType.EPD;
+		p.withModelling()
+				.withInventoryMethod()
+				.withProcessType(ProcessType.EPD);
 		writeRefFlow(epd, p);
 		writeReview(epd, p);
 		writePublication(epd, p);
@@ -56,39 +58,42 @@ public class EpdExport {
 		var product = epd.product;
 		if (product == null)
 			return;
-		var qref = Processes.forceQuantitativeReference(process);
-		qref.referenceFlows.add(0);
-		qref.type = QuantitativeReferenceType.REFERENCE_FLOWS;
-		var exchange = new Exchange();
-		exchange.flow = exp.writeRef(epd.product.flow);
+		var qref = process
+				.withProcessInfo()
+				.withQuantitativeReference()
+				.withType(QuantitativeReferenceType.REFERENCE_FLOWS);
+		qref.withReferenceFlows().add(0);
+
+		var exchange = new Exchange()
+				.withFlow(exp.writeRef(epd.product.flow));
 		var property = product.flow != null
 				? product.flow.getFactor(product.property)
 				: null;
-		exchange.meanAmount = ReferenceAmount.get(
-				product.amount, product.unit, property);
-		exchange.resultingAmount = exchange.meanAmount;
-		process.exchanges.add(exchange);
+		exchange.withMeanAmount(
+				ReferenceAmount.get(product.amount, product.unit, property));
+		exchange.withResultingAmount(exchange.getMeanAmount());
+		process.withExchanges().add(exchange);
 	}
 
 	private void writePublication(Epd epd, Process process) {
-		var pub = Processes.forcePublication(process);
-		pub.version = Version.asString(epd.version);
-		pub.lastRevision = Xml.calendar(epd.lastChange);
-		if (epd.manufacturer != null) {
-			pub.owner = exp.writeRef(epd.manufacturer);
-		}
-		if (epd.programOperator != null) {
-			pub.registrationAuthority = exp.writeRef(epd.programOperator);
-		}
+		process.withAdminInfo()
+				.withPublication()
+				.withVersion(Version.asString(epd.version))
+				.withLastRevision(Xml.calendar(epd.lastChange))
+				.withOwner(exp.writeRef(epd.manufacturer))
+				.withRegistrationAuthority(exp.writeRef(epd.programOperator));
 	}
 
+
 	private void writeReview(Epd epd, Process p) {
-		if (epd.verifier != null) {
-			var reviewer = exp.writeRef(epd.verifier);
-			var validation = Processes.forceValidation(p);
+		var reviewer = exp.writeRef(epd.verifier);
+		if (reviewer != null) {
 			var review = new Review();
-			review.reviewers.add(reviewer);
-			validation.reviews.add(review);
+			review.withReviewers().add(reviewer);
+			p.withModelling()
+					.withValidation()
+					.withReviews()
+					.add(review);
 		}
 	}
 
@@ -112,7 +117,7 @@ public class EpdExport {
 					ir.indicator.unit = r.indicator.referenceUnit;
 					ir.indicator.type = Type.LCIA;
 					ext.results.add(ir);
-					return  ir;
+					return ir;
 				});
 
 				var amount = new Amount();

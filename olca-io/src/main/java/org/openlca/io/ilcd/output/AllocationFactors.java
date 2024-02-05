@@ -1,12 +1,12 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.Map;
-
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.processes.Exchange;
+
+import java.util.Map;
 
 class AllocationFactors {
 
@@ -15,13 +15,13 @@ class AllocationFactors {
 	private final AllocationMethod defaultMethod;
 
 	private AllocationFactors(Process process,
-			Map<org.openlca.core.model.Exchange, Exchange> exchangeMap) {
+														Map<org.openlca.core.model.Exchange, Exchange> exchangeMap) {
 		this.process = process;
 		this.exchangeMap = exchangeMap;
 
 		var method = process.defaultAllocationMethod;
 		if (method != AllocationMethod.PHYSICAL
-			&& method != AllocationMethod.ECONOMIC) {
+				&& method != AllocationMethod.ECONOMIC) {
 			defaultMethod = AllocationMethod.PHYSICAL;
 		} else {
 			boolean hasFactors = false;
@@ -32,14 +32,14 @@ class AllocationFactors {
 				}
 			}
 			defaultMethod = hasFactors
-				? method
-				: AllocationMethod.PHYSICAL;
+					? method
+					: AllocationMethod.PHYSICAL;
 		}
 
 	}
 
 	public static void map(Process process,
-			Map<org.openlca.core.model.Exchange, Exchange> exchangeMap) {
+												 Map<org.openlca.core.model.Exchange, Exchange> exchangeMap) {
 		if (exchangeMap.isEmpty() || process.allocationFactors.isEmpty())
 			return;
 		new AllocationFactors(process, exchangeMap).map();
@@ -62,7 +62,7 @@ class AllocationFactors {
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(exchange, factor.value, product.id);
+		addFactor(exchange, factor.value, product.getId());
 	}
 
 	private void addOtherFactor(AllocationFactor factor) {
@@ -71,14 +71,14 @@ class AllocationFactors {
 		Exchange product = findProduct(factor);
 		if (product == null)
 			return;
-		addFactor(product, factor.value, product.id);
+		addFactor(product, factor.value, product.getId());
 	}
 
 	private void addFactor(Exchange iExchange, double factor, int ref) {
-		org.openlca.ilcd.processes.AllocationFactor f = new org.openlca.ilcd.processes.AllocationFactor();
-		f.fraction = factor * 100;
-		f.productExchangeId = ref;
-		iExchange.add(f);
+		var f = new org.openlca.ilcd.processes.AllocationFactor()
+				.withFraction(factor * 100)
+				.withProductExchangeId(ref);
+		iExchange.withAllocations().add(f);
 	}
 
 	private Exchange findProduct(AllocationFactor factor) {

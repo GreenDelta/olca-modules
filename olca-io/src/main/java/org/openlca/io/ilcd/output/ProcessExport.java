@@ -1,13 +1,14 @@
 package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
+import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
@@ -57,14 +58,22 @@ public class ProcessExport {
 		mapReviews(ds);
 		mapCompleteness(ds);
 
-		ds.adminInfo = new ProcessAdminInfo(exp).create(p);
+		ds.withAdminInfo(new ProcessAdminInfo(exp).create(p));
 		var params = new ProcessParameterConversion(exp).run(p);
 		if (!params.isEmpty()) {
-			Processes.forceParameters(ds).addAll(params);
+			ds.withProcessInfo()
+					.withParameterModel()
+					.withParameters()
+					.addAll(params);
 		}
+
 		Exchange qRef = p.quantitativeReference;
 		if (qRef != null) {
-			Processes.forceReferenceFlows(ds).add(qRef.internalId);
+			ds.withProcessInfo()
+					.withQuantitativeReference()
+					.withType(QuantitativeReferenceType.REFERENCE_FLOWS)
+					.withReferenceFlows()
+					.add(qRef.internalId);
 		}
 
 		new ExchangeConversion(p, exp).run(ds);
@@ -72,14 +81,14 @@ public class ProcessExport {
 	}
 
 	private void mapDataSetInfo(Process ds) {
-		var info = Processes.forceDataSetInfo(ds);
-		info.uuid = process.refId;
-		var processName = new ProcessName();
-		info.name = processName;
-		exp.add(processName.name, process.name);
-		exp.add(info.comment, process.description);
-		Categories.toClassification(process.category)
-				.ifPresent(info.classifications::add);
+		var info = ds.withProcessInfo()
+				.withDataSetInfo()
+				.withUUID(process.refId);
+		var name = info.withProcessName();
+		exp.add(name::withBaseName, process.name);
+		exp.add(info::withComment, process.description);
+		Categories.toClassification(process.category).ifPresent(
+				c ->info.classifications::add);
 	}
 
 	private void mapTime(Process ds) {

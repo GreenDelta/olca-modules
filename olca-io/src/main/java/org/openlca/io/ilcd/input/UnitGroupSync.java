@@ -50,7 +50,7 @@ class UnitGroupSync {
 			if (ilcdRefUnit == null)
 				return;
 			double factor = olcaRefUnit.conversionFactor
-					/ ilcdRefUnit.factor;
+					/ ilcdRefUnit.getFactor();
 			boolean changed = syncUnits(factor);
 			if (changed) {
 				group.lastChange = Calendar.getInstance().getTimeInMillis();
@@ -83,9 +83,9 @@ class UnitGroupSync {
 				continue;
 			var unit = new Unit();
 			unit.refId = id;
-			unit.name = ilcdUnit.name;
-			unit.conversionFactor = factor * ilcdUnit.factor;
-			unit.description = imp.str(ilcdUnit.comment);
+			unit.name = ilcdUnit.getName();
+			unit.conversionFactor = factor * ilcdUnit.getFactor();
+			unit.description = imp.str(ilcdUnit.getComment());
 			group.units.add(unit);
 			changed = true;
 		}

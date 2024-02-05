@@ -2,11 +2,8 @@ package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.contacts.AdminInfo;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.contacts.ContactInfo;
 import org.openlca.ilcd.contacts.DataSetInfo;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
@@ -29,28 +26,28 @@ public class ActorExport {
 		if (actor == null || exp.store.contains(Contact.class, actor.refId))
 			return;
 		this.actor = actor;
-		Contact contact = new Contact();
-		contact.version = "1.1";
-		ContactInfo info = new ContactInfo();
-		contact.contactInfo = info;
-		info.dataSetInfo = makeDataSetInfo();
-		contact.adminInfo = makeAdminInfo();
+		var contact = new Contact();
+		contact
+				.withVersion("1.1")
+				.withAdminInfo(makeAdminInfo())
+				.withContactInfo()
+				.withDataSetInfo(makeDataSetInfo());
 		exp.store.put(contact);
 		this.actor = null;
 	}
 
 	private DataSetInfo makeDataSetInfo() {
-		var info = new DataSetInfo();
-		info.uuid = actor.refId;
-		exp.add(info.name, actor.name);
-		info.email = actor.email;
-		info.telefax = actor.telefax;
-		info.telephone = actor.telephone;
-		info.webSite = actor.website;
+		var info = new DataSetInfo()
+				.withUUID(actor.refId)
+				.withEmail(actor.email)
+				.withTelefax(actor.telefax)
+				.withTelephone(actor.telephone)
+				.withWebSite(actor.website);
+		exp.add(info::withName, actor.name);
 		addAddress(info);
-		exp.add(info.description, actor.description);
-		Categories.toClassification(actor.category)
-				.ifPresent(info.classifications::add);
+		exp.add(info::withDescription, actor.description);
+		Categories.toClassification(
+				actor.category, info::withClassifications);
 		return info;
 	}
 
@@ -64,27 +61,27 @@ public class ActorExport {
 		if (actor.city != null) {
 			address += " " + actor.city;
 		}
-		exp.add(dataSetInfo.contactAddress, address);
+		exp.add(dataSetInfo::withContactAddress, address);
 	}
 
 	private AdminInfo makeAdminInfo() {
-		AdminInfo info = new AdminInfo();
-		DataEntry entry = new DataEntry();
-		info.dataEntry = entry;
-		entry.timeStamp = Xml.calendar(actor.lastChange);
-		entry.formats.add(Refs.ilcd());
+		var info = new AdminInfo();
+		info.withDataEntry()
+				.withTimeStamp(Xml.calendar(actor.lastChange))
+				.withFormats().add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}
 
 	private void addPublication(AdminInfo info) {
-		Publication pub = new Publication();
-		info.publication = pub;
-		pub.version = Version.asString(actor.version);
-		if (baseUri == null)
-			baseUri = "http://openlca.org/ilcd/resource/";
-		if (!baseUri.endsWith("/"))
-			baseUri += "/";
-		pub.uri = baseUri + "contacts/" + actor.refId;
+		var uri = baseUri == null
+				? "http://openlca.org/ilcd/resource/"
+				: baseUri;
+		if (!uri.endsWith("/")) {
+			uri += "/";
+		}
+		info.withPublication()
+				.withVersion(Version.asString(actor.version))
+				.withUri(uri);
 	}
 }

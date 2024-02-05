@@ -23,7 +23,7 @@ public class SourceImport {
 	}
 
 	public Source run() {
-		var source = imp.db().get(Source.class, ds.getUUID());
+		var source = imp.db().get(Source.class, Sources.getUUID(ds));
 		return source != null
 				? source
 				: createNew();
@@ -53,18 +53,18 @@ public class SourceImport {
 	}
 
 	private void setDescriptionAttributes() {
-		source.refId = ds.getUUID();
+		source.refId = Sources.getUUID(ds);
 		var info = Sources.getDataSetInfo(ds);
 		if (info != null) {
-			source.name = imp.str(info.name);
-			source.description = imp.str(info.description);
-			source.textReference = info.citation;
+			source.name = imp.str(info.getName());
+			source.description = imp.str(info.getDescription());
+			source.textReference = info.getCitation();
 		}
 
 		source.version = Version.fromString(ds.getVersion()).getValue();
 		var entry = Sources.getDataEntry(ds);
-		if (entry != null && entry.timeStamp != null) {
-			source.lastChange = entry.timeStamp
+		if (entry != null && entry.getTimeStamp() != null) {
+			source.lastChange = entry.getTimeStamp()
 					.toGregorianCalendar()
 					.getTimeInMillis();
 		}
@@ -78,7 +78,7 @@ public class SourceImport {
 		var fileRef = fileRefs.get(0);
 		if (fileRef == null)
 			return;
-		var uri = fileRef.uri;
+		var uri = fileRef.getUri();
 		try {
 			copyFile(dbDir, uri);
 		} catch (Exception e) {
@@ -97,7 +97,7 @@ public class SourceImport {
 		var dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		var stream = imp.store().getExternalDocument(ds.getUUID(), fileName);
+		var stream = imp.store().getExternalDocument(Sources.getUUID(ds), fileName);
 		if (stream == null)
 			return;
 		try (stream) {

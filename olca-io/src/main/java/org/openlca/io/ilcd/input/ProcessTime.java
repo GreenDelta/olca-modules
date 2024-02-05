@@ -30,20 +30,20 @@ class ProcessTime {
 		TimeExtension extension = new TimeExtension(time);
 		mapStartDate(extension, doc);
 		mapEndDate(extension, doc);
-		doc.time = imp.str(time.description);
+		doc.time = imp.str(time.getDescription());
 	}
 
 	private void mapStartDate(TimeExtension extension, ProcessDoc doc) {
 		Date startDate = extension.getStartDate();
 		if (startDate == null)
-			startDate = date(time.referenceYear);
+			startDate = date(time.getReferenceYear());
 		doc.validFrom = startDate;
 	}
 
 	private void mapEndDate(TimeExtension extension, ProcessDoc doc) {
 		Date endDate = extension.getEndDate();
 		if (endDate == null)
-			endDate = date(time.validUntil);
+			endDate = date(time.getValidUntil());
 		doc.validUntil = endDate;
 	}
 
