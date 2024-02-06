@@ -48,7 +48,6 @@ public class FlowImport {
 					+ flow.refId + " because the "
 					+ "reference flow property of this flow "
 					+ "could not be imported.");
-			return null;
 		}
 		return imp.insert(flow);
 	}
@@ -87,7 +86,7 @@ public class FlowImport {
 	private void addFlowProperties() {
 		Integer refID = Flows.getReferenceFlowPropertyID(ds);
 		boolean addItems = false;
-		for (var ref :  Flows.getFlowProperties(ds)) {
+		for (var ref : Flows.getFlowProperties(ds)) {
 			if (ref == null
 					|| ref.getFlowProperty() == null
 					|| ref.getMeanValue() == 0)
