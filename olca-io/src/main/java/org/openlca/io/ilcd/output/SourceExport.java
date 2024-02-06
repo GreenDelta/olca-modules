@@ -37,19 +37,17 @@ public class SourceExport {
 			return;
 		this.source = source;
 		log.trace("Run source export with {}", source);
-		Source iSource = new Source();
-		iSource.version = "1.1";
-		iSource.adminInfo = makeAdminInfo();
-		SourceInfo info = new SourceInfo();
-		iSource.sourceInfo = info;
-		DataSetInfo dataSetInfo = makeDateSetInfo();
-		info.dataSetInfo = dataSetInfo;
+		var ds = new Source()
+				.withVersion("1.1")
+				.withAdminInfo(makeAdminInfo());
+		var info = makeDateSetInfo();
+		ds.withSourceInfo().withDataSetInfo(info);
 		File extFile = getExternalFile();
 		if (extFile == null)
-			exp.store.put(iSource);
+			exp.store.put(ds);
 		else {
-			addFileRef(dataSetInfo, extFile);
-			exp.store.put(iSource, new File[]{extFile});
+			addFileRef(info, extFile);
+			exp.store.put(ds, new File[]{extFile});
 		}
 	}
 
@@ -69,51 +67,49 @@ public class SourceExport {
 	}
 
 	private DataSetInfo makeDateSetInfo() {
-		log.trace("Create data set information.");
-		var info = new DataSetInfo();
-		info.uuid = source.refId;
-		exp.add(info.name, source.name);
-		exp.add(info.description, source.description);
+		var info = new DataSetInfo()
+				.withUUID(source.refId);
+		exp.add(info::withName, source.name);
+		exp.add(info::withDescription, source.description);
 		addTextReference(info);
-		Categories.toClassification(source.category)
-				.ifPresent(info.classifications::add);
+		Categories.toClassification(
+				source.category, info::withClassifications);
 		return info;
 	}
 
 	private void addTextReference(DataSetInfo dataSetInfo) {
-		log.trace("Create text reference.");
 		String cit = source.textReference;
 		if (cit == null)
 			return;
-		if (source.year != null)
+		if (source.year != null) {
 			cit += " " + source.year;
-		dataSetInfo.citation = cit;
+		}
+		dataSetInfo.withCitation(cit);
 	}
 
 	private void addFileRef(DataSetInfo info, File extFile) {
-		FileRef fileRef = new FileRef();
-		fileRef.uri = "../external_docs/" + extFile.getName();
-		info.files.add(fileRef);
+		info.withFiles().add(
+				new FileRef()
+						.withUri("../external_docs/" + extFile.getName()));
 	}
 
 	private AdminInfo makeAdminInfo() {
-		AdminInfo info = new AdminInfo();
-		DataEntry entry = new DataEntry();
-		info.dataEntry = entry;
-		entry.timeStamp = Xml.calendar(source.lastChange);
-		entry.formats.add(Refs.ilcd());
+		var info = new AdminInfo();
+		info.withDataEntry()
+				.withTimeStamp(Xml.calendar(source.lastChange))
+				.withFormats()
+				.add(Refs.ilcd());
 		addPublication(info);
 		return info;
 	}
 
 	private void addPublication(AdminInfo info) {
-		Publication pub = new Publication();
-		info.publication = pub;
-		pub.version = Version.asString(source.version);
 		if (baseUri == null)
 			baseUri = "http://openlca.org/ilcd/resource/";
 		if (!baseUri.endsWith("/"))
 			baseUri += "/";
-		pub.uri = baseUri + "sources/" + source.refId;
+		info.withPublication()
+				.withVersion(Version.asString(source.version))
+				.withUri(baseUri + "sources/" + source.refId);
 	}
 }

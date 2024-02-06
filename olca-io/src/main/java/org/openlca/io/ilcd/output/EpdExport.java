@@ -33,13 +33,12 @@ public class EpdExport {
 
 		var p = new Process();
 		var info = p.withProcessInfo()
-				.getDataSetInfo()
+				.withDataSetInfo()
 				.withUUID(epd.refId);
 		var name = info.withProcessName();
 		exp.add(name::withBaseName, epd.name);
 		exp.add(info::withComment, epd.description);
-		Categories.toClassification(epd.category)
-				.ifPresent(c -> info.withClassifications().add(c));
+		Categories.toClassification(epd.category, info::withClassifications);
 
 		p.withModelling()
 				.withInventoryMethod()

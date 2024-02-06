@@ -14,11 +14,8 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.models.Connection;
 import org.openlca.ilcd.models.DownstreamLink;
 import org.openlca.ilcd.models.Model;
-import org.openlca.ilcd.models.ModelName;
-import org.openlca.ilcd.models.Modelling;
 import org.openlca.ilcd.models.Parameter;
 import org.openlca.ilcd.models.ProcessInstance;
-import org.openlca.ilcd.models.Technology;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Models;
 import org.slf4j.Logger;
@@ -85,38 +82,40 @@ public class SystemExport {
 	}
 
 	private Model initModel() {
-		Model model = new Model();
+		var model = new Model()
+				.withVersion("1.1")
+				.withLocations("../ILCDLocations.xml");
 		Models.setOrigin(model, "openLCA");
-		model.version = "1.1";
-		model.locations = "../ILCDLocations.xml";
-		var info = Models.forceDataSetInfo(model);
-		info.uuid = system.refId;
-		ModelName name = Models.forceModelName(model);
-		exp.add(name.name, system.name);
-		exp.add(info.comment, system.description);
-		Categories.toClassification(system.category)
-				.ifPresent(c -> Models.forceClassifications(model).add(c));
+
+		var info = model.withInfo()
+				.withDataSetInfo()
+				.withUUID(system.refId);
+		var name = info.withModelName();
+		exp.add(name::withBaseName, system.name);
+		exp.add(info::withComment, system.description);
+		Categories.toClassification(system.category, info::withClassifications);
 
 		if (system.referenceProcess != null) {
 			long refId = system.referenceProcess.id;
-			var qRef = Models.forceQuantitativeReference(model);
-			qRef.refProcess = processIDs.getOrDefault(refId, -1);
+			model.withInfo()
+					.withQuantitativeReference()
+					.withRefProcess(processIDs.getOrDefault(refId, -1));
 		}
-		Models.forcePublication(model).version = Version
-				.asString(system.version);
-		model.modelling = new Modelling();
+		model.withAdminInfo()
+				.withPublication()
+				.withVersion(Version.asString(system.version));
 		return model;
 	}
 
 	private void mapLinks(Model model) {
-		Technology tech = Models.forceTechnology(model);
+		var tech = model.withInfo().withTechnology();
 		Map<Long, ProcessInstance> instances = new HashMap<>();
 		for (Long id : system.processes) {
 			if (id == null)
 				continue;
-			ProcessInstance pi = initProcessInstance(id);
+			var pi = initProcessInstance(id);
 			instances.put(id, pi);
-			tech.processes.add(pi);
+			tech.withProcesses().add(pi);
 		}
 		for (ProcessLink link : system.processLinks) {
 			FlowDescriptor flow = flows.get(link.flowId);
@@ -133,14 +132,14 @@ public class SystemExport {
 	}
 
 	private ProcessInstance initProcessInstance(long id) {
-		var pi = new ProcessInstance();
-		pi.id = processIDs.getOrDefault(id, -1);
+		var pi = new ProcessInstance()
+				.withId(processIDs.getOrDefault(id, -1));
 		var d = processes.get(id);
 		if (!exp.store.contains(Process.class, d.refId)) {
 			var dao = new ProcessDao(exp.db);
 			exp.write(dao.getForId(d.id));
 		}
-		pi.process = toRef(d);
+		pi.withProcess(toRef(d));
 
 		// process parameters
 		if (system.parameterSets.isEmpty())
@@ -153,10 +152,10 @@ public class SystemExport {
 			Long context = redef.contextId;
 			if (redef.contextId == null || context != id)
 				continue;
-			var param = new Parameter();
-			param.name = redef.name;
-			param.value = redef.value;
-			pi.parameters.add(param);
+			var param = new Parameter()
+					.withName(redef.name)
+					.withValue(redef.value);
+			pi.withParameters().add(param);
 		}
 		return pi;
 	}
@@ -166,41 +165,40 @@ public class SystemExport {
 		if (pi == null || link == null || flow == null)
 			return;
 		Connection con = null;
-		for (Connection c : pi.connections) {
-			if (Objects.equals(c.outputFlow, flow.refId)) {
+		for (Connection c : pi.getConnections()) {
+			if (Objects.equals(c.getOutputFlow(), flow.refId)) {
 				con = c;
 				break;
 			}
 		}
 		if (con == null) {
-			con = new Connection();
-			con.outputFlow = flow.refId;
-			pi.connections.add(con);
+			con = new Connection().withOutputFlow(flow.refId);
+			pi.withConnections().add(con);
 		}
-		DownstreamLink dl = new DownstreamLink();
-		dl.inputFlow = flow.refId;
-		dl.linkedExchange = exchangeIDs.get(link.exchangeId);
+		var dl = new DownstreamLink()
+				.withInputFlow(flow.refId)
+				.withLinkedExchange(exchangeIDs.get(link.exchangeId));
 		long linkProcess = 0L;
 		if (flow.flowType == FlowType.PRODUCT_FLOW) {
 			linkProcess = link.processId;
 		} else if (flow.flowType == FlowType.WASTE_FLOW) {
 			linkProcess = link.providerId;
 		}
-		dl.process = processIDs.getOrDefault(linkProcess, -1);
-		if (dl.process != -1) {
-			con.downstreamLinks.add(dl);
+		dl.withProcess(processIDs.getOrDefault(linkProcess, -1));
+		if (dl.getProcess() != -1) {
+			con.withDownstreamLinks().add(dl);
 		}
 	}
 
 	private Ref toRef(ProcessDescriptor d) {
 		if (d == null)
 			return null;
-		Ref ref = new Ref();
-		ref.type = DataSetType.PROCESS;
-		ref.uuid = d.refId;
-		ref.uri = "../processes/" + ref.uuid + ".xml";
-		ref.version = Version.asString(d.version);
-		exp.add(ref.name, d.name);
+		Ref ref = new Ref()
+				.withType(DataSetType.PROCESS)
+				.withUUID(d.refId)
+				.withUri("../processes/" + d.refId + ".xml")
+				.withVersion(Version.asString(d.version));
+		exp.add(ref::withName, d.name);
 		return ref;
 	}
 }

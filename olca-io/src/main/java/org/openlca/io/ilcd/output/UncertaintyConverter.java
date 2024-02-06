@@ -12,141 +12,133 @@ import org.openlca.ilcd.util.ExchangeExtension;
  */
 class UncertaintyConverter {
 
-	public void map(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		Uncertainty uncertainty = oExchange.uncertainty;
+	public void map(Exchange o, org.openlca.ilcd.processes.Exchange i) {
+		Uncertainty uncertainty = o.uncertainty;
 		if (uncertainty == null
 				|| uncertainty.distributionType == UncertaintyType.NONE)
 			return;
 		switch (uncertainty.distributionType) {
-		case LOG_NORMAL:
-			mapLogNormal(oExchange, iExchange);
-			break;
-		case NORMAL:
-			mapNormal(oExchange, iExchange);
-			break;
-		case TRIANGLE:
-			mapTriangular(oExchange, iExchange);
-			break;
-		case UNIFORM:
-			mapUniform(oExchange, iExchange);
-			break;
-		default:
-			break;
+			case LOG_NORMAL:
+				mapLogNormal(o, i);
+				break;
+			case NORMAL:
+				mapNormal(o, i);
+				break;
+			case TRIANGLE:
+				mapTriangular(o, i);
+				break;
+			case UNIFORM:
+				mapUniform(o, i);
+				break;
+			default:
+				break;
 		}
 	}
 
-	public void map(Parameter oParameter,
-			org.openlca.ilcd.processes.Parameter iParameter) {
-		Uncertainty uncertainty = oParameter.uncertainty;
+	public void map(Parameter o, org.openlca.ilcd.processes.Parameter i) {
+		var uncertainty = o.uncertainty;
 		if (uncertainty == null
 				|| uncertainty.distributionType == UncertaintyType.NONE)
 			return;
 		switch (uncertainty.distributionType) {
-		case LOG_NORMAL:
-			mapLogNormal(oParameter, iParameter);
-			break;
-		case NORMAL:
-			mapNormal(oParameter, iParameter);
-			break;
-		case TRIANGLE:
-			mapTriangle(oParameter, iParameter);
-			break;
-		case UNIFORM:
-			mapUniform(oParameter, iParameter);
-			break;
-		default:
-			break;
+			case LOG_NORMAL:
+				mapLogNormal(o, i);
+				break;
+			case NORMAL:
+				mapNormal(o, i);
+				break;
+			case TRIANGLE:
+				mapTriangle(o, i);
+				break;
+			case UNIFORM:
+				mapUniform(o, i);
+				break;
+			default:
+				break;
 		}
 	}
 
-	private void mapLogNormal(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		Double param = getUncertaintyParam(2, oExchange);
+	private void mapLogNormal(Exchange o, org.openlca.ilcd.processes.Exchange i) {
+		var param = getUncertaintyParam(2, o);
 		if (param == null)
 			return;
-		iExchange.relativeStandardDeviation95In = param;
-		iExchange.uncertaintyDistribution = UncertaintyDistribution.LOG_NORMAL;
+		i.withRelativeStandardDeviation95In(param);
+		i.withUncertaintyDistribution(UncertaintyDistribution.LOG_NORMAL);
 	}
 
-	private void mapLogNormal(Parameter oParameter,
-			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.uncertainty.parameter2;
+	private void mapLogNormal(Parameter o, org.openlca.ilcd.processes.Parameter i) {
+		Double std = o.uncertainty.parameter2;
 		if (std == null)
 			return;
-		iParameter.dispersion = std;
-		iParameter.distribution = UncertaintyDistribution.LOG_NORMAL;
+		i.withDispersion(std);
+		i.withDistribution(UncertaintyDistribution.LOG_NORMAL);
 	}
 
-	private void mapNormal(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		Double param = getUncertaintyParam(2, oExchange);
+	private void mapNormal(Exchange o, org.openlca.ilcd.processes.Exchange i) {
+		Double param = getUncertaintyParam(2, o);
 		if (param == null)
 			return;
-		iExchange.relativeStandardDeviation95In = param;
-		iExchange.uncertaintyDistribution = UncertaintyDistribution.NORMAL;
+		i.withRelativeStandardDeviation95In(param);
+		i.withUncertaintyDistribution(UncertaintyDistribution.NORMAL);
 	}
 
-	private void mapNormal(Parameter oParameter,
-			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double std = oParameter.uncertainty.parameter2;
+	private void mapNormal(Parameter o, org.openlca.ilcd.processes.Parameter i) {
+		Double std = o.uncertainty.parameter2;
 		if (std == null)
 			return;
-		iParameter.dispersion = std;
-		iParameter.distribution = UncertaintyDistribution.NORMAL;
+		i.withDispersion(std);
+		i.withDistribution(UncertaintyDistribution.NORMAL);
 	}
 
-	private void mapTriangular(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		Double param1 = getUncertaintyParam(1, oExchange);
-		Double param2 = getUncertaintyParam(2, oExchange);
-		Double param3 = getUncertaintyParam(3, oExchange);
+	private void mapTriangular(Exchange o, org.openlca.ilcd.processes.Exchange i) {
+		Double param1 = getUncertaintyParam(1, o);
+		Double param2 = getUncertaintyParam(2, o);
+		Double param3 = getUncertaintyParam(3, o);
 		if (param1 == null || param2 == null || param3 == null)
 			return;
-		iExchange.minimumAmount = param1;
-		new ExchangeExtension(iExchange).setMostLikelyValue(param2);
-		iExchange.maximumAmount = param3;
-		iExchange.uncertaintyDistribution = UncertaintyDistribution.TRIANGULAR;
+		i.withMinimumAmount(param1);
+		new ExchangeExtension(i).setMostLikelyValue(param2);
+		i.withMaximumAmount(param3);
+		i.withUncertaintyDistribution(UncertaintyDistribution.TRIANGULAR);
 	}
 
-	private void mapTriangle(Parameter oParameter,
-			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.uncertainty.parameter1;
-		// Double mode = oParameter.getUncertainty().getParameter2Value();
+	private void mapTriangle(Parameter o, org.openlca.ilcd.processes.Parameter i) {
+		Double min = o.uncertainty.parameter1;
+		// Double mode = o.getUncertainty().getParameter2Value();
 		// TODO: ILCD do not provide a field for the mode, we have to add
 		// an extension to the format
-		Double max = oParameter.uncertainty.parameter3;
+		Double max = o.uncertainty.parameter3;
 		if (min == null || max == null)
 			return;
-		iParameter.min = min;
-		iParameter.max = max;
-		iParameter.distribution = UncertaintyDistribution.TRIANGULAR;
+		i.withMin(min);
+		i.withMax(max);
+		i.withDistribution(UncertaintyDistribution.TRIANGULAR);
 	}
 
-	private void mapUniform(Exchange oExchange,
-			org.openlca.ilcd.processes.Exchange iExchange) {
-		Double param1 = getUncertaintyParam(1, oExchange);
-		Double param2 = getUncertaintyParam(2, oExchange);
+	private void mapUniform(Exchange o,
+			org.openlca.ilcd.processes.Exchange i) {
+		Double param1 = getUncertaintyParam(1, o);
+		Double param2 = getUncertaintyParam(2, o);
 		if (param1 == null || param2 == null)
 			return;
-		iExchange.minimumAmount = param1;
-		iExchange.maximumAmount = param2;
-		iExchange.uncertaintyDistribution = UncertaintyDistribution.UNIFORM;
+		i.withMinimumAmount(param1);
+		i.withMaximumAmount(param2);
+		i.withUncertaintyDistribution(UncertaintyDistribution.UNIFORM);
 	}
 
-	private void mapUniform(Parameter oParameter,
-			org.openlca.ilcd.processes.Parameter iParameter) {
-		Double min = oParameter.uncertainty.parameter1;
-		Double max = oParameter.uncertainty.parameter2;
+	private void mapUniform(Parameter o,
+			org.openlca.ilcd.processes.Parameter i) {
+		Double min = o.uncertainty.parameter1;
+		Double max = o.uncertainty.parameter2;
 		if (min == null || max == null)
 			return;
-		iParameter.min = min;
-		iParameter.max = max;
-		iParameter.distribution = UncertaintyDistribution.UNIFORM;
+		i.withMin(min);
+		i.withMax(max);
+		i.withDistribution(UncertaintyDistribution.UNIFORM);
 	}
 
-	private Double getUncertaintyParam(int param, Exchange oExchange) {
-		var uncertainty = oExchange.uncertainty;
+	private Double getUncertaintyParam(int param, Exchange o) {
+		var uncertainty = o.uncertainty;
 		return switch (param) {
 			case 1 -> uncertainty.parameter1;
 			case 2 -> uncertainty.parameter2;

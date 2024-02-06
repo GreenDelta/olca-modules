@@ -42,8 +42,8 @@ public class FlowPropertyExport {
 				.withUUID(flowProperty.refId);
 		exp.add(info::withName, flowProperty.name);
 		exp.add(info::withGeneralComment, flowProperty.description);
-		Categories.toClassification(flowProperty.category).ifPresent(
-				c -> info.withClassifications().add(c));
+		Categories.toClassification(
+				flowProperty.category, info::withClassifications);
 		return info;
 	}
 

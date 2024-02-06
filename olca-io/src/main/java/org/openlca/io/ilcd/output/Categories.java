@@ -6,9 +6,7 @@ import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.CompartmentList;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Stack;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 class Categories {
@@ -36,9 +34,11 @@ class Categories {
 		fn.get().add(classification);
 	}
 
-	static Optional<CompartmentList> toCompartments(Category category) {
+	static void toCompartments(
+			Category category, Supplier<List<CompartmentList>> fn
+	) {
 		if (category == null)
-			return Optional.empty();
+			return;
 		var list = new CompartmentList();
 		var stack = stackOf(category);
 		int level = 0;
@@ -51,7 +51,7 @@ class Categories {
 			list.withCompartments().add(comp);
 			level++;
 		}
-		return Optional.of(list);
+		fn.get().add(list);
 	}
 
 	private static Stack<Category> stackOf(Category category) {

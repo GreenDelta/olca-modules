@@ -2,22 +2,18 @@ package org.openlca.io.ilcd.output;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessType;
-import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
-import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.ProcessName;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.processes.ReviewMethod;
 import org.openlca.ilcd.processes.ReviewScope;
-import org.openlca.ilcd.util.Processes;
 import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -26,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 /**
  * The export of an openLCA process to an ILCD process data set.
@@ -87,24 +84,23 @@ public class ProcessExport {
 		var name = info.withProcessName();
 		exp.add(name::withBaseName, process.name);
 		exp.add(info::withComment, process.description);
-		Categories.toClassification(process.category).ifPresent(
-				c ->info.classifications::add);
+		Categories.toClassification(process.category, info::withClassifications);
 	}
 
 	private void mapTime(Process ds) {
 		if (doc == null)
 			return;
-		var time = Processes.forceTime(ds);
+		var time = ds.withProcessInfo().withTime();
 		var ext = new TimeExtension(time);
 		if (doc.validFrom != null) {
-			time.referenceYear = getYear(doc.validFrom);
+			time.withReferenceYear(getYear(doc.validFrom));
 			ext.setStartDate(doc.validFrom);
 		}
 		if (doc.validUntil != null) {
-			time.validUntil = getYear(doc.validUntil);
+			time.withValidUntil(getYear(doc.validUntil));
 			ext.setEndDate(doc.validUntil);
 		}
-		exp.add(time.description, doc.time);
+		exp.add(time::withDescription, doc.time);
 	}
 
 	private Integer getYear(Date date) {
@@ -120,44 +116,47 @@ public class ProcessExport {
 			return;
 		if (process.location == null && doc.geography == null)
 			return;
-		var loc = Processes.forceLocation(ds);
+		var loc = ds.withProcessInfo()
+				.withGeography()
+				.withLocation();
 		if (process.location != null) {
 			var oLoc = process.location;
-			loc.code = oLoc.code;
+			loc.withCode(oLoc.code);
 			// do not write (0.0, 0.0) locations; these are the default
 			// location coordinates in openLCA but probably never a valid
 			// process location, right?
 			if (!(oLoc.latitude == 0.0 && oLoc.longitude == 0.0)) {
-				loc.latitudeAndLongitude = oLoc.latitude + ";" + oLoc.longitude;
+				loc.withLatitudeAndLongitude(oLoc.latitude + ";" + oLoc.longitude);
 			}
 		}
-		exp.add(loc.description, doc.geography);
+		exp.add(loc::withDescription, doc.geography);
 	}
 
 	private void mapTechnology(Process ds) {
 		if (doc == null)
 			return;
 		if (Strings.notEmpty(doc.technology)) {
-			var tech = Processes.forceTechnology(ds);
-			exp.add(tech.description, doc.technology);
+			var tech = ds.withProcessInfo().withTechnology();
+			exp.add(tech::withDescription, doc.technology);
 		}
 	}
 
 	private void mapInventoryMethod(Process ds) {
-		var method = Processes.forceInventoryMethod(ds);
+		var method = ds.withModelling().withInventoryMethod();
 		if (process.processType != null) {
-			method.processType = process.processType == ProcessType.UNIT_PROCESS
-					? org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX
-					: org.openlca.ilcd.commons.ProcessType.LCI_RESULT;
+			method.withProcessType(
+					process.processType == ProcessType.UNIT_PROCESS
+							? org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX
+							: org.openlca.ilcd.commons.ProcessType.LCI_RESULT);
 		}
-		method.principle = ModellingPrinciple.OTHER;
+		method.withPrinciple(ModellingPrinciple.OTHER);
 		if (doc != null) {
-			exp.add(method.principleDeviations, doc.inventoryMethod);
-			exp.add(method.constants, doc.modelingConstants);
+			exp.add(method::withPrincipleDeviations, doc.inventoryMethod);
+			exp.add(method::withConstants, doc.modelingConstants);
 		}
 		var allocation = getAllocationMethod();
 		if (allocation != null) {
-			method.approaches.add(allocation);
+			method.withApproaches().add(allocation);
 		}
 	}
 
@@ -175,50 +174,50 @@ public class ProcessExport {
 	private void mapRepresentativeness(Process ds) {
 		if (doc == null)
 			return;
-		var rep = Processes.forceRepresentativeness(ds);
-		exp.add(rep.completeness, doc.dataCompleteness);
-		exp.add(rep.completenessComment, "None.");
-		exp.add(rep.dataSelection, doc.dataSelection);
-		exp.add(rep.dataSelectionComment, "None.");
-		exp.add(rep.dataTreatment, doc.dataTreatment);
-		exp.add(rep.samplingProcedure, doc.samplingProcedure);
-		exp.add(rep.dataCollectionPeriod, doc.dataCollectionPeriod);
-		for (Source source : doc.sources) {
-			Ref ref = exp.writeRef(source);
-			if (ref != null) {
-				rep.sources.add(ref);
-			}
-		}
+		var rep = ds.withModelling().withRepresentativeness();
+		exp.add(rep::withCompleteness, doc.dataCompleteness);
+		exp.add(rep::withCompletenessComment, "None.");
+		exp.add(rep::withDataSelection, doc.dataSelection);
+		exp.add(rep::withDataSelectionComment, "None.");
+		exp.add(rep::withDataTreatment, doc.dataTreatment);
+		exp.add(rep::withSamplingProcedure, doc.samplingProcedure);
+		exp.add(rep::withDataCollectionPeriod, doc.dataCollectionPeriod);
+		doc.sources.stream()
+				.map(exp::writeRef)
+				.filter(Objects::nonNull)
+				.forEach(s -> rep.withSources().add(s));
 	}
+
 
 	private void mapReviews(Process ds) {
 		if (doc == null || doc.reviews.isEmpty())
 			return;
-		var reviews = Processes.forceReviews(ds);
+		var reviews = ds.withModelling()
+				.withValidation()
+				.withReviews();
 		for (var r : doc.reviews) {
 			var rev = new Review();
 			reviews.add(rev);
-			rev.type = ReviewType.fromValue(r.type).orElse(null);
-			rev.report = exp.writeRef(r.report);
-			exp.add(rev.details, r.details);
+			rev.withType(ReviewType.fromValue(r.type).orElse(null))
+					.withReport(exp.writeRef(r.report));
+			exp.add(rev::withDetails, r.details);
 			for (var reviewer : r.reviewers) {
 				var ref = exp.writeRef(reviewer);
 				if (ref != null) {
-					rev.reviewers.add(ref);
+					rev.withReviewers().add(ref);
 				}
 			}
 
 			for (var s : r.scopes) {
-				var scope = new Review.Scope();
-				scope.name = ReviewScope.fromValue(s.name).orElse(null);
-				if (scope.name == null)
+				var name = ReviewScope.fromValue(s.name).orElse(null);
+				if (name == null)
 					continue;
-				rev.scopes.add(scope);
+				var scope = new Review.Scope().withName(name);
+				rev.withScopes().add(scope);
 				for (var m : s.methods) {
 					ReviewMethod.fromValue(m).ifPresent(method -> {
-						var entry = new Review.Method();
-						entry.name = method;
-						scope.methods.add(entry);
+						var entry = new Review.Method().withName(method);
+						scope.withMethods().add(entry);
 					});
 				}
 			}
@@ -229,19 +228,22 @@ public class ProcessExport {
 		if (doc == null || doc.flowCompleteness.isEmpty())
 			return;
 		var c = doc.flowCompleteness;
-		var target = Processes.forceCompleteness(ds);
-		target.productCompleteness = FlowCompleteness
+		var productAspect = FlowCompleteness
 				.fromValue(c.get("Product model"))
 				.orElse(null);
+		var completeness = ds.withModelling()
+				.withCompleteness()
+				.withProductCompleteness(productAspect);
 		for (var impact : ImpactCategory.values()) {
-			var value = FlowCompleteness.fromValue(c.get(impact.value()))
+			var aspect = FlowCompleteness
+					.fromValue(c.get(impact.value()))
 					.orElse(null);
-			if (value == null)
+			if (aspect == null)
 				continue;
-			var e = new FlowCompletenessEntry();
-			e.impact = impact;
-			e.value = value;
-			target.entries.add(e);
+			var e = new FlowCompletenessEntry()
+					.withImpact(impact)
+					.withValue(aspect);
+			completeness.withEntries().add(e);
 		}
 	}
 }

@@ -55,15 +55,13 @@ public class FlowExport {
 
 	private void makeCategoryInfo(DataSetInfo info) {
 		if (flow.flowType == org.openlca.core.model.FlowType.ELEMENTARY_FLOW) {
-			Categories.toCompartments(flow.category).ifPresent(
-					c -> info.withClassificationInformation().
-							withCompartmentLists().
-							add(c));
+			Categories.toCompartments(
+					flow.category,
+					() -> info.withClassificationInformation().withCompartmentLists());
 		} else {
-			Categories.toClassification(flow.category).ifPresent(
-					c -> info.withClassificationInformation()
-							.withClassifications()
-							.add(c));
+			Categories.toClassification(
+					flow.category,
+					() -> info.withClassificationInformation().withClassifications());
 		}
 	}
 

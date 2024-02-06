@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ilcd.commons.CommissionerAndGoal;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.util.Refs;

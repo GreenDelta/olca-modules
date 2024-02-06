@@ -57,14 +57,14 @@ class ProcessParameterConversion {
 		return iParameters;
 	}
 
-	private org.openlca.ilcd.processes.Parameter convertParam(Parameter oParam) {
-		var iParameter = new org.openlca.ilcd.processes.Parameter();
-		iParameter.name = oParam.name;
-		iParameter.formula = oParam.formula;
-		iParameter.mean = oParam.value;
-		new UncertaintyConverter().map(oParam, iParameter);
-		exp.add(iParameter.comment, oParam.description);
-		return iParameter;
+	private org.openlca.ilcd.processes.Parameter convertParam(Parameter o) {
+		var i = new org.openlca.ilcd.processes.Parameter()
+				.withName(o.name)
+				.withFormula(o.formula)
+				.withMean(o.value);
+		new UncertaintyConverter().map(o, i);
+		exp.add(i::withComment, o.description);
+		return i;
 	}
 
 	private boolean valid(Parameter param) {

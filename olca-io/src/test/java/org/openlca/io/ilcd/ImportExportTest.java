@@ -81,7 +81,7 @@ public class ImportExportTest {
 	public void testA_Contact() {
 		var id = "177ca340-ffa2-11da-92e3-0800200c9a66";
 		var contact = imp.store().get(Contact.class, id);
-		var actor = new ContactImport(imp).run(contact);
+		var actor = new ContactImport(imp, contact).run();
 		assertEquals(id, actor.refId);
 		new ActorExport(export).write(actor);
 		assertTrue(store.contains(Contact.class, id));

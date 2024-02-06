@@ -49,13 +49,8 @@ public class EpdExportTest {
 		assertNotNull(iEpd);
 
 
-		assertEquals(p.refId, iEpd.exchanges.get(0).flow.uuid);
-		assertEquals(impact.refId, iEpd.lciaResults[0].method.uuid);
-
-		// check the XML:
-		// var w = new StringWriter();
-		// new XmlBinder().toWriter(iEpd, w);
-		// System.out.println(w);
+		assertEquals(p.refId, iEpd.getExchanges().get(0).getFlow().getUUID());
+		assertEquals(impact.refId, iEpd.getImpactResults().get(0).getMethod().getUUID());
 
 		store.close();
 
