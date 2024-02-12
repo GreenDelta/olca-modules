@@ -228,7 +228,30 @@ public class Import implements org.openlca.io.Import {
 	}
 
 	String str(List<LangString> list) {
-		return LangString.getFirst(list, langOrder);
+		return list == null || list.isEmpty()
+				? null
+				: LangString.getFirst(list, langOrder);
+	}
+
+	@SafeVarargs
+	final String str(List<LangString> first, List<LangString>...more) {
+		if (more == null || more.length == 0)
+			return str(first);
+		var buf = new StringBuilder();
+		var s = str(first);
+		if (Strings.notEmpty(s)) {
+			buf.append(s.strip());
+		}
+		for (var i : more) {
+			var next = str(i);
+			if (Strings.nullOrEmpty(next))
+				continue;
+			if (!buf.isEmpty()) {
+				buf.append("\n\n");
+			}
+			buf.append(next.strip());
+		}
+		return buf.toString();
 	}
 
 	<T extends RootEntity> T insert(T e) {

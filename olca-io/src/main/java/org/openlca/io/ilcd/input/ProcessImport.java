@@ -8,6 +8,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
@@ -100,6 +101,7 @@ public class ProcessImport {
 		mapGoal(doc);
 		mapInventoryMethod(doc);
 		mapRepresentativeness(doc);
+		mapComplianceDeclarations(doc);
 		mapReviews(doc);
 		addSources(doc);
 	}
@@ -198,11 +200,48 @@ public class ProcessImport {
 		var r = Processes.getRepresentativeness(ds);
 		if (r == null)
 			return;
-		doc.dataCompleteness = imp.str(r.getCompleteness());
-		doc.dataSelection = imp.str(r.getDataSelection());
-		doc.dataTreatment = imp.str(r.getDataTreatment());
+		doc.dataCompleteness = imp.str(
+				r.getCompleteness(), r.getCompletenessComment());
+		doc.dataSelection = imp.str(
+				r.getDataSelection(), r.getDataSelectionComment());
+		doc.dataTreatment = imp.str(
+				r.getDataTreatment(),
+				r.getDatatTreatmentComment(),
+				r.getUncertaintyAdjustments());
 		doc.samplingProcedure = imp.str(r.getSamplingProcedure());
 		doc.dataCollectionPeriod = imp.str(r.getDataCollectionPeriod());
+		doc.useAdvice = imp.str(r.getUseAdvice());
+	}
+
+	private void mapComplianceDeclarations(ProcessDoc doc) {
+		for (var c : Processes.getComplianceDeclarations(ds)) {
+			var target = new ComplianceDeclaration();
+			target.system = fetchSource(c.getSystem());
+			if (c.getApproval() != null) {
+				target.aspects.put(
+						"Overall compliance", c.getApproval().value());
+			}
+			if (c.getNomenclature() != null) {
+				target.aspects.put(
+						"Nomenclature compliance", c.getNomenclature().value());
+			}
+			if (c.getMethod() != null) {
+				target.aspects.put(
+						"Methodological compliance", c.getMethod().value());
+			}
+			if (c.getReview() != null) {
+				target.aspects.put(
+						"Review compliance", c.getReview().value());
+			}
+			if (c.getDocumentation() != null) {
+				target.aspects.put(
+						"Documentation compliance", c.getDocumentation().value());
+			}
+			if (c.getQuality() != null) {
+				target.aspects.put(
+						"Quality compliance", c.getQuality().value());
+			}
+		}
 	}
 
 	private void addSources(ProcessDoc doc) {
@@ -214,7 +253,6 @@ public class ProcessImport {
 				continue;
 			doc.sources.add(source);
 		}
-
 	}
 
 	private void mapReviews(ProcessDoc doc) {
