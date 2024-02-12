@@ -63,7 +63,22 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 
 	@Override
 	public int compareTo(ModelRef o) {
-		return path.compareTo(o.path);
+		var p1 = path.split("/");
+		var p2 = o.path.split("/");
+		for (var i = 0; i < Math.min(p1.length, p2.length); i++) {
+			var c = compare(p1[i], p2[i]);
+			if (c != 0)
+				return c;
+		}
+		return p1.length - p2.length;
+	}
+
+	private int compare(String p1, String p2) {
+		var isP1Tree = !p1.endsWith(GitUtil.DATASET_SUFFIX);
+		var isP2Tree = !p2.endsWith(GitUtil.DATASET_SUFFIX);
+		if (isP1Tree != isP2Tree)
+			return isP1Tree ? -1 : 1;
+		return p1.compareTo(p2);
 	}
 
 	private String trimPaths(String path) {

@@ -51,13 +51,9 @@ class TreeEntry implements Comparable<TreeEntry> {
 
 	@Override
 	public int compareTo(TreeEntry e) {
-		return getName().compareTo(e.getName());
-	}
-
-	private String getName() {
-		if (fileMode == FileMode.TREE)
-			return name + "/";
-		return name;
+		if (fileMode != e.fileMode)
+			return fileMode == FileMode.TREE ? -1 : 1;
+		return name.compareTo(e.name);
 	}
 
 	@Override
