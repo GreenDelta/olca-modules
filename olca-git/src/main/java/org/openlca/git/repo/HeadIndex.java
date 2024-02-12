@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.openlca.core.database.Derby;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.model.Entry;
@@ -25,12 +24,6 @@ public class HeadIndex {
 	private Map<String, Entry> map;
 	private Map<String, Set<String>> subPaths = new HashMap<>();
 	private Map<String, MetaInfo> metaInfo = new HashMap<>();
-
-	public static void main(String[] args) throws Exception {
-		var db = new Derby(new File("C:/Users/greve/openLCA-data-1.4/databases/ecoinvent_391_apos_lci_n2"));
-		var repoDir = new File("C:/Users/greve/openLCA-data-1.4/repositories/ecoinvent_391_apos_lci_n2");
-		new ClientRepository(repoDir, db).close();
-	}
 
 	private HeadIndex(OlcaRepository repo) {
 		this.repo = repo;
