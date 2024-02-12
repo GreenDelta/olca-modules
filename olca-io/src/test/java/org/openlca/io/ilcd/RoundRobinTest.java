@@ -1,23 +1,9 @@
 package org.openlca.io.ilcd;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.FlowResult;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Result;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.*;
 import org.openlca.ilcd.io.MemDataStore;
 import org.openlca.io.Tests;
 import org.openlca.io.ilcd.input.Import;
@@ -25,6 +11,9 @@ import org.openlca.io.ilcd.output.Export;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.DoubleStream;
+
+import static org.junit.Assert.*;
 
 public class RoundRobinTest {
 
@@ -74,6 +63,7 @@ public class RoundRobinTest {
 		process.output(e, 21);
 		var impact = ImpactCategory.of("I", "eq");
 		impact.factor(e, 2);
+		db.insert(units, mass, p, e, process, impact);
 
 		var system = ProductSystem.of("S", process);
 		var result = Result.of("R", p);
@@ -81,7 +71,7 @@ public class RoundRobinTest {
 		result.impactResults.add(ImpactResult.of(impact, 42));
 		var epd = Epd.of("EPD", p);
 		epd.modules.add(EpdModule.of("A1", result));
-		db.insert(units, mass, p, e, process, impact, system, result, epd);
+		db.insert(system, result, epd);
 
 		// export model and cleanup db
 		var store = new MemDataStore();
@@ -96,7 +86,22 @@ public class RoundRobinTest {
 
 		// import
 		Import.of(store, db).run();
-		checkPresent(true, all);
+		checkPresent(true, epd, system, impact, process, e, p, mass, units);
+
+		check(21, db.get(Process.class, process.refId)
+				.exchanges.stream()
+				.filter(ei -> ei.flow.refId.equals(e.refId))
+				.mapToDouble(ei -> ei.amount));
+
+		check(2, db.get(ImpactCategory.class, impact.refId)
+				.impactFactors.stream()
+				.filter(fi -> fi.flow.refId.equals(e.refId))
+				.mapToDouble(fi -> fi.value));
+
+		check(42, db.get(Epd.class, epd.refId).modules.get(0)
+				.result.impactResults.stream()
+				.filter(i -> i.indicator.refId.equals(impact.refId))
+				.mapToDouble(ri -> ri.amount));
 
 		store.close();
 	}
@@ -107,11 +112,15 @@ public class RoundRobinTest {
 			if (!b) {
 				assertNull(x);
 			} else {
-				assertNotNull(x);
+				assertNotNull("failed to find: " + e, x);
 				assertEquals(e.refId, x.refId);
 				assertEquals(e.name, x.name);
 			}
 		}
 	}
 
+	private void check(double expected, DoubleStream ds) {
+		double val = ds.findAny().orElseThrow();
+		assertEquals(expected, val, 1e-16);
+	}
 }
