@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import org.junit.Test;
 import org.openlca.core.Tests;
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.doc.AspectTable;
@@ -11,7 +12,10 @@ import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
+import org.openlca.util.Dirs;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -82,11 +86,13 @@ public class ProcessDocTest {
 	@Test
 	public void testFlowCompleteness() {
 		var p = new Process();
+		db.insert(p);
 		var doc = p.documentation = new ProcessDoc();
 		doc.flowCompleteness.put("Product flows", "All flows");
 		doc.flowCompleteness.put("Climate change", "Flows missing");
+		db.update(p);
+		db.clearCache();
 
-		db.insert(p);
 		p = db.get(Process.class, p.id);
 		var c = p.documentation.flowCompleteness;
 		assertEquals("All flows", c.get("Product flows"));
@@ -96,10 +102,12 @@ public class ProcessDocTest {
 
 	@Test
 	public void testAspectSerialization() {
+
 		var p = new Process();
+		db.insert(p);
 		var doc = p.documentation = new ProcessDoc();
 		doc.flowCompleteness.put("Product flows", "Flows missing");
-		db.insert(p);
+		db.update(p);
 
 		var ref = new AtomicReference<String>();
 		var q = "select flow_completeness from tbl_process_docs " +
