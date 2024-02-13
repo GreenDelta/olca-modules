@@ -46,7 +46,7 @@
 		<class>org.openlca.core.model.EpdModule</class>
 
 		<class>org.openlca.core.model.doc.ComplianceDeclaration</class>
-		<class>org.openlca.core.model.doc.AspectTable</class>
+		<class>org.openlca.core.model.doc.AspectMapConverter</class>
 		<class>org.openlca.core.model.doc.Review</class>
 		<class>org.openlca.core.model.doc.ReviewScopeConverter</class>
 

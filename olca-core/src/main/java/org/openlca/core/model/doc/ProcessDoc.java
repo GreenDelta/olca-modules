@@ -1,6 +1,19 @@
 package org.openlca.core.model.doc;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Basic;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import org.eclipse.persistence.annotations.Mutable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Copyable;
@@ -8,9 +21,7 @@ import org.openlca.core.model.Source;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Contains the general documentation fields of a process that are not used for
@@ -91,9 +102,11 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	// endregion
 
 	@Lob
+	@Basic
+	@Mutable
 	@Column(name = "flow_completeness")
-	@Convert(converter = AspectTable.class)
-	public final Map<String, String> flowCompleteness = new HashMap<>();
+	@Convert(converter = AspectMapConverter.class)
+	public final AspectMap flowCompleteness = new AspectMap();
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")

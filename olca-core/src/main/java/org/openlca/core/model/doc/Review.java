@@ -9,15 +9,14 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.eclipse.persistence.annotations.Mutable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Source;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "tbl_reviews")
@@ -46,9 +45,10 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 	public Source report;
 
 	@Lob
+	@Mutable
 	@Column(name = "assessment")
-	@Convert(converter = AspectTable.class)
-	public final Map<String, String> assessment = new HashMap<>();
+	@Convert(converter = AspectMapConverter.class)
+	public final AspectMap assessment = new AspectMap();
 
 	@Override
 	public Review copy() {

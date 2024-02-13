@@ -35,8 +35,8 @@ public class ComplianceDeclaration extends AbstractEntity
 
 	@Lob
 	@Column(name = "aspects")
-	@Convert(converter = AspectTable.class)
-	public final Map<String, String> aspects = new HashMap<>();
+	@Convert(converter = AspectMapConverter.class)
+	public final AspectMap aspects = new AspectMap();
 
 	@Override
 	public ComplianceDeclaration copy() {

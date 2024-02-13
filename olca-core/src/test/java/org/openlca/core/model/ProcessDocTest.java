@@ -4,18 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.doc.AspectTable;
+import org.openlca.core.model.doc.AspectMap;
+import org.openlca.core.model.doc.AspectMapConverter;
 import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
-import org.openlca.util.Dirs;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -118,9 +115,9 @@ public class ProcessDocTest {
 		});
 
 		var json = new Gson().fromJson(ref.get(), JsonArray.class);
-		var table = AspectTable.fromJson(json);
-		assertEquals("Flows missing", table.get("Product flows"));
-		assertNull(table.get("Climate change"));
+		var aspects = AspectMap.fromJson(json);
+		assertEquals("Flows missing", aspects.get("Product flows"));
+		assertNull(aspects.get("Climate change"));
 
 		db.delete(p);
 	}
