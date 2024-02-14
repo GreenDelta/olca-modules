@@ -1,14 +1,6 @@
 package org.openlca.core.model.doc;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.eclipse.persistence.annotations.Mutable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
@@ -26,9 +18,10 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 	public String type;
 
 	@Lob
+	@Mutable
 	@Column(name = "scopes")
 	@Convert(converter = ReviewScopeConverter.class)
-	public final List<ReviewScope> scopes = new ArrayList<>();
+	public final ReviewScopeMap scopes = new ReviewScopeMap();
 
 	@Lob
 	@Column(name = "details")
@@ -54,8 +47,8 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 	public Review copy() {
 		var copy = new Review();
 		copy.type = type;
-		for (var scope : scopes) {
-			copy.scopes.add(scope.copy());
+		for (var scope : scopes.values()) {
+			copy.scopes.put(scope.copy());
 		}
 		copy.details = details;
 		copy.reviewers.addAll(reviewers);

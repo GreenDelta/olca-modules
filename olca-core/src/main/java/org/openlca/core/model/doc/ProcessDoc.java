@@ -102,7 +102,6 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	// endregion
 
 	@Lob
-	@Basic
 	@Mutable
 	@Column(name = "flow_completeness")
 	@Convert(converter = AspectMapConverter.class)

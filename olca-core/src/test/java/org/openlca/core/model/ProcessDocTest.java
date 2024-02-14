@@ -11,7 +11,7 @@ import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
-import org.openlca.core.model.doc.ReviewScopeConverter;
+import org.openlca.core.model.doc.ReviewScopeMap;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,7 +35,7 @@ public class ProcessDocTest {
 		r.type = "Internal review";
 		var scope = new ReviewScope("Raw data");
 		scope.methods.add("Simple math checks");
-		r.scopes.add(scope);
+		r.scopes.put(scope);
 		r.details = "all fine";
 		r.assessment.put("Documentation", "Very good");
 		r.assessment.put("Model", "OK");
@@ -48,9 +48,9 @@ public class ProcessDocTest {
 		assertEquals(a.refId, r.reviewers.get(0).refId);
 		assertEquals(s.refId, r.report.refId);
 		assertEquals("Internal review", r.type);
-		scope = r.scopes.get(0);
+		scope = r.scopes.get("Raw data");
 		assertEquals("Raw data", scope.name);
-		assertEquals("Simple math checks", scope.methods.get(0));
+		assertTrue(scope.methods.contains("Simple math checks"));
 		assertEquals("all fine", r.details);
 		assertEquals("Very good", r.assessment.get("Documentation"));
 		assertEquals("OK", r.assessment.get("Model"));
@@ -132,7 +132,7 @@ public class ProcessDocTest {
 		var rev = doc.reviews.get(0);
 		var scope = new ReviewScope("Documentation");
 		scope.methods.add("Reading");
-		rev.scopes.add(scope);
+		rev.scopes.put(scope);
 		db.update(p);
 
 		var q = "select scopes from tbl_reviews where id = " + rev.id;
@@ -143,12 +143,12 @@ public class ProcessDocTest {
 		});
 
 		var json = new Gson().fromJson(ref.get(), JsonArray.class);
-		var scopes = ReviewScopeConverter.fromJson(json);
+		var scopes = ReviewScopeMap.fromJson(json);
 		assertEquals(1, scopes.size());
-		var s = scopes.get(0);
+		var s = scopes.get("Documentation");
 		assertEquals("Documentation", s.name);
 		assertEquals(1, s.methods.size());
-		assertEquals("Reading", s.methods.get(0));
+		assertTrue(s.methods.contains("Reading"));
 
 		db.delete(p);
 	}
