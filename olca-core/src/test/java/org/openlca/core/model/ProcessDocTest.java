@@ -11,6 +11,7 @@ import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
+import org.openlca.core.model.doc.ReviewScopeConverter;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -117,6 +118,37 @@ public class ProcessDocTest {
 		var aspects = AspectMap.fromJson(json);
 		assertEquals("Flows missing", aspects.get("Product flows"));
 		assertNull(aspects.get("Climate change"));
+
+		db.delete(p);
+	}
+
+	@Test
+	public void testReviewScopeSerialization() {
+		var p = new Process();
+		var doc = p.documentation = new ProcessDoc();
+		doc.reviews.add(new Review());
+		db.insert(p);
+
+		var rev = doc.reviews.get(0);
+		var scope = new ReviewScope("Documentation");
+		scope.methods.add("Reading");
+		rev.scopes.add(scope);
+		db.update(p);
+
+		var q = "select scopes from tbl_reviews where id = " + rev.id;
+		var ref = new AtomicReference<String>();
+		NativeSql.on(db).query(q, r -> {
+			ref.set(r.getString(1));
+			return false;
+		});
+
+		var json = new Gson().fromJson(ref.get(), JsonArray.class);
+		var scopes = ReviewScopeConverter.fromJson(json);
+		assertEquals(1, scopes.size());
+		var s = scopes.get(0);
+		assertEquals("Documentation", s.name);
+		assertEquals(1, s.methods.size());
+		assertEquals("Reading", s.methods.get(0));
 
 		db.delete(p);
 	}
