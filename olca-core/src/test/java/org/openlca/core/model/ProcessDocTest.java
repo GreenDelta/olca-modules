@@ -152,4 +152,30 @@ public class ProcessDocTest {
 
 		db.delete(p);
 	}
+
+	@Test
+	public void testReviewAspectSerialization() {
+		var p = new Process();
+		var doc = p.documentation = new ProcessDoc();
+		doc.reviews.add(new Review());
+		db.insert(p);
+
+		var rev = doc.reviews.get(0);
+		rev.assessment
+				.put("Data quality", "Very good")
+				.put("Modelling", "Disastrous");
+		db.update(p);
+
+		var q = "select assessment from tbl_reviews where id = " + rev.id;
+		var ref = new AtomicReference<String>();
+		NativeSql.on(db).query(q, r -> {
+			ref.set(r.getString(1));
+			return false;
+		});
+
+		var json = new Gson().fromJson(ref.get(), JsonArray.class);
+		var aspects = AspectMap.fromJson(json);
+		assertEquals("Very good", aspects.get("Data quality"));
+		assertEquals("Disastrous", aspects.get("Modelling"));
+	}
 }

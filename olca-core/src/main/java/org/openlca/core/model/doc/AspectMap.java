@@ -72,14 +72,16 @@ public class AspectMap implements Copyable<AspectMap> {
 		map.remove(aspect);
 	}
 
-	public void put(String aspect, String value) {
+	public AspectMap put(String aspect, String value) {
 		map.put(aspect, value);
+		return this;
 	}
 
-	public void putAll(AspectMap other) {
-		if (other == null)
-			return;
-		map.putAll(other.map);
+	public AspectMap putAll(AspectMap other) {
+		if (other != null) {
+			map.putAll(other.map);
+		}
+		return this;
 	}
 
 	public Set<String> getAspects() {
