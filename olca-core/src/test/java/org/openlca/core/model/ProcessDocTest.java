@@ -1,13 +1,10 @@
 package org.openlca.core.model;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.doc.AspectMap;
-import org.openlca.core.model.doc.AspectMapConverter;
 import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
@@ -85,13 +82,15 @@ public class ProcessDocTest {
 		var p = new Process();
 		db.insert(p);
 		var doc = p.documentation = new ProcessDoc();
-		doc.flowCompleteness.put("Product flows", "All flows");
-		doc.flowCompleteness.put("Climate change", "Flows missing");
+		doc.flowCompleteness = new AspectMap()
+				.put("Product flows", "All flows")
+				.put("Climate change", "Flows missing")
+				.toJsonBytes();
 		db.update(p);
 		db.clearCache();
 
 		p = db.get(Process.class, p.id);
-		var c = p.documentation.flowCompleteness;
+		var c = AspectMap.fromJsonBytes(p.documentation.flowCompleteness);
 		assertEquals("All flows", c.get("Product flows"));
 		assertEquals("Flows missing", c.get("Climate change"));
 		db.delete(p);
@@ -101,21 +100,23 @@ public class ProcessDocTest {
 	public void testAspectSerialization() {
 
 		var p = new Process();
-		db.insert(p);
 		var doc = p.documentation = new ProcessDoc();
-		doc.flowCompleteness.put("Product flows", "Flows missing");
+		db.insert(p);
+		doc.flowCompleteness = new AspectMap()
+				.put("Product flows", "Flows missing")
+				.toJsonBytes();
 		db.update(p);
 
-		var ref = new AtomicReference<String>();
+		var ref = new AtomicReference<AspectMap>();
 		var q = "select flow_completeness from tbl_process_docs " +
 				"where id = " + doc.id;
 		NativeSql.on(db).query(q, r -> {
-			ref.set(r.getString(1));
+			var bytes = r.getBytes(1);
+			ref.set(AspectMap.fromJsonBytes(bytes));
 			return false;
 		});
 
-		var json = new Gson().fromJson(ref.get(), JsonArray.class);
-		var aspects = AspectMap.fromJson(json);
+		var aspects = ref.get();
 		assertEquals("Flows missing", aspects.get("Product flows"));
 		assertNull(aspects.get("Climate change"));
 

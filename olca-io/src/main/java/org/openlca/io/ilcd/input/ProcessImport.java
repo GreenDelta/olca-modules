@@ -8,6 +8,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Version;
+import org.openlca.core.model.doc.AspectMap;
 import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
@@ -315,7 +316,7 @@ public class ProcessImport {
 		var c = Processes.getCompleteness(ds);
 		if (c == null)
 			return;
-		var target = doc.flowCompleteness;
+		var target = new AspectMap();
 		if (c.getProductCompleteness() != null) {
 			target.put("Product model", c.getProductCompleteness().value());
 		}
@@ -324,6 +325,7 @@ public class ProcessImport {
 				continue;
 			target.put(e.getImpact().value(), e.getValue().value());
 		}
+		doc.flowCompleteness = target.toJsonBytes();
 	}
 
 }

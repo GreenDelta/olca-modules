@@ -312,7 +312,7 @@ CREATE TABLE tbl_process_docs (
     sampling_procedure      CLOB(64 K),
     data_collection_period  CLOB(64 K),
     use_advice              CLOB(64 K),
-    flow_completeness       CLOB(64 K),
+    flow_completeness       BLOB(64 K),
 
     intended_application    CLOB(64 K),
     project                 CLOB(64 K),

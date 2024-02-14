@@ -39,7 +39,7 @@ public class Upgrade12 implements IUpgrade {
 				"restrictions", "access_restrictions CLOB(64 K)");
 
 		u.createColumn("tbl_process_docs", "use_advice CLOB(64 K)");
-		u.createColumn("tbl_process_docs", "flow_completeness CLOB(64 K)");
+		u.createColumn("tbl_process_docs", "flow_completeness BLOB(64 K)");
 
 		u.createTable("tbl_compliance_declarations", """
 				CREATE TABLE tbl_compliance_declarations (

@@ -20,6 +20,7 @@ import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Source;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -101,12 +102,12 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 
 	// endregion
 
+	/**
+	 * Flow completeness values are stored in a serialized AspectMap.
+	 */
 	@Lob
-	@Basic
-	@Mutable
 	@Column(name = "flow_completeness")
-	@Convert(converter = AspectMapConverter.class)
-	public final AspectMap flowCompleteness = new AspectMap();
+	public byte[] flowCompleteness;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "f_owner")
@@ -191,7 +192,10 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 		clone.dataCollectionPeriod = dataCollectionPeriod;
 		clone.useAdvice = useAdvice;
 
-		clone.flowCompleteness.putAll(flowCompleteness);
+		if (flowCompleteness != null) {
+			clone.flowCompleteness = Arrays.copyOf(
+				flowCompleteness, flowCompleteness.length);
+		}
 		for (var c : complianceDeclarations) {
 			clone.complianceDeclarations.add(c.copy());
 		}

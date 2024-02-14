@@ -1,12 +1,17 @@
 package org.openlca.core.model.doc;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.openlca.core.model.Copyable;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
@@ -14,11 +19,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 /**
- * Contains key-value pairs for documentation aspects. It basically
- * just wraps a standard map. However, as we use JPA converters to
- * serialize and store such maps as JSON in database fields, we
- * need a custom equals and hashCode method so that JPA can track
- * changes.
+ * Contains key-value pairs for documentation aspects.
  */
 public class AspectMap implements Copyable<AspectMap> {
 
@@ -30,6 +31,20 @@ public class AspectMap implements Copyable<AspectMap> {
 
 	public AspectMap() {
 		this(5);
+	}
+
+	public static AspectMap fromJsonBytes(byte[] bytes) {
+		if (bytes == null || bytes.length == 0)
+			return new AspectMap();
+		try (var stream = new ByteArrayInputStream(bytes);
+				 var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+			var json = new Gson().fromJson(reader, JsonArray.class);
+			return fromJson(json);
+		} catch (Exception e) {
+			var log = LoggerFactory.getLogger(AspectMap.class);
+			log.error("failed to parse aspect map from bytes", e);
+			return new AspectMap();
+		}
 	}
 
 	public static AspectMap fromJson(JsonElement e) {
@@ -50,6 +65,11 @@ public class AspectMap implements Copyable<AspectMap> {
 		return aspects;
 	}
 
+	public byte[] toJsonBytes() {
+		var s = new Gson().toJson(toJson());
+		return s.getBytes(StandardCharsets.UTF_8);
+	}
+
 	public JsonArray toJson() {
 		var array = new JsonArray(map.size());
 		for (var e : map.entrySet()) {
@@ -68,18 +88,21 @@ public class AspectMap implements Copyable<AspectMap> {
 		return map.get(aspect);
 	}
 
-	public void remove(String aspect) {
+	public AspectMap remove(String aspect) {
 		map.remove(aspect);
+		return this;
 	}
 
-	public void put(String aspect, String value) {
+	public AspectMap put(String aspect, String value) {
 		map.put(aspect, value);
+		return this;
 	}
 
-	public void putAll(AspectMap other) {
+	public AspectMap putAll(AspectMap other) {
 		if (other == null)
-			return;
+			return this;
 		map.putAll(other.map);
+		return this;
 	}
 
 	public Set<String> getAspects() {
