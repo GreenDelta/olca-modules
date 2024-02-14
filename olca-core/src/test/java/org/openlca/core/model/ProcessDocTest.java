@@ -7,7 +7,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.doc.AspectMap;
-import org.openlca.core.model.doc.AspectMapConverter;
 import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
@@ -101,8 +100,8 @@ public class ProcessDocTest {
 	public void testAspectSerialization() {
 
 		var p = new Process();
-		db.insert(p);
 		var doc = p.documentation = new ProcessDoc();
+		db.insert(p);
 		doc.flowCompleteness.put("Product flows", "Flows missing");
 		db.update(p);
 
