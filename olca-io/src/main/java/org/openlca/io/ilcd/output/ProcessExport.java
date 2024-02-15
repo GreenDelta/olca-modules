@@ -1,14 +1,23 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Objects;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.doc.ProcessDoc;
+import org.openlca.ilcd.commons.DataQualityIndicator;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.ImpactCategory;
 import org.openlca.ilcd.commons.ModellingApproach;
 import org.openlca.ilcd.commons.ModellingPrinciple;
+import org.openlca.ilcd.commons.Quality;
+import org.openlca.ilcd.commons.QualityIndicator;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.commons.ReviewType;
+import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
@@ -18,11 +27,6 @@ import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Objects;
 
 /**
  * The export of an openLCA process to an ILCD process data set.
@@ -54,6 +58,7 @@ public class ProcessExport {
 		mapRepresentativeness(ds);
 		mapReviews(ds);
 		mapCompleteness(ds);
+		mapComplianceSystems(ds);
 
 		ds.withAdminInfo(new ProcessAdminInfo(exp).create(p));
 		var params = new ProcessParameterConversion(exp).run(p);
@@ -176,18 +181,16 @@ public class ProcessExport {
 			return;
 		var rep = ds.withModelling().withRepresentativeness();
 		exp.add(rep::withCompleteness, doc.dataCompleteness);
-		exp.add(rep::withCompletenessComment, "None.");
 		exp.add(rep::withDataSelection, doc.dataSelection);
-		exp.add(rep::withDataSelectionComment, "None.");
 		exp.add(rep::withDataTreatment, doc.dataTreatment);
 		exp.add(rep::withSamplingProcedure, doc.samplingProcedure);
 		exp.add(rep::withDataCollectionPeriod, doc.dataCollectionPeriod);
+		exp.add(rep::withUseAdvice, doc.useAdvice);
 		doc.sources.stream()
 				.map(exp::writeRef)
 				.filter(Objects::nonNull)
 				.forEach(s -> rep.withSources().add(s));
 	}
-
 
 	private void mapReviews(Process ds) {
 		if (doc == null || doc.reviews.isEmpty())
@@ -208,7 +211,8 @@ public class ProcessExport {
 				}
 			}
 
-			for (var s : r.scopes) {
+			// review scopes & methods
+			for (var s : r.scopes.values()) {
 				var name = ReviewScope.fromValue(s.name).orElse(null);
 				if (name == null)
 					continue;
@@ -220,6 +224,20 @@ public class ProcessExport {
 						scope.withMethods().add(entry);
 					});
 				}
+			}
+
+			// data quality assessment
+			for (var dq : QualityIndicator.values()) {
+				var a = r.assessment.get(dq.value());
+				if (a == null)
+					continue;
+				var v = Quality.fromValue(a).orElse(null);
+				if (v == null)
+					continue;
+				rev.withIndicators().add(
+						new DataQualityIndicator()
+								.withName(dq)
+								.withValue(v));
 			}
 		}
 	}
@@ -244,6 +262,18 @@ public class ProcessExport {
 					.withImpact(impact)
 					.withValue(aspect);
 			completeness.withEntries().add(e);
+		}
+	}
+
+	private void mapComplianceSystems(Process ds) {
+		if (doc.complianceDeclarations.isEmpty())
+			return;
+		var decs = ds.withModelling().withComplianceDeclarations();
+		for (var c : doc.complianceDeclarations) {
+			var dec = new ComplianceDeclaration()
+					.withSystem(exp.writeRef(c.system));
+		  // TODO map aspects
+			decs.add(dec);
 		}
 	}
 }

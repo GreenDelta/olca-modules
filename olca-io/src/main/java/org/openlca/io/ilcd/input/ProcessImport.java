@@ -101,7 +101,7 @@ public class ProcessImport {
 		mapGoal(doc);
 		mapInventoryMethod(doc);
 		mapRepresentativeness(doc);
-		mapComplianceDeclarations(doc);
+		mapComplianceDeclarations();
 		mapReviews(doc);
 		addSources(doc);
 	}
@@ -213,7 +213,7 @@ public class ProcessImport {
 		doc.useAdvice = imp.str(r.getUseAdvice());
 	}
 
-	private void mapComplianceDeclarations(ProcessDoc doc) {
+	private void mapComplianceDeclarations() {
 		for (var c : Processes.getComplianceDeclarations(ds)) {
 			var target = new ComplianceDeclaration();
 			target.system = fetchSource(c.getSystem());
@@ -276,12 +276,18 @@ public class ProcessImport {
 				if (s.getName() == null)
 					continue;
 				var scope = new ReviewScope(s.getName().value());
-				rev.scopes.add(scope);
+				rev.scopes.put(scope);
 				for (var m : s.getMethods()) {
 					if (m.getName() == null)
 						continue;
 					scope.methods.add(m.getName().value());
 				}
+			}
+
+			for (var a : r.getIndicators()) {
+				if (a.getName() == null || a.getValue() == null)
+					continue;
+				rev.assessment.put(a.getName().value(), a.getValue().value());
 			}
 
 			// take the first best data quality entry as
