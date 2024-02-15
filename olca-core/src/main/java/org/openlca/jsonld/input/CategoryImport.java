@@ -5,6 +5,7 @@ import org.openlca.util.Strings;
 
 public class CategoryImport {
 
+	public static final String FILE_NAME = "categories.json";
 	private final JsonImport imp;
 	
 	public CategoryImport(JsonImport imp) {
@@ -12,7 +13,7 @@ public class CategoryImport {
 	}
 	
 	public void importAll() {
-		var categories = imp.reader.getJson("categories.json");
+		var categories = imp.reader.getJson(FILE_NAME);
 		if (categories == null || !categories.isJsonArray())
 			return;
 		for (var category : categories.getAsJsonArray()) {

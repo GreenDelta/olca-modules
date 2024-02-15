@@ -1,12 +1,13 @@
-package org.openlca.git.find;
+package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.openlca.git.model.Entry;
@@ -19,13 +20,13 @@ import org.slf4j.LoggerFactory;
 public class Entries {
 
 	private static final Logger log = LoggerFactory.getLogger(Entries.class);
-	private final Repository repo;
+	private final OlcaRepository repo;
 
-	public static Entries of(Repository repo) {
+	static Entries of(OlcaRepository repo) {
 		return new Entries(repo);
 	}
 
-	private Entries(Repository repo) {
+	private Entries(OlcaRepository repo) {
 		this.repo = repo;
 	}
 
@@ -33,17 +34,27 @@ public class Entries {
 		return new Find();
 	}
 
+	public void iterate(Consumer<Entry> consumer) {
+		var head = repo.commits.head();
+		if (head == null)
+			return;
+		iterate(head.id, consumer);
+	}
+
 	public void iterate(String commitId, Consumer<Entry> consumer) {
-		new Iterate().commit(commitId).recursive().call(consumer);
+		iterate(commitId, null, consumer);
+	}
+
+	public void iterate(String commitId, String path, Consumer<Entry> consumer) {
+		new Iterate().commit(commitId).path(path).recursive().call(consumer);
 	}
 
 	public Entry get(String path, String commitId) {
 		try {
-			var commits = Commits.of(repo);
-			var commit = commits.getRev(commitId);
+			var commit = repo.commits.getRev(commitId);
 			if (commit == null)
 				return null;
-			var objectId = get(commit.getTree().getId(), path);
+			var objectId = repo.getObjectId(commit, path);
 			return new Entry(path, commitId, objectId);
 		} catch (IOException e) {
 			log.error("Error finding sub tree for " + path);
@@ -51,38 +62,33 @@ public class Entries {
 		}
 	}
 
-	private ObjectId get(ObjectId treeId, String path) {
-		if (Strings.nullOrEmpty(path))
-			return treeId;
-		try (var walk = TreeWalk.forPath(repo, GitUtil.encode(path), treeId)) {
-			if (walk == null)
-				return ObjectId.zeroId();
-			return walk.getObjectId(0);
-		} catch (IOException e) {
-			log.error("Error finding entry for " + path);
-			return null;
-		}
-	}
-
 	public class Find {
 
-		private String path;
-		private String commitId;
+		private final Iterate iterate = new Iterate();
 
 		public Find path(String path) {
-			this.path = path;
+			iterate.path(path);
 			return this;
 		}
 
 		public Find commit(String commitId) {
-			this.commitId = commitId;
+			iterate.commit(commitId);
+			return this;
+		}
+
+		public Find recursive() {
+			iterate.recursive();
 			return this;
 		}
 
 		public List<Entry> all() {
 			var entries = new ArrayList<Entry>();
-			new Iterate().commit(commitId).path(path).call(entries::add);
+			iterate.call(entries::add);
 			return entries;
+		}
+
+		public Map<String, Entry> asMap() {
+			return all().stream().collect(Collectors.toMap(e -> e.path, e -> e));
 		}
 
 	}
@@ -111,19 +117,18 @@ public class Entries {
 		private void call(Consumer<Entry> consumer) {
 			RevCommit commit = null;
 			try {
-				var commits = Commits.of(repo);
-				commit = commits.getRev(commitId);
+				commit = repo.commits.getRev(commitId);
 				if (commit == null)
 					return;
 				var treeId = Strings.nullOrEmpty(path)
 						? commit.getTree().getId()
-						: get(commit.getTree().getId(), path);
+						: repo.getSubTreeId(commit.getTree().getId(), path);
 				if (treeId.equals(ObjectId.zeroId()))
 					return;
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
-					var filter = new KnownFilesFilter(getDepth());
+					var filter = KnownFilesFilter.createForPath(path);
 					walk.setFilter(filter);
 					while (walk.next()) {
 						var name = GitUtil.decode(walk.getNameString());
@@ -138,18 +143,6 @@ public class Entries {
 			} catch (IOException e) {
 				log.error("Error walking commit " + (commit != null ? commit.getName() : commitId), e);
 			}
-		}
-
-		private int getDepth() {
-			if (path == null)
-				return 0;
-			var p = path;
-			var depth = 1;
-			while (p.contains("/")) {
-				p = p.substring(p.indexOf("/") + 1);
-				depth++;
-			}
-			return depth;
 		}
 
 	}

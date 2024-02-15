@@ -63,6 +63,26 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	@Override
+	public void delete(long id) {
+		if (id == 0l)
+			return;
+		var entity = getForId(id);
+		if (entity == null)
+			return;
+		var em = db.newEntityManager();
+		try {
+			em.getTransaction().begin();
+			em.remove(em.merge(entity));
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			DatabaseException.logAndThrow(log, "Error while deleting "
+					+ entityType.getSimpleName(), e);
+		} finally {
+			em.close();
+		}
+	}
+	
+	@Override
 	public void delete(T entity) {
 		if (entity == null)
 			return;

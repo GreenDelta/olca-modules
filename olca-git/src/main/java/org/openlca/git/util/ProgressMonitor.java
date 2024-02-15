@@ -1,9 +1,10 @@
 package org.openlca.git.util;
 
+import org.openlca.core.model.ModelType;
 import org.openlca.git.model.ModelRef;
 
 public interface ProgressMonitor {
-	
+
 	static ProgressMonitor NULL = new ProgressMonitor() {
 	};
 
@@ -17,11 +18,21 @@ public interface ProgressMonitor {
 	default void subTask(String name) {
 	}
 
+	default void subTask(ModelRef ref) {
+		if (ref.isCategory) {
+			subTask("Category " + ref.refId);
+		} else {
+			subTask(getLabel(ref.type) + " " + ref.refId);
+		}
+	}
+
 	default void worked(int work) {
 	}
 
-	default void subTask(String action, ModelRef ref) {
-		subTask(action + " " + ref.type.name().toLowerCase().replace("_", " ") + " " + ref.refId);
+	private static String getLabel(ModelType type) {
+		if (type == null)
+			return "";
+		return type.name().charAt(0) + type.name().substring(1).toLowerCase().replace("_", " ");
 	}
 
 }

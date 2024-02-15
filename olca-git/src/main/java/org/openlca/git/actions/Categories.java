@@ -6,8 +6,8 @@ import java.util.Map;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.git.find.Entries;
 import org.openlca.git.model.Entry.EntryType;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
@@ -22,16 +22,16 @@ class Categories {
 	private final Map<String, String> refIdToParent = new HashMap<>();
 	private final Map<String, String> pathToRefId = new HashMap<>();
 
-	static Categories of(Entries entries, String commitId) {
-		return new Categories(entries, commitId);
+	static Categories of(OlcaRepository repo, String commitId) {
+		return new Categories(repo, commitId);
 	}
 
-	private Categories(Entries entries, String commitId) {
-		init(entries, commitId, "");
+	private Categories(OlcaRepository repo, String commitId) {
+		init(repo, commitId, "");
 	}
 
-	private void init(Entries entries, String commitId, String path) {
-		entries.iterate(commitId, entry -> {
+	private void init(OlcaRepository repo, String commitId, String path) {
+		repo.entries.iterate(commitId, entry -> {
 			if (entry.typeOfEntry != EntryType.CATEGORY)
 				return;
 			var refId = getRefId(entry.path);

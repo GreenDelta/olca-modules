@@ -46,4 +46,10 @@ public class Reference extends ModelRef {
 		return path + "/" + refId + GitUtil.BIN_DIR_SUFFIX;
 	}
 
+	@Override
+	protected String fieldsToString() {
+		var s = super.fieldsToString();
+		return s + ", commitId=" + commitId + ", objectId=" + ObjectId.toString(objectId);
+	}
+	
 }

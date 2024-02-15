@@ -61,6 +61,14 @@ public class TypedRefIdMap<T> {
 		return map.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
 	}
 
+	public int size() {
+		int total = 0;
+		for (var map : this.map.values()) {
+			total += map.values().size();
+		}
+		return total;
+	}
+
 	public T remove(TypedRefId pair) {
 		return remove(pair.type, pair.refId);
 	}

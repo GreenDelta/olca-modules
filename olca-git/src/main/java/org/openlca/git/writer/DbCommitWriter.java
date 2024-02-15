@@ -11,21 +11,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.GitIndex;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
-import org.openlca.git.util.Descriptors;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
-import org.openlca.git.util.Repositories;
 import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
@@ -34,19 +32,18 @@ import org.slf4j.LoggerFactory;
 public class DbCommitWriter extends CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(DbCommitWriter.class);
-	private final IDatabase database;
-	private final Descriptors descriptors;
-	private GitIndex gitIndex;
 	private String localCommitId;
 	private String remoteCommitId;
 	private Converter converter;
 	private Commit reference;
 	private ExecutorService threads;
+	private IDatabase database;
+	private ClientRepository repo;
 
-	public DbCommitWriter(Repository repo, IDatabase database, Descriptors descriptors) {
-		super(repo, new DatabaseBinaryResolver(database));
-		this.database = database;
-		this.descriptors = descriptors;
+	public DbCommitWriter(ClientRepository repo) {
+		super(repo, new DatabaseBinaryResolver(repo.database));
+		this.database = repo.database;
+		this.repo = repo;
 	}
 
 	@Override
@@ -67,11 +64,6 @@ public class DbCommitWriter extends CommitWriter {
 		return this;
 	}
 
-	public DbCommitWriter update(GitIndex gitIndex) {
-		this.gitIndex = gitIndex;
-		return this;
-	}
-
 	public DbCommitWriter reference(Commit reference) {
 		this.reference = reference;
 		return this;
@@ -85,8 +77,10 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Change> changes) throws IOException {
 		changes = filterInvalid(changes);
+		progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 		try {
-			var previousCommit = reference == null ? Repositories.headCommitOf(repo)
+			var previousCommit = reference == null
+					? repo.getHeadCommit()
 					: repo.parseCommit(ObjectId.fromString(reference.id));
 			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
 				return null;
@@ -97,8 +91,9 @@ public class DbCommitWriter extends CommitWriter {
 					.sorted()
 					.toList());
 			var commitId = write(message, changes, getParentIds(previousCommit));
-			if (gitIndex != null) {
-				gitIndex.save();
+			if (Constants.HEAD.equals(ref)) {
+				progressMonitor.beginTask("Updating local index");
+				repo.index.reload();
 			}
 			return commitId;
 		} finally {
@@ -122,9 +117,12 @@ public class DbCommitWriter extends CommitWriter {
 	private List<Change> filterInvalid(List<Change> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
+					if (c.isCategory)
+						return true;
 					if (c.type == null || !GitUtil.isUUID(c.refId)) {
-						var val = "{ type: " + c.type + ", refId: " + c.refId + "}";
+						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
 						log.warn("Filtering dataset with missing or invalid type or refId " + val);
+						progressMonitor.worked(1);
 						return false;
 					}
 					return true;
@@ -144,21 +142,6 @@ public class DbCommitWriter extends CommitWriter {
 		}
 		if (threads != null) {
 			threads.shutdown();
-		}
-	}
-
-	@Override
-	protected void inserted(String path, ObjectId id) {
-		if (gitIndex != null) {
-			var d = descriptors.get(path);
-			gitIndex.put(path, d.version, d.lastChange, id);
-		}
-	}
-
-	@Override
-	protected void removed(String path) {
-		if (gitIndex != null) {
-			gitIndex.remove(path);
 		}
 	}
 

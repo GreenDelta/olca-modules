@@ -3,7 +3,8 @@ package org.openlca.git.iterator;
 import org.eclipse.jgit.lib.FileMode;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.git.model.Change;
 import org.openlca.git.util.GitUtil;
 
 class TreeEntry implements Comparable<TreeEntry> {
@@ -13,6 +14,14 @@ class TreeEntry implements Comparable<TreeEntry> {
 	public final Object data;
 	public final String filePath;
 
+	public static TreeEntry empty() {
+		return new TreeEntry(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE, null);
+	}
+
+	public static TreeEntry empty(Change change) {
+		return new TreeEntry(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE, change);
+	}
+
 	TreeEntry(ModelType type) {
 		this(type.name(), FileMode.TREE, type);
 	}
@@ -21,7 +30,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 		this(category.name.trim(), FileMode.TREE, category);
 	}
 
-	TreeEntry(RootDescriptor descriptor) {
+	TreeEntry(Descriptor descriptor) {
 		this(descriptor.refId + GitUtil.DATASET_SUFFIX, FileMode.REGULAR_FILE, descriptor);
 	}
 
@@ -42,13 +51,9 @@ class TreeEntry implements Comparable<TreeEntry> {
 
 	@Override
 	public int compareTo(TreeEntry e) {
-		return getName().compareTo(e.getName());
-	}
-
-	private String getName() {
-		if (fileMode == FileMode.TREE)
-			return name + "/";
-		return name;
+		if (fileMode != e.fileMode)
+			return fileMode == FileMode.TREE ? -1 : 1;
+		return name.compareTo(e.name);
 	}
 
 	@Override
