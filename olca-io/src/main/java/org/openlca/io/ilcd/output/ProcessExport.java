@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.doc.ProcessDoc;
+import org.openlca.ilcd.commons.Compliance;
 import org.openlca.ilcd.commons.DataQualityIndicator;
 import org.openlca.ilcd.commons.FlowCompleteness;
 import org.openlca.ilcd.commons.ImpactCategory;
@@ -272,7 +273,18 @@ public class ProcessExport {
 		for (var c : doc.complianceDeclarations) {
 			var dec = new ComplianceDeclaration()
 					.withSystem(exp.writeRef(c.system));
-		  // TODO map aspects
+		  Compliance.fromValue(c.aspects.get("Overall compliance"))
+					.ifPresent(dec::withApproval);
+			Compliance.fromValue(c.aspects.get("Nomenclature compliance"))
+					.ifPresent(dec::withNomenclature);
+			Compliance.fromValue(c.aspects.get("Methodological compliance"))
+					.ifPresent(dec::withMethod);
+			Compliance.fromValue(c.aspects.get("Review compliance"))
+					.ifPresent(dec::withReview);
+			Compliance.fromValue(c.aspects.get("Documentation compliance"))
+					.ifPresent(dec::withDocumentation);
+			Compliance.fromValue(c.aspects.get("Quality compliance"))
+					.ifPresent(dec::withQuality);
 			decs.add(dec);
 		}
 	}

@@ -7,12 +7,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.eclipse.persistence.annotations.Mutable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Source;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
 @Table(name = "tbl_compliance_declarations")
@@ -34,6 +32,7 @@ public class ComplianceDeclaration extends AbstractEntity
 	public String details;
 
 	@Lob
+	@Mutable
 	@Column(name = "aspects")
 	@Convert(converter = AspectMapConverter.class)
 	public final AspectMap aspects = new AspectMap();

@@ -101,7 +101,7 @@ public class ProcessImport {
 		mapGoal(doc);
 		mapInventoryMethod(doc);
 		mapRepresentativeness(doc);
-		mapComplianceDeclarations();
+		mapComplianceDeclarations(doc);
 		mapReviews(doc);
 		addSources(doc);
 	}
@@ -213,10 +213,11 @@ public class ProcessImport {
 		doc.useAdvice = imp.str(r.getUseAdvice());
 	}
 
-	private void mapComplianceDeclarations() {
+	private void mapComplianceDeclarations(ProcessDoc doc) {
 		for (var c : Processes.getComplianceDeclarations(ds)) {
 			var target = new ComplianceDeclaration();
 			target.system = fetchSource(c.getSystem());
+			doc.complianceDeclarations.add(target);
 			if (c.getApproval() != null) {
 				target.aspects.put(
 						"Overall compliance", c.getApproval().value());
