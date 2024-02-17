@@ -106,6 +106,10 @@ public class AspectMap implements Copyable<AspectMap> {
 		return map.isEmpty();
 	}
 
+	public void clear() {
+		map.clear();
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)

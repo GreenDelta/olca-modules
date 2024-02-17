@@ -46,6 +46,10 @@ public class ReviewScopeMap {
 		return scopes.isEmpty();
 	}
 
+	public void clear() {
+		scopes.clear();
+	}
+
 	public void put(ReviewScope scope) {
 		if (scope == null)
 			return;
