@@ -64,7 +64,7 @@ public class ProcessDocTest {
 		var doc = p.documentation = new ProcessDoc();
 		var dec = new ComplianceDeclaration();
 		dec.system = system;
-		dec.details = "some details";
+		dec.comment = "some details";
 		dec.aspects.put("Nomenclature", "Fully compliant");
 		dec.aspects.put("Documentation", "Not compliant");
 		doc.complianceDeclarations.add(dec);
@@ -73,7 +73,7 @@ public class ProcessDocTest {
 		p = db.get(Process.class, p.id);
 		dec = p.documentation.complianceDeclarations.get(0);
 		assertEquals(dec.system, system);
-		assertEquals("some details", dec.details);
+		assertEquals("some details", dec.comment);
 		assertEquals("Fully compliant", dec.aspects.get("Nomenclature"));
 		assertEquals("Not compliant", dec.aspects.get("Documentation"));
 

@@ -24,12 +24,9 @@ public class ComplianceDeclaration extends AbstractEntity
 	@JoinColumn(name = "f_system")
 	public Source system;
 
-	/**
-	 * Description of compliance details.
-	 */
 	@Lob
-	@Column(name = "details")
-	public String details;
+	@Column(name = "comment")
+	public String comment;
 
 	@Lob
 	@Mutable
@@ -41,7 +38,7 @@ public class ComplianceDeclaration extends AbstractEntity
 	public ComplianceDeclaration copy() {
 		var copy = new ComplianceDeclaration();
 		copy.system = system;
-		copy.details = details;
+		copy.comment = comment;
 		copy.aspects.putAll(aspects);
 		return copy;
 	}

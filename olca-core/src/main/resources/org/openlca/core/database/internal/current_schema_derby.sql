@@ -336,7 +336,7 @@ CREATE TABLE tbl_compliance_declarations (
   id        BIGINT NOT NULL,
   f_owner   BIGINT,
   f_system  BIGINT,
-  details   CLOB(64 K),
+  comment   CLOB(64 K),
   aspects   CLOB(64 K),
 
   PRIMARY KEY (id)
