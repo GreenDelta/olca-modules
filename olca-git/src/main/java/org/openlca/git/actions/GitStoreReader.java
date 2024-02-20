@@ -119,11 +119,6 @@ class GitStoreReader implements JsonStoreReader {
 				.map(binary -> ref.getBinariesPath() + "/" + binary)
 				.toList();
 	}
-	
-	@Override
-	public String getFileName(String path) {
-		return path.substring(path.lastIndexOf("/") + 1);
-	}
 
 	@Override
 	public List<String> getFiles(String dir) {

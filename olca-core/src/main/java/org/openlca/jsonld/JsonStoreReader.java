@@ -72,19 +72,15 @@ public interface JsonStoreReader {
 		var json = new String(bytes, StandardCharsets.UTF_8);
 		return new Gson().fromJson(json, JsonElement.class);
 	}
-	
+
 	default List<LibraryLink> getLibraryLinks() {
 		return PackageInfo.readFrom(this).libraries();
 	}
 
-	default String getFileName(String path) {
-		return Paths.get(path).getFileName().toString();
-	}
-	
 	/**
 	 * Get the raw bytes of the JSON or binary file that is stored under the
 	 * given path.
 	 */
 	byte[] getBytes(String path);
-	
+
 }
