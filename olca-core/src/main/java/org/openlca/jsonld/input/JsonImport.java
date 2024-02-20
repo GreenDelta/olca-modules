@@ -220,8 +220,10 @@ public class JsonImport implements Runnable, EntityResolver {
 			for (var path : reader.getBinFiles(type, refId)) {
 				byte[] data = reader.getBytes(path);
 				if (data == null)
-					return;
-				var name = reader.getFileName(path);
+					continue;
+				var name = fileNameOf(path);
+				if (name == null)
+					continue;
 				if (!dir.exists()) {
 					Files.createDirectories(dir.toPath());
 				}
@@ -232,5 +234,22 @@ public class JsonImport implements Runnable, EntityResolver {
 			var log = LoggerFactory.getLogger(getClass());
 			log.error("failed to import bin files for " + type + ":" + refId, e);
 		}
+	}
+
+	private String fileNameOf(String path) {
+		if (path == null)
+			return null;
+		int lastSep = -1;
+		for (int i = 0; i < path.length(); i++) {
+			char c = path.charAt(i);
+			if (c == '/' || c == '\\') {
+				lastSep = i;
+			}
+		}
+		if (lastSep == -1)
+			return path; // no separator
+		if (lastSep == (path.length() -1))
+			return null; // no file name, should never happen
+		return path.substring(lastSep + 1);
 	}
 }
