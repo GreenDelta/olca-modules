@@ -89,13 +89,13 @@ public class DatabaseIterator extends EntryIterator {
 		for (var d : descriptors) {
 			if (d.isFromLibrary())
 				continue;
+			entries.add(new TreeEntry(d));
 			if (hasBinaries(repo, d)) {
 				// must include bin entry, otherwise tree will be different from
 				// commit tree and diffs will return false results; bin entries
 				// will be filtered with KnownFilesFilter
 				entries.add(new TreeEntry(d.refId + "_bin", FileMode.TREE));
 			}
-			entries.add(new TreeEntry(d));
 		}
 		return entries;
 	}

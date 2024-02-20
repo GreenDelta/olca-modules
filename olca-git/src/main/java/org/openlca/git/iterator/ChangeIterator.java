@@ -21,12 +21,14 @@ public class ChangeIterator extends EntryIterator {
 	private final BinaryResolver binaryResolver;
 	private final List<Change> changes;
 	private final OlcaRepository repo;
+	private final String lastCommitId;
 
 	public ChangeIterator(OlcaRepository repo, BinaryResolver binaryResolver, List<Change> changes) {
 		super(initialize(null, changes));
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
 		this.changes = changes;
+		this.lastCommitId = repo.commits.find().latestId();
 	}
 
 	private ChangeIterator(ChangeIterator parent, List<Change> changes) {
@@ -34,6 +36,7 @@ public class ChangeIterator extends EntryIterator {
 		this.repo = parent.repo;
 		this.binaryResolver = parent.binaryResolver;
 		this.changes = changes;
+		this.lastCommitId = parent.lastCommitId;
 	}
 
 	private ChangeIterator(ChangeIterator parent, Change change, String filePath) {
@@ -48,6 +51,7 @@ public class ChangeIterator extends EntryIterator {
 		this.repo = parent.repo;
 		this.binaryResolver = parent.binaryResolver;
 		this.changes = new ArrayList<>();
+		this.lastCommitId = parent.lastCommitId;
 	}
 
 	private static List<TreeEntry> initialize(ChangeIterator parent, List<Change> changes) {
@@ -69,7 +73,8 @@ public class ChangeIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.TREE, change));
 			} else {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
-				if (!parent.binaryResolver.list(change, "").isEmpty()) {
+				if ((change.diffType == DiffType.DELETED && hadBinaries(parent.repo, change, parent.lastCommitId))
+						|| !parent.binaryResolver.list(change, "").isEmpty()) {
 					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
 					list.add(new TreeEntry(bin, FileMode.TREE, change, ""));
 				}
@@ -82,7 +87,7 @@ public class ChangeIterator extends EntryIterator {
 		if (!prefix.contains("/"))
 			return list;
 		var parentChange = parent != null ? parent.getEntryData() : null;
-		if (list.isEmpty() && parentChange != null 
+		if (list.isEmpty() && parentChange != null
 				&& (parentChange.isEmptyCategory || parentChange.diffType == DiffType.ADDED)) {
 			list.add(TreeEntry.empty(parentChange));
 			return list;
@@ -95,6 +100,15 @@ public class ChangeIterator extends EntryIterator {
 					.empty(new Change(DiffType.DELETED, new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
 		}
 		return list;
+	}
+
+	private static boolean hadBinaries(OlcaRepository repo, Change change, String lastCommitId) {
+		if (Strings.nullOrEmpty(lastCommitId))
+			return false;
+		var ref = repo.references.get(change.type, change.refId, lastCommitId);
+		if (ref == null)
+			return false;
+		return !repo.references.getBinaries(ref).isEmpty();
 	}
 
 	private static boolean addEmptyFlag(OlcaRepository repo, String prefix, List<Change> changes) {

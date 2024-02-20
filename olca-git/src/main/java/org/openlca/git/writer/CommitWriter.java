@@ -44,7 +44,7 @@ public abstract class CommitWriter {
 	private final UsedFeatures usedFeatures;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
-	
+
 	public CommitWriter(OlcaRepository repo, BinaryResolver binaryResolver) {
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
@@ -295,7 +295,9 @@ public abstract class CommitWriter {
 
 	private boolean isBinaryOf(String current, String previous) {
 		return previous.endsWith(GitUtil.DATASET_SUFFIX)
-				&& current.equals(previous.substring(0, previous.length() - 5) + GitUtil.BIN_DIR_SUFFIX);
+				&& current.equals(
+						previous.substring(0, previous.length() - GitUtil.DATASET_SUFFIX.length())
+								+ GitUtil.BIN_DIR_SUFFIX);
 	}
 
 	protected void close() throws IOException {
