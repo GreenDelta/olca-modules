@@ -1,15 +1,15 @@
 package org.openlca.jsonld;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.core.model.ModelType;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.ModelType;
 
 /**
  * Reads JSON objects and linked binary files from some data source.
