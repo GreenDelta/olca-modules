@@ -19,6 +19,7 @@ public class CalculationSetup extends AbstractEntity
 	private ImpactMethod impactMethod;
 	private NwSet nwSet;
 	private List<ParameterRedef> parameters;
+	private String parameterSetName;
 	private AllocationMethod allocation = AllocationMethod.NONE;
 	private boolean withCosts = false;
 	private boolean withRegionalization = false;
@@ -131,7 +132,7 @@ public class CalculationSetup extends AbstractEntity
 
 	/**
 	 * Optionally set the flow property factor for the target amount of
-	 * the reference flow. By default this is the reference flow property
+	 * the reference flow. By default, this is the reference flow property
 	 * factor of that flow.
 	 */
 	public CalculationSetup withFlowPropertyFactor(FlowPropertyFactor f) {
@@ -273,6 +274,18 @@ public class CalculationSetup extends AbstractEntity
 			: parameters;
 	}
 
+	/**
+	 * Sets a name for the parameter set of this setup.
+	 */
+	public CalculationSetup withParameterSetName(String name) {
+		this.parameterSetName = name;
+		return this;
+	}
+
+	public String parameterSetName() {
+		return parameterSetName;
+	}
+
 	public CalculationSetup withCosts(boolean b) {
 		this.withCosts = b;
 		return this;
@@ -330,6 +343,8 @@ public class CalculationSetup extends AbstractEntity
 				clone.parameters.add(param.copy());
 			}
 		}
+		clone.parameterSetName = parameterSetName;
+
 		return clone;
 	}
 }
