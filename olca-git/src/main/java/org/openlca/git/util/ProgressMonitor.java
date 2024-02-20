@@ -20,7 +20,7 @@ public interface ProgressMonitor {
 
 	default void subTask(ModelRef ref) {
 		if (ref.isCategory) {
-			subTask("Category " + ref.refId);
+			subTask("Category " + ref.path);
 		} else {
 			subTask(getLabel(ref.type) + " " + ref.refId);
 		}
