@@ -3,12 +3,15 @@ package org.openlca.git.iterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
@@ -30,7 +33,7 @@ public class DatabaseIterator extends EntryIterator {
 
 	private DatabaseIterator(DatabaseIterator parent, List<TreeEntry> entries) {
 		super(parent, entries);
-		this.repo = parent.repo;;
+		this.repo = parent.repo;
 	}
 
 	private static List<TreeEntry> init(ClientRepository repo) {
@@ -64,10 +67,7 @@ public class DatabaseIterator extends EntryIterator {
 		var entries = repo.descriptors.getCategories(type).stream()
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(repo.descriptors.get(type).stream()
-				.filter(d -> !d.isFromLibrary())
-				.map(TreeEntry::new)
-				.toList());
+		entries.addAll(collect(repo, repo.descriptors.get(type)));
 		return entries;
 	}
 
@@ -77,14 +77,35 @@ public class DatabaseIterator extends EntryIterator {
 				.filter(c -> !isFromLibrary(repo, c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(repo.descriptors.get(category).stream()
-				.filter(d -> !d.isFromLibrary())
-				.map(TreeEntry::new)
-				.toList());
+		entries.addAll(collect(repo, repo.descriptors.get(category)));
 		if (entries.isEmpty() && !isFromLibrary(repo, category)) {
 			entries.add(TreeEntry.empty());
 		}
 		return entries;
+	}
+
+	private static List<TreeEntry> collect(ClientRepository repo, Set<Descriptor> descriptors) {
+		var entries = new ArrayList<TreeEntry>();
+		for (var d : descriptors) {
+			if (d.isFromLibrary())
+				continue;
+			if (hasBinaries(repo, d)) {
+				// must include bin entry, otherwise tree will be different from
+				// commit tree and diffs will return false results; bin entries
+				// will be filtered with KnownFilesFilter
+				entries.add(new TreeEntry(d.refId + "_bin", FileMode.TREE));
+			}
+			entries.add(new TreeEntry(d));
+		}
+		return entries;
+	}
+
+	private static boolean hasBinaries(ClientRepository repo, Descriptor d) {
+		var folder = repo.fileStore.getFolder(d.type, d.refId);
+		if (!folder.exists())
+			return false;
+		var files = folder.listFiles();
+		return files != null && files.length > 0;
 	}
 
 	private static boolean isFromLibrary(ClientRepository repo, Category category) {

@@ -120,7 +120,7 @@ class KnownFilesFilter extends TreeFilter {
 	
 	@Override
 	public boolean shouldBeRecursive() {
-		return depth != null;
+		return false;
 	}
 
 	@Override
