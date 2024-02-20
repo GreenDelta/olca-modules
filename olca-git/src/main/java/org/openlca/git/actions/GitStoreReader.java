@@ -64,10 +64,13 @@ class GitStoreReader implements JsonStoreReader {
 		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
 			return categories.getForPath(path);
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
+		if (binDir != null) {
+			var refId = binDir.substring(binDir.lastIndexOf("/") + 1, binDir.lastIndexOf(GitUtil.BIN_DIR_SUFFIX));
+			var ref = repo.references.get(type, refId, commit.id);
+			return repo.datasets.getBytes(ref);
+		}
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
-		var ref = binDir == null
-				? changes.get(type, refId)
-				: repo.references.get(type, refId, commit.id);
+		var ref = changes.get(type, refId);
 		return repo.datasets.getBytes(ref);
 	}
 
@@ -89,7 +92,7 @@ class GitStoreReader implements JsonStoreReader {
 		var resolution = conflictResolver.resolveConflict(ref, remote);
 		if (resolution.type == ConflictResolutionType.IS_EQUAL)
 			return null;
-		if (resolution.type == ConflictResolutionType.OVERWRITE) 
+		if (resolution.type == ConflictResolutionType.OVERWRITE)
 			return null;
 		if (resolution.type == ConflictResolutionType.KEEP && previousCommit != null) {
 			if (repo.references.get(type, refId, previousCommit.id) == null) {
@@ -116,6 +119,11 @@ class GitStoreReader implements JsonStoreReader {
 				.map(binary -> ref.getBinariesPath() + "/" + binary)
 				.toList();
 	}
+	
+	@Override
+	public String getFileName(String path) {
+		return path.substring(path.lastIndexOf("/") + 1);
+	}
 
 	@Override
 	public List<String> getFiles(String dir) {
@@ -137,7 +145,7 @@ class GitStoreReader implements JsonStoreReader {
 				.map(this::replaceEqualOrKeptWithNull)
 				.collect(Collectors.toList());
 	}
-	
+
 	int size() {
 		return changes.size();
 	}

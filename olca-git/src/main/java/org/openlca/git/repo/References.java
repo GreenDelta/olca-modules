@@ -44,7 +44,7 @@ public class References {
 			try (var walk = new TreeWalk(repo)) {
 				var paths = new ArrayList<String>();
 				walk.addTree(commit.getTree());
-				walk.setFilter(PathFilter.create(ref.getBinariesPath()));
+				walk.setFilter(PathFilter.create(GitUtil.encode(ref.getBinariesPath())));
 				walk.setRecursive(true);
 				while (walk.next()) {
 					paths.add(walk.getNameString());

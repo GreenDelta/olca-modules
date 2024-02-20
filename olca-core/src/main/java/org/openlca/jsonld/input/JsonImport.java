@@ -2,7 +2,6 @@ package org.openlca.jsonld.input;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -222,7 +221,7 @@ public class JsonImport implements Runnable, EntityResolver {
 				byte[] data = reader.getBytes(path);
 				if (data == null)
 					return;
-				var name = Paths.get(path).getFileName().toString();
+				var name = reader.getFileName(path);
 				if (!dir.exists()) {
 					Files.createDirectories(dir.toPath());
 				}

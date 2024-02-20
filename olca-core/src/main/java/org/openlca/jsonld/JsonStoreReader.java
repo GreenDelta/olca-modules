@@ -1,6 +1,7 @@
 package org.openlca.jsonld;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -76,10 +77,14 @@ public interface JsonStoreReader {
 		return PackageInfo.readFrom(this).libraries();
 	}
 
+	default String getFileName(String path) {
+		return Paths.get(path).getFileName().toString();
+	}
+	
 	/**
 	 * Get the raw bytes of the JSON or binary file that is stored under the
 	 * given path.
 	 */
 	byte[] getBytes(String path);
-
+	
 }
