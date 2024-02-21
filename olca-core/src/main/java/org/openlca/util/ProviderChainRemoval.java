@@ -5,6 +5,7 @@ import org.openlca.core.model.ProductSystem;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,19 +41,20 @@ public class ProviderChainRemoval {
 
 	/**
 	 * Removes the given link from the product system and the sub-graph G with
-	 * the provider of the link as root, if G is not connected to the reference
-	 * process anymore. Returns the number of processes that were removed.
+	 * the provider of the link as root if G is not connected to the reference
+	 * process anymore.
+	 * Returns the set of process links that were deleted.
 	 */
-	public int remove(ProcessLink link) {
+	public List<ProcessLink> remove(ProcessLink link) {
 		if (link == null)
-			return 0;
+			return Collections.emptyList();
 		removeLink(link);
 		return link.providerId != ref
 				? removeCluster(link.providerId)
-				: 0;
+				: List.of(link);
 	}
 
-	private int removeCluster(long root) {
+	private List<ProcessLink> removeCluster(long root) {
 		var links = new ArrayList<ProcessLink>();
 		var queue = new ArrayDeque<Long>();
 		var handled = new HashSet<Long>();
@@ -68,7 +70,7 @@ public class ProviderChainRemoval {
 			if (outList != null) {
 				for (var link : outList) {
 					if (link.processId == ref)
-						return 0;
+						return Collections.emptyList();
 					links.add(link);
 					Long process = link.processId;
 					if (!handled.contains(process)
@@ -82,7 +84,7 @@ public class ProviderChainRemoval {
 			if (inList != null) {
 				for (var link : inList) {
 					if (link.providerId == ref)
-						return 0;
+						return Collections.emptyList();
 					links.add(link);
 					Long provider = link.providerId;
 					if (!handled.contains(provider)
@@ -97,7 +99,7 @@ public class ProviderChainRemoval {
 		for (var link : links) {
 			removeLink(link);
 		}
-		return handled.size();
+		return links;
 	}
 
 	private void removeLink(ProcessLink link) {
