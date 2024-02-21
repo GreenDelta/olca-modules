@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ProviderChainRemoval {
 
@@ -40,18 +41,24 @@ public class ProviderChainRemoval {
 	}
 
 	/**
-	 * Removes the given link from the product system and the sub-graph G with
+	 * Removes the given link from the product system and the subgraph G with
 	 * the provider of the link as root if G is not connected to the reference
 	 * process anymore.
 	 * Returns the set of process links that were deleted.
 	 */
-	public List<ProcessLink> remove(ProcessLink link) {
+	public Set<ProcessLink> remove(ProcessLink link) {
 		if (link == null)
-			return Collections.emptyList();
+			return Collections.emptySet();
 		removeLink(link);
-		return link.providerId != ref
-				? removeCluster(link.providerId)
-				: List.of(link);
+
+		if (link.providerId == ref)
+			return Set.of(link);
+
+		var clusterLinks = removeCluster(link.providerId);
+		var allLinks =  new HashSet<ProcessLink>();
+		allLinks.add(link);
+		allLinks.addAll(clusterLinks);
+		return allLinks;
 	}
 
 	private List<ProcessLink> removeCluster(long root) {

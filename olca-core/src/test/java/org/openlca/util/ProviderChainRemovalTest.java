@@ -90,7 +90,7 @@ public class ProviderChainRemovalTest {
 				""");
 
 		// delete 1->2
-		assertEquals(0, rem(sys, 1, 2));
+		assertEquals(1, rem(sys, 1, 2));
 		checkAbsent(sys, 1, 2);
 		checkPresent(sys, 2, 1);
 		checkPresent(sys, 3, 2);
@@ -108,7 +108,7 @@ public class ProviderChainRemovalTest {
 				""");
 
 		// delete 2->1
-		assertEquals(2, rem(sys, 2, 1));
+		assertEquals(3, rem(sys, 2, 1));
 		checkAbsent(sys, 2, 1);
 		checkAbsent(sys, 3, 2);
 		checkAbsent(sys, 2, 3);
@@ -127,7 +127,7 @@ public class ProviderChainRemovalTest {
 				""");
 
 		// delete 2->1
-		assertEquals(0, rem(sys, 2, 1));
+		assertEquals(1, rem(sys, 2, 1));
 		checkAbsent(sys, 2, 1);
 		checkPresent(sys, 3, 2);
 		checkPresent(sys, 2, 3);
@@ -158,7 +158,7 @@ public class ProviderChainRemovalTest {
 
 	private int rem(ProductSystem sys, long p, long q) {
 		var r = ProviderChainRemoval.on(sys);
-		return r.remove(link(sys, p, q));
+		return r.remove(link(sys, p, q)).size();
 	}
 
 	private void checkProcs(ProductSystem sys, long... procs) {
