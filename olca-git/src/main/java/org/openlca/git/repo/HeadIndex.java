@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 
 public class HeadIndex {
 
+	private static final int VERSION = 1;
 	private static final String FILE_NAME = "head.index";
 	private final OlcaRepository repo;
 	private Map<String, Entry> map = new HashMap<>();
@@ -69,10 +70,20 @@ public class HeadIndex {
 		var file = new File(repo.dir, FILE_NAME);
 		if (!file.exists())
 			return;
-		var array = Json.readArray(file);
+		var o = Json.readObject(file).orElse(null);
+		if (o == null) {
+			file.delete();
+			return;			
+		}
+		var indexVersion = Json.getInt(o, "version").orElse(0);
+		if (indexVersion != VERSION) {
+			file.delete();
+			return;
+		}
+		var array = Json.getArray(o, "metaInfo");
 		if (array.isEmpty())
 			return;
-		for (var e : array.get()) {
+		for (var e : array) {
 			if (!e.isJsonObject())
 				continue;
 			var obj = e.getAsJsonObject();
@@ -118,6 +129,8 @@ public class HeadIndex {
 	}
 
 	private void store() {
+		var o = new JsonObject();
+		o.addProperty("version", VERSION);
 		var array = new JsonArray();
 		for (var path : metaInfo.keySet()) {
 			var obj = new JsonObject();
@@ -127,7 +140,8 @@ public class HeadIndex {
 			obj.addProperty("lastChange", value.lastChange);
 			array.add(obj);
 		}
-		Json.write(array, new File(repo.dir, FILE_NAME));
+		o.add("metaInfo", array);
+		Json.write(o, new File(repo.dir, FILE_NAME));
 	}
 
 	private static class MetaInfo {
