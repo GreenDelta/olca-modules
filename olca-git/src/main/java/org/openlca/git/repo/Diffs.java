@@ -121,13 +121,13 @@ public class Diffs {
 			var merged = new ArrayList<Diff>();
 			var unique = new TypedRefIdSet();
 			for (var diff : diffs) {
-				if (unique.contains(diff))
-					continue;
-				unique.add(diff);
 				if (diff.isCategory) {
 					merged.add(diff);
 					continue;
 				}
+				if (unique.contains(diff))
+					continue;
+				unique.add(diff);
 				var other = diffs.stream()
 						.filter(d -> !d.isCategory
 								&& d.type == diff.type

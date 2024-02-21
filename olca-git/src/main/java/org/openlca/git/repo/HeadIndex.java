@@ -104,6 +104,7 @@ public class HeadIndex {
 	private void fillUp() {
 		try {
 			subPaths.clear();
+			pathsByRef.clear();
 			map = repo.entries.find().recursive().asMap();
 			var changed = false;
 			for (var entry : map.values()) {
