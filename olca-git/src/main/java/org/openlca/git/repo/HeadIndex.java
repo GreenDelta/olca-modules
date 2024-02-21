@@ -11,6 +11,8 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.model.Entry;
 import org.openlca.git.model.Entry.EntryType;
+import org.openlca.git.util.TypedRefId;
+import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
 
@@ -21,9 +23,10 @@ public class HeadIndex {
 
 	private static final String FILE_NAME = "head.index";
 	private final OlcaRepository repo;
-	private Map<String, Entry> map;
+	private Map<String, Entry> map = new HashMap<>();
 	private Map<String, Set<String>> subPaths = new HashMap<>();
 	private Map<String, MetaInfo> metaInfo = new HashMap<>();
+	private TypedRefIdMap<String> pathsByRef = new TypedRefIdMap<>();
 
 	private HeadIndex(OlcaRepository repo) {
 		this.repo = repo;
@@ -50,6 +53,10 @@ public class HeadIndex {
 		return subPaths.getOrDefault(path, new HashSet<>());
 	}
 
+	public String getPath(TypedRefId typedRefId) {
+		return pathsByRef.get(typedRefId);
+	}
+	
 	public boolean isSameVersion(String path, RootDescriptor d) {
 		var info = metaInfo.get(path);
 		if (info == null)
@@ -96,6 +103,7 @@ public class HeadIndex {
 				subPaths.computeIfAbsent(parent, k -> new HashSet<>()).add(path);
 				if (entry.typeOfEntry != EntryType.DATASET)
 					continue;
+				pathsByRef.put(entry, entry.path);
 				if (metaInfo.containsKey(entry.path))
 					continue;
 				metaInfo.put(entry.path, new MetaInfo(repo.datasets.getVersionAndLastChange(entry)));

@@ -1,6 +1,6 @@
 package org.openlca.git.actions;
 
-import java.util.List;
+import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
@@ -54,7 +54,7 @@ class ImportData {
 			ModelType.EPD
 	};
 
-	List<Change> run() {
+	Set<Change> run() {
 		var jsonImport = new JsonImport(gitStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		progressMonitor.beginTask("Importing data sets", gitStore.size());

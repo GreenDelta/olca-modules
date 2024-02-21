@@ -18,6 +18,7 @@ import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.TypedRefIdSet;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ public class Diffs {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
 			this.leftCommit = getRevCommit(commit, true);
-			return diffOfDatabase(path);
+			return mergeMoveDiffs(diffOfDatabase(path));
 		}
 
 		private List<Diff> diffOfDatabase(String prefix) {
@@ -94,13 +95,13 @@ public class Diffs {
 			var leftCommit = repo.commits.find().before(commit.id).latest();
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
-			return diffOfCommits(path);
+			return mergeMoveDiffs(diffOfCommits(path));
 		}
 
 		public List<Diff> with(Commit other) {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
-			return diffOfCommits(path);
+			return mergeMoveDiffs(diffOfCommits(path));
 		}
 
 		private List<Diff> diffOfCommits(String prefix) {
@@ -114,6 +115,41 @@ public class Diffs {
 				log.error("Error adding tree", e);
 				return new ArrayList<>();
 			}
+		}
+
+		private List<Diff> mergeMoveDiffs(List<Diff> diffs) {
+			var merged = new ArrayList<Diff>();
+			var unique = new TypedRefIdSet();
+			for (var diff : diffs) {
+				if (unique.contains(diff))
+					continue;
+				unique.add(diff);
+				if (diff.isCategory) {
+					merged.add(diff);
+					continue;
+				}
+				var other = diffs.stream()
+						.filter(d -> !d.isCategory
+								&& d.type == diff.type
+								&& Strings.nullOrEqual(d.refId, diff.refId)
+								&& !d.path.equals(diff.path))
+						.findFirst()
+						.orElse(null);
+				if (other == null) {
+					merged.add(diff);
+					continue;
+				}
+				if (diff.diffType == DiffType.DELETED) {
+					var left = new Reference(diff.path, diff.oldCommitId, diff.oldObjectId);
+					var right = new Reference(other.path, other.newCommitId, other.newObjectId);
+					merged.add(new Diff(DiffType.MOVED, left, right));
+				} else {
+					var left = new Reference(other.path, other.oldCommitId, other.oldObjectId);
+					var right = new Reference(diff.path, diff.newCommitId, diff.newObjectId);
+					merged.add(new Diff(DiffType.MOVED, left, right));
+				}
+			}
+			return merged;
 		}
 
 		private AbstractTreeIterator createIterator(RevCommit commit, String path)

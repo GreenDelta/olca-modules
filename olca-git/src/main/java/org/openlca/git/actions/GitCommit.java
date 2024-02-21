@@ -2,7 +2,6 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility;
@@ -46,9 +45,7 @@ public class GitCommit extends GitProgressAction<String> {
 		if (repo == null || repo.database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		if (changes == null) {
-			changes = repo.diffs.find().withDatabase().stream()
-					.map(Change::new)
-					.collect(Collectors.toList());
+			changes = Change.of(repo.diffs.find().withDatabase());
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");

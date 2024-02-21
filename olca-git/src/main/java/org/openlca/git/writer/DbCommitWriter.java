@@ -18,8 +18,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.model.Change;
+import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
-import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -87,7 +87,7 @@ public class DbCommitWriter extends CommitWriter {
 			threads = Executors.newCachedThreadPool();
 			converter = new Converter(database, threads);
 			converter.start(changes.stream()
-					.filter(d -> d.diffType != DiffType.DELETED)
+					.filter(d -> d.changeType != ChangeType.DELETE)
 					.sorted()
 					.toList());
 			var commitId = write(message, changes, getParentIds(previousCommit));

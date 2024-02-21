@@ -8,16 +8,20 @@ import org.eclipse.jgit.lib.ObjectId;
 public class Diff extends ModelRef {
 
 	public final DiffType diffType;
+	public final String oldPath;
 	public final String oldCommitId;
 	public final ObjectId oldObjectId;
+	public final String newPath;
 	public final String newCommitId;
 	public final ObjectId newObjectId;
 
 	public Diff(DiffType diffType, Reference oldRef, Reference newRef) {
 		super(diffType == DiffType.DELETED ? oldRef : newRef);
 		this.diffType = diffType;
+		this.oldPath = oldRef != null ? oldRef.path : null;
 		this.oldCommitId = oldRef != null ? oldRef.commitId : null;
 		this.oldObjectId = oldRef != null ? oldRef.objectId : ObjectId.zeroId();
+		this.newPath = newRef != null ? newRef.path : null;
 		this.newCommitId = newRef != null ? newRef.commitId : null;
 		this.newObjectId = newRef != null ? newRef.objectId : ObjectId.zeroId();
 	}

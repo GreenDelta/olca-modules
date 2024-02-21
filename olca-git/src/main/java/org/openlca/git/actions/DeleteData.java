@@ -16,7 +16,6 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.model.Change;
-import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.ProgressMonitor;
 
@@ -105,7 +104,7 @@ class DeleteData {
 			return false;
 		var resolution = conflictResolver.resolveConflict(ref, null);
 		if (resolution.type == ConflictResolutionType.OVERWRITE) {
-			resolvedConflicts.add(new Change(DiffType.DELETED, ref));
+			resolvedConflicts.add(Change.delete(ref));
 		}
 		return resolution.type == ConflictResolutionType.KEEP;
 	}

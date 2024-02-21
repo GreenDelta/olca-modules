@@ -9,8 +9,8 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.model.Change;
+import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
-import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.writer.DbCommitWriter;
 
@@ -66,9 +66,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		if (!discard && committer == null)
 			throw new IllegalStateException("Committer must be set");
 		if (changes == null) {
-			changes = repo.diffs.find().withDatabase().stream()
-					.map(Change::new)
-					.collect(Collectors.toList());
+			changes = Change.of(repo.diffs.find().withDatabase());
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
@@ -96,7 +94,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	private void restoreDataFrom(Commit commit) {
 		var toImport = changes.stream()
-				.filter(c -> c.diffType != DiffType.ADDED)
+				.filter(c -> c.changeType != ChangeType.ADD)
 				.map(c -> repo.references.get(c.type, c.refId, commit.id))
 				.collect(Collectors.toList());
 		var gitStore = new GitStoreReader(repo, commit, toImport);
@@ -108,7 +106,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 
 	private void deleteAddedData() {
 		var toDelete = changes.stream()
-				.filter(c -> c.diffType == DiffType.ADDED)
+				.filter(c -> c.changeType == ChangeType.ADD)
 				.collect(Collectors.toList());
 		DeleteData.from(repo.database)
 				.with(progressMonitor)

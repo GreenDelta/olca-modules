@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.junit.Test;
@@ -38,11 +37,10 @@ public class WriteReadTest {
 			unitGroup.category = CategoryDao.sync(
 					db, ModelType.UNIT_GROUP, "Technical unit groups");
 			db.insert(unitGroup);
-
+			tmp.repo.descriptors.reload();
+			
 			// should find 1 diff
-			var diffs = tmp.repo.diffs.find().excludeCategories().withDatabase().stream()
-					.map(Change::new)
-					.collect(Collectors.toList());
+			var diffs = Change.of(tmp.repo.diffs.find().excludeCategories().withDatabase());
 			assertEquals(1, diffs.size());
 
 			// commit it

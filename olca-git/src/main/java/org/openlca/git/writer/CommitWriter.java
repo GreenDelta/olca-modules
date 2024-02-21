@@ -23,7 +23,7 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.iterator.EntryIterator;
 import org.openlca.git.model.Change;
-import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -183,7 +183,7 @@ public abstract class CommitWriter {
 		}
 		if (walk.getFileMode(treeCount - 1) != FileMode.MISSING) {
 			var data = iterator.getEntryData();
-			if (data != null && data.isCategory && data.diffType == DiffType.DELETED)
+			if (data != null && data.isCategory && data.changeType == ChangeType.DELETE)
 				return null;
 			var subIterator = iterator.createSubtreeIterator();
 			var prefix = GitUtil.decode(walk.getPathString());
@@ -208,7 +208,7 @@ public abstract class CommitWriter {
 		var iterator = walk.getTree(treeCount - 1, EntryIterator.class);
 		Change change = iterator.getEntryData();
 		var filePath = iterator.getEntryFilePath();
-		if (change.diffType == DiffType.DELETED && matches(path, change, filePath))
+		if (change.changeType == ChangeType.DELETE && matches(path, change, filePath))
 			return null;
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));

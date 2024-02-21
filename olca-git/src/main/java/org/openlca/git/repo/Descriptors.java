@@ -7,13 +7,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.util.Path;
 import org.openlca.git.util.TypedRefId;
 import org.openlca.util.Categories;
@@ -57,15 +58,15 @@ public class Descriptors {
 		return new Descriptors(database);
 	}
 
-	public Descriptor get(String path) {
+	public RootDescriptor get(String path) {
 		return get(new TypedRefId(path));
 	}
 
-	public Descriptor get(TypedRefId typedRefId) {
+	public RootDescriptor get(TypedRefId typedRefId) {
 		return get(typedRefId.type, typedRefId.refId);
 	}
 
-	public Descriptor get(ModelType type, String refId) {
+	public RootDescriptor get(ModelType type, String refId) {
 		if (type == null || refId == null || refId.strip().isEmpty())
 			return null;
 		synchronized (cache) {
@@ -74,7 +75,7 @@ public class Descriptors {
 		}
 	}
 
-	public Set<Descriptor> get(ModelType type) {
+	public Set<RootDescriptor> get(ModelType type) {
 		if (type == null)
 			return new HashSet<>();
 		synchronized (cache) {
@@ -83,7 +84,7 @@ public class Descriptors {
 		}
 	}
 
-	public Set<Descriptor> get(Category category) {
+	public Set<RootDescriptor> get(Category category) {
 		if (category == null)
 			return new HashSet<>();
 		synchronized (cache) {
@@ -102,6 +103,14 @@ public class Descriptors {
 
 	public Category getCategory(Long id) {
 		return categoriesById.get(id);
+	}
+
+	public void forEach(Consumer<RootDescriptor> consumer) {
+		for (var modelType : ModelType.values()) {
+			synchronized (cache) {
+				cache.computeIfAbsent(modelType, this::load).byRefId.values().forEach(consumer);
+			}
+		}
 	}
 
 	private DescriptorsMaps load(ModelType type) {
@@ -140,8 +149,8 @@ public class Descriptors {
 
 	private class DescriptorsMaps {
 
-		private final Map<String, Descriptor> byRefId = new HashMap<>();
-		private final Map<Long, Set<Descriptor>> byCategory = new HashMap<>();
+		private final Map<String, RootDescriptor> byRefId = new HashMap<>();
+		private final Map<Long, Set<RootDescriptor>> byCategory = new HashMap<>();
 
 	}
 

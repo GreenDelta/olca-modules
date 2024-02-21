@@ -9,7 +9,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Change;
-import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
@@ -73,7 +73,7 @@ public class ChangeIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.TREE, change));
 			} else {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
-				if ((change.diffType == DiffType.DELETED && hadBinaries(parent.repo, change, parent.lastCommitId))
+				if ((change.changeType == ChangeType.DELETE && hadBinaries(parent.repo, change, parent.lastCommitId))
 						|| !parent.binaryResolver.list(change, "").isEmpty()) {
 					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
 					list.add(new TreeEntry(bin, FileMode.TREE, change, ""));
@@ -88,16 +88,16 @@ public class ChangeIterator extends EntryIterator {
 			return list;
 		var parentChange = parent != null ? parent.getEntryData() : null;
 		if (list.isEmpty() && parentChange != null
-				&& (parentChange.isEmptyCategory || parentChange.diffType == DiffType.ADDED)) {
+				&& (parentChange.isEmptyCategory || parentChange.changeType == ChangeType.ADD)) {
 			list.add(TreeEntry.empty(parentChange));
 			return list;
 		}
 		if (addEmptyFlag(parent.repo, prefix, changes)) {
 			list.add(TreeEntry
-					.empty(new Change(DiffType.ADDED, new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
+					.empty(Change.add(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
 		} else if (deleteEmptyFlag(list)) {
 			list.add(TreeEntry
-					.empty(new Change(DiffType.DELETED, new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
+					.empty(Change.delete(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
 		}
 		return list;
 	}
@@ -116,7 +116,7 @@ public class ChangeIterator extends EntryIterator {
 		if (entries.isEmpty())
 			return false;
 		var deletions = changes.stream()
-				.filter(c -> c.diffType == DiffType.DELETED)
+				.filter(c -> c.changeType == ChangeType.DELETE)
 				.map(c -> c.path)
 				.collect(Collectors.toSet());
 		for (var entry : entries)
@@ -128,7 +128,7 @@ public class ChangeIterator extends EntryIterator {
 	private static boolean deleteEmptyFlag(List<TreeEntry> entries) {
 		return entries.stream()
 				.filter(e -> {
-					if (e.data instanceof Change c && c.diffType == DiffType.ADDED)
+					if (e.data instanceof Change c && c.changeType == ChangeType.ADD)
 						return true;
 					return e.data == null && e.fileMode == FileMode.TREE;
 				})

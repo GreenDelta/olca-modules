@@ -2,7 +2,9 @@ package org.openlca.git.actions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
@@ -10,7 +12,6 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
-import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
@@ -32,7 +33,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final TypedRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
 	private final byte[] repoInfo;
-	final List<Change> resolvedConflicts = new ArrayList<>();
+	final Set<Change> resolvedConflicts = new HashSet<>();
 
 	GitStoreReader(OlcaRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
 		this(repo, null, remoteCommit, remoteChanges, null);
@@ -93,14 +94,12 @@ class GitStoreReader implements JsonStoreReader {
 		if (resolution.type == ConflictResolutionType.IS_EQUAL)
 			return null;
 		if (resolution.type == ConflictResolutionType.OVERWRITE)
-			return null;
+			return remote;
 		if (resolution.type == ConflictResolutionType.KEEP && previousCommit != null) {
-			if (repo.references.get(type, refId, previousCommit.id) == null) {
-				resolvedConflicts.add(new Change(DiffType.DELETED, ref));
-			}
+			resolveKeep(ref);
 			return null;
 		}
-		resolvedConflicts.add(new Change(DiffType.MODIFIED, ref));
+		resolvedConflicts.add(Change.modify(ref));
 		return resolution.data;
 	}
 
@@ -155,14 +154,21 @@ class GitStoreReader implements JsonStoreReader {
 		if (resolution == ConflictResolutionType.IS_EQUAL)
 			return null;
 		if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
-			if (repo.references.get(ref.type, ref.refId, previousCommit.id) == null) {
-				resolvedConflicts.add(new Change(DiffType.DELETED, ref));
-			} else {
-				resolvedConflicts.add(new Change(DiffType.MODIFIED, ref));
-			}
+			resolveKeep(ref);
 			return null;
 		}
 		return ref;
+	}
+	
+	private void resolveKeep(Reference ref) {
+		var previousRef = repo.references.get(ref.type, ref.refId, previousCommit.id);
+		if (previousRef == null) {
+			resolvedConflicts.add(Change.delete(ref));
+		} else if (!ref.path.equals(previousRef.path)) {
+			resolvedConflicts.addAll(Change.move(ref, previousRef));
+		} else {
+			resolvedConflicts.add(Change.modify(previousRef));
+		}
 	}
 
 	private JsonObject parse(String data) {

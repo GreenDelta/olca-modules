@@ -11,7 +11,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
@@ -84,7 +83,7 @@ public class DatabaseIterator extends EntryIterator {
 		return entries;
 	}
 
-	private static List<TreeEntry> collect(ClientRepository repo, Set<Descriptor> descriptors) {
+	private static List<TreeEntry> collect(ClientRepository repo, Set<RootDescriptor> descriptors) {
 		var entries = new ArrayList<TreeEntry>();
 		for (var d : descriptors) {
 			if (d.isFromLibrary())
@@ -100,7 +99,7 @@ public class DatabaseIterator extends EntryIterator {
 		return entries;
 	}
 
-	private static boolean hasBinaries(ClientRepository repo, Descriptor d) {
+	private static boolean hasBinaries(ClientRepository repo, RootDescriptor d) {
 		var folder = repo.fileStore.getFolder(d.type, d.refId);
 		if (!folder.exists())
 			return false;
