@@ -18,7 +18,7 @@ import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypedRefIdSet;
+import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class Diffs {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
 			this.leftCommit = getRevCommit(commit, true);
-			return mergeMoveDiffs(diffOfDatabase(path));
+			return diffOfDatabase(path);
 		}
 
 		private List<Diff> diffOfDatabase(String prefix) {
@@ -95,13 +95,13 @@ public class Diffs {
 			var leftCommit = repo.commits.find().before(commit.id).latest();
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
-			return mergeMoveDiffs(diffOfCommits(path));
+			return diffOfCommits(path);
 		}
 
 		public List<Diff> with(Commit other) {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
-			return mergeMoveDiffs(diffOfCommits(path));
+			return diffOfCommits(path);
 		}
 
 		private List<Diff> diffOfCommits(String prefix) {
@@ -115,41 +115,6 @@ public class Diffs {
 				log.error("Error adding tree", e);
 				return new ArrayList<>();
 			}
-		}
-
-		private List<Diff> mergeMoveDiffs(List<Diff> diffs) {
-			var merged = new ArrayList<Diff>();
-			var unique = new TypedRefIdSet();
-			for (var diff : diffs) {
-				if (diff.isCategory) {
-					merged.add(diff);
-					continue;
-				}
-				if (unique.contains(diff))
-					continue;
-				unique.add(diff);
-				var other = diffs.stream()
-						.filter(d -> !d.isCategory
-								&& d.type == diff.type
-								&& Strings.nullOrEqual(d.refId, diff.refId)
-								&& !d.path.equals(diff.path))
-						.findFirst()
-						.orElse(null);
-				if (other == null) {
-					merged.add(diff);
-					continue;
-				}
-				if (diff.diffType == DiffType.DELETED) {
-					var left = new Reference(diff.path, diff.oldCommitId, diff.oldObjectId);
-					var right = new Reference(other.path, other.newCommitId, other.newObjectId);
-					merged.add(new Diff(DiffType.MOVED, left, right));
-				} else {
-					var left = new Reference(other.path, other.oldCommitId, other.oldObjectId);
-					var right = new Reference(diff.path, diff.newCommitId, diff.newObjectId);
-					merged.add(new Diff(DiffType.MOVED, left, right));
-				}
-			}
-			return merged;
 		}
 
 		private AbstractTreeIterator createIterator(RevCommit commit, String path)
@@ -189,7 +154,7 @@ public class Diffs {
 		}
 
 		private List<Diff> scan(TreeWalk walk, String prefix, Function<String, List<Diff>> scan) throws IOException {
-			var diffs = new ArrayList<Diff>();
+			var diffs = new TypedRefIdMap<Diff>();
 			while (walk.next()) {
 				var path = !Strings.nullOrEmpty(prefix)
 						? prefix + "/" + walk.getPathString()
@@ -207,13 +172,13 @@ public class Diffs {
 					addDiff(diffs, DiffType.MODIFIED, path, oldId, newId);
 				}
 				if (oldMode == FileMode.TREE || newMode == FileMode.TREE) {
-					diffs.addAll(scan.apply(path));
+					scan.apply(path).forEach(diff -> merge(diffs, diff));
 				}
 			}
-			return diffs;
+			return diffs.values();
 		}
 
-		private void addDiff(List<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)
+		private void addDiff(TypedRefIdMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)
 				throws IOException {
 			path = GitUtil.decode(path);
 			if (!path.contains("/"))
@@ -240,7 +205,32 @@ public class Diffs {
 				return;
 			if (!diff.isCategory && onlyCategories)
 				return;
-			diffs.add(diff);
+			merge(diffs, diff);
+		}
+
+		private void merge(TypedRefIdMap<Diff> diffs, Diff diff) {
+			var other = diffs.get(diff);
+			if (other == null) {
+				diffs.put(diff, diff);
+				return;
+			}
+			if (diff.diffType == DiffType.DELETED && other.diffType == DiffType.ADDED) {
+				if (diff.path.equals(other.path)) {
+					diffs.remove(diff);
+				} else {
+					var left = new Reference(diff.path, diff.oldCommitId, diff.oldObjectId);
+					var right = new Reference(other.path, other.newCommitId, other.newObjectId);
+					diffs.put(diff, new Diff(DiffType.MOVED, left, right));
+				}
+			} else if (diff.diffType == DiffType.ADDED && other.diffType == DiffType.DELETED) {
+				if (diff.path.equals(other.path)) {
+					diffs.remove(diff);
+				} else {
+					var left = new Reference(other.path, other.oldCommitId, other.oldObjectId);
+					var right = new Reference(diff.path, diff.newCommitId, diff.newObjectId);
+					diffs.put(diff, new Diff(DiffType.MOVED, left, right));
+				}
+			}
 		}
 
 		private boolean isEmptyCategory(RevCommit commit, String path) throws IOException {

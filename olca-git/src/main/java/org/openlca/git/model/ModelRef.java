@@ -76,8 +76,12 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	private int compare(String p1, String p2) {
 		var isP1Tree = !p1.endsWith(GitUtil.DATASET_SUFFIX);
 		var isP2Tree = !p2.endsWith(GitUtil.DATASET_SUFFIX);
-		if (isP1Tree != isP2Tree)
-			return isP1Tree ? -1 : 1;
+		if (isP1Tree) {
+			p1 += "/";
+		}
+		if (isP2Tree) {
+			p2 += "/";
+		}
 		return p1.compareTo(p2);
 	}
 
