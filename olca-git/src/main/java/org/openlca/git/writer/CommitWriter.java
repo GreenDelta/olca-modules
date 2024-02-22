@@ -185,14 +185,12 @@ public abstract class CommitWriter {
 			var data = iterator.getEntryData();
 			if (data != null && data.isCategory && data.changeType == ChangeType.DELETE)
 				return null;
-			var subIterator = iterator.createSubtreeIterator();
-			var prefix = GitUtil.decode(walk.getPathString());
-			return syncTree(prefix, subIterator, treeIds);
 		}
-		for (var i = treeCount - 2; i >= 0; i--)
-			if (treeIds[i] != null)
-				return treeIds[i];
-		return null;
+		if (treeCount == 2)
+			return treeIds[0];
+		var subIterator = iterator.createSubtreeIterator();
+		var prefix = GitUtil.decode(walk.getPathString());
+		return syncTree(prefix, subIterator, treeIds);
 	}
 
 	private ObjectId handleFile(TreeWalk walk)
