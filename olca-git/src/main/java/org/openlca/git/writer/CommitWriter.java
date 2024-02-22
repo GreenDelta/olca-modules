@@ -106,7 +106,7 @@ public abstract class CommitWriter {
 	}
 
 	private ObjectId syncTree(String prefix, ChangeIterator iterator, ObjectId[] treeIds) {
-		boolean appended = false;
+		var appended = false;
 		var tree = new TreeFormatter();
 		try (var walk = createWalk(prefix, iterator, treeIds)) {
 			var previous = "";
@@ -181,16 +181,18 @@ public abstract class CommitWriter {
 		for (var i = 0; i < treeCount - 1; i++) {
 			treeIds[i] = walk.getFileMode(i) != FileMode.MISSING ? walk.getObjectId(i) : null;
 		}
-		if (walk.getFileMode(treeCount - 1) != FileMode.MISSING) {
-			var data = iterator.getEntryData();
-			if (data != null && data.isCategory && data.changeType == ChangeType.DELETE)
-				return null;
-		}
-		if (treeCount == 2)
+		var changed = walk.getFileMode(treeCount - 1) != FileMode.MISSING;
+		if (changed && isDeletedCategory(iterator.getEntryData()))
+			return null;
+		if (!changed && treeCount == 2)
 			return treeIds[0];
 		var subIterator = iterator.createSubtreeIterator();
 		var prefix = GitUtil.decode(walk.getPathString());
 		return syncTree(prefix, subIterator, treeIds);
+	}
+
+	private boolean isDeletedCategory(Change data) {
+		return data != null && data.isCategory && data.changeType == ChangeType.DELETE;
 	}
 
 	private ObjectId handleFile(TreeWalk walk)

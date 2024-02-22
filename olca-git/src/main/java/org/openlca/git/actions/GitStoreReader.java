@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
+import org.openlca.git.actions.ConflictResolver.ConflictResolution;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
@@ -17,6 +18,7 @@ import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefIdMap;
+import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.util.Strings;
 
@@ -27,8 +29,8 @@ class GitStoreReader implements JsonStoreReader {
 
 	private static final Gson gson = new Gson();
 	private final OlcaRepository repo;
-	private final Commit previousCommit;
-	private final Commit commit;
+	private final Commit localCommit;
+	private final Commit remoteCommit;
 	private final Categories categories;
 	private final TypedRefIdMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
@@ -39,15 +41,15 @@ class GitStoreReader implements JsonStoreReader {
 		this(repo, null, remoteCommit, remoteChanges, null);
 	}
 
-	GitStoreReader(OlcaRepository repo, Commit previousCommit, Commit commit, List<Reference> changes,
+	GitStoreReader(OlcaRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> changes,
 			ConflictResolver conflictResolver) {
 		this.repo = repo;
-		this.categories = Categories.of(repo, commit.id);
-		this.previousCommit = previousCommit;
-		this.commit = commit;
+		this.categories = Categories.of(repo, remoteCommit.id);
+		this.localCommit = localCommit;
+		this.remoteCommit = remoteCommit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = new TypedRefIdMap<Reference>();
-		this.repoInfo = repo.datasets.getRepositoryInfo(commit);
+		this.repoInfo = repo.datasets.getRepositoryInfo(remoteCommit);
 		changes.forEach(ref -> {
 			if (ref.isCategory) {
 				this.changes.put(ref.type, ref.path, ref);
@@ -67,7 +69,7 @@ class GitStoreReader implements JsonStoreReader {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		if (binDir != null) {
 			var refId = binDir.substring(binDir.lastIndexOf("/") + 1, binDir.lastIndexOf(GitUtil.BIN_DIR_SUFFIX));
-			var ref = repo.references.get(type, refId, commit.id);
+			var ref = repo.references.get(type, refId, remoteCommit.id);
 			return repo.datasets.getBytes(ref);
 		}
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
@@ -95,11 +97,40 @@ class GitStoreReader implements JsonStoreReader {
 			return null;
 		if (resolution.type == ConflictResolutionType.OVERWRITE)
 			return remote;
-		if (resolution.type == ConflictResolutionType.KEEP && previousCommit != null) {
+		if (resolution.type == ConflictResolutionType.KEEP && localCommit != null) {
 			resolveKeep(ref);
 			return null;
 		}
-		resolvedConflicts.add(Change.modify(ref));
+		return resolveMerge(ref, resolution);
+	}
+
+	private void resolveKeep(Reference ref) {
+		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
+		if (localRef == null) {
+			resolvedConflicts.add(Change.delete(ref));
+		} else if (!ref.path.equals(localRef.path)) {
+			resolvedConflicts.addAll(Change.move(ref, localRef));
+		} else {
+			resolvedConflicts.add(Change.modify(localRef));
+		}
+	}
+
+	private JsonObject resolveMerge(Reference ref, ConflictResolution resolution) {
+		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
+		var category = Json.getString(resolution.data, "category");
+		var mergedPath = localRef.type.name() + "/";
+		if (!Strings.nullOrEmpty(category)) {
+			mergedPath += category + "/";
+		}
+		mergedPath += localRef.refId + GitUtil.DATASET_SUFFIX;
+		var mergedRef = new ModelRef(mergedPath);
+		if (!mergedPath.equals(localRef.path)) {
+			resolvedConflicts.addAll(Change.move(localRef, mergedRef));
+		} else if (!mergedPath.equals(ref.path)) {
+			resolvedConflicts.addAll(Change.move(ref, mergedRef));
+		} else {
+			resolvedConflicts.add(Change.modify(mergedRef));			
+		}
 		return resolution.data;
 	}
 
@@ -153,22 +184,11 @@ class GitStoreReader implements JsonStoreReader {
 		var resolution = conflictResolver.peekConflictResolution(ref);
 		if (resolution == ConflictResolutionType.IS_EQUAL)
 			return null;
-		if (resolution == ConflictResolutionType.KEEP && previousCommit != null) {
+		if (resolution == ConflictResolutionType.KEEP && localCommit != null) {
 			resolveKeep(ref);
 			return null;
 		}
 		return ref;
-	}
-	
-	private void resolveKeep(Reference ref) {
-		var previousRef = repo.references.get(ref.type, ref.refId, previousCommit.id);
-		if (previousRef == null) {
-			resolvedConflicts.add(Change.delete(ref));
-		} else if (!ref.path.equals(previousRef.path)) {
-			resolvedConflicts.addAll(Change.move(ref, previousRef));
-		} else {
-			resolvedConflicts.add(Change.modify(previousRef));
-		}
 	}
 
 	private JsonObject parse(String data) {
