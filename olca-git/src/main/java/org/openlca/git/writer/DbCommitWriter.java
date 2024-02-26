@@ -1,11 +1,7 @@
 package org.openlca.git.writer;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,17 +11,14 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
-import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.LibraryLink;
-import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,47 +151,6 @@ public class DbCommitWriter extends CommitWriter {
 			log.error("Error taking data for " + change.path, e);
 			return null;
 		}
-	}
-
-	private static class DatabaseBinaryResolver implements BinaryResolver {
-
-		private final FileStore fileStore;
-
-		private DatabaseBinaryResolver(IDatabase database) {
-			this.fileStore = new FileStore(database);
-		}
-
-		@Override
-		public List<String> list(Change change, String relativePath) {
-			var root = getFile(change, null).toPath();
-			var files = getFile(change, relativePath).listFiles();
-			if (files == null)
-				return new ArrayList<>();
-			return Arrays.asList(files).stream()
-					.map(File::toPath)
-					.map(root::relativize)
-					.map(Path::toString)
-					.toList();
-		}
-
-		@Override
-		public boolean isDirectory(Change change, String relativePath) {
-			return getFile(change, relativePath).isDirectory();
-		}
-
-		@Override
-		public byte[] resolve(Change change, String relativePath) throws IOException {
-			return Files.readAllBytes(getFile(change, relativePath).toPath());
-		}
-
-		private File getFile(Change change, String relativePath) {
-			var folder = fileStore.getFolder(change.type, change.refId);
-			if (!Strings.nullOrEmpty(relativePath)) {
-				folder = new File(folder, relativePath);
-			}
-			return folder;
-		}
-
 	}
 
 }

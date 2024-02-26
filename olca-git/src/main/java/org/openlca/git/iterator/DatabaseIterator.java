@@ -21,6 +21,10 @@ public class DatabaseIterator extends EntryIterator {
 
 	private final ClientRepository repo;
 
+	public DatabaseIterator(ClientRepository repo) {
+		this(repo, init(repo));
+	}
+
 	public DatabaseIterator(ClientRepository repo, String path) {
 		this(repo, init(repo, path));
 	}

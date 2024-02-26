@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -85,6 +87,22 @@ public class Entries {
 			var entries = new ArrayList<Entry>();
 			iterate.call(entries::add);
 			return entries;
+		}
+
+		public long count() {
+			var count = new AtomicLong(0);
+			iterate.call(e -> count.incrementAndGet());
+			return count.get();
+		}
+
+		public boolean contains(String path) {
+			var value = new AtomicBoolean(false);
+			iterate.call(e -> {
+				if (e.path.endsWith("/" + path)) {
+					value.set(true);
+				}
+			});
+			return value.get();
 		}
 
 		public Map<String, Entry> asMap() {

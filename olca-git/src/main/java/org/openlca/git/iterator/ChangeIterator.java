@@ -95,7 +95,7 @@ public class ChangeIterator extends EntryIterator {
 		if (addEmptyFlag(parent.repo, prefix, changes)) {
 			list.add(TreeEntry
 					.empty(Change.add(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
-		} else if (deleteEmptyFlag(list)) {
+		} else if (deleteEmptyFlag(parent.repo, prefix, list)) {
 			list.add(TreeEntry
 					.empty(Change.delete(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
 		}
@@ -125,14 +125,19 @@ public class ChangeIterator extends EntryIterator {
 		return true;
 	}
 
-	private static boolean deleteEmptyFlag(List<TreeEntry> entries) {
-		return entries.stream()
+	private static boolean deleteEmptyFlag(OlcaRepository repo, String prefix, List<TreeEntry> entries) {
+		var newData = entries.stream()
 				.filter(e -> {
 					if (e.data instanceof Change c && c.changeType == ChangeType.ADD)
 						return true;
 					return e.data == null && e.fileMode == FileMode.TREE;
 				})
 				.count() > 0;
+		if (!newData)
+			return false;
+		var first = prefix.substring(0, prefix.lastIndexOf("/"));
+		var last = prefix.substring(prefix.lastIndexOf("/") + 1);
+		return repo.entries.find().path(first).contains(last) && repo.entries.find().path(prefix).count() == 0;
 	}
 
 	public final ChangeIterator createSubtreeIterator() {
