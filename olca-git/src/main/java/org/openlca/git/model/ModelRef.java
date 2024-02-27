@@ -66,7 +66,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		var p1 = path.split("/");
 		var p2 = o.path.split("/");
 		for (var i = 0; i < Math.min(p1.length, p2.length); i++) {
-			var c = compare(p1[i], p2[i]);
+			// encode to ensure same order as in Git tree
+			var c = compare(GitUtil.encode(p1[i]), GitUtil.encode(p2[i]));
 			if (c != 0)
 				return c;
 		}

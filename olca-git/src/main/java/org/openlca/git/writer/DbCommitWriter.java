@@ -16,6 +16,7 @@ import org.openlca.git.model.Change;
 import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
+import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.LibraryLink;
@@ -34,7 +35,11 @@ public class DbCommitWriter extends CommitWriter {
 	private ClientRepository repo;
 
 	public DbCommitWriter(ClientRepository repo) {
-		super(repo, new DatabaseBinaryResolver(repo.database));
+		this(repo, new DatabaseBinaryResolver(repo.database));
+	}
+	
+	public DbCommitWriter(ClientRepository repo, BinaryResolver binaryResolver) {
+		super(repo, binaryResolver);
 		this.database = repo.database;
 		this.repo = repo;
 	}
