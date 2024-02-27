@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.openlca.core.model.ModelType;
 import org.openlca.git.Tests;
 import org.openlca.git.Tests.TmpConfig;
 
@@ -27,8 +26,6 @@ public class DatabaseIteratorTests {
 		try (var repo = TmpConfig.create().repo()) {
 			paths.forEach(path -> Tests.create(repo.database, path));
 			repo.descriptors.reload();
-			repo.descriptors.getCategories(ModelType.SOURCE).forEach(System.out::println);
-			System.out.println("--");
 			TreeValidator.assertEqual(repo, new DatabaseIterator(repo), "ACTOR", "FLOW", "SOURCE");
 			TreeValidator.assertEqual(repo, new DatabaseIterator(repo, "ACTOR"),
 					"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",

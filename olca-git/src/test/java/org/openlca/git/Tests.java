@@ -17,15 +17,13 @@ import org.openlca.util.Dirs;
 
 public class Tests {
 
-	private static final IDatabase db = Derby.createInMemory();
-
 	public record TmpConfig(ClientRepository repo, PersonIdent committer,
 			File dir) implements AutoCloseable {
 
 		public static TmpConfig create() {
 			try {
 				var dir = Files.createTempDirectory("olca-git-test").toFile();
-				var repo = new ClientRepository(new File(dir, "repo"), db);
+				var repo = new ClientRepository(new File(dir, "repo"), Derby.createInMemory());
 				repo.create(true);
 				return new TmpConfig(repo, new PersonIdent("user", "user@example.com"), dir);
 			} catch (Exception e) {
