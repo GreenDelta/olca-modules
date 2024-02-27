@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.Tests;
+import org.openlca.git.TreeValidator;
 import org.openlca.git.Tests.TmpConfig;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.ModelRef;
@@ -62,8 +63,8 @@ public class ChangeIteratorTests {
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
-		try (var config = TmpConfig.create();
-				var repo = config.repo()) {
+		try (var config = TmpConfig.create()) {
+			var repo = config.repo();
 			paths.forEach(path -> Tests.create(repo.database, path));
 			repo.descriptors.reload();
 			var changes = paths.stream()

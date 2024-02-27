@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.openlca.git.Tests;
+import org.openlca.git.TreeValidator;
 import org.openlca.git.Tests.TmpConfig;
 
 public class DatabaseIteratorTests {

@@ -1,4 +1,4 @@
-package org.openlca.git.iterator;
+package org.openlca.git;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -10,9 +10,9 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.Assert;
 import org.openlca.git.util.GitUtil;
 
-class TreeValidator {
+public class TreeValidator {
 
-	static void assertEqualRecursive(Repository repo, AbstractTreeIterator iterator, String... entries) {
+	public static void assertEqualRecursive(Repository repo, AbstractTreeIterator iterator, String... entries) {
 		var stack = new LinkedList<>(Arrays.asList(entries));
 		try (var walk = new TreeWalk(repo)) {
 			walk.addTree(iterator);
@@ -27,7 +27,7 @@ class TreeValidator {
 		}
 	}
 
-	static void assertEqual(Repository repo, AbstractTreeIterator iterator, String... entries) {
+	public static void assertEqual(Repository repo, AbstractTreeIterator iterator, String... entries) {
 		var stack = new LinkedList<>(Arrays.asList(entries));
 		try (var walk = new TreeWalk(repo)) {
 			walk.addTree(iterator);
