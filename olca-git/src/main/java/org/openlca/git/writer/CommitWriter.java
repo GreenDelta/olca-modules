@@ -199,6 +199,8 @@ public abstract class CommitWriter {
 			throws IOException, InterruptedException {
 		var treeCount = walk.getTreeCount();
 		if (walk.getFileMode(treeCount - 1) == FileMode.MISSING) {
+			// second last commit is the remote commit in case of merge
+			// if no conflict resolution change is provided keep the remote one
 			for (var i = treeCount - 2; i >= 0; i--)
 				if (walk.getFileMode(i) != FileMode.MISSING)
 					return walk.getObjectId(i);

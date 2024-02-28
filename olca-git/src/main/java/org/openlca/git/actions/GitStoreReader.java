@@ -96,6 +96,8 @@ class GitStoreReader implements JsonStoreReader {
 		if (resolution.type == ConflictResolutionType.IS_EQUAL)
 			return null;
 		if (resolution.type == ConflictResolutionType.OVERWRITE)
+			// commit writer will use remote commit version when no conflict
+			// resolution change is provided
 			return remote;
 		if (resolution.type == ConflictResolutionType.KEEP && localCommit != null) {
 			resolveKeep(ref);
@@ -129,7 +131,7 @@ class GitStoreReader implements JsonStoreReader {
 		} else if (!mergedPath.equals(ref.path)) {
 			resolvedConflicts.addAll(Change.move(ref, mergedRef));
 		} else {
-			resolvedConflicts.add(Change.modify(mergedRef));			
+			resolvedConflicts.add(Change.modify(mergedRef));
 		}
 		return resolution.data;
 	}
