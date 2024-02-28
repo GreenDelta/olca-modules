@@ -66,6 +66,10 @@ public abstract class CommitWriter {
 		return this;
 	}
 
+	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
+		return write(message, new ChangeIterator(repo, binaryResolver, changes), parentCommitIds);
+	}
+
 	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
 			throws IOException {
 		Compatibility.checkRepositoryClientVersion(repo);
