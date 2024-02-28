@@ -16,7 +16,7 @@ import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.writer.DbCommitWriter;
 
-class RepoUtil {
+class RepoData {
 
 	static final Map<String, List<String>> PATH_TO_BINARY = Map.of(
 			"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json", Arrays.asList("test.txt"));
@@ -45,6 +45,7 @@ class RepoUtil {
 			Change.add(new ModelRef("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json")));
 
 	static final List<Change> EXAMPLE_COMMIT_3 = Arrays.asList(
+			Change.modify(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json")),
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae1.json")),
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json")),
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json")),
@@ -97,7 +98,11 @@ class RepoUtil {
 
 		@Override
 		public byte[] resolve(Change change, String relativePath) throws IOException {
-			return ("Test - " + relativePath).getBytes();
+			return getContent(relativePath).getBytes();
+		}
+		
+		static String getContent(String relativePath) {
+			return "Content of " + relativePath;
 		}
 
 	}

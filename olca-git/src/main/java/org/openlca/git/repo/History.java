@@ -34,6 +34,11 @@ public class History {
 	public List<Commit> getAheadOf(String ref) {
 		return diffBetween(of(this.ref), of(ref));
 	}
+	
+	public boolean isBehindOf(Commit commit, String ref) {
+		return getBehindOf(ref).contains(commit);
+	}
+
 
 	public List<Commit> getBehindOf(String ref) {
 		return diffBetween(of(ref), of(this.ref));

@@ -19,7 +19,7 @@ import org.openlca.git.Tests.TmpConfig;
 import org.openlca.git.TreeValidator;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.ModelRef;
-import org.openlca.git.repo.RepoUtil.StaticBinaryResolver;
+import org.openlca.git.repo.RepoData.StaticBinaryResolver;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Strings;
 
@@ -31,7 +31,7 @@ public class WriterTests {
 			var repo = config.repo();
 
 			// first commit
-			var commitId1 = RepoUtil.commit(repo, RepoUtil.EXAMPLE_COMMIT_1);
+			var commitId1 = RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_1);
 			Assert.assertNotNull(commitId1);
 			TreeValidator.assertEqual(repo, createIterator(repo, commitId1, null),
 					"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
@@ -64,7 +64,7 @@ public class WriterTests {
 					".empty");
 
 			// second commit
-			var commitId2 = RepoUtil.commit(repo, RepoUtil.EXAMPLE_COMMIT_2);
+			var commitId2 = RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_2);
 			Assert.assertNotNull(commitId2);
 			TreeValidator.assertEqual(repo, createIterator(repo, commitId2, null),
 					"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
@@ -114,7 +114,7 @@ public class WriterTests {
 		}
 		try (var config = TmpConfig.create()) {
 			var repo = config.repo();
-			RepoUtil.commit(repo, changes);
+			RepoData.commit(repo, changes);
 		}
 	}
 
@@ -124,14 +124,14 @@ public class WriterTests {
 			var repo = config.repo();
 			var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
 			var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
-			var commitId1 = RepoUtil.commit(repo, changes);
+			var commitId1 = RepoData.commit(repo, changes);
 			Assert.assertNotNull(commitId1);
 			var commit = repo.commits.get(commitId1);
 			changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-			var commitId2 = RepoUtil.commit(repo, commit, changes);
+			var commitId2 = RepoData.commit(repo, commit, changes);
 			Assert.assertNotNull(commitId2);
 			changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-			var commitId3 = RepoUtil.commit(repo, commit, changes);
+			var commitId3 = RepoData.commit(repo, commit, changes);
 			Assert.assertNotNull(commitId3);
 			var writer = new DbCommitWriter(repo, new StaticBinaryResolver());
 			writer.merge(commitId2, commitId3);
@@ -149,14 +149,14 @@ public class WriterTests {
 			var repo = config.repo();
 			var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
 			var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
-			var commitId1 = RepoUtil.commit(repo, changes);
+			var commitId1 = RepoData.commit(repo, changes);
 			Assert.assertNotNull(commitId1);
 			var commit = repo.commits.get(commitId1);
 			changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-			var commitId2 = RepoUtil.commit(repo, commit, changes);
+			var commitId2 = RepoData.commit(repo, commit, changes);
 			Assert.assertNotNull(commitId2);
 			changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-			var commitId3 = RepoUtil.commit(repo, commit, changes);
+			var commitId3 = RepoData.commit(repo, commit, changes);
 			Assert.assertNotNull(commitId3);
 			var actor = repo.database.get(Actor.class, refId);
 			actor.version = Version.valueOf(0, 0, 1);
