@@ -83,6 +83,8 @@ class DeleteData {
 		if (isEmptyCategory(deleted, category)) {
 			categoryDao.delete(category);
 			deleted.add(category);
+		} else {
+			resolvedConflicts.add(Change.add(ref));			
 		}
 		progressMonitor.worked(1);
 	}
