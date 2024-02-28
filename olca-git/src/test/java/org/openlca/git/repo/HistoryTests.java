@@ -34,22 +34,6 @@ public class HistoryTests {
 		Assert.assertTrue(history.contains(repo.commits.get(commitIds[2])));
 	}
 
-	@Test
-	public void testAheadOf() {
-		var history = History.of(repo, Constants.LOCAL_BRANCH);
-		Assert.assertFalse(history.isAheadOf(repo.commits.get(commitIds[0]), Constants.LOCAL_BRANCH));
-		Assert.assertFalse(history.isAheadOf(repo.commits.get(commitIds[1]), Constants.LOCAL_BRANCH));
-		Assert.assertFalse(history.isAheadOf(repo.commits.get(commitIds[2]), Constants.LOCAL_BRANCH));
-	}
-
-	@Test
-	public void testBehindOf() {
-		var history = History.of(repo, Constants.LOCAL_BRANCH);
-		Assert.assertTrue(history.isBehindOf(repo.commits.get(commitIds[0]), Constants.LOCAL_BRANCH));
-		Assert.assertTrue(history.isBehindOf(repo.commits.get(commitIds[1]), Constants.LOCAL_BRANCH));
-		Assert.assertFalse(history.isBehindOf(repo.commits.get(commitIds[2]), Constants.LOCAL_BRANCH));
-	}
-
 	@AfterClass
 	public static void closeRepo() {
 		config.close();

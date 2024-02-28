@@ -70,11 +70,10 @@ public class DatasetsTests {
 	public void testBinary() throws UnsupportedEncodingException {
 		var refId = "caa39f5b-5021-4b6b-9330-739f082dfae0";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
-		var filename = RepoData.PATH_TO_BINARY.get(refId).get(0);
-		var bin = repo.datasets.getBinary(ref, filename);
+		var bin = repo.datasets.getBinary(ref, "test.txt");
 		Assert.assertNotNull(bin);
 		var str = new String(bin, "utf-8");
-		Assert.assertEquals(StaticBinaryResolver.getContent(filename), str);
+		Assert.assertEquals(StaticBinaryResolver.getContent("test.txt"), str);
 	}
 
 	@AfterClass
