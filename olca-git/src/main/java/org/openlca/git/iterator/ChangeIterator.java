@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Change.ChangeType;
+import org.openlca.git.model.Commit;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
@@ -18,25 +19,32 @@ import org.openlca.util.Strings;
 
 public class ChangeIterator extends EntryIterator {
 
+	private final OlcaRepository repo;
+	private final Commit referenceCommit;
 	private final BinaryResolver binaryResolver;
 	private final List<Change> changes;
-	private final OlcaRepository repo;
-	private final String lastCommitId;
 
 	public ChangeIterator(OlcaRepository repo, BinaryResolver binaryResolver, List<Change> changes) {
+		this(repo, null, binaryResolver, changes);
+	}
+
+	public ChangeIterator(OlcaRepository repo, String referenceCommitId, BinaryResolver binaryResolver,
+			List<Change> changes) {
 		super(initialize(null, changes));
 		this.repo = repo;
+		this.referenceCommit = referenceCommitId != null
+				? repo.commits.get(referenceCommitId)
+				: repo.commits.find().latest();
 		this.binaryResolver = binaryResolver;
 		this.changes = changes;
-		this.lastCommitId = repo.commits.find().latestId();
 	}
 
 	private ChangeIterator(ChangeIterator parent, List<Change> changes) {
 		super(parent, initialize(parent, changes));
 		this.repo = parent.repo;
+		this.referenceCommit = parent.referenceCommit;
 		this.binaryResolver = parent.binaryResolver;
 		this.changes = changes;
-		this.lastCommitId = parent.lastCommitId;
 	}
 
 	private ChangeIterator(ChangeIterator parent, Change change, String filePath) {
@@ -49,9 +57,9 @@ public class ChangeIterator extends EntryIterator {
 				})
 				.toList());
 		this.repo = parent.repo;
+		this.referenceCommit = parent.referenceCommit;
 		this.binaryResolver = parent.binaryResolver;
 		this.changes = new ArrayList<>();
-		this.lastCommitId = parent.lastCommitId;
 	}
 
 	private static List<TreeEntry> initialize(ChangeIterator parent, List<Change> changes) {
@@ -73,7 +81,7 @@ public class ChangeIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.TREE, change));
 			} else {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
-				if ((change.changeType == ChangeType.DELETE && hadBinaries(parent.repo, change, parent.lastCommitId))
+				if ((change.changeType == ChangeType.DELETE && hadBinaries(parent.repo, change, parent.referenceCommit))
 						|| !parent.binaryResolver.list(change, "").isEmpty()) {
 					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
 					list.add(new TreeEntry(bin, FileMode.TREE, change, ""));
@@ -92,40 +100,44 @@ public class ChangeIterator extends EntryIterator {
 			list.add(TreeEntry.empty(parentChange));
 			return list;
 		}
-		if (addEmptyFlag(parent.repo, prefix, changes)) {
-			list.add(TreeEntry
-					.empty(Change.add(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
-		} else if (deleteEmptyFlag(parent.repo, prefix, list)) {
-			list.add(TreeEntry
-					.empty(Change.delete(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
+		if (allExistingEntriesWillBeDeleted(parent.repo, parent.referenceCommit, prefix, changes)) {
+			list.add(TreeEntry.empty(Change.add(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
+		} else if (datasetWasAddedToEmptyCategory(parent.repo, parent.referenceCommit, prefix, list)) {
+			list.add(TreeEntry.empty(Change.delete(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
 		}
 		return list;
 	}
 
-	private static boolean hadBinaries(OlcaRepository repo, Change change, String lastCommitId) {
-		if (Strings.nullOrEmpty(lastCommitId))
+	private static boolean hadBinaries(OlcaRepository repo, Change change, Commit referenceCommit) {
+		if (referenceCommit == null)
 			return false;
-		var ref = repo.references.get(change.type, change.refId, lastCommitId);
+		var ref = repo.references.get(change.type, change.refId, referenceCommit.id);
 		if (ref == null)
 			return false;
 		return !repo.references.getBinaries(ref).isEmpty();
 	}
 
-	private static boolean addEmptyFlag(OlcaRepository repo, String prefix, List<Change> changes) {
-		var entries = repo.entries.find().path(prefix).all();
+	private static boolean allExistingEntriesWillBeDeleted(OlcaRepository repo, Commit referenceCommit, String prefix,
+			List<Change> changes) {
+		if (referenceCommit == null)
+			return false; // no existing entries
+		var entries = repo.entries.find().commit(referenceCommit.id).path(prefix).all();
 		if (entries.isEmpty())
-			return false;
+			return false; // no existing entries
 		var deletions = changes.stream()
 				.filter(c -> c.changeType == ChangeType.DELETE)
 				.map(c -> c.path)
 				.collect(Collectors.toSet());
 		for (var entry : entries)
 			if (!deletions.contains(entry.path))
-				return false;
+				return false; // at least one entry remains
 		return true;
 	}
 
-	private static boolean deleteEmptyFlag(OlcaRepository repo, String prefix, List<TreeEntry> entries) {
+	private static boolean datasetWasAddedToEmptyCategory(OlcaRepository repo, Commit referenceCommit, String prefix,
+			List<TreeEntry> entries) {
+		if (referenceCommit == null)
+			return false;
 		var newData = entries.stream()
 				.filter(e -> {
 					if (e.data instanceof Change c && c.changeType == ChangeType.ADD)
@@ -137,7 +149,8 @@ public class ChangeIterator extends EntryIterator {
 			return false;
 		var first = prefix.substring(0, prefix.lastIndexOf("/"));
 		var last = prefix.substring(prefix.lastIndexOf("/") + 1);
-		return repo.entries.find().path(first).contains(last) && repo.entries.find().path(prefix).count() == 0;
+		return repo.entries.find().commit(referenceCommit.id).path(first).contains(last)
+				&& repo.entries.find().commit(referenceCommit.id).path(prefix).count() == 0;
 	}
 
 	public final ChangeIterator createSubtreeIterator() {

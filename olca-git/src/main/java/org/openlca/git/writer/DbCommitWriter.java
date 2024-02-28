@@ -12,6 +12,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.IDatabase;
+import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
@@ -37,7 +38,7 @@ public class DbCommitWriter extends CommitWriter {
 	public DbCommitWriter(ClientRepository repo) {
 		this(repo, new DatabaseBinaryResolver(repo.database));
 	}
-	
+
 	public DbCommitWriter(ClientRepository repo, BinaryResolver binaryResolver) {
 		super(repo, binaryResolver);
 		this.database = repo.database;
@@ -88,7 +89,8 @@ public class DbCommitWriter extends CommitWriter {
 					.filter(d -> d.changeType != ChangeType.DELETE)
 					.sorted()
 					.toList());
-			var commitId = write(message, changes, getParentIds(previousCommit));
+			var changeIterator = new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
+			var commitId = write(message, changeIterator, getParentIds(previousCommit));
 			if (Constants.HEAD.equals(ref)) {
 				progressMonitor.beginTask("Updating local index");
 				repo.index.reload();

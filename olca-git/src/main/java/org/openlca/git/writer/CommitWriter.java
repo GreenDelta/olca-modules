@@ -66,12 +66,13 @@ public abstract class CommitWriter {
 		return this;
 	}
 
-	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
+	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
+			throws IOException {
 		Compatibility.checkRepositoryClientVersion(repo);
 		try {
 			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);
-			var treeId = syncTree("", new ChangeIterator(repo, binaryResolver, changes), treeIds);
+			var treeId = syncTree("", changeIterator, treeIds);
 			var commitId = commit(message, treeId, parentCommitIds);
 			return commitId.name();
 		} finally {

@@ -39,7 +39,7 @@ public class ChangeIteratorTests {
 					.map(Change::add)
 					.collect(Collectors.toList());
 			Collections.shuffle(changes);
-			var iterator = new ChangeIterator(repo, new DatabaseBinaryResolver(repo.database), changes);
+			var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
 			var expected = paths.toArray(new String[paths.size() + 1]);
 			for (var i : Arrays.asList(4, 6, 10)) {
 				expected[i] += "/.empty";
@@ -72,12 +72,12 @@ public class ChangeIteratorTests {
 					.map(Change::add)
 					.collect(Collectors.toList());
 			var writer = new DbCommitWriter(repo);
-			writer.as(config.committer()).write("initial commit", changes);
+			var commitId = writer.as(config.committer()).write("initial commit", changes);
 			changes = Arrays.asList(
 					Change.delete(new ModelRef("SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json")),
 					Change.delete(new ModelRef("SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json")),
 					Change.add(new ModelRef("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json")));
-			var iterator = new ChangeIterator(repo, new DatabaseBinaryResolver(repo.database), changes);
+			var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
 			var expected = new String[] {
 					"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json", // DELETED
 					"SOURCE/category_two/.empty", // Add empty flag
