@@ -57,7 +57,7 @@ public class HeadIndex {
 	public String getPath(TypedRefId typedRefId) {
 		return pathsByRef.get(typedRefId);
 	}
-	
+
 	public boolean isSameVersion(String path, RootDescriptor d) {
 		var info = metaInfo.get(path);
 		if (info == null)
@@ -73,7 +73,7 @@ public class HeadIndex {
 		var o = Json.readObject(file).orElse(null);
 		if (o == null) {
 			file.delete();
-			return;			
+			return;
 		}
 		var indexVersion = Json.getInt(o, "version").orElse(0);
 		if (indexVersion != VERSION) {
@@ -87,11 +87,11 @@ public class HeadIndex {
 			if (!e.isJsonObject())
 				continue;
 			var obj = e.getAsJsonObject();
-			var path = Json.getString(obj, "path");
+			var path = Json.getString(obj, "p");
 			if (Strings.nullOrEmpty(path))
 				continue;
-			var version = Json.getLong(obj, "version", 0);
-			var lastChange = Json.getLong(obj, "lastChange", 0);
+			var version = Json.getLong(obj, "v", 0);
+			var lastChange = Json.getLong(obj, "l", 0);
 			metaInfo.put(path, new MetaInfo(version, lastChange));
 		}
 	}
@@ -135,10 +135,10 @@ public class HeadIndex {
 		var array = new JsonArray();
 		for (var path : metaInfo.keySet()) {
 			var obj = new JsonObject();
-			obj.addProperty("path", path);
+			obj.addProperty("p", path);
 			var value = metaInfo.get(path);
-			obj.addProperty("version", value.version);
-			obj.addProperty("lastChange", value.lastChange);
+			obj.addProperty("v", value.version);
+			obj.addProperty("l", value.lastChange);
 			array.add(obj);
 		}
 		o.add("metaInfo", array);

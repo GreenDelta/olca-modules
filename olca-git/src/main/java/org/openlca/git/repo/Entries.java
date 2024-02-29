@@ -133,9 +133,8 @@ public class Entries {
 		}
 
 		private void call(Consumer<Entry> consumer) {
-			RevCommit commit = null;
 			try {
-				commit = repo.commits.getRev(commitId);
+				var commit = repo.commits.getRev(commitId);
 				if (commit == null)
 					return;
 				var treeId = Strings.nullOrEmpty(path)
@@ -143,23 +142,28 @@ public class Entries {
 						: repo.getSubTreeId(commit.getTree().getId(), path);
 				if (treeId.equals(ObjectId.zeroId()))
 					return;
-				try (var walk = new TreeWalk(repo)) {
-					walk.addTree(treeId);
-					walk.setRecursive(false);
-					var filter = KnownFilesFilter.createForPath(path);
-					walk.setFilter(filter);
-					while (walk.next()) {
-						var name = GitUtil.decode(walk.getNameString());
-						var fullPath = Strings.nullOrEmpty(path) ? name : path + "/" + name;
-						var entry = new Entry(fullPath, commit.getName(), walk.getObjectId(0));
-						consumer.accept(entry);
-						if (recursive && entry.typeOfEntry != EntryType.DATASET) {
-							new Iterate().commit(commitId).recursive().path(fullPath).call(consumer);
-						}
+				call(treeId, commit, path, consumer);
+			} catch (IOException e) {
+				log.error("Error walking commit " + commitId, e);
+			}
+		}
+
+		private void call(ObjectId treeId, RevCommit commit, String path, Consumer<Entry> consumer) throws IOException {
+			try (var walk = new TreeWalk(repo)) {
+				walk.addTree(treeId);
+				walk.setRecursive(false);
+				var filter = KnownFilesFilter.createForPath(path);
+				walk.setFilter(filter);
+				while (walk.next()) {
+					var name = GitUtil.decode(walk.getNameString());
+					var id = walk.getObjectId(0);
+					var fullPath = Strings.nullOrEmpty(path) ? name : path + "/" + name;
+					var entry = new Entry(fullPath, commit.getName(), id);
+					consumer.accept(entry);
+					if (recursive && entry.typeOfEntry != EntryType.DATASET) {
+						call(id, commit, fullPath, consumer);
 					}
 				}
-			} catch (IOException e) {
-				log.error("Error walking commit " + (commit != null ? commit.getName() : commitId), e);
 			}
 		}
 
