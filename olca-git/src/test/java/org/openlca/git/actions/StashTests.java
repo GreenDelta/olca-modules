@@ -94,14 +94,17 @@ public class StashTests extends AbstractRepositoryTests {
 	}
 
 	@Test
-	public void stashCreate() throws IOException {
+	public void testStashCreate() throws GitAPIException, IOException {
 		createDatabase();
 		var diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(76, diffs.size());
-		GitStashCreate.on(repo)
+		var commitId = GitStashCreate.on(repo)
 				.changes(Change.of(diffs))
 				.as(committer)
 				.run();
+		var stashCommit = repo.commits.stash();
+		Assert.assertNotNull(stashCommit);
+		Assert.assertEquals(commitId, stashCommit.id);
 		Assert.assertEquals(0, new CategoryDao(repo.database).getDescriptors().size());
 		Assert.assertEquals(0, new CurrencyDao(repo.database).getDescriptors().size());
 		Assert.assertEquals(0, new UnitGroupDao(repo.database).getDescriptors().size());
@@ -111,15 +114,27 @@ public class StashTests extends AbstractRepositoryTests {
 	}
 
 	@Test
-	public void stashApply() throws IOException, GitAPIException {
-		stashCreate();
-		GitStashApply.on(repo).run();
+	public void testStashApply() throws IOException, GitAPIException {
+		testStashCreate();
+		Assert.assertNotNull(repo.commits.stash());
+		GitStashApply.on(repo)
+				.run();
+		Assert.assertNull(repo.commits.stash());
 		var diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(76, diffs.size());
 		Assert.assertEquals(4, new CategoryDao(repo.database).getDescriptors().size());
 		Assert.assertEquals(12, new CurrencyDao(repo.database).getDescriptors().size());
 		Assert.assertEquals(27, new UnitGroupDao(repo.database).getDescriptors().size());
 		Assert.assertEquals(33, new FlowPropertyDao(repo.database).getDescriptors().size());
+	}
+
+	@Test
+	public void testStashDrop() throws IOException, GitAPIException {
+		testStashCreate();
+		Assert.assertNotNull(repo.commits.stash());
+		GitStashDrop.from(repo)
+				.run();
+		Assert.assertNull(repo.commits.stash());
 	}
 
 }

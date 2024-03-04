@@ -15,7 +15,7 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.writer.DbCommitWriter;
 
-public class GitStashCreate extends GitProgressAction<Void> {
+public class GitStashCreate extends GitProgressAction<String> {
 
 	private final ClientRepository repo;
 	private List<Change> changes;
@@ -52,15 +52,16 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	}
 
 	@Override
-	public Void run() throws IOException {
+	public String run() throws IOException {
 		checkValidInputs();
+		String commitId = null;
 		if (!discard) {
-			writeStashCommit();
+			commitId = writeStashCommit();
 		}
 		updateDatabase();
 		progressMonitor.beginTask("Reloading descriptors");
 		repo.descriptors.reload();
-		return null;
+		return commitId;
 	}
 
 	private void checkValidInputs() throws UnsupportedClientVersionException {
@@ -76,11 +77,11 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		Compatibility.checkRepositoryClientVersion(repo);
 	}
 
-	private void writeStashCommit() throws IOException {
+	private String writeStashCommit() throws IOException {
 		var parent = this.parent != null
 				? repo.parseCommit(ObjectId.fromString(this.parent.id))
 				: null;
-		new DbCommitWriter(repo)
+		return new DbCommitWriter(repo)
 				.ref(Constants.R_STASH)
 				.as(committer)
 				.parent(parent)

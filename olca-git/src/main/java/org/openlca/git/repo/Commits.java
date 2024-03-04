@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -31,7 +32,7 @@ public class Commits {
 		return new Commits(repo);
 	}
 
-	private Commits(OlcaRepository  repo) {
+	private Commits(OlcaRepository repo) {
 		this.repo = repo;
 	}
 
@@ -64,6 +65,13 @@ public class Commits {
 		if (commit == null)
 			return null;
 		return new Commit(commit);
+	}
+
+	public Commit stash() throws GitAPIException {
+		var commits = Git.wrap(repo).stashList().call();
+		if (commits == null || commits.isEmpty())
+			return null;
+		return new Commit(commits.iterator().next());
 	}
 
 	RevCommit getRev(String commitId) throws IOException {

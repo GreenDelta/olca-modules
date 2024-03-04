@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.lib.ObjectId;
@@ -148,10 +147,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private Commit getRemoteCommit() throws GitAPIException {
 		if (!applyStash)
 			return repo.commits.get(repo.commits.resolve(Constants.REMOTE_BRANCH));
-		var commits = Git.wrap(repo).stashList().call();
-		if (commits == null || commits.isEmpty())
-			return null;
-		return new Commit(commits.iterator().next());
+		return repo.commits.stash();
 	}
 
 	private String createMergeCommit() throws IOException {
