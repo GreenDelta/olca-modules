@@ -1,42 +1,31 @@
 package org.openlca.git.repo;
 
+import static org.openlca.git.repo.ExampleData.COMMIT_1;
+import static org.openlca.git.repo.ExampleData.COMMIT_2;
+import static org.openlca.git.repo.ExampleData.COMMIT_3;
+
 import java.io.IOException;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openlca.git.Tests.TmpConfig;
+import org.openlca.git.AbstractRepositoryTests;
+import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.Constants;
 
-public class HistoryTests {
-
-	private static TmpConfig config;
-	private static ClientRepository repo;
-	private static String[] commitIds;
-
-	@BeforeClass
-	public static void createRepo() throws IOException {
-		config = TmpConfig.create();
-		repo = config.repo();
-		commitIds = new String[] {
-				RepoData.commit(config.repo(), RepoData.EXAMPLE_COMMIT_1),
-				RepoData.commit(config.repo(), RepoData.EXAMPLE_COMMIT_2),
-				RepoData.commit(config.repo(), RepoData.EXAMPLE_COMMIT_3)
-		};
-	}
+public class HistoryTests extends AbstractRepositoryTests {
 
 	@Test
-	public void testContains() {
+	public void testContains() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var history = History.of(repo, Constants.LOCAL_BRANCH);
 		Assert.assertTrue(history.contains(repo.commits.get(commitIds[0])));
 		Assert.assertTrue(history.contains(repo.commits.get(commitIds[1])));
 		Assert.assertTrue(history.contains(repo.commits.get(commitIds[2])));
 	}
 
-	@AfterClass
-	public static void closeRepo() {
-		config.close();
+	@Override
+	protected BinaryResolver getBinaryResolver() {
+		return new StaticBinaryResolver(ExampleData.PATH_TO_BINARY);
 	}
 
 }

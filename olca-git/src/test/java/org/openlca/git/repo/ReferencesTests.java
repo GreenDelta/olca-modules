@@ -1,36 +1,25 @@
 package org.openlca.git.repo;
 
+import static org.openlca.git.repo.ExampleData.COMMIT_1;
+import static org.openlca.git.repo.ExampleData.COMMIT_2;
+import static org.openlca.git.repo.ExampleData.COMMIT_3;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.Tests.TmpConfig;
+import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.References.Find;
+import org.openlca.git.util.BinaryResolver;
 
-public class ReferencesTests {
-
-	private static TmpConfig config;
-	private static ClientRepository repo;
-	private static String[] commitIds;
-
-	@BeforeClass
-	public static void createRepo() throws IOException {
-		config = TmpConfig.create();
-		repo = config.repo();
-		commitIds = new String[] {
-				RepoData.commit(config.repo(), RepoData.EXAMPLE_COMMIT_1),
-				RepoData.commit(config.repo(), RepoData.EXAMPLE_COMMIT_2),
-				RepoData.commit(config.repo(), RepoData.EXAMPLE_COMMIT_3)
-		};
-	}
+public class ReferencesTests extends AbstractRepositoryTests {
 
 	@Test
-	public void testCount() {
+	public void testCount() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		Assert.assertEquals(8, count(commitIds[0]));
 		Assert.assertEquals(7, count(commitIds[1]));
 		Assert.assertEquals(11, count(commitIds[2]));
@@ -42,7 +31,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testFirst() {
+	public void testFirst() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var firstModel = "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json";
 		Assert.assertEquals(firstModel, first(commitIds[0]).path);
 		Assert.assertEquals(firstModel, first(commitIds[1]).path);
@@ -55,7 +45,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testFirstType() {
+	public void testFirstType() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var firstSource = "SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json";
 		Assert.assertEquals(firstSource, first(ModelType.SOURCE, commitIds[0]).path);
 		Assert.assertEquals(firstSource, first(ModelType.SOURCE, commitIds[1]).path);
@@ -68,7 +59,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testFirstPath() {
+	public void testFirstPath() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var firstPath = "SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json";
 		var parentPath = "SOURCE/category_one";
 		Assert.assertEquals(firstPath, first(parentPath, commitIds[0]).path);
@@ -82,7 +74,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testIterate() {
+	public void testIterate() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		assertIterate(repo.references.find().commit(commitIds[0]),
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -127,7 +120,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testIterateType() {
+	public void testIterateType() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		assertIterate(repo.references.find().commit(commitIds[0]).type(ModelType.SOURCE),
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -148,7 +142,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testIteratePath() {
+	public void testIteratePath() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		assertIterate(repo.references.find().commit(commitIds[0]).path("SOURCE/category_one"),
 				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -169,7 +164,8 @@ public class ReferencesTests {
 	}
 
 	@Test
-	public void testBinaries() {
+	public void testBinaries() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var refId = "caa39f5b-5021-4b6b-9330-739f082dfae0";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var filenames = repo.references.getBinaries(ref);
@@ -177,9 +173,9 @@ public class ReferencesTests {
 		Assert.assertEquals("test.txt", filenames.get(0));
 	}
 
-	@AfterClass
-	public static void closeRepo() {
-		config.close();
+	@Override
+	protected BinaryResolver getBinaryResolver() {
+		return new StaticBinaryResolver(ExampleData.PATH_TO_BINARY);
 	}
 
 }

@@ -1,33 +1,22 @@
 package org.openlca.git.repo;
 
+import static org.openlca.git.repo.ExampleData.COMMIT_1;
+import static org.openlca.git.repo.ExampleData.COMMIT_2;
+import static org.openlca.git.repo.ExampleData.COMMIT_3;
+
 import java.io.IOException;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.Tests.TmpConfig;
+import org.openlca.git.AbstractRepositoryTests;
+import org.openlca.git.util.BinaryResolver;
 
-public class CommitsTests {
-
-	private static TmpConfig config;
-	private static ClientRepository repo;
-	private static String[] commitIds;
-
-	@BeforeClass
-	public static void createRepo() throws IOException {
-		config = TmpConfig.create();
-		repo = config.repo();
-		commitIds = new String[] {
-				RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_1),
-				RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_2),
-				RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_3)
-		};
-	}
+public class CommitsTests extends AbstractRepositoryTests {
 
 	@Test
-	public void testAll() {
+	public void testAll() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().all();
 		Assert.assertEquals(3, commits.size());
 		for (var i = 0; i < commitIds.length; i++) {
@@ -37,6 +26,7 @@ public class CommitsTests {
 
 	@Test
 	public void testLatest() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commit = Commits.of(repo).find().latest();
 		Assert.assertNotNull(commit);
 		Assert.assertEquals(commitIds[commitIds.length - 1], commit.id);
@@ -44,6 +34,7 @@ public class CommitsTests {
 
 	@Test
 	public void testLatestId() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commitId = Commits.of(repo).find().latestId();
 		Assert.assertNotNull(commitId);
 		Assert.assertEquals(commitIds[commitIds.length - 1], commitId);
@@ -51,6 +42,7 @@ public class CommitsTests {
 
 	@Test
 	public void testBefore() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().before(commitIds[2]).all();
 		Assert.assertEquals(2, commits.size());
 		Assert.assertEquals(commitIds[0], commits.get(0).id);
@@ -59,6 +51,7 @@ public class CommitsTests {
 
 	@Test
 	public void testUntil() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().until(commitIds[1]).all();
 		Assert.assertEquals(2, commits.size());
 		Assert.assertEquals(commitIds[0], commits.get(0).id);
@@ -67,6 +60,7 @@ public class CommitsTests {
 
 	@Test
 	public void testFrom() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().from(commitIds[1]).all();
 		Assert.assertEquals(commitIds.length - 1, commits.size());
 		for (var i = 1; i < commitIds.length; i++) {
@@ -76,6 +70,7 @@ public class CommitsTests {
 
 	@Test
 	public void testAfter() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().after(commitIds[1]).all();
 		Assert.assertEquals(commitIds.length - 2, commits.size());
 		for (var i = 2; i < commitIds.length; i++) {
@@ -85,6 +80,7 @@ public class CommitsTests {
 
 	@Test
 	public void testModelType() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().type(ModelType.ACTOR).all();
 		Assert.assertEquals(2, commits.size());
 		Assert.assertEquals(commitIds[0], commits.get(0).id);
@@ -93,6 +89,7 @@ public class CommitsTests {
 
 	@Test
 	public void testModel() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find()
 				.model(ModelType.SOURCE, "aca49f5b-5021-4b6b-9330-739f082dfae0").all();
 		Assert.assertEquals(2, commits.size());
@@ -108,6 +105,7 @@ public class CommitsTests {
 
 	@Test
 	public void testPath() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var commits = Commits.of(repo).find().path("FLOW/cat").all();
 		Assert.assertEquals(1, commits.size());
 		Assert.assertEquals(commitIds[0], commits.get(0).id);
@@ -118,9 +116,9 @@ public class CommitsTests {
 		Assert.assertEquals(commitIds[2], commits.get(1).id);
 	}
 
-	@AfterClass
-	public static void closeRepo() {
-		config.close();
+	@Override
+	protected BinaryResolver getBinaryResolver() {
+		return new StaticBinaryResolver(ExampleData.PATH_TO_BINARY);
 	}
 
 }

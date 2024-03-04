@@ -1,39 +1,26 @@
 package org.openlca.git.repo;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import static org.openlca.git.repo.ExampleData.COMMIT_1;
+import static org.openlca.git.repo.ExampleData.COMMIT_2;
+import static org.openlca.git.repo.ExampleData.COMMIT_3;
 
-import org.junit.AfterClass;
+import java.io.IOException;
+
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.git.Tests.TmpConfig;
-import org.openlca.git.repo.RepoData.StaticBinaryResolver;
+import org.openlca.git.AbstractRepositoryTests;
+import org.openlca.git.util.BinaryResolver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class DatasetsTests {
-
-	private static TmpConfig config;
-	private static ClientRepository repo;
-	private static String[] commitIds;
-
-	@BeforeClass
-	public static void createRepo() throws IOException {
-		config = TmpConfig.create();
-		repo = config.repo();
-		commitIds = new String[] {
-				RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_1),
-				RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_2),
-				RepoData.commit(repo, RepoData.EXAMPLE_COMMIT_3)
-		};
-	}
+public class DatasetsTests extends AbstractRepositoryTests {
 
 	@Test
-	public void testGet() {
+	public void testGet() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var ds = repo.datasets.get(ref);
@@ -53,7 +40,8 @@ public class DatasetsTests {
 	}
 
 	@Test
-	public void testVersion() {
+	public void testVersion() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var meta = repo.datasets.getVersionAndLastChange(ref);
@@ -67,7 +55,8 @@ public class DatasetsTests {
 	}
 
 	@Test
-	public void testBinary() throws UnsupportedEncodingException {
+	public void testBinary() throws IOException {
+		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var refId = "caa39f5b-5021-4b6b-9330-739f082dfae0";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var bin = repo.datasets.getBinary(ref, "test.txt");
@@ -76,9 +65,9 @@ public class DatasetsTests {
 		Assert.assertEquals(StaticBinaryResolver.getContent("test.txt"), str);
 	}
 
-	@AfterClass
-	public static void closeRepo() {
-		config.close();
+	@Override
+	protected BinaryResolver getBinaryResolver() {
+		return new StaticBinaryResolver(ExampleData.PATH_TO_BINARY);
 	}
 
 }
