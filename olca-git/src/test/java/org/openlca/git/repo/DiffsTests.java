@@ -139,6 +139,28 @@ public class DiffsTests extends AbstractRepositoryTests {
 		Assert.assertEquals(0, diffs.size());
 	}
 
+	@Test
+	public void testDiffCategories() {
+		create("UNIT_GROUP/Technical unit groups",
+				"UNIT_GROUP/Economic unit groups",
+				"UNIT_GROUP/Economic unit groups/Sub 1",
+				"UNIT_GROUP/Economic unit groups/Sub 2",
+				"FLOW_PROPERTY/Technical flow properties",
+				"FLOW_PROPERTY/Economic flow properties",
+				"FLOW_PROPERTY/Economic flow properties/Sub 1",
+				"FLOW_PROPERTY/Economic flow properties/Sub 2");
+		var diffs = repo.diffs.find().withDatabase();
+		Assert.assertEquals(8, diffs.size());
+		assertCategory(DiffType.ADDED, "FLOW_PROPERTY/Economic flow properties", diffs.get(0));
+		assertEmptyCategory(DiffType.ADDED, "FLOW_PROPERTY/Economic flow properties/Sub 1", diffs.get(1));
+		assertEmptyCategory(DiffType.ADDED, "FLOW_PROPERTY/Economic flow properties/Sub 2", diffs.get(2));
+		assertEmptyCategory(DiffType.ADDED, "FLOW_PROPERTY/Technical flow properties", diffs.get(3));
+		assertCategory(DiffType.ADDED, "UNIT_GROUP/Economic unit groups", diffs.get(4));
+		assertEmptyCategory(DiffType.ADDED, "UNIT_GROUP/Economic unit groups/Sub 1", diffs.get(5));
+		assertEmptyCategory(DiffType.ADDED, "UNIT_GROUP/Economic unit groups/Sub 2", diffs.get(6));
+		assertEmptyCategory(DiffType.ADDED, "UNIT_GROUP/Technical unit groups", diffs.get(7));
+	}
+
 	@Override
 	protected BinaryResolver getBinaryResolver() {
 		return new StaticBinaryResolver(ExampleData.PATH_TO_BINARY);

@@ -26,7 +26,7 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.Constants;
-import org.openlca.git.util.TypedRefIdSet;
+import org.openlca.git.util.ModelRefSet;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.jsonld.LibraryLink;
 
@@ -127,7 +127,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private void deleteData(List<Reference> imported) {
-		var dontDelete = new TypedRefIdSet(imported);
+		var dontDelete = new ModelRefSet(imported);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
 				.filter(d -> !dontDelete.contains(d))

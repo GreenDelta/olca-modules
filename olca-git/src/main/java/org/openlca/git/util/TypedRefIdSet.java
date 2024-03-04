@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
 
@@ -20,7 +19,11 @@ public class TypedRefIdSet {
 	}
 
 	public void add(TypedRefId pair) {
-		map.computeIfAbsent(pair.type, t -> new HashSet<>()).add(pair.refId);
+		add(pair.type, pair.refId);
+	}
+
+	public void add(ModelType type, String refId) {
+		map.computeIfAbsent(type, t -> new HashSet<>()).add(refId);
 	}
 
 	public void addAll(Collection<? extends TypedRefId> pairs) {
@@ -28,29 +31,37 @@ public class TypedRefIdSet {
 	}
 
 	public boolean contains(TypedRefId pair) {
-		var refIds = map.get(pair.type);
+		return contains(pair.type, pair.refId);
+	}
+
+	public boolean contains(ModelType type, String refId) {
+		var refIds = map.get(type);
 		if (refIds == null)
 			return false;
-		return refIds.contains(pair.refId);
+		return refIds.contains(refId);
 	}
 
 	public void remove(TypedRefId pair) {
-		var refIds = map.get(pair.type);
+		remove(pair.type, pair.refId);
+	}
+
+	public void remove(ModelType type, String refId) {
+		var refIds = map.get(type);
 		if (refIds == null)
 			return;
-		refIds.remove(pair.refId);
+		refIds.remove(refId);
 	}
 
 	public void clear() {
 		map.clear();
 	}
 
-	public void forEach(Consumer<TypedRefId> forEach) {
+	public void forEach(ForEach forEach) {
 		map.keySet().forEach(type -> {
 			var refIds = map.get(type);
 			if (refIds == null)
 				return;
-			refIds.forEach(refId -> forEach.accept(new TypedRefId(type, refId)));
+			refIds.forEach(refId -> forEach.accept(type, refId));
 		});
 	}
 
@@ -78,4 +89,9 @@ public class TypedRefIdSet {
 		return null;
 	}
 
+	public interface ForEach {
+
+		void accept(ModelType type, String refId);
+
+	}
 }

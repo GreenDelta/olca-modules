@@ -17,7 +17,7 @@ import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypedRefIdMap;
+import org.openlca.git.util.ModelRefMap;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.util.Strings;
@@ -32,7 +32,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final Commit localCommit;
 	private final Commit remoteCommit;
 	private final Categories categories;
-	private final TypedRefIdMap<Reference> changes;
+	private final ModelRefMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
 	private final byte[] repoInfo;
 	final Set<Change> resolvedConflicts = new HashSet<>();
@@ -48,15 +48,9 @@ class GitStoreReader implements JsonStoreReader {
 		this.localCommit = localCommit;
 		this.remoteCommit = remoteCommit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
-		this.changes = new TypedRefIdMap<Reference>();
+		this.changes = new ModelRefMap<Reference>();
 		this.repoInfo = repo.datasets.getRepositoryInfo(remoteCommit);
-		changes.forEach(ref -> {
-			if (ref.isCategory) {
-				this.changes.put(ref.type, ref.path, ref);
-			} else {
-				this.changes.put(ref, ref);
-			}
-		});
+		changes.forEach(ref -> this.changes.put(ref, ref));
 	}
 
 	@Override

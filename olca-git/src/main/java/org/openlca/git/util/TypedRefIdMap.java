@@ -14,12 +14,6 @@ public class TypedRefIdMap<T> {
 
 	private final EnumMap<ModelType, Map<String, T>> map = new EnumMap<>(ModelType.class);
 
-	public static <R extends TypedRefId> TypedRefIdMap<R> of(Collection<R> col) {
-		var map = new TypedRefIdMap<R>();
-		col.forEach(ref -> map.put(ref, ref));
-		return map;
-	}
-
 	public void put(TypedRefId pair, T value) {
 		put(pair.type, pair.refId, value);
 	}

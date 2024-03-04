@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -18,7 +19,7 @@ import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypedRefIdMap;
+import org.openlca.git.util.ModelRefMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,9 @@ public class Diffs {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
 			this.leftCommit = getRevCommit(commit, true);
-			return diffOfDatabase(path);
+			return diffOfDatabase(path).stream()
+					.sorted()
+					.collect(Collectors.toList());
 		}
 
 		private List<Diff> diffOfDatabase(String prefix) {
@@ -95,13 +98,17 @@ public class Diffs {
 			var leftCommit = repo.commits.find().before(commit.id).latest();
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
-			return diffOfCommits(path);
+			return diffOfCommits(path).stream()
+					.sorted()
+					.collect(Collectors.toList());
 		}
 
 		public List<Diff> with(Commit other) {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
-			return diffOfCommits(path);
+			return diffOfCommits(path).stream()
+					.sorted()
+					.collect(Collectors.toList());
 		}
 
 		private List<Diff> diffOfCommits(String prefix) {
@@ -154,7 +161,7 @@ public class Diffs {
 		}
 
 		private List<Diff> scan(TreeWalk walk, String prefix, Function<String, List<Diff>> scan) throws IOException {
-			var diffs = new TypedRefIdMap<Diff>();
+			var diffs = new ModelRefMap<Diff>();
 			while (walk.next()) {
 				var path = !Strings.nullOrEmpty(prefix)
 						? prefix + "/" + walk.getPathString()
@@ -178,7 +185,7 @@ public class Diffs {
 			return diffs.values();
 		}
 
-		private void addDiff(TypedRefIdMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)
+		private void addDiff(ModelRefMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)
 				throws IOException {
 			path = GitUtil.decode(path);
 			if (!path.contains("/"))
@@ -208,7 +215,7 @@ public class Diffs {
 			merge(diffs, diff);
 		}
 
-		private void merge(TypedRefIdMap<Diff> diffs, Diff diff) {
+		private void merge(ModelRefMap<Diff> diffs, Diff diff) {
 			var other = diffs.get(diff);
 			if (other == null) {
 				diffs.put(diff, diff);
