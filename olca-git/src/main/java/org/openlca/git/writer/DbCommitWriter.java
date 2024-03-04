@@ -15,7 +15,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Change.ChangeType;
-import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -30,7 +29,7 @@ public class DbCommitWriter extends CommitWriter {
 	private String localCommitId;
 	private String remoteCommitId;
 	private Converter converter;
-	private Commit reference;
+	private RevCommit parent;
 	private ExecutorService threads;
 	private IDatabase database;
 	private ClientRepository repo;
@@ -63,8 +62,8 @@ public class DbCommitWriter extends CommitWriter {
 		return this;
 	}
 
-	public DbCommitWriter reference(Commit reference) {
-		this.reference = reference;
+	public DbCommitWriter parent(RevCommit parent) {
+		this.parent = parent;
 		return this;
 	}
 
@@ -76,13 +75,10 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Change> changes) throws IOException {
 		changes = filterInvalid(changes);
-		progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
+		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
+			throw new IllegalStateException("No changes found and not a merge commit");
 		try {
-			var previousCommit = reference == null
-					? repo.getHeadCommit()
-					: repo.parseCommit(ObjectId.fromString(reference.id));
-			if (changes.isEmpty() && (previousCommit == null || localCommitId == null || remoteCommitId == null))
-				return null;
+			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			threads = Executors.newCachedThreadPool();
 			converter = new Converter(database, threads);
 			converter.start(changes.stream()
@@ -90,23 +86,25 @@ public class DbCommitWriter extends CommitWriter {
 					.sorted()
 					.toList());
 			var changeIterator = new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
-			var commitId = write(message, changeIterator, getParentIds(previousCommit));
+			var commitId = write(message, changeIterator, getParentIds());
 			if (Constants.HEAD.equals(ref)) {
 				progressMonitor.beginTask("Updating local index");
 				repo.index.reload();
 			}
 			return commitId;
 		} finally {
-			close();
+			cleanUp();
 		}
 	}
 
-	private ObjectId[] getParentIds(RevCommit previousCommit) {
+	private ObjectId[] getParentIds() {
 		var parentIds = new ArrayList<ObjectId>();
 		if (localCommitId != null) {
 			parentIds.add(ObjectId.fromString(localCommitId));
-		} else if (previousCommit != null) {
-			parentIds.add(previousCommit.getId());
+		} else if (parent != null) {
+			parentIds.add(parent);
+		} else if (repo.getHeadCommit() != null) {
+			parentIds.add(repo.getHeadCommit());
 		}
 		if (remoteCommitId != null) {
 			parentIds.add(ObjectId.fromString(remoteCommitId));
@@ -134,8 +132,8 @@ public class DbCommitWriter extends CommitWriter {
 		return remaining;
 	}
 
-	protected void close() throws IOException {
-		super.close();
+	protected void cleanUp() throws IOException {
+		super.cleanUp();
 		if (converter != null) {
 			converter.clear();
 			converter = null;

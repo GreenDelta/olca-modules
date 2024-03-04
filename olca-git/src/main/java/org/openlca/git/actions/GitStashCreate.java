@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
@@ -19,7 +20,7 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	private final ClientRepository repo;
 	private List<Change> changes;
 	private PersonIdent committer;
-	private Commit reference;
+	private Commit parent;
 	private boolean discard;
 
 	private GitStashCreate(ClientRepository repo) {
@@ -40,8 +41,8 @@ public class GitStashCreate extends GitProgressAction<Void> {
 		return this;
 	}
 
-	public GitStashCreate reference(Commit reference) {
-		this.reference = reference;
+	public GitStashCreate parent(Commit parent) {
+		this.parent = parent;
 		return this;
 	}
 
@@ -76,18 +77,21 @@ public class GitStashCreate extends GitProgressAction<Void> {
 	}
 
 	private void writeStashCommit() throws IOException {
+		var parent = this.parent != null
+				? repo.parseCommit(ObjectId.fromString(this.parent.id))
+				: null;
 		new DbCommitWriter(repo)
 				.ref(Constants.R_STASH)
 				.as(committer)
-				.reference(reference)
+				.parent(parent)
 				.with(progressMonitor)
 				.write("Stashed changes", changes);
 	}
 
 	private void updateDatabase() throws IOException {
-		var commit = reference == null
+		var commit = parent == null
 				? repo.commits.head()
-				: reference;
+				: parent;
 		if (commit != null) {
 			restoreDataFrom(commit);
 		}

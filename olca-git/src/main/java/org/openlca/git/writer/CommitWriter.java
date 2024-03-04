@@ -80,7 +80,7 @@ public abstract class CommitWriter {
 			var commitId = commit(message, treeId, parentCommitIds);
 			return commitId.name();
 		} finally {
-			close();
+			cleanUp();
 		}
 	}
 
@@ -307,7 +307,7 @@ public abstract class CommitWriter {
 								+ GitUtil.BIN_DIR_SUFFIX);
 	}
 
-	protected void close() throws IOException {
+	protected void cleanUp() throws IOException {
 		if (packInserter != null) {
 			packInserter.flush();
 			packInserter.close();

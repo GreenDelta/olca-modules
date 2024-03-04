@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.junit.After;
 import org.junit.Before;
@@ -77,7 +78,9 @@ public abstract class AbstractRepositoryTests {
 		repo.descriptors.reload();
 		// write commit to repo
 		var writer = new DbCommitWriter(repo, getBinaryResolver());
-		writer.reference(reference);
+		if (reference != null) {
+			writer.parent(repo.parseCommit(ObjectId.fromString(reference.id)));
+		}
 		return writer.write("commit", changes);
 	}
 

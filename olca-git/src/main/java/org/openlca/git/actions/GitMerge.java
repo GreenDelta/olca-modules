@@ -154,8 +154,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		return new Commit(commits.iterator().next());
 	}
 
-	private String createMergeCommit()
-			throws IOException {
+	private String createMergeCommit() throws IOException {
 		return new DbCommitWriter(repo)
 				.as(committer)
 				.merge(localCommit.id, remoteCommit.id)
