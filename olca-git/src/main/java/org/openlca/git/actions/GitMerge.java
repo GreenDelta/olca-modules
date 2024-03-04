@@ -80,6 +80,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var imported = importData();
 		deleteData(imported);
 		unmountLibraries();
+		progressMonitor.beginTask("Reloading descriptors");
+		repo.descriptors.reload();
 		if (applyStash)
 			return MergeResult.SUCCESS;
 		var ahead = repo.localHistory.getAheadOf(Constants.REMOTE_REF);
@@ -195,14 +197,14 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var info = repo.getInfo(remoteCommit);
 		if (info == null)
 			return new ArrayList<>();
-		if (libraryResolver == null)
-			throw new IllegalStateException("Could not mount libraries because no library resolver was set");
 		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
 		var localLibs = repo.database.getLibraries();
 		var libs = new ArrayList<Library>();
 		for (var remoteLib : remoteLibs) {
 			if (localLibs.contains(remoteLib))
 				continue;
+			if (libraryResolver == null)
+				throw new IllegalStateException("Could not mount libraries because no library resolver was set");
 			var lib = libraryResolver.resolve(remoteLib);
 			if (lib == null)
 				return null;

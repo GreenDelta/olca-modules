@@ -57,6 +57,8 @@ public class GitStashCreate extends GitProgressAction<Void> {
 			writeStashCommit();
 		}
 		updateDatabase();
+		progressMonitor.beginTask("Reloading descriptors");
+		repo.descriptors.reload();
 		return null;
 	}
 
