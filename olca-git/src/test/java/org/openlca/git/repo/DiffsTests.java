@@ -18,18 +18,18 @@ public class DiffsTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testNoDiffWithDatabase() throws IOException {
-		commit(COMMIT_1);
-		commit(COMMIT_2);
-		commit(COMMIT_3);
+		repo.commit(COMMIT_1);
+		repo.commit(COMMIT_2);
+		repo.commit(COMMIT_3);
 		Assert.assertTrue(repo.diffs.find().withDatabase().isEmpty());
 	}
 
 	@Test
 	public void testDiffWithDatabase() throws IOException {
 		var commits = new Commit[] {
-				repo.commits.get(commit(COMMIT_1)),
-				repo.commits.get(commit(COMMIT_2)),
-				repo.commits.get(commit(COMMIT_3)) };
+				repo.commits.get(repo.commit(COMMIT_1)),
+				repo.commits.get(repo.commit(COMMIT_2)),
+				repo.commits.get(repo.commit(COMMIT_3)) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).withDatabase().stream().sorted().toList();
 		Assert.assertEquals(9, diffs.size());
@@ -55,9 +55,9 @@ public class DiffsTests extends AbstractRepositoryTests {
 	@Test
 	public void testDiffWithDatabaseExcludeCategories() throws IOException {
 		var commits = new Commit[] {
-				repo.commits.get(commit(COMMIT_1)),
-				repo.commits.get(commit(COMMIT_2)),
-				repo.commits.get(commit(COMMIT_3)) };
+				repo.commits.get(repo.commit(COMMIT_1)),
+				repo.commits.get(repo.commit(COMMIT_2)),
+				repo.commits.get(repo.commit(COMMIT_3)) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).excludeCategories().withDatabase().stream().sorted().toList();
 		Assert.assertEquals(8, diffs.size());
@@ -74,9 +74,9 @@ public class DiffsTests extends AbstractRepositoryTests {
 	@Test
 	public void testDiffWithDatabaseOnlyCategories() throws IOException {
 		var commits = new Commit[] {
-				repo.commits.get(commit(COMMIT_1)),
-				repo.commits.get(commit(COMMIT_2)),
-				repo.commits.get(commit(COMMIT_3)) };
+				repo.commits.get(repo.commit(COMMIT_1)),
+				repo.commits.get(repo.commit(COMMIT_2)),
+				repo.commits.get(repo.commit(COMMIT_3)) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).onlyCategories().withDatabase().stream().sorted().toList();
 		Assert.assertEquals(1, diffs.size());
@@ -89,9 +89,9 @@ public class DiffsTests extends AbstractRepositoryTests {
 	@Test
 	public void testDiffWithCommit() throws IOException {
 		var commits = new Commit[] {
-				repo.commits.get(commit(COMMIT_1)),
-				repo.commits.get(commit(COMMIT_2)),
-				repo.commits.get(commit(COMMIT_3)) };
+				repo.commits.get(repo.commit(COMMIT_1)),
+				repo.commits.get(repo.commit(COMMIT_2)),
+				repo.commits.get(repo.commit(COMMIT_3)) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).with(commits[1]).stream().sorted().toList();
 		Assert.assertEquals(4, diffs.size());
@@ -112,9 +112,9 @@ public class DiffsTests extends AbstractRepositoryTests {
 	@Test
 	public void testDiffWithCommitExcludeCategories() throws IOException {
 		var commits = new Commit[] {
-				repo.commits.get(commit(COMMIT_1)),
-				repo.commits.get(commit(COMMIT_2)),
-				repo.commits.get(commit(COMMIT_3)) };
+				repo.commits.get(repo.commit(COMMIT_1)),
+				repo.commits.get(repo.commit(COMMIT_2)),
+				repo.commits.get(repo.commit(COMMIT_3)) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).excludeCategories().with(commits[1]).stream().sorted()
 				.toList();
@@ -127,9 +127,9 @@ public class DiffsTests extends AbstractRepositoryTests {
 	@Test
 	public void testDiffWithCommitOnlyCategories() throws IOException {
 		var commits = new Commit[] {
-				repo.commits.get(commit(COMMIT_1)),
-				repo.commits.get(commit(COMMIT_2)),
-				repo.commits.get(commit(COMMIT_3)) };
+				repo.commits.get(repo.commit(COMMIT_1)),
+				repo.commits.get(repo.commit(COMMIT_2)),
+				repo.commits.get(repo.commit(COMMIT_3)) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).onlyCategories().with(commits[1]).stream().sorted().toList();
 		Assert.assertEquals(1, diffs.size());
@@ -141,7 +141,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testDiffCategories() {
-		create("UNIT_GROUP/Technical unit groups",
+		repo.create("UNIT_GROUP/Technical unit groups",
 				"UNIT_GROUP/Economic unit groups",
 				"UNIT_GROUP/Economic unit groups/Sub 1",
 				"UNIT_GROUP/Economic unit groups/Sub 2",

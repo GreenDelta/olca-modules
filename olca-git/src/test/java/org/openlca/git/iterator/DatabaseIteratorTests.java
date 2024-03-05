@@ -9,7 +9,7 @@ public class DatabaseIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testDatabaseIteration() throws IOException {
-		create(
+		repo.create(
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -21,28 +21,28 @@ public class DatabaseIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
-		assertEqual(new DatabaseIterator(repo), "ACTOR", "FLOW", "SOURCE");
-		assertEqual(new DatabaseIterator(repo, "ACTOR"),
+		repo.assertEqual(new DatabaseIterator(repo), "ACTOR", "FLOW", "SOURCE");
+		repo.assertEqual(new DatabaseIterator(repo, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"category");
-		assertEqual(new DatabaseIterator(repo, "ACTOR/category"),
+		repo.assertEqual(new DatabaseIterator(repo, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(new DatabaseIterator(repo, "FLOW"), "cat");
-		assertEqual(new DatabaseIterator(repo, "FLOW/cat"), "sub");
-		assertEqual(new DatabaseIterator(repo, "FLOW/cat/sub"),
+		repo.assertEqual(new DatabaseIterator(repo, "FLOW"), "cat");
+		repo.assertEqual(new DatabaseIterator(repo, "FLOW/cat"), "sub");
+		repo.assertEqual(new DatabaseIterator(repo, "FLOW/cat/sub"),
 				"dca39f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(new DatabaseIterator(repo, "SOURCE"),
+		repo.assertEqual(new DatabaseIterator(repo, "SOURCE"),
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"c_category",
 				"category_one",
 				"category_two",
 				"category_zhree");
-		assertEqual(new DatabaseIterator(repo, "SOURCE/category_one"),
+		repo.assertEqual(new DatabaseIterator(repo, "SOURCE/category_one"),
 				"aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"aca49f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(new DatabaseIterator(repo, "SOURCE/category_two"),
+		repo.assertEqual(new DatabaseIterator(repo, "SOURCE/category_two"),
 				"0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
 	}
 }

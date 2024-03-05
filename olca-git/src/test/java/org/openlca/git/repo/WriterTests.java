@@ -32,65 +32,65 @@ public class WriterTests extends AbstractRepositoryTests {
 	@Test
 	public void testCommit() throws IOException {
 		// first commit
-		var commitId1 = commit(COMMIT_1);
+		var commitId1 = repo.commit(COMMIT_1);
 		Assert.assertNotNull(commitId1);
-		assertEqual(createIterator(commitId1),
+		repo.assertEqual(repo.createIterator(commitId1),
 				"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
-		assertEqual(createIterator(commitId1, "ACTOR"),
+		repo.assertEqual(repo.createIterator(commitId1, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0_bin",
 				"category");
-		assertEqual(createIterator(commitId1, "ACTOR/category"),
+		repo.assertEqual(repo.createIterator(commitId1, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(createIterator(commitId1, "FLOW"),
+		repo.assertEqual(repo.createIterator(commitId1, "FLOW"),
 				"cat");
-		assertEqual(createIterator(commitId1, "SOURCE"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE"),
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"c_category",
 				"category_one",
 				"category_two",
 				"category_zhree");
-		assertEqual(createIterator(commitId1, "SOURCE/a_category"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/a_category"),
 				".empty");
-		assertEqual(createIterator(commitId1, "SOURCE/c_category"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/c_category"),
 				".empty");
-		assertEqual(createIterator(commitId1, "SOURCE/category_one"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_one"),
 				"aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"aca49f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(createIterator(commitId1, "SOURCE/category_two"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_two"),
 				"0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(createIterator(commitId1, "SOURCE/category_zhree"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_zhree"),
 				".empty");
 
 		// second commit
-		var commitId2 = commit(COMMIT_2);
+		var commitId2 = repo.commit(COMMIT_2);
 		Assert.assertNotNull(commitId2);
-		assertEqual(createIterator(commitId2),
+		repo.assertEqual(repo.createIterator(commitId2),
 				"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
-		assertEqual(createIterator(commitId2, "ACTOR"),
+		repo.assertEqual(repo.createIterator(commitId2, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0_bin",
 				"category");
-		assertEqual(createIterator(commitId2, "ACTOR/category"),
+		repo.assertEqual(repo.createIterator(commitId2, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(createIterator(commitId2, "FLOW"),
+		repo.assertEqual(repo.createIterator(commitId2, "FLOW"),
 				"cat");
-		assertEqual(createIterator(commitId2, "SOURCE"),
+		repo.assertEqual(repo.createIterator(commitId2, "SOURCE"),
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"category_one",
 				"category_two",
 				"category_zhree");
-		assertEqual(createIterator(commitId2, "SOURCE/a_category"),
+		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/a_category"),
 				".empty");
-		assertEqual(createIterator(commitId2, "SOURCE/category_one"),
+		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_one"),
 				"aca39f5b-5021-4b6b-9330-739f082dfae0.json");
-		assertEqual(createIterator(commitId2, "SOURCE/category_two"),
+		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_two"),
 				".empty");
-		assertEqual(createIterator(commitId2, "SOURCE/category_zhree"),
+		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_zhree"),
 				"fca39f5b-5021-4b6b-9330-739f082dfae0.json");
 	}
 
@@ -112,21 +112,21 @@ public class WriterTests extends AbstractRepositoryTests {
 			changes.add(Change.add(new ModelRef(
 					"FLOW/Emissions to air/low. pop./" + UUID.randomUUID().toString() + ".json")));
 		}
-		commit(changes);
+		repo.commit(changes);
 	}
 
 	@Test
 	public void testMergeKeepRemote() throws IOException {
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
 		var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
-		var commitId1 = commit(changes);
+		var commitId1 = repo.commit(changes);
 		Assert.assertNotNull(commitId1);
 		var commit = repo.commits.get(commitId1);
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-		var commitId2 = commit(commit, changes);
+		var commitId2 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId2);
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-		var commitId3 = commit(commit, changes);
+		var commitId3 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId3);
 		var writer = new DbCommitWriter(repo, new StaticBinaryResolver(ExampleData.PATH_TO_BINARY));
 		writer.merge(commitId2, commitId3);
@@ -141,14 +141,14 @@ public class WriterTests extends AbstractRepositoryTests {
 	public void testMergeKeepLocal() throws IOException {
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
 		var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
-		var commitId1 = commit(changes);
+		var commitId1 = repo.commit(changes);
 		Assert.assertNotNull(commitId1);
 		var commit = repo.commits.get(commitId1);
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-		var commitId2 = commit(commit, changes);
+		var commitId2 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId2);
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
-		var commitId3 = commit(commit, changes);
+		var commitId3 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId3);
 		var actor = repo.database.get(Actor.class, refId);
 		actor.version = Version.valueOf(0, 0, 1);
@@ -170,7 +170,7 @@ public class WriterTests extends AbstractRepositoryTests {
 		// insert model in database
 		var refId = "bca39f5b-5021-4b6b-9330-739f082dfae0";
 		var category = "Technical unit groups";
-		create("UNIT_GROUP/" + category,
+		repo.create("UNIT_GROUP/" + category,
 				"UNIT_GROUP/" + category + "/" + refId + ".json");
 
 		// should find 1 diff without categories

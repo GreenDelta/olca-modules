@@ -2,11 +2,9 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.git.model.Change;
 
 public class CommitTests extends AbstractRepositoryTests {
 
@@ -21,13 +19,13 @@ public class CommitTests extends AbstractRepositoryTests {
 	}
 
 	private void firstCommit() throws IOException {
-		create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/sub/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/sub/2aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/empty",
 				"ACTOR/sub/empty");
-		commitChanges();
-		assertEqualRecursive(createIterator(),
+		repo.commitWorkspace();
+		repo.assertEqualRecursive(repo.createIterator(),
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/empty/.empty",
 				"ACTOR/sub/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -37,10 +35,10 @@ public class CommitTests extends AbstractRepositoryTests {
 	}
 
 	private void secondCommit() throws IOException {
-		create("ACTOR/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json");
-		delete("ACTOR/sub/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
-		commitChanges();
-		assertEqualRecursive(createIterator(),
+		repo.create("ACTOR/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.delete("ACTOR/sub/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.commitWorkspace();
+		repo.assertEqualRecursive(repo.createIterator(),
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/sub/2aa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -49,10 +47,10 @@ public class CommitTests extends AbstractRepositoryTests {
 	}
 
 	private void thirdCommit() throws IOException {
-		move("ACTOR/sub/2aa39f5b-5021-4b6b-9330-739f082dfae0.json", "sub/empty");
-		move("ACTOR/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json", "sub/empty");
-		commitChanges();
-		assertEqualRecursive(createIterator(),
+		repo.move("ACTOR/sub/2aa39f5b-5021-4b6b-9330-739f082dfae0.json", "sub/empty");
+		repo.move("ACTOR/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json", "sub/empty");
+		repo.commitWorkspace();
+		repo.assertEqualRecursive(repo.createIterator(),
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/empty/.empty",
 				"ACTOR/sub/empty/2aa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -61,11 +59,11 @@ public class CommitTests extends AbstractRepositoryTests {
 	}
 
 	private void fourthCommit() throws IOException {
-		delete("ACTOR/empty");
-		move("ACTOR/sub/empty/2aa39f5b-5021-4b6b-9330-739f082dfae0.json", "");
-		move("ACTOR/sub/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json", "sub");
-		commitChanges();
-		assertEqualRecursive(createIterator(),
+		repo.delete("ACTOR/empty");
+		repo.move("ACTOR/sub/empty/2aa39f5b-5021-4b6b-9330-739f082dfae0.json", "");
+		repo.move("ACTOR/sub/empty/3aa39f5b-5021-4b6b-9330-739f082dfae0.json", "sub");
+		repo.commitWorkspace();
+		repo.assertEqualRecursive(repo.createIterator(),
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/2aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/sub/3aa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -74,10 +72,10 @@ public class CommitTests extends AbstractRepositoryTests {
 	}
 
 	private void fifthCommit() throws IOException {
-		move("ACTOR/sub/3aa39f5b-5021-4b6b-9330-739f082dfae0.json", "");
-		delete("ACTOR/sub/empty");
-		commitChanges();
-		assertEqualRecursive(createIterator(),
+		repo.move("ACTOR/sub/3aa39f5b-5021-4b6b-9330-739f082dfae0.json", "");
+		repo.delete("ACTOR/sub/empty");
+		repo.commitWorkspace();
+		repo.assertEqualRecursive(repo.createIterator(),
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/2aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/3aa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -86,23 +84,13 @@ public class CommitTests extends AbstractRepositoryTests {
 	}
 
 	private void sixthCommit() throws IOException {
-		delete("ACTOR/sub",
+		repo.delete("ACTOR/sub",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/2aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/3aa39f5b-5021-4b6b-9330-739f082dfae0.json");
-		commitChanges();
-		assertEqualRecursive(createIterator(),
+		repo.commitWorkspace();
+		repo.assertEqualRecursive(repo.createIterator(),
 				RepositoryInfo.FILE_NAME);
-	}
-
-	private void commitChanges() throws IOException {
-		var diffs = repo.diffs.find().withDatabase();
-		GitCommit.on(repo)
-				.as(committer)
-				.changes(Change.of(diffs))
-				.withMessage("commit")
-				.run();
-		Assert.assertEquals(0, repo.diffs.find().withDatabase().size());
 	}
 
 }

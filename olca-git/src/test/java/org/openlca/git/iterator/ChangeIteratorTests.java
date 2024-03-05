@@ -17,7 +17,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testAddDataAndEmptyCategories() throws IOException {
-		var changes = create(
+		var changes = repo.create(
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -35,7 +35,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 						.collect(Collectors.toList());
 		Collections.shuffle(changes);
 		var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
-		assertEqualRecursive(iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.assertEqualRecursive(iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -51,7 +51,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testDeleteLastElementAndAddInEmptyCategory() throws IOException {
-		var changes = create(
+		var changes = repo.create(
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -74,7 +74,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				Change.delete(new ModelRef("SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json")),
 				Change.add(new ModelRef("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json")));
 		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
-		assertEqualRecursive(iterator,
+		repo.assertEqualRecursive(iterator,
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/.empty",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",

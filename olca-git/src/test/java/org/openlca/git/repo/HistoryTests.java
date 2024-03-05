@@ -16,7 +16,7 @@ public class HistoryTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testContains() throws IOException {
-		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
+		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
 		var history = History.of(repo, Constants.LOCAL_BRANCH);
 		Assert.assertTrue(history.contains(repo.commits.get(commitIds[0])));
 		Assert.assertTrue(history.contains(repo.commits.get(commitIds[1])));

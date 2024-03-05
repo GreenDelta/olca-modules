@@ -7,12 +7,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.AbstractRepositoryTests;
-import org.openlca.git.model.Change;
 
 public class StashTests extends AbstractRepositoryTests {
 
 	private void createDatabase() {
-		create("UNIT_GROUP/Technical unit groups/93a60a57-a4c8-11da-a746-0800200c9a66.json",
+		repo.create("UNIT_GROUP/Technical unit groups/93a60a57-a4c8-11da-a746-0800200c9a66.json",
 				"UNIT_GROUP/Technical unit groups/258d6abd-14f2-4484-956c-c88e8f6fd8ed.json",
 				"UNIT_GROUP/Technical unit groups/11d161f0-37e3-4d49-bf7a-ff4f31a9e5c7.json",
 				"UNIT_GROUP/Economic unit groups/da299c4d-1741-4da8-9fbd-5ccfb5e1d688.json",
@@ -91,102 +90,81 @@ public class StashTests extends AbstractRepositoryTests {
 		createDatabase();
 		var diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(76, diffs.size());
-		stashChanges();
-		Assert.assertEquals(0, count(ModelType.CATEGORY));
-		Assert.assertEquals(0, count(ModelType.CURRENCY));
-		Assert.assertEquals(0, count(ModelType.UNIT_GROUP));
-		Assert.assertEquals(0, count(ModelType.FLOW_PROPERTY));
+		repo.stashWorkspace();
+		Assert.assertEquals(0, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(0, repo.count(ModelType.CURRENCY));
+		Assert.assertEquals(0, repo.count(ModelType.UNIT_GROUP));
+		Assert.assertEquals(0, repo.count(ModelType.FLOW_PROPERTY));
 		Assert.assertEquals(0, repo.diffs.find().withDatabase().size());
 	}
 
 	@Test
 	public void testStashApply() throws IOException, GitAPIException {
 		createDatabase();
-		stashChanges();
+		repo.stashWorkspace();
 		Assert.assertNotNull(repo.commits.stash());
 		GitStashApply.on(repo).run();
 		Assert.assertNull(repo.commits.stash());
 		var diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(76, diffs.size());
-		Assert.assertEquals(4, count(ModelType.CATEGORY));
-		Assert.assertEquals(12, count(ModelType.CURRENCY));
-		Assert.assertEquals(27, count(ModelType.UNIT_GROUP));
-		Assert.assertEquals(33, count(ModelType.FLOW_PROPERTY));
+		Assert.assertEquals(4, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(12, repo.count(ModelType.CURRENCY));
+		Assert.assertEquals(27, repo.count(ModelType.UNIT_GROUP));
+		Assert.assertEquals(33, repo.count(ModelType.FLOW_PROPERTY));
 	}
 
 	@Test
 	public void testStashApplySameCategory() throws IOException, GitAPIException {
-		create("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json");
-		Assert.assertEquals(1, count(ModelType.CATEGORY));
-		Assert.assertEquals(1, count(ModelType.ACTOR));
-		stashChanges();
-		Assert.assertEquals(0, count(ModelType.CATEGORY));
-		Assert.assertEquals(0, count(ModelType.ACTOR));
-		create("ACTOR/test/605a07ff-16d7-4a83-b131-66998dad1732.json");
+		repo.create("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json");
+		Assert.assertEquals(1, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(1, repo.count(ModelType.ACTOR));
+		repo.stashWorkspace();
+		Assert.assertEquals(0, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(0, repo.count(ModelType.ACTOR));
+		repo.create("ACTOR/test/605a07ff-16d7-4a83-b131-66998dad1732.json");
 		GitStashApply.on(repo).run();
-		Assert.assertEquals(1, count(ModelType.CATEGORY));
-		Assert.assertEquals(2, count(ModelType.ACTOR));
+		Assert.assertEquals(1, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(2, repo.count(ModelType.ACTOR));
 	}
 
 	@Test
 	public void testStashApplyKeepDeletedCategory() throws IOException, GitAPIException {
-		create("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json");
-		Assert.assertEquals(1, count(ModelType.CATEGORY));
-		Assert.assertEquals(1, count(ModelType.ACTOR));
-		commitChanges();
-		delete("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json",
+		repo.create("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json");
+		Assert.assertEquals(1, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(1, repo.count(ModelType.ACTOR));
+		repo.commitWorkspace();
+		repo.delete("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json",
 				"ACTOR/test");
-		Assert.assertEquals(0, count(ModelType.CATEGORY));
-		Assert.assertEquals(0, count(ModelType.ACTOR));
-		stashChanges();
-		Assert.assertEquals(1, count(ModelType.CATEGORY));
-		Assert.assertEquals(1, count(ModelType.ACTOR));
-		create("ACTOR/test/605a07ff-16d7-4a83-b131-66998dad1732.json");
-		Assert.assertEquals(2, count(ModelType.ACTOR));
+		Assert.assertEquals(0, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(0, repo.count(ModelType.ACTOR));
+		repo.stashWorkspace();
+		Assert.assertEquals(1, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(1, repo.count(ModelType.ACTOR));
+		repo.create("ACTOR/test/605a07ff-16d7-4a83-b131-66998dad1732.json");
+		Assert.assertEquals(2, repo.count(ModelType.ACTOR));
 		GitStashApply.on(repo).run();
-		Assert.assertEquals(1, count(ModelType.CATEGORY));
-		Assert.assertEquals(1, count(ModelType.ACTOR));
+		Assert.assertEquals(1, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(1, repo.count(ModelType.ACTOR));
 	}
 
 	@Test
 	public void testStashDrop() throws IOException, GitAPIException {
 		createDatabase();
-		stashChanges();
+		repo.stashWorkspace();
 		GitStashDrop.from(repo).run();
 		Assert.assertNull(repo.commits.stash());
 	}
 
 	@Test
 	public void testDiscard() throws GitAPIException, IOException {
-		create("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json");
-		Assert.assertEquals(1, count(ModelType.CATEGORY));
-		Assert.assertEquals(1, count(ModelType.ACTOR));
-		stashChanges();
+		repo.create("ACTOR/test/505a07ff-16d7-4a83-b131-66998dad1732.json");
+		Assert.assertEquals(1, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(1, repo.count(ModelType.ACTOR));
+		repo.stashWorkspace();
 		Assert.assertEquals(0, repo.commits.find().all().size());
 		Assert.assertEquals(0, repo.diffs.find().withDatabase().size());
-		Assert.assertEquals(0, count(ModelType.CATEGORY));
-		Assert.assertEquals(0, count(ModelType.ACTOR));
-	}
-
-	private void stashChanges() throws IOException, GitAPIException {
-		var diffs = repo.diffs.find().withDatabase();
-		var commitId = GitStashCreate.on(repo)
-				.changes(Change.of(diffs))
-				.as(committer)
-				.run();
-		var stashCommit = repo.commits.stash();
-		Assert.assertNotNull(stashCommit);
-		Assert.assertEquals(commitId, stashCommit.id);
-	}
-
-	private void commitChanges() throws IOException {
-		var diffs = repo.diffs.find().withDatabase();
-		GitCommit.on(repo)
-				.as(committer)
-				.changes(Change.of(diffs))
-				.withMessage("commit")
-				.run();
-		Assert.assertEquals(0, repo.diffs.find().withDatabase().size());
+		Assert.assertEquals(0, repo.count(ModelType.CATEGORY));
+		Assert.assertEquals(0, repo.count(ModelType.ACTOR));
 	}
 
 }
