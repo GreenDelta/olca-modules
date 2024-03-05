@@ -53,7 +53,7 @@ class Upgrade2 extends Upgrade {
 			upgradeProcess(object);
 		}
 		if (type == ModelType.FLOW) {
-			ugradeFlow(object);
+			upgradeFlow(object);
 		}
 		if (type == ModelType.PARAMETER) {
 			renameBool(object, "inputParameter", "isInputParameter");
@@ -86,7 +86,7 @@ class Upgrade2 extends Upgrade {
 		}
 	}
 
-	private void ugradeFlow(JsonObject object) {
+	private void upgradeFlow(JsonObject object) {
 		renameBool(object, "infrastructureFlow" ,"isInfrastructureFlow");
 		var props = Json.getArray(object, "flowProperties");
 		if (props != null) {
@@ -297,7 +297,7 @@ class Upgrade2 extends Upgrade {
 			var nextId = categoryId;
 			do {
 				var name = names.get(nextId);
-				if (buffer.length() > 0) {
+				if (!buffer.isEmpty()) {
 					buffer.insert(0, name + "/");
 				} else {
 					buffer.append(name);
