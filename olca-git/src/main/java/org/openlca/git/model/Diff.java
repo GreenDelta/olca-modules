@@ -28,8 +28,8 @@ public class Diff extends ModelRef {
 
 	public Reference toReference(Side side) {
 		if (side == Side.OLD)
-			return new Reference(path, oldCommitId, oldObjectId);
-		return new Reference(path, newCommitId, newObjectId);
+			return new Reference(oldPath, oldCommitId, oldObjectId);
+		return new Reference(newPath, newCommitId, newObjectId);
 	}
 
 	public static List<Diff> filter(List<Diff> diffs, DiffType type) {
@@ -50,8 +50,9 @@ public class Diff extends ModelRef {
 	@Override
 	protected String fieldsToString() {
 		var s = super.fieldsToString();
-		return s + ", diffType=" + diffType + ", oldCommitId=" + oldCommitId + ", oldObjectId=" + ObjectId.toString(oldObjectId)
-				+ ", newCommitId=" + newCommitId + ", newObjectId=" + ObjectId.toString(newObjectId);
+		return s + ", diffType=" + diffType
+				+ ", oldPath=" + oldPath + ", oldCommitId=" + oldCommitId + ", oldObjectId=" + oldObjectId.name()
+				+ ", newPath=" + newPath + ", newCommitId=" + newCommitId + ", newObjectId=" + newObjectId.name();
 	}
 
 }
