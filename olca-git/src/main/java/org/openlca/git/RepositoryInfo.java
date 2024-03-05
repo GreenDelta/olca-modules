@@ -18,11 +18,11 @@ public record RepositoryInfo(JsonObject json) {
 	
 	public static final String FILE_NAME = PackageInfo.FILE_NAME;
 	static final int REPOSITORY_CLIENT_VERSION_FALLBACK = 1;
-	public static final int REPOSITORY_CURRENT_CLIENT_VERSION = 2;
-	public static final List<Integer> REPOSITORY_SUPPORTED_CLIENT_VERSIONS = Arrays.asList(1, 2);
+	public static final int REPOSITORY_CURRENT_CLIENT_VERSION = 3;
+	public static final List<Integer> REPOSITORY_SUPPORTED_CLIENT_VERSIONS = Arrays.asList(1, 2, 3);
 	static final int REPOSITORY_SERVER_VERSION_FALLBACK = 1;
-	public static final int REPOSITORY_CURRENT_SERVER_VERSION = 2;
-	public static final List<Integer> REPOSITORY_SUPPORTED_SERVER_VERSIONS = Arrays.asList(1, 2);
+	public static final int REPOSITORY_CURRENT_SERVER_VERSION = 3;
+	public static final List<Integer> REPOSITORY_SUPPORTED_SERVER_VERSIONS = Arrays.asList(1, 2, 3);
 	
 	public static RepositoryInfo of(JsonElement json) {
 		var obj = json != null && json.isJsonObject()

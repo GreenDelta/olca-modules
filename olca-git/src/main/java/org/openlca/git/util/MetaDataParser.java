@@ -27,6 +27,7 @@ public class MetaDataParser {
 	private final Map<String, Object> values = new HashMap<>();
 	private final Map<String, Object> candidates = new HashMap<>();
 	private final Set<String> metCondition = new HashSet<>();
+	private boolean skipOnArraysOrObjects;
 
 	private MetaDataParser(InputStream json, List<FieldDefinition> defs) throws IOException {
 		this.parser = new JsonFactory().createParser(json);
@@ -54,6 +55,21 @@ public class MetaDataParser {
 			return new HashMap<>();
 		}
 	}
+	
+	public static Map<String, Object> parseTop(InputStream json, String... fields) {
+		if (fields == null || fields.length == 0)
+			return new HashMap<>();
+		try {
+			var defs = Stream.of(fields).map(field -> FieldDefinition.firstOf(field)).toList();
+			var instance = new MetaDataParser(json, defs);
+			instance.skipOnArraysOrObjects = true;
+			instance.parse();
+			return instance.values;
+		} catch (IOException e) {
+			log.error("Error parsing dataset", e);
+			return new HashMap<>();
+		}
+	}
 
 	private void parse() throws IOException {
 		var fields = new ArrayList<String>();
@@ -61,7 +77,8 @@ public class MetaDataParser {
 		while (!parser.isClosed() && !defs.isEmpty()) {
 			var token = parser.nextToken();
 			if (JsonToken.START_ARRAY.equals(token)) {
-
+				if (skipOnArraysOrObjects)
+					return;
 			} else if (JsonToken.END_ARRAY.equals(token)) {
 				for (var def : new ArrayList<>(defs)) {
 					var c = join(fields, current);
@@ -73,6 +90,8 @@ public class MetaDataParser {
 				}
 			} else if (JsonToken.START_OBJECT.equals(token)) {
 				if (current != null) {
+					if (skipOnArraysOrObjects)
+						return;
 					fields.add(current);
 				}
 				for (var def : defs) {

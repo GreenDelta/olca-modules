@@ -14,12 +14,6 @@ public class TypedRefIdMap<T> {
 
 	private final EnumMap<ModelType, Map<String, T>> map = new EnumMap<>(ModelType.class);
 
-	public static <R extends TypedRefId> TypedRefIdMap<R> of(Collection<R> col) {
-		var map = new TypedRefIdMap<R>();
-		col.forEach(ref -> map.put(ref, ref));
-		return map;
-	}
-
 	public void put(TypedRefId pair, T value) {
 		put(pair.type, pair.refId, value);
 	}
@@ -59,6 +53,14 @@ public class TypedRefIdMap<T> {
 
 	public List<T> values() {
 		return map.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+	}
+
+	public int size() {
+		int total = 0;
+		for (var map : this.map.values()) {
+			total += map.values().size();
+		}
+		return total;
 	}
 
 	public T remove(TypedRefId pair) {

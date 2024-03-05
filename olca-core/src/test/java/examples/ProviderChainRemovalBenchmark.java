@@ -14,9 +14,9 @@ public class ProviderChainRemovalBenchmark {
 		var rand = ThreadLocalRandom.current();
 		try (var db = DataDir.get().openDatabase(dbName)) {
 			System.out.println(
-					"| Run | Link   | Time [ms] | Removed processes |");
+					"| Run | Link   | Time [ms] | Removed links |");
 			System.out.println(
-					"|-----|--------|-----------|-------------------|"
+					"|-----|--------|-----------|---------------|"
 			);
 			var system = db.get(ProductSystem.class, sysId);
 			for (int i = 1; i < 11; i++) {
@@ -27,8 +27,8 @@ public class ProviderChainRemovalBenchmark {
 				var n = ProviderChainRemoval.on(sys).remove(link);
 				var time = System.nanoTime() - start;
 				var ms = ((double) time) / 1e6;
-				System.out.printf("| %3d | %6d | %9.2f | %17d |%n",
-						i, k, ms, n);
+				System.out.printf("| %3d | %6d | %9.2f | %13d |%n",
+						i, k, ms, n.size());
 			}
 		}
 	}

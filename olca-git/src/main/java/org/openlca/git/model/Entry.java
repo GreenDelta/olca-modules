@@ -19,6 +19,12 @@ public class Entry extends Reference {
 		}
 	}
 
+	@Override
+	protected String fieldsToString() {
+		var s = super.fieldsToString();
+		return s + ", name=" + name + ", typeOfEntry=" + typeOfEntry;
+	}
+	
 	public static enum EntryType {
 
 		MODEL_TYPE,

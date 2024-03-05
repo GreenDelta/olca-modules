@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.core.model.ModelType;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.ModelType;
 
 /**
  * Reads JSON objects and linked binary files from some data source.
@@ -71,7 +72,7 @@ public interface JsonStoreReader {
 		var json = new String(bytes, StandardCharsets.UTF_8);
 		return new Gson().fromJson(json, JsonElement.class);
 	}
-	
+
 	default List<LibraryLink> getLibraryLinks() {
 		return PackageInfo.readFrom(this).libraries();
 	}

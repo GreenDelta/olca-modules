@@ -6,6 +6,8 @@ public enum DiffType {
 
 	MODIFIED,
 
+	MOVED,
+
 	DELETED;
 
 }

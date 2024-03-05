@@ -7,7 +7,6 @@ import java.util.List;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.internal.storage.file.PackInserter;
 import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
@@ -15,7 +14,6 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
@@ -25,31 +23,32 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.iterator.EntryIterator;
 import org.openlca.git.model.Change;
-import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Change.ChangeType;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
-import org.openlca.git.util.Repositories;
 import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO check error handling
 public abstract class CommitWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(CommitWriter.class);
-	protected final Repository repo;
+	protected final OlcaRepository repo;
 	protected final BinaryResolver binaryResolver;
 	protected String ref = Constants.HEAD;
 	protected PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
 	protected ProgressMonitor progressMonitor = ProgressMonitor.NULL;
+	private final UsedFeatures usedFeatures;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 
-	public CommitWriter(Repository repo, BinaryResolver binaryResolver) {
+	public CommitWriter(OlcaRepository repo, BinaryResolver binaryResolver) {
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
+		this.usedFeatures = UsedFeatures.of(repo);
 	}
 
 	public CommitWriter ref(String ref) {
@@ -68,15 +67,20 @@ public abstract class CommitWriter {
 	}
 
 	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
+		return write(message, new ChangeIterator(repo, binaryResolver, changes), parentCommitIds);
+	}
+
+	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
+			throws IOException {
 		Compatibility.checkRepositoryClientVersion(repo);
 		try {
 			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);
-			var treeId = syncTree("", new ChangeIterator(binaryResolver, changes), treeIds);
+			var treeId = syncTree("", changeIterator, treeIds);
 			var commitId = commit(message, treeId, parentCommitIds);
 			return commitId.name();
 		} finally {
-			close();
+			cleanUp();
 		}
 	}
 
@@ -100,24 +104,24 @@ public abstract class CommitWriter {
 	}
 
 	private void init() {
-		var firstCommit = Repositories.headCommitOf(repo) == null;
-		if (repo instanceof FileRepository fileRepo) {
-			packInserter = fileRepo.getObjectDatabase().newPackInserter();
-			packInserter.checkExisting(!firstCommit);
-		}
+		var firstCommit = repo.getHeadCommit() == null;
+		packInserter = repo.getObjectDatabase().newPackInserter();
+		packInserter.checkExisting(!firstCommit);
 		objectInserter = repo.newObjectInserter();
 	}
 
 	private ObjectId syncTree(String prefix, ChangeIterator iterator, ObjectId[] treeIds) {
-		boolean appended = false;
+		var appended = false;
 		var tree = new TreeFormatter();
 		try (var walk = createWalk(prefix, iterator, treeIds)) {
 			var previous = "";
 			var previousWasDeleted = false;
 			while (walk.next()) {
 				var name = walk.getNameString();
-				if (name.equals(RepositoryInfo.FILE_NAME))
+				if (name.equals(RepositoryInfo.FILE_NAME)) {
+					appendRepositoryInfo(tree);
 					continue;
+				}
 				if (previousWasDeleted && isBinaryOf(name, previous))
 					continue;
 				previous = name;
@@ -139,16 +143,10 @@ public abstract class CommitWriter {
 		} catch (Exception e) {
 			log.error("Error walking tree", e);
 		}
-		if (!appended && !Strings.nullOrEmpty(prefix)) {
-			removed(prefix);
+		if (!appended && !Strings.nullOrEmpty(prefix))
 			return null;
-		}
-		if (Strings.nullOrEmpty(prefix)) {
-			appendRepositoryInfo(tree);
-		}
 		try {
 			var newId = objectInserter.insert(tree);
-			inserted(prefix, newId);
 			return newId;
 		} catch (IOException e) {
 			log.error("Error inserting tree", e);
@@ -188,21 +186,26 @@ public abstract class CommitWriter {
 		for (var i = 0; i < treeCount - 1; i++) {
 			treeIds[i] = walk.getFileMode(i) != FileMode.MISSING ? walk.getObjectId(i) : null;
 		}
-		var subIterator = walk.getFileMode(treeCount - 1) != FileMode.MISSING ? iterator.createSubtreeIterator() : null;
-		if (subIterator != null) {
-			var prefix = GitUtil.decode(walk.getPathString());
-			return syncTree(prefix, subIterator, treeIds);
-		}
-		for (var i = treeCount - 2; i >= 0; i--)
-			if (treeIds[i] != null)
-				return treeIds[i];
-		return null;
+		var changed = walk.getFileMode(treeCount - 1) != FileMode.MISSING;
+		if (changed && isDeletedCategory(iterator.getEntryData()))
+			return null;
+		if (!changed && treeCount == 2)
+			return treeIds[0];
+		var subIterator = iterator.createSubtreeIterator();
+		var prefix = GitUtil.decode(walk.getPathString());
+		return syncTree(prefix, subIterator, treeIds);
+	}
+
+	private boolean isDeletedCategory(Change data) {
+		return data != null && data.isCategory && data.changeType == ChangeType.DELETE;
 	}
 
 	private ObjectId handleFile(TreeWalk walk)
 			throws IOException, InterruptedException {
 		var treeCount = walk.getTreeCount();
 		if (walk.getFileMode(treeCount - 1) == FileMode.MISSING) {
+			// second last commit is the remote commit in case of merge
+			// if no conflict resolution change is provided keep the remote one
 			for (var i = treeCount - 2; i >= 0; i--)
 				if (walk.getFileMode(i) != FileMode.MISSING)
 					return walk.getObjectId(i);
@@ -212,28 +215,29 @@ public abstract class CommitWriter {
 		var iterator = walk.getTree(treeCount - 1, EntryIterator.class);
 		Change change = iterator.getEntryData();
 		var filePath = iterator.getEntryFilePath();
-		if (change.diffType == DiffType.DELETED && matches(path, change, filePath)) {
-			if (filePath == null) {
-				removed(path);
-			}
+		if (change.changeType == ChangeType.DELETE && matches(path, change, filePath))
 			return null;
-		}
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
-		progressMonitor.subTask("Writing", change);
-		var data = getData(change);
+		if (!change.isCategory) {
+			progressMonitor.subTask(change);
+		}
+		if (change.isCategory) {
+			usedFeatures.emptyCategories();
+		}
+		var data = change.isCategory
+				? new byte[0]
+				: getData(change);
 		if (data == null)
 			return null;
 		var blobId = insertBlob(data);
-		inserted(path, blobId);
 		progressMonitor.worked(1);
 		return blobId;
 	}
 
 	private void appendRepositoryInfo(TreeFormatter tree) {
 		try {
-			var schemaBytes = RepositoryInfo.create()
-					.withLibraries(getLibraries())
+			var schemaBytes = usedFeatures.createInfo(getLibraries())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
@@ -254,7 +258,10 @@ public abstract class CommitWriter {
 		if (change == null)
 			return false;
 		if (filePath == null)
-			return path.equals(change.path);
+			if (change.isCategory)
+				return path.equals(change.path + "/" + GitUtil.EMPTY_CATEGORY_FLAG);
+			else
+				return path.equals(change.path);
 		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
 	}
 
@@ -295,10 +302,12 @@ public abstract class CommitWriter {
 
 	private boolean isBinaryOf(String current, String previous) {
 		return previous.endsWith(GitUtil.DATASET_SUFFIX)
-				&& current.equals(previous.substring(0, previous.length() - 5) + GitUtil.BIN_DIR_SUFFIX);
+				&& current.equals(
+						previous.substring(0, previous.length() - GitUtil.DATASET_SUFFIX.length())
+								+ GitUtil.BIN_DIR_SUFFIX);
 	}
 
-	protected void close() throws IOException {
+	protected void cleanUp() throws IOException {
 		if (packInserter != null) {
 			packInserter.flush();
 			packInserter.close();
@@ -309,12 +318,6 @@ public abstract class CommitWriter {
 			objectInserter.close();
 			objectInserter = null;
 		}
-	}
-
-	protected void inserted(String path, ObjectId id) {
-	}
-
-	protected void removed(String path) {
 	}
 
 	protected List<LibraryLink> getLibraries() {

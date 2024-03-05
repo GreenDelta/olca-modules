@@ -1,31 +1,21 @@
-package org.openlca.git.util;
+package org.openlca.git.repo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jgit.lib.Repository;
-import org.openlca.git.find.Commits;
 import org.openlca.git.model.Commit;
 
 public class History {
 
-	private final Commits commits;
+	private final OlcaRepository repo;
 	private final String ref;
 
-	public static History of(Repository repo, String ref) {
+	static History of(OlcaRepository repo, String ref) {
 		return new History(repo, ref);
 	}
 
-	public static History localOf(Repository repo) {
-		return of(repo, Constants.LOCAL_REF);
-	}
-
-	public static History remoteOf(Repository repo) {
-		return of(repo, Constants.REMOTE_REF);
-	}
-
-	private History(Repository repo, String ref) {
-		this.commits = Commits.of(repo);
+	private History(OlcaRepository repo, String ref) {
+		this.repo = repo;
 		this.ref = ref;
 	}
 
@@ -44,16 +34,21 @@ public class History {
 	public List<Commit> getAheadOf(String ref) {
 		return diffBetween(of(this.ref), of(ref));
 	}
+	
+	public boolean isBehindOf(Commit commit, String ref) {
+		return getBehindOf(ref).contains(commit);
+	}
+
 
 	public List<Commit> getBehindOf(String ref) {
 		return diffBetween(of(ref), of(this.ref));
 	}
 
 	public Commit commonParentOf(String ref) {
-		var local = commits.find().refs(this.ref).all();
+		var local = repo.commits.find().refs(this.ref).all();
 		if (local.isEmpty())
 			return null;
-		var other = commits.find().refs(ref).all();
+		var other = repo.commits.find().refs(ref).all();
 		if (other.isEmpty())
 			return null;
 		var commonHistory = other.stream()
@@ -65,7 +60,7 @@ public class History {
 	}
 
 	private List<Commit> of(String ref) {
-		return commits.find().refs(ref).all();
+		return repo.commits.find().refs(ref).all();
 	}
 
 	private List<Commit> diffBetween(List<Commit> left, List<Commit> right) {

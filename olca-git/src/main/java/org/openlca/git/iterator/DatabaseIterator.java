@@ -1,118 +1,167 @@
 package org.openlca.git.iterator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.Daos;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.GitIndex;
+import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
-import org.openlca.util.Categories;
-import org.openlca.util.Categories.PathBuilder;
+import org.openlca.git.util.Path;
+import org.openlca.util.Strings;
 
 public class DatabaseIterator extends EntryIterator {
 
-	private final PathBuilder categoryPaths;
-	private final IDatabase database;
-	private final GitIndex gitIndex;
+	private final ClientRepository repo;
 
-	public DatabaseIterator(IDatabase database, GitIndex gitIndex) {
-		this(database, gitIndex, init(database));
+	public DatabaseIterator(ClientRepository repo) {
+		this(repo, init(repo));
 	}
 
-	private DatabaseIterator(IDatabase database, GitIndex gitIndex, List<TreeEntry> entries) {
+	public DatabaseIterator(ClientRepository repo, String path) {
+		this(repo, init(repo, path));
+	}
+
+	private DatabaseIterator(ClientRepository repo, List<TreeEntry> entries) {
 		super(entries);
-		this.database = database;
-		this.gitIndex = gitIndex;
-		this.categoryPaths = Categories.pathsOf(database);
+		this.repo = repo;
 	}
 
-	private DatabaseIterator(DatabaseIterator parent, IDatabase database, GitIndex gitIndex,
-			List<TreeEntry> entries) {
+	private DatabaseIterator(DatabaseIterator parent, List<TreeEntry> entries) {
 		super(parent, entries);
-		this.database = database;
-		this.gitIndex = gitIndex;
-		this.categoryPaths = Categories.pathsOf(database);
+		this.repo = parent.repo;
 	}
 
-	private static List<TreeEntry> init(IDatabase database) {
+	private static List<TreeEntry> init(ClientRepository repo) {
 		return Arrays.stream(ModelType.values()).filter(type -> {
 			if (type == ModelType.CATEGORY)
 				return false;
-			var dao = new CategoryDao(database);
-			if (!dao.getRootCategories(type).isEmpty())
+			if (!repo.descriptors.getCategories(type).isEmpty())
 				return true;
-			return !Daos.root(database, type).getDescriptors(Optional.empty()).isEmpty();
+			return !repo.descriptors.get(type).isEmpty();
 		}).map(TreeEntry::new)
 				.toList();
 	}
 
-	private static List<TreeEntry> init(IDatabase database, ModelType type) {
-		var entries = new CategoryDao(database).getRootCategories(type).stream()
-				.filter(c -> !c.isFromLibrary())
+	private static List<TreeEntry> init(ClientRepository repo, String path) {
+		if (Strings.nullOrEmpty(path))
+			return init(repo);
+		if (!path.contains("/")) {
+			var modelType = ModelType.parse(path);
+			if (modelType == null)
+				return new ArrayList<>();
+			return init(repo, modelType);
+		}
+		path = GitUtil.decode(path);
+		var category = repo.descriptors.getCategory(path);
+		if (category == null)
+			return new ArrayList<>();
+		return init(repo, category);
+	}
+
+	private static List<TreeEntry> init(ClientRepository repo, ModelType type) {
+		var entries = repo.descriptors.getCategories(type).stream()
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(database, type).getDescriptors(Optional.empty()).stream()
-				.filter(d -> !d.isFromLibrary())
-				.map(TreeEntry::new)
-				.toList());
+		entries.addAll(collect(repo, repo.descriptors.get(type)));
 		return entries;
 	}
 
-	private static List<TreeEntry> init(IDatabase database, Category category) {
-		var entries = category.childCategories.stream()
-				.filter(c -> !c.isFromLibrary())
+	private static List<TreeEntry> init(ClientRepository repo, Category category) {
+		var categories = category.childCategories;
+		var entries = categories.stream()
+				.filter(c -> !isFromLibrary(repo, c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
-		entries.addAll(Daos.root(database, category.modelType).getDescriptors(Optional.of(category)).stream()
-				.filter(d -> !d.isFromLibrary())
-				.map(TreeEntry::new)
-				.toList());
+		entries.addAll(collect(repo, repo.descriptors.get(category)));
+		if (entries.isEmpty() && !isFromLibrary(repo, category)) {
+			entries.add(TreeEntry.empty());
+		}
 		return entries;
+	}
+
+	private static List<TreeEntry> collect(ClientRepository repo, Set<RootDescriptor> descriptors) {
+		var entries = new ArrayList<TreeEntry>();
+		for (var d : descriptors) {
+			if (d.isFromLibrary())
+				continue;
+			entries.add(new TreeEntry(d));
+			if (hasBinaries(repo, d)) {
+				// must include bin entry, otherwise tree will be different from
+				// commit tree and diffs will return false results; bin entries
+				// will be filtered with KnownFilesFilter
+				entries.add(new TreeEntry(d.refId + "_bin", FileMode.TREE));
+			}
+		}
+		return entries;
+	}
+
+	private static boolean hasBinaries(ClientRepository repo, RootDescriptor d) {
+		var folder = repo.fileStore.getFolder(d.type, d.refId);
+		if (!folder.exists())
+			return false;
+		var files = folder.listFiles();
+		return files != null && files.length > 0;
+	}
+
+	private static boolean isFromLibrary(ClientRepository repo, Category category) {
+		var hasLibrariesElements = false;
+		for (var model : repo.descriptors.get(category)) {
+			if (!model.isFromLibrary())
+				return false;
+			hasLibrariesElements = true;
+		}
+		for (var child : category.childCategories) {
+			if (!isFromLibrary(repo, child))
+				return false;
+			hasLibrariesElements = true;
+		}
+		return hasLibrariesElements;
 	}
 
 	@Override
 	public boolean hasId() {
-		if (gitIndex == null)
+		var path = getPath();
+		if (path == null)
 			return false;
-		var data = getEntryData();
-		if (data == null)
-			return false;
-		if (data instanceof ModelType)
-			return gitIndex.has((ModelType) data);
-		if (data instanceof Category)
-			return gitIndex.has((Category) data);
-		var d = (RootDescriptor) data;
-		if (!gitIndex.has(categoryPaths, d))
-			return false;
-		var entry = gitIndex.get(categoryPaths, d);
-		return entry.version() == d.version && entry.lastChange() == d.lastChange;
+		if (getEntryData() instanceof RootDescriptor d) {
+			if (!repo.index.contains(path))
+				return false;
+			return repo.index.isSameVersion(path, d);
+		}
+		return repo.index.contains(path);
 	}
 
 	@Override
 	public byte[] idBuffer() {
-		if (gitIndex == null)
+		var path = getPath();
+		if (path == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
+		if (!repo.index.contains(path))
+			return GitUtil.getBytes(ObjectId.zeroId());
+		if (!(getEntryData() instanceof RootDescriptor d) || repo.index.isSameVersion(path, d))
+			return GitUtil.getBytes(repo.index.getObjectId(path));
+		return GitUtil.getBytes(ObjectId.zeroId());
+	}
+
+	private String getPath() {
 		var data = getEntryData();
 		if (data == null)
-			return GitUtil.getBytes(ObjectId.zeroId());
-		if (data instanceof ModelType)
-			return gitIndex.get((ModelType) data).rawObjectId();
-		if (data instanceof Category)
-			return gitIndex.get((Category) data).rawObjectId();
-		var d = (RootDescriptor) data;
-		var entry = gitIndex.get(categoryPaths, d);
-		if (entry.version() == d.version && entry.lastChange() == d.lastChange)
-			return entry.rawObjectId();
-		return GitUtil.getBytes(ObjectId.zeroId());
+			return null;
+		if (data instanceof ModelType t)
+			return Path.of(t);
+		if (data instanceof Category c)
+			return Path.of(c);
+		if (data instanceof RootDescriptor d)
+			return Path.of(repo.descriptors.categoryPaths, d);
+		return null;
 	}
 
 	@Override
@@ -124,9 +173,9 @@ public class DatabaseIterator extends EntryIterator {
 	public DatabaseIterator createSubtreeIterator(ObjectReader reader) {
 		var data = getEntryData();
 		if (data instanceof ModelType type)
-			return new DatabaseIterator(this, database, gitIndex, init(database, type));
+			return new DatabaseIterator(this, init(repo, type));
 		if (data instanceof Category category)
-			return new DatabaseIterator(this, database, gitIndex, init(database, category));
+			return new DatabaseIterator(this, init(repo, category));
 		return null;
 	}
 

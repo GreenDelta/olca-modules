@@ -1,4 +1,4 @@
-package org.openlca.git.find;
+package org.openlca.git.repo;
 
 import java.io.IOException;
 

@@ -4,35 +4,38 @@ import java.util.List;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.openlca.git.actions.GitPush.PushResponse;
 import org.openlca.git.model.Commit;
+import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.Constants;
-import org.openlca.git.util.History;
 
 public class GitPush extends GitRemoteAction<PushResponse> {
 
-	private final Repository repo;
-	private final History localHistory;
-
-	private GitPush(Repository repo) {
+	private final OlcaRepository repo;
+	private boolean force;
+	
+	private GitPush(OlcaRepository repo) {
 		this.repo = repo;
-		this.localHistory = History.localOf(repo);
 	}
 
-	public static GitPush from(Repository repo) {
+	public static GitPush from(OlcaRepository repo) {
 		return new GitPush(repo);
 	}
 
+	public GitPush force() {
+		this.force = true;
+		return this;
+	}
+	
 	@Override
 	public PushResponse run() throws GitAPIException {
 		if (repo == null)
 			throw new IllegalStateException("Git repository must be set");
-		var newCommits = localHistory.getAheadOf(Constants.REMOTE_REF);
+		var newCommits = repo.localHistory.getAheadOf(Constants.REMOTE_REF);
 		if (newCommits.isEmpty())
 			return new PushResponse(newCommits, Status.NOT_ATTEMPTED);
 		Git.wrap(repo).gc().call();
@@ -41,6 +44,7 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 				.setProgressMonitor(monitor)
 				.setRemote(Constants.DEFAULT_REMOTE)
 				.setRefSpecs(new RefSpec(Constants.LOCAL_REF))
+				.setForce(force)
 				.call();
 		var update = getUpdate(result);
 		if (update == null)

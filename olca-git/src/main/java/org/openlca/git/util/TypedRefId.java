@@ -52,9 +52,13 @@ public class TypedRefId {
 		return type == o.type && Strings.nullOrEqual(refId, o.refId);
 	}
 
+	protected String fieldsToString() {
+		return "type=" + type + ", refId=" + refId;
+	}
+
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[type=" + type + ", refId=" + refId + "]";
+		return getClass().getSimpleName() + "[" + fieldsToString() + "]";
 	}
 
 }

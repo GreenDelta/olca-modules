@@ -13,7 +13,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.git.model.Change;
-import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.util.GitUtil;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
@@ -74,6 +74,8 @@ class Converter implements JsonStoreWriter {
 		this.changes.clear();
 		this.systems.clear();
 		for (var change : changes) {
+			if (change.isCategory)
+				continue;
 			if (change.type == ModelType.PRODUCT_SYSTEM) {
 				this.systems.put(change.path, change);
 			} else {
@@ -103,7 +105,7 @@ class Converter implements JsonStoreWriter {
 	}
 
 	private void convert(Change change) {
-		if (change.diffType == DiffType.DELETED)
+		if (change.changeType == ChangeType.DELETE)
 			return;
 		try {
 			var model = database.get(change.type.getModelClass(), change.refId);
