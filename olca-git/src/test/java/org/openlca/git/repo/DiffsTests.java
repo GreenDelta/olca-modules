@@ -5,9 +5,13 @@ import static org.openlca.git.repo.ExampleData.COMMIT_2;
 import static org.openlca.git.repo.ExampleData.COMMIT_3;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
@@ -15,6 +19,13 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.util.BinaryResolver;
 
 public class DiffsTests extends AbstractRepositoryTests {
+	
+	private static IDatabase database = Derby.createInMemory();
+	
+	@Override
+	protected IDatabase getDatabase() {
+		return database; // reuse database
+	}
 
 	@Test
 	public void testNoDiffWithDatabase() throws IOException {
@@ -140,7 +151,11 @@ public class DiffsTests extends AbstractRepositoryTests {
 	}
 
 	@Test
-	public void testDiffCategories() {
+	public void testDiffCategories() throws GitAPIException, IOException, URISyntaxException {
+		// only this test uses a different database 
+		// -> create before test and after
+		database = Derby.createInMemory();
+		repo = new TestRepository(getRemotePath());
 		repo.create("UNIT_GROUP/Technical unit groups",
 				"UNIT_GROUP/Economic unit groups",
 				"UNIT_GROUP/Economic unit groups/Sub 1",
@@ -159,6 +174,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		assertEmptyCategory(DiffType.ADDED, "UNIT_GROUP/Economic unit groups/Sub 1", diffs.get(5));
 		assertEmptyCategory(DiffType.ADDED, "UNIT_GROUP/Economic unit groups/Sub 2", diffs.get(6));
 		assertEmptyCategory(DiffType.ADDED, "UNIT_GROUP/Technical unit groups", diffs.get(7));
+		database = Derby.createInMemory();
 	}
 
 	@Override

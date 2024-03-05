@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
@@ -39,6 +40,8 @@ import org.openlca.git.util.GitUtil;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Dirs;
 import org.openlca.util.Strings;
+
+import com.google.common.base.Objects;
 
 public abstract class AbstractRepositoryTests {
 
@@ -59,6 +62,10 @@ public abstract class AbstractRepositoryTests {
 		return new StaticBinaryResolver(new HashMap<>());
 	}
 
+	protected IDatabase getDatabase() {
+		return Derby.createInMemory();
+	}
+
 	@After
 	public void closeRepo() throws IOException {
 		repo.close();
@@ -71,7 +78,7 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		public TestRepository(String remotePath) throws GitAPIException, IOException, URISyntaxException {
-			super(init(remotePath), Derby.createInMemory());
+			super(init(remotePath), getDatabase());
 		}
 
 		private static File init(String remotePath) throws GitAPIException, IOException, URISyntaxException {
@@ -160,11 +167,20 @@ public abstract class AbstractRepositoryTests {
 				}
 				if (isCategory)
 					return;
-				var entity = type.getModelClass().getDeclaredConstructor().newInstance();
-				entity.refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
-				entity.category = category;
-				repo.database.insert(entity);
-			} catch (Exception e) {
+				var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+				var entity = repo.database.get(type.getModelClass(), refId);
+				if (entity != null) {
+					if (!Objects.equal(entity.category, category))
+						throw new IllegalArgumentException("Entity with same ref id exists in different category");
+				} else {
+					entity = type.getModelClass().getDeclaredConstructor().newInstance();
+					entity.refId = refId;
+					entity.category = category;
+					repo.database.insert(entity);
+				}
+			} catch (
+
+			Exception e) {
 				e.printStackTrace();
 			}
 		}

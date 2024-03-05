@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.model.Reference;
@@ -16,6 +18,13 @@ import org.openlca.git.repo.References.Find;
 import org.openlca.git.util.BinaryResolver;
 
 public class ReferencesTests extends AbstractRepositoryTests {
+
+	private static IDatabase database = Derby.createInMemory();
+
+	@Override
+	protected IDatabase getDatabase() {
+		return database; // reuse database
+	}
 
 	@Test
 	public void testCount() throws IOException {

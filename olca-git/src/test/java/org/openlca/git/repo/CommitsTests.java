@@ -8,12 +8,21 @@ import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.util.BinaryResolver;
 
 public class CommitsTests extends AbstractRepositoryTests {
 
+	private static IDatabase database = Derby.createInMemory();
+	
+	@Override
+	protected IDatabase getDatabase() {
+		return database; // reuse database
+	}
+	
 	@Test
 	public void testAll() throws IOException {
 		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
