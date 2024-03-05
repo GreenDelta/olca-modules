@@ -45,31 +45,64 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 			return null;
 		JsonObject o = new JsonObject();
 
+		Json.put(o, "validFrom", Json.asDate(d.validFrom));
+		Json.put(o, "validUntil", Json.asDate(d.validUntil));
 		Json.put(o, "timeDescription", d.time);
+		Json.put(o, "geographyDescription", d.geography);
 		Json.put(o, "technologyDescription", d.technology);
-		Json.put(o, "dataCollectionDescription", d.dataCollectionPeriod);
+
+		Json.put(o, "inventoryMethodDescription", d.inventoryMethod);
+		Json.put(o, "modelingConstantsDescription", d.modelingConstants);
+
 		Json.put(o, "completenessDescription", d.dataCompleteness);
 		Json.put(o, "dataSelectionDescription", d.dataSelection);
 		Json.put(o, "dataTreatmentDescription", d.dataTreatment);
-		Json.put(o, "inventoryMethodDescription", d.inventoryMethod);
-		Json.put(o, "modelingConstantsDescription", d.modelingConstants);
 		Json.put(o, "samplingDescription", d.samplingProcedure);
-		Json.put(o, "restrictionsDescription", d.accessRestrictions);
-		Json.put(o, "isCopyrightProtected", d.copyright);
-		Json.put(o, "intendedApplication", d.intendedApplication);
-		Json.put(o, "projectDescription", d.project);
-		Json.put(o, "geographyDescription", d.geography);
-		Json.put(o, "creationDate", Json.asDateTime(d.creationDate));
-		Json.put(o, "validFrom", Json.asDate(d.validFrom));
-		Json.put(o, "validUntil", Json.asDate(d.validUntil));
-
-		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
-		Json.put(o, "dataGenerator", exp.handleRef(d.dataGenerator));
-		Json.put(o, "dataSetOwner", exp.handleRef(d.dataOwner));
-		Json.put(o, "publication", exp.handleRef(d.publication));
+		Json.put(o, "dataCollectionDescription", d.dataCollectionPeriod);
+		Json.put(o, "useAdvice", d.useAdvice);
 		Json.put(o, "sources", exp.handleRefs(d.sources));
 
-		// TODO: #model-doc write reviews
+		if (!d.flowCompleteness.isEmpty()) {
+			Json.put(o, "flowCompleteness", d.flowCompleteness.toJson());
+		}
+
+		if (!d.complianceDeclarations.isEmpty()) {
+			var array = new JsonArray();
+			for (var dec : d.complianceDeclarations) {
+				var obj = new JsonObject();
+				Json.put(obj, "system", exp.handleRef(dec.system));
+				Json.put(obj, "comment", dec.comment);
+				Json.put(obj, "aspects", dec.aspects.toJson());
+				array.add(obj);
+			}
+			Json.put(o, "complianceDeclarations", array);
+		}
+
+		if (!d.reviews.isEmpty()) {
+			var array = new JsonArray();
+			for (var rev : d.reviews) {
+				var obj = new JsonObject();
+				Json.put(obj, "reviewType", rev.type);
+				Json.put(obj, "scopes", rev.scopes.toJson());
+				Json.put(obj, "details", rev.details);
+				Json.put(obj, "report", exp.handleRef(rev.report));
+				Json.put(obj, "assessment", rev.assessment.toJson());
+				Json.put(obj, "reviewers", exp.handleRefs(rev.reviewers));
+				array.add(obj);
+			}
+			Json.put(o, "reviews", array);
+		}
+
+		Json.put(o, "intendedApplication", d.intendedApplication);
+		Json.put(o, "projectDescription", d.project);
+
+		Json.put(o, "dataGenerator", exp.handleRef(d.dataGenerator));
+		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
+		Json.put(o, "creationDate", Json.asDateTime(d.creationDate));
+		Json.put(o, "publication", exp.handleRef(d.publication));
+		Json.put(o, "dataSetOwner", exp.handleRef(d.dataOwner));
+		Json.put(o, "isCopyrightProtected", d.copyright);
+		Json.put(o, "restrictionsDescription", d.accessRestrictions);
 
 		return o;
 	}
