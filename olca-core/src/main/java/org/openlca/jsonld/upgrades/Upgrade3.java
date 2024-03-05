@@ -42,6 +42,6 @@ class Upgrade3 extends Upgrade {
 		}
 		var reviews = new JsonArray(1);
 		reviews.add(review);
-		Json.put(obj, "reviews", reviews);
+		Json.put(doc, "reviews", reviews);
 	}
 }
