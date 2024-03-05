@@ -6,9 +6,8 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.openlca.git.RepositoryInfo;
 import org.openlca.git.AbstractRepositoryTests;
-import org.openlca.git.TreeValidator;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.writer.DatabaseBinaryResolver;
@@ -36,7 +35,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 						.collect(Collectors.toList());
 		Collections.shuffle(changes);
 		var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
-		TreeValidator.assertEqualRecursive(repo, iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		assertEqualRecursive(iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -75,7 +74,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				Change.delete(new ModelRef("SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json")),
 				Change.add(new ModelRef("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json")));
 		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
-		TreeValidator.assertEqualRecursive(repo, iterator,
+		assertEqualRecursive(iterator,
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/.empty",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",

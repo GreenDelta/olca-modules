@@ -1,5 +1,7 @@
 package org.openlca.git.repo;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.openlca.git.repo.ExampleData.COMMIT_1;
 import static org.openlca.git.repo.ExampleData.COMMIT_2;
 
@@ -8,23 +10,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.treewalk.AbstractTreeIterator;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.git.TreeValidator;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.writer.DbCommitWriter;
-import org.openlca.util.Strings;
+import org.openlca.jsonld.Json;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class WriterTests extends AbstractRepositoryTests {
 
@@ -33,63 +34,63 @@ public class WriterTests extends AbstractRepositoryTests {
 		// first commit
 		var commitId1 = commit(COMMIT_1);
 		Assert.assertNotNull(commitId1);
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, null),
+		assertEqual(createIterator(commitId1),
 				"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "ACTOR"),
+		assertEqual(createIterator(commitId1, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0_bin",
 				"category");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "ACTOR/category"),
+		assertEqual(createIterator(commitId1, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "FLOW"),
+		assertEqual(createIterator(commitId1, "FLOW"),
 				"cat");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "SOURCE"),
+		assertEqual(createIterator(commitId1, "SOURCE"),
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"c_category",
 				"category_one",
 				"category_two",
 				"category_zhree");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "SOURCE/a_category"),
+		assertEqual(createIterator(commitId1, "SOURCE/a_category"),
 				".empty");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "SOURCE/c_category"),
+		assertEqual(createIterator(commitId1, "SOURCE/c_category"),
 				".empty");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "SOURCE/category_one"),
+		assertEqual(createIterator(commitId1, "SOURCE/category_one"),
 				"aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"aca49f5b-5021-4b6b-9330-739f082dfae0.json");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "SOURCE/category_two"),
+		assertEqual(createIterator(commitId1, "SOURCE/category_two"),
 				"0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId1, "SOURCE/category_zhree"),
+		assertEqual(createIterator(commitId1, "SOURCE/category_zhree"),
 				".empty");
 
 		// second commit
 		var commitId2 = commit(COMMIT_2);
 		Assert.assertNotNull(commitId2);
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, null),
+		assertEqual(createIterator(commitId2),
 				"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "ACTOR"),
+		assertEqual(createIterator(commitId2, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0_bin",
 				"category");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "ACTOR/category"),
+		assertEqual(createIterator(commitId2, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "FLOW"),
+		assertEqual(createIterator(commitId2, "FLOW"),
 				"cat");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "SOURCE"),
+		assertEqual(createIterator(commitId2, "SOURCE"),
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"category_one",
 				"category_two",
 				"category_zhree");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "SOURCE/a_category"),
+		assertEqual(createIterator(commitId2, "SOURCE/a_category"),
 				".empty");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "SOURCE/category_one"),
+		assertEqual(createIterator(commitId2, "SOURCE/category_one"),
 				"aca39f5b-5021-4b6b-9330-739f082dfae0.json");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "SOURCE/category_two"),
+		assertEqual(createIterator(commitId2, "SOURCE/category_two"),
 				".empty");
-		TreeValidator.assertEqual(repo, createIterator(repo, commitId2, "SOURCE/category_zhree"),
+		assertEqual(createIterator(commitId2, "SOURCE/category_zhree"),
 				"fca39f5b-5021-4b6b-9330-739f082dfae0.json");
 	}
 
@@ -161,19 +162,46 @@ public class WriterTests extends AbstractRepositoryTests {
 		Assert.assertEquals("00.00.001", version);
 	}
 
-	private AbstractTreeIterator createIterator(ClientRepository repo, String commitId, String path)
-			throws IOException {
-		var commit = repo.parseCommit(ObjectId.fromString(commitId));
-		if (commit == null)
-			return new EmptyTreeIterator();
-		var treeId = Strings.nullOrEmpty(path)
-				? commit.getTree().getId()
-				: repo.getSubTreeId(commit.getTree().getId(), path);
-		if (ObjectId.zeroId().equals(treeId))
-			return new EmptyTreeIterator();
-		var it = new CanonicalTreeParser();
-		it.reset(repo.newObjectReader(), treeId);
-		return it;
+	@Test
+	public void testSimpleDataSet() throws Exception {
+		// expect an empty database and repo
+		assertTrue(repo.diffs.find().withDatabase().isEmpty());
+
+		// insert model in database
+		var refId = "bca39f5b-5021-4b6b-9330-739f082dfae0";
+		var category = "Technical unit groups";
+		create("UNIT_GROUP/" + category,
+				"UNIT_GROUP/" + category + "/" + refId + ".json");
+
+		// should find 1 diff without categories
+		var diffs = Change.of(repo.diffs.find().excludeCategories().withDatabase());
+		assertEquals(1, diffs.size());
+
+		// should find 1 category diff
+		diffs = Change.of(repo.diffs.find().onlyCategories().withDatabase());
+		assertEquals(1, diffs.size());
+
+		// should find 2 total diffs
+		diffs = Change.of(repo.diffs.find().withDatabase());
+		assertEquals(2, diffs.size());
+
+		// commit it
+		var writer = new DbCommitWriter(repo)
+				.as(committer);
+		var commitId = writer.write("initial commit", diffs);
+		repo.index.reload();
+
+		// get the data set from the repo
+		var ref = repo.references.get(ModelType.UNIT_GROUP, refId, commitId);
+		var string = repo.datasets.get(ref);
+		var jsonObj = new Gson().fromJson(string, JsonObject.class);
+		assertEquals(UnitGroup.class.getSimpleName(), Json.getString(jsonObj, "@type"));
+		assertEquals(refId, Json.getString(jsonObj, "@id"));
+		assertEquals(category, Json.getString(jsonObj, "category"));
+
+		// make sure that we can find the commit
+		var commit = repo.commits.get(commitId);
+		assertEquals("initial commit", commit.message);
 	}
 
 	@Override
