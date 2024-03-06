@@ -53,6 +53,7 @@ public class Review extends AbstractEntity implements Copyable<Review> {
 		copy.details = details;
 		copy.reviewers.addAll(reviewers);
 		copy.report = report;
+		copy.assessment.putAll(assessment);
 		return copy;
 	}
 }

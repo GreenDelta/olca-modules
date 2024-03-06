@@ -1,11 +1,9 @@
-package org.openlca.jsonld.io;
-
-import static org.junit.Assert.*;
+package org.openlca.io.olca;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.Tests;
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
@@ -14,17 +12,18 @@ import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
-import org.openlca.jsonld.MemStore;
-import org.openlca.jsonld.input.JsonImport;
-import org.openlca.jsonld.output.JsonExport;
+import org.openlca.io.Tests;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import static org.junit.Assert.*;
+
 public class ProcessDocTest {
 
-	private final IDatabase db = Tests.getDb();
+	private final IDatabase sourceDb = Tests.getDb();
+	private final IDatabase targetDb = Derby.createInMemory();
 	private Process process;
 	private Actor actor;
 	private Source source;
@@ -33,12 +32,14 @@ public class ProcessDocTest {
 	public void setup() {
 		actor = Actor.of("Actor");
 		source = Source.of("Source");
-		db.insert(actor, source);
+		sourceDb.insert(actor, source);
 	}
 
 	@After
 	public void cleanup() {
-		db.delete(actor, source);
+		sourceDb.delete(actor, source);
+		targetDb.clear();
+		targetDb.clear();
 	}
 
 	@Test
@@ -73,7 +74,7 @@ public class ProcessDocTest {
 			for (int i = 1; i <= 3; i++) {
 				var dec = new ComplianceDeclaration();
 				dec.system = source;
-				dec.comment = "Just a test " + i;
+				dec.comment = "Just a test";
 				dec.aspects.put("Nomenclature", "Fully compliant");
 				dec.aspects.put("Modelling", "Disaster");
 				doc.complianceDeclarations.add(dec);
@@ -83,8 +84,8 @@ public class ProcessDocTest {
 			assertEquals(3, doc.complianceDeclarations.size());
 			for (int i = 1; i <= 3; i++) {
 				var dec = doc.complianceDeclarations.get(i - 1);
-				assertEquals(source, dec.system);
-				assertEquals("Just a test " + i, dec.comment);
+				assertEquals(source.refId, dec.system.refId);
+				assertEquals("Just a test", dec.comment);
 				assertEquals("Fully compliant", dec.aspects.get("Nomenclature"));
 				assertEquals("Disaster", dec.aspects.get("Modelling"));
 			}
@@ -97,7 +98,7 @@ public class ProcessDocTest {
 			for (int i = 1; i <= 3; i++) {
 				var rev = new Review();
 				rev.type = "Intergalactic review panel";
-				rev.details = "oh oh " + i;
+				rev.details = "oh oh";
 				var scope = new ReviewScope("Numbers");
 				scope.methods.addAll(List.of("Cross checks", "Expert judgement"));
 				rev.scopes.put(scope);
@@ -112,12 +113,12 @@ public class ProcessDocTest {
 			for (int i = 1; i <= 3; i++) {
 				var rev = doc.reviews.get(i - 1);
 				assertEquals("Intergalactic review panel", rev.type);
-				assertEquals("oh oh " + i, rev.details);
+				assertEquals("oh oh", rev.details);
 				var scope = rev.scopes.get("Numbers");
 				assertTrue(scope.methods.contains("Cross checks"));
 				assertTrue(scope.methods.contains("Expert judgement"));
-				assertEquals(rev.report, source);
-				assertEquals(rev.reviewers.get(0), actor);
+				assertEquals(rev.report.refId, source.refId);
+				assertEquals(rev.reviewers.get(0).refId, actor.refId);
 				assertEquals("ok", rev.assessment.get("Data quality"));
 				assertEquals("uff", rev.assessment.get("Modelling"));
 			}
@@ -128,21 +129,19 @@ public class ProcessDocTest {
 		process = new Process();
 		process.refId = UUID.randomUUID().toString();
 		process.documentation = new ProcessDoc();
-		db.insert(process);
+		sourceDb.insert(process);
 		fn.accept(process.documentation);
-		process = db.update(process);
+		process = sourceDb.update(process);
 	}
 
 	private void after(Consumer<ProcessDoc> fn) {
-		var store = new MemStore();
-		new JsonExport(db, store).write(process);
-		db.delete(process);
-		assertNull(db.get(Process.class, process.refId));
-		new JsonImport(store, db).run();
-		process = db.get(Process.class, process.refId);
-		assertNotNull(process);
-		fn.accept(process.documentation);
-		db.delete(process);
+		new DatabaseImport(sourceDb, targetDb).run();
+		sourceDb.delete(process);
+		assertNull(sourceDb.get(Process.class, process.refId));
+		var copy = targetDb.get(Process.class, process.refId);
+		assertNotNull(copy);
+		fn.accept(copy.documentation);
+		targetDb.delete(copy);
 	}
 
 }

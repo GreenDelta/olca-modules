@@ -163,12 +163,16 @@ class ProcessImport {
 		doc.dataDocumentor = conf.swap(doc.dataDocumentor);
 		doc.dataOwner = conf.swap(doc.dataOwner);
 		doc.publication = conf.swap(doc.publication);
+
+		// sources
 		var sources = doc.sources.stream()
 				.map(conf::swap)
 				.filter(Objects::nonNull)
 				.toList();
 		doc.sources.clear();
 		doc.sources.addAll(sources);
+
+		// reviews
 		for (var rev : doc.reviews) {
 			rev.report = conf.swap(rev.report);
 			var reviewers = rev.reviewers.stream()
@@ -177,6 +181,11 @@ class ProcessImport {
 					.toList();
 			rev.reviewers.clear();
 			rev.reviewers.addAll(reviewers);
+		}
+
+		// compliance declarations
+		for (var dec : doc.complianceDeclarations) {
+			dec.system = conf.swap(dec.system);
 		}
 	}
 
