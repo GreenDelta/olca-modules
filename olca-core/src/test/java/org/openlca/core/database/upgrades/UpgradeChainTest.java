@@ -70,13 +70,10 @@ public class UpgradeChainTest {
 		for (var r : renamed12) {
 			u.renameColumn("tbl_process_docs", r[0], r[1]);
 		}
-		String[] added12 = {
-			"use_advice", "review_type", "f_review_report"
-		};
-		for (var a : added12) {
-			u.dropColumn("tbl_process_docs", a);
-		}
+		u.dropColumn("tbl_process_docs", "use_advice");
+		u.dropColumn("tbl_process_docs", "flow_completeness");
 		u.dropTable("tbl_compliance_declarations");
+		u.dropTable("tbl_reviews");
 
 		// roll back Upgrade11
 		u.dropTable("tbl_epds");
@@ -227,9 +224,9 @@ public class UpgradeChainTest {
 		for (var r : renamed12) {
 			assertTrue(u.columnExists("tbl_process_docs", r[0]));
 		}
-		for (var a : added12) {
-			assertTrue(u.columnExists("tbl_process_docs", a));
-		}
+		assertTrue(u.columnExists("tbl_process_docs", "use_advice"));
+		assertTrue(u.columnExists("tbl_process_docs", "flow_completeness"));
+		assertTrue(u.tableExists("tbl_reviews"));
 		assertTrue(u.tableExists("tbl_compliance_declarations"));
 
 		// finally, check that we now have the current database version

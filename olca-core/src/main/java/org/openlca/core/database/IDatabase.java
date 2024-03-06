@@ -279,7 +279,6 @@ public interface IDatabase extends EntityStore, Closeable {
 				continue;
 			NativeSql.on(this).runUpdate("DELETE FROM " + table);
 		}
-		NativeSql.on(this).runUpdate("UPDATE SEQUENCE SET SEQ_COUNT = 0");
 		this.clearCache();
 	}
 

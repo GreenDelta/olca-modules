@@ -5,6 +5,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.util.Strings;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -76,7 +77,7 @@ public class Upgrade12 implements IUpgrade {
 
 		// copy review data from processes
 		var nextId = new AtomicLong(u.getLastID() + 1);
-		var reviews = ReviewInfo.allOf(nextId, u.db);
+		var reviews = ReviewInfo.allOf(nextId, u);
 		if (!reviews.isEmpty()) {
 			ReviewInfo.createReviews(reviews, u.db);
 			ReviewInfo.linkReviewers(reviews, u.db);
@@ -112,10 +113,13 @@ public class Upgrade12 implements IUpgrade {
 	private record ReviewInfo(
 			long docId, long reviewId, String details, long reviewer) {
 
-		static List<ReviewInfo> allOf(AtomicLong nextId, IDatabase db) {
+		static List<ReviewInfo> allOf(AtomicLong nextId, DbUtil u) {
+			if (!u.columnExists("tbl_process_docs", "review_details")
+					|| !u.columnExists("tbl_process_docs", "f_reviewer"))
+				return Collections.emptyList();
 			var q = "SELECT id, review_details, f_reviewer FROM tbl_process_docs";
 			var infos = new ArrayList<ReviewInfo>();
-			NativeSql.on(db).query(q, r -> {
+			NativeSql.on(u.db).query(q, r -> {
 				var details = r.getString(2);
 				long reviewer = r.getLong(3);
 				if (Strings.nullOrEmpty(details) && reviewer == 0)

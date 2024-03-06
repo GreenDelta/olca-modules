@@ -75,20 +75,16 @@ class ProcessCheck implements Runnable {
 			return;
 		var sql = "select " +
 				/* 1 */ "p.id, " +
-				/* 2 */ "doc.f_reviewer, " +
-				/* 3 */ "doc.f_data_generator, " +
-				/* 4 */ "doc.f_data_owner, " +
-				/* 5 */ "doc.f_data_documentor, " +
-				/* 6 */ "doc.f_publication, " +
-				/* 7 */ "doc.f_review_report from tbl_processes p inner join " +
+				/* 2 */ "doc.f_data_generator, " +
+				/* 3 */ "doc.f_data_owner, " +
+				/* 4 */ "doc.f_data_documentor, " +
+				/* 5 */ "doc.f_publication from tbl_processes p inner join " +
 				"tbl_process_docs doc on p.f_process_doc = doc.id";
 		var refs = new String[]{
-				"reviewer",
 				"data generator",
 				"data set owner",
 				"data documentor",
-				"publication",
-				"review report"
+				"publication"
 		};
 
 		NativeSql.on(v.db).query(sql, r -> {
@@ -98,7 +94,7 @@ class ProcessCheck implements Runnable {
 				var refID = r.getLong(i + 2);
 				if (refID == 0)
 					continue;
-				var type = i >= 4 ? ModelType.SOURCE : ModelType.ACTOR;
+				var type = i == 3 ? ModelType.SOURCE : ModelType.ACTOR;
 				if (!v.ids.contains(type, refID)) {
 					v.warning(id, ModelType.PROCESS,
 							"invalid reference to " + refs[i] + " @" + refID);
