@@ -5,7 +5,6 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
@@ -56,13 +55,12 @@ public class FlowImport {
 		flow.refId = Flows.getUUID(ds);
 		flow.name = Strings.cut(
 				Flows.getFullName(ds, imp.langOrder()), 2048);
-		flow.version = Version.fromString(
-				ds.getVersion()).getValue();
+		Import.mapVersionInfo(ds, flow);
 		flow.flowType = flowType();
 
 		var info = Flows.getDataSetInfo(ds);
 		if (info != null) {
-			flow.description = imp.str(info.getGeneralComment());
+			flow.description = imp.str(info.getComment());
 			flow.casNumber = info.getCasNumber();
 			flow.synonyms = imp.str(info.getSynonyms());
 			flow.formula = info.getSumFormula();
@@ -74,12 +72,6 @@ public class FlowImport {
 			flow.location = imp.cache.locationOf(loc);
 		}
 
-		var entry = Flows.getDataEntry(ds);
-		if (entry != null && entry.getTimeStamp() != null) {
-			flow.lastChange = entry.getTimeStamp()
-					.toGregorianCalendar()
-					.getTimeInMillis();
-		}
 		addFlowProperties();
 	}
 

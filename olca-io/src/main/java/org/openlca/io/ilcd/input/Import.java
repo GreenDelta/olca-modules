@@ -5,6 +5,7 @@ import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.LangString;
@@ -18,6 +19,7 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.DataSets;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowSync;
@@ -234,7 +236,7 @@ public class Import implements org.openlca.io.Import {
 	}
 
 	@SafeVarargs
-	final String str(List<LangString> first, List<LangString>...more) {
+	final String str(List<LangString> first, List<LangString>... more) {
 		if (more == null || more.length == 0)
 			return str(first);
 		var buf = new StringBuilder();
@@ -260,4 +262,17 @@ public class Import implements org.openlca.io.Import {
 		return r;
 	}
 
+	/**
+	 * Map the dataset version and last change.
+	 */
+	static void mapVersionInfo(IDataSet ds, RootEntity e) {
+		if (ds == null || e == null)
+			return;
+		var version = DataSets.getVersion(ds);
+		e.version = Version.fromString(version).getValue();
+		var time = DataSets.getTimeStamp(ds);
+		e.lastChange = time != null
+				? time.toGregorianCalendar().getTimeInMillis()
+				: System.currentTimeMillis();
+	}
 }

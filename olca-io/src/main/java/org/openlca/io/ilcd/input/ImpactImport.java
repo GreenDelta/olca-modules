@@ -49,6 +49,7 @@ public class ImpactImport {
 		var impact = new ImpactCategory();
 		impact.refId = ImpactMethods.getUUID(ds);
 		impact.name = name();
+		Import.mapVersionInfo(ds, impact);
 		imp.log().info("import impact category: " + impact.name);
 		impact.category = new CategoryDao(imp.db())
 				.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(ds));
@@ -60,21 +61,6 @@ public class ImpactImport {
 		var qref = ImpactMethods.getQuantitativeReference(ds);
 		if (qref != null && qref.getQuantity() != null) {
 			impact.referenceUnit = imp.str(qref.getQuantity().getName());
-		}
-
-		// timestamp
-		var entry = ImpactMethods.getDataEntry(ds);
-		if (entry != null && entry.getTimeStamp() != null) {
-			impact.lastChange = entry.getTimeStamp().toGregorianCalendar()
-					.getTimeInMillis();
-		} else {
-			impact.lastChange = System.currentTimeMillis();
-		}
-
-		// version
-		var pub = ImpactMethods.getPublication(ds);
-		if (pub != null && pub.getVersion() != null) {
-			impact.version = Version.fromString(pub.getVersion()).getValue();
 		}
 
 		appendFactors(impact);

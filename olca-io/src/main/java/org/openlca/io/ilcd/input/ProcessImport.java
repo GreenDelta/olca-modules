@@ -7,7 +7,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
@@ -68,6 +67,7 @@ public class ProcessImport {
 		process.refId = Processes.getUUID(ds);
 		process.name = Strings.cut(
 				Processes.getFullName(ds, imp.langOrder()), 2024);
+		Import.mapVersionInfo(ds, process);
 		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {
 			process.description = imp.str(info.getComment());
@@ -128,7 +128,6 @@ public class ProcessImport {
 		doc.dataOwner = fetchActor(pub.getOwner());
 		doc.publication = fetchSource(pub.getRepublication());
 		doc.accessRestrictions = imp.str(pub.getAccessRestrictions());
-		process.version = Version.fromString(pub.getVersion()).getValue();
 		if (pub.getCopyright() != null) {
 			doc.copyright = pub.getCopyright();
 		}
@@ -140,11 +139,9 @@ public class ProcessImport {
 			return;
 		doc.dataDocumentor = fetchActor(entry.getDocumentor());
 		if (entry.getTimeStamp() != null) {
-			var time = entry.getTimeStamp()
+			doc.creationDate = entry.getTimeStamp()
 					.toGregorianCalendar()
 					.getTime();
-			doc.creationDate = time;
-			process.lastChange = time.getTime();
 		}
 	}
 

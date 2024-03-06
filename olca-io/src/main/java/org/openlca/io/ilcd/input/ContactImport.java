@@ -3,7 +3,6 @@ package org.openlca.io.ilcd.input;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 import org.openlca.ilcd.contacts.Contact;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Contacts;
@@ -50,7 +49,7 @@ public class ContactImport {
 		actor.category = new CategoryDao(imp.db())
 				.sync(ModelType.ACTOR, path);
 		setDescriptionAttributes();
-		setVersionTime();
+		Import.mapVersionInfo(ds, actor);
 		return imp.insert(actor);
 	}
 
@@ -68,16 +67,5 @@ public class ContactImport {
 		actor.telefax = info.getTelefax();
 		actor.telephone = info.getTelephone();
 		actor.website = info.getWebSite();
-	}
-
-	private void setVersionTime() {
-		String v = ds.getVersion();
-		actor.version = Version.fromString(v).getValue();
-		var entry = Contacts.getDataEntry(ds);
-		if (entry.getTimeStamp() != null) {
-			actor.lastChange = entry.getTimeStamp()
-					.toGregorianCalendar()
-					.getTimeInMillis();
-		}
 	}
 }

@@ -28,7 +28,6 @@ public class ActorExport {
 		this.actor = actor;
 		var contact = new Contact();
 		contact
-				.withVersion("1.1")
 				.withAdminInfo(makeAdminInfo())
 				.withContactInfo()
 				.withDataSetInfo(makeDataSetInfo());

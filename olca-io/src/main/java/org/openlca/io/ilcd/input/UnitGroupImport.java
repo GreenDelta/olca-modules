@@ -4,7 +4,6 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroups;
@@ -61,16 +60,9 @@ public class UnitGroupImport {
 		var info = UnitGroups.getDataSetInfo(ds);
 		if (info != null) {
 			unitGroup.name = imp.str(info.getName());
-			unitGroup.description = imp.str(info.getGeneralComment());
+			unitGroup.description = imp.str(info.getComment());
 		}
-		unitGroup.version = Version.fromString(ds.getVersion()).getValue();
-
-		var entry = UnitGroups.getDataEntry(ds);
-		if (entry != null && entry.getTimeStamp() != null) {
-			unitGroup.lastChange = entry.getTimeStamp()
-					.toGregorianCalendar()
-					.getTimeInMillis();
-		}
+		Import.mapVersionInfo(ds, unitGroup);
 	}
 
 	private void createUnits() {

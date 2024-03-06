@@ -29,7 +29,6 @@ public class UnitGroupExport {
 			return;
 		this.unitGroup = unitGroup;
 		var ds = new UnitGroup()
-				.withVersion("1.1")
 				.withAdminInfo(makeAdminInfo());
 		ds.withUnitGroupInfo()
 				.withDataSetInfo(makeDataSetInfo())
@@ -43,7 +42,7 @@ public class UnitGroupExport {
 		var info = new DataSetInfo()
 				.withUUID(unitGroup.refId);
 		exp.add(info::withName, unitGroup.name);
-		exp.add(info::withGeneralComment, unitGroup.description);
+		exp.add(info::withComment, unitGroup.description);
 		Categories.toClassification(unitGroup.category, info::withClassifications);
 		return info;
 	}

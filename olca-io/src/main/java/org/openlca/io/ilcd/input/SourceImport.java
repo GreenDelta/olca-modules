@@ -4,7 +4,6 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Sources;
 
@@ -47,6 +46,7 @@ public class SourceImport {
 		source = new Source();
 		source.category = new CategoryDao(imp.db())
 				.sync(ModelType.SOURCE, Categories.getPath(ds));
+		Import.mapVersionInfo(ds, source);
 		setDescriptionAttributes();
 		importExternalFile();
 		return imp.insert(source);
@@ -59,14 +59,6 @@ public class SourceImport {
 			source.name = imp.str(info.getName());
 			source.description = imp.str(info.getDescription());
 			source.textReference = info.getCitation();
-		}
-
-		source.version = Version.fromString(ds.getVersion()).getValue();
-		var entry = Sources.getDataEntry(ds);
-		if (entry != null && entry.getTimeStamp() != null) {
-			source.lastChange = entry.getTimeStamp()
-					.toGregorianCalendar()
-					.getTimeInMillis();
 		}
 	}
 

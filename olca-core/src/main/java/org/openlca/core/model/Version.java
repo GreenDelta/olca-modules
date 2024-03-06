@@ -147,13 +147,14 @@ public class Version {
 	 * valid version strings are for example: 1, 1.1, 01.01.001, 44.1.96
 	 */
 	public static Version fromString(String s) {
-		if (s == null || s.length() == 0)
+		if (s == null || s.isEmpty())
 			return new Version(0);
 		try {
-			String[] parts = s.trim().split("\\.");
-			Version version = new Version(0);
-			for (int i = 0; i < parts.length; i++)
+			var parts = s.trim().split("\\.");
+			var version = new Version(0);
+			for (int i = 0; i < parts.length; i++) {
 				setPartFromString(i, parts, version);
+			}
 			return version;
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(Version.class);

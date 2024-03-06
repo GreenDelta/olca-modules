@@ -27,7 +27,6 @@ public class FlowExport {
 			return;
 		this.flow = flow;
 		var iFlow = new Flow()
-				.withVersion("1.1")
 				.withAdminInfo(makeAdminInfo())
 				.withModelling(makeModellingInfo());
 		iFlow.withFlowInfo()
@@ -47,7 +46,7 @@ public class FlowExport {
 				.withSumFormula(flow.formula);
 		var flowName = info.withFlowName();
 		exp.add(flowName::withBaseName, flow.name);
-		exp.add(info::withGeneralComment, flow.description);
+		exp.add(info::withComment, flow.description);
 		exp.add(info::withSynonyms, flow.synonyms);
 		makeCategoryInfo(info);
 		return info;

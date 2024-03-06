@@ -27,7 +27,7 @@ class Categories {
 			var clazz = new org.openlca.ilcd.commons.Category()
 					.withClassId(c.refId)
 					.withLevel(level)
-					.withValue(c.name);
+					.withName(c.name);
 			classification.withCategories().add(clazz);
 			level++;
 		}

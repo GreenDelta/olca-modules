@@ -50,6 +50,7 @@ public class EpdImport {
 		var path = Categories.getPath(ds);
 		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
 		oEpd.tags = tags();
+		Import.mapVersionInfo(epd.process, oEpd);
 
 		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {

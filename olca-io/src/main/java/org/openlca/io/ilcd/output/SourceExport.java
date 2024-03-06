@@ -3,13 +3,10 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.ilcd.commons.DataEntry;
-import org.openlca.ilcd.commons.Publication;
 import org.openlca.ilcd.sources.AdminInfo;
 import org.openlca.ilcd.sources.DataSetInfo;
 import org.openlca.ilcd.sources.FileRef;
 import org.openlca.ilcd.sources.Source;
-import org.openlca.ilcd.sources.SourceInfo;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
 import org.slf4j.Logger;
@@ -38,7 +35,6 @@ public class SourceExport {
 		this.source = source;
 		log.trace("Run source export with {}", source);
 		var ds = new Source()
-				.withVersion("1.1")
 				.withAdminInfo(makeAdminInfo());
 		var info = makeDateSetInfo();
 		ds.withSourceInfo().withDataSetInfo(info);

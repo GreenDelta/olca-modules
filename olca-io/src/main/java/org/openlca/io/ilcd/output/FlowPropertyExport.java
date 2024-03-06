@@ -27,7 +27,6 @@ public class FlowPropertyExport {
 			return;
 		this.flowProperty = property;
 		var iProperty = new FlowProperty()
-				.withVersion("1.1")
 				.withAdminInfo(makeAdminInfo());
 		iProperty.withFlowPropertyInfo()
 				.withDataSetInfo(makeDataSetInfo())
@@ -41,7 +40,7 @@ public class FlowPropertyExport {
 		var info = new DataSetInfo()
 				.withUUID(flowProperty.refId);
 		exp.add(info::withName, flowProperty.name);
-		exp.add(info::withGeneralComment, flowProperty.description);
+		exp.add(info::withComment, flowProperty.description);
 		Categories.toClassification(
 				flowProperty.category, info::withClassifications);
 		return info;

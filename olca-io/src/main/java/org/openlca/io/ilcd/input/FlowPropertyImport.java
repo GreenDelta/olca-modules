@@ -4,7 +4,6 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowProperties;
 
@@ -47,6 +46,7 @@ public class FlowPropertyImport {
 		prop.category = new CategoryDao(imp.db())
 				.sync(ModelType.FLOW_PROPERTY, Categories.getPath(ds));
 		mapDescriptionAttributes();
+		Import.mapVersionInfo(ds, prop);
 		var ref = FlowProperties.getUnitGroupRef(ds);
 		if (ref != null) {
 			prop.unitGroup = UnitGroupImport.get(imp, ref.getUUID());
@@ -60,15 +60,7 @@ public class FlowPropertyImport {
 		var info = FlowProperties.getDataSetInfo(ds);
 		if (info != null) {
 			prop.name = imp.str(info.getName());
-			prop.description = imp.str(info.getGeneralComment());
-		}
-
-		prop.version = Version.fromString(ds.getVersion()).getValue();
-		var entry = FlowProperties.getDataEntry(ds);
-		if (entry != null && entry.getTimeStamp() != null) {
-			prop.lastChange = entry.getTimeStamp()
-					.toGregorianCalendar()
-					.getTimeInMillis();
+			prop.description = imp.str(info.getComment());
 		}
 	}
 }

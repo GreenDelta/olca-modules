@@ -83,7 +83,6 @@ public class SystemExport {
 
 	private Model initModel() {
 		var model = new Model()
-				.withVersion("1.1")
 				.withLocations("../ILCDLocations.xml");
 		Models.setOrigin(model, "openLCA");
 
