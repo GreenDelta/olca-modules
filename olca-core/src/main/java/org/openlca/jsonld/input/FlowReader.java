@@ -35,9 +35,7 @@ public record FlowReader(EntityResolver resolver)
 		flow.formula = Json.getString(json, "formula");
 		flow.infrastructureFlow = Json.getBool(json, "isInfrastructureFlow", false);
 		var locId = Json.getRefId(json, "location");
-		if (locId != null) {
-			flow.location = resolver.get(Location.class, locId);
-		}
+		flow.location = resolver.get(Location.class, locId);
 		mapPropertyFactors(flow, json);
 	}
 
