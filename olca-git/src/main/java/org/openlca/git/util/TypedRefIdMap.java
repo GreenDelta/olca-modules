@@ -14,12 +14,13 @@ public class TypedRefIdMap<T> {
 
 	private final EnumMap<ModelType, Map<String, T>> map = new EnumMap<>(ModelType.class);
 
-	public void put(TypedRefId pair, T value) {
-		put(pair.type, pair.refId, value);
+	public TypedRefIdMap<T> put(TypedRefId pair, T value) {
+		return put(pair.type, pair.refId, value);
 	}
 
-	public void put(ModelType type, String refId, T value) {
+	public TypedRefIdMap<T> put(ModelType type, String refId, T value) {
 		map.computeIfAbsent(type, t -> new HashMap<>()).put(refId, value);
+		return this;
 	}
 
 	public boolean contains(TypedRefId pair) {

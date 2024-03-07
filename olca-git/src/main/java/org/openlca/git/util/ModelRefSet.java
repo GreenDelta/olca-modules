@@ -2,7 +2,6 @@ package org.openlca.git.util;
 
 import java.util.Collection;
 
-import org.openlca.core.model.ModelType;
 import org.openlca.git.model.ModelRef;
 
 public class ModelRefSet extends TypedRefIdSet {
@@ -17,7 +16,7 @@ public class ModelRefSet extends TypedRefIdSet {
 
 	public void add(ModelRef ref) {
 		if (ref.isCategory) {
-			add(ModelType.CATEGORY, ref.path);
+			add(ref.type, ref.path);
 		} else {
 			add(ref.type, ref.refId);
 		}
@@ -25,13 +24,13 @@ public class ModelRefSet extends TypedRefIdSet {
 
 	public boolean contains(ModelRef ref) {
 		if (ref.isCategory)
-			return contains(ModelType.CATEGORY, ref.path);
+			return contains(ref.type, ref.path);
 		return contains(ref.type, ref.refId);
 	}
 
 	public void remove(ModelRef ref) {
 		if (ref.isCategory) {
-			remove(ModelType.CATEGORY, ref.path);
+			remove(ref.type, ref.path);
 		} else {
 			remove(ref.type, ref.refId);
 		}

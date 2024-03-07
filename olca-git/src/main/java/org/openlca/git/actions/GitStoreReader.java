@@ -87,17 +87,30 @@ class GitStoreReader implements JsonStoreReader {
 		if (!conflictResolver.isConflict(ref))
 			return remote;
 		var resolution = conflictResolver.resolveConflict(ref, remote);
+		if (resolution == null)
+			throw new ConflictException(type, refId);
 		if (resolution.type == ConflictResolutionType.IS_EQUAL)
 			return null;
-		if (resolution.type == ConflictResolutionType.OVERWRITE)
-			// commit writer will use remote commit version when no conflict
-			// resolution change is provided
+		if (resolution.type == ConflictResolutionType.OVERWRITE) {
+			resolveOverwrite(ref);
 			return remote;
+		}
 		if (resolution.type == ConflictResolutionType.KEEP && localCommit != null) {
 			resolveKeep(ref);
 			return null;
 		}
 		return resolveMerge(ref, resolution);
+	}
+
+	private void resolveOverwrite(Reference ref) {
+		// commit writer will use remote commit version when no conflict
+		// resolution change is provided, only in case of a move, the
+		// deletion needs to be applied to the repo otherwise the dataset will
+		// appear in both categories
+		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
+		if (localRef != null && !ref.path.equals(localRef.path)) {
+			resolvedConflicts.add(Change.delete(localRef));
+		}
 	}
 
 	private void resolveKeep(Reference ref) {
