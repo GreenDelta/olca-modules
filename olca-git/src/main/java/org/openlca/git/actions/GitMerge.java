@@ -118,7 +118,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private List<Reference> importData() {
 		var addedOrChanged = diffs.stream()
 				.filter(d -> d.diffType != DiffType.DELETED)
-				.map(d -> d.toReference(Side.NEW))
+				.map(d -> d.newRef)
 				.collect(Collectors.toList());
 		if (addedOrChanged.isEmpty())
 			return addedOrChanged;
@@ -139,7 +139,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
 				.filter(d -> !dontDelete.contains(d))
-				.map(d -> d.toReference(Side.OLD))
+				.map(d -> d.oldRef)
 				.collect(Collectors.toList());
 		if (deleted.isEmpty())
 			return;

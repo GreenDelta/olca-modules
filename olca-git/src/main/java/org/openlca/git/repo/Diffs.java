@@ -225,17 +225,13 @@ public class Diffs {
 				if (diff.path.equals(other.path)) {
 					diffs.remove(diff);
 				} else {
-					var left = new Reference(diff.path, diff.oldCommitId, diff.oldObjectId);
-					var right = new Reference(other.path, other.newCommitId, other.newObjectId);
-					diffs.put(diff, new Diff(DiffType.MOVED, left, right));
+					diffs.put(diff, new Diff(DiffType.MOVED, diff.oldRef, other.newRef));
 				}
 			} else if (diff.diffType == DiffType.ADDED && other.diffType == DiffType.DELETED) {
 				if (diff.path.equals(other.path)) {
 					diffs.remove(diff);
 				} else {
-					var left = new Reference(other.path, other.oldCommitId, other.oldObjectId);
-					var right = new Reference(diff.path, diff.newCommitId, diff.newObjectId);
-					diffs.put(diff, new Diff(DiffType.MOVED, left, right));
+					diffs.put(diff, new Diff(DiffType.MOVED, other.oldRef, diff.newRef));
 				}
 			}
 		}
