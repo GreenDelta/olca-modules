@@ -9,8 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.model.Reference;
@@ -18,13 +16,6 @@ import org.openlca.git.repo.References.Find;
 import org.openlca.git.util.BinaryResolver;
 
 public class ReferencesTests extends AbstractRepositoryTests {
-
-	private static IDatabase database = Derby.createInMemory();
-
-	@Override
-	protected IDatabase getDatabase() {
-		return database; // reuse database
-	}
 
 	@Test
 	public void testCount() throws IOException {
@@ -108,8 +99,8 @@ public class ReferencesTests extends AbstractRepositoryTests {
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json",
-				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -120,8 +111,8 @@ public class ReferencesTests extends AbstractRepositoryTests {
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json",
-				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",

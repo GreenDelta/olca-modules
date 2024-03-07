@@ -91,11 +91,11 @@ public class OlcaRepository extends FileRepository {
 		}
 	}
 
-	public ObjectId getSubTreeId(ObjectId treeId, String path) {
+	protected ObjectId getSubTreeId(ObjectId treeId, String path) {
 		return getObjectId(treeId, path, FileMode.TREE);
 	}
 
-	public ObjectId getObjectId(RevCommit commit, String path) {
+	protected ObjectId getObjectId(RevCommit commit, String path) {
 		if (commit == null)
 			return ObjectId.zeroId();
 		return getObjectId(commit.getTree().getId(), path, null);

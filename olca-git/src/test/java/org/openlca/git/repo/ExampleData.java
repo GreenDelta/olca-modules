@@ -41,6 +41,8 @@ class ExampleData extends AbstractRepositoryTests {
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae1.json")),
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json")),
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json")),
-			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json")));
+			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json")),
+			Change.delete(new ModelRef("ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json")), // move
+			Change.add(new ModelRef("ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json")));
 
 }

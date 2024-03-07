@@ -2,6 +2,7 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
@@ -16,6 +17,19 @@ public class CommitTests extends AbstractRepositoryTests {
 		fourthCommit();
 		fifthCommit();
 		sixthCommit();
+		// using empty categories, so version should be 3
+		Assert.assertEquals(3, repo.getInfo().repositoryClientVersion());
+		Assert.assertEquals(3, repo.getInfo().repositoryServerVersion());
+	}
+
+	@Test
+	public void testCommitRepositoryInfoV2() throws IOException {
+		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/sub/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.commitWorkspace();
+		// not using empty categories, so version should be 2
+		Assert.assertEquals(2, repo.getInfo().repositoryClientVersion());
+		Assert.assertEquals(2, repo.getInfo().repositoryServerVersion());
 	}
 
 	private void firstCommit() throws IOException {

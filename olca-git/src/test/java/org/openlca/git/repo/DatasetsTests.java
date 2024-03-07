@@ -8,8 +8,6 @@ import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.git.AbstractRepositoryTests;
@@ -19,13 +17,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class DatasetsTests extends AbstractRepositoryTests {
-
-	private static IDatabase database = Derby.createInMemory();
-
-	@Override
-	protected IDatabase getDatabase() {
-		return database; // reuse database
-	}
 
 	@Test
 	public void testGet() throws IOException {

@@ -121,13 +121,16 @@ public class WriterTests extends AbstractRepositoryTests {
 		var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
 		var commitId1 = repo.commit(changes);
 		Assert.assertNotNull(commitId1);
+		
 		var commit = repo.commits.get(commitId1);
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
 		var commitId2 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId2);
+		
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
 		var commitId3 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId3);
+		
 		var writer = new DbCommitWriter(repo, new StaticBinaryResolver(ExampleData.PATH_TO_BINARY));
 		writer.merge(commitId2, commitId3);
 		var mergeCommitId = writer.write("merge commit", new ArrayList<>());
@@ -144,12 +147,15 @@ public class WriterTests extends AbstractRepositoryTests {
 		var commitId1 = repo.commit(changes);
 		Assert.assertNotNull(commitId1);
 		var commit = repo.commits.get(commitId1);
+		
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
 		var commitId2 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId2);
+		
 		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
 		var commitId3 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId3);
+		
 		var actor = repo.database.get(Actor.class, refId);
 		actor.version = Version.valueOf(0, 0, 1);
 		repo.database.update(actor);

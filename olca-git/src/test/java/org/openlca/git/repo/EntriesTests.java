@@ -8,20 +8,11 @@ import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
-import org.openlca.core.database.IDatabase;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.repo.Entries.Find;
 import org.openlca.git.util.BinaryResolver;
 
 public class EntriesTests extends AbstractRepositoryTests {
-
-	private static IDatabase database = Derby.createInMemory();
-
-	@Override
-	protected IDatabase getDatabase() {
-		return database; // reuse database
-	}
 
 	@Test
 	public void testCountRecursive() throws IOException {
@@ -145,9 +136,9 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json",
-				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW",
 				"FLOW/cat",
 				"FLOW/cat/sub",
@@ -167,9 +158,9 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json",
-				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW",
 				"FLOW/cat",
 				"FLOW/cat/sub",
