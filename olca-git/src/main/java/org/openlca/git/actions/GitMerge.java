@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry.Side;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.core.library.Library;
@@ -17,6 +16,7 @@ import org.openlca.core.library.PreMountCheck;
 import org.openlca.core.library.Unmounter;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.GitMerge.MergeResult;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
@@ -38,6 +38,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private boolean applyStash;
 	private Commit localCommit;
 	private Commit remoteCommit;
+	private RepositoryInfo info;
 	private List<Diff> diffs;
 	private List<Change> mergeResults = new ArrayList<>();
 
@@ -108,6 +109,9 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 			return false;
 		var commonParent = repo.localHistory.commonParentOf(ref);
 		diffs = repo.diffs.find().commit(commonParent).with(remoteCommit);
+		info = localCommit != null
+				? repo.getInfo(localCommit).merge(repo.getInfo(remoteCommit))
+				: repo.getInfo(remoteCommit);
 		return true;
 	}
 
@@ -128,6 +132,9 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private void deleteData(List<Reference> imported) {
+		// if a dataset was added and deleted it means that it was moved, the
+		// add will result in an updated dataset when during importData() so
+		// skip the delete in these cases
 		var dontDelete = new ModelRefSet(imported);
 		var deleted = diffs.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
@@ -161,6 +168,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var update = repo.updateRef(Constants.LOCAL_BRANCH);
 		update.setNewObjectId(ObjectId.fromString(remoteCommit.id));
 		update.update();
+		progressMonitor.beginTask("Updating local index");
 		repo.index.reload();
 	}
 
@@ -189,7 +197,6 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private List<Library> resolveNewLibraries() {
-		var info = repo.getInfo(remoteCommit);
 		if (info == null)
 			return new ArrayList<>();
 		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
@@ -217,7 +224,6 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private List<String> resolveObsoleteLibraries() {
-		var info = repo.getInfo(remoteCommit);
 		if (info == null)
 			return new ArrayList<>();
 		var remoteLibs = info.libraries().stream().map(LibraryLink::id).toList();
