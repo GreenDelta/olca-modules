@@ -2,12 +2,14 @@ package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.Version;
 import org.openlca.util.Strings;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class Upgrade12 implements IUpgrade {
 
@@ -81,6 +83,7 @@ public class Upgrade12 implements IUpgrade {
 		if (!reviews.isEmpty()) {
 			ReviewInfo.createReviews(reviews, u.db);
 			ReviewInfo.linkReviewers(reviews, u.db);
+			ReviewInfo.updateProcessVersions(reviews, u.db);
 			u.setLastID(nextId.get() + 1);
 		}
 	}
@@ -158,6 +161,24 @@ public class Upgrade12 implements IUpgrade {
 				var r = revs.get(i);
 				s.setLong(1, r.reviewId);
 				s.setLong(2, r.reviewer);
+				return true;
+			});
+		}
+
+		static void updateProcessVersions(List<ReviewInfo> infos, IDatabase db) {
+			var docIds = infos.stream()
+					.map(ReviewInfo::docId)
+					.collect(Collectors.toSet());
+			var stmt = "select f_process_doc, version, last_change from tbl_processes";
+			NativeSql.on(db).updateRows(stmt, r -> {
+				var docId = r.getLong(1);
+				if (!docIds.contains(docId))
+					return true;
+				var version = new Version(r.getLong(2));
+				version.incMinor();
+				r.updateLong(2, version.getValue());
+				r.updateLong(3, System.currentTimeMillis());
+				r.updateRow();
 				return true;
 			});
 		}
