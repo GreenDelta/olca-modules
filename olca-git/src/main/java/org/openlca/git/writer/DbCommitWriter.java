@@ -74,18 +74,9 @@ public class DbCommitWriter extends CommitWriter {
 	}
 
 	public String write(String message, List<Change> changes) throws IOException {
-		changes = filterInvalid(changes);
-		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
-			throw new IllegalStateException("No changes found and not a merge commit");
 		try {
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
-			threads = Executors.newCachedThreadPool();
-			converter = new Converter(database, threads);
-			converter.start(changes.stream()
-					.filter(d -> d.changeType != ChangeType.DELETE)
-					.sorted()
-					.toList());
-			var changeIterator = new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
+			var changeIterator = prepare(changes);
 			var commitId = write(message, changeIterator, getParentIds());
 			if (Constants.HEAD.equals(ref)) {
 				progressMonitor.beginTask("Updating local index");
@@ -95,6 +86,19 @@ public class DbCommitWriter extends CommitWriter {
 		} finally {
 			cleanUp();
 		}
+	}
+
+	private ChangeIterator prepare(List<Change> changes) {
+		changes = filterInvalid(changes);
+		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
+			throw new IllegalStateException("No changes found and not a merge commit");
+		threads = Executors.newCachedThreadPool();
+		converter = new Converter(database, threads);
+		converter.start(changes.stream()
+				.filter(d -> d.changeType != ChangeType.DELETE)
+				.sorted()
+				.toList());
+		return new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
 	}
 
 	private ObjectId[] getParentIds() {

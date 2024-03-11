@@ -29,9 +29,7 @@ public record UnitGroupReader(EntityResolver resolver)
 	public void update(UnitGroup group, JsonObject json) {
 		Util.mapBase(group, json, resolver);
 		var propId = Json.getRefId(json, "defaultFlowProperty");
-		if (propId != null) {
-			group.defaultFlowProperty = resolver.get(FlowProperty.class, propId);
-		}
+		group.defaultFlowProperty = resolver.get(FlowProperty.class, propId);
 		mapUnits(group, json);
 	}
 

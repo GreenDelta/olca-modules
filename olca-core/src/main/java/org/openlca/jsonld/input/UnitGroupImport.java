@@ -62,7 +62,9 @@ class UnitGroupImport implements EntityResolver {
 
 		// set a possible default flow property
 		var propId = Json.getRefId(item.json(), "defaultFlowProperty");
-		if (propId != null) {
+		if (propId == null) {
+			group.defaultFlowProperty = null;
+		} else {
 			var prop = imp.get(FlowProperty.class, propId);
 			if (prop != null) {
 				group.defaultFlowProperty = prop;

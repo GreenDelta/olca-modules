@@ -2,6 +2,7 @@ package org.openlca.git.writer;
 
 import java.util.List;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.jsonld.LibraryLink;
@@ -30,6 +31,20 @@ class UsedFeatures {
 
 	static UsedFeatures of(OlcaRepository repo) {
 		return new UsedFeatures(repo.getInfo());
+	}
+
+	static UsedFeatures of(OlcaRepository repo, ObjectId[] commitIds) {
+		RepositoryInfo mergedInfo = null;
+		for (var commitId : commitIds) {
+			var commit = repo.commits.get(commitId.getName());
+			var info = repo.getInfo(commit);
+			if (mergedInfo == null) {
+				mergedInfo = info;
+				continue;
+			}
+			mergedInfo = mergedInfo.merge(info);
+		}
+		return new UsedFeatures(mergedInfo);
 	}
 
 	void emptyCategories() {

@@ -75,8 +75,7 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(ClientRepository repo, Category category) {
-		var categories = category.childCategories;
-		var entries = categories.stream()
+		var entries = category.childCategories.stream()
 				.filter(c -> !isFromLibrary(repo, c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());

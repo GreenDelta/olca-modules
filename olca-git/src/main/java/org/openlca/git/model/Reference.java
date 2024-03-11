@@ -13,7 +13,7 @@ public class Reference extends ModelRef {
 
 	public Reference(String path, String commitId, ObjectId objectId) {
 		super(path);
-		this.commitId = commitId != null ? commitId : null;
+		this.commitId = commitId;
 		this.objectId = objectId != null ? objectId : ObjectId.zeroId();
 	}
 

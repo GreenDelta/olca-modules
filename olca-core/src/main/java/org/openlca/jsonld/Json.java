@@ -22,17 +22,18 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.openlca.core.model.Currency;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.util.Strings;
@@ -106,6 +107,19 @@ public class Json {
 			return null;
 		else
 			return elem.getAsString();
+	}
+	
+	/**
+	 * Return an array of strings from the given array, never returns null
+	 */
+	public static String[] getStrings(JsonArray array) {
+	    if (array == null)
+	    	return new String[0];
+		return Json.stream(array)
+	    	        .filter(JsonElement::isJsonPrimitive)
+	    	        .map(JsonElement::getAsString)
+	    	        .filter(Predicate.not(Strings::nullOrEmpty))
+	    	        .toArray(String[]::new);		
 	}
 
 	/**

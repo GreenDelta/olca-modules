@@ -2,14 +2,14 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Currency;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+
+import com.google.gson.JsonObject;
 
 public record CurrencyReader(EntityResolver resolver)
-	implements EntityReader<Currency> {
+		implements EntityReader<Currency> {
 
 	public CurrencyReader(EntityResolver resolver) {
 		this.resolver = Objects.requireNonNull(resolver);
@@ -28,13 +28,10 @@ public record CurrencyReader(EntityResolver resolver)
 		currency.code = Json.getString(json, "code");
 		currency.conversionFactor = Json.getDouble(json, "conversionFactor", 1.0);
 		var refCurrencyId = Json.getRefId(json, "refCurrency");
-		if (Strings.notEmpty(refCurrencyId)) {
-			if (Objects.equals(refCurrencyId, currency.refId)) {
-				currency.referenceCurrency = currency;
-			} else {
-				currency.referenceCurrency = resolver.get(
-					Currency.class, refCurrencyId);
-			}
+		if (Objects.equals(refCurrencyId, currency.refId)) {
+			currency.referenceCurrency = currency;
+		} else {
+			currency.referenceCurrency = resolver.get(Currency.class, refCurrencyId);
 		}
 	}
 }

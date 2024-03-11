@@ -1,25 +1,19 @@
 package org.openlca.git.iterator;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
-import org.openlca.git.RepositoryInfo;
 import org.openlca.git.AbstractRepositoryTests;
-import org.openlca.git.TreeValidator;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Change;
-import org.openlca.git.model.ModelRef;
 import org.openlca.git.writer.DatabaseBinaryResolver;
-import org.openlca.git.writer.DbCommitWriter;
 
 public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testAddDataAndEmptyCategories() throws IOException {
-		var changes = create(
-				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -29,14 +23,11 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"SOURCE/category_zhree")
-						.stream()
-						.map(ModelRef::new)
-						.map(Change::add)
-						.collect(Collectors.toList());
+				"SOURCE/category_zhree");
+		var changes = Change.of(repo.diffs.find().withDatabase());
 		Collections.shuffle(changes);
 		var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
-		TreeValidator.assertEqualRecursive(repo, iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.assertEqualRecursive(iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -52,8 +43,7 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testDeleteLastElementAndAddInEmptyCategory() throws IOException {
-		var changes = create(
-				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -63,24 +53,36 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"SOURCE/category_zhree")
-						.stream()
-						.map(ModelRef::new)
-						.map(Change::add)
-						.collect(Collectors.toList());
-		var writer = new DbCommitWriter(repo);
-		var commitId = writer.as(committer).write("initial commit", changes);
-		changes = Arrays.asList(
-				Change.delete(new ModelRef("SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json")),
-				Change.delete(new ModelRef("SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json")),
-				Change.add(new ModelRef("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json")));
+				"SOURCE/category_zhree");
+		var commitId = repo.commitWorkspace();
+		repo.delete("SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.create("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json");
+		var changes = Change.of(repo.diffs.find().withDatabase());
 		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
-		TreeValidator.assertEqualRecursive(repo, iterator,
+		repo.assertEqualRecursive(iterator,
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/.empty",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree/.empty",
 				"SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				RepositoryInfo.FILE_NAME);
+	}
+
+	@Test
+	public void testMove() throws IOException {
+		repo.create("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		var commitId = repo.commitWorkspace();
+		repo.move("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category2");
+		repo.move("ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category");
+		var changes = Change.of(repo.diffs.find().withDatabase());
+		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
+		repo.assertEqualRecursive(iterator,
+				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", // deleted
+				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", // added
+				"ACTOR/category2/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", // added
+				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", // deleted
 				RepositoryInfo.FILE_NAME);
 	}
 

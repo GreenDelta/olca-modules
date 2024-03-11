@@ -29,9 +29,7 @@ public record DQSystemReader(EntityResolver resolver)
 		Util.mapBase(system, json, resolver);
 		system.hasUncertainties = Json.getBool(json, "hasUncertainties", false);
 		var sourceRefId = Json.getRefId(json, "source");
-		if (sourceRefId != null) {
-			system.source = resolver.get(Source.class, sourceRefId);
-		}
+		system.source = resolver.get(Source.class, sourceRefId);
 		mapIndicators(system, json);
 	}
 

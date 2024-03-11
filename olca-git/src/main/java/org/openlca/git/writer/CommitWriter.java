@@ -41,14 +41,13 @@ public abstract class CommitWriter {
 	protected String ref = Constants.HEAD;
 	protected PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
 	protected ProgressMonitor progressMonitor = ProgressMonitor.NULL;
-	private final UsedFeatures usedFeatures;
+	private UsedFeatures usedFeatures;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 
 	public CommitWriter(OlcaRepository repo, BinaryResolver binaryResolver) {
 		this.repo = repo;
 		this.binaryResolver = binaryResolver;
-		this.usedFeatures = UsedFeatures.of(repo);
 	}
 
 	public CommitWriter ref(String ref) {
@@ -72,6 +71,7 @@ public abstract class CommitWriter {
 
 	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
 			throws IOException {
+		this.usedFeatures = UsedFeatures.of(repo, parentCommitIds);
 		Compatibility.checkRepositoryClientVersion(repo);
 		try {
 			init();
@@ -186,12 +186,14 @@ public abstract class CommitWriter {
 		for (var i = 0; i < treeCount - 1; i++) {
 			treeIds[i] = walk.getFileMode(i) != FileMode.MISSING ? walk.getObjectId(i) : null;
 		}
-		var changed = walk.getFileMode(treeCount - 1) != FileMode.MISSING;
-		if (changed && isDeletedCategory(iterator.getEntryData()))
+		var hasChanged = walk.getFileMode(treeCount - 1) != FileMode.MISSING;
+		if (hasChanged && isDeletedCategory(iterator.getEntryData()))
 			return null;
-		if (!changed && treeCount == 2)
+		if (!hasChanged && treeCount == 2)
 			return treeIds[0];
-		var subIterator = iterator.createSubtreeIterator();
+		var subIterator = hasChanged
+				? iterator.createSubtreeIterator()
+				: null;
 		var prefix = GitUtil.decode(walk.getPathString());
 		return syncTree(prefix, subIterator, treeIds);
 	}

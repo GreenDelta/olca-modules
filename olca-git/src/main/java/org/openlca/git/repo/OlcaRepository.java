@@ -91,27 +91,25 @@ public class OlcaRepository extends FileRepository {
 		}
 	}
 
-	ObjectId getSubTreeId(ObjectId treeId, String path) {
-		if (Strings.nullOrEmpty(path))
-			return treeId;
-		try (var walk = TreeWalk.forPath(this, GitUtil.encode(path), treeId)) {
-			if (walk == null)
-				return ObjectId.zeroId();
-			if (walk.getFileMode() != FileMode.TREE)
-				return ObjectId.zeroId();
-			return walk.getObjectId(0);
-		} catch (IOException e) {
-			log.error("Error finding entry for " + path);
-			return null;
-		}
+	protected ObjectId getSubTreeId(ObjectId treeId, String path) {
+		return getObjectId(treeId, path, FileMode.TREE);
 	}
 
-	ObjectId getObjectId(RevCommit commit, String path) {
-		var treeId = commit.getTree().getId();
+	protected ObjectId getObjectId(RevCommit commit, String path) {
+		if (commit == null)
+			return ObjectId.zeroId();
+		return getObjectId(commit.getTree().getId(), path, null);
+	}
+
+	private ObjectId getObjectId(ObjectId treeId, String path, FileMode fileMode) {
+		if (treeId == null)
+			return ObjectId.zeroId();
 		if (Strings.nullOrEmpty(path))
 			return treeId;
 		try (var walk = TreeWalk.forPath(this, GitUtil.encode(path), treeId)) {
 			if (walk == null)
+				return ObjectId.zeroId();
+			if (fileMode != null && walk.getFileMode() != fileMode)
 				return ObjectId.zeroId();
 			return walk.getObjectId(0);
 		} catch (IOException e) {

@@ -12,7 +12,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
 
 import com.google.gson.JsonObject;
 
@@ -38,9 +37,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		impact.direction = Json.getEnum(json, "direction", Direction.class);
 		impact.code = Json.getString(json, "code");
 		var sourceId = Json.getString(json, "source");
-		if (Strings.notEmpty(sourceId)) {
-			impact.source = resolver.get(Source.class, sourceId);
-		}
+		impact.source = resolver.get(Source.class, sourceId);
 		mapParameters(impact, json);
 
 		// impact factors
@@ -103,9 +100,7 @@ public record ImpactCategoryReader(EntityResolver resolver)
 
 		// location
 		var locId = Json.getRefId(json, "location");
-		if (Strings.notEmpty(locId)) {
-			factor.location = resolver.get(Location.class, locId);
-		}
+		factor.location = resolver.get(Location.class, locId);
 
 		return factor;
 	}

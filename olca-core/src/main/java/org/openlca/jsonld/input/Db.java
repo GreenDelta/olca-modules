@@ -1,5 +1,8 @@
 package org.openlca.jsonld.input;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
@@ -11,16 +14,14 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.LocationDao;
-import org.openlca.core.database.NwSetDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
-import org.openlca.core.database.ResultDao;
 import org.openlca.core.database.RefEntityDao;
+import org.openlca.core.database.ResultDao;
 import org.openlca.core.database.SocialIndicatorDao;
 import org.openlca.core.database.SourceDao;
-import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -37,16 +38,13 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.Result;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-
-import java.util.HashMap;
-import java.util.Map;
 
 class Db {
 
@@ -59,7 +57,6 @@ class Db {
 	private final Map<String, Long> dqSystemIds = new HashMap<>();
 	private final Map<String, Long> methodIds = new HashMap<>();
 	private final Map<String, Long> impactCategoryIds = new HashMap<>();
-	private final Map<String, Long> nwSetIds = new HashMap<>();
 	private final Map<String, Long> actorIds = new HashMap<>();
 	private final Map<String, Long> sourceIds = new HashMap<>();
 	private final Map<String, Long> parameterIds = new HashMap<>();

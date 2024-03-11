@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.jgit.diff.DiffEntry.Side;
-
 public class Change extends ModelRef {
 
 	public final ChangeType changeType;
@@ -45,13 +43,13 @@ public class Change extends ModelRef {
 		var changes = new ArrayList<Change>();
 		for (var diff : diffs) {
 			if (diff.diffType == DiffType.ADDED) {
-				changes.add(add(diff.toReference(Side.NEW)));
+				changes.add(add(diff.newRef));
 			} else if (diff.diffType == DiffType.MODIFIED) {
-				changes.add(modify(diff.toReference(Side.NEW)));
+				changes.add(modify(diff.newRef));
 			} else if (diff.diffType == DiffType.DELETED) {
-				changes.add(delete(diff.toReference(Side.OLD)));
+				changes.add(delete(diff.oldRef));
 			} else if (diff.diffType == DiffType.MOVED) {
-				changes.addAll(move(diff.toReference(Side.OLD), diff.toReference(Side.NEW)));
+				changes.addAll(move(diff.oldRef, diff.newRef));
 			}
 		}
 		return changes;

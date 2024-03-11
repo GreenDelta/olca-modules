@@ -30,6 +30,8 @@ public record SourceReader(EntityResolver resolver)
 		var year = json.get("year");
 		if (year != null && year.isJsonPrimitive()) {
 			source.year = year.getAsShort();
+		} else {
+			source.year = null;
 		}
 	}
 }

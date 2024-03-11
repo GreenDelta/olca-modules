@@ -20,8 +20,9 @@ public class DatasetsTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testGet() throws IOException {
-		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
+		repo.delete("ACTOR/" + refId + ".json");
+		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var ds = repo.datasets.get(ref);
 		Assert.assertNotNull(ds);
@@ -41,8 +42,9 @@ public class DatasetsTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testVersion() throws IOException {
-		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
+		repo.delete("ACTOR/" + refId + ".json");
+		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var meta = repo.datasets.getVersionAndLastChange(ref);
 		Assert.assertNotNull(meta);
@@ -56,7 +58,7 @@ public class DatasetsTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testBinary() throws IOException {
-		var commitIds = new String[] { commit(COMMIT_1), commit(COMMIT_2), commit(COMMIT_3) };
+		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
 		var refId = "caa39f5b-5021-4b6b-9330-739f082dfae0";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
 		var bin = repo.datasets.getBinary(ref, "test.txt");

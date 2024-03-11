@@ -31,7 +31,9 @@ public record LocationReader(EntityResolver resolver)
 		location.latitude = Json.getDouble(json, "latitude", 0);
 		location.longitude = Json.getDouble(json, "longitude", 0);
 		var geometry = Json.getObject(json, "geometry");
-		if (geometry != null) {
+		if (geometry == null) {
+			location.geodata = null;
+		} else {
 			try {
 				FeatureCollection coll = GeoJSON.read(geometry);
 				if (coll != null) {

@@ -131,7 +131,9 @@ public class ChangeIterator extends EntryIterator {
 		for (var entry : entries)
 			if (!deletions.contains(entry.path))
 				return false; // at least one entry remains
-		return true;
+		return changes.stream().filter(c -> c.changeType == ChangeType.ADD)
+				.map(c -> c.path)
+				.count() == 0; // no new entries added
 	}
 
 	private static boolean datasetWasAddedToEmptyCategory(OlcaRepository repo, Commit referenceCommit, String prefix,

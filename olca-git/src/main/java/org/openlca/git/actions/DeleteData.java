@@ -84,7 +84,7 @@ class DeleteData {
 			categoryDao.delete(category);
 			deleted.add(category);
 		} else {
-			resolvedConflicts.add(Change.add(ref));			
+			resolvedConflicts.add(Change.add(ref));
 		}
 		progressMonitor.worked(1);
 	}
@@ -105,6 +105,8 @@ class DeleteData {
 		if (!conflictResolver.isConflict(ref))
 			return false;
 		var resolution = conflictResolver.resolveConflict(ref, null);
+		if (resolution == null)
+			throw new ConflictException(ref);
 		if (resolution.type == ConflictResolutionType.OVERWRITE) {
 			resolvedConflicts.add(Change.delete(ref));
 		}

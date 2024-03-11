@@ -71,6 +71,8 @@ class Converter implements JsonStoreWriter {
 	}
 
 	void start(List<Change> changes) {
+		if (changes.isEmpty())
+			return;
 		this.changes.clear();
 		this.systems.clear();
 		for (var change : changes) {
