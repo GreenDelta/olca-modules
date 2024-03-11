@@ -1,35 +1,43 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.model.*;
-import org.openlca.ilcd.epd.conversion.EpdExtensions;
-import org.openlca.ilcd.epd.model.Amount;
-import org.openlca.ilcd.epd.model.EpdDataSet;
-import org.openlca.ilcd.epd.model.Indicator;
-import org.openlca.ilcd.epd.model.IndicatorResult;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
+import org.openlca.core.model.EpdProduct;
+import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactResult;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Result;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.Process;
+import org.openlca.ilcd.processes.epd.EpdResult;
 import org.openlca.ilcd.util.Categories;
+import org.openlca.ilcd.util.EpdIndicatorResult;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
 import org.openlca.util.Strings;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class EpdImport {
 
 	private final Import imp;
 	private final Process ds;
-	private final EpdDataSet epd;
+	private final List<EpdIndicatorResult> results;
 	private final AtomicBoolean hasRefError;
 
 	public EpdImport(Import imp, Process ds) {
 		this.imp = imp;
 		this.ds = ds;
-		this.epd = EpdExtensions.read(ds);
+		this.results = EpdIndicatorResult.allOf(ds);
 		this.hasRefError = new AtomicBoolean(false);
 	}
 
@@ -46,11 +54,11 @@ public class EpdImport {
 		oEpd.refId = id;
 		oEpd.lastChange = System.currentTimeMillis();
 		oEpd.name = Strings.cut(
-			Processes.getFullName(ds, imp.langOrder()), 2048);
+				Processes.getFullName(ds, imp.langOrder()), 2048);
 		var path = Categories.getPath(ds);
 		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
 		oEpd.tags = tags();
-		Import.mapVersionInfo(epd.process, oEpd);
+		Import.mapVersionInfo(ds, oEpd);
 
 		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {
@@ -66,13 +74,13 @@ public class EpdImport {
 			oEpd.product = new EpdProduct();
 			oEpd.product.flow = refFlow.flow;
 			oEpd.product.property = refFlow.flowPropertyFactor != null
-				? refFlow.flowPropertyFactor.flowProperty
-				: null;
+					? refFlow.flowPropertyFactor.flowProperty
+					: null;
 			oEpd.product.unit = refFlow.unit;
 			oEpd.product.amount = refFlow.amount;
 		}
 
-		for (var scope : Scope.allOf(epd)) {
+		for (var scope : Scope.allOf(results)) {
 			var suffix = scope.toString();
 
 			var refId = KeyGen.get(id, suffix);
@@ -90,11 +98,11 @@ public class EpdImport {
 
 			// meta-data
 			result.name = Strings.cut(
-				Processes.getFullName(ds, imp.langOrder()),
-				2044 - suffix.length()) + " - " + suffix;
+					Processes.getFullName(ds, imp.langOrder()),
+					2044 - suffix.length()) + " - " + suffix;
 			imp.log().info("import EPD result: " + result.name);
 			result.category = new CategoryDao(imp.db())
-				.sync(ModelType.RESULT, path);
+					.sync(ModelType.RESULT, path);
 
 			if (refFlow != null) {
 				var resultRef = refFlow.copy();
@@ -116,9 +124,9 @@ public class EpdImport {
 			return null;
 
 		var exchange = ds.getExchanges().stream()
-			.filter(e -> qRef.getReferenceFlows().contains(e.getId()))
-			.findAny()
-			.orElse(null);
+				.filter(e -> qRef.getReferenceFlows().contains(e.getId()))
+				.findAny()
+				.orElse(null);
 		if (exchange == null || exchange.getFlow() == null)
 			return null;
 
@@ -140,8 +148,8 @@ public class EpdImport {
 		ref.unit = f.unit();
 
 		double amount = exchange.getResultingAmount() != null
-			? exchange.getResultingAmount()
-			: exchange.getMeanAmount();
+				? exchange.getResultingAmount()
+				: exchange.getMeanAmount();
 		if (f.isMapped() && f.mapFactor() != 0) {
 			amount *= f.mapFactor();
 		}
@@ -151,56 +159,66 @@ public class EpdImport {
 	}
 
 	private void addResultsOf(Scope scope, Result result) {
-		for (var r : epd.results) {
-			if (r.indicator == null)
+		for (var r : results) {
+			if (r.indicator() == null)
 				continue;
-			var amount = scope.amountOf(r);
-			if (amount == null || amount.value == null)
+			var v = scope.valueOf(r);
+			if (v == null || v.getAmount() == null)
 				continue;
-			var impact = impactOf(r.indicator);
+			var impact = impactOf(r);
 			if (impact == null)
 				continue;
 			var ir = new ImpactResult();
 			ir.indicator = impact;
-			ir.amount = amount.value;
+			ir.amount = v.getAmount();
 			result.impactResults.add(ir);
 		}
 	}
 
-	private ImpactCategory impactOf(Indicator indicator) {
-		if (indicator == null)
+	private ImpactCategory impactOf(EpdIndicatorResult r) {
+		if (r.indicator() == null || !r.indicator().isValid())
 			return null;
 
+		String unit = null;
+		if (r.unitGroup() != null) {
+			var u = LangString.getFirst(r.unitGroup().getName());
+			if (Strings.notEmpty(u)) {
+				unit = u;
+			}
+		}
+
 		// handle LCIA indicators
-		if (indicator.type == Indicator.Type.LCIA) {
-			var impact = ImpactImport.get(imp, indicator.uuid);
+		if (r.hasImpactIndicator()) {
+			var impact = ImpactImport.get(imp, r.indicator().getUUID());
 
 			// found an impact
 			if (impact != null) {
 				if (Strings.nullOrEmpty(impact.referenceUnit)
-					&& Strings.notEmpty(indicator.unit)) {
+						&& unit != null) {
 					// indicator units are sometimes missing in
 					// LCIA data sets of ILCD packages
-					impact.referenceUnit = indicator.unit;
+					impact.referenceUnit = unit;
 					imp.db().update(impact);
 				}
 				return impact;
 			}
 
 			// create a new impact category
-			impact = ImpactCategory.of(indicator.name, indicator.unit);
-			impact.refId = indicator.uuid;
+			var name = LangString.getFirst(r.indicator().getName());
+			impact = ImpactCategory.of(name, unit);
+			impact.refId = r.indicator().getUUID();
 			return imp.db().insert(impact);
 		}
 
 		// handle LCI indicators
-		var refId = KeyGen.get("impact", indicator.uuid);
+		var refId = KeyGen.get("impact", r.indicator().getUUID());
 		var impact = imp.db().get(ImpactCategory.class, refId);
 		if (impact != null)
 			return impact;
-		impact = ImpactCategory.of(indicator.name, indicator.unit);
+		var name = LangString.getFirst(r.indicator().getName());
+		impact = ImpactCategory.of(name, unit);
 		impact.refId = refId;
-		var f = FlowImport.get(imp, indicator.uuid);
+		var f = FlowImport.get(imp, r.indicator().getUUID());
 		if (f.isEmpty()) {
 			return imp.db().insert(impact);
 		}
@@ -209,8 +227,8 @@ public class EpdImport {
 		impact.name = f.flow().name;
 		impact.description = f.flow().description;
 		double value = f.isMapped() && f.mapFactor() != 0
-			? 1 / f.mapFactor()
-			: 1;
+				? 1 / f.mapFactor()
+				: 1;
 		var factor = impact.factor(f.flow(), value);
 		factor.flowPropertyFactor = f.property();
 		factor.unit = f.unit();
@@ -267,26 +285,24 @@ public class EpdImport {
 
 	private record Scope(String module, String scenario) {
 
-		static Set<Scope> allOf(EpdDataSet epd) {
+		static Set<Scope> allOf(List<EpdIndicatorResult> results) {
 			var scopes = new HashSet<Scope>();
-			for (var result : epd.results) {
-				for (var amount : result.amounts) {
-					if (amount.module == null || amount.module.name == null)
+			for (var result : results) {
+				for (var v : result.values()) {
+					if (Strings.nullOrEmpty(v.getModule()))
 						continue;
-					scopes.add(new Scope(amount.module.name, amount.scenario));
+					scopes.add(new Scope(v.getModule(), v.getScenario()));
 				}
 			}
 			return scopes;
 		}
 
-		Amount amountOf(IndicatorResult result) {
+		EpdResult valueOf(EpdIndicatorResult result) {
 			if (result == null)
 				return null;
-			for (var a : result.amounts) {
-				if (a.module == null)
-					continue;
-				if (Objects.equals(a.module.name, module)
-					&& Objects.equals(a.scenario, scenario)) {
+			for (var a : result.values()) {
+				if (Objects.equals(a.getModule(), module)
+						&& Objects.equals(a.getScenario(), scenario)) {
 					return a;
 				}
 			}
@@ -298,8 +314,8 @@ public class EpdImport {
 			if (module == null)
 				return "";
 			return scenario != null
-				? module + " - " + scenario
-				: module;
+					? module + " - " + scenario
+					: module;
 		}
 	}
 }

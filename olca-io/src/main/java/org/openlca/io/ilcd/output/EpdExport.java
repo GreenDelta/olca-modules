@@ -3,20 +3,19 @@ package org.openlca.io.ilcd.output;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.Version;
+import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
-import org.openlca.ilcd.epd.conversion.EpdExtensions;
-import org.openlca.ilcd.epd.model.Amount;
-import org.openlca.ilcd.epd.model.EpdDataSet;
-import org.openlca.ilcd.epd.model.Indicator;
-import org.openlca.ilcd.epd.model.Indicator.Type;
-import org.openlca.ilcd.epd.model.IndicatorResult;
-import org.openlca.ilcd.epd.model.Module;
+import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
+import org.openlca.ilcd.processes.epd.EpdResult;
+import org.openlca.ilcd.util.EpdIndicatorResult;
 import org.openlca.io.Xml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class EpdExport {
@@ -47,9 +46,7 @@ public class EpdExport {
 		writeReview(epd, p);
 		writePublication(epd, p);
 
-		var ext = new EpdDataSet(p);
-		writeResults(epd, ext);
-		EpdExtensions.write(ext);
+		writeResults(epd, p);
 		exp.store.put(p);
 	}
 
@@ -96,34 +93,38 @@ public class EpdExport {
 		}
 	}
 
-	private void writeResults(Epd epd, EpdDataSet ext) {
-		var results = new HashMap<String, IndicatorResult>();
+	private void writeResults(Epd epd, Process ds) {
+		var results = new HashMap<String, EpdIndicatorResult>();
 		for (var m : epd.modules) {
 			if (m.result == null)
 				continue;
-			var module = new Module();
-			module.name = m.name;
 
 			for (var r : m.result.impactResults) {
 				if (r.indicator == null)
 					continue;
 				var result = results.computeIfAbsent(r.indicator.refId, id -> {
 					exp.write(r.indicator);
-					var ir = new IndicatorResult();
-					ir.indicator = new Indicator();
-					ir.indicator.name = r.indicator.name;
-					ir.indicator.uuid = r.indicator.refId;
-					ir.indicator.unit = r.indicator.referenceUnit;
-					ir.indicator.type = Type.LCIA;
-					ext.results.add(ir);
-					return ir;
+					var indicator = new Ref()
+							.withType(DataSetType.IMPACT_METHOD)
+							.withUUID(r.indicator.refId);
+					indicator.withName().add(
+							new LangString(r.indicator.name, "en"));
+					var unit = new Ref()
+							.withType(DataSetType.UNIT_GROUP);
+					unit.withName().add(
+							new LangString(r.indicator.referenceUnit, "en"));
+					return EpdIndicatorResult.of(indicator, unit);
 				});
 
-				var amount = new Amount();
-				amount.value = r.amount;
-				amount.module = module;
-				result.amounts.add(amount);
+				var v = new EpdResult()
+						.withModule(m.name)
+						.withAmount(r.amount);
+				result.values().add(v);
 			}
 		}
+
+		var values = new ArrayList<>(results.values());
+		EpdIndicatorResult.writeClean(ds, values);
+
 	}
 }
