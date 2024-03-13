@@ -1,5 +1,6 @@
 package org.openlca.git.repo;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +62,8 @@ public class References {
 		return new Find();
 	}
 
-	private Reference createRef(TreeWalk walk, String commitId, int tree) {
-		return new Reference(walk.getPathString(), commitId, walk.getObjectId(tree));
+	private Reference createRef(TreeWalk walk, String commitId) {
+		return new Reference(walk.getPathString(), commitId, walk.getObjectId(0));
 	}
 
 	public class Find {
@@ -104,8 +105,8 @@ public class References {
 
 		public Reference first() {
 			var refHolder = new ArrayList<Reference>();
-			iterate(ref -> {
-				refHolder.add(ref);
+			iterate(walk -> {
+				refHolder.add(createRef(walk, commitId));
 				return false;
 			});
 			if (refHolder.isEmpty())
@@ -114,18 +115,17 @@ public class References {
 		}
 
 		public void iterate(Consumer<Reference> consumer) {
-			iterate(ref -> {
-				consumer.accept(ref);
+			iterate(walk -> {
+				consumer.accept(createRef(walk, commitId));
 				return true;
 			});
 		}
 
-		private void iterate(Function<Reference, Boolean> consumer) {
+		private void iterate(Function<TreeWalk, Boolean> consumer) {
 			try {
 				var commit = repo.commits.getRev(commitId);
 				if (commit == null)
 					return;
-				var commitId = commit.getId().name();
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
@@ -138,7 +138,7 @@ public class References {
 					}
 					walk.setFilter(filter);
 					while (walk.next()) {
-						if (!consumer.apply(createRef(walk, commitId, 0)))
+						if (!consumer.apply(walk))
 							break;
 					}
 				}
@@ -148,6 +148,14 @@ public class References {
 			}
 		}
 
+	}
+
+	public static void main(String[] args) throws IOException {
+		var repo = new OlcaRepository(
+				new File("C:/Users/greve/opt/collab/git/administrator/elementary_flow_listClone"));
+		var t = System.currentTimeMillis();
+		repo.references.find().count();
+		System.out.println(System.currentTimeMillis() - t);
 	}
 
 }
