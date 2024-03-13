@@ -73,7 +73,7 @@ public enum ModelType {
 	}
 	
 	public static ModelType parse(String value) {
-		if (value.isEmpty())
+		if (value == null || value.isEmpty())
 			return null;
 		for (var type : ModelType.values())
 			if (type.name().equals(value.toUpperCase()))
