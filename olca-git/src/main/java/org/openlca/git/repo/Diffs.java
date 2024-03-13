@@ -49,6 +49,7 @@ public class Diffs {
 		private String path;
 		private boolean onlyCategories;
 		private boolean excludeCategories;
+		private boolean unsorted;
 
 		public Find commit(Commit commit) {
 			this.commit = commit;
@@ -70,13 +71,16 @@ public class Diffs {
 			return this;
 		}
 
+		public Find unsorted() {
+			this.unsorted = true;
+			return this;
+		}
+
 		public List<Diff> withDatabase() {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
 			this.leftCommit = getRevCommit(commit, true);
-			return diffOfDatabase(path).stream()
-					.sorted()
-					.collect(Collectors.toList());
+			return sort(diffOfDatabase(path));
 		}
 
 		private List<Diff> diffOfDatabase(String prefix) {
@@ -98,17 +102,13 @@ public class Diffs {
 			var leftCommit = repo.commits.find().before(commit.id).latest();
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
-			return diffOfCommits(path).stream()
-					.sorted()
-					.collect(Collectors.toList());
+			return sort(diffOfCommits(path));
 		}
 
 		public List<Diff> with(Commit other) {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
-			return diffOfCommits(path).stream()
-					.sorted()
-					.collect(Collectors.toList());
+			return sort(diffOfCommits(path));
 		}
 
 		private List<Diff> diffOfCommits(String prefix) {
@@ -246,6 +246,14 @@ public class Diffs {
 				return false;
 			var subPath = GitUtil.decode(iterator.getEntryPathString());
 			return subPath.equals(GitUtil.EMPTY_CATEGORY_FLAG);
+		}
+
+		private List<Diff> sort(List<Diff> diffs) {
+			if (unsorted)
+				return diffs;
+			return diffs.stream()
+					.sorted()
+					.collect(Collectors.toList());
 		}
 
 	}
