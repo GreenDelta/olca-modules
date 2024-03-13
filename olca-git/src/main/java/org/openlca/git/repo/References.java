@@ -150,12 +150,4 @@ public class References {
 
 	}
 
-	public static void main(String[] args) throws IOException {
-		var repo = new OlcaRepository(
-				new File("C:/Users/greve/opt/collab/git/administrator/elementary_flow_listClone"));
-		var t = System.currentTimeMillis();
-		repo.references.find().count();
-		System.out.println(System.currentTimeMillis() - t);
-	}
-
 }
