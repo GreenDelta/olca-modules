@@ -3,7 +3,7 @@ package org.openlca.git.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,7 +19,8 @@ public class TypedRefIdMap<T> {
 	}
 
 	public TypedRefIdMap<T> put(ModelType type, String refId, T value) {
-		map.computeIfAbsent(type, t -> new HashMap<>()).put(refId, value);
+		// using LinkedHashMap to keep order and reduce sorting time of big maps
+		map.computeIfAbsent(type, t -> new LinkedHashMap<>()).put(refId, value);
 		return this;
 	}
 
