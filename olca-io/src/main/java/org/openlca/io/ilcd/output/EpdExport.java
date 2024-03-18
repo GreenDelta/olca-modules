@@ -1,5 +1,8 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.Version;
@@ -11,12 +14,9 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
-import org.openlca.ilcd.processes.epd.EpdResult;
+import org.openlca.ilcd.processes.epd.EpdValue;
 import org.openlca.ilcd.util.EpdIndicatorResult;
 import org.openlca.io.Xml;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class EpdExport {
 
@@ -116,7 +116,7 @@ public class EpdExport {
 					return EpdIndicatorResult.of(indicator, unit);
 				});
 
-				var v = new EpdResult()
+				var v = new EpdValue()
 						.withModule(m.name)
 						.withAmount(r.amount);
 				result.values().add(v);

@@ -1,5 +1,11 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
@@ -13,19 +19,13 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.processes.Process;
-import org.openlca.ilcd.processes.epd.EpdResult;
+import org.openlca.ilcd.processes.epd.EpdValue;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.EpdIndicatorResult;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
 import org.openlca.util.Strings;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EpdImport {
 
@@ -297,7 +297,7 @@ public class EpdImport {
 			return scopes;
 		}
 
-		EpdResult valueOf(EpdIndicatorResult result) {
+		EpdValue valueOf(EpdIndicatorResult result) {
 			if (result == null)
 				return null;
 			for (var a : result.values()) {
