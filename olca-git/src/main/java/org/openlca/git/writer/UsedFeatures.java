@@ -40,6 +40,14 @@ class UsedFeatures {
 		this.previous = previous;
 	}
 
+	public static UsedFeatures of(SchemaVersion schemaVersion) {
+		var usedFeatures = new UsedFeatures(null);
+		if (schemaVersion.value() == 3) {
+			usedFeatures.schemaVersion3 = true;
+		}
+		return usedFeatures;
+	}
+	
 	static UsedFeatures of(OlcaRepository repo) {
 		return new UsedFeatures(repo.getInfo());
 	}
@@ -63,6 +71,8 @@ class UsedFeatures {
 	}
 
 	void isSchemaVersion3(JsonObject o) {
+		if (this.schemaVersion3)
+			return;
 		var type = Json.getString(o, "@type");
 		if (type == null || !type.equals(Process.class.getSimpleName()))
 			return;
