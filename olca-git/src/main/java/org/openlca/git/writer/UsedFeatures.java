@@ -7,6 +7,7 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.LibraryLink;
+import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 
 import com.google.gson.JsonObject;
@@ -16,7 +17,7 @@ import com.google.gson.JsonObject;
  * the repository client and server versions that are (fully) compatible are
  * determined
  */
-class UsedFeatures {
+public class UsedFeatures {
 
 	private final RepositoryInfo previous;
 
@@ -40,14 +41,14 @@ class UsedFeatures {
 		this.previous = previous;
 	}
 
-	public static UsedFeatures of(SchemaVersion schemaVersion) {
+	public static UsedFeatures of(PackageInfo packageInfo) {
 		var usedFeatures = new UsedFeatures(null);
-		if (schemaVersion.value() == 3) {
+		if (packageInfo != null && packageInfo.schemaVersion().value() == 3) {
 			usedFeatures.schemaVersion3 = true;
 		}
 		return usedFeatures;
 	}
-	
+
 	static UsedFeatures of(OlcaRepository repo) {
 		return new UsedFeatures(repo.getInfo());
 	}
