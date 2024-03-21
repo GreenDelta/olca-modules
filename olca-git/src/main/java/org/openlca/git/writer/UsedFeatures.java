@@ -7,6 +7,7 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.LibraryLink;
+import org.openlca.jsonld.SchemaVersion;
 
 import com.google.gson.JsonObject;
 
@@ -79,10 +80,14 @@ class UsedFeatures {
 		if (didUnmountLibrary(libraries)) {
 			unmountLibrary = true;
 		}
-		return RepositoryInfo.create()
+		var info = RepositoryInfo.create()
 				.withLibraries(libraries)
 				.withRepositoryClientVersion(getClientVersion())
 				.withRepositoryServerVersion(getServerVersion());
+		if (!schemaVersion3) {
+			info = info.withSchemaVersion(new SchemaVersion(2));
+		}
+		return info;
 	}
 
 	private boolean didUnmountLibrary(List<LibraryLink> libraries) {
