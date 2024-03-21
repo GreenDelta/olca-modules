@@ -82,7 +82,8 @@ public class UsedFeatures {
 			return;
 		if (!doc.has("flowCompleteness")
 				&& !doc.has("reviews")
-				&& !doc.has("complianceDeclarations"))
+				&& !doc.has("complianceDeclarations")
+				&& !doc.has("useAdvice"))
 			return;
 		this.schemaVersion3 = true;
 	}
