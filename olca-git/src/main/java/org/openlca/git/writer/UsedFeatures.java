@@ -5,7 +5,10 @@ import java.util.List;
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.OlcaRepository;
+import org.openlca.jsonld.Json;
 import org.openlca.jsonld.LibraryLink;
+
+import com.google.gson.JsonObject;
 
 /**
  * Class is used to track features used in a commit. Depending on used features,
@@ -17,9 +20,16 @@ class UsedFeatures {
 	private final RepositoryInfo previous;
 
 	/**
+	 * Repository contains additional process documentation fields that were
+	 * added in schema version 3 (client: 4, server: 4)
+	 */
+	private boolean schemaVersion3;
+
+	/**
 	 * Repository contains empty categories (client: 3, server: 3)
 	 */
 	private boolean emptyCategories;
+
 	/**
 	 * Libraries were unmounted (client: 3, server: 2)
 	 */
@@ -51,6 +61,20 @@ class UsedFeatures {
 		this.emptyCategories = true;
 	}
 
+	void isSchemaVersion3(JsonObject o) {
+		var type = Json.getString(o, "@type");
+		if (type == null || !type.equals(Process.class.getSimpleName()))
+			return;
+		var doc = Json.getObject(o, "processDocumentation");
+		if (doc == null)
+			return;
+		if (!doc.has("flowCompleteness")
+				&& !doc.has("reviewers")
+				&& !doc.has("complianceDeclarations"))
+			return;
+		this.schemaVersion3 = true;
+	}
+
 	RepositoryInfo createInfo(List<LibraryLink> libraries) {
 		if (didUnmountLibrary(libraries)) {
 			unmountLibrary = true;
@@ -73,6 +97,8 @@ class UsedFeatures {
 
 	private int getClientVersion() {
 		var previousClient = previous != null ? previous.repositoryClientVersion() : 2;
+		if (schemaVersion3)
+			return max(previousClient, 4);
 		if (emptyCategories || unmountLibrary)
 			return max(previousClient, 3);
 		return max(previousClient, 2);
@@ -80,6 +106,8 @@ class UsedFeatures {
 
 	private int getServerVersion() {
 		var previousServer = previous != null ? previous.repositoryServerVersion() : 2;
+		if (schemaVersion3)
+			return max(previousServer, 4);
 		if (emptyCategories)
 			return max(previousServer, 3);
 		return max(previousServer, 2);

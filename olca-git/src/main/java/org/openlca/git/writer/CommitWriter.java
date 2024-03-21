@@ -41,7 +41,7 @@ public abstract class CommitWriter {
 	protected String ref = Constants.HEAD;
 	protected PersonIdent committer = new PersonIdent("anonymous", "anonymous@anonymous.org");
 	protected ProgressMonitor progressMonitor = ProgressMonitor.NULL;
-	private UsedFeatures usedFeatures;
+	protected UsedFeatures usedFeatures;
 	private PackInserter packInserter;
 	private ObjectInserter objectInserter;
 
@@ -71,7 +71,9 @@ public abstract class CommitWriter {
 
 	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
 			throws IOException {
-		this.usedFeatures = UsedFeatures.of(repo, parentCommitIds);
+		if (this.usedFeatures == null) {
+			this.usedFeatures = UsedFeatures.of(repo, parentCommitIds);
+		}
 		Compatibility.checkRepositoryClientVersion(repo);
 		try {
 			init();

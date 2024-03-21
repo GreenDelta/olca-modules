@@ -76,8 +76,10 @@ public class DbCommitWriter extends CommitWriter {
 	public String write(String message, List<Change> changes) throws IOException {
 		try {
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
+			var parentCommitIds = getParentCommitIds();
+			usedFeatures = UsedFeatures.of(repo, parentCommitIds);
 			var changeIterator = prepare(changes);
-			var commitId = write(message, changeIterator, getParentIds());
+			var commitId = write(message, changeIterator, parentCommitIds);
 			if (Constants.HEAD.equals(ref)) {
 				progressMonitor.beginTask("Updating local index");
 				repo.index.reload();
@@ -93,7 +95,7 @@ public class DbCommitWriter extends CommitWriter {
 		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
 			throw new IllegalStateException("No changes found and not a merge commit");
 		threads = Executors.newCachedThreadPool();
-		converter = new Converter(database, threads);
+		converter = new Converter(database, threads, usedFeatures);
 		converter.start(changes.stream()
 				.filter(d -> d.changeType != ChangeType.DELETE)
 				.sorted()
@@ -101,7 +103,7 @@ public class DbCommitWriter extends CommitWriter {
 		return new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
 	}
 
-	private ObjectId[] getParentIds() {
+	private ObjectId[] getParentCommitIds() {
 		var parentIds = new ArrayList<ObjectId>();
 		if (localCommitId != null) {
 			parentIds.add(ObjectId.fromString(localCommitId));
