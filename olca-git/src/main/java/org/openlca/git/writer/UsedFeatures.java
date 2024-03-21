@@ -69,7 +69,7 @@ class UsedFeatures {
 		if (doc == null)
 			return;
 		if (!doc.has("flowCompleteness")
-				&& !doc.has("reviewers")
+				&& !doc.has("reviews")
 				&& !doc.has("complianceDeclarations"))
 			return;
 		this.schemaVersion3 = true;
