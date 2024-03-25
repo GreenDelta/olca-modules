@@ -1,5 +1,8 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.List;
+import java.util.Objects;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
@@ -25,10 +28,6 @@ import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowSync;
 import org.openlca.util.Strings;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 public class Import implements org.openlca.io.Import {
 
 	private final DataStore store;
@@ -37,7 +36,7 @@ public class Import implements org.openlca.io.Import {
 
 	private boolean allFlows;
 	private boolean withGabiGraphs = false;
-	private String[] langOrder = {"en"};
+	private String lang = "en";
 	private ExchangeProviderQueue providers;
 
 	private volatile boolean canceled = false;
@@ -89,19 +88,12 @@ public class Import implements org.openlca.io.Import {
 	}
 
 	/**
-	 * Define the order in which a multi-language string should be evaluated. It
-	 * first checks if there is a string for the first language of this list, then
-	 * the second, etc.
+	 * Set the code of the preferred language of the labels that should be
+	 * imported if available.
 	 */
-	public Import withLanguageOrder(String... codes) {
-		if (codes != null && codes.length > 0) {
-			var filtered = Arrays.stream(codes)
-					.filter(Strings::notEmpty)
-					.map(s -> s.trim().toLowerCase())
-					.toArray(String[]::new);
-			if (filtered.length > 0) {
-				langOrder = filtered;
-			}
+	public Import withPreferredLanguage(String code) {
+		if (code != null) {
+			this.lang = code;
 		}
 		return this;
 	}
@@ -130,8 +122,8 @@ public class Import implements org.openlca.io.Import {
 		return db;
 	}
 
-	String[] langOrder() {
-		return langOrder;
+	String lang() {
+		return lang;
 	}
 
 	ExchangeProviderQueue providers() {
@@ -230,9 +222,7 @@ public class Import implements org.openlca.io.Import {
 	}
 
 	String str(List<LangString> list) {
-		return list == null || list.isEmpty()
-				? null
-				: LangString.getFirst(list, langOrder);
+		return LangString.getOrDefault(list, lang);
 	}
 
 	@SafeVarargs

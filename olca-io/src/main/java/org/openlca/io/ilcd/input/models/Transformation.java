@@ -154,7 +154,7 @@ class Transformation {
 		+ sourceNode.process.refId;
 
 		if (sourceNode.group != null) {
-			String prefix = LangString.getFirst(sourceNode.group.getName(), "en");
+			String prefix = LangString.getDefault(sourceNode.group.getName());
 			if (prefix != null) {
 				n.process.name = prefix + " :: " + n.process.name;
 			}

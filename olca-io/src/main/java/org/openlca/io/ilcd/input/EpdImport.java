@@ -54,7 +54,7 @@ public class EpdImport {
 		oEpd.refId = id;
 		oEpd.lastChange = System.currentTimeMillis();
 		oEpd.name = Strings.cut(
-				Processes.getFullName(ds, imp.langOrder()), 2048);
+				Processes.getFullName(ds, imp.lang()), 2048);
 		var path = Categories.getPath(ds);
 		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
 		oEpd.tags = tags();
@@ -98,7 +98,7 @@ public class EpdImport {
 
 			// meta-data
 			result.name = Strings.cut(
-					Processes.getFullName(ds, imp.langOrder()),
+					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
 			imp.log().info("import EPD result: " + result.name);
 			result.category = new CategoryDao(imp.db())
@@ -181,7 +181,7 @@ public class EpdImport {
 
 		String unit = null;
 		if (r.unitGroup() != null) {
-			var u = LangString.getFirst(r.unitGroup().getName());
+			var u = LangString.getDefault(r.unitGroup().getName());
 			if (Strings.notEmpty(u)) {
 				unit = u;
 			}
@@ -204,7 +204,7 @@ public class EpdImport {
 			}
 
 			// create a new impact category
-			var name = LangString.getFirst(r.indicator().getName());
+			var name = LangString.getDefault(r.indicator().getName());
 			impact = ImpactCategory.of(name, unit);
 			impact.refId = r.indicator().getUUID();
 			return imp.db().insert(impact);
@@ -215,7 +215,7 @@ public class EpdImport {
 		var impact = imp.db().get(ImpactCategory.class, refId);
 		if (impact != null)
 			return impact;
-		var name = LangString.getFirst(r.indicator().getName());
+		var name = LangString.getDefault(r.indicator().getName());
 		impact = ImpactCategory.of(name, unit);
 		impact.refId = refId;
 		var f = FlowImport.get(imp, r.indicator().getUUID());
