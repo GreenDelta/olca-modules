@@ -53,10 +53,12 @@ class Converter implements JsonStoreWriter {
 	private final AtomicInteger queueSize = new AtomicInteger();
 	private final JsonExport export;
 	private final int converterThreads;
+	private final UsedFeatures usedFeatures;
 
-	Converter(IDatabase database, ExecutorService threads) {
+	Converter(IDatabase database, ExecutorService threads, UsedFeatures usedFeatures) {
 		this.database = database;
 		this.threads = threads;
+		this.usedFeatures = usedFeatures;
 		this.export = new JsonExport(database, this)
 				.withReferences(false)
 				.skipLibraryData(true)
@@ -130,6 +132,7 @@ class Converter implements JsonStoreWriter {
 
 	@Override
 	public void put(ModelType type, JsonObject object) {
+		usedFeatures.isSchemaVersion3(object);
 		var path = type.name() + "/";
 		var category = Json.getString(object, "category");
 		var refId = Json.getString(object, "@id");
