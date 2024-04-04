@@ -11,11 +11,11 @@ import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.commons.QuantitativeReferenceType;
 import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.processes.epd.EpdValue;
-import org.openlca.ilcd.util.EpdIndicatorResult;
 import org.openlca.io.Xml;
 
 public class EpdExport {
