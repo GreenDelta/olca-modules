@@ -44,6 +44,11 @@ public class FieldDefinition {
 		return ifIs(condition, s -> !Boolean.parseBoolean(s));
 	}
 
+
+	public FieldDefinition ifHas(String condition) {
+		return ifIs(condition, s -> s != null);
+	}
+	
 	public FieldDefinition ifIs(String condition, Function<String, Boolean> converter) {
 		this.condition = condition;
 		this.conditionFields = condition != null ? Arrays.asList(condition.split("\\.")) : new ArrayList<>();
