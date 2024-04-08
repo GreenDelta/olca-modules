@@ -15,7 +15,7 @@ public class ActorUseSearchTest {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
-	public void testFindNoUsage() {
+	public void testNoUsage() {
 		var actor = db.insert(Actor.of("actor"));
 		UsageTests.expectEmpty(actor);
 		db.delete(actor);
@@ -24,56 +24,43 @@ public class ActorUseSearchTest {
 	@Test
 	public void testFindInProcessDocs() {
 		var actor = db.insert(Actor.of("actor"));
-		var process = createProcessWithDoc(actor);
-		UsageTests.expectOne(actor, process);
-		db.delete(process, actor);
-	}
-
-	@Test
-	public void testFindInReview() {
-		var actor = db.insert(Actor.of("actor"));
-		var process = createProcessWithReviewedDoc(actor);
-		UsageTests.expectOne(actor, process);
-		db.delete(process, actor);
+		for (int i = 0; i < 4; i++) {
+			var p = new Process();
+			p.name = "process";
+			p.documentation = new ProcessDoc();
+			switch (i) {
+				case 0 -> p.documentation.dataOwner = actor;
+				case 1 -> p.documentation.dataGenerator = actor;
+				case 2 -> p.documentation.dataDocumentor = actor;
+				default -> {
+					var review = new Review();
+					review.reviewers.add(actor);
+					p.documentation.reviews.add(review);
+				}
+			}
+			db.insert(p);
+			UsageTests.expectOne(actor, p);
+			db.delete(p);
+			UsageTests.expectEmpty(actor);
+		}
+		db.delete(actor);
 	}
 
 	@Test
 	public void testFindInEpd() {
 		var actor = db.insert(Actor.of("actor"));
-		var process = createEpd(actor);
-		UsageTests.expectOne(actor, process);
-		db.delete(process, actor);
+		for (int i = 0; i < 3; i++) {
+			var epd = new Epd();
+			switch (i) {
+				case 0 -> epd.manufacturer = actor;
+				case 1 -> epd.verifier = actor;
+				default -> epd.programOperator = actor;
+			}
+			db.insert(epd);
+			UsageTests.expectOne(actor, epd);
+			db.delete(epd);
+			UsageTests.expectEmpty(actor);
+		}
+		db.delete(actor);
 	}
-
-
-	private Process createProcessWithDoc(Actor actor) {
-		var documentation = new ProcessDoc();
-		var process = new Process();
-		process.name = "process";
-		process.documentation = documentation;
-		process.documentation.dataOwner = actor;
-		process.documentation.dataGenerator = actor;
-		process.documentation.dataDocumentor = actor;
-		return db.insert(process);
-	}
-
-	private Process createProcessWithReviewedDoc(Actor actor) {
-		var review = new Review();
-		review.reviewers.add(actor);
-		var documentation = new ProcessDoc();
-		var process = new Process();
-		process.name = "process";
-		process.documentation = documentation;
-		process.documentation.reviews.add(review);
-		return db.insert(process);
-	}
-
-	private Epd createEpd(Actor actor) {
-		var epd = new Epd();
-		epd.manufacturer = actor;
-		epd. verifier = actor;
-		epd.programOperator = actor;
-		return db.insert(epd);
-	}
-
 }

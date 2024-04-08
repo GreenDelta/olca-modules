@@ -9,8 +9,10 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.Review;
 
 public class SourceUseSearchTest {
 
@@ -44,6 +46,24 @@ public class SourceUseSearchTest {
 	@Test
 	public void testFindInProcessPublication() {
 		process.documentation.publication = source;
+		process = db.update(process);
+		UsageTests.expectOne(source, process);
+	}
+
+	@Test
+	public void testFindInReviewReport() {
+		var rev = new Review();
+		rev.report = source;
+		process.documentation.reviews.add(rev);
+		process = db.update(process);
+		UsageTests.expectOne(source, process);
+	}
+
+	@Test
+	public void testFindInComplianceSystem() {
+		var dec = new ComplianceDeclaration();
+		dec.system = source;
+		process.documentation.complianceDeclarations.add(dec);
 		process = db.update(process);
 		UsageTests.expectOne(source, process);
 	}
