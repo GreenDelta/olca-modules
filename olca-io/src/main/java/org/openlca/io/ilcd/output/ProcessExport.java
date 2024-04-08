@@ -267,7 +267,7 @@ public class ProcessExport {
 	}
 
 	private void mapComplianceSystems(Process ds) {
-		if (doc.complianceDeclarations.isEmpty())
+		if (doc == null || doc.complianceDeclarations.isEmpty())
 			return;
 		var decs = ds.withModelling().withComplianceDeclarations();
 		for (var c : doc.complianceDeclarations) {

@@ -66,7 +66,7 @@ public class ProcessImport {
 	private void createAndMapContent() {
 		process.refId = Processes.getUUID(ds);
 		process.name = Strings.cut(
-				Processes.getFullName(ds, imp.langOrder()), 2024);
+				Processes.getFullName(ds, imp.lang()), 2024);
 		Import.mapVersionInfo(ds, process);
 		var info = Processes.getDataSetInfo(ds);
 		if (info != null) {

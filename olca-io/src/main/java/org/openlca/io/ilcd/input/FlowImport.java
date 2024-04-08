@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Objects;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -9,8 +11,6 @@ import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.util.Strings;
-
-import java.util.Objects;
 
 public class FlowImport {
 
@@ -54,7 +54,7 @@ public class FlowImport {
 	private void createAndMapContent() {
 		flow.refId = Flows.getUUID(ds);
 		flow.name = Strings.cut(
-				Flows.getFullName(ds, imp.langOrder()), 2048);
+				Flows.getFullName(ds, imp.lang()), 2048);
 		Import.mapVersionInfo(ds, flow);
 		flow.flowType = flowType();
 
