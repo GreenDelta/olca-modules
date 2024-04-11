@@ -33,6 +33,11 @@ public class Datasets {
 	}
 
 	public String getName(Reference ref) {
+		if (ref.isCategory) {
+			if (!ref.path.contains("/"))
+				return null;
+			return ref.path.substring(ref.path.indexOf("/") + 1);
+		}
 		var data = parse(ref, "name");
 		var name = data.get("name");
 		return name != null ? name.toString() : null;
@@ -51,7 +56,7 @@ public class Datasets {
 	}
 
 	private <T> T stream(Reference ref, T defaultValue, Function<ObjectStream, T> consumer) {
-		if (ref == null || ref.objectId == null)
+		if (ref == null || ref.objectId == null || ref.isCategory)
 			return defaultValue;
 		try (var reader = repo.getObjectDatabase().newReader();
 				var stream = reader.open(ref.objectId).openStream()) {
@@ -63,7 +68,7 @@ public class Datasets {
 	}
 
 	public byte[] getBytes(Reference ref) {
-		if (ref == null)
+		if (ref == null || ref.isCategory)
 			return null;
 		return getBytes(ref.objectId);
 	}
@@ -86,7 +91,7 @@ public class Datasets {
 	}
 
 	public String get(Reference ref) {
-		if (ref == null)
+		if (ref == null || ref.isCategory)
 			return null;
 		return get(ref.objectId);
 	}
@@ -104,7 +109,7 @@ public class Datasets {
 	}
 
 	public byte[] getBinary(Reference ref, String filepath) {
-		if (ref == null || filepath == null || filepath.isEmpty())
+		if (ref == null  || ref.isCategory || filepath == null || filepath.isEmpty())
 			return null;
 		var id = repo.entries.get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
 		return getBytes(id);
