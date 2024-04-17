@@ -187,51 +187,24 @@ public class EpdImport {
 			}
 		}
 
-		// handle LCIA indicators
-		if (r.hasImpactIndicator()) {
-			var impact = ImpactImport.get(imp, r.indicator().getUUID());
-
-			// found an impact
-			if (impact != null) {
-				if (Strings.nullOrEmpty(impact.referenceUnit)
-						&& unit != null) {
-					// indicator units are sometimes missing in
-					// LCIA data sets of ILCD packages
-					impact.referenceUnit = unit;
-					imp.db().update(impact);
-				}
-				return impact;
+		// for LCI indicators there are no LCIA categories but flows,
+		// however, we still do ImpactImport.get because this also
+		// checks for an existing indicator in the database.
+		var impact = ImpactImport.get(imp, r.indicator().getUUID());
+		if (impact != null) {
+			if (unit != null && Strings.nullOrEmpty(impact.referenceUnit)) {
+				// indicator units are sometimes missing in
+				// LCIA data sets of ILCD packages
+				impact.referenceUnit = unit;
+				impact = imp.db().update(impact);
 			}
-
-			// create a new impact category
-			var name = LangString.getDefault(r.indicator().getName());
-			impact = ImpactCategory.of(name, unit);
-			impact.refId = r.indicator().getUUID();
-			return imp.db().insert(impact);
+			return impact;
 		}
 
-		// handle LCI indicators
-		var refId = KeyGen.get("impact", r.indicator().getUUID());
-		var impact = imp.db().get(ImpactCategory.class, refId);
-		if (impact != null)
-			return impact;
+		// create a new impact category
 		var name = LangString.getDefault(r.indicator().getName());
 		impact = ImpactCategory.of(name, unit);
-		impact.refId = refId;
-		var f = FlowImport.get(imp, r.indicator().getUUID());
-		if (f.isEmpty()) {
-			return imp.db().insert(impact);
-		}
-
-		// add a factor for the ILCD+EPD flow
-		impact.name = f.flow().name;
-		impact.description = f.flow().description;
-		double value = f.isMapped() && f.mapFactor() != 0
-				? 1 / f.mapFactor()
-				: 1;
-		var factor = impact.factor(f.flow(), value);
-		factor.flowPropertyFactor = f.property();
-		factor.unit = f.unit();
+		impact.refId = r.indicator().getUUID();
 		return imp.db().insert(impact);
 	}
 

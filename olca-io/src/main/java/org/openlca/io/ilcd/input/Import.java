@@ -10,6 +10,7 @@ import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetType;
+import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
@@ -23,6 +24,7 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
 import org.openlca.ilcd.util.DataSets;
+import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowSync;
@@ -153,9 +155,21 @@ public class Import implements org.openlca.io.Import {
 		if (canceled)
 			return;
 		try {
-			var it = store.iterator(type);
-			while (!canceled && it.hasNext()) {
-				write(it.next());
+			for (var ds : store.iter(type)) {
+				if (canceled)
+					break;
+
+				if (ds instanceof Flow f
+						&& Flows.getType(f) == FlowType.OTHER_FLOW) {
+					// we do not import flows of type "other flow" by
+					// default, only when these are referenced in
+					// processes. The reason is that such flows are
+					// used as LCI indicators in EPD data sets of
+					// the ILCD+EPD format
+					continue;
+				}
+
+				write(ds);
 			}
 		} catch (Exception e) {
 			log.error("Import of data of type "
