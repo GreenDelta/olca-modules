@@ -2,12 +2,12 @@ package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -106,7 +106,14 @@ public class Entries {
 		}
 
 		public Map<String, Entry> asMap() {
-			return all().stream().collect(Collectors.toMap(e -> e.path, e -> e));
+			var map = new HashMap<String, Entry>();
+			iterate.call(entry -> {
+				// TODO how to avoid duplicate keys or handle them better
+				if (map.containsKey(entry.path))
+					return;
+				map.put(entry.path, entry);
+			});
+			return map;
 		}
 
 	}
