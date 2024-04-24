@@ -36,8 +36,8 @@ public record ImpactCategoryReader(EntityResolver resolver)
 		impact.referenceUnit = Json.getString(json, "refUnit");
 		impact.direction = Json.getEnum(json, "direction", Direction.class);
 		impact.code = Json.getString(json, "code");
-		var sourceId = Json.getString(json, "source");
-		impact.source = resolver.get(Source.class, sourceId);
+		impact.source = resolver.get(
+				Source.class, Json.getRefId(json, "source"));
 		mapParameters(impact, json);
 
 		// impact factors
