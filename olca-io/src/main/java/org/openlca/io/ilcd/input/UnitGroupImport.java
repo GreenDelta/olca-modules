@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.UUID;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
@@ -7,8 +9,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroups;
-
-import java.util.UUID;
 
 public class UnitGroupImport {
 
@@ -32,17 +32,11 @@ public class UnitGroupImport {
 
 	public static UnitGroup get(Import imp, String id) {
 		var group = imp.db().get(UnitGroup.class, id);
-		if (group != null)
-			// TODO: check if reference unit is in database!
-			return group;
-		var ds = imp.store().get(
-			org.openlca.ilcd.units.UnitGroup.class, id);
-		if (ds == null) {
-			imp.log().error("invalid reference in ILCD data set:" +
-				" unit group '" + id + "' does not exist");
-			return null;
-		}
-		return new UnitGroupImport(imp, ds).run();
+		return group != null
+				? group
+				: imp.getFromStore(org.openlca.ilcd.units.UnitGroup.class, id)
+				.map(ds -> new UnitGroupImport(imp, ds).run())
+				.orElse(null);
 	}
 
 	private UnitGroup createNew() {
@@ -81,11 +75,11 @@ public class UnitGroupImport {
 	}
 
 	private void mapUnitAttributes(
-		org.openlca.ilcd.units.Unit iUnit, Unit oUnit) {
+			org.openlca.ilcd.units.Unit iUnit, Unit oUnit) {
 		var extension = new UnitExtension(iUnit);
 		oUnit.refId = extension.isValid()
-			? extension.getUnitId()
-			: UUID.randomUUID().toString();
+				? extension.getUnitId()
+				: UUID.randomUUID().toString();
 		oUnit.name = iUnit.getName();
 		oUnit.description = imp.str(iUnit.getComment());
 		oUnit.conversionFactor = iUnit.getFactor();

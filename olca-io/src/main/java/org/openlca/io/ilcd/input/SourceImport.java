@@ -1,14 +1,14 @@
 package org.openlca.io.ilcd.input;
 
+import java.io.File;
+import java.nio.file.Files;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Sources;
-
-import java.io.File;
-import java.nio.file.Files;
 
 public class SourceImport {
 
@@ -28,18 +28,13 @@ public class SourceImport {
 				: createNew();
 	}
 
-	public static Source get(Import imp, String sourceId) {
-		var source = imp.db().get(Source.class, sourceId);
-		if (source != null)
-			return source;
-		var ds = imp.store().get(
-				org.openlca.ilcd.sources.Source.class, sourceId);
-		if (ds == null) {
-			imp.log().error("invalid reference in ILCD data set:" +
-					" source '" + sourceId + "' does not exist");
-			return null;
-		}
-		return new SourceImport(imp, ds).run();
+	public static Source get(Import imp, String id) {
+		var source = imp.db().get(Source.class, id);
+		return source != null
+				? source
+				: imp.getFromStore(org.openlca.ilcd.sources.Source.class, id)
+				.map(ds -> new SourceImport(imp, ds).run())
+				.orElse(null);
 	}
 
 	private Source createNew() {
@@ -89,12 +84,16 @@ public class SourceImport {
 		var dbFile = new File(docDir, fileName);
 		if (dbFile.exists())
 			return;
-		var stream = imp.store().getExternalDocument(Sources.getUUID(ds), fileName);
-		if (stream == null)
-			return;
-		try (stream) {
-			Files.copy(stream, dbFile.toPath());
-			source.externalFile = fileName;
+		try {
+			var stream = imp.store().getExternalDocument(Sources.getUUID(ds), fileName);
+			if (stream == null)
+				return;
+			try (stream) {
+				Files.copy(stream, dbFile.toPath());
+				source.externalFile = fileName;
+			}
+		} catch (Exception e) {
+			imp.log().error("failed to get external document " + uri);
 		}
 	}
 

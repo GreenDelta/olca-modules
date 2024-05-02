@@ -2,6 +2,7 @@ package org.openlca.io.ilcd.input;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
@@ -232,6 +233,22 @@ public class Import implements org.openlca.io.Import {
 			}
 		} catch (Exception e) {
 			log.error("Import of " + dataSet + " failed", e);
+		}
+	}
+
+	public <T extends IDataSet> Optional<T> getFromStore(Class<T> type, String id) {
+		try {
+			var ds = store.get(type, id);
+			if (ds == null) {
+				log.error("dataset of type=" + type.getSimpleName()
+						+ " and id=" + id + " is not available");
+				return Optional.empty();
+			}
+			return Optional.of(ds);
+		} catch (Exception e) {
+			log.error("failed to get dataset of type=" + type.getSimpleName()
+					+ " and id=" + id + ": " + e.getMessage());
+			return Optional.empty();
 		}
 	}
 

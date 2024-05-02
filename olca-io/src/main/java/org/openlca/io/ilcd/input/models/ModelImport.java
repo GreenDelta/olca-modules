@@ -1,5 +1,11 @@
 package org.openlca.io.ilcd.input.models;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.ProductSystemDao;
@@ -20,12 +26,6 @@ import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.input.ProcessImport;
 import org.openlca.util.Strings;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-
 /**
  * Imports an eILCD model as product system into an openLCA database.
  */
@@ -41,14 +41,11 @@ public class ModelImport {
 
 	public static ProductSystem get(Import imp, String id) {
 		var system = imp.db().get(ProductSystem.class, id);
-		if (system != null)
-			return system;
-		var ds = imp.store().get(Model.class, id);
-		if (ds == null) {
-			imp.log().error("life cycle model '" + id + "' does not exist");
-			return null;
-		}
-		return new ModelImport(imp).run(ds);
+		return system != null
+				? system
+				: imp.getFromStore(Model.class, id)
+				.map(ds -> new ModelImport(imp).run(ds))
+				.orElse(null);
 	}
 
 	public ProductSystem run(Model model) {

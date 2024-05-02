@@ -1,16 +1,15 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ImpactMethods;
 import org.openlca.util.Strings;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ImpactImport {
 
@@ -26,15 +25,11 @@ public class ImpactImport {
 
 	public static ImpactCategory get(Import imp, String id) {
 		var impact = imp.db().get(ImpactCategory.class, id);
-		if (impact != null)
-			return impact;
-		var ds = imp.store().get(ImpactMethod.class, id);
-		if (ds == null) {
-			imp.log().error("invalid reference in ILCD data set:" +
-					" impact method '" + id + "' does not exist");
-			return null;
-		}
-		return new ImpactImport(imp, ds).createNew();
+		return impact != null
+				? impact
+				: imp.getFromStore(ImpactMethod.class, id)
+				.map(ds -> new ImpactImport(imp, ds).createNew())
+				.orElse(null);
 	}
 
 	public ImpactCategory run() {

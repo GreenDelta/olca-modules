@@ -28,12 +28,10 @@ public class FlowImport {
 	}
 
 	public static SyncFlow get(Import imp, String id) {
-		return imp.flowSync.createIfAbsent(id, () -> {
-			var ds = imp.store().get(org.openlca.ilcd.flows.Flow.class, id);
-			return ds != null
-					? new FlowImport(imp, ds).createNew()
-					: null;
-		});
+		return imp.flowSync.createIfAbsent(id,
+				() -> imp.getFromStore(org.openlca.ilcd.flows.Flow.class, id)
+						.map(ds -> new FlowImport(imp, ds).createNew())
+						.orElse(null));
 	}
 
 	private Flow createNew() {

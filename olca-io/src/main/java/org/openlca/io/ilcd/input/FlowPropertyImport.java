@@ -29,16 +29,11 @@ public class FlowPropertyImport {
 
 	public static FlowProperty get(Import imp, String id) {
 		var property = imp.db().get(FlowProperty.class, id);
-		if (property != null)
-			return property;
-		var ds = imp.store().get(
-				org.openlca.ilcd.flowproperties.FlowProperty.class, id);
-		if (ds == null) {
-			imp.log().error("invalid reference in ILCD data set:" +
-					" flow property '" + id + "' does not exist");
-			return null;
-		}
-		return new FlowPropertyImport(imp, ds).run();
+		return property != null
+				? property
+				: imp.getFromStore(org.openlca.ilcd.flowproperties.FlowProperty.class, id)
+				.map(ds -> new FlowPropertyImport(imp, ds).run())
+				.orElse(null);
 	}
 
 	private FlowProperty createNew() {

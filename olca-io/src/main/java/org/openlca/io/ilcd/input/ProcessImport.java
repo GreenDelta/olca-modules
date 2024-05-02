@@ -40,15 +40,11 @@ public class ProcessImport {
 
 	public static Process get(Import imp, String id) {
 		var process = imp.db().get(Process.class, id);
-		if (process != null)
-			return process;
-		var ds = imp.store().get(org.openlca.ilcd.processes.Process.class, id);
-		if (ds == null) {
-			imp.log().error("invalid reference in ILCD data set:" +
-					" process '" + id + "' does not exist");
-			return null;
-		}
-		return new ProcessImport(imp, ds).run();
+		return process != null
+				? process
+				: imp.getFromStore(org.openlca.ilcd.processes.Process.class, id)
+				.map(ds -> new ProcessImport(imp, ds).run())
+				.orElse(null);
 	}
 
 	private Process createNew() {
@@ -183,11 +179,11 @@ public class ProcessImport {
 		var first = approaches.get(0);
 		return switch (first) {
 			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT,
-					ALLOCATION_MARGINAL_CAUSALITY,
-					ALLOCATION_ABILITY_TO_BEAR,
-					ALLOCATION_ELEMENT_CONTENT -> AllocationMethod.CAUSAL;
+					 ALLOCATION_MARGINAL_CAUSALITY,
+					 ALLOCATION_ABILITY_TO_BEAR,
+					 ALLOCATION_ELEMENT_CONTENT -> AllocationMethod.CAUSAL;
 			case ALLOCATION_MARKET_VALUE,
-					SUBSTITUTION_AVERAGE_MARKET_PRICE_CORRECTION ->
+					 SUBSTITUTION_AVERAGE_MARKET_PRICE_CORRECTION ->
 					AllocationMethod.ECONOMIC;
 			default -> AllocationMethod.PHYSICAL;
 		};

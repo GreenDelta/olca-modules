@@ -32,15 +32,11 @@ public class ContactImport {
 
 	public static Actor get(Import imp, String id) {
 		var actor = imp.db().get(Actor.class, id);
-		if (actor != null)
-			return actor;
-		var ds = imp.store().get(Contact.class, id);
-		if (ds == null) {
-			imp.log().error("invalid reference in ILCD data set:" +
-					" contact '" + id + "' does not exist");
-			return null;
-		}
-		return new ContactImport(imp, ds).run();
+		return actor != null
+				? actor
+				: imp.getFromStore(Contact.class, id)
+				.map(ds -> new ContactImport(imp, ds).run())
+				.orElse(null);
 	}
 
 	private Actor createNew() {
