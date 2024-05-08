@@ -2,6 +2,11 @@ package org.openlca.io.simapro.csv;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
@@ -16,11 +21,6 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.io.Tests;
 import org.openlca.io.simapro.csv.input.SimaProCsvImport;
 import org.openlca.io.simapro.csv.output.SimaProExport;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class UncertaintyTest {
 
@@ -50,10 +50,10 @@ public class UncertaintyTest {
 		var units = UnitGroup.of("Mass units", "kg");
 		var mass = FlowProperty.of("Mass", units);
 		var air = Category.of("air", ModelType.FLOW);
-		var p = Flow.product("p", mass);
+		var p = Flow.product("p #sp-unc-test", mass);
 		var e = Flow.elementary("e", mass);
 		e.category = air;
-		var process = Process.of("#sp-unc-test", p);
+		var process = Process.of("P #sp-unc-test", p);
 		process.output(e, 42).uncertainty = u;
 		db.insert(units, mass, air, p, e, process);
 

@@ -1,19 +1,32 @@
 package org.openlca.io.ilcd;
 
-import org.junit.Test;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.*;
-import org.openlca.ilcd.io.MemDataStore;
-import org.openlca.io.Tests;
-import org.openlca.io.ilcd.input.Import;
-import org.openlca.io.ilcd.output.Export;
+import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.DoubleStream;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactResult;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.ilcd.io.MemDataStore;
+import org.openlca.io.Tests;
+import org.openlca.io.ilcd.input.Import;
+import org.openlca.io.ilcd.output.Export;
 
 public class RoundRobinTest {
 
@@ -35,6 +48,12 @@ public class RoundRobinTest {
 		var store = new MemDataStore();
 		for (var e : list) {
 			e.refId = UUID.randomUUID().toString();
+			if(e instanceof Flow flow) {
+				// setting a flow type explicitly, otherwise
+				// the mapped ILCD flow type is OTHER which
+				// are then ignored in the import
+				flow.flowType = FlowType.ELEMENTARY_FLOW;
+			}
 			new Export(db, store).write(e);
 			db.delete(e);
 		}
