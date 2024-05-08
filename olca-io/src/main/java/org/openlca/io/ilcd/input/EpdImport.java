@@ -13,11 +13,9 @@ import org.openlca.core.model.EpdModule;
 import org.openlca.core.model.EpdProduct;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
-import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.epd.EpdValue;
@@ -165,7 +163,7 @@ public class EpdImport {
 			var v = scope.valueOf(r);
 			if (v == null || v.getAmount() == null)
 				continue;
-			var impact = impactOf(r);
+			var impact = imp.resolveIndicatorOf(r);
 			if (impact == null)
 				continue;
 			var ir = new ImpactResult();
@@ -173,39 +171,6 @@ public class EpdImport {
 			ir.amount = v.getAmount();
 			result.impactResults.add(ir);
 		}
-	}
-
-	private ImpactCategory impactOf(EpdIndicatorResult r) {
-		if (r.indicator() == null || !r.indicator().isValid())
-			return null;
-
-		String unit = null;
-		if (r.unitGroup() != null) {
-			var u = LangString.getDefault(r.unitGroup().getName());
-			if (Strings.notEmpty(u)) {
-				unit = u;
-			}
-		}
-
-		// for LCI indicators there are no LCIA categories but flows,
-		// however, we still do ImpactImport.get because this also
-		// checks for an existing indicator in the database.
-		var impact = ImpactImport.get(imp, r.indicator().getUUID());
-		if (impact != null) {
-			if (unit != null && Strings.nullOrEmpty(impact.referenceUnit)) {
-				// indicator units are sometimes missing in
-				// LCIA data sets of ILCD packages
-				impact.referenceUnit = unit;
-				impact = imp.db().update(impact);
-			}
-			return impact;
-		}
-
-		// create a new impact category
-		var name = LangString.getDefault(r.indicator().getName());
-		impact = ImpactCategory.of(name, unit);
-		impact.refId = r.indicator().getUUID();
-		return imp.db().insert(impact);
 	}
 
 	private Actor operator() {

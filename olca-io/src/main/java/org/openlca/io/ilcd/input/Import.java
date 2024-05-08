@@ -8,6 +8,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetType;
@@ -16,6 +17,7 @@ import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.ProcessType;
 import org.openlca.ilcd.contacts.Contact;
+import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.flowproperties.FlowProperty;
 import org.openlca.ilcd.flows.Flow;
 import org.openlca.ilcd.io.DataStore;
@@ -41,6 +43,7 @@ public class Import implements org.openlca.io.Import {
 	private boolean withGabiGraphs = false;
 	private String lang = "en";
 	private ExchangeProviderQueue providers;
+	private EpdIndicatorResolver epdIndicators;
 
 	private volatile boolean canceled = false;
 
@@ -134,6 +137,15 @@ public class Import implements org.openlca.io.Import {
 			providers = ExchangeProviderQueue.create(db);
 		}
 		return providers;
+	}
+
+	ImpactCategory resolveIndicatorOf(EpdIndicatorResult r) {
+		if (r == null)
+			return null;
+		if (epdIndicators == null) {
+			epdIndicators = EpdIndicatorResolver.of(this);
+		}
+		return epdIndicators.getFor(r);
 	}
 
 	@Override
