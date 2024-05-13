@@ -120,7 +120,7 @@ public class FlowImport {
 	}
 
 	private FlowType flowType() {
-		var type = Flows.getType(ds);
+		var type = Flows.getFlowType(ds);
 		if (type == null)
 			return FlowType.ELEMENTARY_FLOW;
 		return switch (type) {

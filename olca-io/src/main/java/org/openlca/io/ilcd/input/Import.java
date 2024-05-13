@@ -173,7 +173,7 @@ public class Import implements org.openlca.io.Import {
 					break;
 
 				if (ds instanceof Flow f
-						&& Flows.getType(f) == FlowType.OTHER_FLOW) {
+						&& Flows.getFlowType(f) == FlowType.OTHER_FLOW) {
 					// we do not import flows of type "other flow" by
 					// default, only when these are referenced in
 					// processes. The reason is that such flows are
