@@ -19,9 +19,11 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
+import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
@@ -96,6 +98,45 @@ public class TransDepsTest {
 			db.delete(e);
 			assertContains(deps, e);
 		}
+	}
+
+	@Test
+	public void testParameters() {
+		var globalA = Parameter.global("A", "2 * B");
+		var globalB = Parameter.global("B", 42);
+		db.insert(globalA, globalB);
+
+		assertContains(TransDeps.of(globalA, db), globalA, globalB);
+
+		// process parameters & formulas
+		var proc = new Process();
+		var procA = Parameter.process("A", 21);
+		proc.parameters.add(procA);
+		proc.output(flow, 21).formula = "A + B";
+		db.insert(proc);
+		// it must only find global B, because A is a local parameter
+		assertContains(
+				TransDeps.of(proc, db), proc, flow, flowProp, units, globalB);
+		db.delete(proc);
+
+		// impact factors
+		var imp = ImpactCategory.of("I");
+		imp.factor(flow, 21).formula = "2 * A";
+		db.insert(imp);
+		assertContains(
+				TransDeps.of(imp, db), imp, flow, flowProp, units, globalA, globalB);
+		db.delete(imp);
+
+		// projects
+		var project = new Project();
+		var variant = new ProjectVariant();
+		project.variants.add(variant);
+		variant.parameterRedefs.add(ParameterRedef.of(globalA));
+		db.insert(project);
+		assertContains(TransDeps.of(project, db), project, globalA, globalB);
+		db.delete(project);
+
+		db.delete(globalA, globalB);
 	}
 
 	@Test

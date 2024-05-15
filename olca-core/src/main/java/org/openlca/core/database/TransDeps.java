@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -91,16 +92,16 @@ public class TransDeps {
 
 		// tbl_epds
 		sql.query("""
-			select
-			  id,
-			  f_flow,
-			  f_flow_property,
-			  f_manufacturer,
-			  f_verifier,
-			  f_pcr,
-			  f_program_operator
-			from tbl_epds
-			""", r -> {
+				select
+				  id,
+				  f_flow,
+				  f_flow_property,
+				  f_manufacturer,
+				  f_verifier,
+				  f_pcr,
+				  f_program_operator
+				from tbl_epds
+				""", r -> {
 			if (has(EPD, r)) {
 				put(FLOW, r, 2);
 				put(FLOW_PROPERTY, r, 3);
@@ -114,11 +115,11 @@ public class TransDeps {
 
 		// tbl_epd_modules
 		sql.query("""
-			select
-			  f_epd,
-			  f_result
-			from tbl_epd_modules
-			""", r -> {
+				select
+				  f_epd,
+				  f_result
+				from tbl_epd_modules
+				""", r -> {
 			if (has(EPD, r)) {
 				put(RESULT, r, 2);
 			}
@@ -132,11 +133,11 @@ public class TransDeps {
 
 		// tbl_projects
 		sql.query("""
-			select
-			  id,
-			  f_impact_method
-			from tbl_projects
-			""", r -> {
+				select
+				  id,
+				  f_impact_method
+				from tbl_projects
+				""", r -> {
 			if (has(PROJECT, r)) {
 				put(IMPACT_METHOD, r, 2);
 			}
@@ -145,13 +146,40 @@ public class TransDeps {
 
 		// tbl_project_variants
 		sql.query("""
-			select
-			  f_project,
-			  f_product_system
-			from tbl_project_variants
-			""", r -> {
+				select
+				  f_project,
+				  f_product_system
+				from tbl_project_variants
+				""", r -> {
 			if (has(PROJECT, r)) {
 				put(PRODUCT_SYSTEM, r, 2);
+			}
+			return true;
+		});
+
+		// project parameter redefinitions
+		sql.query("""
+				select
+				  proj.id,
+				  redef.f_context,
+				  redef.name
+				from tbl_projects proj
+				  inner join tbl_project_variants vari on proj.id = vari.f_project
+				  inner join tbl_parameter_redefs redef on vari.id = redef.f_owner
+				""", r -> {
+			if (has(PROJECT, r)) {
+				var context = r.getLong(2);
+				if (context != 0L)
+					return true;
+				var ps = params.get(Param.strip(r.getString(3)));
+				if (ps == null)
+					return true;
+				for (var param : ps) {
+					if (param.isGlobal()) {
+						put(PARAMETER, param.id);
+						return true;
+					}
+				}
 			}
 			return true;
 		});
@@ -163,11 +191,11 @@ public class TransDeps {
 
 		// tbl_impact_methods
 		sql.query("""
-			select
-			  id,
-				f_source
-			from tbl_impact_methods
-			""", r -> {
+				select
+				  id,
+					f_source
+				from tbl_impact_methods
+				""", r -> {
 			if (has(IMPACT_METHOD, r)) {
 				put(SOURCE, r, 2);
 			}
@@ -176,11 +204,11 @@ public class TransDeps {
 
 		// tbl_impact_links
 		sql.query("""
-			select
-			  f_impact_method,
-			  f_impact_category
-			from tbl_impact_links
-			""", r -> {
+				select
+				  f_impact_method,
+				  f_impact_category
+				from tbl_impact_links
+				""", r -> {
 			if (has(IMPACT_METHOD, r)) {
 				put(IMPACT_CATEGORY, r, 2);
 			}
@@ -194,11 +222,11 @@ public class TransDeps {
 
 		// tbl_impact_categories
 		sql.query("""
-			select
-			  id,
-			  f_source
-			from tbl_impact_categories
-			""", r -> {
+				select
+				  id,
+				  f_source
+				from tbl_impact_categories
+				""", r -> {
 			if (has(IMPACT_CATEGORY, r)) {
 				put(SOURCE, r, 2);
 			}
@@ -207,13 +235,13 @@ public class TransDeps {
 
 		// tbl_impact_factors
 		sql.query("""
-			select
-			  f_impact_category,
-			  f_flow,
-				f_location,
-				formula
-			from tbl_impact_factors
-			""", r -> {
+				select
+				  f_impact_category,
+				  f_flow,
+					f_location,
+					formula
+				from tbl_impact_factors
+				""", r -> {
 			var impactId = r.getLong(1);
 			if (has(IMPACT_CATEGORY, impactId)) {
 				put(FLOW, r, 2);
@@ -232,11 +260,11 @@ public class TransDeps {
 
 		// tbl_product_systems
 		sql.query("""
-			select
-			  id,
-			  f_reference_process
-			from tbl_product_systems
-			""", r -> {
+				select
+				  id,
+				  f_reference_process
+				from tbl_product_systems
+				""", r -> {
 			if (has(PRODUCT_SYSTEM, r)) {
 				var p = r.getLong(2);
 				put(PROCESS, p);
@@ -247,13 +275,13 @@ public class TransDeps {
 
 		// tbl_process_links
 		sql.query("""
-			select
-			  f_product_system,
-			  provider_type,
-			  f_provider,
-			  f_process
-			from tbl_process_links
-			""", r -> {
+				select
+				  f_product_system,
+				  provider_type,
+				  f_provider,
+				  f_process
+				from tbl_process_links
+				""", r -> {
 			if (has(PRODUCT_SYSTEM, r)) {
 
 				var providerType = switch (r.getInt(2)) {
@@ -274,11 +302,11 @@ public class TransDeps {
 
 		// tbl_product_system_processes
 		sql.query("""
-			select
-			  f_product_system,
-			  f_process
-			from tbl_product_system_processes
-			""", r -> {
+				select
+				  f_product_system,
+				  f_process
+				from tbl_product_system_processes
+				""", r -> {
 			if (!has(PRODUCT_SYSTEM, r))
 				return true;
 			// only needed for unlinked providers; then we need to
@@ -308,14 +336,14 @@ public class TransDeps {
 
 		// tbl_processes
 		sql.query("""
-			select
-			  id,
-			  f_location,
-			  f_dq_system,
-			  f_exchange_dq_system,
-			  f_social_dq_system
-			from tbl_processes
-			""", r -> {
+				select
+				  id,
+				  f_location,
+				  f_dq_system,
+				  f_exchange_dq_system,
+				  f_social_dq_system
+				from tbl_processes
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(LOCATION, r, 2);
 				put(DQ_SYSTEM, r, 3);
@@ -327,16 +355,16 @@ public class TransDeps {
 
 		// tbl_exchanges
 		sql.query("""
-			select
-			  f_owner,
-			  f_flow,
-				f_default_provider,
-			  f_location,
-			  f_currency,
-			  resulting_amount_formula,
-			  cost_formula
-			from tbl_exchanges
-			""", r -> {
+				select
+				  f_owner,
+				  f_flow,
+					f_default_provider,
+				  f_location,
+				  f_currency,
+				  resulting_amount_formula,
+				  cost_formula
+				from tbl_exchanges
+				""", r -> {
 			var processId = r.getLong(1);
 			if (has(PROCESS, processId)) {
 				put(FLOW, r, 2);
@@ -351,11 +379,11 @@ public class TransDeps {
 
 		// tbl_allocation_factors
 		sql.query("""
-			select
-			  f_process,
-			  formula
-			from tbl_allocation_factors
-		""", r -> {
+					select
+					  f_process,
+					  formula
+					from tbl_allocation_factors
+				""", r -> {
 			var processId = r.getLong(1);
 			if (has(PROCESS, processId)) {
 				scanFormula(processId, r.getString(2));
@@ -365,12 +393,12 @@ public class TransDeps {
 
 		// tbl_social_aspects
 		sql.query("""
-			select
-			  f_process,
-			  f_indicator,
-			  f_source
-			from tbl_social_aspects
-			""", r -> {
+				select
+				  f_process,
+				  f_indicator,
+				  f_source
+				from tbl_social_aspects
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(SOCIAL_INDICATOR, r, 2);
 				put(SOURCE, r, 3);
@@ -380,15 +408,15 @@ public class TransDeps {
 
 		// tbl_process_docs
 		sql.query("""
-			select
-			  proc.id,
-			  doc.f_data_generator,
-			  doc.f_data_documentor,
-			  doc.f_publication,
-			  doc.f_data_owner
-			from tbl_process_docs doc
-			  inner join tbl_processes proc on doc.id = proc.f_process_doc
-			""", r -> {
+				select
+				  proc.id,
+				  doc.f_data_generator,
+				  doc.f_data_documentor,
+				  doc.f_publication,
+				  doc.f_data_owner
+				from tbl_process_docs doc
+				  inner join tbl_processes proc on doc.id = proc.f_process_doc
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(ACTOR, r, 2);
 				put(ACTOR, r, 3);
@@ -400,13 +428,13 @@ public class TransDeps {
 
 		// doc sources
 		sql.query("""
-			select
-			  proc.id,
-			  link.f_source
-			from tbl_processes proc
-			  inner join tbl_process_docs doc on proc.f_process_doc = doc.id
-			  inner join tbl_source_links link on link.f_owner = doc.id
-			""", r -> {
+				select
+				  proc.id,
+				  link.f_source
+				from tbl_processes proc
+				  inner join tbl_process_docs doc on proc.f_process_doc = doc.id
+				  inner join tbl_source_links link on link.f_owner = doc.id
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(SOURCE, r, 2);
 			}
@@ -415,13 +443,13 @@ public class TransDeps {
 
 		// review reports
 		sql.query("""
-			select
-				proc.id,
-				rev.f_report
-			from tbl_reviews rev
-			  inner join tbl_process_docs doc on doc.id = rev.f_owner
-				inner join tbl_processes proc on proc.f_process_doc = doc.id
-			""", r -> {
+				select
+					proc.id,
+					rev.f_report
+				from tbl_reviews rev
+				  inner join tbl_process_docs doc on doc.id = rev.f_owner
+					inner join tbl_processes proc on proc.f_process_doc = doc.id
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(SOURCE, r, 2);
 			}
@@ -430,14 +458,14 @@ public class TransDeps {
 
 		// reviewers
 		sql.query("""
-			select
-			  proc.id,
-			  link.f_actor
-			from tbl_reviews rev
-			  inner join tbl_process_docs doc on doc.id = rev.f_owner
-			  inner join tbl_processes proc on proc.f_process_doc = doc.id
-			  inner join tbl_actor_links link on link.f_owner = rev.id
-			""", r -> {
+				select
+				  proc.id,
+				  link.f_actor
+				from tbl_reviews rev
+				  inner join tbl_process_docs doc on doc.id = rev.f_owner
+				  inner join tbl_processes proc on proc.f_process_doc = doc.id
+				  inner join tbl_actor_links link on link.f_owner = rev.id
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(ACTOR, r, 2);
 			}
@@ -446,13 +474,13 @@ public class TransDeps {
 
 		// compliance systems
 		sql.query("""
-			select
-			  proc.id,
-			  comp.f_system
-			from tbl_compliance_declarations comp
-			  inner join tbl_process_docs doc on doc.id = comp.f_owner
-			  inner join tbl_processes proc on proc.f_process_doc = doc.id
-			""", r -> {
+				select
+				  proc.id,
+				  comp.f_system
+				from tbl_compliance_declarations comp
+				  inner join tbl_process_docs doc on doc.id = comp.f_owner
+				  inner join tbl_processes proc on proc.f_process_doc = doc.id
+				""", r -> {
 			if (has(PROCESS, r)) {
 				put(SOURCE, r, 2);
 			}
@@ -467,12 +495,12 @@ public class TransDeps {
 
 		// tbl_flows
 		sql.query("""
-			select
-			  id,
-				f_reference_flow_property,
-			  f_location
-			from tbl_flows
-			""", r -> {
+				select
+				  id,
+					f_reference_flow_property,
+				  f_location
+				from tbl_flows
+				""", r -> {
 			if (has(FLOW, r)) {
 				put(FLOW_PROPERTY, r, 2);
 				put(LOCATION, r, 3);
@@ -482,11 +510,11 @@ public class TransDeps {
 
 		// tbl_flow_property_factors
 		sql.query("""
-			select
-			  f_flow,
-			  f_flow_property
-			from tbl_flow_property_factors
-			""", r -> {
+				select
+				  f_flow,
+				  f_flow_property
+				from tbl_flow_property_factors
+				""", r -> {
 			if (has(FLOW, r)) {
 				put(FLOW_PROPERTY, r, 2);
 			}
@@ -500,11 +528,11 @@ public class TransDeps {
 
 		// tbl_flow_properties
 		sql.query("""
-			select
-			  id,
-			  f_unit_group
-			from tbl_flow_properties
-			""", r -> {
+				select
+				  id,
+				  f_unit_group
+				from tbl_flow_properties
+				""", r -> {
 			if (has(FLOW_PROPERTY, r)) {
 				put(UNIT_GROUP, r, 2);
 			}
@@ -518,11 +546,11 @@ public class TransDeps {
 
 		// tbl_unit_groups
 		sql.query("""
-			select
-			  id,
-			  f_default_flow_property
-			from tbl_unit_groups
-			""", r -> {
+				select
+				  id,
+				  f_default_flow_property
+				from tbl_unit_groups
+				""", r -> {
 			if (has(UNIT_GROUP, r)) {
 				put(FLOW_PROPERTY, r, 2);
 			}
@@ -536,11 +564,11 @@ public class TransDeps {
 
 		// tbl_social_indicators
 		sql.query("""
-			select
-			  id,
-				f_activity_quantity
-			from tbl_social_indicators
-			""", r -> {
+				select
+				  id,
+					f_activity_quantity
+				from tbl_social_indicators
+				""", r -> {
 			if (has(SOCIAL_INDICATOR, r)) {
 				put(FLOW_PROPERTY, r, 2);
 			}
@@ -554,11 +582,11 @@ public class TransDeps {
 
 		// tbl_currencies
 		sql.query("""
-			select
-			  id,
-				f_reference_currency
-			from tbl_currencies
-			""", r -> {
+				select
+				  id,
+					f_reference_currency
+				from tbl_currencies
+				""", r -> {
 			if (has(CURRENCY, r)) {
 				put(CURRENCY, r, 2);
 			}
@@ -572,11 +600,11 @@ public class TransDeps {
 
 		// tbl_dq_systems
 		sql.query("""
-			select
-			  id,
-				f_source
-			from tbl_dq_systems
-			""", r -> {
+				select
+				  id,
+					f_source
+				from tbl_dq_systems
+				""", r -> {
 			if (has(DQ_SYSTEM, r)) {
 				put(SOURCE, r, 2);
 			}
@@ -590,12 +618,12 @@ public class TransDeps {
 
 		// tbl_results
 		sql.query("""
-			select
-			  id,
-				f_product_system,
-			  f_impact_method
-			from tbl_results
-			""", r -> {
+				select
+				  id,
+					f_product_system,
+				  f_impact_method
+				from tbl_results
+				""", r -> {
 			if (has(RESULT, r)) {
 				put(PRODUCT_SYSTEM, r, 2);
 				put(IMPACT_METHOD, r, 3);
@@ -605,11 +633,11 @@ public class TransDeps {
 
 		// tbl_impact_results
 		sql.query("""
-			select
-			  f_result,
-			  f_impact_category
-			from tbl_impact_results
-			""", r -> {
+				select
+				  f_result,
+				  f_impact_category
+				from tbl_impact_results
+				""", r -> {
 			if (has(RESULT, r)) {
 				put(IMPACT_CATEGORY, r, 2);
 			}
@@ -618,12 +646,12 @@ public class TransDeps {
 
 		// tbl_flow_results
 		sql.query("""
-			select
-			  f_result,
-			  f_flow,
-			  f_location
-			from tbl_flow_results
-			""", r -> {
+				select
+				  f_result,
+				  f_flow,
+				  f_location
+				from tbl_flow_results
+				""", r -> {
 			if (has(RESULT, r)) {
 				put(FLOW, r, 2);
 				put(LOCATION, r, 3);
@@ -653,13 +681,22 @@ public class TransDeps {
 		int oldSize, newSize;
 		do {
 			oldSize = paramIds.size();
-			for (var it = paramIds.iterator(); it.hasNext();) {
+
+			// collect the formulas first, then scan them to
+			// avoid a concurrent modification exception
+			var formulas = new HashSet<String>();
+			for (var it = paramIds.iterator(); it.hasNext(); ) {
 				var param = globalParams.get(it.next());
 				if (param == null || !param.isGlobal())
 					continue;
 				var formula = param.formula;
-				if (formula == null || formula.isBlank())
-					continue;
+				if (formula != null && !formula.isBlank()) {
+					formulas.add(formula);
+				}
+			}
+
+			// scan the formulas for new global parameters
+			for (var formula : formulas) {
 				scanFormula(0L, formula);
 			}
 			newSize = paramIds.size();
