@@ -7,15 +7,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.formula.Formulas;
+import org.slf4j.LoggerFactory;
 
+import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.hash.TLongHashSet;
 
 /**
@@ -30,6 +36,7 @@ public class TransDeps {
 	private final IDatabase db;
 	private final NativeSql sql;
 	private final EnumMap<ModelType, TLongHashSet> refs;
+	private final Map<String, List<Param>> params;
 
 	private TransDeps(List<RootDescriptor> ds, IDatabase db) {
 		this.db = db;
@@ -38,6 +45,7 @@ public class TransDeps {
 		for (var d : ds) {
 			put(d.type, d.id);
 		}
+		this.params = Param.allOf(db);
 	}
 
 	public static List<RootDescriptor> of(RootEntity e, IDatabase db) {
@@ -73,6 +81,7 @@ public class TransDeps {
 		scanUnitGroupTables();
 		scanCurrencyTables();
 		scanDQSystemTables();
+		scanParameterFormulas();
 		return this;
 	}
 
@@ -201,12 +210,15 @@ public class TransDeps {
 			select
 			  f_impact_category,
 			  f_flow,
-				f_location
+				f_location,
+				formula
 			from tbl_impact_factors
 			""", r -> {
-			if (has(IMPACT_CATEGORY, r)) {
+			var impactId = r.getLong(1);
+			if (has(IMPACT_CATEGORY, impactId)) {
 				put(FLOW, r, 2);
 				put(LOCATION, r, 3);
+				scanFormula(impactId, r.getString(4));
 			}
 			return true;
 		});
@@ -320,14 +332,33 @@ public class TransDeps {
 			  f_flow,
 				f_default_provider,
 			  f_location,
-			  f_currency
+			  f_currency,
+			  resulting_amount_formula,
+			  cost_formula
 			from tbl_exchanges
 			""", r -> {
-			if (has(PROCESS, r)) {
+			var processId = r.getLong(1);
+			if (has(PROCESS, processId)) {
 				put(FLOW, r, 2);
 				put(PROCESS, r, 3);
 				put(LOCATION, r, 4);
 				put(CURRENCY, r, 5);
+				scanFormula(processId, r.getString(6));
+				scanFormula(processId, r.getString(7));
+			}
+			return true;
+		});
+
+		// tbl_allocation_factors
+		sql.query("""
+			select
+			  f_process,
+			  formula
+			from tbl_allocation_factors
+		""", r -> {
+			var processId = r.getLong(1);
+			if (has(PROCESS, processId)) {
+				scanFormula(processId, r.getString(2));
 			}
 			return true;
 		});
@@ -601,6 +632,76 @@ public class TransDeps {
 		});
 	}
 
+	private void scanParameterFormulas() {
+		// for the global parameters that were collected as dependencies
+		// we need to search in their formulas for references to other
+		// global parameters that need to be added; and this recursively
+		// until no more global parameters are found
+		var paramIds = refs.get(PARAMETER);
+		if (paramIds == null || paramIds.isEmpty())
+			return;
+
+		var globalParams = new TLongObjectHashMap<Param>();
+		for (var list : params.values()) {
+			for (var param : list) {
+				if (param.isGlobal()) {
+					globalParams.put(param.id, param);
+				}
+			}
+		}
+
+		int oldSize, newSize;
+		do {
+			oldSize = paramIds.size();
+			for (var it = paramIds.iterator(); it.hasNext();) {
+				var param = globalParams.get(it.next());
+				if (param == null || !param.isGlobal())
+					continue;
+				var formula = param.formula;
+				if (formula == null || formula.isBlank())
+					continue;
+				scanFormula(0L, formula);
+			}
+			newSize = paramIds.size();
+		} while (newSize > oldSize);
+	}
+
+	private void scanFormula(long owner, String formula) {
+		if (formula == null || formula.isBlank())
+			return;
+		try {
+			for (var v : Formulas.getVariables(formula)) {
+				var ps = params.get(Param.strip(v));
+				if (ps == null)
+					continue;
+
+				Param global = null;
+				Param local = null;
+				for (var param : ps) {
+					if (param.isGlobal()) {
+						global = param;
+						continue;
+					}
+					if (param.owner == owner) {
+						local = param;
+						break;
+					}
+				}
+
+				if (local != null) {
+					// parameter bound locally
+					continue;
+				}
+				if (global != null) {
+					put(PARAMETER, global.id);
+				}
+			}
+		} catch (Exception e) {
+			LoggerFactory.getLogger(getClass())
+					.error("failed to read variables from formula: {}", formula, e);
+		}
+	}
+
 	private void put(ModelType type, ResultSet r, int pos) {
 		try {
 			put(type, r.getLong(pos));
@@ -654,6 +755,40 @@ public class TransDeps {
 			}
 		}
 		return descriptors;
+	}
+
+	private record Param(
+			long id, String name, long owner, ParameterScope scope, String formula
+	) {
+
+		static Map<String, List<Param>> allOf(IDatabase db) {
+			var map = new HashMap<String, List<Param>>();
+			var q = "select id, name, f_owner, scope, formula from tbl_parameters";
+			NativeSql.on(db).query(q, r -> {
+				var param = new Param(
+						r.getLong(1),
+						r.getString(2),
+						r.getLong(3),
+						ParameterScope.fromString(r.getString(4)),
+						r.getString(5));
+				var list = map.computeIfAbsent(
+						strip(param.name),
+						$ -> new ArrayList<>());
+				list.add(param);
+				return true;
+			});
+			return map;
+		}
+
+		static String strip(String name) {
+			return name != null
+					? name.strip().toLowerCase()
+					: "";
+		}
+
+		boolean isGlobal() {
+			return owner == 0L || scope == null || scope == ParameterScope.GLOBAL;
+		}
 	}
 }
 
