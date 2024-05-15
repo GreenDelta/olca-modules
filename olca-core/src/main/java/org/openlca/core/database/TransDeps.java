@@ -12,6 +12,8 @@ import java.util.List;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 import gnu.trove.set.hash.TLongHashSet;
@@ -36,6 +38,10 @@ public class TransDeps {
 		for (var d : ds) {
 			put(d.type, d.id);
 		}
+	}
+
+	public static List<RootDescriptor> of(RootEntity e, IDatabase db) {
+		return of(Descriptor.of(e), db);
 	}
 
 	public static List<RootDescriptor> of(RootDescriptor d, IDatabase db) {
@@ -71,7 +77,7 @@ public class TransDeps {
 	}
 
 	private void scanEpdTables() {
-		if (!refs.containsKey(ModelType.EPD))
+		if (!refs.containsKey(EPD))
 			return;
 
 		// tbl_epds
@@ -86,7 +92,7 @@ public class TransDeps {
 			  f_program_operator
 			from tbl_epds
 			""", r -> {
-			if (has(EPD, r, 1)) {
+			if (has(EPD, r)) {
 				put(FLOW, r, 2);
 				put(FLOW_PROPERTY, r, 3);
 				put(ACTOR, r, 4);
@@ -104,7 +110,7 @@ public class TransDeps {
 			  f_result
 			from tbl_epd_modules
 			""", r -> {
-			if (has(EPD, r, 1)) {
+			if (has(EPD, r)) {
 				put(RESULT, r, 2);
 			}
 			return true;
@@ -112,6 +118,8 @@ public class TransDeps {
 	}
 
 	private void scanProjectTables() {
+		if (!refs.containsKey(PROJECT))
+			return;
 
 		// tbl_projects
 		sql.query("""
@@ -120,7 +128,7 @@ public class TransDeps {
 			  f_impact_method
 			from tbl_projects
 			""", r -> {
-			if (has(PROJECT, r, 1)) {
+			if (has(PROJECT, r)) {
 				put(IMPACT_METHOD, r, 2);
 			}
 			return true;
@@ -133,7 +141,7 @@ public class TransDeps {
 			  f_product_system
 			from tbl_project_variants
 			""", r -> {
-			if (has(PROJECT, r, 1)) {
+			if (has(PROJECT, r)) {
 				put(PRODUCT_SYSTEM, r, 2);
 			}
 			return true;
@@ -141,6 +149,9 @@ public class TransDeps {
 	}
 
 	private void scanImpactMethodTables() {
+		if (!refs.containsKey(IMPACT_METHOD))
+			return;
+
 		// tbl_impact_methods
 		sql.query("""
 			select
@@ -148,7 +159,7 @@ public class TransDeps {
 				f_source,
 			from tbl_impact_methods
 			""", r -> {
-			if (has(IMPACT_METHOD, r, 1)) {
+			if (has(IMPACT_METHOD, r)) {
 				put(SOURCE, r, 2);
 			}
 			return true;
@@ -161,7 +172,7 @@ public class TransDeps {
 			  f_impact_category
 			from tbl_impact_links
 			""", r -> {
-			if (has(IMPACT_METHOD, r, 1)) {
+			if (has(IMPACT_METHOD, r)) {
 				put(IMPACT_CATEGORY, r, 2);
 			}
 			return true;
@@ -169,6 +180,9 @@ public class TransDeps {
 	}
 
 	private void scanImpactCategoryTables() {
+		if (!refs.containsKey(IMPACT_CATEGORY))
+			return;
+
 		// tbl_impact_categories
 		sql.query("""
 			select
@@ -176,7 +190,7 @@ public class TransDeps {
 			  f_source
 			from tbl_impact_categories
 			""", r -> {
-			if (has(IMPACT_CATEGORY, r, 1)) {
+			if (has(IMPACT_CATEGORY, r)) {
 				put(SOURCE, r, 2);
 			}
 			return true;
@@ -190,7 +204,7 @@ public class TransDeps {
 				f_location
 			from tbl_impact_factors
 			""", r -> {
-			if (has(IMPACT_CATEGORY, r, 1)) {
+			if (has(IMPACT_CATEGORY, r)) {
 				put(FLOW, r, 2);
 				put(LOCATION, r, 3);
 			}
@@ -199,6 +213,8 @@ public class TransDeps {
 	}
 
 	private void scanProductSystemTables() {
+		if (!refs.containsKey(PRODUCT_SYSTEM))
+			return;
 
 		var providers = new TLongHashSet();
 
@@ -209,7 +225,7 @@ public class TransDeps {
 			  f_reference_process
 			from tbl_product_systems
 			""", r -> {
-			if (has(PRODUCT_SYSTEM, r, 1)) {
+			if (has(PRODUCT_SYSTEM, r)) {
 				var p = r.getLong(2);
 				put(PROCESS, p);
 				providers.add(p);
@@ -226,7 +242,7 @@ public class TransDeps {
 			  f_process
 			from tbl_process_links
 			""", r -> {
-			if (has(PRODUCT_SYSTEM, r, 1)) {
+			if (has(PRODUCT_SYSTEM, r)) {
 
 				var providerType = switch (r.getInt(2)) {
 					case 1 -> PRODUCT_SYSTEM;
@@ -251,7 +267,7 @@ public class TransDeps {
 			  f_process
 			from tbl_product_system_processes
 			""", r -> {
-			if (!has(PRODUCT_SYSTEM, r, 1))
+			if (!has(PRODUCT_SYSTEM, r))
 				return true;
 			// only needed for unlinked providers; then we need to
 			// know the type
@@ -275,6 +291,8 @@ public class TransDeps {
 	}
 
 	private void scanProcessTables() {
+		if (!refs.containsKey(PROCESS))
+			return;
 
 		// tbl_exchanges
 		sql.query("""
@@ -286,7 +304,7 @@ public class TransDeps {
 			  f_currency
 			from tbl_exchanges
 			""", r -> {
-			if (has(PROCESS, r, 1)) {
+			if (has(PROCESS, r)) {
 				put(FLOW, r, 2);
 				put(PROCESS, r, 3);
 				put(LOCATION, r, 4);
@@ -303,35 +321,83 @@ public class TransDeps {
 			  f_source
 			from tbl_social_aspects
 			""", r -> {
-			if (has(PROCESS, r, 1)) {
+			if (has(PROCESS, r)) {
 				put(SOCIAL_INDICATOR, r, 2);
 				put(SOURCE, r, 3);
 			}
 			return true;
 		});
 
-		/*
-		// tbl_reviews
+		// review reports
 		sql.query("""
 			select
-			  proc.id
-			  rev.f_owner,
-			f_report,
-			from tbl_reviews
+				proc.id,
+				rev.f_report
+			from tbl_reviews rev
+			  inner join tbl_process_docs doc on doc.id = rev.f_owner
+				inner join tbl_processes proc on proc.f_process_doc = doc.id
 			""", r -> {
-			if (has(_, r, 1)) {
-				// put ...
+			if (has(PROCESS, r)) {
+				put(SOURCE, r, 2);
 			}
 			return true;
 		});
-   */
+
+		// reviewers
+		sql.query("""
+			select
+			  proc.id,
+			  link.f_actor
+			from tbl_reviews rev
+			  inner join tbl_process_docs doc on doc.id = rev.f_owner
+			  inner join tbl_processes proc on proc.f_process_doc = doc.id
+			  inner join tbl_actor_links link on link.f_owner = rev.id
+			""", r -> {
+			if (has(PROCESS, r)) {
+				put(ACTOR, r, 2);
+			}
+			return true;
+		});
+
 	}
 
 	private void scanFlowTables() {
-		// TODO: implement
+		if (!refs.containsKey(FLOW))
+			return;
+
+		// tbl_flows
+		sql.query("""
+			select
+			  id,
+				f_reference_flow_property,
+			  f_location
+			from tbl_flows
+			""", r -> {
+			if (has(FLOW, r)) {
+				put(FLOW_PROPERTY, r, 2);
+				put(LOCATION, r, 3);
+			}
+			return true;
+		});
+
+		// tbl_flow_property_factors
+		sql.query("""
+			select
+			  f_flow,
+			  f_flow_property
+			from tbl_flow_property_factors
+			""", r -> {
+			if (has(FLOW, r)) {
+				put(FLOW_PROPERTY, r, 2);
+			}
+			return true;
+		});
 	}
 
 	private void scanFlowPropertyTables() {
+		if (!refs.containsKey(FLOW_PROPERTY))
+			return;
+
 		// tbl_flow_properties
 		sql.query("""
 			select
@@ -339,7 +405,7 @@ public class TransDeps {
 			  f_unit_group
 			from tbl_flow_properties
 			""", r -> {
-			if (has(FLOW_PROPERTY, r, 1)) {
+			if (has(FLOW_PROPERTY, r)) {
 				put(UNIT_GROUP, r, 2);
 			}
 			return true;
@@ -347,6 +413,9 @@ public class TransDeps {
 	}
 
 	private void scanUnitGroupTables() {
+		if (!refs.containsKey(UNIT_GROUP))
+			return;
+
 		// tbl_unit_groups
 		sql.query("""
 			select
@@ -354,7 +423,7 @@ public class TransDeps {
 			  f_default_flow_property
 			from tbl_unit_groups
 			""", r -> {
-			if (has(UNIT_GROUP, r, 1)) {
+			if (has(UNIT_GROUP, r)) {
 				put(FLOW_PROPERTY, r, 2);
 			}
 			return true;
@@ -362,6 +431,9 @@ public class TransDeps {
 	}
 
 	private void scanSocialIndicatorTables() {
+		if (!refs.containsKey(SOCIAL_INDICATOR))
+			return;
+
 		// tbl_social_indicators
 		sql.query("""
 			select
@@ -369,7 +441,7 @@ public class TransDeps {
 				f_activity_quantity
 			from tbl_social_indicators
 			""", r -> {
-			if (has(SOCIAL_INDICATOR, r, 1)) {
+			if (has(SOCIAL_INDICATOR, r)) {
 				put(FLOW_PROPERTY, r, 2);
 			}
 			return true;
@@ -377,6 +449,9 @@ public class TransDeps {
 	}
 
 	private void scanCurrencyTables() {
+		if (!refs.containsKey(CURRENCY))
+			return;
+
 		// tbl_currencies
 		sql.query("""
 			select
@@ -384,7 +459,7 @@ public class TransDeps {
 				f_reference_currency
 			from tbl_currencies
 			""", r -> {
-			if (has(CURRENCY, r, 1)) {
+			if (has(CURRENCY, r)) {
 				put(CURRENCY, r, 2);
 			}
 			return true;
@@ -392,6 +467,9 @@ public class TransDeps {
 	}
 
 	private void scanDQSystemTables() {
+		if (!refs.containsKey(DQ_SYSTEM))
+			return;
+
 		// tbl_dq_systems
 		sql.query("""
 			select
@@ -399,7 +477,7 @@ public class TransDeps {
 				f_source
 			from tbl_dq_systems
 			""", r -> {
-			if (has(DQ_SYSTEM, r, 1)) {
+			if (has(DQ_SYSTEM, r)) {
 				put(SOURCE, r, 2);
 			}
 			return true;
@@ -407,6 +485,9 @@ public class TransDeps {
 	}
 
 	private void scanResultTables() {
+		if (!refs.containsKey(RESULT))
+			return;
+
 		// tbl_results
 		sql.query("""
 			select
@@ -415,7 +496,7 @@ public class TransDeps {
 			  f_impact_method
 			from tbl_results
 			""", r -> {
-			if (has(RESULT, r, 1)) {
+			if (has(RESULT, r)) {
 				put(PRODUCT_SYSTEM, r, 2);
 				put(IMPACT_METHOD, r, 3);
 			}
@@ -429,7 +510,7 @@ public class TransDeps {
 			  f_impact_category
 			from tbl_impact_results
 			""", r -> {
-			if (has(RESULT, r, 1)) {
+			if (has(RESULT, r)) {
 				put(IMPACT_CATEGORY, r, 2);
 			}
 			return true;
@@ -443,7 +524,7 @@ public class TransDeps {
 			  f_location
 			from tbl_flow_results
 			""", r -> {
-			if (has(RESULT, r, 1)) {
+			if (has(RESULT, r)) {
 				put(FLOW, r, 2);
 				put(LOCATION, r, 3);
 			}
@@ -467,12 +548,16 @@ public class TransDeps {
 		ids.add(id);
 	}
 
-	private boolean has(ModelType type, ResultSet r, int pos) {
+	/**
+	 * Tests if the value of the first column has an ID of a dataset of the
+	 * given model type that is contained in the collected references.
+	 */
+	private boolean has(ModelType type, ResultSet r) {
 		try {
-			return has(type, r.getLong(pos));
+			return has(type, r.getLong(1));
 		} catch (SQLException e) {
 			throw new RuntimeException(
-					"failed to get ID value for " + type + " at column " + pos, e);
+					"failed to get ID value for " + type + " at column " + 1, e);
 		}
 	}
 
