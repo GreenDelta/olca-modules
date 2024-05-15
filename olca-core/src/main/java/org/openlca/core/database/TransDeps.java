@@ -157,7 +157,7 @@ public class TransDeps {
 			return true;
 		});
 
-		// project parameter redefinitions
+		// parameter redefinitions
 		sql.query("""
 				select
 				  proj.id,
@@ -326,6 +326,33 @@ public class TransDeps {
 				return true;
 			}
 			put(RESULT, p);
+			return true;
+		});
+
+		// parameter redefinitions
+		sql.query("""
+				select
+				  sys.id,
+				  redef.f_context,
+				  redef.name
+				from tbl_product_systems sys
+				  inner join tbl_parameter_redef_sets rs on sys.id = rs.f_product_system
+				  inner join tbl_parameter_redefs redef on rs.id = redef.f_owner
+				""", r -> {
+			if (has(PRODUCT_SYSTEM, r)) {
+				var context = r.getLong(2);
+				if (context != 0L)
+					return true;
+				var ps = params.get(Param.strip(r.getString(3)));
+				if (ps == null)
+					return true;
+				for (var param : ps) {
+					if (param.isGlobal()) {
+						put(PARAMETER, param.id);
+						return true;
+					}
+				}
+			}
 			return true;
 		});
 	}

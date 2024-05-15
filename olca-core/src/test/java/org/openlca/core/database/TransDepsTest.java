@@ -20,6 +20,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
@@ -96,7 +97,7 @@ public class TransDepsTest {
 			db.insert(e);
 			var deps = TransDeps.of(e, db);
 			db.delete(e);
-			assertContains(deps, e);
+			assertDeps(deps, e);
 		}
 	}
 
@@ -106,7 +107,7 @@ public class TransDepsTest {
 		var globalB = Parameter.global("B", 42);
 		db.insert(globalA, globalB);
 
-		assertContains(TransDeps.of(globalA, db), globalA, globalB);
+		assertDeps(TransDeps.of(globalA, db), globalA, globalB);
 
 		// process parameters & formulas
 		var proc = new Process();
@@ -115,7 +116,7 @@ public class TransDepsTest {
 		proc.output(flow, 21).formula = "A + B";
 		db.insert(proc);
 		// it must only find global B, because A is a local parameter
-		assertContains(
+		assertDeps(
 				TransDeps.of(proc, db), proc, flow, flowProp, units, globalB);
 		db.delete(proc);
 
@@ -123,7 +124,7 @@ public class TransDepsTest {
 		var imp = ImpactCategory.of("I");
 		imp.factor(flow, 21).formula = "2 * A";
 		db.insert(imp);
-		assertContains(
+		assertDeps(
 				TransDeps.of(imp, db), imp, flow, flowProp, units, globalA, globalB);
 		db.delete(imp);
 
@@ -133,8 +134,17 @@ public class TransDepsTest {
 		project.variants.add(variant);
 		variant.parameterRedefs.add(ParameterRedef.of(globalA));
 		db.insert(project);
-		assertContains(TransDeps.of(project, db), project, globalA, globalB);
+		assertDeps(TransDeps.of(project, db), project, globalA, globalB);
 		db.delete(project);
+
+		// product systems
+		var system = new ProductSystem();
+		var redefSet = new ParameterRedefSet();
+		system.parameterSets.add(redefSet);
+		redefSet.parameters.add(ParameterRedef.of(globalA));
+		db.insert(system);
+		assertDeps(TransDeps.of(system, db), system, globalA, globalB);
+		db.delete(system);
 
 		db.delete(globalA, globalB);
 	}
@@ -150,7 +160,7 @@ public class TransDepsTest {
 		db.insert(proc);
 		var procDeps = TransDeps.of(proc, db);
 		db.delete(proc);
-		assertContains(procDeps, proc, location, dqSystem, flow, flowProp, units);
+		assertDeps(procDeps, proc, location, dqSystem, flow, flowProp, units);
 
 		// doc dependencies
 		var docProc = new Process();
@@ -160,7 +170,7 @@ public class TransDepsTest {
 		db.insert(docProc);
 		var docDeps = TransDeps.of(docProc, db);
 		db.delete(docProc);
-		assertContains(docDeps, docProc, actor, source);
+		assertDeps(docDeps, docProc, actor, source);
 
 		// reviews
 		var revProc = new Process();
@@ -171,7 +181,7 @@ public class TransDepsTest {
 		rev.reviewers.add(actor);
 		revProc = db.insert(revProc);
 		var revDeps = TransDeps.of(revProc, db);
-		assertContains(revDeps, revProc, source, actor);
+		assertDeps(revDeps, revProc, source, actor);
 		db.delete(revProc);
 
 		// compliance systems
@@ -183,10 +193,10 @@ public class TransDepsTest {
 		db.insert(compProc);
 		var compDeps = TransDeps.of(compProc, db);
 		db.delete(compProc);
-		assertContains(compDeps, compProc, source);
+		assertDeps(compDeps, compProc, source);
 	}
 
-	private void assertContains(List<RootDescriptor> deps, RootEntity... es) {
+	private void assertDeps(List<RootDescriptor> deps, RootEntity... es) {
 		assertEquals("did not find all dependencies", es.length, deps.size());
 		for (var e : es) {
 			boolean found = false;
