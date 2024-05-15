@@ -9,11 +9,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 
@@ -23,24 +38,88 @@ public class TransDepsTest {
 
 	private Source source;
 	private Actor actor;
+	private Location location;
+	private DQSystem dqSystem;
+	private UnitGroup units;
+	private FlowProperty flowProp;
+	private Flow flow;
 
 	@Before
 	public void setup() {
 		source = db.insert(Source.of("some source"));
 		actor = db.insert(Actor.of("some actor"));
+		location = db.insert(Location.of("Global", "GLO"));
+		dqSystem = db.insert(DQSystem.of("DQ System"));
+		units = db.insert(UnitGroup.of("Units of mass", "kg"));
+		flowProp = db.insert(FlowProperty.of("Mass", units));
+		flow = db.insert(Flow.elementary("CO2", flowProp));
 	}
 
 	@After
 	public void cleanup() {
 		db.delete(
+				flow,
+				flowProp,
+				units,
+				location,
+				dqSystem,
 				source,
 				actor
 		);
 	}
 
+	@Test
+	public void testOnlySelfRef() {
+		var es = List.of(
+				new Project(),
+				new ImpactMethod(),
+				new ImpactCategory(),
+				new ProductSystem(),
+				new Process(),
+				new Flow(),
+				new FlowProperty(),
+				new UnitGroup(),
+				new Actor(),
+				new Source(),
+				new Location(),
+				new SocialIndicator(),
+				new Currency(),
+				new Parameter(),
+				new DQSystem(),
+				new Result(),
+				new Epd()
+		);
+		for (var e : es) {
+			assertTrue(TransDeps.of(e, db).isEmpty());
+			db.insert(e);
+			var deps = TransDeps.of(e, db);
+			db.delete(e);
+			assertContains(deps, e);
+		}
+	}
 
 	@Test
 	public void testProcessDeps() {
+
+		// general dependencies
+		var proc = new Process();
+		proc.output(flow, 1.0);
+		proc.location = location;
+		proc.dqSystem = dqSystem;
+		db.insert(proc);
+		var procDeps = TransDeps.of(proc, db);
+		db.delete(proc);
+		assertContains(procDeps, proc, location, dqSystem, flow, flowProp, units);
+
+		// doc dependencies
+		var docProc = new Process();
+		var doc = docProc.documentation = new ProcessDoc();
+		doc.dataGenerator = actor;
+		doc.sources.add(source);
+		db.insert(docProc);
+		var docDeps = TransDeps.of(docProc, db);
+		db.delete(docProc);
+		assertContains(docDeps, docProc, actor, source);
 
 		// reviews
 		var revProc = new Process();
@@ -50,11 +129,20 @@ public class TransDepsTest {
 		rev.report = source;
 		rev.reviewers.add(actor);
 		revProc = db.insert(revProc);
-		var deps = TransDeps.of(revProc, db);
-		assertContains(deps, revProc, source, actor);
+		var revDeps = TransDeps.of(revProc, db);
+		assertContains(revDeps, revProc, source, actor);
 		db.delete(revProc);
 
-
+		// compliance systems
+		var compProc = new Process();
+		var dec = new ComplianceDeclaration();
+		dec.system = source;
+		compProc.documentation = new ProcessDoc();
+		compProc.documentation.complianceDeclarations.add(dec);
+		db.insert(compProc);
+		var compDeps = TransDeps.of(compProc, db);
+		db.delete(compProc);
+		assertContains(compDeps, compProc, source);
 	}
 
 	private void assertContains(List<RootDescriptor> deps, RootEntity... es) {

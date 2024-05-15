@@ -156,7 +156,7 @@ public class TransDeps {
 		sql.query("""
 			select
 			  id,
-				f_source,
+				f_source
 			from tbl_impact_methods
 			""", r -> {
 			if (has(IMPACT_METHOD, r)) {
@@ -294,6 +294,25 @@ public class TransDeps {
 		if (!refs.containsKey(PROCESS))
 			return;
 
+		// tbl_processes
+		sql.query("""
+			select
+			  id,
+			  f_location,
+			  f_dq_system,
+			  f_exchange_dq_system,
+			  f_social_dq_system
+			from tbl_processes
+			""", r -> {
+			if (has(PROCESS, r)) {
+				put(LOCATION, r, 2);
+				put(DQ_SYSTEM, r, 3);
+				put(DQ_SYSTEM, r, 4);
+				put(DQ_SYSTEM, r, 5);
+			}
+			return true;
+		});
+
 		// tbl_exchanges
 		sql.query("""
 			select
@@ -328,6 +347,41 @@ public class TransDeps {
 			return true;
 		});
 
+		// tbl_process_docs
+		sql.query("""
+			select
+			  proc.id,
+			  doc.f_data_generator,
+			  doc.f_data_documentor,
+			  doc.f_publication,
+			  doc.f_data_owner
+			from tbl_process_docs doc
+			  inner join tbl_processes proc on doc.id = proc.f_process_doc
+			""", r -> {
+			if (has(PROCESS, r)) {
+				put(ACTOR, r, 2);
+				put(ACTOR, r, 3);
+				put(SOURCE, r, 4);
+				put(ACTOR, r, 5);
+			}
+			return true;
+		});
+
+		// doc sources
+		sql.query("""
+			select
+			  proc.id,
+			  link.f_source
+			from tbl_processes proc
+			  inner join tbl_process_docs doc on proc.f_process_doc = doc.id
+			  inner join tbl_source_links link on link.f_owner = doc.id
+			""", r -> {
+			if (has(PROCESS, r)) {
+				put(SOURCE, r, 2);
+			}
+			return true;
+		});
+
 		// review reports
 		sql.query("""
 			select
@@ -355,6 +409,21 @@ public class TransDeps {
 			""", r -> {
 			if (has(PROCESS, r)) {
 				put(ACTOR, r, 2);
+			}
+			return true;
+		});
+
+		// compliance systems
+		sql.query("""
+			select
+			  proc.id,
+			  comp.f_system
+			from tbl_compliance_declarations comp
+			  inner join tbl_process_docs doc on doc.id = comp.f_owner
+			  inner join tbl_processes proc on proc.f_process_doc = doc.id
+			""", r -> {
+			if (has(PROCESS, r)) {
+				put(SOURCE, r, 2);
 			}
 			return true;
 		});
@@ -586,6 +655,5 @@ public class TransDeps {
 		}
 		return descriptors;
 	}
-
 }
 
