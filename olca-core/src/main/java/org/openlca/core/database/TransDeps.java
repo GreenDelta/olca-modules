@@ -39,7 +39,7 @@ public class TransDeps {
 	private final EnumMap<ModelType, TLongHashSet> refs;
 	private final Map<String, List<Param>> params;
 
-	private TransDeps(List<RootDescriptor> ds, IDatabase db) {
+	private TransDeps(List<? extends RootDescriptor> ds, IDatabase db) {
 		this.db = db;
 		this.sql = NativeSql.on(db);
 		this.refs = new EnumMap<>(ModelType.class);
@@ -59,7 +59,8 @@ public class TransDeps {
 				: of(List.of(d), db);
 	}
 
-	public static List<RootDescriptor> of(List<RootDescriptor> ds, IDatabase db) {
+	public static List<RootDescriptor> of(
+			List<? extends RootDescriptor> ds, IDatabase db) {
 		if (ds == null || db == null)
 			return Collections.emptyList();
 		return new TransDeps(ds, db)
