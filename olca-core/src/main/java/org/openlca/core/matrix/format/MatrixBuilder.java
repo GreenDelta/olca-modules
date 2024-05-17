@@ -50,6 +50,14 @@ public class MatrixBuilder {
 		return dense == null && sparse.isEmpty();
 	}
 
+	public int rows() {
+		return Math.max(sparse.rows, denseRows);
+	}
+
+	public int columns() {
+		return Math.max(sparse.cols, denseCols);
+	}
+
 	/**
 	 * Set the cell (row, col) to the given value.
 	 */
@@ -75,20 +83,28 @@ public class MatrixBuilder {
 		}
 	}
 
+	public double get(int row, int col) {
+		if (row < 0 || col < 0)
+			return 0;
+		return row < denseRows && col < denseCols
+				? dense.get(row, col)
+				: sparse.get(row, col);
+	}
+
 	/**
 	 * Let $v$ be the current value at the cell $a_{row, col}. This function
 	 * adds the given value $w$ to $a_{row, col} so that:
-	 *
+	 * <p>
 	 * $$a_{row, col} = v + w$$
-	 *
+	 * <p>
 	 * Where $v = 0$ When there is no value at $a_{row, col}.
 	 */
 	public void add(int row, int col, double w) {
 		if (w == 0 || row < 0 || col < 0)
 			return;
 		double v = row < denseRows && col < denseCols
-			? dense.get(row, col)
-			: sparse.get(row, col);
+				? dense.get(row, col)
+				: sparse.get(row, col);
 		set(row, col, v + w);
 	}
 
@@ -96,7 +112,7 @@ public class MatrixBuilder {
 		if (dense != null) {
 			mapDense();
 			log.trace("Finish matrix builder with "
-				+ "dense {}*{} matrix", denseRows, denseCols);
+					+ "dense {}*{} matrix", denseRows, denseCols);
 			return dense;
 		}
 		// double casts to avoid integer overflows
@@ -106,11 +122,11 @@ public class MatrixBuilder {
 		if (fr > maxSparseFileRate) {
 			mapDense();
 			log.trace("Finish matrix builder with "
-				+ "dense {}*{} matrix", denseRows, denseCols);
+					+ "dense {}*{} matrix", denseRows, denseCols);
 			return dense;
 		}
 		log.trace("Finish matrix builder with "
-			+ "sparse {}*{} matrix", sparse.rows, sparse.cols);
+				+ "sparse {}*{} matrix", sparse.rows, sparse.cols);
 		return sparse;
 	}
 
@@ -135,9 +151,9 @@ public class MatrixBuilder {
 		denseRows = dense.rows;
 		denseCols = dense.columns;
 		log.trace("Allocated a {}*{} dense matrix; {} new entries",
-			denseRows, denseCols, sparseEntries);
+				denseRows, denseCols, sparseEntries);
 		sparse.iterate(
-			(row, col, val) -> dense.set(row, col, val));
+				(row, col, val) -> dense.set(row, col, val));
 		sparse.clear();
 		sparseEntries = 0;
 	}

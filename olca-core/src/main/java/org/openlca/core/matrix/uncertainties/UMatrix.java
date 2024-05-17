@@ -96,6 +96,15 @@ public class UMatrix implements Copyable<UMatrix> {
 		return rowm;
 	}
 
+	public void delete(int row, int col) {
+		var rowm = data.get(row);
+		if (rowm == null)
+			return;
+		if (rowm.containsKey(col)) {
+			rowm.put(col, null);
+		}
+	}
+
 	/**
 	 * Generates new values and sets them to the given matrix, thus, it modifies
 	 * the given matrix.

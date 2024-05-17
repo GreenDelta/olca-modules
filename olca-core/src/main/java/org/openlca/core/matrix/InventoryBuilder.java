@@ -11,6 +11,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.slf4j.LoggerFactory;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -71,6 +72,7 @@ public class InventoryBuilder {
 
 		// fill the matrices
 		fillMatrices();
+		new DiagCheck(this).exec();
 		int n = techIndex.size();
 		int m = flowIndex.size();
 
@@ -215,6 +217,67 @@ public class InventoryBuilder {
 			}
 			if (matrix == enviBuilder) {
 				enviUncerts.add(row, col, exchange, allocationFactor);
+			}
+		}
+	}
+
+	/**
+	 * It occurs quite often that there are zero values for product outputs or
+	 * waste inputs on the diagonal of the technosphere matrix. The reason for
+	 * this are modeling errors, because these are flows that can be linked and
+	 * zero values here mean division be zero then (e.g. we scale per product
+	 * output in LCA). However, users often think they can just set an output to
+	 * zero if the process should produce nothing in the model (instead of
+	 * setting the respective input to zero where the process is linked). Thus,
+	 * we check this here and try to fix it: we set the value on the diagonal to
+	 * 1 or -1 and every link to 0 for such processes then, assuming this is what
+	 * users initially wanted. We also clear intervention flows and costs to
+	 * really make sure such processes produce no results.
+	 */
+	private record DiagCheck(InventoryBuilder b) {
+		void exec() {
+			for (int k = 0; k < b.techIndex.size(); k++) {
+				double val = b.techBuilder.get(k, k);
+				if (val == 0) {
+					drop(k);
+				}
+			}
+		}
+
+		private void drop(int k) {
+			// log the problem
+			var techFlow = b.techIndex.at(k);
+			var log = LoggerFactory.getLogger(getClass());
+			log.warn("provider {} has a zero value for its product " +
+					"output or waste input; this is an error in the model", techFlow);
+
+			// we fix a zero value on the diagonal by setting
+			// it to 1 and every other value related to it to 0
+			b.techBuilder.set(k, k, 1.0);
+
+			// remove every link to k, in row k
+			for (int j = 0; j < b.techBuilder.columns(); j++) {
+				if (j == k)
+					continue;
+				b.techBuilder.set(k, j, 0);
+				if (b.techUncerts != null) {
+					b.techUncerts.delete(k, j);
+				}
+			}
+
+			if (!b.flowIndex.isEmpty()) {
+				// remove every intervention in column k
+				for (int i = 0; i < b.enviBuilder.rows(); i++) {
+					b.enviBuilder.set(i, k, 0);
+					if (b.enviUncerts != null) {
+						b.enviUncerts.delete(i, k);
+					}
+				}
+			}
+
+			if (b.costs != null) {
+				// remove the costs for k
+				b.costs[k] = 0;
 			}
 		}
 	}
