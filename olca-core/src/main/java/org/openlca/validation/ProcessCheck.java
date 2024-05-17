@@ -1,16 +1,19 @@
 package org.openlca.validation;
 
-import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+
+import gnu.trove.map.hash.TLongLongHashMap;
 
 class ProcessCheck implements Runnable {
 
 	private final Validation v;
+	private final NativeSql sql;
 	private boolean foundErrors = false;
 
 	ProcessCheck(Validation v) {
 		this.v = v;
+		this.sql = NativeSql.on(v.db);
 	}
 
 	@Override
@@ -37,7 +40,7 @@ class ProcessCheck implements Runnable {
 		if (v.wasCanceled())
 			return lastInternalIds;
 
-		var sql = "select " +
+		var q = "select " +
 				/* 1 */ "id, " +
 				/* 2 */ "f_location, " +
 				/* 3 */ "f_dq_system, " +
@@ -45,7 +48,7 @@ class ProcessCheck implements Runnable {
 				/* 5 */ "f_social_dq_system, " +
 				/* 6 */ "last_internal_id from tbl_processes";
 
-		NativeSql.on(v.db).query(sql, r -> {
+		sql.query(q, r -> {
 			long id = r.getLong(1);
 
 			var locID = r.getLong(2);
@@ -73,7 +76,7 @@ class ProcessCheck implements Runnable {
 	private void checkProcessDocs() {
 		if (v.wasCanceled())
 			return;
-		var sql = "select " +
+		var q = "select " +
 				/* 1 */ "p.id, " +
 				/* 2 */ "doc.f_data_generator, " +
 				/* 3 */ "doc.f_data_owner, " +
@@ -87,7 +90,7 @@ class ProcessCheck implements Runnable {
 				"publication"
 		};
 
-		NativeSql.on(v.db).query(sql, r -> {
+		sql.query(q, r -> {
 			var id = r.getLong(1);
 
 			for (int i = 0; i < refs.length; i++) {
@@ -108,16 +111,38 @@ class ProcessCheck implements Runnable {
 	private void checkQuantitativeRefs() {
 		if (v.wasCanceled())
 			return;
-		var sql = "select p.id from tbl_processes p " +
-				"left join tbl_exchanges e on " +
-				"p.f_quantitative_reference = e.id " +
-				"where e.id is null";
-		NativeSql.on(v.db).query(sql, r -> {
+
+		// search for processes without a quantitative reference
+		sql.query("""
+				select p.id from tbl_processes p
+				  left join tbl_exchanges e on
+				  p.f_quantitative_reference = e.id
+				where e.id is null
+				""", r -> {
 			long id = r.getLong(1);
 			v.warning(id, ModelType.PROCESS, "no quantitative reference");
 			foundErrors = true;
 			return !v.wasCanceled();
 		});
+
+		// search for processes with 0 value product outputs or waste inputs
+		sql.query("""
+				select e.f_owner
+				  from tbl_flows f
+				    inner join tbl_exchanges e on f.id = e.f_flow
+				  where
+				    e.resulting_amount_value = 0.0 and
+				    ((f.flow_type = 'PRODUCT_FLOW' and e.is_input = 0)
+				     or
+				    (f.flow_type = 'WASTE_FLOW' and e.is_input = 1))
+				""", r -> {
+			long id = r.getLong(1);
+			v.error(id, ModelType.PROCESS,
+					"process contains zero value product outputs or waste inputs");
+			foundErrors = true;
+			return !v.wasCanceled();
+		});
+
 	}
 
 	private void checkExchanges(TLongLongHashMap lastInternalIds) {
@@ -125,7 +150,7 @@ class ProcessCheck implements Runnable {
 			return;
 
 		var processIDs = v.ids.allOf(ModelType.PROCESS);
-		var sql = "select " +
+		var q = "select " +
 				/* 1 */ "f_owner, " +
 				/* 2 */ "f_flow, " +
 				/* 3 */ "f_unit, " +
@@ -135,7 +160,7 @@ class ProcessCheck implements Runnable {
 				/* 7 */ "f_currency, " +
 				/* 8 */ "internal_id from tbl_exchanges";
 
-		NativeSql.on(v.db).query(sql, r -> {
+		sql.query(q, r -> {
 			var id = r.getLong(1);
 
 			if (!processIDs.contains(id))
@@ -197,13 +222,13 @@ class ProcessCheck implements Runnable {
 	private void checkAllocationFactors() {
 		if (v.wasCanceled())
 			return;
-		var sql = "select " +
+		var q = "select " +
 				/* 1 */ "a.f_process, " +
 				/* 2 */ "a.f_product, " +
 				/* 3 */ "a.f_exchange, " +
 				/* 4 */ "e.id from tbl_allocation_factors a left " +
 				"join tbl_exchanges e on a.f_exchange = e.id";
-		NativeSql.on(v.db).query(sql, r -> {
+		sql.query(q, r -> {
 			var id = r.getLong(1);
 
 			if (!v.ids.contains(ModelType.PROCESS, id)) {
@@ -236,11 +261,11 @@ class ProcessCheck implements Runnable {
 	private void checkSocialAspects() {
 		if (v.wasCanceled())
 			return;
-		var sql = "select " +
+		var q = "select " +
 				/* 1 */ "f_process, " +
 				/* 2 */ "f_indicator, " +
 				/* 3 */ "f_source from tbl_social_aspects";
-		NativeSql.on(v.db).query(sql, r -> {
+		sql.query(q, r -> {
 
 			var id = r.getLong(1);
 			if (!v.ids.contains(ModelType.PROCESS, id)) {

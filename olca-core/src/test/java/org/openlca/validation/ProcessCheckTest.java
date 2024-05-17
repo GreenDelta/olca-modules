@@ -1,5 +1,7 @@
 package org.openlca.validation;
 
+import static org.junit.Assert.*;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -11,8 +13,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.validation.Item.Type;
-
-import static org.junit.Assert.fail;
 
 public class ProcessCheckTest {
 
@@ -54,5 +54,29 @@ public class ProcessCheckTest {
 			fail("expected an error because of invalid exchange ID");
 		}
 	}
+
+	@Test
+	public void testZeroProductOutput() {
+		var units = UnitGroup.of("Mass units", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		var p = Flow.product("p", mass);
+		var process = Process.of("P", p);
+		process.quantitativeReference.amount = 0;
+		db.insert(units, mass, p, process);
+		var v = Validation.on(db);
+		v.run();
+
+		var found = false;
+		for (var item : v.items()) {
+			if (item.type == Type.ERROR
+					&& item.model != null
+					&& item.model.id == process.id) {
+				// System.out.println(item.message);
+				found = true;
+				break;
+			}
+		}
+		assertTrue(found);
+}
 
 }
