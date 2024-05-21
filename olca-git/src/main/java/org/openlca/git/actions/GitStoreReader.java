@@ -63,8 +63,9 @@ class GitStoreReader implements JsonStoreReader {
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		if (binDir != null) {
 			var refId = binDir.substring(binDir.lastIndexOf("/") + 1, binDir.lastIndexOf(GitUtil.BIN_DIR_SUFFIX));
+			var filepath = path.substring(binDir.length() + 1);
 			var ref = repo.references.get(type, refId, remoteCommit.id);
-			return repo.datasets.getBytes(ref);
+			return repo.datasets.getBinary(ref, filepath);
 		}
 		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
 		var ref = changes.get(type, refId);
