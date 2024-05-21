@@ -78,8 +78,12 @@ class DeleteData {
 	}
 
 	private void deleteCategory(ModelRef ref) {
-		var category = categoryDao.getForPath(ref.type, ref.getCategoryPath());
 		progressMonitor.subTask(ref);
+		var category = categoryDao.getForPath(ref.type, ref.getCategoryPath());
+		if (category == null) {
+			progressMonitor.worked(1);
+			return;
+		}
 		if (isEmptyCategory(deleted, category)) {
 			categoryDao.delete(category);
 			deleted.add(category);
