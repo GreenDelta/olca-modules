@@ -252,8 +252,8 @@ public class InventoryBuilder {
 					"output or waste input; this is an error in the model", techFlow);
 
 			// we fix a zero value on the diagonal by setting
-			// it to 1 and every other value related to it to 0
-			b.techBuilder.set(k, k, 1.0);
+			// it to 1 or -1 and every other value related to it to 0
+			b.techBuilder.set(k, k, techFlow.isWaste() ? -1.0 : 1.0);
 
 			// remove every link to k, in row k
 			for (int j = 0; j < b.techBuilder.columns(); j++) {
