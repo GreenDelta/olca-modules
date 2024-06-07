@@ -1,6 +1,10 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
+import java.sql.ResultSet;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.TreeSet;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
@@ -17,10 +21,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 
-import java.sql.ResultSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.TreeSet;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Builds the matrices with characterization factors for a given set of flows
@@ -74,6 +75,30 @@ public final class ImpactBuilder {
 		return new Config(config, flows);
 	}
 
+	/**
+	 * When a product system has impact assessment results linked as providers,
+	 * the indicator values of these results are added as virtual flows with
+	 * a linked indicator descriptor to the intervention matrix. In the
+	 * characterization matrix we then need to add a characterization factor of
+	 * 1 for these virtual flows for the matching impact categories.
+	 */
+	public static void putVirtualFlowFactors(
+			MatrixBuilder builder, ImpactIndex impacts, EnviIndex flows
+	) {
+		if (builder == null || impacts == null || flows == null)
+			return;
+		flows.each((flowIdx, enviFlow) -> {
+			if (!enviFlow.isVirtual())
+				return;
+			if (enviFlow.wrapped() instanceof ImpactDescriptor i) {
+				int impactIdx = impacts.of(i);
+				if (impactIdx >= 0) {
+					builder.set(impactIdx, flowIdx, 1);
+				}
+			}
+		});
+	}
+
 	public ImpactData build() {
 
 		// allocate and fill the matrices
@@ -88,17 +113,7 @@ public final class ImpactBuilder {
 			fill();
 		}
 
-		// add factors for virtual impact flows
-		flowIndex.each((flowIdx, enviFlow) -> {
-			if (!enviFlow.isVirtual())
-				return;
-			if (enviFlow.wrapped() instanceof ImpactDescriptor impact) {
-				int impactIdx = impactIndex.of(impact);
-				if (impactIdx >= 0) {
-					matrix.set(impactIdx, flowIdx, 1);
-				}
-			}
-		});
+		putVirtualFlowFactors(matrix, impactIndex, flowIndex);
 
 		var data = new ImpactData();
 		data.flowIndex = flowIndex;

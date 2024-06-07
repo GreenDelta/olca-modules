@@ -1,7 +1,11 @@
 package org.openlca.core.results.providers;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.reader.LibReaderRegistry;
@@ -19,11 +23,8 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.util.Pair;
 
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LazyLibrarySolver implements ResultProvider {
 
@@ -587,6 +588,8 @@ public class LazyLibrarySolver implements ResultProvider {
 				builder.set(row, col, val);
 			});
 		}
+
+		ImpactBuilder.putVirtualFlowFactors(builder, impactIndex, flowIndex);
 
 		fullData.impactMatrix = builder.finish();
 		return fullData.impactMatrix;

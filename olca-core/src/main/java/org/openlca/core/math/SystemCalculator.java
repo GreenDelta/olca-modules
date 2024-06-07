@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.TechFlow;
@@ -45,6 +46,13 @@ public class SystemCalculator {
 
 	public SystemCalculator withLibraries(LibReaderRegistry libraries) {
 		this.libraries = libraries;
+		return this;
+	}
+
+	public SystemCalculator withLibraries(LibraryDir libDir) {
+		if (libDir != null) {
+			this.libraries = LibReaderRegistry.of(db, libDir);
+		}
 		return this;
 	}
 
