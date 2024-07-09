@@ -2,8 +2,11 @@ package org.openlca.git.writer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 import java.util.List;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -79,6 +82,8 @@ public abstract class CommitWriter {
 			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);
 			var treeId = syncTree("", changeIterator, treeIds);
+			if (progressMonitor.isCanceled())
+				return null;
 			var commitId = commit(message, treeId, parentCommitIds);
 			return commitId.name();
 		} finally {
@@ -119,6 +124,8 @@ public abstract class CommitWriter {
 			var previous = "";
 			var previousWasDeleted = false;
 			while (walk.next()) {
+				if (progressMonitor.isCanceled())
+					return null;
 				var name = walk.getNameString();
 				if (name.equals(RepositoryInfo.FILE_NAME)) {
 					appendRepositoryInfo(tree);
@@ -253,9 +260,7 @@ public abstract class CommitWriter {
 	}
 
 	private ObjectId insertBlob(byte[] blob) throws IOException {
-		if (packInserter != null)
-			return packInserter.insert(Constants.OBJ_BLOB, blob);
-		return objectInserter.insert(Constants.OBJ_BLOB, blob);
+		return packInserter.insert(Constants.OBJ_BLOB, blob);
 	}
 
 	private boolean matches(String path, Change change, String filePath) {
@@ -313,14 +318,25 @@ public abstract class CommitWriter {
 
 	protected void cleanUp() throws IOException {
 		if (packInserter != null) {
-			packInserter.flush();
+			if (!progressMonitor.isCanceled()) {
+				packInserter.flush();
+			}
 			packInserter.close();
 			packInserter = null;
 		}
 		if (objectInserter != null) {
-			objectInserter.flush();
+			if (!progressMonitor.isCanceled()) {
+				objectInserter.flush();
+			}
 			objectInserter.close();
 			objectInserter = null;
+		}
+		if (!progressMonitor.isCanceled())
+			return;
+		try {
+			Git.wrap(repo).gc().setExpire(Calendar.getInstance().getTime()).call();
+		} catch (GitAPIException e) {
+			// ignore cleanup error
 		}
 	}
 

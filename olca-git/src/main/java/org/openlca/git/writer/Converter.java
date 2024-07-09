@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.database.IDatabase;
@@ -15,6 +16,7 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.util.GitUtil;
+import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.output.JsonExport;
@@ -54,10 +56,12 @@ class Converter implements JsonStoreWriter {
 	private final JsonExport export;
 	private final int converterThreads;
 	private final UsedFeatures usedFeatures;
+	private final ProgressMonitor progressMonitor;
 
-	Converter(IDatabase database, ExecutorService threads, UsedFeatures usedFeatures) {
+	Converter(IDatabase database, ExecutorService threads, ProgressMonitor progressMonitor, UsedFeatures usedFeatures) {
 		this.database = database;
 		this.threads = threads;
+		this.progressMonitor = progressMonitor;
 		this.usedFeatures = usedFeatures;
 		this.export = new JsonExport(database, this)
 				.withReferences(false)
@@ -92,6 +96,8 @@ class Converter implements JsonStoreWriter {
 	}
 
 	private void startNext() {
+		if (progressMonitor.isCanceled())
+			return;
 		// forgoing synchronizing get + incrementAndGet for better performance.
 		// might lead to temporarily slightly higher queueSize than specified
 		if (queueSize.get() >= converterThreads)
@@ -155,13 +161,24 @@ class Converter implements JsonStoreWriter {
 	byte[] take(String path) throws InterruptedException {
 		if (systems.containsKey(path))
 			return convertProductSystem(systems.get(path));
-		byte[] data = queue.take(path);
+		byte[] data = doTake(path);
 		queueSize.decrementAndGet();
 		startNext();
 		return data;
 	}
 
+	private byte[] doTake(String path) throws InterruptedException {
+		if (progressMonitor.isCanceled())
+			return null;
+		var data = queue.take(path, 1, TimeUnit.SECONDS);
+		if (data != null)
+			return data;
+		return doTake(path);
+	}
+
 	private byte[] convertProductSystem(Change change) {
+		if (progressMonitor.isCanceled())
+			return null;
 		var model = database.get(change.type.getModelClass(), change.refId);
 		var object = export.getWriter(model).write(model);
 		var json = new Gson().toJson(object);

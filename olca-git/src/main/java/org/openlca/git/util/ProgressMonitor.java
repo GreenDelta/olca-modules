@@ -29,6 +29,10 @@ public interface ProgressMonitor {
 	default void worked(int work) {
 	}
 
+	default boolean isCanceled() {
+		return false;
+	}
+	
 	private static String getLabel(ModelType type) {
 		if (type == null)
 			return "";

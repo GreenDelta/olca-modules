@@ -95,7 +95,7 @@ public class DbCommitWriter extends CommitWriter {
 		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
 			throw new IllegalStateException("No changes found and not a merge commit");
 		threads = Executors.newCachedThreadPool();
-		converter = new Converter(database, threads, usedFeatures);
+		converter = new Converter(database, threads, progressMonitor, usedFeatures);
 		converter.start(changes.stream()
 				.filter(d -> d.changeType != ChangeType.DELETE)
 				.sorted()
