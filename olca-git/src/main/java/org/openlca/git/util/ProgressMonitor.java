@@ -19,11 +19,14 @@ public interface ProgressMonitor {
 	}
 
 	default void subTask(ModelRef ref) {
-		if (ref.isCategory) {
-			subTask("Category " + ref.path.substring(ref.path.indexOf("/") + 1));
-		} else {
-			subTask(getLabel(ref.type) + " " + ref.refId);
+		var type = ref.isCategory
+				? "Category"
+				: getLabel(ref.type);
+		var path = ref.path.substring(ref.path.indexOf("/") + 1);
+		if (!ref.isCategory) {
+			path = path.substring(0, path.indexOf(GitUtil.DATASET_SUFFIX));
 		}
+		subTask(type + " " + path);
 	}
 
 	default void worked(int work) {
@@ -32,7 +35,7 @@ public interface ProgressMonitor {
 	default boolean isCanceled() {
 		return false;
 	}
-	
+
 	private static String getLabel(ModelType type) {
 		if (type == null)
 			return "";
