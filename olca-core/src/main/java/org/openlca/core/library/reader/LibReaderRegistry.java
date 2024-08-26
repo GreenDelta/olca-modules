@@ -1,16 +1,16 @@
 package org.openlca.core.library.reader;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.Library;
-import org.openlca.core.library.LibraryDir;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.Library;
+import org.openlca.core.library.LibraryDir;
+import org.slf4j.LoggerFactory;
 
 public class LibReaderRegistry {
 
@@ -75,7 +75,7 @@ public class LibReaderRegistry {
 		if (registered != null)
 			return registered;
 		var log = LoggerFactory.getLogger(getClass());
-		log.error("library '" + libraryId + "' is not registered");
+		log.error("library '{}' is not registered", libraryId);
 		var empty = EmptyLibReader.instance();
 		readers.put(libraryId, empty);
 		return empty;

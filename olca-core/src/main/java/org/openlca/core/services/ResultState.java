@@ -7,7 +7,7 @@ import org.openlca.core.math.Simulator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
 
-record ResultState(
+public record ResultState(
 		String id,
 		long time,
 		CalculationSetup setup,

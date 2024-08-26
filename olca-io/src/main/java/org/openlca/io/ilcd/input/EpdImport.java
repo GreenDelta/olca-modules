@@ -50,7 +50,6 @@ public class EpdImport {
 		oEpd = new Epd();
 		oEpd.urn = "ilcd:epd:" + id;
 		oEpd.refId = id;
-		oEpd.lastChange = System.currentTimeMillis();
 		oEpd.name = Strings.cut(
 				Processes.getFullName(ds, imp.lang()), 2048);
 		var path = Categories.getPath(ds);
@@ -93,6 +92,8 @@ public class EpdImport {
 			result = new Result();
 			result.refId = refId;
 			result.tags = suffix;
+			result.version = oEpd.version;
+			result.lastChange = oEpd.lastChange;
 
 			// meta-data
 			result.name = Strings.cut(
