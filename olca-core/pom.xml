@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>org.eclipse.persistence.jpa</artifactId>
-			<version>3.0.3</version>
+			<version>4.0.4</version>
 		</dependency>
 
 		<dependency>
@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>5.0.1</version>
+			<version>5.1.0</version>
 		</dependency>
 
 		<dependency>
@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
-			<version>1.9.0</version>
+			<version>1.11.0</version>
 		</dependency>
 
 		<dependency>
@@ -101,5 +101,12 @@
 		</dependency>
 
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>maven_central</id>
+			<name>Maven Central</name>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+	</repositories>
 
 </project>
