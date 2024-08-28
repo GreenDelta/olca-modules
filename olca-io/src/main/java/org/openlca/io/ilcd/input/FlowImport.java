@@ -2,12 +2,10 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Objects;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.util.Strings;
@@ -36,9 +34,7 @@ public class FlowImport {
 
 	private Flow createNew() {
 		flow = new Flow();
-		String[] path = Categories.getPath(ds);
-		flow.category = new CategoryDao(imp.db())
-				.sync(ModelType.FLOW, path);
+		flow.category = imp.syncCategory(ds, ModelType.FLOW);
 		createAndMapContent();
 		if (flow.referenceFlowProperty == null) {
 			imp.log().error("Could not import flow "

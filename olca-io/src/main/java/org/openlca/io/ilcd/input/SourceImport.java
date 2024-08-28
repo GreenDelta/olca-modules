@@ -3,11 +3,9 @@ package org.openlca.io.ilcd.input;
 import java.io.File;
 import java.nio.file.Files;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Source;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Sources;
 
 public class SourceImport {
@@ -39,8 +37,7 @@ public class SourceImport {
 
 	private Source createNew() {
 		source = new Source();
-		source.category = new CategoryDao(imp.db())
-				.sync(ModelType.SOURCE, Categories.getPath(ds));
+		source.category = imp.syncCategory(ds, ModelType.SOURCE);
 		Import.mapVersionInfo(ds, source);
 		setDescriptionAttributes();
 		importExternalFile();

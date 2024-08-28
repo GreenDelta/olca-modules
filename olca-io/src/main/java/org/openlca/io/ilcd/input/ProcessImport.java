@@ -1,6 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
@@ -13,7 +12,6 @@ import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
 import org.openlca.util.Strings;
@@ -49,9 +47,7 @@ public class ProcessImport {
 
 	private Process createNew() {
 		process = new Process();
-		String[] path = Categories.getPath(ds);
-		process.category = new CategoryDao(imp.db())
-				.sync(ModelType.PROCESS, path);
+		process.category = imp.syncCategory(ds, ModelType.PROCESS);
 		createAndMapContent();
 		org.openlca.util.Processes.fixInternalIds(process);
 		process = imp.insert(process);

@@ -2,12 +2,10 @@ package org.openlca.io.ilcd.input;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.methods.ImpactMethod;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.ImpactMethods;
 import org.openlca.util.Strings;
 
@@ -46,8 +44,7 @@ public class ImpactImport {
 		impact.name = name();
 		Import.mapVersionInfo(ds, impact);
 		imp.log().info("import impact category: " + impact.name);
-		impact.category = new CategoryDao(imp.db())
-				.sync(ModelType.IMPACT_CATEGORY, Categories.getPath(ds));
+		impact.category = imp.syncCategory(ds, ModelType.IMPACT_CATEGORY);
 
 		var info = ImpactMethods.getDataSetInfo(ds);
 		if (info != null) {

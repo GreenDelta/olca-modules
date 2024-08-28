@@ -1,10 +1,8 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.FlowProperties;
 
 public class FlowPropertyImport {
@@ -38,8 +36,7 @@ public class FlowPropertyImport {
 
 	private FlowProperty createNew() {
 		prop = new FlowProperty();
-		prop.category = new CategoryDao(imp.db())
-				.sync(ModelType.FLOW_PROPERTY, Categories.getPath(ds));
+		prop.category = imp.syncCategory(ds, ModelType.FLOW_PROPERTY);
 		mapDescriptionAttributes();
 		Import.mapVersionInfo(ds, prop);
 		var ref = FlowProperties.getUnitGroupRef(ds);

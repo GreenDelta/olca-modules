@@ -2,11 +2,9 @@ package org.openlca.io.ilcd.input;
 
 import java.util.UUID;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.UnitExtension;
 import org.openlca.ilcd.util.UnitGroups;
 
@@ -41,9 +39,7 @@ public class UnitGroupImport {
 
 	private UnitGroup createNew() {
 		unitGroup = new UnitGroup();
-		var path = Categories.getPath(ds);
-		unitGroup.category = new CategoryDao(imp.db())
-				.sync(ModelType.UNIT_GROUP, path);
+		unitGroup.category = imp.syncCategory(ds, ModelType.UNIT_GROUP);
 		mapDescriptionAttributes();
 		createUnits();
 		return imp.insert(unitGroup);

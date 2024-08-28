@@ -4,11 +4,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.model.Category;
 import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetType;
@@ -26,6 +29,7 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.units.UnitGroup;
+import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.DataSets;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Processes;
@@ -307,5 +311,22 @@ public class Import implements org.openlca.io.Import {
 		e.lastChange = time != null
 				? time.toGregorianCalendar().getTimeInMillis()
 				: System.currentTimeMillis();
+	}
+
+	Category syncCategory(IDataSet ds, ModelType type) {
+		var path = Categories.getPath(ds);
+		if (path == null || path.length == 0)
+			return null;
+		for (int i = 0; i < path.length; i++) {
+			var seg = path[i];
+			if (Strings.nullOrEmpty(seg)) {
+				path[i] = "_";
+				continue;
+			}
+			if (seg.contains("/")) {
+				path[i] = seg.replace('/', '|');
+			}
+		}
+		return CategoryDao.sync(db, type, path);
 	}
 }

@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.EpdModule;
@@ -19,7 +18,6 @@ import org.openlca.core.model.Result;
 import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.epd.EpdValue;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
@@ -52,8 +50,7 @@ public class EpdImport {
 		oEpd.refId = id;
 		oEpd.name = Strings.cut(
 				Processes.getFullName(ds, imp.lang()), 2048);
-		var path = Categories.getPath(ds);
-		oEpd.category = new CategoryDao(imp.db()).sync(ModelType.EPD, path);
+		oEpd.category = imp.syncCategory(ds, ModelType.EPD);
 		oEpd.tags = tags();
 		Import.mapVersionInfo(ds, oEpd);
 
@@ -100,8 +97,7 @@ public class EpdImport {
 					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
 			imp.log().info("import EPD result: " + result.name);
-			result.category = new CategoryDao(imp.db())
-					.sync(ModelType.RESULT, path);
+			result.category = imp.syncCategory(ds, ModelType.RESULT);
 
 			if (refFlow != null) {
 				var resultRef = refFlow.copy();

@@ -1,10 +1,8 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.contacts.Contact;
-import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Contacts;
 
 public class ContactImport {
@@ -41,9 +39,7 @@ public class ContactImport {
 
 	private Actor createNew() {
 		actor = new Actor();
-		var path = Categories.getPath(ds);
-		actor.category = new CategoryDao(imp.db())
-				.sync(ModelType.ACTOR, path);
+		actor.category = imp.syncCategory(ds, ModelType.ACTOR);
 		setDescriptionAttributes();
 		Import.mapVersionInfo(ds, actor);
 		return imp.insert(actor);
