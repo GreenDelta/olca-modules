@@ -16,12 +16,17 @@ public class Upgrades {
 			return reader;
 
 		var chain = reader;
+
 		if (version < 2) {
 			chain = new Upgrade2(chain);
 		}
 		if (version < 3) {
 			chain = new Upgrade3(chain);
 		}
+		if (version < 4) {
+			chain = new Upgrade4(chain);
+		}
+
 		return chain;
 	}
 }

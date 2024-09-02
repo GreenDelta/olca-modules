@@ -1,9 +1,10 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.core.model.Epd;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public record EpdWriter(JsonExport exp) implements JsonWriter<Epd> {
 
@@ -11,11 +12,20 @@ public record EpdWriter(JsonExport exp) implements JsonWriter<Epd> {
 	public JsonObject write(Epd epd) {
 		var json = Util.init(epd);
 
-		Json.put(json, "urn", epd.urn);
 		Json.put(json, "manufacturer", exp.handleRef(epd.manufacturer));
 		Json.put(json, "verifier", exp.handleRef(epd.verifier));
 		Json.put(json, "programOperator", exp.handleRef(epd.programOperator));
 		Json.put(json, "pcr", exp.handleRef(epd.pcr));
+
+		Json.put(json, "validFrom", epd.validFrom);
+		Json.put(json, "validUntil", epd.validUntil);
+		Json.put(json, "location", exp.handleRef(epd.location));
+		Json.put(json, "originalEpd", exp.handleRef(epd.originalEpd));
+		Json.put(json, "manufacturing", epd.manufacturing);
+		Json.put(json, "productUsage", epd.productUsage);
+		Json.put(json, "useAdvice", epd.useAdvice);
+		Json.put(json, "registrationId", epd.registrationId);
+		Json.put(json, "dataGenerator", exp.handleRef(epd.dataGenerator));
 
 		if (epd.product != null) {
 			var productJson = new JsonObject();
