@@ -23,10 +23,6 @@ public class Upgrades {
 		if (version < 3) {
 			chain = new Upgrade3(chain);
 		}
-		if (version < 4) {
-			chain = new Upgrade4(chain);
-		}
-
 		return chain;
 	}
 }

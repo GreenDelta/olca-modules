@@ -10,6 +10,12 @@ import jakarta.persistence.*;
 @Table(name = "tbl_epds")
 public class Epd extends RootEntity {
 
+	/**
+	 * A URN that points to the origin of the EPD.
+	 */
+	@Column(name = "urn")
+	public String urn;
+
 	@Embedded
 	public EpdProduct product;
 
@@ -83,6 +89,7 @@ public class Epd extends RootEntity {
 	public Epd copy() {
 		var copy = new Epd();
 		Entities.copyRefFields(this, copy);
+		copy.urn = urn;
 		if (product != null) {
 			copy.product = product.copy();
 		}

@@ -25,6 +25,7 @@ public record EpdReader(EntityResolver resolver)
 	@Override
 	public void update(Epd epd, JsonObject json) {
 		Util.mapBase(epd, json, resolver);
+		epd.urn = Json.getString(json, "urn");
 		epd.manufacturer = get(Actor.class, json, "manufacturer");
 		epd.verifier = get(Actor.class, json, "verifier");
 		epd.programOperator = get(Actor.class, json, "programOperator");

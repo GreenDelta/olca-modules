@@ -856,6 +856,7 @@ CREATE TABLE tbl_epds (
     f_unit               BIGINT,
     amount               DOUBLE,
 
+    urn                  VARCHAR(2048),
     f_manufacturer       BIGINT,
     f_verifier           BIGINT,
     f_pcr                BIGINT,
