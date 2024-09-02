@@ -1,23 +1,11 @@
 package org.openlca.io.ilcd.output;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Objects;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ilcd.commons.Compliance;
-import org.openlca.ilcd.commons.DataQualityIndicator;
-import org.openlca.ilcd.commons.FlowCompleteness;
-import org.openlca.ilcd.commons.ImpactCategory;
-import org.openlca.ilcd.commons.ModellingApproach;
-import org.openlca.ilcd.commons.ModellingPrinciple;
-import org.openlca.ilcd.commons.Quality;
-import org.openlca.ilcd.commons.QualityIndicator;
-import org.openlca.ilcd.commons.QuantitativeReferenceType;
-import org.openlca.ilcd.commons.ReviewType;
+import org.openlca.ilcd.commons.*;
 import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
 import org.openlca.ilcd.processes.Process;
@@ -99,22 +87,14 @@ public class ProcessExport {
 		var time = ds.withProcessInfo().withTime();
 		var ext = new TimeExtension(time);
 		if (doc.validFrom != null) {
-			time.withReferenceYear(getYear(doc.validFrom));
+			time.withReferenceYear(Export.getYear(doc.validFrom));
 			ext.setStartDate(doc.validFrom);
 		}
 		if (doc.validUntil != null) {
-			time.withValidUntil(getYear(doc.validUntil));
+			time.withValidUntil(Export.getYear(doc.validUntil));
 			ext.setEndDate(doc.validUntil);
 		}
 		exp.add(time::withDescription, doc.time);
-	}
-
-	private Integer getYear(Date date) {
-		if (date == null)
-			return null;
-		var cal = new GregorianCalendar();
-		cal.setTime(date);
-		return cal.get(Calendar.YEAR);
 	}
 
 	private void mapGeography(Process ds) {
