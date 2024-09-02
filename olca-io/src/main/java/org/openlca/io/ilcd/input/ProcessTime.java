@@ -1,11 +1,12 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
+
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ilcd.processes.Time;
 import org.openlca.ilcd.util.TimeExtension;
-
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Converts an ILCD process time to an openLCA process time.
@@ -27,33 +28,52 @@ class ProcessTime {
 	}
 
 	private void mapValues(ProcessDoc doc) {
-		TimeExtension extension = new TimeExtension(time);
-		mapStartDate(extension, doc);
-		mapEndDate(extension, doc);
+		var ext = new TimeExtension(time);
+
+		var startDate = ext.getStartDate();
+		doc.validFrom = startDate != null
+				? startDate
+				: validFrom(time).orElse(null);
+
+		var endDate = ext.getEndDate();
+		doc.validUntil = endDate != null
+				? endDate
+				: validUntil(time).orElse(null);
+
 		doc.time = imp.str(time.getDescription());
 	}
 
-	private void mapStartDate(TimeExtension extension, ProcessDoc doc) {
-		Date startDate = extension.getStartDate();
-		if (startDate == null)
-			startDate = date(time.getReferenceYear());
-		doc.validFrom = startDate;
+	static Optional<Date> validFrom(Time time) {
+		if (time == null)
+			return Optional.empty();
+		var startYear = time.getReferenceYear();
+		if (startYear == null)
+			return Optional.empty();
+		var c = Calendar.getInstance();
+		c.set(Calendar.YEAR, startYear);
+		c.set(Calendar.MONTH, Calendar.JANUARY);
+		c.set(Calendar.DAY_OF_MONTH, 1);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return Optional.of(c.getTime());
 	}
 
-	private void mapEndDate(TimeExtension extension, ProcessDoc doc) {
-		Date endDate = extension.getEndDate();
-		if (endDate == null)
-			endDate = date(time.getValidUntil());
-		doc.validUntil = endDate;
+	static Optional<Date> validUntil(Time time) {
+		if (time == null)
+			return Optional.empty();
+		var endYear = time.getValidUntil();
+		if (endYear == null)
+			return Optional.empty();
+		var c = Calendar.getInstance();
+		c.set(Calendar.YEAR, endYear);
+		c.set(Calendar.MONTH, Calendar.DECEMBER);
+		c.set(Calendar.DAY_OF_MONTH, 31);
+		c.set(Calendar.HOUR_OF_DAY, 23);
+		c.set(Calendar.MINUTE, 59);
+		c.set(Calendar.SECOND, 59);
+		c.set(Calendar.MILLISECOND, 999);
+		return Optional.of(c.getTime());
 	}
-
-	private Date date(Integer bigInt) {
-		if (bigInt == null)
-			return null;
-		Calendar calendar = Calendar.getInstance();
-		calendar.clear();
-		calendar.set(Calendar.YEAR, bigInt);
-		return calendar.getTime();
-	}
-
 }
