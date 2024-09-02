@@ -10,14 +10,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import gnu.trove.set.TLongSet;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.store.EntityStore;
 import org.openlca.util.TLongSets;
+
+import gnu.trove.set.TLongSet;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * The common interface for openLCA databases.
@@ -28,7 +29,7 @@ public interface IDatabase extends EntityStore, Closeable {
 	 * The current database schema version of this package. Together with the
 	 * getVersion-method this can be used to check for updates of a database.
 	 */
-	int CURRENT_VERSION = 12;
+	int CURRENT_VERSION = 13;
 
 	/**
 	 * Creates a native SQL connection to the underlying database. The connection

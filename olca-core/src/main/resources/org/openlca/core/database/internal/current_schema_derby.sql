@@ -856,11 +856,20 @@ CREATE TABLE tbl_epds (
     f_unit               BIGINT,
     amount               DOUBLE,
 
-    urn                  VARCHAR(2048),
     f_manufacturer       BIGINT,
     f_verifier           BIGINT,
     f_pcr                BIGINT,
     f_program_operator   BIGINT,
+
+    valid_from           DATE,
+    valid_until          DATE,
+    f_location           BIGINT,
+    f_original_epd       BIGINT,
+    manufacturing        CLOB(64 K),
+    product_usage        CLOB(64 K),
+    use_advice           CLOB(64 K),
+    registration_id      VARCHAR(2048),
+    f_data_generator     BIGINT,
 
     PRIMARY KEY (id)
 );

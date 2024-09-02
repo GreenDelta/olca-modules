@@ -3,7 +3,7 @@ package org.openlca.jsonld;
 public record SchemaVersion(int value) {
 
 	static final int FALLBACK = 1;
-	public static final int CURRENT = 3;
+	public static final int CURRENT = 4;
 
 	/**
 	 * Get the current schema version that is supported by this API.

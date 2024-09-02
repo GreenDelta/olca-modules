@@ -2,7 +2,6 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
@@ -12,6 +11,8 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record EpdReader(EntityResolver resolver)
 	implements EntityReader<Epd> {
@@ -30,12 +31,13 @@ public record EpdReader(EntityResolver resolver)
 	@Override
 	public void update(Epd epd, JsonObject json) {
 		Util.mapBase(epd, json, resolver);
-		epd.urn = Json.getString(json, "urn");
 		epd.manufacturer = actor(json, "manufacturer");
 		epd.verifier = actor(json, "verifier");
 		epd.programOperator = actor(json, "programOperator");
 		var pcrId = Json.getRefId(json, "pcr");
 		epd.pcr = resolver.get(Source.class, pcrId);
+		epd.registrationId = Json.getString(json, "registrationId");
+
 		epd.product = product(json);
 		mapModules(epd, json);
 	}

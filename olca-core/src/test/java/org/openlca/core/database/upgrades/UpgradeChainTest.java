@@ -1,15 +1,14 @@
 package org.openlca.core.database.upgrades;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.nio.file.Files;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.util.Dirs;
 
 public class UpgradeChainTest {
@@ -228,6 +227,17 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_process_docs", "flow_completeness"));
 		assertTrue(u.tableExists("tbl_reviews"));
 		assertTrue(u.tableExists("tbl_compliance_declarations"));
+
+		// check Upgrade13
+		assertTrue(u.columnExists("tbl_epds", "valid_from"));
+		assertTrue(u.columnExists("tbl_epds", "valid_until"));
+		assertTrue(u.columnExists("tbl_epds", "f_location"));
+		assertTrue(u.columnExists("tbl_epds", "f_original_epd"));
+		assertTrue(u.columnExists("tbl_epds", "manufacturing"));
+		assertTrue(u.columnExists("tbl_epds", "product_usage"));
+		assertTrue(u.columnExists("tbl_epds", "use_advice"));
+		assertTrue(u.columnExists("tbl_epds", "registration_id"));
+		assertTrue(u.columnExists("tbl_epds", "f_data_generator"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
