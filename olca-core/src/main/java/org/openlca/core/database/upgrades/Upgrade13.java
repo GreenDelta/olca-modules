@@ -20,6 +20,7 @@ public class Upgrade13 implements IUpgrade {
 
 		u.renameColumn("tbl_epds", "urn", "registration_id VARCHAR(2048)");
 
+		u.createColumn("tbl_epds", "epd_type VARCHAR(255)");
 		u.createColumn("tbl_epds", "valid_from DATE");
 		u.createColumn("tbl_epds", "valid_until DATE");
 		u.createColumn("tbl_epds", "f_location BIGINT");

@@ -33,6 +33,10 @@ public class Epd extends RootEntity {
 	@JoinColumn(name = "f_program_operator")
 	public Actor programOperator;
 
+	@Column(name = "epd_type")
+	@Enumerated(EnumType.STRING)
+	public EpdType epdType;
+
 	@Temporal(value = TemporalType.DATE)
 	@Column(name = "valid_from")
 	public Date validFrom;
@@ -89,6 +93,8 @@ public class Epd extends RootEntity {
 		copy.verifier = verifier;
 		copy.pcr = pcr;
 		copy.programOperator = programOperator;
+
+		copy.epdType = epdType;
 
 		if (validFrom != null) {
 			copy.validFrom = new Date(validFrom.getTime());

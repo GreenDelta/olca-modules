@@ -861,6 +861,7 @@ CREATE TABLE tbl_epds (
     f_pcr                BIGINT,
     f_program_operator   BIGINT,
 
+    epd_type             VARCHAR(255),
     valid_from           DATE,
     valid_until          DATE,
     f_location           BIGINT,

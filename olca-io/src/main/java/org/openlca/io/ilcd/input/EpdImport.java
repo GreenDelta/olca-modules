@@ -46,21 +46,13 @@ public class EpdImport {
 		}
 
 		oEpd = new Epd();
-		oEpd.urn = "ilcd:epd:" + id;
 		oEpd.refId = id;
 		oEpd.name = Strings.cut(
 				Processes.getFullName(ds, imp.lang()), 2048);
 		oEpd.category = imp.syncCategory(ds, ModelType.EPD);
 		oEpd.tags = tags();
 		Import.mapVersionInfo(ds, oEpd);
-
-		var info = Processes.getDataSetInfo(ds);
-		if (info != null) {
-			oEpd.description = imp.str(info.getComment());
-		}
-		oEpd.verifier = verifier();
-		oEpd.programOperator = operator();
-		oEpd.manufacturer = manufacturer();
+		mapEpdMetaData(oEpd);
 
 		// declared product
 		var refFlow = getRefFlow();
@@ -92,7 +84,7 @@ public class EpdImport {
 			result.version = oEpd.version;
 			result.lastChange = oEpd.lastChange;
 
-			// meta-data
+			// result meta-data
 			result.name = Strings.cut(
 					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
@@ -111,6 +103,18 @@ public class EpdImport {
 		}
 
 		imp.insert(oEpd);
+	}
+
+	private void mapEpdMetaData(Epd oEpd) {
+		var info = Processes.getDataSetInfo(ds);
+		if (info != null) {
+			oEpd.description = imp.str(info.getComment());
+		}
+		oEpd.verifier = verifier();
+		oEpd.programOperator = operator();
+		oEpd.manufacturer = manufacturer();
+
+
 	}
 
 	private FlowResult getRefFlow() {

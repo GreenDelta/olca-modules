@@ -11,9 +11,9 @@ import org.openlca.core.model.UncertaintyType;
 
 public class Enums {
 
-	private static Map<Enum<?>, String> valueToLabel = new HashMap<>();
-	private static Map<Class<? extends Enum<?>>, Map<String, Enum<?>>> labelToValue = new HashMap<>();
-	private static Map<Class<? extends Enum<?>>, Enum<?>> defaultValues = new HashMap<>();
+	private static final Map<Enum<?>, String> valueToLabel = new HashMap<>();
+	private static final Map<Class<? extends Enum<?>>, Map<String, Enum<?>>> labelToValue = new HashMap<>();
+	private static final Map<Class<? extends Enum<?>>, Enum<?>> defaultValues = new HashMap<>();
 
 	static {
 		putFlowPropertyTypes();

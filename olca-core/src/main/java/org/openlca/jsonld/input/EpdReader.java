@@ -3,15 +3,7 @@ package org.openlca.jsonld.input;
 import java.util.Objects;
 
 import org.openlca.core.io.EntityResolver;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.EpdProduct;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Location;
-import org.openlca.core.model.Result;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Source;
+import org.openlca.core.model.*;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
@@ -38,6 +30,7 @@ public record EpdReader(EntityResolver resolver)
 		epd.programOperator = get(Actor.class, json, "programOperator");
 		epd.pcr = get(Source.class, json, "pcr");
 
+		epd.epdType = Json.getEnum(json, "epdType", EpdType.class);
 		epd.validFrom = Json.getDate(json, "validFrom");
 		epd.validUntil = Json.getDate(json, "validUntil");
 		epd.location = get(Location.class, json, "location");
