@@ -6,7 +6,7 @@ public class Upgrade13 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {
-		return new int[12];
+		return new int[]{12};
 	}
 
 	@Override

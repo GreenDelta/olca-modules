@@ -229,6 +229,7 @@ public class UpgradeChainTest {
 		assertTrue(u.tableExists("tbl_compliance_declarations"));
 
 		// check Upgrade13
+		assertTrue(u.columnExists("tbl_epds", "epd_type"));
 		assertTrue(u.columnExists("tbl_epds", "valid_from"));
 		assertTrue(u.columnExists("tbl_epds", "valid_until"));
 		assertTrue(u.columnExists("tbl_epds", "f_location"));
