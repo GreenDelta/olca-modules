@@ -138,7 +138,7 @@ class Converter implements JsonStoreWriter {
 
 	@Override
 	public void put(ModelType type, JsonObject object) {
-		usedFeatures.isSchemaVersion3(object);
+		usedFeatures.checkSchemaVersion(object);
 		var path = type.name() + "/";
 		var category = Json.getString(object, "category");
 		var refId = Json.getString(object, "@id");
