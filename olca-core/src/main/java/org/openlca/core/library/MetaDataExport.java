@@ -5,18 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Currency;
-import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.*;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Exchanges;
@@ -39,21 +29,23 @@ class MetaDataExport implements Runnable {
 	public void run() {
 		try (var zip = ZipStore.open(new File(export.folder, "meta.zip"))) {
 			var exp = new JsonExport(db, zip)
-				.withDefaultProviders(false)
-				.skipLibraryData(true);
+					.withDefaultProviders(false)
+					.skipLibraryData(true);
 			var types = List.of(
-				Actor.class,
-				Source.class,
-				Location.class,
-				UnitGroup.class,
-				FlowProperty.class,
-				Flow.class,
-				Currency.class,
-				SocialIndicator.class,
-				DQSystem.class,
-				Process.class,
-				ImpactCategory.class,
-				ImpactMethod.class);
+					Actor.class,
+					Source.class,
+					Location.class,
+					UnitGroup.class,
+					FlowProperty.class,
+					Flow.class,
+					Currency.class,
+					SocialIndicator.class,
+					DQSystem.class,
+					Process.class,
+					ImpactCategory.class,
+					ImpactMethod.class,
+					Result.class,
+					Epd.class);
 
 			var dependencies = new HashSet<String>();
 			for (var type : types) {
@@ -79,7 +71,7 @@ class MetaDataExport implements Runnable {
 			export.info.dependencies().addAll(dependencies);
 		} catch (Exception e) {
 			throw new RuntimeException(
-				"failed to write meta data in library export", e);
+					"failed to write meta data in library export", e);
 		}
 	}
 
@@ -90,7 +82,7 @@ class MetaDataExport implements Runnable {
 		libProc.refId = process.refId;
 		libProc.id = process.id;
 		libProc.exchanges.removeIf(
-			e -> !Exchanges.isProviderFlow(e));
+				e -> !Exchanges.isProviderFlow(e));
 		libProc.allocationFactors.clear();
 		libProc.parameters.clear();
 		for (var e : libProc.exchanges) {
@@ -105,12 +97,12 @@ class MetaDataExport implements Runnable {
 	}
 
 	private void writeImpact(ImpactCategory impact, JsonExport exp) {
-			var libImpact = impact.copy();
-			libImpact.id = impact.id;
-			libImpact.refId = impact.refId;
-			libImpact.impactFactors.clear();
-			libImpact.parameters.clear();
-			exp.write(libImpact);
+		var libImpact = impact.copy();
+		libImpact.id = impact.id;
+		libImpact.refId = impact.refId;
+		libImpact.impactFactors.clear();
+		libImpact.parameters.clear();
+		exp.write(libImpact);
 	}
 
 }
