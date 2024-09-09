@@ -9,9 +9,11 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
+import org.junit.Test;
 
 import com.google.gson.JsonObject;
-import org.junit.Test;
 
 public class DatesTest {
 
@@ -66,9 +68,9 @@ public class DatesTest {
 
 	@Test
 	public void testAsDateTime() {
-		var date = new GregorianCalendar(2022, Calendar.SEPTEMBER, 16, 15, 50, 20)
-				.getTime();
-		assertEquals("2022-09-16T15:50:20", Json.asDateTime(date));
+		var cal = new GregorianCalendar(2022, Calendar.SEPTEMBER, 16, 15, 50, 20);
+		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+		assertEquals("2022-09-16T15:50:20Z", Json.asDateTime(cal.getTime()));
 	}
 
 	@Test

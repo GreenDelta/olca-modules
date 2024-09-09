@@ -178,10 +178,7 @@ public class Json {
 	 * Writes the given date as ISO 8601 string to the given JSON object.
 	 */
 	public static void put(JsonObject json, String property, Date date) {
-		if (date == null)
-			return;
-		var str = date.toInstant().toString();
-		put(json, property, str);
+		put(json, property, asDateTime(date));
 	}
 
 	public static void put(JsonObject json, String property, Boolean value) {
@@ -319,11 +316,9 @@ public class Json {
 	}
 
 	public static String asDateTime(Date date) {
-		if (date == null)
-			return null;
-		var instant = date.toInstant();
-		var local = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-		return local.toString();
+		return date != null
+				? date.toInstant().toString()
+				: null;
 	}
 
 	public static String asDate(Date date) {

@@ -99,7 +99,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 
 		Json.put(o, "dataGenerator", exp.handleRef(d.dataGenerator));
 		Json.put(o, "dataDocumentor", exp.handleRef(d.dataDocumentor));
-		Json.put(o, "creationDate", Json.asDateTime(d.creationDate));
+		Json.put(o, "creationDate", d.creationDate);
 		Json.put(o, "publication", exp.handleRef(d.publication));
 		Json.put(o, "dataSetOwner", exp.handleRef(d.dataOwner));
 		Json.put(o, "isCopyrightProtected", d.copyright);
