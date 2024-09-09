@@ -108,7 +108,7 @@ public class Json {
 		else
 			return elem.getAsString();
 	}
-	
+
 	/**
 	 * Return an array of strings from the given array, never returns null
 	 */
@@ -119,7 +119,7 @@ public class Json {
 	    	        .filter(JsonElement::isJsonPrimitive)
 	    	        .map(JsonElement::getAsString)
 	    	        .filter(Predicate.not(Strings::nullOrEmpty))
-	    	        .toArray(String[]::new);		
+	    	        .toArray(String[]::new);
 	}
 
 	/**
@@ -314,7 +314,7 @@ public class Json {
 		}
 
 		var log = LoggerFactory.getLogger(Json.class);
-		log.error("failed to parse date / time: " + str);
+		log.error("failed to parse date / time: {}", str);
 		return null;
 	}
 
@@ -481,7 +481,7 @@ public class Json {
 			return read(stream, type);
 		} catch (IOException e) {
 			var log = LoggerFactory.getLogger(Json.class);
-			log.error("failed to read JSON file " + file, e);
+			log.error("failed to read JSON file {}", file, e);
 			return Optional.empty();
 		}
 	}
