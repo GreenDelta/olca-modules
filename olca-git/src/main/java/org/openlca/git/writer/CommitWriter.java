@@ -131,7 +131,7 @@ public abstract class CommitWriter {
 					appendRepositoryInfo(tree);
 					continue;
 				}
-				if (previousWasDeleted && isBinaryOf(name, previous))
+				if (previousWasDeleted && GitUtil.isBinDirOf(name, previous))
 					continue;
 				previous = name;
 				previousWasDeleted = false;
@@ -268,10 +268,10 @@ public abstract class CommitWriter {
 			return false;
 		if (filePath == null)
 			if (change.isCategory)
-				return path.equals(change.path + "/" + GitUtil.EMPTY_CATEGORY_FLAG);
+				return path.equals(GitUtil.toEmptyCategoryPath(change.path));
 			else
 				return path.equals(change.path);
-		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
+		return GitUtil.isBinDirOrFileOf(path, change.path);
 	}
 
 	private ObjectId commit(String message, ObjectId treeId, ObjectId... parentIds) {
@@ -307,13 +307,6 @@ public abstract class CommitWriter {
 			update.setForceRefLog(true);
 			update.forceUpdate();
 		}
-	}
-
-	private boolean isBinaryOf(String current, String previous) {
-		return previous.endsWith(GitUtil.DATASET_SUFFIX)
-				&& current.equals(
-						previous.substring(0, previous.length() - GitUtil.DATASET_SUFFIX.length())
-								+ GitUtil.BIN_DIR_SUFFIX);
 	}
 
 	protected void cleanUp() throws IOException {

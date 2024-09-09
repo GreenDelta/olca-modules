@@ -39,7 +39,7 @@ public class TypedRefId {
 		var last = parts[parts.length - 1].trim();
 		if (last.endsWith(GitUtil.DATASET_SUFFIX))
 			return last.substring(0, last.indexOf(GitUtil.DATASET_SUFFIX));
-		if (last.endsWith(GitUtil.BIN_DIR_SUFFIX) && GitUtil.isBinDir(last))
+		if (last.endsWith(GitUtil.BIN_DIR_SUFFIX) && GitUtil.isBinDirPath(last))
 			return last.substring(0, last.indexOf(GitUtil.BIN_DIR_SUFFIX));
 		return null;
 	}

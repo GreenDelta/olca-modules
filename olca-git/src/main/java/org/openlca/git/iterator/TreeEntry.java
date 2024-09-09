@@ -31,7 +31,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 	}
 
 	TreeEntry(Descriptor descriptor) {
-		this(descriptor.refId + GitUtil.DATASET_SUFFIX, FileMode.REGULAR_FILE, descriptor);
+		this(GitUtil.toDatasetFilename(descriptor.refId), FileMode.REGULAR_FILE, descriptor);
 	}
 
 	TreeEntry(String name, FileMode fileMode) {

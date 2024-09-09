@@ -121,18 +121,29 @@ public class DbCommitWriter extends CommitWriter {
 	private List<Change> filterInvalid(List<Change> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
-					if (c.isCategory)
-						return true;
-					if (c.type == null || !GitUtil.isUUID(c.refId)) {
+					if (c.type == null) {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
-						log.warn("Filtering dataset with missing or invalid type or refId " + val);
+						log.warn("Filtering dataset with missing or invalid type " + val);
+						progressMonitor.worked(1);
+						return false;						
+					}
+					if (!GitUtil.isValidCategory(c.category)) {
+						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
+						log.warn("Filtering dataset with invalid category " + val);
+						progressMonitor.worked(1);
+						return false;
+					}
+					if (!c.isCategory && !GitUtil.isValidRefId(c.refId)) {
+						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
+						log.warn("Filtering dataset with missing or invalid refId " + val);
 						progressMonitor.worked(1);
 						return false;
 					}
 					return true;
-				})
-				.collect(Collectors.toList());
-		if (remaining.size() != changes.size()) {
+				}).collect(Collectors.toList());
+		if (remaining.size() != changes.size())
+
+		{
 			progressMonitor.worked(changes.size() - remaining.size());
 		}
 		return remaining;

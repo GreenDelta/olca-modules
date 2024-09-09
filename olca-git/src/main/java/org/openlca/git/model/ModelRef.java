@@ -14,9 +14,9 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	public ModelRef(String path) {
 		super(path);
 		path = trimPaths(path);
-		this.isEmptyCategory = path.endsWith("/" + GitUtil.EMPTY_CATEGORY_FLAG);
+		this.isEmptyCategory = GitUtil.isEmptyCategoryPath(path);
 		if (this.isEmptyCategory) {
-			path = path.substring(0, path.indexOf("/" + GitUtil.EMPTY_CATEGORY_FLAG));
+			path = path.substring(0, path.length() - GitUtil.EMPTY_CATEGORY_FLAG.length() - 1);
 		}
 		this.isCategory = path.contains("/") && Strings.nullOrEmpty(refId);
 		this.category = getCategory(path);
@@ -75,8 +75,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	}
 
 	private int compare(String p1, String p2) {
-		var isP1Tree = !p1.endsWith(GitUtil.DATASET_SUFFIX);
-		var isP2Tree = !p2.endsWith(GitUtil.DATASET_SUFFIX);
+		var isP1Tree = !GitUtil.isDatasetPath(p1);
+		var isP2Tree = !GitUtil.isDatasetPath(p2);
 		if (isP1Tree) {
 			p1 += "/";
 		}

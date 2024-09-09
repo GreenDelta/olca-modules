@@ -20,7 +20,6 @@ import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.output.JsonExport;
-import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
@@ -139,13 +138,9 @@ class Converter implements JsonStoreWriter {
 	@Override
 	public void put(ModelType type, JsonObject object) {
 		usedFeatures.checkSchemaVersion(object);
-		var path = type.name() + "/";
 		var category = Json.getString(object, "category");
 		var refId = Json.getString(object, "@id");
-		if (!Strings.nullOrEmpty(category)) {
-			path += category + "/";
-		}
-		path += refId + GitUtil.DATASET_SUFFIX;
+		var path = GitUtil.toDatasetPath(type, category, refId);
 		put(path, object);
 	}
 

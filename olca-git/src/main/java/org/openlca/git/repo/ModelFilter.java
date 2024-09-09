@@ -26,7 +26,7 @@ class ModelFilter extends TreeFilter {
 		if (walk.getFileMode() == FileMode.TREE)
 			return walk.getPathString().startsWith(type.name());
 		var name = walk.getNameString();
-		return name.equals(refId + GitUtil.DATASET_SUFFIX);
+		return name.equals(GitUtil.toDatasetFilename(refId));
 	}
 
 	@Override
