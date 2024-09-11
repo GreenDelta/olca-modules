@@ -21,7 +21,6 @@ import org.openlca.util.Strings;
 
 class Processes implements ProcessMapper {
 
-
 	private final ImportContext context;
 	private final RefData refData;
 	private final ImportLog log;
@@ -69,22 +68,31 @@ class Processes implements ProcessMapper {
 	// endregion
 
 	private void exec() {
+
+		var name = nameOf(block);
+		var dbProc = context.resolveProvider(name).orElse(null);
+		if (dbProc != null) {
+			log.info("skip import of " + name +
+					"; resolved to provider: " + dbProc.key());
+			return;
+		}
+
 		var refId = Strings.notEmpty(block.identifier())
-			? KeyGen.get(block.identifier())
-			: UUID.randomUUID().toString();
+				? KeyGen.get(block.identifier())
+				: UUID.randomUUID().toString();
 		process = context.db().get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier '" + refId +
-				"' is already in the database and was not imported");
+					"' is already in the database and was not imported");
 			return;
 		}
 
 		process = new Process();
 		process.refId = refId;
 		process.processType = block.processType() == ProcessType.SYSTEM
-			? org.openlca.core.model.ProcessType.LCI_RESULT
-			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
-		process.name = nameOf(block);
+				? org.openlca.core.model.ProcessType.LCI_RESULT
+				: org.openlca.core.model.ProcessType.UNIT_PROCESS;
+		process.name = name;
 		if (block.category() != null) {
 			process.tags = block.category().toString();
 		}
@@ -106,8 +114,8 @@ class Processes implements ProcessMapper {
 		if (block.wasteScenario() != null)
 			return block.wasteScenario().name();
 		return Strings.notEmpty(block.name())
-			? block.name()
-			: block.identifier();
+				? block.name()
+				: block.identifier();
 	}
 
 	private void mapAllocation() {
@@ -183,9 +191,10 @@ class Processes implements ProcessMapper {
 		for (var type : ProductType.values()) {
 			boolean isWaste = type == ProductType.WASTE_TO_TREATMENT;
 			for (var row : block.exchangesOf(type)) {
-				var flow = isWaste
-					? refData.wasteFlowOf(row)
-					: refData.productOf(row);
+				var flow = context.resolveProviderFlow(row).orElse(
+						isWaste
+								? refData.wasteFlowOf(row)
+								: refData.productOf(row));
 				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;
