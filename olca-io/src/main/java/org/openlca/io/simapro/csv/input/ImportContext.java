@@ -76,7 +76,7 @@ record ImportContext(
 			ImportLog log,
 			EIProviderResolver providers
 	) {
-		var refData = new RefData(db, flowMap, log);
+		var refData = new RefData(db, flowMap, log, providers);
 		return new Builder(db, refData, log, providers);
 	}
 

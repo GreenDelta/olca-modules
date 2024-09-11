@@ -109,11 +109,11 @@ public class EIProviderResolver {
 			return Optional.empty();
 		var process = norm(parts[1]);
 
-		if (process.equals("market for")
-				|| process.equals("market group for")) {
-			process += " " + flow;
-		} else if (process.equals("production mix")) {
-			process = flow + ", " + process;
+		switch (process) {
+			case "market for", "market group for" -> process += " " + flow;
+			case "production mix" -> process = flow + ", " + process;
+			case "production" -> process = flow + " " + process;
+			case "processing" -> process = flow;
 		}
 
 		var key = keyOf(process, flow, location);
