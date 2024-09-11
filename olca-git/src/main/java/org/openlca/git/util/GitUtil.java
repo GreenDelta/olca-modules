@@ -1,8 +1,11 @@
 package org.openlca.git.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.ModelType;
@@ -13,23 +16,34 @@ public class GitUtil {
 	public static final String BIN_DIR_SUFFIX = "_bin";
 	public static final String DATASET_SUFFIX = ".json";
 	public static final String EMPTY_CATEGORY_FLAG = ".empty";
-	private static final Map<String, String> encodings = new HashMap<>();
+	private static final Map<String, String> ENCODINGS = new HashMap<>();
+	private static final Set<Character> ALLOWED_REF_ID_CHARACTERS = new HashSet<>();
 
 	static {
-		encodings.put("<", "%3C");
-		encodings.put(">", "%3E");
-		encodings.put(":", "%3A");
-		encodings.put("\"", "%22");
-		encodings.put("\\", "%5C");
-		encodings.put("|", "%7C");
-		encodings.put("?", "%3F");
-		encodings.put("*", "%2A");
+		ENCODINGS.put("<", "%3C");
+		ENCODINGS.put(">", "%3E");
+		ENCODINGS.put(":", "%3A");
+		ENCODINGS.put("\"", "%22");
+		ENCODINGS.put("\\", "%5C");
+		ENCODINGS.put("|", "%7C");
+		ENCODINGS.put("?", "%3F");
+		ENCODINGS.put("*", "%2A");
+		ALLOWED_REF_ID_CHARACTERS.addAll(Arrays.asList('-', '_', '+', '.'));
+		for (var i = 48; i <= 57; i++) {
+			ALLOWED_REF_ID_CHARACTERS.add((char) i);
+		}
+		for (var i = 65; i <= 90; i++) {
+			ALLOWED_REF_ID_CHARACTERS.add((char) i);
+		}
+		for (var i = 97; i <= 122; i++) {
+			ALLOWED_REF_ID_CHARACTERS.add((char) i);
+		}
 	}
 
 	public static String encode(String name) {
 		if (name == null)
 			return null;
-		for (Entry<String, String> entry : encodings.entrySet()) {
+		for (Entry<String, String> entry : ENCODINGS.entrySet()) {
 			name = name.replace(entry.getKey(), entry.getValue());
 		}
 		for (var i = 0; i < name.length(); i++) {
@@ -50,7 +64,7 @@ public class GitUtil {
 	public static String decode(String name) {
 		if (name == null)
 			return null;
-		for (Entry<String, String> entry : encodings.entrySet()) {
+		for (Entry<String, String> entry : ENCODINGS.entrySet()) {
 			name = name.replace(entry.getValue(), entry.getKey());
 		}
 		for (var i = 0; i < name.length() - 2; i++) {
@@ -117,15 +131,19 @@ public class GitUtil {
 	public static boolean isValidRefId(String value) {
 		if (value == null || value.trim().isBlank())
 			return false;
-		if (value.endsWith(BIN_DIR_SUFFIX))
+		var v = value.toLowerCase();
+		if (v.endsWith(DATASET_SUFFIX))
 			return false;
-		if (value.endsWith(DATASET_SUFFIX))
+		if (v.endsWith(BIN_DIR_SUFFIX))
 			return false;
-		if (value.endsWith(EMPTY_CATEGORY_FLAG))
+		if (v.endsWith(EMPTY_CATEGORY_FLAG))
 			return false;
+		for (var c : v.toCharArray())
+			if (!ALLOWED_REF_ID_CHARACTERS.contains(c))
+				return false;
 		return true;
 	}
-	
+
 	public static boolean isValidCategory(String category) {
 		if (category == null || category.trim().isBlank())
 			return true;
