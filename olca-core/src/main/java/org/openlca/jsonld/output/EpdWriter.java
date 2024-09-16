@@ -19,8 +19,8 @@ public record EpdWriter(JsonExport exp) implements JsonWriter<Epd> {
 		Json.put(json, "pcr", exp.handleRef(epd.pcr));
 
 		Json.put(json, "epdType", epd.epdType);
-		Json.put(json, "validFrom", epd.validFrom);
-		Json.put(json, "validUntil", epd.validUntil);
+		Json.put(json, "validFrom", Json.asDate(epd.validFrom));
+		Json.put(json, "validUntil", Json.asDate(epd.validUntil));
 		Json.put(json, "location", exp.handleRef(epd.location));
 		Json.put(json, "originalEpd", exp.handleRef(epd.originalEpd));
 		Json.put(json, "manufacturing", epd.manufacturing);

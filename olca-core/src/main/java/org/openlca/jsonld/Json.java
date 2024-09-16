@@ -108,7 +108,7 @@ public class Json {
 		else
 			return elem.getAsString();
 	}
-	
+
 	/**
 	 * Return an array of strings from the given array, never returns null
 	 */
@@ -119,7 +119,7 @@ public class Json {
 	    	        .filter(JsonElement::isJsonPrimitive)
 	    	        .map(JsonElement::getAsString)
 	    	        .filter(Predicate.not(Strings::nullOrEmpty))
-	    	        .toArray(String[]::new);		
+	    	        .toArray(String[]::new);
 	}
 
 	/**
@@ -178,10 +178,7 @@ public class Json {
 	 * Writes the given date as ISO 8601 string to the given JSON object.
 	 */
 	public static void put(JsonObject json, String property, Date date) {
-		if (date == null)
-			return;
-		var str = date.toInstant().toString();
-		put(json, property, str);
+		put(json, property, asDateTime(date));
 	}
 
 	public static void put(JsonObject json, String property, Boolean value) {
@@ -314,16 +311,14 @@ public class Json {
 		}
 
 		var log = LoggerFactory.getLogger(Json.class);
-		log.error("failed to parse date / time: " + str);
+		log.error("failed to parse date / time: {}", str);
 		return null;
 	}
 
 	public static String asDateTime(Date date) {
-		if (date == null)
-			return null;
-		var instant = date.toInstant();
-		var local = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-		return local.toString();
+		return date != null
+				? date.toInstant().toString()
+				: null;
 	}
 
 	public static String asDate(Date date) {
@@ -481,7 +476,7 @@ public class Json {
 			return read(stream, type);
 		} catch (IOException e) {
 			var log = LoggerFactory.getLogger(Json.class);
-			log.error("failed to read JSON file " + file, e);
+			log.error("failed to read JSON file {}", file, e);
 			return Optional.empty();
 		}
 	}
