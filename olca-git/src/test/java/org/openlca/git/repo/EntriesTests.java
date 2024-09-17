@@ -52,14 +52,14 @@ public class EntriesTests extends AbstractRepositoryTests {
 	public void testIteratePath() throws IOException {
 		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
 		assertAll(repo.entries.find().commit(commitIds[0]).path("SOURCE/category_one"),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_one/a.json",
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json");
 		assertAll(repo.entries.find().commit(commitIds[1]).path("SOURCE/category_one"),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"SOURCE/category_one/a.json");
 		assertAll(repo.entries.find().commit(commitIds[2]).path("SOURCE/category_one"),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"SOURCE/category_one/a.json");
 		assertAll(repo.entries.find().path("SOURCE/category_one"),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"SOURCE/category_one/a.json");
 
 		assertAll(repo.entries.find().commit(commitIds[0]).path("SOURCE"),
 				"SOURCE/a_category",
@@ -94,7 +94,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 		assertAll(repo.entries.find().commit(commitIds[0]).recursive(),
 				"ACTOR",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/cAA39f5b-5021_bin1.json+39f082dfae0..json",
 				"ACTOR/category",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW",
@@ -106,7 +106,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/c_category",
 				"SOURCE/category_one",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_one/a.json",
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -114,7 +114,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 		assertAll(repo.entries.find().commit(commitIds[1]).recursive(),
 				"ACTOR",
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/cAA39f5b-5021_bin1.json+39f082dfae0..json",
 				"ACTOR/category",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"FLOW",
@@ -125,7 +125,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_one/a.json",
 				"SOURCE/category_two",
 				"SOURCE/category_zhree",
 				"SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -138,7 +138,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json",
 				"ACTOR/category",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json",
 				"FLOW",
 				"FLOW/cat",
 				"FLOW/cat/sub",
@@ -147,7 +147,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_one/a.json",
 				"SOURCE/category_two",
 				"SOURCE/category_zhree",
 				"SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -160,7 +160,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json",
 				"ACTOR/category",
 				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json",
 				"FLOW",
 				"FLOW/cat",
 				"FLOW/cat/sub",
@@ -169,7 +169,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_one",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_one/a.json",
 				"SOURCE/category_two",
 				"SOURCE/category_zhree",
 				"SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -179,14 +179,14 @@ public class EntriesTests extends AbstractRepositoryTests {
 	public void testIteratePathRecursive() throws IOException {
 		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
 		assertAll(repo.entries.find().commit(commitIds[0]).path("SOURCE/category_one").recursive(),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category_one/a.json",
 				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json");
 		assertAll(repo.entries.find().commit(commitIds[1]).path("SOURCE/category_one").recursive(),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"SOURCE/category_one/a.json");
 		assertAll(repo.entries.find().commit(commitIds[2]).path("SOURCE/category_one").recursive(),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"SOURCE/category_one/a.json");
 		assertAll(repo.entries.find().path("SOURCE/category_one").recursive(),
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"SOURCE/category_one/a.json");
 	}
 
 	private void assertAll(Find find, String... expected) {

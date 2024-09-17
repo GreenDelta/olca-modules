@@ -236,7 +236,7 @@ public abstract class AbstractRepositoryTests {
 			if (prevCategoryPath.equals(categoryPath))
 				return;
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.indexOf(".json"));
+			var refId = GitUtil.getRefId(path);
 			var model = database.get(type.getModelClass(), refId);
 			if (model == null)
 				throw new IllegalArgumentException("Could not find " + path);

@@ -13,9 +13,9 @@ import org.openlca.util.Strings;
 
 public class GitUtil {
 
-	public static final String BIN_DIR_SUFFIX = "_bin";
-	public static final String DATASET_SUFFIX = ".json";
 	public static final String EMPTY_CATEGORY_FLAG = ".empty";
+	private static final String BIN_DIR_SUFFIX = "_bin";
+	private static final String DATASET_SUFFIX = ".json";
 	private static final Map<String, String> ENCODINGS = new HashMap<>();
 	private static final Set<Character> ALLOWED_REF_ID_CHARACTERS = new HashSet<>();
 
@@ -129,7 +129,7 @@ public class GitUtil {
 	}
 
 	public static boolean isValidRefId(String value) {
-		if (value == null || value.trim().isBlank())
+		if (value == null || value.trim().isBlank() || value.length() > 36)
 			return false;
 		var v = value.toLowerCase();
 		if (v.endsWith(DATASET_SUFFIX))
@@ -163,9 +163,12 @@ public class GitUtil {
 
 	public static String getRefId(String path) {
 		var refId = getRefId(path, DATASET_SUFFIX);
-		if (refId != null)
-			return refId;
-		return getRefId(path, BIN_DIR_SUFFIX);
+		if (refId == null) {
+			refId = getRefId(path, BIN_DIR_SUFFIX);
+		}
+		if (!isValidRefId(refId))
+			return null;
+		return refId;
 	}
 
 	private static String getRefId(String path, String suffix) {

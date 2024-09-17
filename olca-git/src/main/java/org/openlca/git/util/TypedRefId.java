@@ -35,13 +35,8 @@ public class TypedRefId {
 			return null;
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir != null)
-			return binDir.substring(binDir.lastIndexOf("/") + 1, binDir.indexOf(GitUtil.BIN_DIR_SUFFIX));
-		var last = parts[parts.length - 1].trim();
-		if (last.endsWith(GitUtil.DATASET_SUFFIX))
-			return last.substring(0, last.indexOf(GitUtil.DATASET_SUFFIX));
-		if (last.endsWith(GitUtil.BIN_DIR_SUFFIX) && GitUtil.isBinDirPath(last))
-			return last.substring(0, last.indexOf(GitUtil.BIN_DIR_SUFFIX));
-		return null;
+			return GitUtil.getRefId(binDir);
+		return GitUtil.getRefId(path);
 	}
 
 	@Override

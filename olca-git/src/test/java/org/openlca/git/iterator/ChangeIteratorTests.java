@@ -13,9 +13,9 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testAddDataAndEmptyCategories() throws IOException {
-		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.create("ACTOR/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -27,9 +27,9 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 		var changes = Change.of(repo.diffs.find().withDatabase());
 		Collections.shuffle(changes);
 		var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
-		repo.assertEqualRecursive(iterator, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.assertEqualRecursive(iterator, "ACTOR/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/a_category/.empty",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -43,9 +43,9 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testDeleteLastElementAndAddInEmptyCategory() throws IOException {
-		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.create("ACTOR/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/0ba39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0.json",
 				"FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -71,17 +71,17 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testMove() throws IOException {
-		repo.create("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.create("ACTOR/category/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json",
 				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
 		var commitId = repo.commitWorkspace();
-		repo.move("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category2");
+		repo.move("ACTOR/category/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json", "category2");
 		repo.move("ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category");
 		var changes = Change.of(repo.diffs.find().withDatabase());
 		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
 		repo.assertEqualRecursive(iterator,
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", // deleted
+				"ACTOR/category/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json", // deleted
 				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", // added
-				"ACTOR/category2/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", // added
+				"ACTOR/category2/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json", // added
 				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", // deleted
 				RepositoryInfo.FILE_NAME);
 	}
