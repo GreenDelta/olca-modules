@@ -191,8 +191,8 @@ class Processes implements ProcessMapper {
 		for (var type : ProductType.values()) {
 			boolean isWaste = type == ProductType.WASTE_TO_TREATMENT;
 			for (var row : block.exchangesOf(type)) {
-				var flow = context.resolveProviderFlow(row).orElse(
-						isWaste
+				var flow = context.resolveProviderFlow(row).orElseGet(
+						() -> isWaste
 								? refData.wasteFlowOf(row)
 								: refData.productOf(row));
 				var e = exchangeOf(flow, row);
