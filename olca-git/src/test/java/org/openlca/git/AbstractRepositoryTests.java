@@ -153,7 +153,7 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		private void create(String path) {
-			var isCategory = !path.endsWith(GitUtil.DATASET_SUFFIX);
+			var isCategory = !GitUtil.isDatasetPath(path);
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 			Category category = null;
 			if (isCategory && path.contains("/")) {
@@ -165,7 +165,7 @@ public abstract class AbstractRepositoryTests {
 			}
 			if (isCategory)
 				return;
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+			var refId = GitUtil.getRefId(path);
 			var entity = database.get(type.getModelClass(), refId);
 			if (entity != null) {
 				if (!Objects.equal(entity.category, category))
@@ -190,11 +190,10 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		private void modify(String path) {
-			var isCategory = !path.endsWith(GitUtil.DATASET_SUFFIX);
-			if (isCategory)
+			if (!GitUtil.isDatasetPath(path))
 				throw new IllegalArgumentException("Can not modify categories");
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+			var refId = GitUtil.getRefId(path);
 			var model = database.get(type.getModelClass(), refId);
 			var version = new Version(model.version);
 			version.incUpdate();
@@ -211,7 +210,7 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		private void delete(String path) {
-			var isCategory = !path.endsWith(GitUtil.DATASET_SUFFIX);
+			var isCategory = !GitUtil.isDatasetPath(path);
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 			if (isCategory) {
 				var categoryPath = path.substring(path.indexOf("/") + 1);
@@ -223,13 +222,13 @@ public abstract class AbstractRepositoryTests {
 				}
 				categoryDao.delete(category);
 			} else {
-				var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+				var refId = GitUtil.getRefId(path);
 				database.delete(database.get(type.getModelClass(), refId));
 			}
 		}
 
 		public void move(String path, String categoryPath) {
-			if (!path.endsWith(GitUtil.DATASET_SUFFIX))
+			if (!GitUtil.isDatasetPath(path))
 				throw new IllegalArgumentException("Moving categories not supported");
 			var prevCategoryPath = path.indexOf("/") != path.lastIndexOf("/")
 					? path.substring(path.indexOf("/") + 1, path.lastIndexOf("/"))
@@ -237,7 +236,7 @@ public abstract class AbstractRepositoryTests {
 			if (prevCategoryPath.equals(categoryPath))
 				return;
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.indexOf(".json"));
+			var refId = GitUtil.getRefId(path);
 			var model = database.get(type.getModelClass(), refId);
 			if (model == null)
 				throw new IllegalArgumentException("Could not find " + path);

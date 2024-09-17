@@ -37,13 +37,7 @@ public class Reference extends ModelRef {
 	}
 
 	public String getBinariesPath() {
-		if (refId == null || type == null)
-			return null;
-		var path = type.name();
-		if (!Strings.nullOrEmpty(category)) {
-			path += "/" + category;
-		}
-		return path + "/" + refId + GitUtil.BIN_DIR_SUFFIX;
+		return GitUtil.toBinDirPath(type, category, refId);
 	}
 
 	@Override
@@ -51,5 +45,5 @@ public class Reference extends ModelRef {
 		var s = super.fieldsToString();
 		return s + ", commitId=" + commitId + ", objectId=" + ObjectId.toString(objectId);
 	}
-	
+
 }

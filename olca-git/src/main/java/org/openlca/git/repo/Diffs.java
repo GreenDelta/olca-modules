@@ -191,7 +191,7 @@ public class Diffs {
 			if (!path.contains("/"))
 				return;
 			var oldPath = isEmptyCategory(leftCommit, path)
-					? path + "/" + GitUtil.EMPTY_CATEGORY_FLAG
+					? GitUtil.toEmptyCategoryPath(path)
 					: path;
 			var oldCommitId = leftCommit != null
 					? leftCommit.getId().getName()
@@ -201,7 +201,7 @@ public class Diffs {
 					: null;
 			var isEmptyCategory = isEmptyCategory(rightCommit, path);
 			var newPath = isEmptyCategory
-					? path + "/" + GitUtil.EMPTY_CATEGORY_FLAG
+					? GitUtil.toEmptyCategoryPath(path)
 					: path;
 			var newCommitId = rightCommit != null
 					? rightCommit.getName()
@@ -237,7 +237,7 @@ public class Diffs {
 		}
 
 		private boolean isEmptyCategory(RevCommit commit, String path) throws IOException {
-			if (path.endsWith(GitUtil.DATASET_SUFFIX))
+			if (GitUtil.isDatasetPath(path))
 				return false;
 			var iterator = commit != null
 					? createIterator(commit, path)
@@ -245,7 +245,7 @@ public class Diffs {
 			if (iterator.eof())
 				return false;
 			var subPath = GitUtil.decode(iterator.getEntryPathString());
-			return subPath.equals(GitUtil.EMPTY_CATEGORY_FLAG);
+			return GitUtil.isEmptyCategoryFile(subPath);
 		}
 
 		private List<Diff> sort(List<Diff> diffs) {

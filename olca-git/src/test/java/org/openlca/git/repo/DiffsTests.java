@@ -40,7 +40,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json", diffs.get(2));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json", diffs.get(3));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json", diffs.get(4));
-		assertModel(DiffType.MOVED, "ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(5));
+		assertModel(DiffType.MOVED, "ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json", diffs.get(5));
 		assertEmptyCategory(DiffType.DELETED, "SOURCE/c_category", diffs.get(6));
 		assertModel(DiffType.DELETED, "SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(7));
 		assertModel(DiffType.DELETED, "SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(8));
@@ -53,7 +53,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json", diffs.get(2));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json", diffs.get(3));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json", diffs.get(4));
-		assertModel(DiffType.MOVED, "ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(5));
+		assertModel(DiffType.MOVED, "ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json", diffs.get(5));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json", diffs.get(2));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json", diffs.get(3));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json", diffs.get(4));
-		assertModel(DiffType.MOVED, "ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(5));
+		assertModel(DiffType.MOVED, "ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json", diffs.get(5));
 		assertModel(DiffType.DELETED, "SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(6));
 		assertModel(DiffType.DELETED, "SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(7));
 		assertModel(DiffType.ADDED, "SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(8));
@@ -112,7 +112,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae2.json", diffs.get(2));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json", diffs.get(3));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json", diffs.get(4));
-		assertModel(DiffType.MOVED, "ACTOR/category/caa39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(5));
+		assertModel(DiffType.MOVED, "ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json", diffs.get(5));
 	}
 
 	@Test

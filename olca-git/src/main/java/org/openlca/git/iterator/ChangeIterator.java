@@ -83,7 +83,8 @@ public class ChangeIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
 				if ((change.changeType == ChangeType.DELETE && hadBinaries(parent.repo, change, parent.referenceCommit))
 						|| !parent.binaryResolver.list(change, "").isEmpty()) {
-					var bin = name.substring(0, name.indexOf(GitUtil.DATASET_SUFFIX)) + GitUtil.BIN_DIR_SUFFIX;
+					var refId = GitUtil.getRefId(name);
+					var bin = GitUtil.toBinDirName(refId);
 					list.add(new TreeEntry(bin, FileMode.TREE, change, ""));
 				}
 			}
@@ -101,9 +102,9 @@ public class ChangeIterator extends EntryIterator {
 			return list;
 		}
 		if (allExistingEntriesWillBeDeleted(parent.repo, parent.referenceCommit, prefix, changes)) {
-			list.add(TreeEntry.empty(Change.add(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
+			list.add(TreeEntry.empty(Change.add(new ModelRef(GitUtil.toEmptyCategoryPath(prefix)))));
 		} else if (datasetWasAddedToEmptyCategory(parent.repo, parent.referenceCommit, prefix, list)) {
-			list.add(TreeEntry.empty(Change.delete(new ModelRef(prefix + "/" + GitUtil.EMPTY_CATEGORY_FLAG))));
+			list.add(TreeEntry.empty(Change.delete(new ModelRef(GitUtil.toEmptyCategoryPath(prefix)))));
 		}
 		return list;
 	}

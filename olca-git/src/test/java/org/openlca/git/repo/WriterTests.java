@@ -38,8 +38,8 @@ public class WriterTests extends AbstractRepositoryTests {
 				"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
 		repo.assertEqual(repo.createIterator(commitId1, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"caa39f5b-5021-4b6b-9330-739f082dfae0_bin",
+				"cAA39f5b-5021_bin1.json+39f082dfae0..json",
+				"cAA39f5b-5021_bin1.json+39f082dfae0._bin",
 				"category");
 		repo.assertEqual(repo.createIterator(commitId1, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -57,7 +57,7 @@ public class WriterTests extends AbstractRepositoryTests {
 		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/c_category"),
 				".empty");
 		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_one"),
-				"aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"a.json",
 				"aca49f5b-5021-4b6b-9330-739f082dfae0.json");
 		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_two"),
 				"0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -71,8 +71,8 @@ public class WriterTests extends AbstractRepositoryTests {
 				"ACTOR", "FLOW", "SOURCE", RepositoryInfo.FILE_NAME);
 		repo.assertEqual(repo.createIterator(commitId2, "ACTOR"),
 				"0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"caa39f5b-5021-4b6b-9330-739f082dfae0_bin",
+				"cAA39f5b-5021_bin1.json+39f082dfae0..json",
+				"cAA39f5b-5021_bin1.json+39f082dfae0._bin",
 				"category");
 		repo.assertEqual(repo.createIterator(commitId2, "ACTOR/category"),
 				"0ba39f5b-5021-4b6b-9330-739f082dfae0.json");
@@ -87,7 +87,7 @@ public class WriterTests extends AbstractRepositoryTests {
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/a_category"),
 				".empty");
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_one"),
-				"aca39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"a.json");
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_two"),
 				".empty");
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_zhree"),
