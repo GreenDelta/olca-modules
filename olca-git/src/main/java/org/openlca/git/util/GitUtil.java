@@ -13,9 +13,9 @@ import org.openlca.util.Strings;
 
 public class GitUtil {
 
+	public static final String DATASET_SUFFIX = ".json";
+	public static final String BIN_DIR_SUFFIX = "_bin";
 	public static final String EMPTY_CATEGORY_FLAG = ".empty";
-	private static final String BIN_DIR_SUFFIX = "_bin";
-	private static final String DATASET_SUFFIX = ".json";
 	private static final Map<String, String> ENCODINGS = new HashMap<>();
 	private static final Set<Character> ALLOWED_REF_ID_CHARACTERS = new HashSet<>();
 
