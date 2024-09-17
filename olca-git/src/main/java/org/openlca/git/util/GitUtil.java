@@ -165,7 +165,7 @@ public class GitUtil {
 		var refId = getRefId(path, DATASET_SUFFIX);
 		if (refId != null)
 			return refId;
-		return getRefId(BIN_DIR_SUFFIX);
+		return getRefId(path, BIN_DIR_SUFFIX);
 	}
 
 	private static String getRefId(String path, String suffix) {
