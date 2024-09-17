@@ -109,14 +109,30 @@ public class EIProviderResolver {
 			return Optional.empty();
 		var process = norm(parts[1]);
 
-		switch (process) {
-			case "market for", "market group for" -> process += " " + flow;
-			case "production mix" -> process = flow + ", " + process;
-			case "production" -> process = flow + " " + process;
-			case "processing" -> process = flow;
-		}
+		var procPart = switch (process) {
+			case "market for", "market group for" -> process + " " + flow;
+			case "production mix" -> flow + ", " + process;
+			case "production" -> flow + " " + process;
+			case "processing", "" -> flow;
+			default -> process;
+		};
 
-		var key = keyOf(process, flow, location);
+		var key = keyOf(procPart, flow, location);
+		var provider = providers.get(key);
+		if (provider != null)
+			return Optional.of(provider);
+
+		// try the case where the process is a single word like "production"
+		// and the flow has a form "[pre],[suf]", the process name has in
+		// openLCA then the form "[pre] production,[suf]
+		if (process.contains(" "))
+			return Optional.empty();
+		int pos = flow.indexOf(',');
+		if (pos < 0)
+			return Optional.empty();
+		process = flow.substring(0, pos) + " " + process + flow.substring(pos);
+		key = keyOf(process, flow, location);
+
 		return Optional.ofNullable(providers.get(key));
 	}
 
