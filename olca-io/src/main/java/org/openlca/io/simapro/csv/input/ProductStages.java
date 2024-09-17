@@ -119,7 +119,8 @@ class ProductStages implements ProcessMapper {
 		Function<TechExchangeRow, Exchange> input = row -> {
 			if (row == null)
 				return null;
-			var flow = refData.productOf(row);
+			var flow = context.resolveProviderFlow(row)
+					.orElse(refData.productOf(row));
 			var exchange = exchangeOf(flow, row);
 			if (exchange == null)
 				return null;

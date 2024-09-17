@@ -147,6 +147,9 @@ interface ProcessMapper {
 		e.description = row.comment();
 		e.flow = f.flow();
 		e.uncertainty = Uncertainties.of(row);
+		if (f.provider() != null) {
+			e.defaultProviderId = f.provider().id;
+		}
 
 		// mapped flows
 		if (f.isMapped()) {
