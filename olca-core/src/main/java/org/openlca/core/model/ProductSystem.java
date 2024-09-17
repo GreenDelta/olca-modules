@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.util.Strings;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -15,7 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import org.openlca.core.matrix.index.TechFlow;
 
 @Entity
 @Table(name = "tbl_product_systems")
@@ -59,7 +61,14 @@ public class ProductSystem extends RootEntity implements CalculationTarget {
 	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
 
 	public static ProductSystem of(Process p) {
-		return of(p.name, p);
+		var name = p.name;
+		if (p.location != null && Strings.notEmpty(p.location.code)) {
+			var suffix = " - " + p.location.code;
+			if (name != null && !name.endsWith(suffix)) {
+				name += suffix;
+			}
+		}
+		return of(name, p);
 	}
 
 	/**
