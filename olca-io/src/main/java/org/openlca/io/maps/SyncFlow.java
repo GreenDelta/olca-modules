@@ -8,13 +8,14 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Strings;
 
 public record SyncFlow(
 	Flow flow,
 	FlowPropertyFactor property,
 	Unit unit,
-	ProcessDescriptor provider,
+	RootDescriptor provider,
 	boolean isMapped,
 	double mapFactor) {
 
