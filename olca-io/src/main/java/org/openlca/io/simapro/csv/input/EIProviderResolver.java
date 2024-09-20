@@ -94,46 +94,80 @@ public class EIProviderResolver {
 		if (spName == null || providers.isEmpty())
 			return Optional.empty();
 
+		// split the SimaPro name
 		var parts = spName.split("\\{");
 		if (parts.length < 2)
 			return Optional.empty();
-		var flow = parts[0].strip();
+		var flow = norm(parts[0]);
 
 		parts = parts[1].split("}");
 		if (parts.length < 2)
 			return Optional.empty();
-		var location = parts[0].strip();
+		var location = norm(parts[0]);
+		if (location.equals("global")) {
+			location = "glo";
+		}
 
 		parts = spName.split("\\|");
 		if (parts.length < 2)
 			return Optional.empty();
 		var process = norm(parts[1]);
 
-		var procPart = switch (process) {
-			case "market for", "market group for" -> process + " " + flow;
-			case "production mix" -> flow + ", " + process;
-			case "production" -> flow + " " + process;
-			case "processing", "" -> flow;
-			default -> process;
-		};
+		// match name parts against openLCA names
 
-		var key = keyOf(procPart, flow, location);
-		var provider = providers.get(key);
-		if (provider != null)
-			return Optional.of(provider);
+		// test market processes
+		if (process.equals("market for") || process.equals("market group for")) {
+			var p = providerOf(process + " " + flow, flow, location);
+			if (p != null)
+				return Optional.of(p);
+		}
 
-		// try the case where the process is a single word like "production"
-		// and the flow has a form "[pre],[suf]", the process name has in
-		// openLCA then the form "[pre] production,[suf]
-		if (process.contains(" "))
-			return Optional.empty();
-		int pos = flow.indexOf(',');
-		if (pos < 0)
-			return Optional.empty();
-		process = flow.substring(0, pos) + " " + process + flow.substring(pos);
-		key = keyOf(process, flow, location);
+		// test "{process} | {flow} |..." pattern
+		var p = providerOf(process, flow, location);
+		if (p != null)
+			return Optional.of(p);
 
-		return Optional.ofNullable(providers.get(key));
+		// test "{flow}{separator}{process} | ..." pattern
+		if ((p = providerOf(flow + ", " + process, flow, location)) != null) {
+			return Optional.of(p);
+		}
+		if ((p = providerOf(flow + " " + process, flow, location)) != null) {
+			return Optional.of(p);
+		}
+
+		// test "{flow-pre} {process}, {flow-suf} | {flow} | ..." pattern
+		int commaPos = flow.indexOf(',');
+		if (commaPos > 0) {
+			var pre = flow.substring(0, commaPos);
+			var suf = flow.substring(commaPos);
+			p = providerOf(pre + " " + process + suf, flow, location);
+			if (p != null)
+				return Optional.of(p);
+		}
+
+		// test "{proc-pre} {flow}, {proc-suf} | {flow} ..." pattern
+		commaPos = process.indexOf(',');
+		if (commaPos > 0) {
+			var pre = process.substring(0, commaPos);
+			var suf = process.substring(commaPos);
+			p = providerOf(pre + " " + flow + suf, flow, location);
+			if (p != null)
+				return Optional.of(p);
+		}
+
+		// specific "{flow} | {flow} ..." patterns
+		if (process.isEmpty() || process.equals("processing")) {
+			p = providerOf(flow, flow, location);
+			if (p != null)
+				return Optional.of(p);
+		}
+
+		return Optional.empty();
+	}
+
+	private Provider providerOf(String process, String flow, String location) {
+		var key = keyOf(process, flow, location);
+		return providers.get(key);
 	}
 
 	public boolean isEmpty() {
