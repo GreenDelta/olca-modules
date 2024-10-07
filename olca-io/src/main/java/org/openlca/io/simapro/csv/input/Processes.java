@@ -1,7 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.openlca.core.io.ImportLog;
@@ -70,6 +69,11 @@ class Processes implements ProcessMapper {
 	private void exec() {
 
 		var name = nameOf(block);
+		if (Strings.nullOrEmpty(name)) {
+			log.warn("could not determine name of process; skipped it");
+			return;
+		}
+
 		var dbProc = context.resolveProvider(name).orElse(null);
 		if (dbProc != null) {
 			log.info("skip import of " + name +
@@ -77,9 +81,7 @@ class Processes implements ProcessMapper {
 			return;
 		}
 
-		var refId = Strings.notEmpty(block.identifier())
-				? KeyGen.get(block.identifier())
-				: UUID.randomUUID().toString();
+		var refId = KeyGen.get("simapro.csv/process", name);
 		process = context.db().get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier '" + refId +
