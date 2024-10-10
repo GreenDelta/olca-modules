@@ -1,5 +1,6 @@
 package org.openlca.git.model;
 
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefId;
 import org.openlca.util.Strings;
@@ -10,7 +11,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	public final String category;
 	public final boolean isCategory;
 	public final boolean isEmptyCategory;
-
+	public final boolean isRepositoryInfo;
+	
 	public ModelRef(String path) {
 		super(path);
 		path = trimPaths(path);
@@ -18,7 +20,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		if (this.isEmptyCategory) {
 			path = path.substring(0, path.length() - GitUtil.EMPTY_CATEGORY_FLAG.length() - 1);
 		}
-		this.isCategory = path.contains("/") && Strings.nullOrEmpty(refId);
+		this.isCategory = type != null && path.contains("/") && Strings.nullOrEmpty(refId);
+		this.isRepositoryInfo = RepositoryInfo.FILE_NAME.equals(path);
 		this.category = getCategory(path);
 		this.path = path;
 	}
@@ -29,10 +32,11 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		this.category = ref.category;
 		this.isCategory = ref.isCategory;
 		this.isEmptyCategory = ref.isEmptyCategory;
+		this.isRepositoryInfo = ref.isRepositoryInfo;
 	}
 
 	private String getCategory(String path) {
-		if (!path.contains("/"))
+		if (type == null || !path.contains("/"))
 			return "";
 		path = path.substring(path.indexOf("/") + 1);
 		if (!path.contains("/"))

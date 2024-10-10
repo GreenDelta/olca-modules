@@ -81,8 +81,7 @@ public class ChangeIterator extends EntryIterator {
 				list.add(new TreeEntry(name, FileMode.TREE, change));
 			} else {
 				list.add(new TreeEntry(name, FileMode.REGULAR_FILE, change));
-				if ((change.changeType == ChangeType.DELETE && hadBinaries(parent.repo, change, parent.referenceCommit))
-						|| !parent.binaryResolver.list(change, "").isEmpty()) {
+				if (hasBinaries(parent, change)) {
 					var refId = GitUtil.getRefId(name);
 					var bin = GitUtil.toBinDirName(refId);
 					list.add(new TreeEntry(bin, FileMode.TREE, change, ""));
@@ -90,7 +89,7 @@ public class ChangeIterator extends EntryIterator {
 			}
 			added.add(name);
 		});
-		if (parent == null) {
+		if (parent == null && changes.stream().filter(c -> c.isRepositoryInfo).count() == 0) {
 			list.add(new TreeEntry(RepositoryInfo.FILE_NAME, FileMode.REGULAR_FILE));
 		}
 		if (!prefix.contains("/"))
@@ -107,6 +106,14 @@ public class ChangeIterator extends EntryIterator {
 			list.add(TreeEntry.empty(Change.delete(new ModelRef(GitUtil.toEmptyCategoryPath(prefix)))));
 		}
 		return list;
+	}
+
+	private static boolean hasBinaries(ChangeIterator parent, Change change) {
+		if (change.isRepositoryInfo || parent == null)
+			return false;
+		if (change.changeType == ChangeType.DELETE && !hadBinaries(parent.repo, change, parent.referenceCommit))
+			return false;
+		return !parent.binaryResolver.list(change, "").isEmpty();
 	}
 
 	private static boolean hadBinaries(OlcaRepository repo, Change change, Commit referenceCommit) {

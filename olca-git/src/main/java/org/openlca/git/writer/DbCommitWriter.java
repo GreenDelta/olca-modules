@@ -97,7 +97,7 @@ public class DbCommitWriter extends CommitWriter {
 		threads = Executors.newCachedThreadPool();
 		converter = new Converter(database, threads, progressMonitor, usedFeatures);
 		converter.start(changes.stream()
-				.filter(d -> d.changeType != ChangeType.DELETE)
+				.filter(d -> d.changeType != ChangeType.DELETE && !d.isRepositoryInfo)
 				.sorted()
 				.toList());
 		return new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
@@ -121,6 +121,8 @@ public class DbCommitWriter extends CommitWriter {
 	private List<Change> filterInvalid(List<Change> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
+					if (c.isRepositoryInfo)
+						return true;
 					if (c.type == null) {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
 						log.warn("Filtering dataset with missing or invalid type " + val);
