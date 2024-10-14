@@ -3,6 +3,9 @@ package org.openlca.git.repo;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
@@ -15,6 +18,7 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.GitUtil;
+import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +87,15 @@ public class OlcaRepository extends FileRepository {
 			log.error("failed to read schema version", e);
 			return null;
 		}
+	}
+
+	public Set<String> getLibraries(Commit commit) {
+		var info = getInfo(commit);
+		if (info == null)
+			return new HashSet<>();
+		return info.libraries().stream()
+				.map(LibraryLink::id)
+				.collect(Collectors.toSet());
 	}
 
 	public RevCommit getHeadCommit() {

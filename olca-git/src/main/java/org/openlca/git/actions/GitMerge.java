@@ -11,11 +11,13 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.GitMerge.MergeResult;
 import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.Constants;
@@ -150,6 +152,11 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private String createMergeCommit() throws IOException {
+		var localLibs = repo.getLibraries(localCommit);
+		var remoteLibs = repo.getLibraries(remoteCommit);
+		if (!localLibs.equals(remoteLibs)) {
+			mergeResults.add(Change.modify(new ModelRef(RepositoryInfo.FILE_NAME)));
+		}
 		return new DbCommitWriter(repo)
 				.as(committer)
 				.merge(localCommit.id, remoteCommit.id)

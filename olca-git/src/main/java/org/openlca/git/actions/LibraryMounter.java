@@ -16,7 +16,6 @@ import org.openlca.git.actions.GitMerge.MergeResult;
 import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
-import org.openlca.jsonld.LibraryLink;
 
 class LibraryMounter {
 
@@ -35,20 +34,11 @@ class LibraryMounter {
 	}
 
 	static LibraryMounter of(ClientRepository repo, Commit localCommit, Commit remoteCommit) {
-		return new LibraryMounter(repo, libsOf(repo, localCommit), libsOf(repo, remoteCommit));
+		return new LibraryMounter(repo, repo.getLibraries(localCommit), repo.getLibraries(remoteCommit));
 	}
 
 	static LibraryMounter of(ClientRepository repo, Commit remoteCommit) {
-		return new LibraryMounter(repo, repo.database.getLibraries(), libsOf(repo, remoteCommit));
-	}
-
-	private static Set<String> libsOf(ClientRepository repo, Commit commit) {
-		var info = repo.getInfo(commit);
-		if (info == null)
-			return new HashSet<>();
-		return info.libraries().stream()
-				.map(LibraryLink::id)
-				.collect(Collectors.toSet());
+		return new LibraryMounter(repo, repo.database.getLibraries(), repo.getLibraries(remoteCommit));
 	}
 
 	LibraryMounter with(LibraryResolver libraryResolver) {
