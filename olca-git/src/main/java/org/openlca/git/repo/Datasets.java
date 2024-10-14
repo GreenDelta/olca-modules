@@ -109,7 +109,7 @@ public class Datasets {
 	}
 
 	public byte[] getBinary(Reference ref, String filepath) {
-		if (ref == null  || ref.isCategory || filepath == null || filepath.isEmpty())
+		if (ref == null  || ref.isCategory || ref.isLibrary || filepath == null || filepath.isEmpty())
 			return null;
 		var id = repo.entries.get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
 		return getBytes(id);

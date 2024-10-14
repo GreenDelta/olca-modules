@@ -1,5 +1,6 @@
 package org.openlca.git.model;
 
+import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.TypedRefId;
@@ -8,11 +9,15 @@ import org.openlca.util.Strings;
 public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 
 	public final String path;
+	public final String name;
 	public final String category;
+	public final boolean isModelType;
 	public final boolean isCategory;
 	public final boolean isEmptyCategory;
+	public final boolean isDataset;
 	public final boolean isRepositoryInfo;
-	
+	public final boolean isLibrary;
+
 	public ModelRef(String path) {
 		super(path);
 		path = trimPaths(path);
@@ -20,28 +25,42 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		if (this.isEmptyCategory) {
 			path = path.substring(0, path.length() - GitUtil.EMPTY_CATEGORY_FLAG.length() - 1);
 		}
-		this.isCategory = type != null && path.contains("/") && Strings.nullOrEmpty(refId);
-		this.isRepositoryInfo = RepositoryInfo.FILE_NAME.equals(path);
-		this.category = getCategory(path);
 		this.path = path;
+		this.name = nameOf(path);
+		this.category = categoryOf(type, path);
+		this.isModelType = type != null && !path.contains("/");
+		this.isCategory = type != null && path.contains("/") && Strings.nullOrEmpty(refId);
+		this.isDataset = path.contains("/") && refId != null && !path.startsWith(RepositoryInfo.FILE_NAME + "/");
+		this.isRepositoryInfo = RepositoryInfo.FILE_NAME.equals(path);
+		this.isLibrary = path.startsWith(RepositoryInfo.FILE_NAME + "/");
 	}
 
 	public ModelRef(ModelRef ref) {
 		super(ref.type, ref.refId);
 		this.path = ref.path;
+		this.name = ref.name;
 		this.category = ref.category;
+		this.isModelType = ref.isModelType;
 		this.isCategory = ref.isCategory;
 		this.isEmptyCategory = ref.isEmptyCategory;
+		this.isDataset = ref.isDataset;
 		this.isRepositoryInfo = ref.isRepositoryInfo;
+		this.isLibrary = ref.isLibrary;
 	}
 
-	private String getCategory(String path) {
+	private static String nameOf(String path) {
+		return path.contains("/")
+				? path.substring(path.lastIndexOf("/") + 1)
+				: path;
+	}
+
+	private static String categoryOf(ModelType type, String path) {
 		if (type == null || !path.contains("/"))
 			return "";
-		path = path.substring(path.indexOf("/") + 1);
-		if (!path.contains("/"))
+		var p = path.substring(path.indexOf("/") + 1);
+		if (!p.contains("/"))
 			return "";
-		return path.substring(0, path.lastIndexOf("/"));
+		return p.substring(0, p.lastIndexOf("/"));
 	}
 
 	public String getCategoryPath() {
@@ -103,8 +122,6 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	@Override
 	protected String fieldsToString() {
 		var s = super.fieldsToString();
-		return s + ", path=" + path + ", category=" + category + ", isCategory=" + isCategory + ", isEmptyCategory="
-				+ isEmptyCategory;
+		return s + ", path=" + path + ", category=" + category + ", name=" + name;
 	}
-
 }

@@ -1,7 +1,7 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility;
@@ -13,7 +13,7 @@ import org.openlca.util.Strings;
 public class GitCommit extends GitProgressAction<String> {
 
 	private ClientRepository repo;
-	private List<Change> changes;
+	private Set<Change> changes;
 	private String message;
 	private PersonIdent committer;
 
@@ -25,7 +25,7 @@ public class GitCommit extends GitProgressAction<String> {
 		return new GitCommit(repo);
 	}
 
-	public GitCommit changes(List<Change> changes) {
+	public GitCommit changes(Set<Change> changes) {
 		this.changes = changes;
 		return this;
 	}

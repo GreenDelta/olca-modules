@@ -47,14 +47,26 @@ public class OlcaRepository extends FileRepository {
 	}
 
 	public RepositoryInfo getInfo() {
-		return getInfo(null);
+		return getInfo((String) null);
+	}
+
+	public RepositoryInfo getInfo(RevCommit commit) {
+		if (commit == null)
+			return null;
+		return getInfo(commit.getName());
 	}
 
 	public RepositoryInfo getInfo(Commit commit) {
+		if (commit == null)
+			return null;
+		return getInfo(commit.id);
+	}
+
+	public RepositoryInfo getInfo(String commitId) {
 		try (var walk = new TreeWalk(this);
 				var reader = getObjectDatabase().newReader()) {
-			var revCommit = commit != null
-					? parseCommit(ObjectId.fromString(commit.id))
+			var revCommit = commitId != null
+					? parseCommit(ObjectId.fromString(commitId))
 					: getHeadCommit();
 			if (revCommit == null)
 				return null;

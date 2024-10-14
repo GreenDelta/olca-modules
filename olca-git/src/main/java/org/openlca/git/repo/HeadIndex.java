@@ -9,8 +9,7 @@ import java.util.Set;
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.model.Entry;
-import org.openlca.git.model.Entry.EntryType;
+import org.openlca.git.model.Reference;
 import org.openlca.git.util.TypedRefId;
 import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.Json;
@@ -24,7 +23,7 @@ public class HeadIndex {
 	private static final int VERSION = 1;
 	private static final String FILE_NAME = "head.index";
 	private final OlcaRepository repo;
-	private Map<String, Entry> map = new HashMap<>();
+	private Map<String, Reference> map = new HashMap<>();
 	private Map<String, Set<String>> subPaths = new HashMap<>();
 	private Map<String, MetaInfo> metaInfo = new HashMap<>();
 	private TypedRefIdMap<String> pathsByRef = new TypedRefIdMap<>();
@@ -113,7 +112,7 @@ public class HeadIndex {
 						? path.substring(0, path.lastIndexOf("/"))
 						: "";
 				subPaths.computeIfAbsent(parent, k -> new HashSet<>()).add(path);
-				if (entry.typeOfEntry != EntryType.DATASET)
+				if (!entry.isDataset)
 					continue;
 				pathsByRef.put(entry, entry.path);
 				if (metaInfo.containsKey(entry.path))

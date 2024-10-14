@@ -112,6 +112,7 @@ public abstract class AbstractRepositoryTests {
 					.changes(Change.of(diffs))
 					.withMessage(getCommitMessage())
 					.run();
+			System.out.println(this.diffs.find().withDatabase());
 			Assert.assertTrue(this.diffs.find().withDatabase().isEmpty());
 			return commitId;
 		}
@@ -121,11 +122,11 @@ public abstract class AbstractRepositoryTests {
 			return "commit " + ++commitCount + " from " + name;
 		}
 
-		public String commit(List<Change> changes) throws IOException {
-			return commit(null, changes);
+		public String commit(List<Change> changes, String... libraries) throws IOException {
+			return commit(null, changes, libraries);
 		}
 
-		public String commit(Commit reference, List<Change> changes) throws IOException {
+		public String commit(Commit reference, List<Change> changes, String... libraries) throws IOException {
 			// create, modify and delete models in database
 			changes.forEach(change -> {
 				if (change.changeType == ChangeType.ADD) {
@@ -136,13 +137,20 @@ public abstract class AbstractRepositoryTests {
 					delete(change.path);
 				}
 			});
+			var commitChanges = new HashSet<>(changes);
+			if (libraries != null && libraries.length > 0) {
+				for (var library : libraries) {
+					commitChanges.add(Change.add(new ModelRef(RepositoryInfo.FILE_NAME + "/" + library)));
+					database.addLibrary(library);
+				}
+			}
 			descriptors.reload();
 			// write commit to repo
 			var writer = new DbCommitWriter(this, getBinaryResolver());
 			if (reference != null) {
 				writer.parent(parseCommit(ObjectId.fromString(reference.id)));
 			}
-			return writer.write(getCommitMessage(), changes);
+			return writer.write(getCommitMessage(), commitChanges);
 		}
 
 		public void create(String... paths) {

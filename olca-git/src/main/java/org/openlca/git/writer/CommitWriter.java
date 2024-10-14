@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -68,7 +69,7 @@ public abstract class CommitWriter {
 		return this;
 	}
 
-	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
+	protected String write(String message, Set<Change> changes, ObjectId... parentCommitIds) throws IOException {
 		return write(message, new ChangeIterator(repo, binaryResolver, changes), parentCommitIds);
 	}
 

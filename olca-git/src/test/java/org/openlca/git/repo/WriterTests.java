@@ -8,6 +8,7 @@ import static org.openlca.git.repo.ExampleData.COMMIT_2;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -133,7 +134,7 @@ public class WriterTests extends AbstractRepositoryTests {
 		
 		var writer = new DbCommitWriter(repo, new StaticBinaryResolver(ExampleData.PATH_TO_BINARY));
 		writer.merge(commitId2, commitId3);
-		var mergeCommitId = writer.write("merge commit", new ArrayList<>());
+		var mergeCommitId = writer.write("merge commit", new HashSet<>());
 		Assert.assertNotNull(mergeCommitId);
 		var ref = repo.references.get(ModelType.ACTOR, refId, mergeCommitId);
 		var version = repo.datasets.getVersionAndLastChange(ref).get("version");
@@ -161,7 +162,7 @@ public class WriterTests extends AbstractRepositoryTests {
 		repo.database.update(actor);
 		var writer = new DbCommitWriter(repo, new StaticBinaryResolver(ExampleData.PATH_TO_BINARY));
 		writer.merge(commitId2, commitId3);
-		var mergeCommitId = writer.write("merge commit", changes);
+		var mergeCommitId = writer.write("merge commit", new HashSet<>(changes));
 		Assert.assertNotNull(mergeCommitId);
 		var ref = repo.references.get(ModelType.ACTOR, refId, mergeCommitId);
 		var version = repo.datasets.getVersionAndLastChange(ref).get("version");

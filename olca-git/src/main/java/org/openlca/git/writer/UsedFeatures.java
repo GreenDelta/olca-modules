@@ -62,8 +62,7 @@ public class UsedFeatures {
 	static UsedFeatures of(OlcaRepository repo, ObjectId[] commitIds) {
 		RepositoryInfo mergedInfo = null;
 		for (var commitId : commitIds) {
-			var commit = repo.commits.get(commitId.getName());
-			var info = repo.getInfo(commit);
+			var info = repo.getInfo(commitId.getName());
 			if (mergedInfo == null) {
 				mergedInfo = info;
 				continue;

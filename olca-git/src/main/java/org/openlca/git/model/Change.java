@@ -1,8 +1,9 @@
 package org.openlca.git.model;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Change extends ModelRef {
 
@@ -13,6 +14,17 @@ public class Change extends ModelRef {
 		this.changeType = changeType;
 	}
 
+	private Change(String path) {
+		super(path);
+		this.changeType = ChangeType.MODIFY;
+	}
+
+	private static Change of(ChangeType type, ModelRef ref) {
+		if (ref.isLibrary)
+			return new Change(ref.path.substring(0, ref.path.indexOf("/")));
+		return new Change(type, ref);
+	}
+	
 	@Override
 	protected String fieldsToString() {
 		var s = super.fieldsToString();
@@ -20,27 +32,27 @@ public class Change extends ModelRef {
 	}
 
 	public static Change add(ModelRef ref) {
-		return new Change(ChangeType.ADD, ref);
+		return of(ChangeType.ADD, ref);
 	}
 
 	public static Change modify(ModelRef ref) {
-		return new Change(ChangeType.MODIFY, ref);
+		return of(ChangeType.MODIFY, ref);
 	}
 
 	public static Change delete(ModelRef ref) {
-		return new Change(ChangeType.DELETE, ref);
+		return of(ChangeType.DELETE, ref);
 	}
 
 	public static List<Change> move(ModelRef oldRef, ModelRef newRef) {
 		return Arrays.asList(delete(oldRef), add(newRef));
 	}
 
-	public static List<Change> of(Diff diff) {
+	public static Set<Change> of(Diff diff) {
 		return of(Arrays.asList(diff));
 	}
 
-	public static List<Change> of(List<Diff> diffs) {
-		var changes = new ArrayList<Change>();
+	public static Set<Change> of(List<Diff> diffs) {
+		var changes = new HashSet<Change>();
 		for (var diff : diffs) {
 			if (diff.diffType == DiffType.ADDED) {
 				changes.add(add(diff.newRef));
@@ -63,12 +75,12 @@ public class Change extends ModelRef {
 			return false;
 		return super.equals(o);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return (changeType.name() + "/" + path).hashCode();
 	}
-	
+
 	public enum ChangeType {
 
 		ADD,

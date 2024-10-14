@@ -3,6 +3,7 @@ package org.openlca.git.iterator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.FileMode;
@@ -22,14 +23,14 @@ public class ChangeIterator extends EntryIterator {
 	private final OlcaRepository repo;
 	private final Commit referenceCommit;
 	private final BinaryResolver binaryResolver;
-	private final List<Change> changes;
+	private final Set<Change> changes;
 
-	public ChangeIterator(OlcaRepository repo, BinaryResolver binaryResolver, List<Change> changes) {
+	public ChangeIterator(OlcaRepository repo, BinaryResolver binaryResolver, Set<Change> changes) {
 		this(repo, null, binaryResolver, changes);
 	}
 
 	public ChangeIterator(OlcaRepository repo, String referenceCommitId, BinaryResolver binaryResolver,
-			List<Change> changes) {
+			Set<Change> changes) {
 		super(initialize(null, changes));
 		this.repo = repo;
 		this.referenceCommit = referenceCommitId != null
@@ -39,7 +40,7 @@ public class ChangeIterator extends EntryIterator {
 		this.changes = changes;
 	}
 
-	private ChangeIterator(ChangeIterator parent, List<Change> changes) {
+	private ChangeIterator(ChangeIterator parent, Set<Change> changes) {
 		super(parent, initialize(parent, changes));
 		this.repo = parent.repo;
 		this.referenceCommit = parent.referenceCommit;
@@ -59,10 +60,10 @@ public class ChangeIterator extends EntryIterator {
 		this.repo = parent.repo;
 		this.referenceCommit = parent.referenceCommit;
 		this.binaryResolver = parent.binaryResolver;
-		this.changes = new ArrayList<>();
+		this.changes = new HashSet<>();
 	}
 
-	private static List<TreeEntry> initialize(ChangeIterator parent, List<Change> changes) {
+	private static List<TreeEntry> initialize(ChangeIterator parent, Set<Change> changes) {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
 		var prefix = parent != null
@@ -126,7 +127,7 @@ public class ChangeIterator extends EntryIterator {
 	}
 
 	private static boolean allExistingEntriesWillBeDeleted(OlcaRepository repo, Commit referenceCommit, String prefix,
-			List<Change> changes) {
+			Set<Change> changes) {
 		if (referenceCommit == null)
 			return false; // no existing entries
 		var entries = repo.entries.find().commit(referenceCommit.id).path(prefix).all();
@@ -176,7 +177,7 @@ public class ChangeIterator extends EntryIterator {
 		var path = GitUtil.decode(getEntryPathString());
 		return new ChangeIterator(this, changes.stream()
 				.filter(d -> d.path.startsWith(path + "/"))
-				.toList());
+				.collect(Collectors.toSet()));
 	}
 
 	@Override

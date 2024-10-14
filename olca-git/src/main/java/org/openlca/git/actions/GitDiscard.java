@@ -1,7 +1,7 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.git.Compatibility;
@@ -14,7 +14,8 @@ import org.openlca.git.repo.ClientRepository;
 public class GitDiscard extends GitProgressAction<String> {
 
 	protected final ClientRepository repo;
-	protected List<Change> changes;
+	protected LibraryResolver libraryResolver;
+	protected Set<Change> changes;
 
 	protected GitDiscard(ClientRepository repo) {
 		this.repo = repo;
@@ -24,7 +25,12 @@ public class GitDiscard extends GitProgressAction<String> {
 		return new GitDiscard(repo);
 	}
 
-	public GitDiscard changes(List<Change> changes) {
+	public GitDiscard resolveLibrariesWith(LibraryResolver libraryResolver) {
+		this.libraryResolver = libraryResolver;
+		return this;
+	}
+
+	public GitDiscard changes(Set<Change> changes) {
 		this.changes = changes;
 		return this;
 	}
@@ -51,10 +57,15 @@ public class GitDiscard extends GitProgressAction<String> {
 
 	private void updateDatabase() throws IOException {
 		var commit = repo.commits.head();
+		var libraries = LibraryMounter.of(repo, commit)
+				.with(libraryResolver)
+				.with(progressMonitor);
+		libraries.mountNew();
 		if (commit != null) {
 			restoreDataFrom(commit);
 		}
 		deleteAddedData();
+		libraries.unmountObsolete();
 	}
 
 	private void restoreDataFrom(Commit commit) {

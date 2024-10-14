@@ -1,7 +1,7 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -26,7 +26,7 @@ public class GitStashCreate extends GitDiscard {
 	}
 
 	@Override
-	public GitStashCreate changes(List<Change> changes) {
+	public GitStashCreate changes(Set<Change> changes) {
 		super.changes(changes);
 		return this;
 	}

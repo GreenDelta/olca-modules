@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
-import org.openlca.git.model.Entry.EntryType;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
@@ -32,7 +31,7 @@ class Categories {
 
 	private void init(OlcaRepository repo, String commitId, String path) {
 		repo.entries.iterate(commitId, entry -> {
-			if (entry.typeOfEntry != EntryType.CATEGORY)
+			if (!entry.isCategory)
 				return;
 			var refId = getRefId(entry.path);
 			refIdToName.put(refId, entry.name);

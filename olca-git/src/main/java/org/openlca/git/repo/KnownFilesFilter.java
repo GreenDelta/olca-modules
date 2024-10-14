@@ -16,6 +16,7 @@ class KnownFilesFilter extends TreeFilter {
 
 	private final Integer depth;
 	private boolean includeEmptyCategoryTags;
+	private boolean includeLibraries;
 
 	private KnownFilesFilter(Integer depth) {
 		this.depth = depth;
@@ -34,6 +35,11 @@ class KnownFilesFilter extends TreeFilter {
 		return this;
 	}
 
+	public KnownFilesFilter includeLibraries() {
+		this.includeLibraries = true;
+		return this;
+	}
+
 	private static int getDepth(String path) {
 		if (Strings.nullOrEmpty(path))
 			return 0;
@@ -46,7 +52,7 @@ class KnownFilesFilter extends TreeFilter {
 		return depth;
 	}
 
-	private boolean isRecognizedRootFile(String path, FileMode mode, int depth) {
+	private boolean isRepositoryInfo(String path, FileMode mode, int depth) {
 		if (mode != FileMode.REGULAR_FILE || depth > 0)
 			return false;
 		return path.equals(RepositoryInfo.FILE_NAME);
@@ -104,8 +110,8 @@ class KnownFilesFilter extends TreeFilter {
 			return true;
 		if (isModelTypeRootDirectory(path, mode, depth))
 			return true;
-		if (isRecognizedRootFile(path, mode, depth))
-			return false;
+		if (isRepositoryInfo(path, mode, depth))
+			return includeLibraries;
 		if (isEmptyCategoryTag(path, mode, depth))
 			return includeEmptyCategoryTags;
 		if (isDataset(path, mode, depth))

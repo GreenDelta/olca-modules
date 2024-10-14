@@ -3,6 +3,7 @@ package org.openlca.git.writer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -73,7 +74,7 @@ public class DbCommitWriter extends CommitWriter {
 		return this;
 	}
 
-	public String write(String message, List<Change> changes) throws IOException {
+	public String write(String message, Set<Change> changes) throws IOException {
 		try {
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			var parentCommitIds = getParentCommitIds();
@@ -90,7 +91,7 @@ public class DbCommitWriter extends CommitWriter {
 		}
 	}
 
-	private ChangeIterator prepare(List<Change> changes) {
+	private ChangeIterator prepare(Set<Change> changes) {
 		changes = filterInvalid(changes);
 		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
 			throw new IllegalStateException("No changes found and not a merge commit");
@@ -118,7 +119,7 @@ public class DbCommitWriter extends CommitWriter {
 		return parentIds.toArray(new ObjectId[parentIds.size()]);
 	}
 
-	private List<Change> filterInvalid(List<Change> changes) {
+	private Set<Change> filterInvalid(Set<Change> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
 					if (c.isRepositoryInfo)
@@ -142,10 +143,8 @@ public class DbCommitWriter extends CommitWriter {
 						return false;
 					}
 					return true;
-				}).collect(Collectors.toList());
-		if (remaining.size() != changes.size())
-
-		{
+				}).collect(Collectors.toSet());
+		if (remaining.size() != changes.size()) {
 			progressMonitor.worked(changes.size() - remaining.size());
 		}
 		return remaining;

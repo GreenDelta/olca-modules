@@ -2,8 +2,10 @@ package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.FileMode;
@@ -13,6 +15,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.DatabaseIterator;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
@@ -20,6 +23,7 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ModelRefMap;
+import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +53,7 @@ public class Diffs {
 		private String path;
 		private boolean onlyCategories;
 		private boolean excludeCategories;
+		private boolean excludeLibraries;
 		private boolean unsorted;
 
 		public Find commit(Commit commit) {
@@ -61,13 +66,18 @@ public class Diffs {
 			return this;
 		}
 
+		public Find onlyCategories() {
+			this.onlyCategories = true;
+			return this;
+		}
+
 		public Find excludeCategories() {
 			this.excludeCategories = true;
 			return this;
 		}
 
-		public Find onlyCategories() {
-			this.onlyCategories = true;
+		public Find excludeLibraries() {
+			this.excludeLibraries = true;
 			return this;
 		}
 
@@ -80,7 +90,11 @@ public class Diffs {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
 			this.leftCommit = getRevCommit(commit, true);
-			return sort(diffOfDatabase(path));
+			var diffs = diffOfDatabase(path);
+			if (repo instanceof ClientRepository c) {
+				diffs.addAll(getLibraryDiffs(librariesOf(leftCommit), c.database.getLibraries()));
+			}
+			return sort(diffs);
 		}
 
 		private List<Diff> diffOfDatabase(String prefix) {
@@ -102,13 +116,17 @@ public class Diffs {
 			var leftCommit = repo.commits.find().before(commit.id).latest();
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
-			return sort(diffOfCommits(path));
+			var diffs = diffOfCommits(path);
+			diffs.addAll(getLibraryDiffs(librariesOf(this.leftCommit), librariesOf(rightCommit)));
+			return sort(diffs);
 		}
 
 		public List<Diff> with(Commit other) {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
-			return sort(diffOfCommits(path));
+			var diffs = diffOfCommits(path);
+			diffs.addAll(getLibraryDiffs(librariesOf(this.leftCommit), librariesOf(rightCommit)));
+			return sort(diffs);
 		}
 
 		private List<Diff> diffOfCommits(String prefix) {
@@ -182,7 +200,38 @@ public class Diffs {
 					scan.apply(path).forEach(diff -> merge(diffs, diff));
 				}
 			}
-			return diffs.values();
+			return new ArrayList<>(diffs.values());
+		}
+
+		private List<Diff> getLibraryDiffs(Collection<String> leftLibraries, Collection<String> rightLibraries) {
+			if (excludeLibraries || onlyCategories || (path != null && !path.equals(RepositoryInfo.FILE_NAME)))
+				return new ArrayList<>();
+			var diffs = new ArrayList<Diff>();
+			leftLibraries.stream()
+					.filter(Predicate.not(rightLibraries::contains))
+					.map(library -> new Diff(DiffType.DELETED, libraryReference(library, leftCommit), null))
+					.forEach(diffs::add);
+			rightLibraries.stream()
+					.filter(Predicate.not(leftLibraries::contains))
+					.map(library -> new Diff(DiffType.ADDED, null, libraryReference(library, rightCommit)))
+					.forEach(diffs::add);
+			return diffs;
+		}
+
+		private Reference libraryReference(String library, RevCommit commit) {
+			var commitId = commit != null ? commit.getName() : null;
+			return new Reference(RepositoryInfo.FILE_NAME + "/" + library, commitId, null);
+		}
+
+		private List<String> librariesOf(RevCommit commit) {
+			if (commit == null)
+				return new ArrayList<>();
+			var info = repo.getInfo(commit);
+			if (info == null)
+				return new ArrayList<>();
+			return info.libraries()
+					.stream().map(LibraryLink::id)
+					.toList();
 		}
 
 		private void addDiff(ModelRefMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)

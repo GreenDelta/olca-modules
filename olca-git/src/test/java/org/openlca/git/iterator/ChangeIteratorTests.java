@@ -1,7 +1,6 @@
 package org.openlca.git.iterator;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
@@ -25,7 +24,6 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
 		var changes = Change.of(repo.diffs.find().withDatabase());
-		Collections.shuffle(changes);
 		var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
 		repo.assertEqualRecursive(iterator, "ACTOR/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
