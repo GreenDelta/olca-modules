@@ -439,7 +439,6 @@ CREATE TABLE tbl_product_system_processes (
     f_process         BIGINT NOT NULL,
 
     PRIMARY KEY (f_product_system, f_process)
-
 );
 
 
@@ -466,6 +465,26 @@ CREATE TABLE tbl_parameter_redef_sets (
     PRIMARY KEY (id)
 );
 CREATE INDEX idx_parameter_redef_set_system ON tbl_parameter_redef_sets(f_product_system);
+
+
+CREATE TABLE tbl_analysis_groups (
+
+    id                BIGINT NOT NULL,
+    name              VARCHAR(2048),
+    color             VARCHAR(255),
+    f_product_system  BIGINT,
+
+    PRIMARY KEY (id)
+);
+CREATE INDEX idx_analysis_group_system ON tbl_analysis_groups(f_product_system);
+
+
+CREATE TABLE tbl_analysis_group_processes (
+    f_analysis_group  BIGINT NOT NULL,
+    f_process         BIGINT NOT NULL,
+
+    PRIMARY KEY (f_analysis_group, f_process)
+);
 
 
 CREATE TABLE tbl_impact_methods (

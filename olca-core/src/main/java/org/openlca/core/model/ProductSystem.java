@@ -60,6 +60,10 @@ public class ProductSystem extends RootEntity implements CalculationTarget {
 	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
 
+	@JoinColumn(name = "f_product_system")
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
+	public final List<AnalysisGroup> analysisGroups = new ArrayList<>();
+
 	public static ProductSystem of(Process p) {
 		var name = p.name;
 		if (p.location != null && Strings.notEmpty(p.location.code)) {
@@ -157,15 +161,18 @@ public class ProductSystem extends RootEntity implements CalculationTarget {
 		copy.referenceExchange = referenceExchange;
 		copy.referenceProcess = referenceProcess;
 		copy.targetAmount = targetAmount;
-		copy.processes.addAll(processes);
-		for (ProcessLink link : processLinks) {
-			copy.processLinks.add(link.copy());
-		}
-		for (ParameterRedefSet s : parameterSets) {
-			copy.parameterSets.add(s.copy());
-		}
 		copy.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		copy.targetUnit = targetUnit;
+		copy.processes.addAll(processes);
+		for (var link : processLinks) {
+			copy.processLinks.add(link.copy());
+		}
+		for (var s : parameterSets) {
+			copy.parameterSets.add(s.copy());
+		}
+		for (var ag : analysisGroups) {
+			copy.analysisGroups.add(ag.copy());
+		}
 		return copy;
 	}
 

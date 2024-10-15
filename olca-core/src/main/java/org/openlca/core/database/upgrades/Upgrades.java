@@ -22,6 +22,7 @@ public class Upgrades {
 			new Upgrade11(),
 			new Upgrade12(),
 			new Upgrade13(),
+			new Upgrade14(),
 	};
 
 	private final Logger log = LoggerFactory.getLogger(Upgrades.class);

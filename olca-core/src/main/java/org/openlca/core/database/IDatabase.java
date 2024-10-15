@@ -29,7 +29,7 @@ public interface IDatabase extends EntityStore, Closeable {
 	 * The current database schema version of this package. Together with the
 	 * getVersion-method this can be used to check for updates of a database.
 	 */
-	int CURRENT_VERSION = 13;
+	int CURRENT_VERSION = 14;
 
 	/**
 	 * Creates a native SQL connection to the underlying database. The connection

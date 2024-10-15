@@ -1,17 +1,17 @@
 package org.openlca.core.database.upgrades;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.Version;
-import org.openlca.util.Strings;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class Upgrade12 implements IUpgrade {
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.Version;
+import org.openlca.util.Strings;
+
+class Upgrade12 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {

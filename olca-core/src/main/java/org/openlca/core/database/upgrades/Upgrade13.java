@@ -2,7 +2,7 @@ package org.openlca.core.database.upgrades;
 
 import org.openlca.core.database.IDatabase;
 
-public class Upgrade13 implements IUpgrade {
+class Upgrade13 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {

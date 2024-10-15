@@ -8,6 +8,7 @@
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>org.openlca.core.model.Actor</class>
 		<class>org.openlca.core.model.AllocationFactor</class>
+		<class>org.openlca.core.model.AnalysisGroup</class>
 		<class>org.openlca.core.model.Category</class>
 		<class>org.openlca.core.model.Currency</class>
 		<class>org.openlca.core.model.Exchange</class>

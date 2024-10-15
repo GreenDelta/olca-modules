@@ -56,6 +56,10 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
+		// roll back Upgrade14
+		u.dropTable("tbl_analysis_groups");
+		u.dropTable("tbl_analysis_group_processes");
+
 		// roll back Upgrade12
 		for (var table : catEntityTables) {
 			u.dropColumn(table, "other_properties");
@@ -239,6 +243,10 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_epds", "use_advice"));
 		assertTrue(u.columnExists("tbl_epds", "registration_id"));
 		assertTrue(u.columnExists("tbl_epds", "f_data_generator"));
+
+		// check Upgrade14
+		assertTrue(u.tableExists("tbl_analysis_groups"));
+		assertTrue(u.tableExists("tbl_analysis_group_processes"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
