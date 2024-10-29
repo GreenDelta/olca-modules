@@ -50,14 +50,14 @@ public class WriterTests extends AbstractRepositoryTests {
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"c_category",
-				"category_one",
+				"category:one",
 				"category_two",
 				"category_zhree");
 		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/a_category"),
 				".empty");
 		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/c_category"),
 				".empty");
-		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_one"),
+		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category:one"),
 				"a.json",
 				"aca49f5b-5021-4b6b-9330-739f082dfae0.json");
 		repo.assertEqual(repo.createIterator(commitId1, "SOURCE/category_two"),
@@ -82,12 +82,12 @@ public class WriterTests extends AbstractRepositoryTests {
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE"),
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"category_one",
+				"category:one",
 				"category_two",
 				"category_zhree");
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/a_category"),
 				".empty");
-		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_one"),
+		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category:one"),
 				"a.json");
 		repo.assertEqual(repo.createIterator(commitId2, "SOURCE/category_two"),
 				".empty");

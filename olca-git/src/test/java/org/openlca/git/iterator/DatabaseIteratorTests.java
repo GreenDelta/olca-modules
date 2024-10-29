@@ -17,8 +17,8 @@ public class DatabaseIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/c_category",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
 		repo.assertEqual(new DatabaseIterator(repo), 
@@ -41,10 +41,10 @@ public class DatabaseIteratorTests extends AbstractRepositoryTests {
 				"a_category",
 				"bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"c_category",
-				"category_one",
+				"category:one",
 				"category_two",
 				"category_zhree");
-		repo.assertEqual(new DatabaseIterator(repo, "SOURCE/category_one"),
+		repo.assertEqual(new DatabaseIterator(repo, "SOURCE/category:one"),
 				"aca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"aca49f5b-5021-4b6b-9330-739f082dfae0.json");
 		repo.assertEqual(new DatabaseIterator(repo, "SOURCE/category_two"),

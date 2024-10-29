@@ -19,8 +19,8 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/c_category",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
 		var changes = Change.of(repo.diffs.find().withDatabase());
@@ -32,8 +32,8 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/a_category/.empty",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/c_category/.empty",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree/.empty",
 				RepositoryInfo.FILE_NAME);
@@ -48,18 +48,18 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/a_category",
 				"SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/c_category",
-				"SOURCE/category_one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
 		var commitId = repo.commitWorkspace();
-		repo.delete("SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+		repo.delete("SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
 		repo.create("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json");
 		var changes = Change.of(repo.diffs.find().withDatabase());
 		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
 		repo.assertEqualRecursive(iterator,
-				"SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
+				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/.empty",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree/.empty",

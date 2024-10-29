@@ -11,7 +11,7 @@ import org.openlca.git.model.ModelRef;
 class ExampleData extends AbstractRepositoryTests {
 
 	static final Map<String, List<String>> PATH_TO_BINARY = Map.of(
-			"ACTOR/cAA39f5b-5021_bin1.json+39f082dfae0..json", Arrays.asList("test.txt"));
+			"ACTOR/cAA39f5b-5021_bin1.json+39f082dfae0..json", Arrays.asList("te?st.txt"));
 
 	static final List<Change> COMMIT_1 = Arrays.asList(
 			Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json")),
@@ -21,8 +21,8 @@ class ExampleData extends AbstractRepositoryTests {
 			Change.add(new ModelRef("SOURCE/a_category")),
 			Change.add(new ModelRef("SOURCE/bca39f5b-5021-4b6b-9330-739f082dfae0.json")),
 			Change.add(new ModelRef("SOURCE/c_category")),
-			Change.add(new ModelRef("SOURCE/category_one/a.json")),
-			Change.add(new ModelRef("SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json")),
+			Change.add(new ModelRef("SOURCE/category:one/a.json")),
+			Change.add(new ModelRef("SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json")),
 			Change.add(new ModelRef("SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json")),
 			Change.add(new ModelRef("SOURCE/category_zhree")));
 
@@ -30,7 +30,7 @@ class ExampleData extends AbstractRepositoryTests {
 			// delete empty category
 			Change.delete(new ModelRef("SOURCE/c_category")),
 			// delete one of several data sets in a category
-			Change.delete(new ModelRef("SOURCE/category_one/aca49f5b-5021-4b6b-9330-739f082dfae0.json")),
+			Change.delete(new ModelRef("SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json")),
 			// delete last data set in a category (must create .empty)
 			Change.delete(new ModelRef("SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json")),
 			// add data set in empty category (must delete .empty)

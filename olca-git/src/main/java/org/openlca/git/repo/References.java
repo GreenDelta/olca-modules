@@ -47,7 +47,7 @@ public class References {
 				walk.setFilter(PathFilter.create(GitUtil.encode(ref.getBinariesPath())));
 				walk.setRecursive(true);
 				while (walk.next()) {
-					paths.add(walk.getNameString());
+					paths.add(GitUtil.decode(walk.getNameString()));
 				}
 				return paths;
 			}
@@ -62,7 +62,7 @@ public class References {
 	}
 
 	private Reference createRef(TreeWalk walk, String commitId) {
-		return new Reference(walk.getPathString(), commitId, walk.getObjectId(0));
+		return new Reference(GitUtil.decode(walk.getPathString()), commitId, walk.getObjectId(0));
 	}
 
 	public class Find {
