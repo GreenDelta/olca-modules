@@ -1,11 +1,11 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility;
-import org.openlca.git.model.Change;
+import org.openlca.git.model.Diff;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Strings;
@@ -13,7 +13,7 @@ import org.openlca.util.Strings;
 public class GitCommit extends GitProgressAction<String> {
 
 	private ClientRepository repo;
-	private Set<Change> changes;
+	private List<Diff> changes;
 	private String message;
 	private PersonIdent committer;
 
@@ -25,7 +25,7 @@ public class GitCommit extends GitProgressAction<String> {
 		return new GitCommit(repo);
 	}
 
-	public GitCommit changes(Set<Change> changes) {
+	public GitCommit changes(List<Diff> changes) {
 		this.changes = changes;
 		return this;
 	}
@@ -45,7 +45,7 @@ public class GitCommit extends GitProgressAction<String> {
 		if (repo == null || repo.database == null || Strings.nullOrEmpty(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		if (changes == null) {
-			changes = Change.of(repo.diffs.find().withDatabase());
+			changes = repo.diffs.find().withDatabase();
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");

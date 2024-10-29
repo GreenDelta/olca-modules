@@ -8,7 +8,6 @@ import static org.openlca.git.repo.ExampleData.COMMIT_2;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -19,8 +18,8 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.Reference;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.jsonld.Json;
@@ -100,17 +99,17 @@ public class WriterTests extends AbstractRepositoryTests {
 		// different sorting in Converter (via ModelRef.compareTo) and
 		// ChangeIterator (via TreeEntry.compareTo) lead to the commit writing
 		// to get stuck; FIX: encode string in ModelRef.compareTo
-		var changes = new ArrayList<Change>();
+		var changes = new ArrayList<Diff>();
 		for (var i = 0; i < 30; i++) {
-			changes.add(Change.add(new ModelRef(
+			changes.add(Diff.added(new Reference(
 					"FLOW/Emissions to air/indoor/" + UUID.randomUUID().toString() + ".json")));
 		}
 		for (var i = 0; i < 30; i++) {
-			changes.add(Change.add(new ModelRef(
+			changes.add(Diff.added(new Reference(
 					"FLOW/Emissions to air/low. pop., long-term/" + UUID.randomUUID().toString() + ".json")));
 		}
 		for (var i = 0; i < 30; i++) {
-			changes.add(Change.add(new ModelRef(
+			changes.add(Diff.added(new Reference(
 					"FLOW/Emissions to air/low. pop./" + UUID.randomUUID().toString() + ".json")));
 		}
 		repo.commit(changes);
@@ -119,22 +118,24 @@ public class WriterTests extends AbstractRepositoryTests {
 	@Test
 	public void testMergeKeepRemote() throws IOException {
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
-		var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
+		var changes = Arrays.asList(Diff.added(new Reference("ACTOR/" + refId + ".json")));
 		var commitId1 = repo.commit(changes);
 		Assert.assertNotNull(commitId1);
-		
+
 		var commit = repo.commits.get(commitId1);
-		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
+		changes = Arrays.asList(
+				Diff.modified(new Reference("ACTOR/" + refId + ".json"), new Reference("ACTOR/" + refId + ".json")));
 		var commitId2 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId2);
-		
-		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
+
+		changes = Arrays.asList(
+				Diff.modified(new Reference("ACTOR/" + refId + ".json"), new Reference("ACTOR/" + refId + ".json")));
 		var commitId3 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId3);
-		
+
 		var writer = new DbCommitWriter(repo, new StaticBinaryResolver(ExampleData.PATH_TO_BINARY));
 		writer.merge(commitId2, commitId3);
-		var mergeCommitId = writer.write("merge commit", new HashSet<>());
+		var mergeCommitId = writer.write("merge commit", new ArrayList<>());
 		Assert.assertNotNull(mergeCommitId);
 		var ref = repo.references.get(ModelType.ACTOR, refId, mergeCommitId);
 		var version = repo.datasets.getVersionAndLastChange(ref).get("version");
@@ -144,25 +145,27 @@ public class WriterTests extends AbstractRepositoryTests {
 	@Test
 	public void testMergeKeepLocal() throws IOException {
 		var refId = "0aa39f5b-5021-4b6b-9330-739f082dfae0";
-		var changes = Arrays.asList(Change.add(new ModelRef("ACTOR/" + refId + ".json")));
+		var changes = Arrays.asList(Diff.added(new Reference("ACTOR/" + refId + ".json")));
 		var commitId1 = repo.commit(changes);
 		Assert.assertNotNull(commitId1);
 		var commit = repo.commits.get(commitId1);
-		
-		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
+
+		changes = Arrays.asList(
+				Diff.modified(new Reference("ACTOR/" + refId + ".json"), new Reference("ACTOR/" + refId + ".json")));
 		var commitId2 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId2);
-		
-		changes = Arrays.asList(Change.modify(new ModelRef("ACTOR/" + refId + ".json")));
+
+		changes = Arrays.asList(
+				Diff.modified(new Reference("ACTOR/" + refId + ".json"), new Reference("ACTOR/" + refId + ".json")));
 		var commitId3 = repo.commit(commit, changes);
 		Assert.assertNotNull(commitId3);
-		
+
 		var actor = repo.database.get(Actor.class, refId);
 		actor.version = Version.valueOf(0, 0, 1);
 		repo.database.update(actor);
 		var writer = new DbCommitWriter(repo, new StaticBinaryResolver(ExampleData.PATH_TO_BINARY));
 		writer.merge(commitId2, commitId3);
-		var mergeCommitId = writer.write("merge commit", new HashSet<>(changes));
+		var mergeCommitId = writer.write("merge commit", new ArrayList<>(changes));
 		Assert.assertNotNull(mergeCommitId);
 		var ref = repo.references.get(ModelType.ACTOR, refId, mergeCommitId);
 		var version = repo.datasets.getVersionAndLastChange(ref).get("version");
@@ -181,15 +184,15 @@ public class WriterTests extends AbstractRepositoryTests {
 				"UNIT_GROUP/" + category + "/" + refId + ".json");
 
 		// should find 1 diff without categories
-		var diffs = Change.of(repo.diffs.find().excludeCategories().withDatabase());
+		var diffs = repo.diffs.find().excludeCategories().withDatabase();
 		assertEquals(1, diffs.size());
 
 		// should find 1 category diff
-		diffs = Change.of(repo.diffs.find().onlyCategories().withDatabase());
+		diffs = repo.diffs.find().onlyCategories().withDatabase();
 		assertEquals(1, diffs.size());
 
 		// should find 2 total diffs
-		diffs = Change.of(repo.diffs.find().withDatabase());
+		diffs = repo.diffs.find().withDatabase();
 		assertEquals(2, diffs.size());
 
 		// commit it

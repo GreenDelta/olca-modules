@@ -1,10 +1,8 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -13,15 +11,12 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.GitMerge.MergeResult;
-import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
-import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.Constants;
-import org.openlca.git.util.ModelRefSet;
 import org.openlca.git.writer.DbCommitWriter;
 
 public class GitMerge extends GitProgressAction<MergeResult> {
@@ -33,8 +28,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private boolean applyStash;
 	private Commit localCommit;
 	private Commit remoteCommit;
-	private List<Diff> diffs;
-	private Set<Change> mergeResults = new HashSet<>();
+	private List<Diff> changes;
+	private List<Diff> mergeResults = new ArrayList<>();
 
 	private GitMerge(ClientRepository repo) {
 		this.repo = repo;
@@ -74,8 +69,12 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var mountResult = libraries.mountNew();
 		if (mountResult == MergeResult.MOUNT_ERROR || mountResult == MergeResult.ABORTED)
 			return mountResult;
-		var imported = importData();
-		deleteData(imported);
+		var data = Data.of(repo, localCommit, remoteCommit)
+				.changes(changes)
+				.with(progressMonitor)
+				.with(conflictResolver);
+		mergeResults.addAll(data.doImport(c -> c.diffType != DiffType.DELETED));
+		mergeResults.addAll(data.doDelete(c -> c.diffType == DiffType.DELETED));
 		libraries.unmountObsolete();
 		progressMonitor.beginTask("Reloading descriptors");
 		repo.descriptors.reload();
@@ -105,44 +104,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		if (remoteCommit == null)
 			return false;
 		var commonParent = repo.localHistory.commonParentOf(ref);
-		diffs = repo.diffs.find().commit(commonParent).with(remoteCommit);
+		changes = repo.diffs.find().commit(commonParent).with(remoteCommit);
 		return true;
-	}
-
-	private List<Reference> importData() {
-		var addedOrChanged = diffs.stream()
-				.filter(d -> d.diffType != DiffType.DELETED && !d.isLibrary)
-				.map(d -> d.newRef)
-				.collect(Collectors.toList());
-		if (addedOrChanged.isEmpty())
-			return addedOrChanged;
-		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, addedOrChanged, conflictResolver);
-		var mergeResults = ImportData.from(gitStore)
-				.with(progressMonitor)
-				.into(repo.database)
-				.run();
-		this.mergeResults.addAll(mergeResults);
-		return addedOrChanged;
-	}
-
-	private void deleteData(List<Reference> imported) {
-		// if a dataset was added and deleted it means that it was moved, the
-		// add will result in an updated dataset when during importData() so
-		// skip the delete in these cases
-		var dontDelete = new ModelRefSet(imported);
-		var deleted = diffs.stream()
-				.filter(d -> d.diffType == DiffType.DELETED && !d.isLibrary)
-				.filter(d -> !dontDelete.contains(d))
-				.map(d -> d.oldRef)
-				.collect(Collectors.toList());
-		if (deleted.isEmpty())
-			return;
-		var mergeResults = DeleteData.from(repo.database)
-				.with(progressMonitor)
-				.with(conflictResolver)
-				.data(deleted)
-				.run();
-		this.mergeResults.addAll(mergeResults);
 	}
 
 	private Commit getRemoteCommit() throws GitAPIException {
@@ -155,7 +118,9 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var localLibs = repo.getLibraries(localCommit);
 		var remoteLibs = repo.getLibraries(remoteCommit);
 		if (!localLibs.equals(remoteLibs)) {
-			mergeResults.add(Change.modify(new ModelRef(RepositoryInfo.FILE_NAME)));
+			mergeResults.add(Diff.modified(
+					repo.entries.get(RepositoryInfo.FILE_NAME, remoteCommit.id),
+					new Reference(RepositoryInfo.FILE_NAME)));
 		}
 		return new DbCommitWriter(repo)
 				.as(committer)

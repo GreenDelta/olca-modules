@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.Change.ChangeType;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.Json;
@@ -49,8 +49,8 @@ class Converter implements JsonStoreWriter {
 	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
 	private final IDatabase database;
 	private final ExecutorService threads;
-	private final Deque<Change> changes = new LinkedList<>();
-	private final Map<String, Change> systems = new HashMap<>();
+	private final Deque<Diff> changes = new LinkedList<>();
+	private final Map<String, Diff> systems = new HashMap<>();
 	private final AtomicInteger queueSize = new AtomicInteger();
 	private final JsonExport export;
 	private final int converterThreads;
@@ -75,7 +75,7 @@ class Converter implements JsonStoreWriter {
 		this.converterThreads = processors;
 	}
 
-	void start(List<Change> changes) {
+	void start(List<Diff> changes) {
 		if (changes.isEmpty())
 			return;
 		this.changes.clear();
@@ -113,8 +113,8 @@ class Converter implements JsonStoreWriter {
 		}
 	}
 
-	private void convert(Change change) {
-		if (change.changeType == ChangeType.DELETE)
+	private void convert(Diff change) {
+		if (change.diffType == DiffType.DELETED || change.type == null || change.refId == null)
 			return;
 		try {
 			var model = database.get(change.type.getModelClass(), change.refId);
@@ -171,7 +171,7 @@ class Converter implements JsonStoreWriter {
 		return doTake(path);
 	}
 
-	private byte[] convertProductSystem(Change change) {
+	private byte[] convertProductSystem(Diff change) {
 		if (progressMonitor.isCanceled())
 			return null;
 		var model = database.get(change.type.getModelClass(), change.refId);

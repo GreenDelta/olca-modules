@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
-import org.openlca.git.model.Change;
+import org.openlca.git.model.Diff;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.util.Strings;
 
@@ -23,7 +23,7 @@ public class DatabaseBinaryResolver implements BinaryResolver {
 	}
 
 	@Override
-	public List<String> list(Change change, String relativePath) {
+	public List<String> list(Diff change, String relativePath) {
 		var root = getFile(change, null).toPath();
 		var files = getFile(change, relativePath).listFiles();
 		if (files == null)
@@ -36,16 +36,16 @@ public class DatabaseBinaryResolver implements BinaryResolver {
 	}
 
 	@Override
-	public boolean isDirectory(Change change, String relativePath) {
+	public boolean isDirectory(Diff change, String relativePath) {
 		return getFile(change, relativePath).isDirectory();
 	}
 
 	@Override
-	public byte[] resolve(Change change, String relativePath) throws IOException {
+	public byte[] resolve(Diff change, String relativePath) throws IOException {
 		return Files.readAllBytes(getFile(change, relativePath).toPath());
 	}
 
-	private File getFile(Change change, String relativePath) {
+	private File getFile(Diff change, String relativePath) {
 		var folder = fileStore.getFolder(change.type, change.refId);
 		if (!Strings.nullOrEmpty(relativePath)) {
 			folder = new File(folder, relativePath);

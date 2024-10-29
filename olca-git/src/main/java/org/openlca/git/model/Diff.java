@@ -15,6 +15,22 @@ public class Diff extends ModelRef {
 		this.newRef = newRef;
 	}
 
+	public static Diff added(Reference newRef) {
+		return new Diff(DiffType.ADDED, null, newRef);
+	}
+
+	public static Diff modified(Reference oldRef, Reference newRef) {
+		return new Diff(DiffType.MODIFIED, oldRef, newRef);
+	}
+
+	public static Diff moved(Reference oldRef, Reference newRef) {
+		return new Diff(DiffType.MOVED, oldRef, newRef);
+	}
+
+	public static Diff deleted(Reference oldRef) {
+		return new Diff(DiffType.DELETED, oldRef, null);
+	}
+
 	public static List<Diff> filter(List<Diff> diffs, DiffType type) {
 		return filter(diffs, new DiffType[] { type });
 	}

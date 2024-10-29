@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -26,8 +25,8 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.iterator.EntryIterator;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.Change.ChangeType;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -69,8 +68,8 @@ public abstract class CommitWriter {
 		return this;
 	}
 
-	protected String write(String message, Set<Change> changes, ObjectId... parentCommitIds) throws IOException {
-		return write(message, new ChangeIterator(repo, binaryResolver, changes), parentCommitIds);
+	protected String write(String message, List<Diff> changes, ObjectId... parentCommitIds) throws IOException {
+		return write(message, ChangeIterator.of(repo, binaryResolver, changes), parentCommitIds);
 	}
 
 	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
@@ -208,8 +207,8 @@ public abstract class CommitWriter {
 		return syncTree(prefix, subIterator, treeIds);
 	}
 
-	private boolean isDeletedCategory(Change data) {
-		return data != null && data.isCategory && data.changeType == ChangeType.DELETE;
+	private boolean isDeletedCategory(Diff data) {
+		return data != null && data.isCategory && data.diffType == DiffType.DELETED;
 	}
 
 	private ObjectId handleFile(TreeWalk walk)
@@ -225,9 +224,9 @@ public abstract class CommitWriter {
 		}
 		var path = GitUtil.decode(walk.getPathString());
 		var iterator = walk.getTree(treeCount - 1, EntryIterator.class);
-		Change change = iterator.getEntryData();
+		Diff change = iterator.getEntryData();
 		var filePath = iterator.getEntryFilePath();
-		if (change.changeType == ChangeType.DELETE && matches(path, change, filePath))
+		if (change.diffType == DiffType.DELETED && matches(path, change, filePath))
 			return null;
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
@@ -264,7 +263,7 @@ public abstract class CommitWriter {
 		return packInserter.insert(Constants.OBJ_BLOB, blob);
 	}
 
-	private boolean matches(String path, Change change, String filePath) {
+	private boolean matches(String path, Diff change, String filePath) {
 		if (change == null)
 			return false;
 		if (filePath == null)
@@ -338,6 +337,6 @@ public abstract class CommitWriter {
 		return List.of();
 	}
 
-	protected abstract byte[] getData(Change change) throws IOException;
+	protected abstract byte[] getData(Diff change) throws IOException;
 
 }

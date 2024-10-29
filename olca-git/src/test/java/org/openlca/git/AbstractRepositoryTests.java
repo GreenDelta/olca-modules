@@ -32,10 +32,11 @@ import org.openlca.core.model.Version;
 import org.openlca.git.actions.GitCommit;
 import org.openlca.git.actions.GitInit;
 import org.openlca.git.actions.GitStashCreate;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -96,7 +97,7 @@ public abstract class AbstractRepositoryTests {
 		public void stashWorkspace() throws IOException, GitAPIException {
 			var diffs = this.diffs.find().withDatabase();
 			var commitId = GitStashCreate.on(this)
-					.changes(Change.of(diffs))
+					.changes(diffs)
 					.as(committer)
 					.run();
 			var stashCommit = commits.stash();
@@ -109,7 +110,7 @@ public abstract class AbstractRepositoryTests {
 			Assert.assertFalse(this.diffs.find().withDatabase().isEmpty());
 			var commitId = GitCommit.on(this)
 					.as(committer)
-					.changes(Change.of(diffs))
+					.changes(diffs)
 					.withMessage(getCommitMessage())
 					.run();
 			System.out.println(this.diffs.find().withDatabase());
@@ -122,25 +123,28 @@ public abstract class AbstractRepositoryTests {
 			return "commit " + ++commitCount + " from " + name;
 		}
 
-		public String commit(List<Change> changes, String... libraries) throws IOException {
+		public String commit(List<Diff> changes, String... libraries) throws IOException {
 			return commit(null, changes, libraries);
 		}
 
-		public String commit(Commit reference, List<Change> changes, String... libraries) throws IOException {
+		public String commit(Commit reference, List<Diff> changes, String... libraries) throws IOException {
 			// create, modify and delete models in database
 			changes.forEach(change -> {
-				if (change.changeType == ChangeType.ADD) {
+				if (change.diffType == DiffType.ADDED) {
 					create(change.path);
-				} else if (change.changeType == ChangeType.MODIFY) {
+				} else if (change.diffType == DiffType.MODIFIED) {
 					modify(change.path);
-				} else if (change.changeType == ChangeType.DELETE) {
+				} else if (change.diffType == DiffType.MOVED) {
+					move(change.oldRef.path, change.newRef.category);
+				} else if (change.diffType == DiffType.DELETED) {
 					delete(change.path);
 				}
 			});
-			var commitChanges = new HashSet<>(changes);
+			var commitChanges = new ArrayList<>(changes);
 			if (libraries != null && libraries.length > 0) {
 				for (var library : libraries) {
-					commitChanges.add(Change.add(new ModelRef(RepositoryInfo.FILE_NAME + "/" + library)));
+					commitChanges
+							.add(Diff.added(new Reference(RepositoryInfo.FILE_NAME + "/" + library)));
 					database.addLibrary(library);
 				}
 			}
@@ -248,7 +252,9 @@ public abstract class AbstractRepositoryTests {
 			var model = database.get(type.getModelClass(), refId);
 			if (model == null)
 				throw new IllegalArgumentException("Could not find " + path);
-			model.category = CategoryDao.sync(database, type, categoryPath.split("/"));
+			model.category = !Strings.nullOrEmpty(categoryPath)
+					? CategoryDao.sync(database, type, categoryPath.split("/"))
+					: null;
 			database.update(model);
 			descriptors.reload();
 		}
@@ -360,19 +366,19 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		@Override
-		public List<String> list(Change change, String relativePath) {
+		public List<String> list(Diff change, String relativePath) {
 			if (!paths.containsKey(change.path))
 				return new ArrayList<>();
 			return new ArrayList<>(paths.get(change.path));
 		}
 
 		@Override
-		public boolean isDirectory(Change change, String relativePath) {
+		public boolean isDirectory(Diff change, String relativePath) {
 			return false;
 		}
 
 		@Override
-		public byte[] resolve(Change change, String relativePath) throws IOException {
+		public byte[] resolve(Diff change, String relativePath) throws IOException {
 			return getContent(relativePath).getBytes();
 		}
 

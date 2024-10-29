@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.git.model.Change;
 import org.openlca.git.writer.DatabaseBinaryResolver;
 
 public class ChangeIteratorTests extends AbstractRepositoryTests {
@@ -23,8 +22,8 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_zhree");
-		var changes = Change.of(repo.diffs.find().withDatabase());
-		var iterator = new ChangeIterator(repo, null, new DatabaseBinaryResolver(repo.database), changes);
+		var changes = repo.diffs.find().withDatabase();
+		var iterator = ChangeIterator.of(repo, null, new DatabaseBinaryResolver(repo.database), changes);
 		repo.assertEqualRecursive(iterator, "ACTOR/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json",
 				"ACTOR/caa39f5b-5021-4b6b-9330-739f082dfae0.json",
 				"ACTOR/category/0.json",
@@ -56,8 +55,8 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 		repo.delete("SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/0ca39f5b-5021-4b6b-9330-739f082dfae0.json");
 		repo.create("SOURCE/category_zhree/fca39f5b-5021-4b6b-9330-739f082dfae0.json");
-		var changes = Change.of(repo.diffs.find().withDatabase());
-		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
+		var changes = repo.diffs.find().withDatabase();
+		var iterator = ChangeIterator.of(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
 		repo.assertEqualRecursive(iterator,
 				"SOURCE/category:one/aca49f5b-5021-4b6b-9330-739f082dfae0.json",
 				"SOURCE/category_two/.empty",
@@ -74,8 +73,8 @@ public class ChangeIteratorTests extends AbstractRepositoryTests {
 		var commitId = repo.commitWorkspace();
 		repo.move("ACTOR/category/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json", "category2");
 		repo.move("ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category");
-		var changes = Change.of(repo.diffs.find().withDatabase());
-		var iterator = new ChangeIterator(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
+		var changes = repo.diffs.find().withDatabase();
+		var iterator = ChangeIterator.of(repo, commitId, new DatabaseBinaryResolver(repo.database), changes);
 		repo.assertEqualRecursive(iterator,
 				"ACTOR/category/0AA39f5b.5021_4b6b-dd90.739f082dfae0.json", // deleted
 				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", // added

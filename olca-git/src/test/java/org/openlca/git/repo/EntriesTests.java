@@ -11,8 +11,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.Reference;
 import org.openlca.git.repo.Entries.Find;
 import org.openlca.git.util.BinaryResolver;
 
@@ -55,7 +55,7 @@ public class EntriesTests extends AbstractRepositoryTests {
 	@Test
 	public void testIterateRecursiveWithLibraries() throws IOException {
 		var commitIds = new String[] {
-				repo.commit(Arrays.asList(Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"))),
+				repo.commit(Arrays.asList(Diff.added(new Reference("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"))),
 						"library_a"),
 				repo.commit(Arrays.asList(), 
 						"library_b") };

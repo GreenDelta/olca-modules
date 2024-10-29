@@ -15,18 +15,18 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.Reference;
 import org.openlca.git.util.ProgressMonitor;
 
 class DeleteData {
 
 	private final CategoryDao categoryDao;
 	private final List<Category> deleted = new ArrayList<>();
-	private final List<Change> resolvedConflicts = new ArrayList<>();
+	private final List<Diff> resolvedConflicts = new ArrayList<>();
 	private final EnumMap<ModelType, RootEntityDao<?, ?>> daos = new EnumMap<>(ModelType.class);
-	private List<? extends ModelRef> categories;
-	private List<? extends ModelRef> models;
+	private List<Reference> categories;
+	private List<Reference> models;
 	private ProgressMonitor progressMonitor;
 	private ConflictResolver conflictResolver = ConflictResolver.NULL;
 
@@ -51,7 +51,7 @@ class DeleteData {
 		return this;
 	}
 
-	DeleteData data(List<? extends ModelRef> remoteDeletions) {
+	DeleteData data(List<Reference> remoteDeletions) {
 		this.models = remoteDeletions.stream()
 				.filter(ref -> !ref.isCategory)
 				.toList();
@@ -62,14 +62,14 @@ class DeleteData {
 		return this;
 	}
 
-	List<Change> run() {
+	List<Diff> run() {
 		progressMonitor.beginTask("Deleting data sets", models.size() + categories.size());
 		models.stream().forEach(this::deleteModel);
 		categories.stream().forEach(this::deleteCategory);
 		return resolvedConflicts;
 	}
 
-	private void deleteModel(ModelRef ref) {
+	private void deleteModel(Reference ref) {
 		progressMonitor.subTask(ref);
 		if (!keepLocal(ref)) {
 			delete(daos.get(ref.type), ref.refId);
@@ -77,7 +77,7 @@ class DeleteData {
 		progressMonitor.worked(1);
 	}
 
-	private void deleteCategory(ModelRef ref) {
+	private void deleteCategory(Reference ref) {
 		progressMonitor.subTask(ref);
 		var category = categoryDao.getForPath(ref.type, ref.getCategoryPath());
 		if (category == null) {
@@ -88,7 +88,7 @@ class DeleteData {
 			categoryDao.delete(category);
 			deleted.add(category);
 		} else {
-			resolvedConflicts.add(Change.add(ref));
+			resolvedConflicts.add(Diff.added(ref));
 		}
 		progressMonitor.worked(1);
 	}
@@ -105,14 +105,14 @@ class DeleteData {
 		return true;
 	}
 
-	private boolean keepLocal(ModelRef ref) {
+	private boolean keepLocal(Reference ref) {
 		if (!conflictResolver.isConflict(ref))
 			return false;
 		var resolution = conflictResolver.resolveConflict(ref, null);
 		if (resolution == null)
 			throw new ConflictException(ref);
 		if (resolution.type == ConflictResolutionType.OVERWRITE) {
-			resolvedConflicts.add(Change.delete(ref));
+			resolvedConflicts.add(Diff.deleted(ref));
 		}
 		return resolution.type == ConflictResolutionType.KEEP;
 	}
@@ -124,14 +124,14 @@ class DeleteData {
 		dao.delete(dao.getForRefId(refId));
 	}
 
-	private static class CategoryDepthComparator implements Comparator<ModelRef> {
+	private static class CategoryDepthComparator implements Comparator<Reference> {
 
 		@Override
-		public int compare(ModelRef c1, ModelRef c2) {
+		public int compare(Reference c1, Reference c2) {
 			return getDepth(c2) - getDepth(c1);
 		}
 
-		private int getDepth(ModelRef c) {
+		private int getDepth(Reference c) {
 			var path = c.getCategoryPath();
 			var depth = 0;
 			while (path.contains("/")) {

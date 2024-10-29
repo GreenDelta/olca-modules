@@ -4,7 +4,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.git.model.Change;
+import org.openlca.git.model.Diff;
 import org.openlca.git.util.GitUtil;
 
 class TreeEntry implements Comparable<TreeEntry> {
@@ -18,7 +18,7 @@ class TreeEntry implements Comparable<TreeEntry> {
 		return new TreeEntry(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE, null);
 	}
 
-	public static TreeEntry empty(Change change) {
+	public static TreeEntry empty(Diff change) {
 		return new TreeEntry(GitUtil.EMPTY_CATEGORY_FLAG, FileMode.REGULAR_FILE, change);
 	}
 

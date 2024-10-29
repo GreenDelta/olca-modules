@@ -13,11 +13,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
-import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Reference;
 import org.openlca.git.util.BinaryResolver;
 
 public class DiffsTests extends AbstractRepositoryTests {
@@ -124,7 +123,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 	@Test
 	public void testDiffWithDatabaseLibraries() throws IOException {
 		repo.commit(Arrays.asList(
-				Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"))),
+				Diff.added(new Reference("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"))),
 				"library_a");
 
 		repo.database.addLibrary("library_b");
@@ -221,7 +220,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 	public void testDiffWithCommitLibraries() throws IOException {
 		var commits = new Commit[] {
 				repo.commits.get(repo.commit(Arrays.asList(
-						Change.add(new ModelRef("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"))),
+						Diff.added(new Reference("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"))),
 						"library_a")),
 				repo.commits.get(repo.commit(Arrays.asList(),
 						"library_b")) };
