@@ -30,7 +30,7 @@ class Categories {
 	}
 
 	private void init(OlcaRepository repo, String commitId, String path) {
-		repo.entries.iterate(commitId, entry -> {
+		repo.references.find().commit(commitId).iterate(entry -> {
 			if (!entry.isCategory)
 				return;
 			var refId = getRefId(entry.path);
@@ -39,7 +39,7 @@ class Categories {
 			if (!Strings.nullOrEmpty(entry.category)) {
 				refIdToParent.put(refId, getRefId(entry.type.name() + "/" + entry.category));
 			}
-			pathToRefId.put(entry.path, refId);			
+			pathToRefId.put(entry.path, refId);
 		});
 	}
 

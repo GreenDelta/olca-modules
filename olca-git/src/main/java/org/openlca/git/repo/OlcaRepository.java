@@ -31,7 +31,6 @@ public class OlcaRepository extends FileRepository {
 	private static final Logger log = LoggerFactory.getLogger(OlcaRepository.class);
 	public final Commits commits;
 	public final Datasets datasets;
-	public final Entries entries;
 	public final References references;
 	public final Diffs diffs;
 	public final History localHistory;
@@ -42,7 +41,6 @@ public class OlcaRepository extends FileRepository {
 		super(gitDir);
 		this.commits = Commits.of(this);
 		this.datasets = Datasets.of(this);
-		this.entries = Entries.of(this);
 		this.references = References.of(this);
 		this.diffs = Diffs.of(this);
 		this.localHistory = History.of(this, Constants.LOCAL_REF);

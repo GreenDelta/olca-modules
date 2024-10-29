@@ -23,10 +23,10 @@ public class HeadIndex {
 	private static final int VERSION = 1;
 	private static final String FILE_NAME = "head.index";
 	private final OlcaRepository repo;
+	private final Map<String, Set<String>> subPaths = new HashMap<>();
+	private final Map<String, MetaInfo> metaInfo = new HashMap<>();
+	private final TypedRefIdMap<String> pathsByRef = new TypedRefIdMap<>();
 	private Map<String, Reference> map = new HashMap<>();
-	private Map<String, Set<String>> subPaths = new HashMap<>();
-	private Map<String, MetaInfo> metaInfo = new HashMap<>();
-	private TypedRefIdMap<String> pathsByRef = new TypedRefIdMap<>();
 
 	private HeadIndex(OlcaRepository repo) {
 		this.repo = repo;
@@ -104,7 +104,7 @@ public class HeadIndex {
 		try {
 			subPaths.clear();
 			pathsByRef.clear();
-			map = repo.entries.find().recursive().asMap();
+			map = repo.references.find().includeCategories().asMap();
 			var changed = false;
 			for (var entry : map.values()) {
 				var path = entry.path;

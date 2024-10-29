@@ -155,15 +155,17 @@ public class ChangeIterator extends EntryIterator {
 			List<Diff> changes) {
 		if (referenceCommit == null)
 			return false; // no existing entries
-		var entries = repo.entries.find().commit(referenceCommit.id).path(prefix).all();
-		if (entries.isEmpty())
+		var paths = new HashSet<String>();
+		repo.references.find().includeCategories().commit(referenceCommit.id).path(prefix)
+				.iterate(ref -> paths.add(ref.path));
+		if (paths.isEmpty())
 			return false; // no existing entries
 		var deletions = changes.stream()
 				.filter(d -> d.diffType == DiffType.DELETED)
 				.map(d -> d.path)
 				.collect(Collectors.toSet());
-		for (var entry : entries)
-			if (!deletions.contains(entry.path))
+		for (var path : paths)
+			if (!deletions.contains(path))
 				return false; // at least one entry remains
 		return changes.stream().filter(d -> d.diffType == DiffType.ADDED)
 				.map(d -> d.path)
@@ -185,8 +187,8 @@ public class ChangeIterator extends EntryIterator {
 			return false;
 		var first = prefix.substring(0, prefix.lastIndexOf("/"));
 		var last = prefix.substring(prefix.lastIndexOf("/") + 1);
-		return repo.entries.find().commit(referenceCommit.id).path(first).contains(last)
-				&& repo.entries.find().commit(referenceCommit.id).path(prefix).count() == 0;
+		return repo.references.find().includeCategories().commit(referenceCommit.id).path(first).contains(last)
+				&& repo.references.find().includeCategories().commit(referenceCommit.id).path(prefix).count() == 0;
 	}
 
 	public final ChangeIterator createSubtreeIterator() {

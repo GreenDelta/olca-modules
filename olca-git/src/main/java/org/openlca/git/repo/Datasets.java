@@ -109,16 +109,16 @@ public class Datasets {
 	}
 
 	public byte[] getBinary(Reference ref, String filepath) {
-		if (ref == null  || ref.isCategory || ref.isLibrary || filepath == null || filepath.isEmpty())
+		if (ref == null || ref.isCategory || ref.isLibrary || filepath == null || filepath.isEmpty())
 			return null;
-		var id = repo.entries.get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
+		var id = repo.references.get(ref.getBinariesPath() + "/" + filepath, ref.commitId);
 		return getBytes(id);
 	}
 
 	public byte[] getRepositoryInfo(Commit commit) {
 		if (repo.commits.find().latest() == null)
 			return new Gson().toJson(RepositoryInfo.create().json()).getBytes(StandardCharsets.UTF_8);
-		return getBytes(repo.entries.get(RepositoryInfo.FILE_NAME, commit.id));
+		return getBytes(repo.references.get(RepositoryInfo.FILE_NAME, commit.id));
 	}
 
 	public Map<String, Object> getVersionAndLastChange(Reference ref) {

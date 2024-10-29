@@ -119,7 +119,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var remoteLibs = repo.getLibraries(remoteCommit);
 		if (!localLibs.equals(remoteLibs)) {
 			mergeResults.add(Diff.modified(
-					repo.entries.get(RepositoryInfo.FILE_NAME, remoteCommit.id),
+					repo.references.get(RepositoryInfo.FILE_NAME, remoteCommit.id),
 					new Reference(RepositoryInfo.FILE_NAME)));
 		}
 		return new DbCommitWriter(repo)

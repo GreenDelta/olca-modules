@@ -113,7 +113,6 @@ public abstract class AbstractRepositoryTests {
 					.changes(diffs)
 					.withMessage(getCommitMessage())
 					.run();
-			System.out.println(this.diffs.find().withDatabase());
 			Assert.assertTrue(this.diffs.find().withDatabase().isEmpty());
 			return commitId;
 		}
