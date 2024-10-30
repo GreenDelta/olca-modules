@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -260,7 +261,7 @@ public class References {
 						var ref = new Reference(fullPath, commit.getName(), id);
 						if (!consumer.apply(ref))
 							break;
-						if (recursive && !ref.isDataset) {
+						if (recursive && walk.getFileMode() == FileMode.TREE) {
 							iterate(id, commit, fullPath, consumer);
 						}
 					}
