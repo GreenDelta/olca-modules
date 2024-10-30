@@ -157,6 +157,15 @@ public class References {
 			return value.get();
 		}
 
+		public List<Reference> all() {
+			var all = new ArrayList<Reference>();
+			iterate(ref -> {
+				all.add(ref);
+				return true;
+			});
+			return all;
+		}
+
 		public Map<String, Reference> asMap() {
 			var map = new HashMap<String, Reference>();
 			iterate(ref -> {
