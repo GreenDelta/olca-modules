@@ -3,6 +3,9 @@ package org.openlca.git.repo;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
@@ -15,6 +18,7 @@ import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.GitUtil;
+import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +31,6 @@ public class OlcaRepository extends FileRepository {
 	private static final Logger log = LoggerFactory.getLogger(OlcaRepository.class);
 	public final Commits commits;
 	public final Datasets datasets;
-	public final Entries entries;
 	public final References references;
 	public final Diffs diffs;
 	public final History localHistory;
@@ -38,7 +41,6 @@ public class OlcaRepository extends FileRepository {
 		super(gitDir);
 		this.commits = Commits.of(this);
 		this.datasets = Datasets.of(this);
-		this.entries = Entries.of(this);
 		this.references = References.of(this);
 		this.diffs = Diffs.of(this);
 		this.localHistory = History.of(this, Constants.LOCAL_REF);
@@ -47,14 +49,26 @@ public class OlcaRepository extends FileRepository {
 	}
 
 	public RepositoryInfo getInfo() {
-		return getInfo(null);
+		return getInfo((String) null);
+	}
+
+	public RepositoryInfo getInfo(RevCommit commit) {
+		if (commit == null)
+			return null;
+		return getInfo(commit.getName());
 	}
 
 	public RepositoryInfo getInfo(Commit commit) {
+		if (commit == null)
+			return null;
+		return getInfo(commit.id);
+	}
+
+	public RepositoryInfo getInfo(String commitId) {
 		try (var walk = new TreeWalk(this);
 				var reader = getObjectDatabase().newReader()) {
-			var revCommit = commit != null
-					? parseCommit(ObjectId.fromString(commit.id))
+			var revCommit = commitId != null
+					? parseCommit(ObjectId.fromString(commitId))
 					: getHeadCommit();
 			if (revCommit == null)
 				return null;
@@ -71,6 +85,15 @@ public class OlcaRepository extends FileRepository {
 			log.error("failed to read schema version", e);
 			return null;
 		}
+	}
+
+	public Set<String> getLibraries(Commit commit) {
+		var info = getInfo(commit);
+		if (info == null)
+			return new HashSet<>();
+		return info.libraries().stream()
+				.map(LibraryLink::id)
+				.collect(Collectors.toSet());
 	}
 
 	public RevCommit getHeadCommit() {

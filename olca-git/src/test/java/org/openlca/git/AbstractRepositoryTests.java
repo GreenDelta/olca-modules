@@ -32,10 +32,11 @@ import org.openlca.core.model.Version;
 import org.openlca.git.actions.GitCommit;
 import org.openlca.git.actions.GitInit;
 import org.openlca.git.actions.GitStashCreate;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.Change.ChangeType;
 import org.openlca.git.model.Commit;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.model.ModelRef;
+import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -96,7 +97,7 @@ public abstract class AbstractRepositoryTests {
 		public void stashWorkspace() throws IOException, GitAPIException {
 			var diffs = this.diffs.find().withDatabase();
 			var commitId = GitStashCreate.on(this)
-					.changes(Change.of(diffs))
+					.changes(diffs)
 					.as(committer)
 					.run();
 			var stashCommit = commits.stash();
@@ -109,7 +110,7 @@ public abstract class AbstractRepositoryTests {
 			Assert.assertFalse(this.diffs.find().withDatabase().isEmpty());
 			var commitId = GitCommit.on(this)
 					.as(committer)
-					.changes(Change.of(diffs))
+					.changes(diffs)
 					.withMessage(getCommitMessage())
 					.run();
 			Assert.assertTrue(this.diffs.find().withDatabase().isEmpty());
@@ -121,28 +122,38 @@ public abstract class AbstractRepositoryTests {
 			return "commit " + ++commitCount + " from " + name;
 		}
 
-		public String commit(List<Change> changes) throws IOException {
-			return commit(null, changes);
+		public String commit(List<Diff> changes, String... libraries) throws IOException {
+			return commit(null, changes, libraries);
 		}
 
-		public String commit(Commit reference, List<Change> changes) throws IOException {
+		public String commit(Commit reference, List<Diff> changes, String... libraries) throws IOException {
 			// create, modify and delete models in database
 			changes.forEach(change -> {
-				if (change.changeType == ChangeType.ADD) {
+				if (change.diffType == DiffType.ADDED) {
 					create(change.path);
-				} else if (change.changeType == ChangeType.MODIFY) {
+				} else if (change.diffType == DiffType.MODIFIED) {
 					modify(change.path);
-				} else if (change.changeType == ChangeType.DELETE) {
+				} else if (change.diffType == DiffType.MOVED) {
+					move(change.oldRef.path, change.newRef.category);
+				} else if (change.diffType == DiffType.DELETED) {
 					delete(change.path);
 				}
 			});
+			var commitChanges = new ArrayList<>(changes);
+			if (libraries != null && libraries.length > 0) {
+				for (var library : libraries) {
+					commitChanges
+							.add(Diff.added(new Reference(RepositoryInfo.FILE_NAME + "/" + library)));
+					database.addLibrary(library);
+				}
+			}
 			descriptors.reload();
 			// write commit to repo
 			var writer = new DbCommitWriter(this, getBinaryResolver());
 			if (reference != null) {
 				writer.parent(parseCommit(ObjectId.fromString(reference.id)));
 			}
-			return writer.write(getCommitMessage(), changes);
+			return writer.write(getCommitMessage(), commitChanges);
 		}
 
 		public void create(String... paths) {
@@ -153,7 +164,7 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		private void create(String path) {
-			var isCategory = !path.endsWith(GitUtil.DATASET_SUFFIX);
+			var isCategory = !GitUtil.isDatasetPath(path);
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 			Category category = null;
 			if (isCategory && path.contains("/")) {
@@ -165,7 +176,7 @@ public abstract class AbstractRepositoryTests {
 			}
 			if (isCategory)
 				return;
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+			var refId = GitUtil.getRefId(path);
 			var entity = database.get(type.getModelClass(), refId);
 			if (entity != null) {
 				if (!Objects.equal(entity.category, category))
@@ -190,11 +201,10 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		private void modify(String path) {
-			var isCategory = !path.endsWith(GitUtil.DATASET_SUFFIX);
-			if (isCategory)
+			if (!GitUtil.isDatasetPath(path))
 				throw new IllegalArgumentException("Can not modify categories");
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+			var refId = GitUtil.getRefId(path);
 			var model = database.get(type.getModelClass(), refId);
 			var version = new Version(model.version);
 			version.incUpdate();
@@ -211,7 +221,7 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		private void delete(String path) {
-			var isCategory = !path.endsWith(GitUtil.DATASET_SUFFIX);
+			var isCategory = !GitUtil.isDatasetPath(path);
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 			if (isCategory) {
 				var categoryPath = path.substring(path.indexOf("/") + 1);
@@ -223,13 +233,13 @@ public abstract class AbstractRepositoryTests {
 				}
 				categoryDao.delete(category);
 			} else {
-				var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+				var refId = GitUtil.getRefId(path);
 				database.delete(database.get(type.getModelClass(), refId));
 			}
 		}
 
 		public void move(String path, String categoryPath) {
-			if (!path.endsWith(GitUtil.DATASET_SUFFIX))
+			if (!GitUtil.isDatasetPath(path))
 				throw new IllegalArgumentException("Moving categories not supported");
 			var prevCategoryPath = path.indexOf("/") != path.lastIndexOf("/")
 					? path.substring(path.indexOf("/") + 1, path.lastIndexOf("/"))
@@ -237,11 +247,13 @@ public abstract class AbstractRepositoryTests {
 			if (prevCategoryPath.equals(categoryPath))
 				return;
 			var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
-			var refId = path.substring(path.lastIndexOf("/") + 1, path.indexOf(".json"));
+			var refId = GitUtil.getRefId(path);
 			var model = database.get(type.getModelClass(), refId);
 			if (model == null)
 				throw new IllegalArgumentException("Could not find " + path);
-			model.category = CategoryDao.sync(database, type, categoryPath.split("/"));
+			model.category = !Strings.nullOrEmpty(categoryPath)
+					? CategoryDao.sync(database, type, categoryPath.split("/"))
+					: null;
 			database.update(model);
 			descriptors.reload();
 		}
@@ -353,19 +365,19 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		@Override
-		public List<String> list(Change change, String relativePath) {
+		public List<String> list(Diff change, String relativePath) {
 			if (!paths.containsKey(change.path))
 				return new ArrayList<>();
 			return new ArrayList<>(paths.get(change.path));
 		}
 
 		@Override
-		public boolean isDirectory(Change change, String relativePath) {
+		public boolean isDirectory(Diff change, String relativePath) {
 			return false;
 		}
 
 		@Override
-		public byte[] resolve(Change change, String relativePath) throws IOException {
+		public byte[] resolve(Diff change, String relativePath) throws IOException {
 			return getContent(relativePath).getBytes();
 		}
 

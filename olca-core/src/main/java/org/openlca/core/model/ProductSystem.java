@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.util.Strings;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -15,7 +18,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import org.openlca.core.matrix.index.TechFlow;
 
 @Entity
 @Table(name = "tbl_product_systems")
@@ -58,8 +60,19 @@ public class ProductSystem extends RootEntity implements CalculationTarget {
 	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
 	public final List<ParameterRedefSet> parameterSets = new ArrayList<>();
 
+	@JoinColumn(name = "f_product_system")
+	@OneToMany(cascade = {CascadeType.ALL}, orphanRemoval = true)
+	public final List<AnalysisGroup> analysisGroups = new ArrayList<>();
+
 	public static ProductSystem of(Process p) {
-		return of(p.name, p);
+		var name = p.name;
+		if (p.location != null && Strings.notEmpty(p.location.code)) {
+			var suffix = " - " + p.location.code;
+			if (name != null && !name.endsWith(suffix)) {
+				name += suffix;
+			}
+		}
+		return of(name, p);
 	}
 
 	/**
@@ -148,15 +161,18 @@ public class ProductSystem extends RootEntity implements CalculationTarget {
 		copy.referenceExchange = referenceExchange;
 		copy.referenceProcess = referenceProcess;
 		copy.targetAmount = targetAmount;
-		copy.processes.addAll(processes);
-		for (ProcessLink link : processLinks) {
-			copy.processLinks.add(link.copy());
-		}
-		for (ParameterRedefSet s : parameterSets) {
-			copy.parameterSets.add(s.copy());
-		}
 		copy.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		copy.targetUnit = targetUnit;
+		copy.processes.addAll(processes);
+		for (var link : processLinks) {
+			copy.processLinks.add(link.copy());
+		}
+		for (var s : parameterSets) {
+			copy.parameterSets.add(s.copy());
+		}
+		for (var ag : analysisGroups) {
+			copy.analysisGroups.add(ag.copy());
+		}
 		return copy;
 	}
 

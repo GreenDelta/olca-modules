@@ -23,9 +23,6 @@ public interface ProgressMonitor {
 				? "Category"
 				: getLabel(ref.type);
 		var path = ref.path.substring(ref.path.indexOf("/") + 1);
-		if (!ref.isCategory) {
-			path = path.substring(0, path.indexOf(GitUtil.DATASET_SUFFIX));
-		}
 		subTask(type + " " + path);
 	}
 

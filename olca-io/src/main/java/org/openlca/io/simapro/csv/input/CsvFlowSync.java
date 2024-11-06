@@ -9,13 +9,13 @@ import java.util.regex.Pattern;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.core.io.maps.FlowMap;
 import org.openlca.io.maps.FlowSync;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.io.simapro.csv.Compartment;
@@ -38,13 +38,21 @@ class CsvFlowSync {
 	private final FlowSync flowSync;
 	private final ImportLog log;
 	private final EnumMap<ElementaryFlowType, HashMap<String, ElementaryFlowRow>> flowInfos;
+	private final EIProviderResolver providers;
 
-	CsvFlowSync(IDatabase db, RefData refData, FlowMap flowMap, ImportLog log) {
+	CsvFlowSync(
+			IDatabase db,
+			RefData refData,
+			FlowMap flowMap,
+			ImportLog log,
+			EIProviderResolver providers
+	) {
 		this.db = db;
 		this.refData = refData;
 		this.flowSync = FlowSync.of(db, flowMap);
 		this.log = log;
 		flowInfos = new EnumMap<>(ElementaryFlowType.class);
+		this.providers = providers;
 	}
 
 	void sync(CsvDataSet dataSet) {
@@ -68,12 +76,18 @@ class CsvFlowSync {
 						? process.category().toString()
 						: null;
 				for (var product : process.products()) {
+					if (canResolveProvider(product))
+						continue;
 					techFlow(product, topCategory, false);
 				}
 				if (process.wasteTreatment() != null) {
+					if (canResolveProvider(process.wasteTreatment()))
+						continue;
 					techFlow(process.wasteTreatment(), topCategory, true);
 				}
 				if (process.wasteScenario() != null) {
+					if (canResolveProvider(process.wasteScenario()))
+						continue;
 					techFlow(process.wasteScenario(), topCategory, true);
 				}
 			}
@@ -90,6 +104,12 @@ class CsvFlowSync {
 		} catch (Exception e) {
 			log.error("failed to synchronize flows with database", e);
 		}
+	}
+
+	private boolean canResolveProvider(ExchangeRow row) {
+		if (row == null || providers == null)
+			return false;
+		return providers.resolve(row.name()).isPresent();
 	}
 
 	SyncFlow elemFlow(ImpactFactorRow row) {

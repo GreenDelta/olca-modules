@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.Process;
 import org.openlca.io.Import;
-import org.openlca.core.io.maps.FlowMap;
 import org.openlca.simapro.csv.SimaProCsv;
 import org.openlca.simapro.csv.enums.ProductStageCategory;
 import org.openlca.simapro.csv.process.ProductStageBlock;
@@ -20,6 +20,7 @@ public class SimaProCsvImport implements Import {
 
 	private FlowMap flowMap;
 	private ImportLog _log;
+	private EIProviderResolver providers;
 	private boolean canceled = false;
 	private boolean unrollWasteScenarios;
 	private boolean expandImpactFactors;
@@ -39,6 +40,11 @@ public class SimaProCsvImport implements Import {
 
 	public SimaProCsvImport withLog(ImportLog log) {
 		_log = log;
+		return this;
+	}
+
+	public SimaProCsvImport withProviderResolver(EIProviderResolver providers) {
+		this.providers = providers;
 		return this;
 	}
 
@@ -86,9 +92,12 @@ public class SimaProCsvImport implements Import {
 			return;
 
 		var flowMap = this.flowMap == null
-			? FlowMap.empty()
-			: this.flowMap;
-		var contexts = ImportContext.of(db, flowMap, log());
+				? FlowMap.empty()
+				: this.flowMap;
+		var providers = this.providers == null
+				? EIProviderResolver.empty()
+				: this.providers;
+		var contexts = ImportContext.of(db, flowMap, log(), providers);
 
 		try {
 			for (File file : files) {
@@ -119,8 +128,8 @@ public class SimaProCsvImport implements Import {
 				for (var stage : dataSet.productStages()) {
 					var process = ProductStages.map(context, stage);
 					if (generateLifeCycleSystems
-						&& process.isPresent()
-						&& stage.category() == ProductStageCategory.LIFE_CYCLE) {
+							&& process.isPresent()
+							&& stage.category() == ProductStageCategory.LIFE_CYCLE) {
 						lifeCycles.add(Pair.of(stage, process.get()));
 					}
 				}

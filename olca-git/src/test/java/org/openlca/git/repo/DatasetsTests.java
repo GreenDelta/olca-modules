@@ -59,12 +59,12 @@ public class DatasetsTests extends AbstractRepositoryTests {
 	@Test
 	public void testBinary() throws IOException {
 		var commitIds = new String[] { repo.commit(COMMIT_1), repo.commit(COMMIT_2), repo.commit(COMMIT_3) };
-		var refId = "caa39f5b-5021-4b6b-9330-739f082dfae0";
+		var refId = "cAA39f5b-5021_bin1.json+39f082dfae0.";
 		var ref = repo.references.get(ModelType.ACTOR, refId, commitIds[0]);
-		var bin = repo.datasets.getBinary(ref, "test.txt");
+		var bin = repo.datasets.getBinary(ref, "te?st.txt");
 		Assert.assertNotNull(bin);
 		var str = new String(bin, "utf-8");
-		Assert.assertEquals(StaticBinaryResolver.getContent("test.txt"), str);
+		Assert.assertEquals(StaticBinaryResolver.getContent("te?st.txt"), str);
 	}
 
 	@Override

@@ -2,16 +2,11 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.EpdProduct;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.Result;
-import org.openlca.core.model.Source;
+import org.openlca.core.model.*;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record EpdReader(EntityResolver resolver)
 	implements EntityReader<Epd> {
@@ -31,18 +26,33 @@ public record EpdReader(EntityResolver resolver)
 	public void update(Epd epd, JsonObject json) {
 		Util.mapBase(epd, json, resolver);
 		epd.urn = Json.getString(json, "urn");
-		epd.manufacturer = actor(json, "manufacturer");
-		epd.verifier = actor(json, "verifier");
-		epd.programOperator = actor(json, "programOperator");
-		var pcrId = Json.getRefId(json, "pcr");
-		epd.pcr = resolver.get(Source.class, pcrId);
+		epd.manufacturer = get(Actor.class, json, "manufacturer");
+		epd.verifier = get(Actor.class, json, "verifier");
+		epd.programOperator = get(Actor.class, json, "programOperator");
+		epd.pcr = get(Source.class, json, "pcr");
+
+		epd.epdType = Json.getEnum(json, "epdType", EpdType.class);
+		epd.validFrom = Json.getDate(json, "validFrom");
+		epd.validUntil = Json.getDate(json, "validUntil");
+		epd.location = get(Location.class, json, "location");
+		epd.originalEpd = get(Source.class, json, "originalEpd");
+		epd.manufacturing = Json.getString(json, "manufacturing");
+		epd.productUsage = Json.getString(json, "productUsage");
+		epd.useAdvice = Json.getString(json, "useAdvice");
+		epd.registrationId = Json.getString(json, "registrationId");
+		epd.dataGenerator = get(Actor.class, json, "dataGenerator");
+
 		epd.product = product(json);
 		mapModules(epd, json);
 	}
 
-	private Actor actor(JsonObject json, String field) {
+	private <T extends RootEntity> T get(
+			Class<T> type, JsonObject json, String field
+	) {
 		var refId = Json.getRefId(json, field);
-		return resolver.get(Actor.class, refId);
+		return refId != null
+				? resolver.get(type, refId)
+				: null;
 	}
 
 	private EpdProduct product(JsonObject json) {

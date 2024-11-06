@@ -16,6 +16,7 @@ public class Upgrades {
 			return reader;
 
 		var chain = reader;
+
 		if (version < 2) {
 			chain = new Upgrade2(chain);
 		}

@@ -15,8 +15,11 @@ import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.processes.Exchange;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
+import org.openlca.ilcd.processes.epd.EpdSubType;
 import org.openlca.ilcd.processes.epd.EpdValue;
+import org.openlca.ilcd.util.Epds;
 import org.openlca.io.Xml;
+import org.openlca.util.Strings;
 
 public class EpdExport {
 
@@ -30,8 +33,8 @@ public class EpdExport {
 		if (epd == null || exp.store.contains(Process.class, epd.refId))
 			return;
 
-		var p = new Process();
-		var info = p.withProcessInfo()
+		var ds = new Process();
+		var info = ds.withProcessInfo()
 				.withDataSetInfo()
 				.withUUID(epd.refId);
 		var name = info.withProcessName();
@@ -39,15 +42,16 @@ public class EpdExport {
 		exp.add(info::withComment, epd.description);
 		Categories.toClassification(epd.category, info::withClassifications);
 
-		p.withModelling()
+		ds.withModelling()
 				.withInventoryMethod()
 				.withProcessType(ProcessType.EPD);
-		writeRefFlow(epd, p);
-		writeReview(epd, p);
-		writePublication(epd, p);
+		writeRefFlow(epd, ds);
+		writeReview(epd, ds);
+		writePublication(epd, ds);
+		writeMetaData(epd, ds);
 
-		writeResults(epd, p);
-		exp.store.put(p);
+		writeResults(epd, ds);
+		exp.store.put(ds);
 	}
 
 	private void writeRefFlow(Epd epd, Process process) {
@@ -60,24 +64,24 @@ public class EpdExport {
 				.withType(QuantitativeReferenceType.REFERENCE_FLOWS);
 		qref.withReferenceFlows().add(0);
 
-		var exchange = new Exchange()
+		var e = new Exchange()
 				.withFlow(exp.writeRef(epd.product.flow));
 		var property = product.flow != null
 				? product.flow.getFactor(product.property)
 				: null;
-		exchange.withMeanAmount(
+		e.withMeanAmount(
 				ReferenceAmount.get(product.amount, product.unit, property));
-		exchange.withResultingAmount(exchange.getMeanAmount());
-		process.withExchanges().add(exchange);
+		e.withResultingAmount(e.getMeanAmount());
+		process.withExchanges().add(e);
 	}
 
-	private void writePublication(Epd epd, Process process) {
-		process.withAdminInfo()
-				.withPublication()
+	private void writePublication(Epd epd, Process ds) {
+		Epds.withPublication(ds)
 				.withVersion(Version.asString(epd.version))
 				.withLastRevision(Xml.calendar(epd.lastChange))
 				.withOwner(exp.writeRef(epd.manufacturer))
-				.withRegistrationAuthority(exp.writeRef(epd.programOperator));
+				.withRegistrationAuthority(exp.writeRef(epd.programOperator))
+				.withRegistrationNumber(epd.registrationId);
 	}
 
 
@@ -126,5 +130,66 @@ public class EpdExport {
 		var values = new ArrayList<>(results.values());
 		EpdIndicatorResult.writeClean(ds, values);
 
+	}
+
+	private void writeMetaData(Epd epd, Process ds) {
+
+		// PCR
+		var pcr = exp.writeRef(epd.pcr);
+		if (pcr != null) {
+			Epds.withInventoryMethod(ds)
+					.withSources()
+					.add(pcr);
+		}
+
+		// EPD sub-type
+		if (epd.epdType != null) {
+			Epds.withSubType(ds, switch (epd.epdType) {
+				case AVERAGE_DATASET -> EpdSubType.AVERAGE_DATASET;
+				case GENERIC_DATASET -> EpdSubType.GENERIC_DATASET;
+				case REPRESENTATIVE_DATASET -> EpdSubType.REPRESENTATIVE_DATASET;
+				case SPECIFIC_DATASET -> EpdSubType.SPECIFIC_DATASET;
+				case TEMPLATE_DATASET -> EpdSubType.TEMPLATE_DATASET;
+			});
+		}
+
+		// time
+		if (epd.validFrom != null) {
+			Epds.withTime(ds)
+					.withReferenceYear(Export.getYear(epd.validFrom))
+					.withEpdExtension()
+					.withPublicationDate(Xml.calendar(epd.validFrom));
+		}
+		if (epd.validUntil != null) {
+			Epds.withTime(ds)
+					.withValidUntil(Export.getYear(epd.validUntil));
+		}
+
+		// tech. description
+		exp.add(() -> Epds.withTechnology(ds).withDescription(), epd.manufacturing);
+		exp.add(() -> Epds.withTechnology(ds).withApplicability(), epd.productUsage);
+
+		// location
+		if (epd.location != null && Strings.notEmpty(epd.location.code)) {
+			Epds.withLocation(ds).withCode(epd.location.code);
+		}
+
+		// use advice & original EPD
+		exp.add(() -> Epds.withRepresentativeness(ds).withUseAdvice(), epd.useAdvice);
+		var origEpd = exp.writeRef(epd.originalEpd);
+		if (origEpd != null) {
+			Epds.withRepresentativeness(ds)
+					.withEpdExtension()
+					.withOriginalEpds()
+					.add(origEpd);
+		}
+
+		// data generator
+		var gen = exp.writeRef(epd.dataGenerator);
+		if (gen != null) {
+			Epds.withDataGenerator(ds)
+					.withContacts()
+					.add(gen);
+		}
 	}
 }

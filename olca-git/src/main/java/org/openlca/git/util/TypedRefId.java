@@ -3,6 +3,7 @@ package org.openlca.git.util;
 import java.util.Objects;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.util.Strings;
 
 public class TypedRefId {
@@ -33,15 +34,12 @@ public class TypedRefId {
 		var parts = path.split("/");
 		if (parts.length < 2)
 			return null;
+		if (parts[0].equals(RepositoryInfo.FILE_NAME))
+			return parts[1];
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir != null)
-			return binDir.substring(binDir.lastIndexOf("/") + 1, binDir.indexOf(GitUtil.BIN_DIR_SUFFIX));
-		var last = parts[parts.length - 1].trim();
-		if (last.endsWith(GitUtil.DATASET_SUFFIX))
-			return last.substring(0, last.indexOf(GitUtil.DATASET_SUFFIX));
-		if (last.endsWith(GitUtil.BIN_DIR_SUFFIX) && GitUtil.isBinDir(last))
-			return last.substring(0, last.indexOf(GitUtil.BIN_DIR_SUFFIX));
-		return null;
+			return GitUtil.getRefId(binDir);
+		return GitUtil.getRefId(path);
 	}
 
 	@Override

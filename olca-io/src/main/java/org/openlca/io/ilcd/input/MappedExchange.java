@@ -10,7 +10,7 @@ record MappedExchange(
 	SyncFlow syncFlow,
 	Exchange exchange,
 	org.openlca.ilcd.processes.Exchange origin,
-	ExchangeExtension extension,
+	String providerId,
 	boolean hasExtensionError) {
 
 	static MappedExchange of(SyncFlow syncFlow,
@@ -26,6 +26,16 @@ record MappedExchange(
 
 		// check if there is an extension that we can apply
 		var ext = new ExchangeExtension(origin);
+
+		// first set the provider, because the extension
+		// may not have valid amounts but a provider set
+		String providerId = null;
+		if (!syncFlow.isMapped()) {
+			providerId = ext.getDefaultProvider();
+		} else if (syncFlow.provider() != null){
+			providerId = syncFlow.provider().refId;
+		}
+
 		if (syncFlow.isMapped() || !ext.isValid()) {
 			ext = null;
 		}
@@ -55,7 +65,8 @@ record MappedExchange(
 			}
 		}
 
-		return new MappedExchange(syncFlow, exchange, origin, ext, extError);
+		return new MappedExchange(
+				syncFlow, exchange, origin, providerId, extError);
 	}
 
 	private static boolean apply(ExchangeExtension ext, Exchange exchange) {
@@ -93,21 +104,5 @@ record MappedExchange(
 			exchange.isAvoided = true;
 		}
 		return true;
-	}
-
-	/**
-	 * Get the ID of a possible provider, or null, if there is
-	 * no provider defined.
-	 */
-	String providerId() {
-		if (syncFlow.isMapped()) {
-			var provider = syncFlow.provider();
-			return provider != null
-				? provider.refId
-				: null;
-		}
-		return extension != null
-			? extension.getDefaultProvider()
-			: null;
 	}
 }

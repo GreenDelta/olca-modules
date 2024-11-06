@@ -14,7 +14,7 @@ import org.openlca.util.KeyGen;
 import org.slf4j.LoggerFactory;
 
 
-public class Upgrade11 implements IUpgrade {
+class Upgrade11 implements IUpgrade {
 
 	@Override
 	public int[] getInitialVersions() {

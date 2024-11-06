@@ -1,27 +1,16 @@
 package org.openlca.core.model.doc;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.eclipse.persistence.annotations.Mutable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Source;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import jakarta.persistence.*;
 
 /**
  * Contains the general documentation fields of a process that are not used for
@@ -173,8 +162,12 @@ public class ProcessDoc extends AbstractEntity implements Copyable<ProcessDoc> {
 	public ProcessDoc copy() {
 		var clone = new ProcessDoc();
 
-		clone.validFrom = validFrom;
-		clone.validUntil = validUntil;
+		if (validFrom != null) {
+			clone.validFrom = new Date(validFrom.getTime());
+		}
+		if (validUntil != null) {
+			clone.validUntil = new Date(validUntil.getTime());
+		}
 		clone.time = time;
 		clone.geography = geography;
 		clone.technology = technology;

@@ -2,17 +2,15 @@ package org.openlca.git.actions;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolution;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
+import org.openlca.git.model.Diff;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
@@ -35,11 +33,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final ModelRefMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
 	private final byte[] repoInfo;
-	final Set<Change> resolvedConflicts = new HashSet<>();
-
-	GitStoreReader(OlcaRepository repo, Commit remoteCommit, List<Reference> remoteChanges) {
-		this(repo, null, remoteCommit, remoteChanges, null);
-	}
+	final List<Diff> resolvedConflicts = new ArrayList<>();
 
 	GitStoreReader(OlcaRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> changes,
 			ConflictResolver conflictResolver) {
@@ -58,16 +52,16 @@ class GitStoreReader implements JsonStoreReader {
 		if (RepositoryInfo.FILE_NAME.equals(path))
 			return repoInfo;
 		var binDir = GitUtil.findBinDir(path);
-		if (binDir == null && !path.endsWith(GitUtil.DATASET_SUFFIX))
+		if (binDir == null && GitUtil.isDatasetPath(path))
 			return categories.getForPath(path);
 		var type = ModelType.valueOf(path.substring(0, path.indexOf("/")));
 		if (binDir != null) {
-			var refId = binDir.substring(binDir.lastIndexOf("/") + 1, binDir.lastIndexOf(GitUtil.BIN_DIR_SUFFIX));
+			var refId = GitUtil.getRefId(binDir);
 			var filepath = path.substring(binDir.length() + 1);
 			var ref = repo.references.get(type, refId, remoteCommit.id);
 			return repo.datasets.getBinary(ref, filepath);
 		}
-		var refId = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(GitUtil.DATASET_SUFFIX));
+		var refId = GitUtil.getRefId(path);
 		var ref = changes.get(type, refId);
 		return repo.datasets.getBytes(ref);
 	}
@@ -110,36 +104,32 @@ class GitStoreReader implements JsonStoreReader {
 		// appear in both categories
 		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
 		if (localRef != null && !ref.path.equals(localRef.path)) {
-			resolvedConflicts.add(Change.delete(localRef));
+			resolvedConflicts.add(Diff.deleted(localRef));
 		}
 	}
 
 	private void resolveKeep(Reference ref) {
 		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
 		if (localRef == null) {
-			resolvedConflicts.add(Change.delete(ref));
+			resolvedConflicts.add(Diff.deleted(ref));
 		} else if (!ref.path.equals(localRef.path)) {
-			resolvedConflicts.addAll(Change.move(ref, localRef));
+			resolvedConflicts.add(Diff.moved(ref, localRef));
 		} else {
-			resolvedConflicts.add(Change.modify(localRef));
+			resolvedConflicts.add(Diff.modified(ref, localRef));
 		}
 	}
 
 	private JsonObject resolveMerge(Reference ref, ConflictResolution resolution) {
 		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
 		var category = Json.getString(resolution.data, "category");
-		var mergedPath = localRef.type.name() + "/";
-		if (!Strings.nullOrEmpty(category)) {
-			mergedPath += category + "/";
-		}
-		mergedPath += localRef.refId + GitUtil.DATASET_SUFFIX;
-		var mergedRef = new ModelRef(mergedPath);
+		var mergedPath = GitUtil.toDatasetPath(localRef.type, category, localRef.refId);
+		var mergedRef = new Reference(mergedPath);
 		if (!mergedPath.equals(localRef.path)) {
-			resolvedConflicts.addAll(Change.move(localRef, mergedRef));
+			resolvedConflicts.add(Diff.moved(localRef, mergedRef));
 		} else if (!mergedPath.equals(ref.path)) {
-			resolvedConflicts.addAll(Change.move(ref, mergedRef));
+			resolvedConflicts.add(Diff.moved(ref, mergedRef));
 		} else {
-			resolvedConflicts.add(Change.modify(mergedRef));
+			resolvedConflicts.add(Diff.modified(localRef, mergedRef));
 		}
 		return resolution.data;
 	}

@@ -1,5 +1,10 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Supplier;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.*;
@@ -10,9 +15,6 @@ import org.openlca.ilcd.io.DataStore;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * The entry point for the ILCD export of model components.
@@ -141,5 +143,13 @@ public class Export {
 			case IMPACT_METHOD -> "lciamethods";
 			case EXTERNAL_FILE -> "external_docs";
 		};
+	}
+
+	static Integer getYear(Date date) {
+		if (date == null)
+			return null;
+		var cal = Calendar.getInstance();
+		cal.setTime(date);
+		return cal.get(Calendar.YEAR);
 	}
 }

@@ -1,7 +1,6 @@
 package org.openlca.io.simapro.csv.input;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.openlca.core.io.ImportLog;
@@ -20,7 +19,6 @@ import org.openlca.util.KeyGen;
 import org.openlca.util.Strings;
 
 class Processes implements ProcessMapper {
-
 
 	private final ImportContext context;
 	private final RefData refData;
@@ -69,22 +67,34 @@ class Processes implements ProcessMapper {
 	// endregion
 
 	private void exec() {
-		var refId = Strings.notEmpty(block.identifier())
-			? KeyGen.get(block.identifier())
-			: UUID.randomUUID().toString();
+
+		var name = nameOf(block);
+		if (Strings.nullOrEmpty(name)) {
+			log.warn("could not determine name of process; skipped it");
+			return;
+		}
+
+		var dbProc = context.resolveProvider(name).orElse(null);
+		if (dbProc != null) {
+			log.info("skip import of " + name +
+					"; resolved to provider: " + dbProc.key());
+			return;
+		}
+
+		var refId = KeyGen.get("simapro.csv/process", name);
 		process = context.db().get(Process.class, refId);
 		if (process != null) {
 			log.warn("a process with the identifier '" + refId +
-				"' is already in the database and was not imported");
+					"' is already in the database and was not imported");
 			return;
 		}
 
 		process = new Process();
 		process.refId = refId;
 		process.processType = block.processType() == ProcessType.SYSTEM
-			? org.openlca.core.model.ProcessType.LCI_RESULT
-			: org.openlca.core.model.ProcessType.UNIT_PROCESS;
-		process.name = nameOf(block);
+				? org.openlca.core.model.ProcessType.LCI_RESULT
+				: org.openlca.core.model.ProcessType.UNIT_PROCESS;
+		process.name = name;
 		if (block.category() != null) {
 			process.tags = block.category().toString();
 		}
@@ -106,8 +116,8 @@ class Processes implements ProcessMapper {
 		if (block.wasteScenario() != null)
 			return block.wasteScenario().name();
 		return Strings.notEmpty(block.name())
-			? block.name()
-			: block.identifier();
+				? block.name()
+				: block.identifier();
 	}
 
 	private void mapAllocation() {
@@ -183,9 +193,10 @@ class Processes implements ProcessMapper {
 		for (var type : ProductType.values()) {
 			boolean isWaste = type == ProductType.WASTE_TO_TREATMENT;
 			for (var row : block.exchangesOf(type)) {
-				var flow = isWaste
-					? refData.wasteFlowOf(row)
-					: refData.productOf(row);
+				var flow = context.resolveProviderFlow(row).orElseGet(
+						() -> isWaste
+								? refData.wasteFlowOf(row)
+								: refData.productOf(row));
 				var e = exchangeOf(flow, row);
 				if (e == null)
 					continue;

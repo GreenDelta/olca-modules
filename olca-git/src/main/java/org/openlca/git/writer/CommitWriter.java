@@ -25,8 +25,8 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.iterator.EntryIterator;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.Change.ChangeType;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -68,8 +68,8 @@ public abstract class CommitWriter {
 		return this;
 	}
 
-	protected String write(String message, List<Change> changes, ObjectId... parentCommitIds) throws IOException {
-		return write(message, new ChangeIterator(repo, binaryResolver, changes), parentCommitIds);
+	protected String write(String message, List<Diff> changes, ObjectId... parentCommitIds) throws IOException {
+		return write(message, ChangeIterator.of(repo, binaryResolver, changes), parentCommitIds);
 	}
 
 	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
@@ -131,7 +131,7 @@ public abstract class CommitWriter {
 					appendRepositoryInfo(tree);
 					continue;
 				}
-				if (previousWasDeleted && isBinaryOf(name, previous))
+				if (previousWasDeleted && GitUtil.isBinDirOf(name, previous))
 					continue;
 				previous = name;
 				previousWasDeleted = false;
@@ -207,8 +207,8 @@ public abstract class CommitWriter {
 		return syncTree(prefix, subIterator, treeIds);
 	}
 
-	private boolean isDeletedCategory(Change data) {
-		return data != null && data.isCategory && data.changeType == ChangeType.DELETE;
+	private boolean isDeletedCategory(Diff data) {
+		return data != null && data.isCategory && data.diffType == DiffType.DELETED;
 	}
 
 	private ObjectId handleFile(TreeWalk walk)
@@ -224,9 +224,9 @@ public abstract class CommitWriter {
 		}
 		var path = GitUtil.decode(walk.getPathString());
 		var iterator = walk.getTree(treeCount - 1, EntryIterator.class);
-		Change change = iterator.getEntryData();
+		Diff change = iterator.getEntryData();
 		var filePath = iterator.getEntryFilePath();
-		if (change.changeType == ChangeType.DELETE && matches(path, change, filePath))
+		if (change.diffType == DiffType.DELETED && matches(path, change, filePath))
 			return null;
 		if (filePath != null)
 			return insertBlob(binaryResolver.resolve(change, filePath));
@@ -263,15 +263,15 @@ public abstract class CommitWriter {
 		return packInserter.insert(Constants.OBJ_BLOB, blob);
 	}
 
-	private boolean matches(String path, Change change, String filePath) {
+	private boolean matches(String path, Diff change, String filePath) {
 		if (change == null)
 			return false;
 		if (filePath == null)
 			if (change.isCategory)
-				return path.equals(change.path + "/" + GitUtil.EMPTY_CATEGORY_FLAG);
+				return path.equals(GitUtil.toEmptyCategoryPath(change.path));
 			else
 				return path.equals(change.path);
-		return path.startsWith(change.path.substring(0, change.path.lastIndexOf(GitUtil.DATASET_SUFFIX)));
+		return GitUtil.isBinDirOrFileOf(path, change.path);
 	}
 
 	private ObjectId commit(String message, ObjectId treeId, ObjectId... parentIds) {
@@ -309,13 +309,6 @@ public abstract class CommitWriter {
 		}
 	}
 
-	private boolean isBinaryOf(String current, String previous) {
-		return previous.endsWith(GitUtil.DATASET_SUFFIX)
-				&& current.equals(
-						previous.substring(0, previous.length() - GitUtil.DATASET_SUFFIX.length())
-								+ GitUtil.BIN_DIR_SUFFIX);
-	}
-
 	protected void cleanUp() throws IOException {
 		if (packInserter != null) {
 			if (!progressMonitor.isCanceled()) {
@@ -344,6 +337,6 @@ public abstract class CommitWriter {
 		return List.of();
 	}
 
-	protected abstract byte[] getData(Change change) throws IOException;
+	protected abstract byte[] getData(Diff change) throws IOException;
 
 }

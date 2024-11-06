@@ -43,35 +43,35 @@ public class MergeTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testMerge() throws IOException, GitAPIException {
-		repo.create("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.create("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json");
 		repo.commitWorkspace();
 		GitPush.from(repo).run();
 		GitFetch.to(otherRepo).run();
 		var result = GitMerge.on(otherRepo).run();
 		Assert.assertEquals(MergeResult.SUCCESS, result);
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
 				RepositoryInfo.FILE_NAME);
-		otherRepo.assertDatabaseEquals("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		otherRepo.assertDatabaseEquals("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json");
 	}
 
 	@Test
 	public void testPushRejected() throws IOException, GitAPIException {
-		repo.create("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.create("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		repo.commitWorkspace();
 		GitPush.from(repo).run();
 		GitFetch.to(otherRepo).run();
 		GitMerge.on(otherRepo).run();
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 
-		repo.modify("ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.modify("ACTOR/test/1.json");
 		repo.commitWorkspace();
 		GitPush.from(repo).run();
 
-		otherRepo.modify("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		otherRepo.modify("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json");
 		otherRepo.commitWorkspace();
 		var response = GitPush.from(otherRepo).run();
 		Assert.assertEquals(Status.REJECTED_NONFASTFORWARD, response.status());
@@ -79,8 +79,8 @@ public class MergeTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testMergeInfoOlderVersion() throws IOException, GitAPIException {
-		repo.create("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.create("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		repo.commitWorkspace();
 		Assert.assertEquals(2, repo.getInfo().repositoryClientVersion());
 		Assert.assertEquals(2, repo.getInfo().repositoryServerVersion());
@@ -110,8 +110,8 @@ public class MergeTests extends AbstractRepositoryTests {
 		Assert.assertEquals(3, repo.getInfo().repositoryClientVersion());
 		Assert.assertEquals(3, repo.getInfo().repositoryServerVersion());
 
-		otherRepo.create("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		otherRepo.create("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		otherRepo.commitWorkspace();
 		Assert.assertEquals(2, otherRepo.getInfo().repositoryClientVersion());
 		Assert.assertEquals(2, otherRepo.getInfo().repositoryServerVersion());
@@ -132,8 +132,8 @@ public class MergeTests extends AbstractRepositoryTests {
 	@Test
 	public void testMergeInfoResultsInEmptyCategory() throws IOException, GitAPIException {
 		// first commit on repo 1 and push
-		repo.create("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.create("ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category2/1.json");
 		repo.commitWorkspace();
 		GitPush.from(repo).run();
 		Assert.assertEquals(2, repo.getInfo().repositoryClientVersion());
@@ -145,39 +145,39 @@ public class MergeTests extends AbstractRepositoryTests {
 		Assert.assertEquals(2, otherRepo.getInfo().repositoryClientVersion());
 		Assert.assertEquals(2, otherRepo.getInfo().repositoryServerVersion());
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category2/1.json");
 		repo.assertEqualRecursive(repo.createIterator(),
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category2/1.json",
 				RepositoryInfo.FILE_NAME);
 
 		// move datasets in repo 1, commit and push
-		repo.move("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category2");
-		repo.move("ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category");
+		repo.move("ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json", "category2");
+		repo.move("ACTOR/category2/1.json", "category");
 		repo.commitWorkspace();
 		GitPush.from(repo)
 				.run();
 		repo.assertDatabaseEquals(
-				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/0aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/category/1.json",
+				"ACTOR/category2/0AA.39_f5b-5.021-93_30.739f082dfae0..json");
 		repo.assertEqualRecursive(repo.createIterator(),
-				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/1.json",
+				"ACTOR/category2/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
 				RepositoryInfo.FILE_NAME);
 		Assert.assertEquals(2, repo.getInfo().repositoryClientVersion());
 		Assert.assertEquals(2, repo.getInfo().repositoryServerVersion());
 
 		// modify and commit datasets in repo 2 to create conflict
-		otherRepo.modify("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		otherRepo.modify("ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category2/1.json");
 		otherRepo.commitWorkspace();
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category2/1.json");
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category2/1.json",
 				RepositoryInfo.FILE_NAME);
 		Assert.assertEquals(2, otherRepo.getInfo().repositoryClientVersion());
 		Assert.assertEquals(2, otherRepo.getInfo().repositoryServerVersion());
@@ -186,18 +186,18 @@ public class MergeTests extends AbstractRepositoryTests {
 		GitFetch.to(otherRepo).run();
 		GitMerge.on(otherRepo)
 				.resolveConflictsWith(new StaticConflictResolutions(new ModelRefMap<ConflictResolution>()
-						.put(new ModelRef("ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json"),
+						.put(new ModelRef("ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json"),
 								ConflictResolution.keep())
-						.put(new ModelRef("ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json"),
+						.put(new ModelRef("ACTOR/category2/1.json"),
 								ConflictResolution.overwrite())))
 				.run();
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category/1.json",
 				"ACTOR/category2");
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/category/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/category/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/category/1.json",
 				"ACTOR/category2/.empty",
 				RepositoryInfo.FILE_NAME);
 		Assert.assertEquals(3, otherRepo.getInfo().repositoryClientVersion());
@@ -218,11 +218,11 @@ public class MergeTests extends AbstractRepositoryTests {
 	public void testConflictResolutionKeep() throws IOException, GitAPIException {
 		runConflictTest(ConflictResolution.keep(), 0);
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json",
 				RepositoryInfo.FILE_NAME);
 	}
 
@@ -230,11 +230,11 @@ public class MergeTests extends AbstractRepositoryTests {
 	public void testConflictResolutionOverwrite() throws IOException, GitAPIException {
 		runConflictTest(ConflictResolution.overwrite(), 1);
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json",
 				RepositoryInfo.FILE_NAME);
 	}
 
@@ -242,43 +242,43 @@ public class MergeTests extends AbstractRepositoryTests {
 	public void testConflictResolutionMerge() throws IOException, GitAPIException {
 		var merged = new JsonObject();
 		merged.addProperty("@type", "Actor");
-		merged.addProperty("@id", "1aa39f5b-5021-4b6b-9330-739f082dfae0");
+		merged.addProperty("@id", "1");
 		merged.addProperty("version", Version.asString(Version.valueOf(1, 1, 1)));
 		merged.addProperty("lastChange", Instant.ofEpochMilli(System.currentTimeMillis()).toString());
 		runConflictTest(ConflictResolution.merge(merged), 1);
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/1.json",
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json");
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/1.json",
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
 				RepositoryInfo.FILE_NAME);
 	}
 
 	private void runConflictTest(ConflictResolution resolution, int expectedMergedChanges)
 			throws IOException, GitAPIException {
-		repo.create("ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.create("ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		repo.commitWorkspace();
 		GitPush.from(repo).run();
 		GitFetch.to(otherRepo).run();
 		GitMerge.on(otherRepo).run();
 		otherRepo.assertDatabaseEquals(
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json");
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
-				"ACTOR/test/0aa39f5b-5021-4b6b-9330-739f082dfae0.json",
-				"ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json",
+				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
+				"ACTOR/test/1.json",
 				RepositoryInfo.FILE_NAME);
 
-		repo.modify("ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+		repo.modify("ACTOR/test/1.json");
 		repo.commitWorkspace();
 		GitPush.from(repo).run();
 		if (resolution == null || resolution.type != ConflictResolutionType.IS_EQUAL) {
-			otherRepo.modify("ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json");
+			otherRepo.modify("ACTOR/test/1.json");
 		} else {
-			var actor = repo.database.get(Actor.class, "1aa39f5b-5021-4b6b-9330-739f082dfae0");
-			var otherActor = otherRepo.database.get(Actor.class, "1aa39f5b-5021-4b6b-9330-739f082dfae0");
+			var actor = repo.database.get(Actor.class, "1");
+			var otherActor = otherRepo.database.get(Actor.class, "1");
 			otherActor.version = actor.version;
 			otherActor.lastChange = actor.lastChange;
 			otherRepo.database.update(otherActor);
@@ -287,7 +287,7 @@ public class MergeTests extends AbstractRepositoryTests {
 		GitFetch.to(otherRepo).run();
 		GitMerge.on(otherRepo)
 				.resolveConflictsWith(new StaticConflictResolutions(new ModelRefMap<ConflictResolution>().put(
-						new ModelRef("ACTOR/test/1aa39f5b-5021-4b6b-9330-739f082dfae0.json"),
+						new ModelRef("ACTOR/test/1.json"),
 						resolution)))
 				.as(committer)
 				.run();

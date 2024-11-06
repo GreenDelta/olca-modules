@@ -4,8 +4,8 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Categories;
-import org.openlca.util.Strings;
 import org.openlca.util.Categories.PathBuilder;
+import org.openlca.util.Strings;
 
 public class Path {
 
@@ -23,9 +23,7 @@ public class Path {
 		if (d.type == ModelType.CATEGORY)
 			return d.type.name() + "/" + categoryPaths.pathOf(d.id);
 		var categoryPath = categoryPaths.pathOf(d.category);
-		if (Strings.nullOrEmpty(categoryPath))
-			return d.type.name() + "/" + d.refId + GitUtil.DATASET_SUFFIX;
-		return d.type.name() + "/" + categoryPath + "/" + d.refId + GitUtil.DATASET_SUFFIX;
+		return GitUtil.toDatasetPath(d.type, categoryPath, d.refId);
 	}
 
 }

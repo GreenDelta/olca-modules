@@ -68,6 +68,7 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(ClientRepository repo, ModelType type) {
 		var entries = repo.descriptors.getCategories(type).stream()
+				.filter(c -> !isFromLibrary(repo, c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(collect(repo, repo.descriptors.get(type)));

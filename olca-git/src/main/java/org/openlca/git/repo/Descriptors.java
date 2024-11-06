@@ -85,7 +85,7 @@ public class Descriptors {
 	}
 
 	public Set<RootDescriptor> get(Category category) {
-		if (category == null)
+		if (category == null || category.modelType == null)
 			return new HashSet<>();
 		synchronized (cache) {
 			return cache.computeIfAbsent(category.modelType, this::load).byCategory
@@ -138,6 +138,8 @@ public class Descriptors {
 		if (database == null)
 			return;
 		for (var category : new CategoryDao(database).getAll()) {
+			if (category.modelType == null)
+				continue;
 			if (category.category == null) {
 				rootCategories.computeIfAbsent(category.modelType, k -> new ArrayList<>())
 						.add(category);

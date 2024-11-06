@@ -74,11 +74,11 @@ class ProductStages implements ProcessMapper {
 	private Process exec() {
 
 		var name = !block.products().isEmpty()
-			? block.products().get(0).name()
-			: "";
+				? block.products().get(0).name()
+				: "";
 		var type = block.category() != null
-			? block.category().toString()
-			: "";
+				? block.category().toString()
+				: "";
 		var refId = KeyGen.get("SimaPro CSV", type, name);
 
 		process = context.db().get(Process.class, refId);
@@ -119,7 +119,8 @@ class ProductStages implements ProcessMapper {
 		Function<TechExchangeRow, Exchange> input = row -> {
 			if (row == null)
 				return null;
-			var flow = refData.productOf(row);
+			var flow = context.resolveProviderFlow(row)
+					.orElseGet(() -> refData.productOf(row));
 			var exchange = exchangeOf(flow, row);
 			if (exchange == null)
 				return null;
@@ -127,11 +128,11 @@ class ProductStages implements ProcessMapper {
 			return exchange;
 		};
 		var inputLists = List.of(
-			block.materialsAndAssemblies(),
-			block.processes(),
-			block.disassemblies(),
-			block.reuses(),
-			block.additionalLifeCycles());
+				block.materialsAndAssemblies(),
+				block.processes(),
+				block.disassemblies(),
+				block.reuses(),
+				block.additionalLifeCycles());
 		for (var list : inputLists) {
 			for (var row : list) {
 				input.apply(row);

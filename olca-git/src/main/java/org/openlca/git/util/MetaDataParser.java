@@ -105,7 +105,7 @@ public class MetaDataParser {
 					current = fields.remove(fields.size() - 1);
 				}
 			} else if (JsonToken.FIELD_NAME.equals(token)) {
-				current = parser.getCurrentName();
+				current = parser.currentName();
 			} else if (current != null) {
 				handleValue(join(fields, current));
 			}

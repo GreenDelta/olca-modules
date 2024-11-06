@@ -13,8 +13,8 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.iterator.ChangeIterator;
-import org.openlca.git.model.Change;
-import org.openlca.git.model.Change.ChangeType;
+import org.openlca.git.model.Diff;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
@@ -73,7 +73,7 @@ public class DbCommitWriter extends CommitWriter {
 		return this;
 	}
 
-	public String write(String message, List<Change> changes) throws IOException {
+	public String write(String message, List<Diff> changes) throws IOException {
 		try {
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			var parentCommitIds = getParentCommitIds();
@@ -90,17 +90,17 @@ public class DbCommitWriter extends CommitWriter {
 		}
 	}
 
-	private ChangeIterator prepare(List<Change> changes) {
+	private ChangeIterator prepare(List<Diff> changes) {
 		changes = filterInvalid(changes);
 		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
 			throw new IllegalStateException("No changes found and not a merge commit");
 		threads = Executors.newCachedThreadPool();
 		converter = new Converter(database, threads, progressMonitor, usedFeatures);
 		converter.start(changes.stream()
-				.filter(d -> d.changeType != ChangeType.DELETE)
+				.filter(d -> d.diffType != DiffType.DELETED && !d.isRepositoryInfo && !d.isLibrary)
 				.sorted()
 				.toList());
-		return new ChangeIterator(repo, remoteCommitId, binaryResolver, changes);
+		return ChangeIterator.of(repo, remoteCommitId, binaryResolver, changes);
 	}
 
 	private ObjectId[] getParentCommitIds() {
@@ -118,20 +118,31 @@ public class DbCommitWriter extends CommitWriter {
 		return parentIds.toArray(new ObjectId[parentIds.size()]);
 	}
 
-	private List<Change> filterInvalid(List<Change> changes) {
+	private List<Diff> filterInvalid(List<Diff> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
-					if (c.isCategory)
+					if (c.isRepositoryInfo || c.isLibrary)
 						return true;
-					if (c.type == null || !GitUtil.isUUID(c.refId)) {
+					if (c.type == null) {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
-						log.warn("Filtering dataset with missing or invalid type or refId " + val);
+						log.warn("Filtering dataset with missing or invalid type " + val);
+						progressMonitor.worked(1);
+						return false;						
+					}
+					if (!GitUtil.isValidCategory(c.category)) {
+						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
+						log.warn("Filtering dataset with invalid category " + val);
+						progressMonitor.worked(1);
+						return false;
+					}
+					if (!c.isCategory && !GitUtil.isValidRefId(c.refId)) {
+						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
+						log.warn("Filtering dataset with missing or invalid refId " + val);
 						progressMonitor.worked(1);
 						return false;
 					}
 					return true;
-				})
-				.collect(Collectors.toList());
+				}).collect(Collectors.toList());
 		if (remaining.size() != changes.size()) {
 			progressMonitor.worked(changes.size() - remaining.size());
 		}
@@ -155,7 +166,7 @@ public class DbCommitWriter extends CommitWriter {
 	}
 
 	@Override
-	protected byte[] getData(Change change) {
+	protected byte[] getData(Diff change) {
 		try {
 			return converter.take(change.path);
 		} catch (InterruptedException e) {

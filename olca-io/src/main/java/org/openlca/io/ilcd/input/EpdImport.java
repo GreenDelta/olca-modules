@@ -6,18 +6,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.EpdProduct;
-import org.openlca.core.model.FlowResult;
-import org.openlca.core.model.FlowType;
-import org.openlca.core.model.ImpactResult;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Result;
+import org.openlca.core.model.*;
 import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.epd.EpdValue;
+import org.openlca.ilcd.util.Epds;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
@@ -46,21 +39,13 @@ public class EpdImport {
 		}
 
 		oEpd = new Epd();
-		oEpd.urn = "ilcd:epd:" + id;
 		oEpd.refId = id;
 		oEpd.name = Strings.cut(
 				Processes.getFullName(ds, imp.lang()), 2048);
 		oEpd.category = imp.syncCategory(ds, ModelType.EPD);
 		oEpd.tags = tags();
 		Import.mapVersionInfo(ds, oEpd);
-
-		var info = Processes.getDataSetInfo(ds);
-		if (info != null) {
-			oEpd.description = imp.str(info.getComment());
-		}
-		oEpd.verifier = verifier();
-		oEpd.programOperator = operator();
-		oEpd.manufacturer = manufacturer();
+		mapEpdMetaData(oEpd);
 
 		// declared product
 		var refFlow = getRefFlow();
@@ -92,7 +77,7 @@ public class EpdImport {
 			result.version = oEpd.version;
 			result.lastChange = oEpd.lastChange;
 
-			// meta-data
+			// result meta-data
 			result.name = Strings.cut(
 					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
@@ -111,6 +96,76 @@ public class EpdImport {
 		}
 
 		imp.insert(oEpd);
+	}
+
+	private void mapEpdMetaData(Epd oEpd) {
+		var info = Processes.getDataSetInfo(ds);
+		if (info != null) {
+			oEpd.description = imp.str(info.getComment());
+		}
+		oEpd.verifier = verifier();
+		oEpd.programOperator = operator();
+		oEpd.manufacturer = manufacturer();
+		oEpd.pcr = pcr();
+
+		// EPD type
+		var iType = Epds.getSubType(ds);
+		if (iType != null) {
+			oEpd.epdType = switch (iType) {
+				case AVERAGE_DATASET -> EpdType.AVERAGE_DATASET;
+				case GENERIC_DATASET -> EpdType.GENERIC_DATASET;
+				case SPECIFIC_DATASET -> EpdType.SPECIFIC_DATASET;
+				case TEMPLATE_DATASET -> EpdType.TEMPLATE_DATASET;
+				case REPRESENTATIVE_DATASET -> EpdType.REPRESENTATIVE_DATASET;
+			};
+		}
+
+		// time
+		var iTime = Epds.getTime(ds);
+		var pubDate = Epds.getPublicationDate(ds);
+		oEpd.validFrom = pubDate != null
+				? pubDate.toGregorianCalendar().getTime()
+				: ProcessTime.validFrom(iTime).orElse(null);
+		oEpd.validUntil = ProcessTime.validUntil(iTime).orElse(null);
+
+		// tech. description
+		var iTech = Epds.getTechnology(ds);
+		if (iTech != null) {
+			oEpd.productUsage = imp.str(iTech.getApplicability());
+			oEpd.manufacturing = imp.str(iTech.getDescription());
+		}
+
+		// location
+		var iLoc = Epds.getLocation(ds);
+		if (iLoc != null) {
+			oEpd.location = imp.cache.locationOf(iLoc.getCode());
+		}
+
+		// use advice & original EPD
+		var iRepr = Epds.getRepresentativeness(ds);
+		if (iRepr != null) {
+			oEpd.useAdvice = imp.str(iRepr.getUseAdvice());
+
+			var ext = iRepr.getEpdExtension();
+			if (ext != null) {
+				Lists.first(ext.getOriginalEpds()).ifPresent(ref ->
+						oEpd.originalEpd = SourceImport.get(imp, ref.getUUID())
+				);
+			}
+		}
+
+		// registration ID
+		var iPub = Epds.getPublication(ds);
+		if (iPub != null) {
+			oEpd.registrationId = iPub.getRegistrationNumber();
+		}
+
+		// data generator
+		var iGen = Epds.getDataGenerator(ds);
+		if (iGen != null) {
+			Lists.first(iGen.getContacts()).ifPresent(ref ->
+					oEpd.dataGenerator = ContactImport.get(imp, ref.getUUID()));
+		}
 	}
 
 	private FlowResult getRefFlow() {
@@ -197,6 +252,16 @@ public class EpdImport {
 		if (ref == null)
 			return null;
 		return ContactImport.get(imp, ref.getUUID());
+	}
+
+	private Source pcr() {
+		var m = Epds.getInventoryMethod(ds);
+		if (m == null)
+			return null;
+		var ref = Lists.first(m.getSources()).orElse(null);
+		if (ref == null)
+			return null;
+		return SourceImport.get(imp, ref.getUUID());
 	}
 
 	private String tags() {

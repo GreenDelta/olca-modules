@@ -7,8 +7,8 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
-import org.openlca.git.model.Change;
 import org.openlca.git.model.Commit;
+import org.openlca.git.model.Diff;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.writer.DbCommitWriter;
 
@@ -26,7 +26,7 @@ public class GitStashCreate extends GitDiscard {
 	}
 
 	@Override
-	public GitStashCreate changes(List<Change> changes) {
+	public GitStashCreate changes(List<Diff> changes) {
 		super.changes(changes);
 		return this;
 	}
