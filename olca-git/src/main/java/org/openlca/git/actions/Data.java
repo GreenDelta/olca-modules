@@ -2,12 +2,13 @@ package org.openlca.git.actions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
-import org.openlca.git.model.DiffType;
+import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
 
@@ -47,11 +48,11 @@ class Data {
 		return this;
 	}
 
-	List<Diff> doImport(Predicate<Diff> doImport) {
+	List<Diff> doImport(Predicate<Diff> doImport, Function<Diff, Reference> toRef) {
 		var toImport = changes.stream()
 				.filter(diff -> !diff.isLibrary)
 				.filter(doImport)
-				.map(diff -> diff.diffType == DiffType.DELETED ? diff.oldRef : diff.newRef)
+				.map(toRef)
 				.collect(Collectors.toList());
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, toImport, conflictResolver);
 		return ImportData.from(gitStore)
@@ -60,11 +61,11 @@ class Data {
 				.run();
 	}
 
-	List<Diff> doDelete(Predicate<Diff> doDelete) {
+	List<Diff> doDelete(Predicate<Diff> doDelete, Function<Diff, Reference> toRef) {
 		var toDelete = changes.stream()
 				.filter(diff -> !diff.isLibrary)
 				.filter(doDelete)
-				.map(diff -> diff.diffType == DiffType.DELETED ? diff.oldRef : diff.newRef)
+				.map(toRef)
 				.collect(Collectors.toList());
 		if (toDelete.isEmpty())
 			return new ArrayList<>();

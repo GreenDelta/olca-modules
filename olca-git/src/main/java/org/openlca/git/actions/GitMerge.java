@@ -73,8 +73,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 				.changes(changes)
 				.with(progressMonitor)
 				.with(conflictResolver);
-		mergeResults.addAll(data.doImport(c -> c.diffType != DiffType.DELETED));
-		mergeResults.addAll(data.doDelete(c -> c.diffType == DiffType.DELETED));
+		mergeResults.addAll(data.doImport(d -> d.diffType != DiffType.DELETED, d -> d.newRef));
+		mergeResults.addAll(data.doDelete(c -> c.diffType == DiffType.DELETED, c -> c.oldRef));
 		libraries.unmountObsolete();
 		progressMonitor.beginTask("Reloading descriptors");
 		repo.descriptors.reload();

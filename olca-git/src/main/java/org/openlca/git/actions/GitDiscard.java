@@ -63,9 +63,9 @@ public class GitDiscard extends GitProgressAction<String> {
 				.changes(changes)
 				.with(progressMonitor);
 		if (commit != null) {
-			data.doImport(c -> c.diffType != DiffType.ADDED);
+			data.doImport(d -> d.diffType != DiffType.ADDED, d -> d.oldRef);
 		}
-		data.doDelete(c -> c.diffType == DiffType.ADDED);
+		data.doDelete(d -> d.diffType == DiffType.ADDED, d -> d.newRef);
 		libraries.unmountObsolete();
 	}
 
