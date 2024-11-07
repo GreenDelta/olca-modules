@@ -86,6 +86,16 @@ public class DiffsTests extends AbstractRepositoryTests {
 	}
 
 	@Test
+	public void testDiffWithDatabaseFilterFullPath() throws IOException {
+		repo.commits.get(repo.commit(COMMIT_1));
+		repo.modify("FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json");
+		var filter = "FLOW/cat/sub/dca39f5b-5021-4b6b-9330-739f082dfae0.json";
+		var diffs = repo.diffs.find().filter(filter).withDatabase();
+		Assert.assertEquals(1, diffs.size());
+		Assert.assertEquals(filter, diffs.get(0).path);
+	}
+
+	@Test
 	public void testDiffWithDatabaseExcludeCategories() throws IOException {
 		var commits = new Commit[] {
 				repo.commits.get(repo.commit(COMMIT_1)),
@@ -167,7 +177,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		var commits = new Commit[] {
 				repo.commits.get(repo.commit(COMMIT_1, "library_a")),
 				repo.commits.get(repo.commit(COMMIT_2, "library_b")),
-				repo.commits.get(repo.commit(COMMIT_3, "library_c"))};
+				repo.commits.get(repo.commit(COMMIT_3, "library_c")) };
 
 		var diffs = repo.diffs.find().commit(commits[0]).filter("SOURCE").with(commits[1]);
 		Assert.assertEquals(4, diffs.size());
@@ -184,7 +194,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae3.json", diffs.get(3));
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae4.json", diffs.get(4));
 		assertModel(DiffType.MOVED, "ACTOR/category/cAA39f5b-5021_bin1.json+39f082dfae0..json", diffs.get(5));
-}
+	}
 
 	@Test
 	public void testDiffWithCommitExcludeCategories() throws IOException {

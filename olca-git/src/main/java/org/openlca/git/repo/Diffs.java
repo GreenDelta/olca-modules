@@ -51,6 +51,7 @@ public class Diffs {
 		private RevCommit leftCommit;
 		private RevCommit rightCommit;
 		private String path;
+		private String entry;
 		private boolean onlyCategories;
 		private boolean excludeCategories;
 		private boolean excludeLibraries;
@@ -63,6 +64,11 @@ public class Diffs {
 
 		public Find filter(String path) {
 			this.path = path;
+			if (GitUtil.isDatasetPath(path)) {
+				var slashIndex = path.lastIndexOf("/");
+				this.entry = path.substring(slashIndex + 1);
+				this.path = path.substring(0, slashIndex);
+			}
 			return this;
 		}
 
@@ -98,14 +104,10 @@ public class Diffs {
 		}
 
 		private List<Diff> diffOfDatabase(String prefix) {
-			try (var walk = new TreeWalk(repo)) {
-				var repoIterator = createIterator(leftCommit, prefix);
-				var dbIterator = createDatabaseIterator(prefix);
-				walk.addTree(repoIterator);
-				walk.addTree(dbIterator);
-				walk.setFilter(KnownFilesFilter.createForPath(prefix));
-				walk.setRecursive(false);
-				return scan(walk, prefix, path -> diffOfDatabase(path));
+			try {
+				var left = createIterator(leftCommit, prefix);
+				var right = createDatabaseIterator(prefix);
+				return diffOf(prefix, left, right, this::diffOfDatabase);
 			} catch (IOException e) {
 				log.error("Error getting diffs for path " + prefix, e);
 				return new ArrayList<>();
@@ -130,15 +132,24 @@ public class Diffs {
 		}
 
 		private List<Diff> diffOfCommits(String prefix) {
-			try (var walk = new TreeWalk(repo)) {
-				walk.addTree(createIterator(leftCommit, prefix));
-				walk.addTree(createIterator(rightCommit, prefix));
-				walk.setFilter(KnownFilesFilter.createForPath(prefix));
-				walk.setRecursive(false);
-				return scan(walk, prefix, path -> diffOfCommits(path));
+			try {
+				var left = createIterator(leftCommit, prefix);
+				var right = createIterator(rightCommit, prefix);
+				return diffOf(prefix, left, right, this::diffOfCommits);
 			} catch (IOException e) {
 				log.error("Error adding tree", e);
 				return new ArrayList<>();
+			}
+		}
+
+		private List<Diff> diffOf(String prefix, AbstractTreeIterator left, AbstractTreeIterator right,
+				Function<String, List<Diff>> nextDiffOf) throws IOException {
+			try (var walk = new TreeWalk(repo)) {
+				walk.addTree(left);
+				walk.addTree(right);
+				walk.setFilter(KnownFilesFilter.createForPath(prefix));
+				walk.setRecursive(false);
+				return scan(walk, prefix, nextDiffOf);
 			}
 		}
 
@@ -178,12 +189,16 @@ public class Diffs {
 			}
 		}
 
-		private List<Diff> scan(TreeWalk walk, String prefix, Function<String, List<Diff>> scan) throws IOException {
+		private List<Diff> scan(TreeWalk walk, String prefix, Function<String, List<Diff>> scan)
+				throws IOException {
 			var diffs = new ModelRefMap<Diff>();
 			while (walk.next()) {
+				var currentPath = walk.getPathString();
+				if (!Strings.nullOrEmpty(entry) && !entry.equals(currentPath))
+					continue;
 				var path = !Strings.nullOrEmpty(prefix)
-						? prefix + "/" + walk.getPathString()
-						: walk.getPathString();
+						? prefix + "/" + currentPath
+						: currentPath;
 				var oldMode = walk.getFileMode(0);
 				var newMode = walk.getFileMode(1);
 				var oldId = walk.getObjectId(0);
