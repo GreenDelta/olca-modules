@@ -28,7 +28,6 @@ class GitStoreReader implements JsonStoreReader {
 	private static final Gson gson = new Gson();
 	private final OlcaRepository repo;
 	private final Commit localCommit;
-	private final Commit remoteCommit;
 	private final Categories categories;
 	private final ModelRefMap<Reference> changes;
 	private final ConflictResolver conflictResolver;
@@ -40,7 +39,6 @@ class GitStoreReader implements JsonStoreReader {
 		this.repo = repo;
 		this.categories = Categories.of(repo, remoteCommit.id);
 		this.localCommit = localCommit;
-		this.remoteCommit = remoteCommit;
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = new ModelRefMap<Reference>();
 		this.repoInfo = repo.datasets.getRepositoryInfo(remoteCommit);
@@ -58,7 +56,7 @@ class GitStoreReader implements JsonStoreReader {
 		if (binDir != null) {
 			var refId = GitUtil.getRefId(binDir);
 			var filepath = path.substring(binDir.length() + 1);
-			var ref = repo.references.get(type, refId, remoteCommit.id);
+			var ref = changes.get(type, refId);
 			return repo.datasets.getBinary(ref, filepath);
 		}
 		var refId = GitUtil.getRefId(path);

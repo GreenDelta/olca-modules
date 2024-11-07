@@ -12,7 +12,7 @@ import org.openlca.git.model.Diff;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.writer.DbCommitWriter;
 
-public class GitStashCreate extends GitDiscard {
+public class GitStashCreate extends GitReset {
 
 	private PersonIdent committer;
 	private Commit parent;
