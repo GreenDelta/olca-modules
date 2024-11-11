@@ -16,7 +16,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.jsonld.ZipStore;
+import org.openlca.jsonld.ZipReader;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 
@@ -42,8 +42,8 @@ public class DbLibrarySwap implements Runnable {
 			var replacedTechFlows = techFlowsOf(db);
 			var libId = lib.libraryName();
 			var meta = new File(lib.library().folder(), "meta.zip");
-			try (var store = ZipStore.open(meta)) {
-				var imp = new JsonImport(store, db);
+			try (var zip = ZipReader.of(meta)) {
+				var imp = new JsonImport(zip, db);
 				imp.setUpdateMode(UpdateMode.ALWAYS);
 				imp.setCallback(e -> {
 					if (e instanceof RootEntity ce) {

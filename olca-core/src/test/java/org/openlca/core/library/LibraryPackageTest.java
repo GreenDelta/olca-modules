@@ -1,8 +1,6 @@
 package org.openlca.core.library;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -14,6 +12,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
+import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
 
@@ -67,14 +66,14 @@ public class LibraryPackageTest {
 		// library with units
 		var sourceDir = LibraryDir.of(new File(baseDir, "source"));
 		var unitLib = sourceDir.create("units");
-		try (var zip = unitLib.openJsonZip()) {
+		try (var zip = ZipStore.open(unitLib.getJsonZip())) {
 			new JsonExport(zip).write(units);
 		}
 
 		// library with flow properties
 		var propLib = sourceDir.create("props");
 		propLib.addDependency(unitLib);
-		try (var zip = propLib.openJsonZip()) {
+		try (var zip = ZipStore.open(propLib.getJsonZip())) {
 			new JsonExport(zip)
 				.withReferences(false)
 				.write(mass);

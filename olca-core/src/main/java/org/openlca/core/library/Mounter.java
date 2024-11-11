@@ -1,6 +1,5 @@
 package org.openlca.core.library;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class Mounter implements Runnable {
 		}
 	}
 
-	private void mount(Library lib) throws IOException {
+	private void mount(Library lib) {
 		try (var zip = lib.openJsonZip()) {
 			new JsonImport(zip, db)
 				.setUpdateMode(UpdateMode.ALWAYS)

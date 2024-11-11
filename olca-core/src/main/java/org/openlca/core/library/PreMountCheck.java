@@ -9,12 +9,13 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
-import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.ZipStore;
+import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.util.Pair;
+
+import jakarta.persistence.Table;
 
 /**
  * Checks the state of a library and its dependencies before it is mounted to a
@@ -132,11 +133,11 @@ public record PreMountCheck(IDatabase db, Library library)
 			this.type = type;
 		}
 
-		private PreMountState get(String libName, ZipStore store) {
+		private PreMountState get(String libName, JsonStoreReader reader) {
 			var table = type.getModelClass().getAnnotation(Table.class);
 			if (table == null)
 				return null;
-			var libIds = new HashSet<>(store.getRefIds(type));
+			var libIds = new HashSet<>(reader.getRefIds(type));
 			if (libIds.isEmpty())
 				return null;
 			var visited = new HashSet<String>();

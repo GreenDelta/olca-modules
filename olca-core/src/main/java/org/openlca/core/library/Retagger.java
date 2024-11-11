@@ -1,11 +1,9 @@
 package org.openlca.core.library;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.math.ReferenceAmount;
@@ -14,6 +12,8 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.Table;
 
 class Retagger {
 
@@ -54,8 +54,6 @@ class Retagger {
 			if (total > 0) {
 				db.addLibrary(lib.name());
 			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
 	}
 

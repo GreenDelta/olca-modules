@@ -1,10 +1,8 @@
 package org.openlca.core.library;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -23,6 +21,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
 
@@ -61,7 +60,8 @@ public class LibrariesTest {
 		var Q = Process.of("Q", q);
 
 		var lib = libDir.create("lib");
-		try(var zip = lib.openJsonZip()) {
+		var meta = new File(lib.folder(), "meta.zip");
+		try(var zip = ZipStore.open(meta)) {
 			var exp = new JsonExport(zip);
 			List.of(units, mass, p, q, P, Q)
 				.forEach(exp::write);

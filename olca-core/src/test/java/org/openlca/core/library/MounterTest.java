@@ -12,6 +12,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
 
@@ -31,7 +32,7 @@ public class MounterTest {
 
 		unitLib = libDir.create("units 1.0");
 		units = UnitGroup.of("Units of mass", "kg");
-		try (var zip = unitLib.openJsonZip()) {
+		try (var zip = ZipStore.open(unitLib.getJsonZip())) {
 			var exp = new JsonExport(zip);
 			exp.write(units);
 		}
@@ -39,7 +40,7 @@ public class MounterTest {
 		propsLib = libDir.create("props 1.0");
 		propsLib.addDependency(unitLib);
 		prop = FlowProperty.of("Mass", units);
-		try (var zip = propsLib.openJsonZip()) {
+		try (var zip = ZipStore.open(propsLib.getJsonZip())) {
 			var exp = new JsonExport(zip).withReferences(false);
 			exp.write(prop);
 		}

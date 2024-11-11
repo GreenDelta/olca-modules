@@ -1,9 +1,6 @@
 package org.openlca.core.library;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +12,7 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
 
@@ -67,7 +65,7 @@ public class PreMountCheckTest {
 	private void with(Function<UnitGroup, PreMountState> fn) {
 		try {
 			var group = UnitGroup.of("Units of mass", "kg");
-			try (var zip = lib.openJsonZip()) {
+			try (var zip = ZipStore.open(lib.getJsonZip())) {
 				new JsonExport(zip).write(group);
 			}
 			var expected = fn.apply(group);

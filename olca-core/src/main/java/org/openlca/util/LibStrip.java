@@ -20,6 +20,7 @@ import org.openlca.core.matrix.io.index.IxImpactIndex;
 import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.jsonld.ZipStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,7 @@ public class LibStrip implements Runnable {
 		}
 
 		try (var sourceZip = lib.library().openJsonZip();
-				 var targetZip = stripped.openJsonZip()) {
+				 var targetZip = ZipStore.open(stripped.getJsonZip())) {
 			for (var type : ModelType.values()) {
 				var ids = sourceZip.getRefIds(type);
 				for (var id : ids) {

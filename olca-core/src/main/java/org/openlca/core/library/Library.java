@@ -1,13 +1,6 @@
 package org.openlca.core.library;
 
-import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.jsonld.Json;
-import org.openlca.jsonld.ZipStore;
-import org.openlca.npy.Npy;
-import org.openlca.util.Dirs;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,6 +8,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.jsonld.Json;
+import org.openlca.jsonld.ZipReader;
+import org.openlca.npy.Npy;
+import org.openlca.util.Dirs;
 
 public record Library(File folder) {
 
@@ -134,17 +133,14 @@ public record Library(File folder) {
 
 	/**
 	 * Opens the zip-file that contains the JSON (meta-) data of this library.
-	 * This file is created if it does not exist yet.
 	 *
 	 * @return the opened meta-data store.
 	 */
-	public ZipStore openJsonZip() {
-		var zip = new File(folder, "meta.zip");
-		try {
-			return ZipStore.open(zip);
-		} catch (IOException e) {
-			throw new RuntimeException(
-					"failed to open library meta data zip: " + zip, e);
-		}
+	public ZipReader openJsonZip() {
+		return ZipReader.of(getJsonZip());
+	}
+
+	public File getJsonZip() {
+		return new File(folder, "meta.zip");
 	}
 }
