@@ -54,7 +54,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 				Files.createDirectories(dir);
 			Files.write(file, data, StandardOpenOption.CREATE);
 		} catch (Exception e) {
-			log.error("failed to put " + path, e);
+			log.error("failed to put {}", path, e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 				return null;
 			return Files.readAllBytes(file);
 		} catch (Exception e) {
-			log.error("failed to get file " + path, e);
+			log.error("failed to get file {}", path, e);
 			return null;
 		}
 	}
@@ -82,7 +82,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 		try {
 			return Files.newInputStream(file);
 		} catch (Exception e) {
-			log.error("failed to open stream for path " + path, e);
+			log.error("failed to open stream for path {}", path, e);
 			return null;
 		}
 	}
@@ -97,7 +97,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 		try {
 			Files.walkFileTree(dir, collector);
 		} catch (Exception e) {
-			log.error("failed to get refIds for type " + type, e);
+			log.error("failed to get refIds for type {}", type, e);
 		}
 		return collector.ids;
 	}
@@ -109,8 +109,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 			Path file = zip.getPath(path);
 			Files.deleteIfExists(file);
 		} catch (Exception e) {
-			log.error("failed to remove file " + path, e);
-			return;
+			log.error("failed to remove file {}", path, e);
 		}
 	}
 
