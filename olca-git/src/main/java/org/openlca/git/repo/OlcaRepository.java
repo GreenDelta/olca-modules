@@ -34,7 +34,6 @@ public class OlcaRepository extends FileRepository {
 	public final References references;
 	public final Diffs diffs;
 	public final History localHistory;
-	public final History remoteHistory;
 	public final File dir;
 
 	public OlcaRepository(File gitDir) throws IOException {
@@ -44,7 +43,6 @@ public class OlcaRepository extends FileRepository {
 		this.references = References.of(this);
 		this.diffs = Diffs.of(this);
 		this.localHistory = History.of(this, Constants.LOCAL_REF);
-		this.remoteHistory = History.of(this, Constants.REMOTE_REF);
 		this.dir = gitDir;
 	}
 

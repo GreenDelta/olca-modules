@@ -9,5 +9,6 @@ public interface Constants {
 	public static String REMOTE_BRANCH = DEFAULT_REMOTE + "/" + DEFAULT_BRANCH;
 	public static String REMOTE_REF = "refs/remotes/" + REMOTE_BRANCH;
 	public static String DEFAULT_FETCH_SPEC = "+" + Constants.LOCAL_REF + ":" + Constants.REMOTE_REF;
+	public static String STASH_REF = org.eclipse.jgit.lib.Constants.R_STASH;
 
 }

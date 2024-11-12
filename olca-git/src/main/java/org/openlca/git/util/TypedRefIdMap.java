@@ -24,6 +24,11 @@ public class TypedRefIdMap<T> {
 		return this;
 	}
 
+	public TypedRefIdMap<T> putAll(TypedRefIdMap<T> map) {
+		map.forEach((type, refId, resolution) -> put(type, refId, resolution));
+		return this;
+	}
+
 	public boolean contains(TypedRefId pair) {
 		return contains(pair.type, pair.refId);
 	}
