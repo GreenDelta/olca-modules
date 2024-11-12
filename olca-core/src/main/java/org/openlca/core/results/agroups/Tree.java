@@ -1,27 +1,32 @@
 package org.openlca.core.results.agroups;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.LcaResult;
 
-record Node(
+record Tree(
 		String group,
 		TechFlow techFlow,
 		int index,
 		double scaling,
-		double amount
+		double amount,
+		List<Tree> childs
 ) {
 
-	static Node rootOf(LcaResult result, GroupMap groups) {
+	static Tree rootOf(LcaResult result, GroupMap groups) {
 		var demand = result.demand();
 		var techFlow = result.demand().techFlow();
 		var amount = demand.value();
 		var index = result.techIndex().of(techFlow);
 		double aii = result.provider().techValueOf(index, index);
-		return new Node(groups.top(), techFlow, index, amount / aii, amount);
+		return new Tree(
+				groups.top(), techFlow, index, amount / aii, amount, new ArrayList<>()
+		);
 	}
 
-	boolean isFromLibrary() {
-		return techFlow.provider().isFromLibrary();
+	long pid() {
+		return techFlow.providerId();
 	}
-
 }

@@ -18,13 +18,9 @@ import org.slf4j.LoggerFactory;
 /// a tree but the final node would be also a grouped node. It can be very
 /// memory intensive when such a tree is really constructed, and thus it is
 /// better to collect the results in a traversal of that sub-graph.
-class SubGraph {
-
-	private final HashMap<Long, List<ProcessLink>> links = new HashMap<>();
-	private final HashSet<Long> nodes = new HashSet<>();
-
-	private SubGraph() {
-	}
+record SubGraph(
+		HashSet<Long> nodes, HashMap<Long, List<ProcessLink>> links, int linkCount
+) {
 
 	static SubGraph of(ProductSystem system, GroupMap groups) {
 		return new Builder(system, groups).build();
@@ -32,6 +28,10 @@ class SubGraph {
 
 	boolean isEmpty() {
 		return nodes.isEmpty() || links.isEmpty();
+	}
+
+	int nodeCount() {
+		return nodes.size();
 	}
 
 	List<ProcessLink> linksOf(long pid) {
@@ -44,12 +44,13 @@ class SubGraph {
 		final Logger log = LoggerFactory.getLogger(getClass());
 		final ProductSystem system;
 		final GroupMap groups;
-		final SubGraph g;
+
+		final HashSet<Long> nodes = new HashSet<>();
+		final HashMap<Long, List<ProcessLink>> links = new HashMap<>();
 
 		private Builder(ProductSystem system, GroupMap groups) {
 			this.system = system;
 			this.groups = groups;
-			g = new SubGraph();
 		}
 
 		SubGraph build() {
@@ -57,7 +58,7 @@ class SubGraph {
 				|| system.referenceProcess == null
 				|| groups == null
 				|| groups.isEmpty())
-				return g;
+				return new SubGraph(nodes, links, 0);
 
 			log.info("build sub-graph for analysis groups");
 			log.trace("build link index");
@@ -83,8 +84,8 @@ class SubGraph {
 				for (var link : links) {
 					long nextId = link.providerId;
 					if (groups.isGrouped(nextId)) {
-						g.nodes.add(nextId);
-						parent.addPathTo(g);
+						nodes.add(nextId);
+						parent.addPathTo(this);
 					}
 					if (visited.contains(nextId))
 						continue;
@@ -95,29 +96,29 @@ class SubGraph {
 
 			log.trace("filter links");
 			int linkCount = 0;
-			for (var n : g.nodes) {
-				var links = linkIdx.get(n);
-				if (links == null)
+			for (var n : nodes) {
+				var nextLinks = linkIdx.get(n);
+				if (nextLinks == null)
 					continue;
-				for (var link : links) {
-					if (g.nodes.contains(link.providerId)) {
+				for (var link : nextLinks) {
+					if (nodes.contains(link.providerId)) {
 						linkCount++;
-						g.links.computeIfAbsent(n, $ -> new ArrayList<>()).add(link);
+						links.computeIfAbsent(n, $ -> new ArrayList<>()).add(link);
 					}
 				}
 			}
 
 			log.info("created a sub-graph with {} nodes and {} links",
-				g.nodes.size(), linkCount);
-			return g;
+				nodes.size(), linkCount);
+			return new SubGraph(nodes, links, linkCount);
 		}
 
-		record Node(long id, Node prev) {
+		private record Node(long id, Node prev) {
 
-			void addPathTo(SubGraph g) {
-				g.nodes.add(id);
+			void addPathTo(Builder b) {
+				b.nodes.add(id);
 				if (prev != null) {
-					prev.addPathTo(g);
+					prev.addPathTo(b);
 				}
 			}
 		}
