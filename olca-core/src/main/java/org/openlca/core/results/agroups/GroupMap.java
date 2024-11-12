@@ -52,4 +52,12 @@ record GroupMap(String top, Map<Long, String> map) {
 		}
 		return new GroupMap(top, map);
 	}
+
+	boolean isEmpty() {
+		return map.isEmpty();
+	}
+
+	boolean isGrouped(long pid) {
+		return map.get(pid) != null;
+	}
 }
