@@ -3,7 +3,7 @@ package org.openlca.core.matrix.uncertainties;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openlca.core.math.NumberGenerator;
+import org.openlca.core.math.rand.NumberGenerator;
 import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.model.UncertaintyType;

@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.uncertainties;
 
-import org.openlca.core.math.NumberGenerator;
+import org.openlca.core.math.rand.NumberGenerator;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;

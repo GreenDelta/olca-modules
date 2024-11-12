@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.math.NumberGenerator;
+import org.openlca.core.math.rand.NumberGenerator;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.UncertaintyType;
