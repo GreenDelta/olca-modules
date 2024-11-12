@@ -13,9 +13,9 @@ import org.openlca.core.results.LcaResult;
 public class AnalysisGroupResult {
 
 	private final LcaResult result;
-	private final PathNode root;
+	private final Tree root;
 
-	private AnalysisGroupResult(LcaResult result, PathNode root) {
+	private AnalysisGroupResult(LcaResult result, Tree root) {
 		this.result = result;
 		this.root = root;
 	}
@@ -26,15 +26,16 @@ public class AnalysisGroupResult {
 				|| result == null)
 			return new AnalysisGroupResult(result, null);
 
-		var groupMap = GroupMap.of(result, system.analysisGroups);
-		var tree = new GroupTree(system, groupMap, result).build();
+		var groups = GroupMap.of(result, system.analysisGroups);
+		var graph = SubGraph.of(system, groups);
+		var tree = Traversal.treeOf(result, groups, graph);
 		return new AnalysisGroupResult(result, tree);
 	}
 
 	public boolean isEmpty() {
 		return root == null
-				|| root.branches() == null
-				|| root.branches().isEmpty();
+				|| root.childs() == null
+				|| root.childs().isEmpty();
 	}
 
 	public Map<String, Double> groupResultsOf(ImpactDescriptor impact) {
@@ -48,11 +49,11 @@ public class AnalysisGroupResult {
 		var map = new HashMap<String, Double>();
 		map.put(root.group(), r.totalImpacts()[impactPos]);
 
-		var queue = new ArrayDeque<PathNode>();
+		var queue = new ArrayDeque<Tree>();
 		queue.add(root);
 		while (!queue.isEmpty()) {
 			var parent = queue.poll();
-			for (var next : parent.branches()) {
+			for (var next : parent.childs()) {
 				queue.add(next);
 				if (Objects.equals(parent.group(), next.group()))
 					continue;

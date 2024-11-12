@@ -52,7 +52,7 @@ public class AnalysisGroupResultTest {
 	public void cleanup() {
 		var entities = List.of(
 			method,
-			method.impactCategories.get(0),
+			method.impactCategories.getFirst(),
 			elem,
 			mass,
 			mass.unitGroup
@@ -243,7 +243,7 @@ public class AnalysisGroupResultTest {
 		var result = new SystemCalculator(db)
 			.calculate(setup);
 		var ar = AnalysisGroupResult.of(system, result);
-		var impact = Descriptor.of(method.impactCategories.get(0));
+		var impact = Descriptor.of(method.impactCategories.getFirst());
 		return ar.groupResultsOf(impact);
 	}
 
