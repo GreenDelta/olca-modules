@@ -49,10 +49,12 @@ public class CalcExchange {
 	/**
 	 * Returns true when this exchange can be allocated to a product output or
 	 * waste input, thus it is either a product input, waste output, or
-	 * elementary flow (and not an avoided product or waste flow).
+	 * elementary flow. Note that avoided products are stored as inputs and
+	 * avoided wastes as outputs so that allocation factors are also applied on
+	 * such exchanges if defined.
 	 */
 	public boolean isAllocatable() {
-		if (isAvoided || flowType == null)
+		if (flowType == null)
 			return false;
 		return switch (flowType) {
 			case ELEMENTARY_FLOW -> true;
@@ -94,8 +96,7 @@ public class CalcExchange {
 				a = scope.eval(formula);
 			} catch (Exception e) {
 				var log = LoggerFactory.getLogger(getClass());
-				log.error("Formula evaluation failed, exchange "
-					+ exchangeId, e);
+				log.error("Formula evaluation failed, exchange {}", exchangeId, e);
 			}
 		}
 
@@ -120,8 +121,8 @@ public class CalcExchange {
 				c = scope.eval(costFormula);
 			} catch (Exception e) {
 				var log = LoggerFactory.getLogger(getClass());
-				log.error("Formula evaluation for costs failed, exchange "
-					+ exchangeId, e);
+				log.error("Formula evaluation for costs failed, exchange {}",
+						exchangeId, e);
 			}
 		}
 
