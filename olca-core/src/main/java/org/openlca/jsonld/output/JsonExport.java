@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayDeque;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,9 +21,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.MemStore;
@@ -46,7 +47,10 @@ public class JsonExport {
 
 	final JsonRefs dbRefs;
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
-	private ProviderStack providers;
+
+	/// Exporting providers can lead to a stack overflow when calling write
+	/// recursively. Thus, we need to queue them.
+	private final ArrayDeque<WriteItem<?>> queue = new ArrayDeque<>();
 
 	/**
 	 * Creates an export without database. This can be useful to convert
@@ -131,7 +135,7 @@ public class JsonExport {
 		if (e == null)
 			return null;
 		if (exportReferences) {
-			write(e);
+			writeNext(e, null);
 		}
 		return Json.asRef(e);
 	}
@@ -149,10 +153,10 @@ public class JsonExport {
 		if (exportReferences
 				&& exportProviders
 				&& !hasVisited(ModelType.PROCESS, d.refId)) {
-			if (providers == null) {
-				providers = new ProviderStack(this);
+			var item = WriteItem.of(d);
+			if (!queue.contains(item)) {
+				queue.add(item);
 			}
-			providers.push(d);
 		}
 		return ref;
 	}
@@ -162,28 +166,38 @@ public class JsonExport {
 	}
 
 	public <T extends RootEntity> void write(T entity, Callback cb) {
+		if (entity == null)
+			return;
+		queue.add(WriteItem.of(entity));
+		while (!queue.isEmpty()) {
+			var next = queue.poll();
+			if (!next.isValid())
+				continue;
+			writeNext(next.get(db), cb);
+		}
+	}
+
+	private <T extends RootEntity> void writeNext(T entity, Callback cb) {
+
+		// check the entity
+		if (entity == null)
+			return;
+		var type = ModelType.of(entity);
+		if (type == null || entity.refId == null) {
+			warn(cb, "no refId; or type is unknown", entity);
+			return;
+		}
+
+		// check visited state
+		if (hasVisited(type, entity.refId))
+			return;
+		visited.computeIfAbsent(type, $ -> new HashSet<>())
+				.add(entity.refId);
+		if (skipLibraryData && Strings.notEmpty(entity.library)) {
+			return;
+		}
 
 		try {
-
-			// check input
-			if (entity == null)
-				return;
-			var type = ModelType.of(entity);
-			if (type == null || entity.refId == null) {
-				warn(cb, "no refId; or type is unknown", entity);
-				return;
-			}
-
-			// check & set the visited state
-			if (hasVisited(type, entity.refId))
-				return;
-			visited.computeIfAbsent(type, k -> new HashSet<>())
-					.add(entity.refId);
-
-			// check skip library data
-			if (skipLibraryData && Strings.notEmpty(entity.library)) {
-				return;
-			}
 
 			// convert the entity to JSON
 			JsonWriter<T> w = getWriter(entity);
@@ -205,10 +219,6 @@ public class JsonExport {
 		} catch (Exception e) {
 			if (cb != null) {
 				cb.apply(Message.error("failed to export data set", e), entity);
-			}
-		} finally {
-			if (providers != null && entity instanceof Process) {
-				providers.pop(cb);
 			}
 		}
 	}
@@ -281,6 +291,35 @@ public class JsonExport {
 			writer.putBin(type, refId, path, data);
 			return FileVisitResult.CONTINUE;
 		}
-
 	}
+
+	private record WriteItem<T extends RootEntity>(
+			ModelType type, T entity, Descriptor descriptor
+	) {
+
+		static <T extends RootEntity> WriteItem<T> of(T entity) {
+			var type = ModelType.of(entity);
+			return new WriteItem<>(type, entity, null);
+		}
+
+		static <T extends RootEntity> WriteItem<T> of(Descriptor descriptor) {
+			var type = descriptor.type;
+			return new WriteItem<>(type, null, descriptor);
+		}
+
+		@SuppressWarnings("unchecked")
+		public T get(IDatabase db) {
+			if (entity != null)
+				return entity;
+			if (db == null || type == null || descriptor == null)
+				return null;
+			var e = db.get(type.getModelClass(), descriptor.id);
+			return (T) e;
+		}
+
+		boolean isValid() {
+			return type != null && (entity != null || descriptor != null);
+		}
+	}
+
 }
