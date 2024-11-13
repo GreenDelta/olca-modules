@@ -17,37 +17,19 @@ import java.util.Set;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Actor;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
-import org.openlca.core.model.Currency;
-import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Project;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.Unit;
-import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.MemStore;
+import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import org.openlca.util.Strings;
 
 /**
  * Writes entities to an entity store (e.g. a document or zip file). It also
@@ -62,8 +44,9 @@ public class JsonExport {
 	boolean exportProviders = false;
 	boolean skipExternalFiles = false;
 
-	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
 	final JsonRefs dbRefs;
+	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
+	private ProviderStack providers;
 
 	/**
 	 * Creates an export without database. This can be useful to convert
@@ -108,17 +91,7 @@ public class JsonExport {
 		return this;
 	}
 
-	private void setVisited(RootEntity entity) {
-		if (entity == null || entity.refId == null)
-			return;
-		var type = ModelType.of(entity);
-		if (type == null)
-			return;
-		var set = visited.computeIfAbsent(type, k -> new HashSet<>());
-		set.add(entity.refId);
-	}
-
-	private boolean hasVisited(ModelType type, String refId) {
+	boolean hasVisited(ModelType type, String refId) {
 		var set = visited.get(type);
 		return set != null && set.contains(refId);
 	}
@@ -163,43 +136,80 @@ public class JsonExport {
 		return Json.asRef(e);
 	}
 
+	JsonObject handleProvider(long pid) {
+		if (pid == 0 || db == null || dbRefs == null)
+			return null;
+		var d = dbRefs.descriptorOf(ModelType.PROCESS, pid);
+		if (d == null)
+			return null;
+		var ref = dbRefs.asRef(d);
+		if (ref == null)
+			return null;
+
+		if (exportReferences
+				&& exportProviders
+				&& !hasVisited(ModelType.PROCESS, d.refId)) {
+			if (providers == null) {
+				providers = new ProviderStack(this);
+			}
+			providers.push(d);
+		}
+		return ref;
+	}
+
 	public <T extends RootEntity> void write(T entity) {
 		write(entity, null);
 	}
 
 	public <T extends RootEntity> void write(T entity, Callback cb) {
-		if (entity == null)
-			return;
-		var type = ModelType.of(entity);
-		if (type == null || entity.refId == null) {
-			warn(cb, "no refId; or type is unknown", entity);
-			return;
-		}
-		if (hasVisited(type, entity.refId))
-			return;
-		setVisited(entity);
 
-		// check skip library data
-		if (skipLibraryData && Strings.notEmpty(entity.library)) {
-			return;
-		}
-
-		JsonWriter<T> w = getWriter(entity);
-		if (w == null) {
-			warn(cb, "no writer found for type " + type, entity);
-			return;
-		}
 		try {
+
+			// check input
+			if (entity == null)
+				return;
+			var type = ModelType.of(entity);
+			if (type == null || entity.refId == null) {
+				warn(cb, "no refId; or type is unknown", entity);
+				return;
+			}
+
+			// check & set the visited state
+			if (hasVisited(type, entity.refId))
+				return;
+			visited.computeIfAbsent(type, k -> new HashSet<>())
+					.add(entity.refId);
+
+			// check skip library data
+			if (skipLibraryData && Strings.notEmpty(entity.library)) {
+				return;
+			}
+
+			// convert the entity to JSON
+			JsonWriter<T> w = getWriter(entity);
+			if (w == null) {
+				warn(cb, "no writer found for type " + type, entity);
+				return;
+			}
 			var obj = w.write(entity);
+
+			// write it
 			writer.put(type, obj);
 			if (!skipExternalFiles) {
 				writeExternalFiles(entity, type, cb);
 			}
-			if (cb != null)
+			if (cb != null) {
 				cb.apply(Message.info("data set exported"), entity);
+			}
+
 		} catch (Exception e) {
-			if (cb != null)
+			if (cb != null) {
 				cb.apply(Message.error("failed to export data set", e), entity);
+			}
+		} finally {
+			if (providers != null && entity instanceof Process) {
+				providers.pop(cb);
+			}
 		}
 	}
 
@@ -247,47 +257,8 @@ public class JsonExport {
 		return writer.write(entity);
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T extends RefEntity> JsonWriter<T> getWriter(T entity) {
-		if (entity == null)
-			return null;
-		if (entity instanceof Actor)
-			return (JsonWriter<T>) new ActorWriter();
-		if (entity instanceof Currency)
-			return (JsonWriter<T>) new CurrencyWriter(this);
-		if (entity instanceof Epd)
-			return (JsonWriter<T>) new EpdWriter(this);
-		if (entity instanceof FlowProperty)
-			return (JsonWriter<T>) new FlowPropertyWriter(this);
-		if (entity instanceof Flow)
-			return (JsonWriter<T>) new FlowWriter(this);
-		if (entity instanceof ImpactCategory)
-			return (JsonWriter<T>) new ImpactCategoryWriter(this);
-		if (entity instanceof ImpactMethod)
-			return (JsonWriter<T>) new ImpactMethodWriter(this);
-		if (entity instanceof Location)
-			return (JsonWriter<T>) new LocationWriter(this);
-		if (entity instanceof Parameter)
-			return (JsonWriter<T>) new ParameterWriter(this);
-		if (entity instanceof Process)
-			return (JsonWriter<T>) new ProcessWriter(this);
-		if (entity instanceof Result)
-			return (JsonWriter<T>) new ResultWriter(this);
-		if (entity instanceof Source)
-			return (JsonWriter<T>) new SourceWriter(this);
-		if (entity instanceof UnitGroup)
-			return (JsonWriter<T>) new UnitGroupWriter(this);
-		if (entity instanceof SocialIndicator)
-			return (JsonWriter<T>) new SocialIndicatorWriter(this);
-		if (entity instanceof ProductSystem)
-			return (JsonWriter<T>) new ProductSystemWriter(this);
-		if (entity instanceof Project)
-			return (JsonWriter<T>) new ProjectWriter(this);
-		if (entity instanceof DQSystem)
-			return (JsonWriter<T>) new DQSystemWriter(this);
-		if (entity instanceof Unit)
-			return (JsonWriter<T>) new UnitWriter(this);
-		return null;
+		return Util.writerOf(entity, this);
 	}
 
 	private class Copy extends SimpleFileVisitor<Path> {

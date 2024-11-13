@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
@@ -206,18 +205,6 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 				: null;
 		Json.put(obj, "flowProperty", exp.handleRef(property));
 		Json.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
-
-		// default provider
-		if (e.defaultProviderId == 0L || exp.db == null)
-			return;
-
-		if (exp.exportProviders) {
-			Json.put(obj, "defaultProvider",
-					exp.handleRef(ModelType.PROCESS, e.defaultProviderId));
-		} else if (exp.dbRefs != null) {
-			Json.put(obj, "defaultProvider",
-					exp.dbRefs.asRef(ModelType.PROCESS, e.defaultProviderId));
-		}
+		Json.put(obj, "defaultProvider", exp.handleProvider(e.defaultProviderId));
 	}
-
 }
