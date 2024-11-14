@@ -3,12 +3,15 @@ package org.openlca.core.database.upgrades;
 import static org.junit.Assert.*;
 
 import java.nio.file.Files;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.util.Dirs;
 
 public class UpgradeChainTest {
@@ -59,6 +62,18 @@ public class UpgradeChainTest {
 		// roll back Upgrade14
 		u.dropTable("tbl_analysis_groups");
 		u.dropTable("tbl_analysis_group_processes");
+		u.dropColumn("tbl_parameters", "formula");
+		u.createColumn("tbl_parameters","formula VARCHAR(1000)");
+		for (var table : List.of(
+				"tbl_exchanges",
+				"tbl_impact_factors",
+				"tbl_parameters",
+				"tbl_parameter_redefs")) {
+			u.createColumn(table, "parameter1_formula VARCHAR(1000)");
+			u.createColumn(table, "parameter2_formula VARCHAR(1000)");
+			u.createColumn(table, "parameter3_formula VARCHAR(1000)");
+		}
+
 
 		// roll back Upgrade12
 		for (var table : catEntityTables) {
@@ -247,6 +262,15 @@ public class UpgradeChainTest {
 		// check Upgrade14
 		assertTrue(u.tableExists("tbl_analysis_groups"));
 		assertTrue(u.tableExists("tbl_analysis_group_processes"));
+		var paramFormulaSize = new AtomicReference<String>();
+		NativeSql.on(db).query("select c.columndatatype from sys.syscolumns c" +
+				" join sys.systables t on c.referenceid = t.tableid" +
+				" where t.tablename = 'TBL_PARAMETERS'" +
+				"  and c.columnname = 'FORMULA'", r -> {
+			paramFormulaSize.set(r.getString(1));
+			return false;
+		});
+		assertEquals("VARCHAR(5120)", paramFormulaSize.get());
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

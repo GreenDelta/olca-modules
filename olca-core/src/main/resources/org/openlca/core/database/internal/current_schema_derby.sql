@@ -552,11 +552,8 @@ CREATE TABLE tbl_impact_factors (
 
     distribution_type       INTEGER default 0,
     parameter1_value        DOUBLE,
-    parameter1_formula      VARCHAR(1000),
     parameter2_value        DOUBLE,
-    parameter2_formula      VARCHAR(1000),
     parameter3_value        DOUBLE,
-    parameter3_formula      VARCHAR(1000),
 
     PRIMARY KEY (id)
 
@@ -610,15 +607,12 @@ CREATE TABLE tbl_parameters (
     f_owner             BIGINT,
     scope               VARCHAR(255),
     value               DOUBLE,
-    formula             VARCHAR(1000),
+    formula             VARCHAR(5120),
 
     distribution_type   INTEGER default 0,
     parameter1_value    DOUBLE,
-    parameter1_formula  VARCHAR(1000),
     parameter2_value    DOUBLE,
-    parameter2_formula  VARCHAR(1000),
     parameter3_value    DOUBLE,
-    parameter3_formula  VARCHAR(1000),
 
     PRIMARY KEY (id)
 );
@@ -638,11 +632,8 @@ CREATE TABLE tbl_parameter_redefs (
 
     distribution_type   INTEGER default 0,
     parameter1_value    DOUBLE,
-    parameter1_formula  VARCHAR(1000),
     parameter2_value    DOUBLE,
-    parameter2_formula  VARCHAR(1000),
     parameter3_value    DOUBLE,
-    parameter3_formula  VARCHAR(1000),
 
     PRIMARY KEY (id)
 );
