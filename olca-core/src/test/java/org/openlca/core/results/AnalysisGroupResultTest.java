@@ -244,7 +244,7 @@ public class AnalysisGroupResultTest {
 			.calculate(setup);
 		var ar = AnalysisGroupResult.of(system, result);
 		var impact = Descriptor.of(method.impactCategories.getFirst());
-		return ar.groupResultsOf(impact);
+		return ar.getResultsOf(impact);
 	}
 
 	private void check(
