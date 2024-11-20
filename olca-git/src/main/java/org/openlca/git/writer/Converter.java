@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
 import org.openlca.git.util.GitUtil;
@@ -118,20 +117,10 @@ class Converter implements JsonStoreWriter {
 			return;
 		try {
 			var model = database.get(change.type.getModelClass(), change.refId);
-			convert(model);
+			export.write(model);
 		} catch (Exception e) {
 			log.error("failed to convert data set " + change, e);
-			put(change.path, new byte[0]);
-		}
-	}
-
-	private void convert(RootEntity entity) {
-		if (entity == null)
-			return;
-		try {
-			export.write(entity);
-		} catch (Exception e) {
-			log.error("failed to serialize " + entity, e);
+			put(change.path, (byte[]) null);
 		}
 	}
 

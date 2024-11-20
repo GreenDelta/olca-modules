@@ -82,10 +82,13 @@ public abstract class CommitWriter {
 			init();
 			var treeIds = getCommitTreeIds(parentCommitIds);
 			var treeId = syncTree("", changeIterator, treeIds);
-			if (progressMonitor.isCanceled())
+			if (progressMonitor.isCanceled() || treeId == null)
 				return null;
 			var commitId = commit(message, treeId, parentCommitIds);
 			return commitId.name();
+		} catch (ConversionException e) {
+			log.error(e.getMessage());
+			return null;
 		} finally {
 			cleanUp();
 		}
@@ -117,7 +120,7 @@ public abstract class CommitWriter {
 		objectInserter = repo.newObjectInserter();
 	}
 
-	private ObjectId syncTree(String prefix, ChangeIterator iterator, ObjectId[] treeIds) {
+	private ObjectId syncTree(String prefix, ChangeIterator iterator, ObjectId[] treeIds) throws ConversionException {
 		var appended = false;
 		var tree = new TreeFormatter();
 		try (var walk = createWalk(prefix, iterator, treeIds)) {
@@ -149,14 +152,14 @@ public abstract class CommitWriter {
 				tree.append(name, mode, id);
 				appended = true;
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			log.error("Error walking tree", e);
+			return null;
 		}
 		if (!appended && !Strings.nullOrEmpty(prefix))
 			return null;
 		try {
-			var newId = objectInserter.insert(tree);
-			return newId;
+			return objectInserter.insert(tree);
 		} catch (IOException e) {
 			log.error("Error inserting tree", e);
 			return null;
@@ -189,7 +192,7 @@ public abstract class CommitWriter {
 		}
 	}
 
-	private ObjectId handleTree(TreeWalk walk, ChangeIterator iterator) {
+	private ObjectId handleTree(TreeWalk walk, ChangeIterator iterator) throws ConversionException {
 		var treeCount = walk.getTreeCount();
 		var treeIds = new ObjectId[treeCount - 1];
 		for (var i = 0; i < treeCount - 1; i++) {
@@ -211,8 +214,7 @@ public abstract class CommitWriter {
 		return data != null && data.isCategory && data.diffType == DiffType.DELETED;
 	}
 
-	private ObjectId handleFile(TreeWalk walk)
-			throws IOException, InterruptedException {
+	private ObjectId handleFile(TreeWalk walk) throws IOException, ConversionException {
 		var treeCount = walk.getTreeCount();
 		if (walk.getFileMode(treeCount - 1) == FileMode.MISSING) {
 			// second last commit is the remote commit in case of merge
@@ -240,7 +242,7 @@ public abstract class CommitWriter {
 				? new byte[0]
 				: getData(change);
 		if (data == null)
-			return null;
+			throw new ConversionException("Could not convert data for " + path);
 		var blobId = insertBlob(data);
 		progressMonitor.worked(1);
 		return blobId;
@@ -264,14 +266,11 @@ public abstract class CommitWriter {
 	}
 
 	private boolean matches(String path, Diff change, String filePath) {
-		if (change == null)
-			return false;
-		if (filePath == null)
-			if (change.isCategory)
-				return path.equals(GitUtil.toEmptyCategoryPath(change.path));
-			else
-				return path.equals(change.path);
-		return GitUtil.isBinDirOrFileOf(path, change.path);
+		if (filePath != null)
+			return GitUtil.isBinDirOrFileOf(path, change.path);
+		if (change.isCategory)
+			return path.equals(GitUtil.toEmptyCategoryPath(change.path));
+		return path.equals(change.path);
 	}
 
 	private ObjectId commit(String message, ObjectId treeId, ObjectId... parentIds) {
@@ -338,5 +337,15 @@ public abstract class CommitWriter {
 	}
 
 	protected abstract byte[] getData(Diff change) throws IOException;
+
+	private class ConversionException extends Exception {
+
+		private static final long serialVersionUID = -8087256833666343335L;
+
+		private ConversionException(String message) {
+			super(message);
+		}
+
+	}
 
 }
