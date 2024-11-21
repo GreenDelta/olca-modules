@@ -178,7 +178,7 @@ public class References {
 			});
 			return map;
 		}
-		
+
 		public void iterate(Consumer<Reference> consumer) {
 			iterate(ref -> {
 				consumer.accept(ref);
@@ -193,6 +193,15 @@ public class References {
 					return;
 				if (!includeCategories && recursive) {
 					iterateModels(commit, consumer);
+				} else if (RepositoryInfo.FILE_NAME.equals(path)) {
+					var info = repo.getInfo(commit);
+					var libs = info.libraries().stream()
+							.map(library -> new Reference(RepositoryInfo.FILE_NAME + "/" + library.id(),
+									commit.getName(), null))
+							.collect(Collectors.toList());
+					for (var lib : libs)
+						if (!consumer.apply(lib))
+							return;
 				} else {
 					var treeId = Strings.nullOrEmpty(path)
 							? commit.getTree().getId()
@@ -234,16 +243,6 @@ public class References {
 
 		private void iterate(ObjectId treeId, RevCommit commit, String path, Function<Reference, Boolean> consumer) {
 			try {
-				if (RepositoryInfo.FILE_NAME.equals(path)) {
-					var info = repo.getInfo(commit);
-					var libs = info.libraries().stream()
-							.map(library -> new Reference(RepositoryInfo.FILE_NAME + "/" + library.id(),
-									commit.getName(), null))
-							.collect(Collectors.toList());
-					for (var lib : libs)
-						if (!consumer.apply(lib))
-							return;
-				}
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
