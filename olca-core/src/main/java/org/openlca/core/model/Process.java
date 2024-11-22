@@ -3,6 +3,8 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.core.model.doc.ProcessDoc;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,11 +14,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import org.openlca.core.model.doc.ProcessDoc;
 
 @Entity
 @Table(name = "tbl_processes")
-public class Process extends ParameterizedEntity implements CalculationTarget {
+public final class Process extends ParameterizedEntity
+		implements CalculationTarget {
 
 	@Column(name = "default_allocation_method")
 	@Enumerated(EnumType.STRING)

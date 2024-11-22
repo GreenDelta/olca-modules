@@ -21,7 +21,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_product_systems")
-public class ProductSystem extends RootEntity implements CalculationTarget {
+public final class ProductSystem extends RootEntity
+		implements CalculationTarget {
 
 	@ElementCollection
 	@CollectionTable(name = "tbl_process_links",

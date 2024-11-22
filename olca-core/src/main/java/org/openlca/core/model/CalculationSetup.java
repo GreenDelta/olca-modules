@@ -67,9 +67,9 @@ public class CalculationSetup extends AbstractEntity
 
 	@SuppressWarnings("unchecked")
 	public <T extends RootEntity & CalculationTarget> T target() {
-		return (T) (system != null
-			? system
-			: process);
+		return system != null
+			? (T) system
+			: (T) process;
 	}
 
 	/**
