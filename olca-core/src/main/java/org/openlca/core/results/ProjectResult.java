@@ -3,11 +3,15 @@ package org.openlca.core.results;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -21,28 +25,8 @@ public class ProjectResult {
 
 	private final HashMap<ProjectVariant, LcaResult> results = new HashMap<>();
 
-	public static ProjectResult calculate(Project project, IDatabase db) {
-		var result = new ProjectResult();
-		if (project == null)
-			return result;
-		var calculator = new SystemCalculator(db);
-		for (var v : project.variants) {
-			if (v.isDisabled)
-				continue;
-			var setup = CalculationSetup.of(v.productSystem)
-				.withUnit(v.unit)
-				.withFlowPropertyFactor(v.flowPropertyFactor)
-				.withAmount(v.amount)
-				.withAllocation(v.allocationMethod)
-				.withImpactMethod(project.impactMethod)
-				.withNwSet(project.nwSet)
-				.withParameters(v.parameterRedefs)
-				.withCosts(project.isWithCosts)
-				.withRegionalization(project.isWithRegionalization);
-			var variantResult = calculator.calculate(setup);
-			result.results.put(v, variantResult);
-		}
-		return result;
+	public static Builder of(Project project, IDatabase db) {
+		return new Builder(project, db);
 	}
 
 	public Set<ProjectVariant> getVariants() {
@@ -116,6 +100,60 @@ public class ProjectResult {
 	public void dispose() {
 		for (var r : results.values()) {
 			r.dispose();
+		}
+	}
+
+	public static class Builder {
+
+		private final Project project;
+		private final IDatabase db;
+		private LibReaderRegistry libraries;
+		private MatrixSolver solver;
+
+		private Builder(Project project, IDatabase db) {
+			this.project = Objects.requireNonNull(project);
+			this.db = Objects.requireNonNull(db);
+		}
+
+		public Builder withLibraries(LibReaderRegistry libraries) {
+			this.libraries = libraries;
+			return this;
+		}
+
+		public Builder withLibraries(LibraryDir libDir) {
+			if (libDir != null) {
+				this.libraries = LibReaderRegistry.of(db, libDir);
+			}
+			return this;
+		}
+
+		public Builder withSolver(MatrixSolver solver) {
+			this.solver = solver;
+			return this;
+		}
+
+		public ProjectResult calculate() {
+			var result = new ProjectResult();
+			var calculator = new SystemCalculator(db)
+					.withLibraries(libraries)
+					.withSolver(solver);
+			for (var v : project.variants) {
+				if (v.isDisabled)
+					continue;
+				var setup = CalculationSetup.of(v.productSystem)
+						.withUnit(v.unit)
+						.withFlowPropertyFactor(v.flowPropertyFactor)
+						.withAmount(v.amount)
+						.withAllocation(v.allocationMethod)
+						.withImpactMethod(project.impactMethod)
+						.withNwSet(project.nwSet)
+						.withParameters(v.parameterRedefs)
+						.withCosts(project.isWithCosts)
+						.withRegionalization(project.isWithRegionalization);
+				var variantResult = calculator.calculate(setup);
+				result.results.put(v, variantResult);
+			}
+			return result;
 		}
 	}
 }

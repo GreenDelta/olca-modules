@@ -40,7 +40,9 @@ public class ProjectCalculationTest {
 		var2.amount = 2.0;
 		project.variants.add(var2);
 
-		var result = ProjectResult.calculate(project, Tests.getDb());
+		var result = ProjectResult
+				.of(project, Tests.getDb())
+				.calculate();
 		var items = ResultItemOrder.of(result);
 		assertEquals(2, items.enviFlows().size());
 
