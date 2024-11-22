@@ -288,7 +288,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		var start = fullData.techIndex.at(techFlow);
 		if (start.isFromLibrary()) {
 			// start process is a library process
-			queue.push(Pair.of(start, 1.0));
+			queue.push(Pair.of(start, start.isWaste() ? -1.0 : 0.0));
 		} else {
 			// start process is a foreground process
 			// we copy the values of the solution of
@@ -316,10 +316,12 @@ public class LazyLibrarySolver implements ResultProvider {
 		while (!queue.isEmpty()) {
 			var pair = queue.pop();
 			var p = pair.first;
-			double factor = pair.second;
 			var libId = p.library();
 			if (libId == null)
 				continue;
+			double factor = p.isWaste()
+					? -pair.second
+					: pair.second;
 
 			var lib = libs.get(libId);
 			var libIndex = lib.techIndex();
@@ -447,7 +449,7 @@ public class LazyLibrarySolver implements ResultProvider {
 			return totals;
 
 		var flowIndex = fullData.enviIndex;
-		if (flowIndex == null || flowIndex.size() == 0) {
+		if (flowIndex == null || flowIndex.isEmpty()) {
 			return EMPTY_VECTOR;
 		}
 
@@ -470,7 +472,7 @@ public class LazyLibrarySolver implements ResultProvider {
 			var techIdxB = lib.techIndex();
 			if (flowIdxB == null || techIdxB == null)
 				continue;
-			if (flowIdxB.size() == 0)
+			if (flowIdxB.isEmpty())
 				continue;
 
 			// calculate the scaled library result
