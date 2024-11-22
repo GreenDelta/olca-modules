@@ -21,6 +21,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -50,7 +51,7 @@ public class JsonExport {
 
 	/// Exporting providers can lead to a stack overflow when calling write
 	/// recursively. Thus, we need to queue them.
-	private final ArrayDeque<WriteItem<?>> queue = new ArrayDeque<>();
+	private final ArrayDeque<WriteItem<?>> pQueue = new ArrayDeque<>();
 
 	/**
 	 * Creates an export without database. This can be useful to convert
@@ -154,8 +155,8 @@ public class JsonExport {
 				&& exportProviders
 				&& !hasVisited(ModelType.PROCESS, d.refId)) {
 			var item = WriteItem.of(d);
-			if (!queue.contains(item)) {
-				queue.add(item);
+			if (!pQueue.contains(item)) {
+				pQueue.add(item);
 			}
 		}
 		return ref;
@@ -168,9 +169,14 @@ public class JsonExport {
 	public <T extends RootEntity> void write(T entity, Callback cb) {
 		if (entity == null)
 			return;
-		queue.add(WriteItem.of(entity));
-		while (!queue.isEmpty()) {
-			var next = queue.poll();
+		if (!exportProviders || !(entity instanceof Process)) {
+			writeNext(entity, cb);
+			return;
+		}
+
+		pQueue.add(WriteItem.of(entity));
+		while (!pQueue.isEmpty()) {
+			var next = pQueue.poll();
 			if (!next.isValid())
 				continue;
 			writeNext(next.get(db), cb);
