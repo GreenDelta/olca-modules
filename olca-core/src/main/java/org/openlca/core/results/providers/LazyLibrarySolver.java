@@ -288,7 +288,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		var start = fullData.techIndex.at(techFlow);
 		if (start.isFromLibrary()) {
 			// start process is a library process
-			queue.push(Pair.of(start, start.isWaste() ? -1.0 : 0.0));
+			queue.push(Pair.of(start, start.isWaste() ? -1.0 : 1.0));
 		} else {
 			// start process is a foreground process
 			// we copy the values of the solution of
