@@ -1,8 +1,8 @@
 package org.openlca.geo;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -55,15 +55,38 @@ public class GeoJsonImport implements Runnable {
 		}
 	}
 
-	private final File file;
-	private final IDatabase db;
-	private Mode mode = Mode.NEW_ONLY;
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private final String[] codeFields = {
+			"code",
+			"isotwolettercode",
+			"isothreelettercode",
+			"shortname",
+	};
+	private final String[] nameFields = {"name", "shortname"};
+	private final String[] idFields = {"uuid", "refId"};
+	private final String[] categoryFields = {"collection", "category"};
+
+	private final String[] mappingFields = {
+			"uuid",
+			"refId",
+			"code",
+			"isotwolettercode",
+			"isothreelettercode",
+			"name",
+			"shortname",
+	};
 
 	private final Map<String, Location> byUUID = new HashMap<>();
 	private final Map<String, Location> byCode = new HashMap<>();
 	private final Map<String, Location> byName = new HashMap<>();
+	private final List<Map<String, Location>> maps = List.of(
+			byUUID, byCode, byName
+	);
+
+	private final File file;
+	private final IDatabase db;
+	private Mode mode = Mode.NEW_ONLY;
 
 	public GeoJsonImport(File file, IDatabase db) {
 		this.file = file;
@@ -99,25 +122,20 @@ public class GeoJsonImport implements Runnable {
 				var loc = findExisting(feature);
 				if (loc == null && mode.canCreate()) {
 					create(feature);
-				} else if (loc != null && mode.canUpdate()) {
+				} else if (loc != null && loc.geodata == null && mode.canUpdate()) {
 					update(loc, feature);
 				}
 			}
 		} catch (Exception e) {
-			log.error("Failed to import GeoJSON file " + file, e);
+			log.error("Failed to import GeoJSON file {}", file, e);
 		}
 	}
 
 	private void create(Feature feature) {
 
 		// meta-data
-		var code = anyStrOf(feature,
-				"isotwolettercode",
-				"isothreelettercode",
-				"unsubregioncode",
-				"shortname"
-		);
-		var name = anyStrOf(feature, "name", "shortname");
+		var code = anyStrOf(feature, codeFields);
+		var name = anyStrOf(feature, nameFields);
 		if (name == null) {
 			if (code == null)
 				return;
@@ -126,13 +144,13 @@ public class GeoJsonImport implements Runnable {
 		var loc = code != null
 				? Location.of(name, code)
 				: Location.of(name);
-		var uuid = anyStrOf(feature, "uuid", "refId");
+		var uuid = anyStrOf(feature, idFields);
 		if (uuid != null) {
 			loc.refId = uuid;
 		}
 
 		// category
-		var collection = anyStrOf(feature, "collection", "category");
+		var collection = anyStrOf(feature, categoryFields);
 		if (collection != null && collection.length() > 1) {
 			var cat = collection.substring(0, 1).toUpperCase()
 					+ collection.substring(1);
@@ -179,13 +197,14 @@ public class GeoJsonImport implements Runnable {
 			return null;
 		// we try to match corresponding locations first by UUID,
 		// then by location code, and finally by name
-		for (Object prop : f.properties.values()) {
+		for (var field : mappingFields) {
+			var prop = f.properties.get(field);
 			if (!(prop instanceof String s) || Strings.nullOrEmpty(s))
 				continue;
 			var key = s.strip().toLowerCase();
-			for (var map : Arrays.asList(byUUID, byCode, byName)) {
+			for (var map : maps) {
 				var loc = map.get(key);
-				if (loc != null && loc.geodata == null) {
+				if (loc != null) {
 					log.trace("identified location {} via attribute {}", loc, s);
 					return loc;
 				}
@@ -204,9 +223,7 @@ public class GeoJsonImport implements Runnable {
 		return null;
 	}
 
-	private String anyStrOf(Feature feature, String... props) {
-		if (props == null)
-			return null;
+	private String anyStrOf(Feature feature, String[] props) {
 		for (var prop : props) {
 			var s = strOf(feature, prop);
 			if (s != null)
