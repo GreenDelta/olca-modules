@@ -5,9 +5,9 @@ import java.util.function.BiFunction;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.agroups.AnalysisGroupResult;
 import org.openlca.util.Strings;
 
 final class Util {
@@ -22,8 +22,33 @@ final class Util {
 			if (state.isEmpty())
 				return Response.empty();
 			return state.isScheduled() || !state.isReady()
-					? Response.error("result not yet ready")
+					? Response.error("result not ready yet")
 					: Response.of(state.result());
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	record GroupResult(LcaResult result, AnalysisGroupResult groups) {
+	}
+
+	static Response<GroupResult> groupResultOf(
+			CalculationQueue queue, String resultId
+	) {
+		if (queue == null)
+			return Response.error("no calculation service available");
+		try {
+			var state = queue.get(resultId);
+			if (state.isError())
+				return Response.error(state.error());
+			if (state.isEmpty())
+				return Response.empty();
+			if (!state.isReady())
+				return Response.error("result not ready yet");
+			var groups = state.groupResult();
+			return groups.isEmpty()
+					? Response.empty()
+					: Response.of(new GroupResult(state.result(), groups));
 		} catch (Exception e) {
 			return Response.error(e);
 		}

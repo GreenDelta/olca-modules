@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
+
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
@@ -23,6 +24,7 @@ import org.openlca.jsonld.output.JsonRefs;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import org.openlca.util.Strings;
 
 public class JsonResultService {
@@ -304,6 +306,21 @@ public class JsonResultService {
 				}));
 	}
 
+	public Response<JsonArray> getGroupedFlowResultsOf(
+			String resultId, EnviFlowId enviFlowId
+	) {
+		var outer = groupResultOf(queue, resultId).map(r ->
+				enviFlowOf(r.result(), enviFlowId).map(flow -> {
+					var values = r.groups().getResultsOf(flow);
+					return encodeGroupValues(values);
+				}));
+		if (outer.isEmpty())
+			return Response.empty();
+		return outer.isError()
+				? Response.error(outer.error())
+				: outer.value();
+	}
+
 	// endregion
 
 	// region: impacts
@@ -482,6 +499,21 @@ public class JsonResultService {
 				}));
 	}
 
+	public Response<JsonArray> getGroupedImpactResultsOf(
+			String resultId, String impactId
+	) {
+		var outer = groupResultOf(queue, resultId).map(r ->
+				impactOf(r.result(), impactId).map(impact -> {
+					var values = r.groups().getResultsOf(impact);
+					return encodeGroupValues(values);
+				}));
+		if (outer.isEmpty())
+			return Response.empty();
+		return outer.isError()
+				? Response.error(outer.error())
+				: outer.value();
+	}
+
 	// endregion
 
 	// region: costs
@@ -535,6 +567,13 @@ public class JsonResultService {
 					double value = result.getTotalCostsOf(techFlow);
 					return new JsonPrimitive(value);
 				}));
+	}
+
+	public Response<JsonArray> getGroupedCostResultsOf(String resultId) {
+		return groupResultOf(queue, resultId).map(r -> {
+			var values = r.groups().getCostResults();
+			return encodeGroupValues(values);
+		});
 	}
 
 	// endregion
@@ -597,7 +636,7 @@ public class JsonResultService {
 					.build();
 
 			// convert the graph
-			var json = JsonSankeyGraph.of(sankey,JsonRefs.of(db));
+			var json = JsonSankeyGraph.of(sankey, JsonRefs.of(db));
 			return Response.of(json);
 		});
 	}

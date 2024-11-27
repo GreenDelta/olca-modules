@@ -2,6 +2,7 @@ package org.openlca.core.services;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig;
@@ -16,7 +17,11 @@ import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
+import org.openlca.util.Strings;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Function;
 
 final class JsonUtil {
@@ -149,6 +154,27 @@ final class JsonUtil {
 		Json.put(obj, "directContribution", node.directContribution());
 		Json.put(obj, "requiredAmount", node.requiredAmount());
 		return obj;
+	}
+
+	static JsonArray encodeGroupValues(Map<String, Double> map) {
+		if (map == null || map.isEmpty())
+			return new JsonArray(0);
+		record GroupVal(String group, double value) {
+			JsonObject toJson() {
+				var obj = new JsonObject();
+				Json.put(obj, "group", group);
+				Json.put(obj, "amount", value);
+				return obj;
+			}
+		}
+		var list = new ArrayList<GroupVal>(map.size());
+		for (var e : map.entrySet()) {
+			if (e.getKey() == null || e.getValue() == null)
+				continue;
+			list.add(new GroupVal(e.getKey(), e.getValue()));
+		}
+		list.sort((va, vb) -> Strings.compare(va.group, vb.group));
+		return encodeArray(list, GroupVal::toJson);
 	}
 
 	static <T> JsonArray encodeArray(

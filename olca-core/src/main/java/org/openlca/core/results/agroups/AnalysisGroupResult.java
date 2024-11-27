@@ -35,6 +35,10 @@ public class AnalysisGroupResult {
 		return new AnalysisGroupResult(result, tree);
 	}
 
+	public static AnalysisGroupResult empty() {
+		return new AnalysisGroupResult(null, null);
+	}
+
 	public boolean isEmpty() {
 		return root == null
 				|| root.childs() == null
