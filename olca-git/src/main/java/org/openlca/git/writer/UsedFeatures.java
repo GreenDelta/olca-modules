@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.Epd;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.jsonld.Json;
@@ -26,7 +27,8 @@ public class UsedFeatures {
 	 * Repository contains additional process documentation fields that were
 	 * added in <br>
 	 * schema version 3 (client: 4, server: 4) or <br>
-	 * schema version 4 (client: 5, server: 5)
+	 * schema version 4 (client: 5, server: 5) schema version 5 (client: 6,
+	 * server: 5)
 	 */
 	private int schemaVersion = 2;
 
@@ -52,6 +54,9 @@ public class UsedFeatures {
 		if (packageInfo != null && packageInfo.schemaVersion().value() >= 4) {
 			usedFeatures.schemaVersion = 4;
 		}
+		if (packageInfo != null && packageInfo.schemaVersion().value() >= 5) {
+			usedFeatures.schemaVersion = 5;
+		}
 		return usedFeatures;
 	}
 
@@ -74,6 +79,17 @@ public class UsedFeatures {
 
 	void emptyCategories() {
 		this.emptyCategories = true;
+	}
+
+	private boolean isSchemaVersion5(JsonObject o) {
+		if (schemaVersion == 5)
+			return true;
+		var type = Json.getString(o, "@type");
+		if (type == null || !type.equals(ProductSystem.class.getSimpleName()))
+			return false;
+		if (!hasAnyField(o, "analysisGroups"))
+			return false;
+		return true;
 	}
 
 	private boolean isSchemaVersion4(JsonObject o) {
@@ -101,7 +117,9 @@ public class UsedFeatures {
 	}
 
 	void checkSchemaVersion(JsonObject o) {
-		if (isSchemaVersion4(o)) {
+		if (isSchemaVersion5(o)) {
+			schemaVersion = 5;
+		} else if (isSchemaVersion4(o)) {
 			schemaVersion = 4;
 		} else if (isSchemaVersion3(o)) {
 			schemaVersion = 3;
@@ -141,6 +159,8 @@ public class UsedFeatures {
 
 	private int getClientVersion() {
 		var previousClient = previous != null ? previous.repositoryClientVersion() : 2;
+		if (schemaVersion == 5)
+			return max(previousClient, 6);
 		if (schemaVersion == 4)
 			return max(previousClient, 5);
 		if (schemaVersion == 3)
@@ -152,7 +172,7 @@ public class UsedFeatures {
 
 	private int getServerVersion() {
 		var previousServer = previous != null ? previous.repositoryServerVersion() : 2;
-		if (schemaVersion == 4)
+		if (schemaVersion == 4 || schemaVersion == 5)
 			return max(previousServer, 5);
 		if (schemaVersion == 3)
 			return max(previousServer, 4);
