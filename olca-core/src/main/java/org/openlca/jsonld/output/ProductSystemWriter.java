@@ -1,6 +1,7 @@
 package org.openlca.jsonld.output;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.FlowProperty;
@@ -17,8 +18,15 @@ import com.google.gson.JsonObject;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 
-public record ProductSystemWriter(JsonExport exp)
-		implements JsonWriter<ProductSystem> {
+public class ProductSystemWriter implements JsonWriter<ProductSystem> {
+
+	private final JsonExport exp;
+	private final NodeResolver nodes;
+
+	public ProductSystemWriter(JsonExport exp) {
+		this.exp = Objects.requireNonNull(exp);
+		this.nodes = NodeResolver.of(exp);
+	}
 
 	@Override
 	public JsonObject write(ProductSystem sys) {
@@ -36,25 +44,25 @@ public record ProductSystemWriter(JsonExport exp)
 		}
 
 		FlowProperty property = null;
-		if (sys.targetFlowPropertyFactor != null)
+		if (sys.targetFlowPropertyFactor != null) {
 			property = sys.targetFlowPropertyFactor.flowProperty;
+		}
 		Json.put(obj, "targetFlowProperty", exp.handleRef(property));
 		Json.put(obj, "targetUnit", Json.asRef(sys.targetUnit));
 		Json.put(obj, "targetAmount", sys.targetAmount);
 
 		// map the parameter redefinitions
 		GlobalParameters.sync(sys, exp);
-		putParameterSets(obj, sys.parameterSets);
+		mapParameterSets(obj, sys.parameterSets);
 
-		if (exp.db == null)
-			return obj;
 		mapProcesses(sys, obj);
+		mapAnalysisGroups(sys, obj);
 		mapLinks(sys, obj, exchangeIDs);
 		return obj;
 	}
 
 	private void mapLinks(
-		ProductSystem sys, JsonObject json, TLongLongHashMap exchangeIDs) {
+			ProductSystem sys, JsonObject json, TLongLongHashMap exchangeIDs) {
 		var array = new JsonArray();
 		for (var link : sys.processLinks) {
 			var obj = new JsonObject();
@@ -80,30 +88,12 @@ public record ProductSystemWriter(JsonExport exp)
 	}
 
 	private void mapProcesses(ProductSystem sys, JsonObject json) {
-		var refs = exp.dbRefs;
-		if (refs == null)
-			return;
 		var array = new JsonArray();
-		var types = new ModelType[]{
-			ModelType.PROCESS, ModelType.PRODUCT_SYSTEM, ModelType.RESULT};
-
 		for (var id : sys.processes) {
-			if (id == null)
-				continue;
-			long unboxedId = id;
-			ModelType type = null;
-			for (var t : types) {
-				if (refs.descriptorOf(t, unboxedId) != null) {
-					type = t;
-					break;
-				}
+			var ref = nodes.refOf(id);
+			if (ref != null) {
+				array.add(ref);
 			}
-			if (type == null)
-				continue;
-			var ref = exp.handleRef(type, unboxedId);
-			if (ref == null)
-				continue;
-			array.add(ref);
 		}
 		Json.put(json, "processes", array);
 	}
@@ -137,7 +127,7 @@ public record ProductSystemWriter(JsonExport exp)
 		return map;
 	}
 
-	private void putParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
+	private void mapParameterSets(JsonObject obj, List<ParameterRedefSet> sets) {
 		if (sets.isEmpty())
 			return;
 		var jsonSets = new JsonArray();
@@ -153,5 +143,63 @@ public record ProductSystemWriter(JsonExport exp)
 			}
 		}
 		Json.put(obj, "parameterSets", jsonSets);
+	}
+
+	private void mapAnalysisGroups(ProductSystem sys, JsonObject root) {
+		if (sys.analysisGroups.isEmpty())
+			return;
+		var array = new JsonArray(sys.analysisGroups.size());
+		for (var group : sys.analysisGroups) {
+			var obj = new JsonObject();
+			Json.put(obj, "name", group.name);
+			Json.put(obj, "color", group.color);
+			if (!group.processes.isEmpty()) {
+				var processes = new JsonArray(group.processes.size());
+				for (var pid : group.processes) {
+					if (!sys.processes.contains(pid))
+						continue;
+					var ref = nodes.refOf(pid);
+					if (ref != null) {
+						processes.add(ref);
+					}
+				}
+				Json.put(obj, "processes", processes);
+			}
+			array.add(obj);
+		}
+		Json.put(root, "analysisGroups", array);
+	}
+
+	/// The nodes in a product system can be processes, sub-systems, or
+	/// results, but sometimes we only have the ID of that node. We then
+	/// need to find the object reference for that ID testing the possible
+	/// types.
+	private record NodeResolver(
+			JsonExport exp, JsonRefs refs, ModelType[] types
+	) {
+
+		static NodeResolver of(JsonExport exp) {
+			return new NodeResolver(exp, exp.dbRefs, new ModelType[]{
+					ModelType.PROCESS,
+					ModelType.PRODUCT_SYSTEM,
+					ModelType.RESULT
+			});
+		}
+
+		JsonObject refOf(Long id) {
+			if (id == null || refs == null)
+				return null;
+			long unboxedId = id;
+			ModelType type = null;
+			for (var t : types) {
+				if (refs.descriptorOf(t, unboxedId) != null) {
+					type = t;
+					break;
+				}
+			}
+			return type != null
+					? exp.handleRef(type, unboxedId)
+					: null;
+		}
 	}
 }
