@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.model.ModelType;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.util.Strings;
 
 public class GitUtil {
@@ -83,7 +84,7 @@ public class GitUtil {
 	}
 
 	public static boolean isDatasetPath(String path) {
-		return containsValidRefIdAndEndsWith(path, DATASET_SUFFIX);
+		return !RepositoryInfo.FILE_NAME.equals(path) && containsValidRefIdAndEndsWith(path, DATASET_SUFFIX);
 	}
 
 	public static String findBinDir(String path) {
