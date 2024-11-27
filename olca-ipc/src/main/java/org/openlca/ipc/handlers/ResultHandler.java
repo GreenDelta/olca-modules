@@ -178,6 +178,12 @@ public class ResultHandler {
 				results.getUpstreamInterventionsOf(rr.id(), rr.path(), rr.enviFlow()));
 	}
 
+	@Rpc("result/grouped-flow-results-of")
+	public RpcResponse getGroupedFlowResultsOf(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getGroupedFlowResultsOf(rr.id(), rr.enviFlow()));
+	}
+
 	// endregion
 
 	// region: impact results
@@ -278,6 +284,12 @@ public class ResultHandler {
 				results.getUpstreamImpactsOf(rr.id(), rr.path(), rr.impact()));
 	}
 
+	@Rpc("result/grouped-impact-results-of")
+	public RpcResponse getGroupedImpactResultsOf(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getGroupedImpactResultsOf(rr.id(), rr.impact()));
+	}
+
 	// endregion
 
 	// region: cost results
@@ -316,6 +328,12 @@ public class ResultHandler {
 	public RpcResponse getUpstreamCostsOf(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
 				results.getUpstreamCostsOf(rr.id(), rr.path()));
+	}
+
+	@Rpc("result/grouped-cost-results-of")
+	public RpcResponse getGroupedCostResultsOf(RpcRequest req) {
+		return ResultRequest.of(req, rr ->
+				results.getGroupedCostResultsOf(rr.id()));
 	}
 
 	// endregion
