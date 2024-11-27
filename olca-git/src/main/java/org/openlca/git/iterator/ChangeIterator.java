@@ -23,20 +23,22 @@ public class ChangeIterator extends EntryIterator {
 	private final Commit referenceCommit;
 	private final BinaryResolver binaryResolver;
 	private final List<Diff> changes;
+	private final boolean keepEmptyCategories;
 
-	public static ChangeIterator of(OlcaRepository repo, BinaryResolver binaryResolver, List<Diff> diffs) {
-		return of(repo, null, binaryResolver, diffs);
+	public static ChangeIterator discardEmptiedCategories(OlcaRepository repo, BinaryResolver binaryResolver, List<Diff> diffs) {
+		return new ChangeIterator(repo, null, binaryResolver, splitMoved(repo, diffs), false);
 	}
 
-	public static ChangeIterator of(OlcaRepository repo, String referenceCommitId, BinaryResolver binaryResolver,
-			List<Diff> diffs) {
-		return new ChangeIterator(repo, referenceCommitId, binaryResolver, splitMoved(repo, diffs));
+	public static ChangeIterator of(OlcaRepository repo, String referenceCommitId,
+			BinaryResolver binaryResolver, List<Diff> diffs) {
+		return new ChangeIterator(repo, referenceCommitId, binaryResolver, splitMoved(repo, diffs), true);
 	}
 
 	private ChangeIterator(OlcaRepository repo, String referenceCommitId, BinaryResolver binaryResolver,
-			List<Diff> changes) {
-		super(initialize(null, changes));
+			List<Diff> changes, boolean keepEmptyCategories) {
+		super(initialize(null, changes, keepEmptyCategories));
 		this.repo = repo;
+		this.keepEmptyCategories = keepEmptyCategories;
 		this.referenceCommit = referenceCommitId != null
 				? repo.commits.get(referenceCommitId)
 				: repo.commits.find().latest();
@@ -44,9 +46,10 @@ public class ChangeIterator extends EntryIterator {
 		this.changes = changes;
 	}
 
-	private ChangeIterator(ChangeIterator parent, List<Diff> changes) {
-		super(parent, initialize(parent, changes));
+	private ChangeIterator(ChangeIterator parent, List<Diff> changes, boolean keepEmptyCategories) {
+		super(parent, initialize(parent, changes, keepEmptyCategories));
 		this.repo = parent.repo;
+		this.keepEmptyCategories = keepEmptyCategories;
 		this.referenceCommit = parent.referenceCommit;
 		this.binaryResolver = parent.binaryResolver;
 		this.changes = changes;
@@ -62,6 +65,7 @@ public class ChangeIterator extends EntryIterator {
 				})
 				.toList());
 		this.repo = parent.repo;
+		this.keepEmptyCategories = true;
 		this.referenceCommit = parent.referenceCommit;
 		this.binaryResolver = parent.binaryResolver;
 		this.changes = new ArrayList<>();
@@ -88,7 +92,7 @@ public class ChangeIterator extends EntryIterator {
 		return split;
 	}
 
-	private static List<TreeEntry> initialize(ChangeIterator parent, List<Diff> changes) {
+	private static List<TreeEntry> initialize(ChangeIterator parent, List<Diff> changes, boolean keepEmptyCategories) {
 		var list = new ArrayList<TreeEntry>();
 		var added = new HashSet<String>();
 		var prefix = parent != null
@@ -126,7 +130,7 @@ public class ChangeIterator extends EntryIterator {
 			list.add(TreeEntry.empty(parentChange));
 			return list;
 		}
-		if (allExistingEntriesWillBeDeleted(parent.repo, parent.referenceCommit, prefix, changes)) {
+		if (keepEmptyCategories && allExistingEntriesWillBeDeleted(parent.repo, parent.referenceCommit, prefix, changes)) {
 			list.add(TreeEntry.empty(Diff.added(new Reference(GitUtil.toEmptyCategoryPath(prefix)))));
 		} else if (datasetWasAddedToEmptyCategory(parent.repo, parent.referenceCommit, prefix, list)) {
 			list.add(TreeEntry.empty(Diff.deleted(new Reference(GitUtil.toEmptyCategoryPath(prefix)))));
@@ -204,7 +208,7 @@ public class ChangeIterator extends EntryIterator {
 		var path = GitUtil.decode(getEntryPathString());
 		return new ChangeIterator(this, changes.stream()
 				.filter(d -> d.path.startsWith(path + "/"))
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList()), keepEmptyCategories);
 	}
 
 	@Override
