@@ -84,6 +84,8 @@ public class Json {
 		return StreamSupport.stream(array.spliterator(), false);
 	}
 
+	/// Try to get the array for the given property from the object and iterate
+	/// over each Json object in that array if it exists.
 	public static void forEachObject(
 			JsonObject obj, String property, Consumer<JsonObject> fn) {
 		var array = getArray(obj, property);

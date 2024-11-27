@@ -6,13 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntLongHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.EntityResolver;
+import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ParameterRedefSet;
@@ -22,6 +18,14 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Strings;
+
+import com.google.gson.JsonObject;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntLongHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 public class ProductSystemReader implements EntityReader<ProductSystem> {
 
@@ -72,7 +76,11 @@ public class ProductSystemReader implements EntityReader<ProductSystem> {
 			linkRefs.add(new LinkRef(provider, process, flow, exchangeId.getAsInt()));
 		});
 
+		// resolve the links
 		resolveLinks(system, linkRefs);
+
+		// add analysis groups
+		addAnalysisGroups(system, json);
 	}
 
 	private void mapQRef(JsonObject json, ProductSystem system) {
@@ -207,6 +215,28 @@ public class ProductSystemReader implements EntityReader<ProductSystem> {
 				system.processLinks.add(link);
 			}
 		}
+	}
+
+	private void addAnalysisGroups(ProductSystem system, JsonObject root) {
+		system.analysisGroups.clear();
+		Json.forEachObject(root, "analysisGroups", obj -> {
+			var name = Json.getString(obj, "name");
+			if (Strings.nullOrEmpty(name))
+				return;
+			var group = new AnalysisGroup();
+			group.name = name;
+			group.color = Json.getString(obj, "color");
+			Json.forEachObject(obj, "processes", ref -> {
+				var refId = Json.getString(ref, "@id");
+				if (refId == null)
+					return;
+				var descriptor = processes.get(refId);
+				if (descriptor != null) {
+					group.processes.add(descriptor.id);
+				}
+			});
+			system.analysisGroups.add(group);
+		});
 	}
 
 	private record LinkRef(
