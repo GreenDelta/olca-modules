@@ -69,7 +69,7 @@ public abstract class CommitWriter {
 	}
 
 	protected String write(String message, List<Diff> changes, ObjectId... parentCommitIds) throws IOException {
-		return write(message, ChangeIterator.of(repo, binaryResolver, changes), parentCommitIds);
+		return write(message, ChangeIterator.of(repo, null, binaryResolver, changes), parentCommitIds);
 	}
 
 	protected String write(String message, ChangeIterator changeIterator, ObjectId... parentCommitIds)
