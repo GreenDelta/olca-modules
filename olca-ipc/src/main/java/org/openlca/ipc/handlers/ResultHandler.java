@@ -330,10 +330,10 @@ public class ResultHandler {
 				results.getUpstreamCostsOf(rr.id(), rr.path()));
 	}
 
-	@Rpc("result/grouped-cost-results-of")
-	public RpcResponse getGroupedCostResultsOf(RpcRequest req) {
+	@Rpc("result/grouped-cost-results")
+	public RpcResponse getGroupedCostResults(RpcRequest req) {
 		return ResultRequest.of(req, rr ->
-				results.getGroupedCostResultsOf(rr.id()));
+				results.getGroupedCostResults(rr.id()));
 	}
 
 	// endregion

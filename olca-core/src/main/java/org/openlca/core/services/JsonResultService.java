@@ -569,7 +569,7 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonArray> getGroupedCostResultsOf(String resultId) {
+	public Response<JsonArray> getGroupedCostResults(String resultId) {
 		return groupResultOf(queue, resultId).map(r -> {
 			var values = r.groups().getCostResults();
 			return encodeGroupValues(values);
