@@ -23,7 +23,6 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ModelRefMap;
-import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +97,7 @@ public class Diffs {
 			this.leftCommit = getRevCommit(commit, true);
 			var diffs = diffOfDatabase(path);
 			if (repo instanceof ClientRepository c) {
-				diffs.addAll(getLibraryDiffs(librariesOf(leftCommit), c.database.getLibraries()));
+				diffs.addAll(getLibraryDiffs(repo.getLibraries(leftCommit), c.database.getLibraries()));
 			}
 			return sort(diffs);
 		}
@@ -119,7 +118,7 @@ public class Diffs {
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
 			var diffs = diffOfCommits(path);
-			diffs.addAll(getLibraryDiffs(librariesOf(this.leftCommit), librariesOf(rightCommit)));
+			diffs.addAll(getLibraryDiffs(repo.getLibraries(this.leftCommit), repo.getLibraries(rightCommit)));
 			return sort(diffs);
 		}
 
@@ -127,7 +126,7 @@ public class Diffs {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
 			var diffs = diffOfCommits(path);
-			diffs.addAll(getLibraryDiffs(librariesOf(this.leftCommit), librariesOf(rightCommit)));
+			diffs.addAll(getLibraryDiffs(repo.getLibraries(this.leftCommit), repo.getLibraries(rightCommit)));
 			return sort(diffs);
 		}
 
@@ -236,17 +235,6 @@ public class Diffs {
 		private Reference libraryReference(String library, RevCommit commit) {
 			var commitId = commit != null ? commit.getName() : null;
 			return new Reference(RepositoryInfo.FILE_NAME + "/" + library, commitId, null);
-		}
-
-		private List<String> librariesOf(RevCommit commit) {
-			if (commit == null)
-				return new ArrayList<>();
-			var info = repo.getInfo(commit);
-			if (info == null)
-				return new ArrayList<>();
-			return info.libraries()
-					.stream().map(LibraryLink::id)
-					.toList();
 		}
 
 		private void addDiff(ModelRefMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)

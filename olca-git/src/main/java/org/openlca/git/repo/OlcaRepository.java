@@ -50,18 +50,6 @@ public class OlcaRepository extends FileRepository {
 		return getInfo((String) null);
 	}
 
-	public RepositoryInfo getInfo(RevCommit commit) {
-		if (commit == null)
-			return null;
-		return getInfo(commit.getName());
-	}
-
-	public RepositoryInfo getInfo(Commit commit) {
-		if (commit == null)
-			return null;
-		return getInfo(commit.id);
-	}
-
 	public RepositoryInfo getInfo(String commitId) {
 		try (var walk = new TreeWalk(this);
 				var reader = getObjectDatabase().newReader()) {
@@ -85,8 +73,24 @@ public class OlcaRepository extends FileRepository {
 		}
 	}
 
+	public Set<String> getLibraries() {
+		return getLibraries((String) null);
+	}
+
+	public Set<String> getLibraries(RevCommit commit) {
+		if (commit == null)
+			return new HashSet<>();
+		return getLibraries(commit.name());
+	}
+
 	public Set<String> getLibraries(Commit commit) {
-		var info = getInfo(commit);
+		if (commit == null)
+			return new HashSet<>();
+		return getLibraries(commit.id);
+	}
+
+	private Set<String> getLibraries(String commitId) {
+		var info = getInfo(commitId);
 		if (info == null)
 			return new HashSet<>();
 		return info.libraries().stream()
