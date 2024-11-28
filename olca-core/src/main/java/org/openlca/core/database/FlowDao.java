@@ -104,28 +104,6 @@ public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 		return getProcessIdsWhereUsed(flowId, true);
 	}
 
-	/**
-	 * Get the IDs of all flows that are used in exchanges or LCIA factors.
-	 */
-	public Set<Long> getUsed() {
-		Set<Long> ids = new HashSet<>();
-		String[] tables = {"tbl_exchanges", "tbl_impact_factors"};
-		for (String table : tables) {
-			String query = "SELECT DISTINCT f_flow FROM " + table;
-			try {
-				NativeSql.on(db).query(query, (rs) -> {
-					ids.add(rs.getLong(1));
-					return true;
-				});
-			} catch (Exception e) {
-				DatabaseException.logAndThrow(log, "failed to load used flows",
-					e);
-				return Collections.emptySet();
-			}
-		}
-		return ids;
-	}
-
 	public Set<Long> getReplacementCandidates(long flowId, FlowType type) {
 		Set<Long> ids = new HashSet<>();
 		String query = "SELECT DISTINCT f_flow FROM tbl_flow_property_factors WHERE f_flow_property IN "

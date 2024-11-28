@@ -6,10 +6,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.openlca.core.model.FlowType;
@@ -141,25 +139,5 @@ public class ProcessDao extends RootEntityDao<Process, ProcessDescriptor> {
 			return Collections.emptyList();
 		FlowDao dao = new FlowDao(getDatabase());
 		return dao.getDescriptors(flowIds);
-	}
-
-	public boolean hasQuantitativeReference(long id) {
-		return hasQuantitativeReference(Collections.singleton(id)).get(id);
-	}
-
-	public Map<Long, Boolean> hasQuantitativeReference(Set<Long> ids) {
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT id, f_quantitative_reference FROM tbl_processes ");
-		query.append("WHERE id IN " + NativeSql.asList(ids));
-		query.append(" AND f_quantitative_reference IN ");
-		query.append("(SELECT id FROM tbl_exchanges WHERE id = f_quantitative_reference)");
-		Map<Long, Boolean> result = new HashMap<>();
-		for (long id : ids)
-			result.put(id, false);
-		NativeSql.on(db).query(query.toString(), (res) -> {
-			result.put(res.getLong(1), res.getLong(2) != 0l);
-			return true;
-		});
-		return result;
 	}
 }
