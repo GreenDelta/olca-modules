@@ -12,6 +12,8 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -78,5 +80,52 @@ public class FlowReplacerTest {
 		assertFalse(candidates.contains(c.refId));
 		assertFalse(candidates.contains(p.refId));
 	}
+
+	@Test
+	public void testReplaceInProcess() {
+		var a = Flow.elementary("a", mass);
+		var b = Flow.elementary("b", mass);
+		var p = Flow.product("p", mass);
+		var P = Process.of("P", p);
+		P.version = 1L;
+		P.output(a, 42);
+		db.insert(a, b, p, P);
+
+		FlowReplacer.of(db)
+				.replaceIn(ModelType.PROCESS)
+				.replace(Descriptor.of(a), Descriptor.of(b));
+
+		P = db.get(Process.class, P.id);
+		assertEquals(2L, P.version);
+		var output = P.exchanges.stream()
+				.filter(e -> e.amount == 42d)
+				.findAny()
+				.orElseThrow();
+		assertEquals(b, output.flow);
+
+		db.delete(P, p, b, a);
+	}
+
+	@Test
+	public void testReplaceInImpacts() {
+		var a = Flow.elementary("a", mass);
+		var b = Flow.elementary("b", mass);
+		var I = ImpactCategory.of("I");
+		I.version = 1L;
+		I.factor(a, 42);
+		db.insert(a, b, I);
+
+		FlowReplacer.of(db)
+				.replaceIn(ModelType.IMPACT_CATEGORY)
+				.replace(Descriptor.of(a), Descriptor.of(b));
+
+		I = db.get(ImpactCategory.class, I.id);
+		var cf = I.impactFactors.getFirst();
+		assertEquals(b, cf.flow);
+		assertEquals(2L, I.version);
+
+		db.delete(I, b, a);
+	}
+
 
 }

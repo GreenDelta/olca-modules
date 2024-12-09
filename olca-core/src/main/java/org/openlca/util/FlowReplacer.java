@@ -14,7 +14,10 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,7 +184,7 @@ public class FlowReplacer {
 		});
 
 		// replace in exchanges
-		var changed = new HashSet<Long>();
+		var changed = new TLongHashSet();
 		var q = """
 				select
 				  f_owner,
@@ -234,7 +237,7 @@ public class FlowReplacer {
 		// the flow cannot be replaced, but this is currently not checked, on
 		// option would be to exclude library flows from replacement
 
-		var changedSystems = new HashSet<Long>();
+		var changedSystems = new TLongHashSet();
 		var linkQ = """
 				select
 				  f_product_system,
@@ -269,8 +272,8 @@ public class FlowReplacer {
 			return true;
 		});
 
-		// TODO: increment versions
-
+		VersionUpdate.of(db, Process.class).run(changed);
+		VersionUpdate.of(db, ProductSystem.class).run(changedSystems);
 	}
 
 	private void replaceInImpactFactors(RepDef def) {
@@ -278,7 +281,7 @@ public class FlowReplacer {
 		// LCIA categories from libraries do not contain
 		// characterization factors in the database, so
 		// there is no need to filter them explicitly
-		var changed = new HashSet<Long>();
+		var changed = new TLongHashSet();
 		var q = """
 				select
 				  f_impact_category,
@@ -293,8 +296,7 @@ public class FlowReplacer {
 			return true;
 		});
 
-		// TODO: increment versions
-
+		VersionUpdate.of(db, ImpactCategory.class).run(changed);
 	}
 
 

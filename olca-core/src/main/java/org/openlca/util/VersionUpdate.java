@@ -1,10 +1,10 @@
 package org.openlca.util;
 
-import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 
@@ -17,17 +17,28 @@ public class VersionUpdate {
 	private final String table;
 
 	private VersionUpdate(IDatabase db, String table) {
-		this.db = Objects.requireNonNull(db);
-		this.table = Objects.requireNonNull(table);
+		this.db = db;
+		this.table = table;
 	}
 
 	static public VersionUpdate of(IDatabase db, String table) {
 		return new VersionUpdate(db, table);
 	}
 
-	static public VersionUpdate of(IDatabase db, Class<? extends RootEntity> type) {
+	static public VersionUpdate of(
+			IDatabase db, Class<? extends RootEntity> type
+	) {
+		if (type == null)
+			return new VersionUpdate(db, null);
 		var table = type.getAnnotation(Table.class);
-		return new VersionUpdate(db, table.name());
+		return table != null
+				? new VersionUpdate(db, table.name())
+				: new VersionUpdate(db, null);
+	}
+
+	static public VersionUpdate of(IDatabase db, ModelType type	) {
+		var clazz = type != null ? type.getModelClass() : null;
+		return VersionUpdate.of(db, clazz);
 	}
 
 	public void run(long id) {
@@ -43,7 +54,7 @@ public class VersionUpdate {
 	}
 
 	private void exec(IdContainer ids) {
-		if (ids.isEmpty())
+		if (ids.isEmpty() || db == null || table == null)
 			return;
 		var q = "select id, version, last_change from " + table;
 		if (ids.value != null) {
