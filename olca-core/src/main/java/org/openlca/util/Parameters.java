@@ -179,15 +179,15 @@ public class Parameters {
 			return true;
 		});
 		swapRedefOwners(db, redefOwners);
-		incVersions(redefOwners, "tbl_product_systems", db);
-		incVersions(redefOwners, "tbl_projects", db);
+		VersionUpdate.of(db, "tbl_product_systems").run(redefOwners);
+		VersionUpdate.of(db, "tbl_projects").run(redefOwners);
 
 		// rename in local parameter formulas
 		for (var p : owner.parameters) {
 			if (Objects.equals(param, p) || p.isInputParameter)
 				continue;
 			p.formula = Formulas.renameVariable(
-				p.formula, oldName, newName);
+					p.formula, oldName, newName);
 		}
 
 		// rename in other process formulas
@@ -195,7 +195,7 @@ public class Parameters {
 			for (var e : process.exchanges) {
 				if (e.formula != null) {
 					e.formula = Formulas.renameVariable(
-						e.formula, oldName, newName);
+							e.formula, oldName, newName);
 				}
 				if (e.costFormula != null) {
 					e.costFormula = Formulas.renameVariable(
@@ -206,7 +206,7 @@ public class Parameters {
 			for (var af : process.allocationFactors) {
 				if (af.formula != null) {
 					af.formula = Formulas.renameVariable(
-						af.formula, oldName, newName);
+							af.formula, oldName, newName);
 				}
 			}
 
@@ -221,7 +221,7 @@ public class Parameters {
 			for (var f : impact.impactFactors) {
 				if (f.formula != null) {
 					f.formula = Formulas.renameVariable(
-						f.formula, oldName, newName);
+							f.formula, oldName, newName);
 				}
 			}
 
@@ -336,16 +336,14 @@ public class Parameters {
 
 		// update version numbers and last change dates
 		// of the updated entities
-		incVersions(updatedOwners, "tbl_processes", db);
-		incVersions(updatedOwners, "tbl_impact_categories", db);
+		VersionUpdate.of(db, "tbl_processes").run(updatedOwners);
+		VersionUpdate.of(db, "tbl_impact_categories").run(updatedOwners);
 
 		// find product systems with updated parameter sets
 		// and projects with updated variants
 		swapRedefOwners(db, updatedOwners);
-		incVersions(updatedOwners, "tbl_product_systems", db);
-		incVersions(updatedOwners, "tbl_projects", db);
-
-		db.clearCache();
+		VersionUpdate.of(db, "tbl_product_systems").run(updatedOwners);
+		VersionUpdate.of(db, "tbl_projects").run(updatedOwners);
 
 		// finally, update the parameter
 		param.name = name;
@@ -406,27 +404,5 @@ public class Parameters {
 		return Formulas.getVariables(formula)
 				.stream()
 				.anyMatch(v -> eq(v, variable));
-	}
-
-	/**
-	 * Increment the versions and last change dates of the entities in the given
-	 * table with an ID of the given ID set.
-	 */
-	private static void incVersions(TLongHashSet ids, String table, IDatabase db) {
-		if (ids.isEmpty())
-			return;
-		String sql = "select id, version, last_change from " + table;
-		long date = new Date().getTime();
-		NativeSql.on(db).updateRows(sql, r -> {
-			long id = r.getLong(1);
-			if (!ids.contains(id))
-				return true;
-			var v = new Version(r.getLong(2));
-			v.incUpdate();
-			r.updateLong(2, v.getValue());
-			r.updateLong(3, date);
-			r.updateRow();
-			return true;
-		});
 	}
 }

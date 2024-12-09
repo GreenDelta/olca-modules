@@ -269,9 +269,34 @@ public class FlowReplacer {
 			return true;
 		});
 
-
+		// TODO: increment versions
 
 	}
+
+	private void replaceInImpactFactors(RepDef def) {
+
+		// LCIA categories from libraries do not contain
+		// characterization factors in the database, so
+		// there is no need to filter them explicitly
+		var changed = new HashSet<Long>();
+		var q = """
+				select
+				  f_impact_category,
+				  f_flow,
+				  f_flow_property_factor
+				from tbl_impact_factors where f_flow = \s""" + def.origin;
+		NativeSql.on(db).updateRows(q, r -> {
+			changed.add(r.getLong(1));
+			r.updateLong(2, def.target);
+			r.updateLong(3, def.propFacs.get(r.getLong(3)));
+			r.updateRow();
+			return true;
+		});
+
+		// TODO: increment versions
+
+	}
+
 
 	private record RepDef(
 			long origin, long target, TLongLongMap propFacs, String err

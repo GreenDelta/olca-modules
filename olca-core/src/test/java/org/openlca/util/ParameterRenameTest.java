@@ -1,9 +1,10 @@
 package org.openlca.util;
 
+import static org.junit.Assert.*;
+
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.TestData;
 import org.openlca.core.TestProcess;
@@ -35,8 +36,8 @@ public class ParameterRenameTest {
 	public void testRenameUnused() {
 		var param = db.insert(Parameter.global("global_unused", 42));
 		var renamed = Parameters.rename(db, param, "unused_global");
-		Assert.assertEquals(param, renamed);
-		Assert.assertEquals("unused_global", renamed.name);
+		assertEquals(param, renamed);
+		assertEquals("unused_global", renamed.name);
 		drop(param);
 	}
 
@@ -55,18 +56,18 @@ public class ParameterRenameTest {
 		put(process2);
 
 		global = Parameters.rename(db, global, "global_param");
-		Assert.assertEquals("global_param", global.name);
+		assertEquals("global_param", global.name);
 
 		// should be renamed in global parameter formula
 		globalDep = reload(globalDep);
-		Assert.assertEquals("2 / global_param", globalDep.formula);
+		assertEquals("2 / global_param", globalDep.formula);
 
 		// should be renamed in process 1
 		process1 = reload(process1);
-		var dep1 = process1.parameters.get(0);
-		Assert.assertEquals("2 * global_param", dep1.formula);
-		Assert.assertTrue(process1.version > 0L);
-		Assert.assertTrue(process1.lastChange > 0L);
+		var dep1 = process1.parameters.getFirst();
+		assertEquals("2 * global_param", dep1.formula);
+		assertTrue(process1.version > 0L);
+		assertTrue(process1.lastChange > 0L);
 
 		// should be still the same in process 2
 		process2 = reload(process2);
@@ -74,10 +75,10 @@ public class ParameterRenameTest {
 				.filter(p -> !p.isInputParameter)
 				.findFirst()
 				.orElse(null);
-		Assert.assertNotNull(dep2);
-		Assert.assertEquals("2 * param", dep2.formula);
-		Assert.assertEquals(process2.version, 0L);
-		Assert.assertEquals(process2.lastChange, 0L);
+		assertNotNull(dep2);
+		assertEquals("2 * param", dep2.formula);
+		assertEquals(0L, process2.version);
+		assertEquals(0L, process2.lastChange);
 
 		drop(process1);
 		drop(process2);
@@ -104,21 +105,21 @@ public class ParameterRenameTest {
 		put(p2);
 
 		global = Parameters.rename(db, global, "global_param");
-		Assert.assertEquals("global_param", global.name);
+		assertEquals("global_param", global.name);
 
 		// should be renamed in process 1
 		p1 = reload(p1);
-		e1 = p1.exchanges.get(0);
-		Assert.assertEquals("2 * global_param", e1.formula);
-		Assert.assertTrue(p1.version > 0L);
-		Assert.assertTrue(p1.lastChange > 0L);
+		e1 = p1.exchanges.getFirst();
+		assertEquals("2 * global_param", e1.formula);
+		assertTrue(p1.version > 0L);
+		assertTrue(p1.lastChange > 0L);
 
 		// should **not** be renamed in process 2
 		p2 = reload(p2);
-		e2 = p2.exchanges.get(0);
-		Assert.assertEquals("2 * param", e2.formula);
-		Assert.assertEquals(p2.version, 0L);
-		Assert.assertEquals(p2.lastChange, 0L);
+		e2 = p2.exchanges.getFirst();
+		assertEquals("2 * param", e2.formula);
+		assertEquals(0L, p2.version);
+		assertEquals(0L, p2.lastChange);
 
 		drop(p1);
 		drop(p2);
@@ -145,21 +146,21 @@ public class ParameterRenameTest {
 		put(i2);
 
 		global = Parameters.rename(db, global, "global_param");
-		Assert.assertEquals("global_param", global.name);
+		assertEquals("global_param", global.name);
 
 		// should be renamed in impact 1
 		i1 = reload(i1);
-		f1 = i1.impactFactors.get(0);
-		Assert.assertEquals("2 * global_param", f1.formula);
-		Assert.assertTrue(i1.version > 0L);
-		Assert.assertTrue(i1.lastChange > 0L);
+		f1 = i1.impactFactors.getFirst();
+		assertEquals("2 * global_param", f1.formula);
+		assertTrue(i1.version > 0L);
+		assertTrue(i1.lastChange > 0L);
 
 		// should **not** be renamed in impact 2
 		i2 = reload(i2);
-		f2 = i2.impactFactors.get(0);
-		Assert.assertEquals("2 * param", f2.formula);
-		Assert.assertEquals(0L, i2.version);
-		Assert.assertEquals(0L, i2.lastChange);
+		f2 = i2.impactFactors.getFirst();
+		assertEquals("2 * param", f2.formula);
+		assertEquals(0L, i2.version);
+		assertEquals(0L, i2.lastChange);
 
 		drop(i1);
 		drop(i2);
@@ -184,14 +185,14 @@ public class ParameterRenameTest {
 				.map(af -> af.formula)
 				.findFirst()
 				.orElse(null);
-		Assert.assertEquals("2 * glob_p", renamed);
+		assertEquals("2 * glob_p", renamed);
 
 		var stillSame = process.allocationFactors.stream()
 				.filter(af -> af.method == AllocationMethod.ECONOMIC)
 				.map(af -> af.formula)
 				.findFirst()
 				.orElse(null);
-		Assert.assertEquals("2 * local_param", stillSame);
+		assertEquals("2 * local_param", stillSame);
 	}
 
 	@Test
@@ -219,28 +220,28 @@ public class ParameterRenameTest {
 		put(system);
 
 		global = Parameters.rename(db, global, "global_param");
-		Assert.assertEquals("global_param", global.name);
+		assertEquals("global_param", global.name);
 
 		system = reload(system);
 
-		globalRedef = system.parameterSets.get(0)
+		globalRedef = system.parameterSets.getFirst()
 				.parameters.stream()
 				.filter(r -> r.contextId == null)
 				.findFirst()
 				.orElse(null);
-		Assert.assertNotNull(globalRedef);
-		Assert.assertEquals("global_param", globalRedef.name);
+		assertNotNull(globalRedef);
+		assertEquals("global_param", globalRedef.name);
 
-		localRedef = system.parameterSets.get(0)
+		localRedef = system.parameterSets.getFirst()
 				.parameters.stream()
 				.filter(r -> Objects.equals(r.contextId, process.id))
 				.findFirst()
 				.orElse(null);
-		Assert.assertNotNull(localRedef);
-		Assert.assertEquals("param", localRedef.name);
+		assertNotNull(localRedef);
+		assertEquals("param", localRedef.name);
 
-		Assert.assertTrue(system.version > 0);
-		Assert.assertTrue(system.lastChange > 0);
+		assertTrue(system.version > 0);
+		assertTrue(system.lastChange > 0);
 
 		drop(system);
 		drop(process);
@@ -272,28 +273,28 @@ public class ParameterRenameTest {
 		put(project);
 
 		global = Parameters.rename(db, global, "global_param");
-		Assert.assertEquals("global_param", global.name);
+		assertEquals("global_param", global.name);
 
 		project = reload(project);
 
-		globalRedef = project.variants.get(0)
+		globalRedef = project.variants.getFirst()
 				.parameterRedefs.stream()
 				.filter(r -> r.contextId == null)
 				.findFirst()
 				.orElse(null);
-		Assert.assertNotNull(globalRedef);
-		Assert.assertEquals("global_param", globalRedef.name);
+		assertNotNull(globalRedef);
+		assertEquals("global_param", globalRedef.name);
 
-		localRedef = project.variants.get(0)
+		localRedef = project.variants.getFirst()
 				.parameterRedefs.stream()
 				.filter(r -> Objects.equals(r.contextId, process.id))
 				.findFirst()
 				.orElse(null);
-		Assert.assertNotNull(localRedef);
-		Assert.assertEquals("param", localRedef.name);
+		assertNotNull(localRedef);
+		assertEquals("param", localRedef.name);
 
-		Assert.assertTrue(project.version > 0);
-		Assert.assertTrue(project.lastChange > 0);
+		assertTrue(project.version > 0);
+		assertTrue(project.lastChange > 0);
 
 		drop(project);
 		drop(process);
@@ -316,11 +317,11 @@ public class ParameterRenameTest {
 		var dep = process.parameters.stream()
 				.filter(p -> !p.isInputParameter)
 				.findFirst();
-		Assert.assertTrue(dep.isPresent());
+		assertTrue(dep.isPresent());
 		List.of(dep.get().formula,
-				process.exchanges.get(0).formula,
-				process.allocationFactors.get(0).formula)
-				.forEach(formula -> Assert.assertEquals("2 * new_param", formula));
+				process.exchanges.getFirst().formula,
+				process.allocationFactors.getFirst().formula)
+				.forEach(formula -> assertEquals("2 * new_param", formula));
 	}
 
 	@SuppressWarnings("unchecked")
