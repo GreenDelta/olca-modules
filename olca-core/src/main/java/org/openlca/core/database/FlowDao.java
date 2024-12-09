@@ -104,71 +104,6 @@ public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 		return getProcessIdsWhereUsed(flowId, true);
 	}
 
-	public Set<Long> getReplacementCandidates(long flowId, FlowType type) {
-		Set<Long> ids = new HashSet<>();
-		String query = "SELECT DISTINCT f_flow FROM tbl_flow_property_factors WHERE f_flow_property IN "
-			+ "(SELECT f_flow_property FROM tbl_flow_property_factors WHERE f_flow = "
-			+ flowId + ") "
-			+ "AND f_flow IN (SELECT DISTINCT id FROM tbl_flows WHERE flow_type = '"
-			+ type.name() + "')";
-		try {
-			NativeSql.on(db).query(query, (rs) -> {
-				ids.add(rs.getLong("f_flow"));
-				return true;
-			});
-			ids.remove(flowId);
-			return ids;
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-				"failed to load replacement candidate flows for " + flowId,
-				e);
-			return Collections.emptySet();
-		}
-	}
-
-	public void replaceExchangeFlowsWithoutProviders(long oldId, long newId) {
-		replaceExchangeFlows(oldId, newId, true);
-	}
-
-	public void replaceExchangeFlows(long oldId, long newId) {
-		replaceExchangeFlows(oldId, newId, false);
-	}
-
-	private void replaceExchangeFlows(long oldId, long newId,
-		boolean excludeExchangesWithProviders) {
-		try {
-			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE "
-				+
-				"f_flow_property = (SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_exchanges.f_flow_property_factor) "
-				+ "AND f_flow = " + newId;
-			String query = "UPDATE tbl_exchanges SET f_flow = " + newId
-				+ ", f_flow_property_factor = (" + subquery
-				+ "), f_default_provider = null WHERE f_flow = " + oldId;
-			if (excludeExchangesWithProviders) {
-				query += " AND f_default_provider IS NULL";
-			}
-			NativeSql.on(db).runUpdate(query);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-				"failed to replace flow " + oldId + " with " + newId, e);
-		}
-	}
-
-	public void replaceImpactFlows(long oldId, long newId) {
-		try {
-			String subquery = "SELECT id FROM tbl_flow_property_factors WHERE "
-				+ "f_flow_property = (SELECT f_flow_property FROM tbl_flow_property_factors WHERE id = tbl_impact_factors.f_flow_property_factor) "
-				+ "AND f_flow = " + newId;
-			String query = "UPDATE tbl_impact_factors SET f_flow = " + newId
-				+ ", f_flow_property_factor = (" + subquery
-				+ ") WHERE f_flow = " + oldId;
-			NativeSql.on(db).runUpdate(query);
-		} catch (Exception e) {
-			DatabaseException.logAndThrow(log,
-				"failed to replace flow " + oldId + " with " + newId, e);
-		}
-	}
-
 	private Set<Long> getProcessIdsWhereUsed(long flowId, boolean input) {
 		Set<Long> ids = new HashSet<>();
 		String query = "SELECT f_owner FROM tbl_exchanges WHERE f_flow = "
@@ -186,30 +121,4 @@ public class FlowDao extends RootEntityDao<Flow, FlowDescriptor> {
 			return Collections.emptySet();
 		}
 	}
-
-	public boolean hasReferenceFactor(long id) {
-		return hasReferenceFactor(Collections.singleton(id)).get(id);
-	}
-
-	public Map<Long, Boolean> hasReferenceFactor(Set<Long> ids) {
-		if (ids == null || ids.isEmpty())
-			return new HashMap<>();
-		if (ids.size() > MAX_LIST_SIZE)
-			return executeChunked2(ids, this::hasReferenceFactor);
-		StringBuilder query = new StringBuilder();
-		query.append("SELECT id, f_reference_flow_property FROM tbl_flows ");
-		query.append("WHERE id IN " + NativeSql.asList(ids));
-		query.append(" AND f_reference_flow_property IN ");
-		query.append(
-			"(SELECT f_flow_property FROM tbl_flow_property_factors WHERE tbl_flows.id = f_flow)");
-		Map<Long, Boolean> result = new HashMap<>();
-		for (long id : ids)
-			result.put(id, false);
-		NativeSql.on(db).query(query.toString(), (res) -> {
-			result.put(res.getLong(1), res.getLong(2) != 0l);
-			return true;
-		});
-		return result;
-	}
-
 }
