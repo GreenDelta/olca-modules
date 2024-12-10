@@ -3,8 +3,6 @@ package org.openlca.core.services;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
@@ -18,10 +16,13 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.EntityReader;
-import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonExport;
+import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonWriter;
 import org.openlca.util.Strings;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public record JsonDataService(IDatabase db) {
 
@@ -51,6 +52,9 @@ public record JsonDataService(IDatabase db) {
 					.withReferences(false)
 					.getWriter(entity)
 					.write(entity);
+			if (entity.isFromLibrary()) {
+				Json.put(json, "library", entity.library);
+			}
 			return Response.of(json);
 		} catch (Exception e) {
 			return Response.error(e);
@@ -75,7 +79,11 @@ public record JsonDataService(IDatabase db) {
 				if (writer == null) {
 					writer = export.getWriter(entity);
 				}
-				array.add(writer.write(entity));
+				var json = writer.write(entity);
+				if (entity.isFromLibrary()) {
+					Json.put(json, "library", entity.library);
+				}
+				array.add(json);
 			}
 			return Response.of(array);
 		} catch (Exception e) {
@@ -91,8 +99,10 @@ public record JsonDataService(IDatabase db) {
 			var refs = JsonRefs.of(db);
 			var descriptors = db.getDescriptors(type);
 			for (var d : descriptors) {
-				var ref = refs.asRef(d);
-				array.add(ref);
+				var ref = JsonUtil.asRef(d, refs);
+				if (ref != null) {
+					array.add(ref);
+				}
 			}
 			return Response.of(array);
 		} catch (Exception e) {
@@ -110,10 +120,10 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("type or ID missing");
 		try {
 			var d = db.getDescriptor(type, id);
-			if (d == null)
-				return Response.empty();
-			var ref = JsonRefs.of(db).asRef(d);
-			return Response.of(ref);
+			var ref = JsonUtil.asRef(d, JsonRefs.of(db));
+			return ref != null
+					? Response.of(ref)
+					: Response.empty();
 		} catch (Exception e) {
 			return Response.error(e);
 		}
@@ -124,10 +134,14 @@ public record JsonDataService(IDatabase db) {
 		if (type == null || Strings.nullOrEmpty(name))
 			return Response.error("type or name missing");
 		try {
-			var e = db.getForName(type, name);
-			return e != null
-					? Response.of(Json.asRef(e))
-					: Response.empty();
+			var d = db.getForName(type, name);
+			if (d == null)
+				return Response.empty();
+			var ref = Json.asRef(d);
+			if (d.isFromLibrary()) {
+				Json.put(ref, "library", d.library);
+			}
+			return Response.of(ref);
 		} catch (Exception e) {
 			return Response.error(e);
 		}
@@ -174,8 +188,12 @@ public record JsonDataService(IDatabase db) {
 					: null;
 
 			if (entity != null) {
+				if (entity.isFromLibrary())
+					return Response.error("library data cannot be updated");
+
 				reader.update(entity, json);
 				entity = db.update(entity);
+
 			} else {
 
 				// add an ID, if not provided
@@ -226,6 +244,8 @@ public record JsonDataService(IDatabase db) {
 			var entity = db.get(type, id);
 			if (entity == null)
 				return Response.empty();
+			if (entity.isFromLibrary())
+				return Response.error("library data cannot be deleted");
 			var ref = Json.asRef(entity);
 			db.delete(entity);
 			return Response.of(ref);
@@ -276,21 +296,25 @@ public record JsonDataService(IDatabase db) {
 		if (type == null || id == null)
 			return Response.error("no type or ID provided");
 		var entity = db.get(type, id);
-		if (entity == null)
-			return Response.empty();
 
-		if (entity instanceof ParameterizedEntity pe) {
-			var exp = new JsonExport(db, new MemStore())
-					.withReferences(false);
-			var array = JsonParameters.of(exp, pe);
-			return Response.of(array);
-		}
-		if (entity instanceof ProductSystem sys) {
-			var array = JsonParameters.of(db, sys);
-			return Response.of(array);
-		}
+		return switch (entity) {
 
-		return Response.error(
-				"unsupported parameter container: type=" + type + " id=" + id);
+			case null -> Response.empty();
+
+			case ParameterizedEntity pe -> {
+				var exp = new JsonExport(db, new MemStore())
+						.withReferences(false);
+				var array = JsonParameters.of(exp, pe);
+				yield Response.of(array);
+			}
+
+			case ProductSystem sys -> {
+				var array = JsonParameters.of(db, sys);
+				yield Response.of(array);
+			}
+
+			default -> Response.error(
+					"unsupported parameter container: type=" + type + " id=" + id);
+		};
 	}
 }
