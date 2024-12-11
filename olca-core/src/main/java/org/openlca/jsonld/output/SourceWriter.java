@@ -9,7 +9,7 @@ public record SourceWriter(JsonExport exp) implements JsonWriter<Source> {
 
 	@Override
 	public JsonObject write(Source source) {
-		var obj = Util.init(source);
+		var obj = Util.init(exp, source);
 		Json.put(obj, "url", source.url);
 		Json.put(obj, "externalFile", source.externalFile);
 		Json.put(obj, "textReference", source.textReference);

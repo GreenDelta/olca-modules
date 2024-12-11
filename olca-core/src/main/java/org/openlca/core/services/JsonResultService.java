@@ -87,7 +87,7 @@ public class JsonResultService {
 
 	public Response<JsonArray> getTechFlows(String resultId) {
 		return withResult(resultId, result -> {
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(
 					result.techIndex(),
 					techFlow -> encodeTechFlow(techFlow, refs));
@@ -100,7 +100,7 @@ public class JsonResultService {
 			var index = result.enviIndex();
 			if (index == null)
 				return Response.of(new JsonArray());
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(index,
 					enviFlow -> encodeEnviFlow(enviFlow, refs));
 			return Response.of(array);
@@ -112,7 +112,7 @@ public class JsonResultService {
 			var index = result.impactIndex();
 			if (index == null)
 				return Response.of(new JsonArray());
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(index, refs::asRef);
 			return Response.of(array);
 		});
@@ -126,7 +126,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			var d = result.demand();
 			var v = TechFlowValue.of(d.techFlow(), d.value());
-			var json = encodeTechValue(v, JsonRefs.of(db));
+			var json = encodeTechValue(v, refs());
 			return Response.of(json);
 		});
 	}
@@ -134,7 +134,7 @@ public class JsonResultService {
 	public Response<JsonArray> getScalingFactors(String resultId) {
 		return withResult(resultId, result -> {
 			var s = result.getScalingFactors();
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(s,
 					techValue -> encodeTechValue(techValue, refs));
 			return Response.of(array);
@@ -144,7 +144,7 @@ public class JsonResultService {
 	public Response<JsonArray> getTotalityFactors(String resultId) {
 		return withResult(resultId, result -> {
 			var tf = result.getTotalityFactors();
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(tf, techVal -> encodeTechValue(techVal, refs));
 			return Response.of(array);
 		});
@@ -155,7 +155,7 @@ public class JsonResultService {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
 			var value = result.getTotalityFactorOf(techFlow);
 			var obj = encodeTechValue(
-					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
+					TechFlowValue.of(techFlow, value), refs());
 			return Response.of(obj);
 		});
 	}
@@ -163,7 +163,7 @@ public class JsonResultService {
 	public Response<JsonArray> getTotalRequirements(String resultId) {
 		return withResult(resultId, result -> {
 			var tr = result.getTotalRequirements();
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(tr,
 					techValue -> encodeTechValue(techValue, refs));
 			return Response.of(array);
@@ -175,7 +175,7 @@ public class JsonResultService {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
 			var value = result.getTotalRequirementsOf(techFlow);
 			var obj = encodeTechValue(
-					TechFlowValue.of(techFlow, value), JsonRefs.of(db));
+					TechFlowValue.of(techFlow, value), refs());
 			return Response.of(obj);
 		});
 	}
@@ -184,7 +184,7 @@ public class JsonResultService {
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
 			var values = result.getScaledTechFlowsOf(techFlow);
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(values,
 					techValue -> encodeTechValue(techValue, refs));
 			return Response.of(array);
@@ -195,7 +195,7 @@ public class JsonResultService {
 			String resultId, TechFlowId techFlowId) {
 		return withResultOfTechFlow(resultId, techFlowId, (result, techFlow) -> {
 			var values = result.getUnscaledTechFlowsOf(techFlow);
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var array = encodeArray(values,
 					techValue -> encodeTechValue(techValue, refs));
 			return Response.of(array);
@@ -211,7 +211,7 @@ public class JsonResultService {
 			if (!result.hasEnviFlows())
 				return Response.of(new JsonArray());
 			var array = encodeEnviValues(
-					result.getTotalFlows(), JsonRefs.of(db));
+					result.getTotalFlows(), refs());
 			return Response.of(array);
 		});
 	}
@@ -221,7 +221,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var value = result.getTotalFlowValueOf(enviFlow);
-					return encodeEnviValue(enviFlow, value, JsonRefs.of(db));
+					return encodeEnviValue(enviFlow, value, refs());
 				}));
 	}
 
@@ -230,7 +230,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var values = result.getDirectFlowValuesOf(enviFlow);
-					return encodeTechValues(values, JsonRefs.of(db));
+					return encodeTechValues(values, refs());
 				}));
 	}
 
@@ -239,7 +239,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(enviFlow -> {
 					var values = result.getTotalFlowValuesOf(enviFlow);
-					return encodeTechValues(values, JsonRefs.of(db));
+					return encodeTechValues(values, refs());
 				}));
 	}
 
@@ -248,7 +248,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getDirectFlowsOf(techFlow);
-					return encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, refs());
 				}));
 	}
 
@@ -259,7 +259,7 @@ public class JsonResultService {
 				techFlowOf(result, techFlowId),
 				(enviFlow, techFlow) -> {
 					double amount = result.getDirectFlowOf(enviFlow, techFlow);
-					var val = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					var val = encodeEnviValue(enviFlow, amount, refs());
 					return Response.of(val);
 				}));
 	}
@@ -269,7 +269,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getTotalFlowsOfOne(techFlow);
-					return encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, refs());
 				}));
 	}
 
@@ -280,7 +280,7 @@ public class JsonResultService {
 				techFlowOf(result, techFlowId),
 				(enviFlow, techFlow) -> {
 					var amount = result.getTotalFlowOfOne(enviFlow, techFlow);
-					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					var value = encodeEnviValue(enviFlow, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -290,7 +290,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getTotalFlowsOf(techFlow);
-					return encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, refs());
 				}));
 	}
 
@@ -301,7 +301,7 @@ public class JsonResultService {
 				techFlowOf(result, techFlowId),
 				(enviFlow, techFlow) -> {
 					var amount = result.getTotalFlowOf(enviFlow, techFlow);
-					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					var value = encodeEnviValue(enviFlow, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -330,7 +330,7 @@ public class JsonResultService {
 			if (!result.hasImpacts())
 				return Response.of(new JsonArray());
 			var array = encodeImpactValues(
-					result.getTotalImpacts(), JsonRefs.of(db));
+					result.getTotalImpacts(), refs());
 			return Response.of(array);
 		});
 	}
@@ -340,7 +340,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> {
 					double amount = result.getTotalImpactValueOf(impact);
-					return encodeImpact(impact, amount, JsonRefs.of(db));
+					return encodeImpact(impact, amount, refs());
 				})
 		);
 	}
@@ -358,7 +358,7 @@ public class JsonResultService {
 				return Response.error("no nw-set was defined");
 			var factors = NwSetTable.of(db, setup.nwSet());
 			var normalized = factors.normalize(impacts);
-			return Response.of(encodeImpactValues(normalized, JsonRefs.of(db)));
+			return Response.of(encodeImpactValues(normalized, refs()));
 		});
 	}
 
@@ -375,7 +375,7 @@ public class JsonResultService {
 				return Response.error("no nw-set was defined");
 			var factors = NwSetTable.of(db, setup.nwSet());
 			var weighted = factors.apply(impacts);
-			return Response.of(encodeImpactValues(weighted, JsonRefs.of(db)));
+			return Response.of(encodeImpactValues(weighted, refs()));
 		});
 	}
 
@@ -384,7 +384,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> {
 					var values = result.getDirectImpactValuesOf(impact);
-					return encodeTechValues(values, JsonRefs.of(db));
+					return encodeTechValues(values, refs());
 				})
 		);
 	}
@@ -393,14 +393,14 @@ public class JsonResultService {
 			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> encodeTechValues(
-						result.getTotalImpactValuesOf(impact), JsonRefs.of(db))));
+						result.getTotalImpactValuesOf(impact), refs())));
 	}
 
 	public Response<JsonArray> getDirectImpactsOf(
 			String resultId, TechFlowId techFlowId) {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> encodeImpactValues(
-						result.getDirectImpactsOf(techFlow), JsonRefs.of(db))));
+						result.getDirectImpactsOf(techFlow), refs())));
 	}
 
 	public Response<JsonObject> getDirectImpactOf(
@@ -410,7 +410,7 @@ public class JsonResultService {
 				techFlowOf(result, techFlowId),
 				(impact, techFlow) -> {
 					double amount = result.getDirectImpactOf(impact, techFlow);
-					var value = encodeImpact(impact, amount, JsonRefs.of(db));
+					var value = encodeImpact(impact, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -420,7 +420,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getTotalImpactsOfOne(techFlow);
-					return encodeImpactValues(values, JsonRefs.of(db));
+					return encodeImpactValues(values, refs());
 				}));
 	}
 
@@ -431,7 +431,7 @@ public class JsonResultService {
 				techFlowOf(result, techFlowId),
 				(impact, techFlow) -> {
 					double amount = result.getTotalImpactOfOne(impact, techFlow);
-					var value = encodeImpact(impact, amount, JsonRefs.of(db));
+					var value = encodeImpact(impact, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -441,7 +441,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> techFlowOf(result, techFlowId)
 				.map(techFlow -> {
 					var values = result.getTotalImpactsOf(techFlow);
-					return encodeImpactValues(values, JsonRefs.of(db));
+					return encodeImpactValues(values, refs());
 				}));
 	}
 
@@ -452,7 +452,7 @@ public class JsonResultService {
 				techFlowOf(result, techFlowId),
 				(impact, techFlow) -> {
 					double amount = result.getTotalImpactOf(impact, techFlow);
-					var value = encodeImpact(impact, amount, JsonRefs.of(db));
+					var value = encodeImpact(impact, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -462,7 +462,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> {
 					var values = result.getImpactFactorsOf(impact);
-					return encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, refs());
 				}));
 	}
 
@@ -473,7 +473,7 @@ public class JsonResultService {
 				enviFlowOf(result, enviFlowId),
 				(impact, enviFlow) -> {
 					double amount = result.getImpactFactorOf(impact, enviFlow);
-					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					var value = encodeEnviValue(enviFlow, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -483,7 +483,7 @@ public class JsonResultService {
 		return withResult(resultId, result -> impactCategoryOf(result, impactId)
 				.map(impact -> {
 					var values = result.getFlowImpactsOf(impact);
-					return encodeEnviValues(values, JsonRefs.of(db));
+					return encodeEnviValues(values, refs());
 				}));
 	}
 
@@ -494,7 +494,7 @@ public class JsonResultService {
 				enviFlowOf(result, enviFlowId),
 				(impact, enviFlow) -> {
 					double amount = result.getFlowImpactOf(impact, enviFlow);
-					var value = encodeEnviValue(enviFlow, amount, JsonRefs.of(db));
+					var value = encodeEnviValue(enviFlow, amount, refs());
 					return Response.of(value);
 				}));
 	}
@@ -529,16 +529,14 @@ public class JsonResultService {
 	public Response<JsonArray> getCostContributions(String resultId) {
 		return withResult(resultId, result -> {
 			var values = result.getDirectCostValues();
-			var array = encodeTechValues(values, JsonRefs.of(db));
-			return Response.of(array);
+			return Response.of(encodeTechValues(values, refs()));
 		});
 	}
 
 	public Response<JsonArray> getTotalCostValues(String resultId) {
 		return withResult(resultId, result -> {
 			var values = result.getTotalCostValues();
-			var array = encodeTechValues(values, JsonRefs.of(db));
-			return Response.of(array);
+			return Response.of(encodeTechValues(values, refs()));
 		});
 	}
 
@@ -608,7 +606,7 @@ public class JsonResultService {
 
 	private JsonArray getUpstreamNodes(String path, UpstreamTree tree) {
 		var nodes = UpstreamPath.parse(path).selectChilds(tree);
-		var refs = JsonRefs.of(db);
+		var refs = refs();
 		return encodeArray(nodes, node -> encodeUpstreamNode(node, refs));
 	}
 
@@ -636,7 +634,7 @@ public class JsonResultService {
 					.build();
 
 			// convert the graph
-			var json = JsonSankeyGraph.of(sankey, JsonRefs.of(db));
+			var json = JsonSankeyGraph.of(sankey, refs());
 			return Response.of(json);
 		});
 	}
@@ -693,4 +691,7 @@ public class JsonResultService {
 				: Response.error("no LCIA category exists for ID=" + impactId);
 	}
 
+	private JsonRefs refs() {
+		return JsonRefs.of(db).withLibraryFields(true);
+	}
 }

@@ -13,7 +13,7 @@ public record ImpactCategoryWriter(JsonExport exp)
 
 	@Override
 	public JsonObject write(ImpactCategory impact) {
-		var obj = Util.init(impact);
+		var obj = Util.init(exp, impact);
 		Json.put(obj, "code", impact.code);
 		Json.put(obj, "refUnit", impact.referenceUnit);
 		Json.put(obj, "source", exp.handleRef(impact.source));

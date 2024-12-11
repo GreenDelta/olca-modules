@@ -16,7 +16,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 
 	@Override
 	public JsonObject write(Process p) {
-		var obj = Util.init(p);
+		var obj = Util.init(exp, p);
 		// AllocationCleanup.on(p);
 		Json.put(obj, "processType", p.processType);
 		Json.put(obj, "defaultAllocationMethod", p.defaultAllocationMethod);

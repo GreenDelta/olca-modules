@@ -1,7 +1,8 @@
 package org.openlca.core.services;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
@@ -19,9 +20,8 @@ import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.util.Strings;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Function;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 final class JsonUtil {
 
@@ -49,8 +49,8 @@ final class JsonUtil {
 		if (techFlow == null)
 			return null;
 		var obj = new JsonObject();
-		Json.put(obj, "provider", asRef(techFlow.provider(), refs));
-		Json.put(obj, "flow", asRef(techFlow.flow(), refs));
+		Json.put(obj, "provider", refs.asRef(techFlow.provider()));
+		Json.put(obj, "flow", refs.asRef(techFlow.flow()));
 		return obj;
 	}
 
@@ -58,26 +58,16 @@ final class JsonUtil {
 		if (enviFlow == null)
 			return null;
 		var obj = new JsonObject();
-		Json.put(obj, "flow", asRef(enviFlow.flow(), refs));
+		Json.put(obj, "flow", refs.asRef(enviFlow.flow()));
 		if (enviFlow.location() != null) {
-			Json.put(obj, "location", asRef(enviFlow.location(), refs));
+			Json.put(obj, "location", refs.asRef(enviFlow.location()));
 		}
 		Json.put(obj, "isInput", enviFlow.isInput());
 		if (enviFlow.isVirtual()) {
 			Json.put(obj, "isVirtual", true);
 			if (enviFlow.wrapped() instanceof RootDescriptor wrapped) {
-				Json.put(obj, "wrapped", asRef(wrapped, refs));
+				Json.put(obj, "wrapped", refs.asRef(wrapped));
 			}
-		}
-		return obj;
-	}
-
-	static <T extends RootDescriptor> JsonObject asRef(T ref, JsonRefs refs) {
-		if (ref == null)
-			return null;
-		var obj = refs.asRef(ref);
-		if (ref.isFromLibrary()) {
-			Json.put(obj, "library", ref.library);
 		}
 		return obj;
 	}
@@ -138,7 +128,7 @@ final class JsonUtil {
 		if (v == null)
 			return null;
 		var obj = new JsonObject();
-		obj.add("impactCategory", asRef(v.impact(), refs));
+		obj.add("impactCategory", refs.asRef(v.impact()));
 		obj.addProperty("amount", v.value());
 		return obj;
 	}

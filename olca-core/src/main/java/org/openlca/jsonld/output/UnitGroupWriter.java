@@ -12,7 +12,7 @@ public record UnitGroupWriter(JsonExport exp) implements JsonWriter<UnitGroup> {
 
 	@Override
 	public JsonObject write(UnitGroup ug) {
-		var obj = Util.init(ug);
+		var obj = Util.init(exp, ug);
 		Json.put(obj, "defaultFlowProperty", exp.handleRef(ug.defaultFlowProperty));
 		mapUnits(ug, obj);
 		return obj;

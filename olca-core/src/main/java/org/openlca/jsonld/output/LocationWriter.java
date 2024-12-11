@@ -14,7 +14,7 @@ public record LocationWriter(JsonExport exp) implements JsonWriter<Location> {
 
 	@Override
 	public JsonObject write(Location location) {
-		var obj = Util.init(location);
+		var obj = Util.init(exp, location);
 		Json.put(obj, "code", location.code);
 		Json.put(obj, "latitude", location.latitude);
 		Json.put(obj, "longitude", location.longitude);

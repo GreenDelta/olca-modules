@@ -37,7 +37,7 @@ class Util {
 			T entity, JsonExport export
 	) {
 		return (JsonWriter<T>) switch (entity) {
-			case Actor ignored -> new ActorWriter();
+			case Actor ignored -> new ActorWriter(export);
 			case Currency ignored -> new CurrencyWriter(export);
 			case Epd ignored -> new EpdWriter(export);
 			case FlowProperty ignored -> new FlowPropertyWriter(export);
@@ -59,16 +59,22 @@ class Util {
 		};
 	}
 
-	static <T extends RootEntity> JsonObject init(T entity) {
+	static <T extends RootEntity> JsonObject init(JsonExport exp, T entity) {
 		var obj = new JsonObject();
 		mapBasicAttributes(entity, obj);
+		if (exp != null
+				&& entity != null
+				&& exp.writeLibraryFields
+				&& entity.isFromLibrary()) {
+			Json.put(obj, "library", entity.library);
+		}
 		mapOtherProperties(entity, obj);
 		return obj;
 	}
 
 	static <T extends RootEntity> void mapOtherProperties(
 			T entity, JsonObject obj) {
-		if (entity.otherProperties != null) {
+		if (entity != null && entity.otherProperties != null) {
 			var extProps = entity.readOtherProperties();
 			obj.add("otherProperties", extProps);
 		}

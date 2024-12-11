@@ -45,6 +45,7 @@ public class JsonExport {
 	boolean skipLibraryData = true;
 	boolean exportProviders = false;
 	boolean skipExternalFiles = false;
+	boolean writeLibraryFields = false;
 
 	final JsonRefs dbRefs;
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
@@ -93,6 +94,18 @@ public class JsonExport {
 
 	public JsonExport skipExternalFiles(boolean b) {
 		skipExternalFiles = b;
+		return this;
+	}
+
+	/// If set to `true`, created datasets and references will contain the
+	/// `library` field when the respective dataset belongs to a library.
+	/// Typically, this should be only done when datasets are exported to a
+	/// service API and not in the standard JSON exports.
+	public JsonExport withLibraryFields(boolean b) {
+		writeLibraryFields = b;
+		if (dbRefs != null) {
+			dbRefs.withLibraryFields(b);
+		}
 		return this;
 	}
 

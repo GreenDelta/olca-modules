@@ -10,7 +10,7 @@ public record EpdWriter(JsonExport exp) implements JsonWriter<Epd> {
 
 	@Override
 	public JsonObject write(Epd epd) {
-		var json = Util.init(epd);
+		var json = Util.init(exp, epd);
 
 		Json.put(json, "urn", epd.urn);
 		Json.put(json, "manufacturer", exp.handleRef(epd.manufacturer));

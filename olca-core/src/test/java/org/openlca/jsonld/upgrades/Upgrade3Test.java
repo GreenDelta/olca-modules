@@ -2,9 +2,8 @@ package org.openlca.jsonld.upgrades;
 
 import static org.junit.Assert.*;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.Objects;
+
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -16,8 +15,11 @@ import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.ActorWriter;
+import org.openlca.jsonld.output.JsonExport;
 
-import java.util.Objects;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class Upgrade3Test {
 
@@ -42,7 +44,8 @@ public class Upgrade3Test {
 		// add a process with old review data format
 		var actor = Actor.of("Reviewer X");
 		actor.refId = "3a1d0fa8-9f8a-4018-81a4-7b609a981a2c";
-		store.put(ModelType.ACTOR, new ActorWriter().write(actor));
+		var exp = new JsonExport(db, new MemStore());
+		store.put(ModelType.ACTOR, new ActorWriter(exp).write(actor));
 
 		var data = """
 				{
@@ -69,10 +72,10 @@ public class Upgrade3Test {
 				Process.class, "24c330b5-f4d8-4ae1-8f44-ec0f08ef64d2");
 		var doc = process.documentation;
 		assertEquals(1, doc.reviews.size());
-		var rev = doc.reviews.get(0);
+		var rev = doc.reviews.getFirst();
 		assertEquals("some review details", rev.details);
 		assertEquals(1, rev.reviewers.size());
-		var reviewer = rev.reviewers.get(0);
+		var reviewer = rev.reviewers.getFirst();
 		assertEquals("Reviewer X", reviewer.name);
 
 		db.delete(process, reviewer);

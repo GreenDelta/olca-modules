@@ -11,7 +11,7 @@ public record ResultWriter(JsonExport exp) implements JsonWriter<Result> {
 
 	@Override
 	public JsonObject write(Result result) {
-		var json = Util.init(result);
+		var json = Util.init(exp, result);
 		Json.put(json, "productSystem", exp.handleRef(result.productSystem));
 		Json.put(json, "impactMethod", exp.handleRef(result.impactMethod));
 		writeImpactResults(result, json);

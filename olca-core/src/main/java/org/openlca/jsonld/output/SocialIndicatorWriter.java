@@ -10,7 +10,7 @@ public record SocialIndicatorWriter(JsonExport exp)
 
 	@Override
 	public JsonObject write(SocialIndicator i) {
-		var obj = Util.init(i);
+		var obj = Util.init(exp, i);
 		Json.put(obj, "activityVariable", i.activityVariable);
 		Json.put(obj, "unitOfMeasurement", i.unitOfMeasurement);
 		Json.put(obj, "evaluationScheme", i.evaluationScheme);

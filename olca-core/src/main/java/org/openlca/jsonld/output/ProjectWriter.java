@@ -11,7 +11,7 @@ public record ProjectWriter(JsonExport exp) implements JsonWriter<Project> {
 
 	@Override
 	public JsonObject write(Project p) {
-		JsonObject obj = Util.init(p);
+		JsonObject obj = Util.init(exp, p);
 		Json.put(obj, "isWithCosts", p.isWithCosts);
 		Json.put(obj, "isWithRegionalization", p.isWithRegionalization);
 		Json.put(obj, "impactMethod", exp.handleRef(p.impactMethod));

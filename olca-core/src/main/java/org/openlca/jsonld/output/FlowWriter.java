@@ -13,7 +13,7 @@ public record FlowWriter(JsonExport exp) implements JsonWriter<Flow> {
 
 	@Override
 	public JsonObject write(Flow flow) {
-		var obj = Util.init(flow);
+		var obj = Util.init(exp, flow);
 		Json.put(obj, "flowType", flow.flowType);
 		Json.put(obj, "cas", flow.casNumber);
 		Json.put(obj, "formula", flow.formula);

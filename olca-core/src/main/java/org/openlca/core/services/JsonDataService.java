@@ -49,12 +49,10 @@ public record JsonDataService(IDatabase db) {
 			if (entity == null)
 				return Response.empty();
 			var json = new JsonExport(db, new MemStore())
+					.withLibraryFields(true)
 					.withReferences(false)
 					.getWriter(entity)
 					.write(entity);
-			if (entity.isFromLibrary()) {
-				Json.put(json, "library", entity.library);
-			}
 			return Response.of(json);
 		} catch (Exception e) {
 			return Response.error(e);
@@ -72,6 +70,7 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("type is missing");
 		try {
 			var export = new JsonExport(db, new MemStore())
+					.withLibraryFields(true)
 					.withReferences(false);
 			JsonWriter<T> writer = null;
 			var array = new JsonArray();
@@ -79,11 +78,7 @@ public record JsonDataService(IDatabase db) {
 				if (writer == null) {
 					writer = export.getWriter(entity);
 				}
-				var json = writer.write(entity);
-				if (entity.isFromLibrary()) {
-					Json.put(json, "library", entity.library);
-				}
-				array.add(json);
+				array.add(writer.write(entity));
 			}
 			return Response.of(array);
 		} catch (Exception e) {
@@ -96,13 +91,10 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("type missing");
 		try {
 			var array = new JsonArray();
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			var descriptors = db.getDescriptors(type);
 			for (var d : descriptors) {
-				var ref = JsonUtil.asRef(d, refs);
-				if (ref != null) {
-					array.add(ref);
-				}
+				array.add(refs.asRef(d));
 			}
 			return Response.of(array);
 		} catch (Exception e) {
@@ -120,10 +112,9 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("type or ID missing");
 		try {
 			var d = db.getDescriptor(type, id);
-			var ref = JsonUtil.asRef(d, JsonRefs.of(db));
-			return ref != null
-					? Response.of(ref)
-					: Response.empty();
+			if (d == null)
+				return Response.empty();
+			return Response.of(refs().asRef(d));
 		} catch (Exception e) {
 			return Response.error(e);
 		}
@@ -262,7 +253,7 @@ public record JsonDataService(IDatabase db) {
 		try {
 			var providers = ProcessTable.create(db).getProviders();
 			var array = new JsonArray();
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			for (var p : providers) {
 				array.add(JsonUtil.encodeTechFlow(p, refs));
 			}
@@ -281,7 +272,7 @@ public record JsonDataService(IDatabase db) {
 				return Response.empty();
 			var providers = ProcessTable.create(db).getProviders(flow.id);
 			var array = new JsonArray();
-			var refs = JsonRefs.of(db);
+			var refs = refs();
 			for (var p : providers) {
 				array.add(JsonUtil.encodeTechFlow(p, refs));
 			}
@@ -316,5 +307,9 @@ public record JsonDataService(IDatabase db) {
 			default -> Response.error(
 					"unsupported parameter container: type=" + type + " id=" + id);
 		};
+	}
+
+	private JsonRefs refs() {
+		return JsonRefs.of(db).withLibraryFields(true);
 	}
 }

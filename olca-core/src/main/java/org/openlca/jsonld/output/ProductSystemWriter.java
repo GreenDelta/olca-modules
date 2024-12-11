@@ -30,7 +30,7 @@ public class ProductSystemWriter implements JsonWriter<ProductSystem> {
 
 	@Override
 	public JsonObject write(ProductSystem sys) {
-		var obj = Util.init(sys);
+		var obj = Util.init(exp, sys);
 		Json.put(obj, "refProcess", exp.handleRef(sys.referenceProcess));
 
 		// the reference exchange

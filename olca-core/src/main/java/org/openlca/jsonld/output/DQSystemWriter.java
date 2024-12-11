@@ -12,7 +12,7 @@ public record DQSystemWriter(JsonExport exp) implements JsonWriter<DQSystem> {
 
 	@Override
 	public JsonObject write(DQSystem system) {
-		var obj = Util.init(system);
+		var obj = Util.init(exp, system);
 		Json.put(obj, "hasUncertainties", system.hasUncertainties);
 		Json.put(obj, "source", exp.handleRef(system.source));
 		writeIndicators(system, obj);

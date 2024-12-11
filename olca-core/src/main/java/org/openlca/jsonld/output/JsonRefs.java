@@ -33,6 +33,7 @@ public class JsonRefs {
 	private final Map<ModelType, TLongObjectHashMap<? extends RootDescriptor>> cache;
 	private Map<Long, String> _locationCodes;
 	private Map<Long, String> _refUnits;
+	private boolean writeLibraryFields;
 
 	private JsonRefs(IDatabase db) {
 		this.db = db;
@@ -42,6 +43,15 @@ public class JsonRefs {
 
 	public static JsonRefs of(IDatabase db) {
 		return new JsonRefs(db);
+	}
+
+	/// If set to `true`, created references will contain the `library` field
+	/// when the referenced dataset belongs to a library. Typically, this should
+	/// be only done when references are exported to a service API and not in
+	/// the standard JSON exports.
+	public JsonRefs withLibraryFields(boolean b) {
+		writeLibraryFields = b;
+		return this;
 	}
 
 	public JsonObject asRef(RootDescriptor d) {
@@ -60,6 +70,10 @@ public class JsonRefs {
 		Json.put(ref, "@id", d.refId);
 		Json.put(ref, "name", d.name);
 		Json.put(ref, "category", categories.pathOf(d.category));
+
+		if (writeLibraryFields && d.isFromLibrary()) {
+			Json.put(ref, "library", d.library);
+		}
 
 		if (d instanceof FlowDescriptor fd) {
 			Json.put(ref, "flowType", (fd.flowType));

@@ -10,7 +10,7 @@ public record ImpactMethodWriter(JsonExport exp)
 
 	@Override
 	public JsonObject write(ImpactMethod method) {
-		var obj = Util.init(method);
+		var obj = Util.init(exp, method);
 		Json.put(obj, "code", method.code);
 		Json.put(obj, "source", exp.handleRef(method.source));
 		Json.put(obj, "impactCategories", exp.handleRefs(method.impactCategories));

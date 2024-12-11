@@ -9,7 +9,7 @@ public record CurrencyWriter(JsonExport exp) implements JsonWriter<Currency> {
 
 	@Override
 	public JsonObject write(Currency c) {
-		var obj = Util.init(c);
+		var obj = Util.init(exp, c);
 		Json.put(obj, "code", c.code);
 		Json.put(obj, "conversionFactor", c.conversionFactor);
 		Json.put(obj, "refCurrency", exp.handleRef(c.referenceCurrency));

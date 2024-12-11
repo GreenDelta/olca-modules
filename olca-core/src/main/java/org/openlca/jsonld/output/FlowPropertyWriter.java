@@ -10,7 +10,7 @@ public record FlowPropertyWriter(JsonExport exp)
 
 	@Override
 	public JsonObject write(FlowProperty prop) {
-		var obj = Util.init(prop);
+		var obj = Util.init(exp, prop);
 		Json.put(obj, "flowPropertyType", prop.flowPropertyType);
 		Json.put(obj, "unitGroup", exp.handleRef(prop.unitGroup));
 		return obj;
