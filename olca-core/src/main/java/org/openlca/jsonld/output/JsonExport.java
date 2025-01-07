@@ -49,6 +49,7 @@ public class JsonExport {
 
 	final JsonRefs dbRefs;
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
+	private final Set<String> referencedLibraries = new HashSet<>();
 
 	/// Exporting providers can lead to a stack overflow when calling write
 	/// recursively. Thus, we need to queue them.
@@ -107,6 +108,11 @@ public class JsonExport {
 			dbRefs.withLibraryFields(b);
 		}
 		return this;
+	}
+
+	// Returns the libraries that are referenced by the exported data sets.
+	public Set<String> getReferencedLibraries() {
+		return referencedLibraries;
 	}
 
 	boolean hasVisited(ModelType type, String refId) {
@@ -212,8 +218,12 @@ public class JsonExport {
 			return;
 		visited.computeIfAbsent(type, $ -> new HashSet<>())
 				.add(entity.refId);
-		if (skipLibraryData && Strings.notEmpty(entity.library)) {
-			return;
+
+		if (Strings.notEmpty(entity.library)) {
+			referencedLibraries.add(entity.library);
+			if (skipLibraryData) {
+				return;
+			}
 		}
 
 		try {
