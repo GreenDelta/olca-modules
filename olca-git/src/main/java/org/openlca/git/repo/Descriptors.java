@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
@@ -58,23 +57,50 @@ public class Descriptors {
 		return new Descriptors(database);
 	}
 
-	public RootDescriptor get(String path) {
-		return get(new TypedRefId(path));
-	}
-
-	public RootDescriptor get(TypedRefId typedRefId) {
-		return get(typedRefId.type, typedRefId.refId);
-	}
-
-	public RootDescriptor get(ModelType type, String refId) {
-		if (type == null || refId == null || refId.strip().isEmpty())
+	public RootDescriptor get(TypedRefId ref) {
+		if (ref.type == null || ref.refId == null || ref.refId.strip().isEmpty())
 			return null;
 		synchronized (cache) {
-			return cache.computeIfAbsent(type, this::load).byRefId
-					.get(refId);
+			return cache.computeIfAbsent(ref.type, this::load).byRefId
+					.get(ref.refId);
 		}
 	}
 
+	public boolean isFromLibrary(TypedRefId ref) {
+		var descriptor = get(ref);
+		return descriptor != null && descriptor.isFromLibrary();
+	}
+	
+	public boolean isOnlyInLibraries(Category category) {
+		return isOnlyInLibraries(category, new HashSet<>());
+	}
+
+	public boolean isOnlyInLibraries(Category category, Set<String> libraries) {
+		if (category == null)
+			return false;
+		var isOnlyInLibs = false;
+		for (var model : get(category)) {
+			if (!model.isFromLibrary())
+				return false;
+			if (!libraries.contains(model.library))
+				return false;
+			isOnlyInLibs = true;
+		}
+		for (var child : category.childCategories) {
+			if (!isOnlyInLibraries(child, libraries))
+				return false;
+			isOnlyInLibs = true;
+		}
+		return isOnlyInLibs;		
+	}
+	
+	public String getLibrary(TypedRefId ref) {
+		var descriptor = get(ref);
+		if (descriptor == null)
+			return null;
+		return descriptor.library;
+	}
+	
 	public Set<RootDescriptor> get(ModelType type) {
 		if (type == null)
 			return new HashSet<>();
@@ -103,14 +129,6 @@ public class Descriptors {
 
 	public Category getCategory(Long id) {
 		return categoriesById.get(id);
-	}
-
-	public void forEach(Consumer<RootDescriptor> consumer) {
-		for (var modelType : ModelType.values()) {
-			synchronized (cache) {
-				cache.computeIfAbsent(modelType, this::load).byRefId.values().forEach(consumer);
-			}
-		}
 	}
 
 	private DescriptorsMaps load(ModelType type) {

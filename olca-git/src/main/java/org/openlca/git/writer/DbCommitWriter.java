@@ -2,7 +2,9 @@ package org.openlca.git.writer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -33,6 +35,7 @@ public class DbCommitWriter extends CommitWriter {
 	private ExecutorService threads;
 	private IDatabase database;
 	private ClientRepository repo;
+	private Set<String> libraries = new HashSet<>();
 
 	public DbCommitWriter(ClientRepository repo) {
 		this(repo, new DatabaseBinaryResolver(repo.database));
@@ -75,6 +78,7 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Diff> changes) throws IOException {
 		try {
+			libraries = getLibraries(changes);
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			var parentCommitIds = getParentCommitIds();
 			usedFeatures = UsedFeatures.of(repo, parentCommitIds);
@@ -127,7 +131,7 @@ public class DbCommitWriter extends CommitWriter {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
 						log.warn("Filtering dataset with missing or invalid type " + val);
 						progressMonitor.worked(1);
-						return false;						
+						return false;
 					}
 					if (!GitUtil.isValidCategory(c.category)) {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
@@ -149,6 +153,20 @@ public class DbCommitWriter extends CommitWriter {
 		return remaining;
 	}
 
+	private Set<String> getLibraries(List<Diff> changes) {
+		var libraries = repo.getLibraries();
+		for (var diff : changes) {
+			if (!diff.isLibrary)
+				continue;
+			if (diff.diffType == DiffType.DELETED) {
+				libraries.remove(diff.name);
+			} else {
+				libraries.add(diff.name);
+			}
+		}
+		return libraries;
+	}
+
 	protected void cleanUp() throws IOException {
 		super.cleanUp();
 		if (converter != null) {
@@ -162,7 +180,7 @@ public class DbCommitWriter extends CommitWriter {
 
 	@Override
 	protected List<LibraryLink> getLibraries() {
-		return LibraryLink.allOf(database);
+		return LibraryLink.of(libraries);
 	}
 
 	@Override

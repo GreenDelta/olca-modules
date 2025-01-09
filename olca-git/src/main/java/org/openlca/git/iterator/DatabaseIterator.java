@@ -68,7 +68,7 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(ClientRepository repo, ModelType type) {
 		var entries = repo.descriptors.getCategories(type).stream()
-				.filter(c -> !isFromLibrary(repo, c))
+				.filter(c -> !repo.descriptors.isOnlyInLibraries(c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(collect(repo, repo.descriptors.get(type)));
@@ -77,11 +77,11 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(ClientRepository repo, Category category) {
 		var entries = category.childCategories.stream()
-				.filter(c -> !isFromLibrary(repo, c))
+				.filter(c -> !repo.descriptors.isOnlyInLibraries(c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(collect(repo, repo.descriptors.get(category)));
-		if (entries.isEmpty() && !isFromLibrary(repo, category)) {
+		if (entries.isEmpty() && !repo.descriptors.isOnlyInLibraries(category)) {
 			entries.add(TreeEntry.empty());
 		}
 		return entries;
@@ -109,21 +109,6 @@ public class DatabaseIterator extends EntryIterator {
 			return false;
 		var files = folder.listFiles();
 		return files != null && files.length > 0;
-	}
-
-	private static boolean isFromLibrary(ClientRepository repo, Category category) {
-		var hasLibrariesElements = false;
-		for (var model : repo.descriptors.get(category)) {
-			if (!model.isFromLibrary())
-				return false;
-			hasLibrariesElements = true;
-		}
-		for (var child : category.childCategories) {
-			if (!isFromLibrary(repo, child))
-				return false;
-			hasLibrariesElements = true;
-		}
-		return hasLibrariesElements;
 	}
 
 	@Override
