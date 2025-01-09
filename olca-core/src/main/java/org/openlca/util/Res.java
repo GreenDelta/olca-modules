@@ -77,10 +77,14 @@ public final class Res<T> {
 				: error(outerErr);
 	}
 
+	/// Returns the value if it is not `null` and there is no error, otherwise
+	/// it calls the given function and returns its result. It is fine to pass
+	/// `null` as the function argument, so that `null` is also returned as the
+	/// default value.
 	public T orElse(Supplier<T> fn) {
 		return !hasError() && value != null
 				? value
-				: fn.get();
+				: fn != null ? fn.get() : null;
 	}
 
 	public T orElseThrow() {
