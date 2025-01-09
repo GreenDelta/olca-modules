@@ -24,9 +24,6 @@ public class MethodMappingTest {
 				if (Strings.notEmpty(i.smartEpd())) {
 					var indicator = SmartIndicator.of(i.smartEpd()).orElse(null);
 					assertNotNull("unknown indicator: " + i.smartEpd(), indicator);
-					if (!indicator.id.equals(i.smartEpd())) {
-						System.out.println("fix case: " + indicator.id + " <> " + i.smartEpd());
-					}
 				}
 
 				assertNotNull(i.ref());

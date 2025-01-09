@@ -72,7 +72,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "penrm",
+        "SmartEPD": "PENRM",
         "openLCA": {
           "@id": "1421caa0-679d-4bf4-b282-0eb850ccae27",
           "name": "Resource | Use of non renewable primary energy resources used as raw materials (PENRM)"
@@ -88,7 +88,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "pert",
+        "SmartEPD": "PERT",
         "openLCA": {
           "@id": "53f97275-fa8a-4cdd-9024-65936002acd0",
           "name": "Resource | Total use of renewable primary energy resources (PERT)"
@@ -96,7 +96,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "rsf",
+        "SmartEPD": "RSF",
         "openLCA": {
           "@id": "64333088-a55f-4aa2-9a31-c10b07816787",
           "name": "Resource | Use of renewable secondary fuels (RSF)"
@@ -104,7 +104,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "fw",
+        "SmartEPD": "FW",
         "openLCA": {
           "@id": "3cf952c8-f3a4-461d-8c96-96456ca62246",
           "name": "Resource | Use of net fresh water (FW)"
@@ -112,7 +112,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "sm",
+        "SmartEPD": "SM",
         "openLCA": {
           "@id": "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
           "name": "Resource | Use of secondary materials (SM)"
@@ -128,7 +128,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "rwd",
+        "SmartEPD": "RWD",
         "openLCA": {
           "@id": "3449546e-52ad-4b39-b809-9fb77cea8ff6",
           "name": "Waste | Radioactive waste disposed (RWD)"
@@ -136,7 +136,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "penre",
+        "SmartEPD": "PENRE",
         "openLCA": {
           "@id": "ac857178-2b45-46ec-892a-a9a4332f0372",
           "name": "Resource | Use of non renewable primary energy resources used as energy carrier (PENRE)"
@@ -144,7 +144,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "nhwd",
+        "SmartEPD": "NHWD",
         "openLCA": {
           "@id": "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
           "name": "Waste | Non hazardous waste disposed (NHWD)"
@@ -152,7 +152,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "nrsf",
+        "SmartEPD": "NRSF",
         "openLCA": {
           "@id": "89def144-d39a-4287-b86f-efde453ddcb2",
           "name": "Resource | Use of non renewable secondary fuels (NRSF)"
@@ -160,7 +160,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "mer",
+        "SmartEPD": "MER",
         "openLCA": {
           "@id": "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
           "name": "Output | Materials for energy recovery (MER)"
@@ -168,7 +168,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "hwd",
+        "SmartEPD": "HWD",
         "openLCA": {
           "@id": "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
           "name": "Waste | Hazardous waste disposed (HWD)"
@@ -176,7 +176,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "mfr",
+        "SmartEPD": "MFR",
         "openLCA": {
           "@id": "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
           "name": "Output | Materials for recycling (MFR)"
@@ -184,7 +184,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "pere",
+        "SmartEPD": "PERE",
         "openLCA": {
           "@id": "20f32be5-0398-4288-9b6d-accddd195317",
           "name": "Resource | Use of renewable primary energy resources used as energy carrier (PERE)"
@@ -192,7 +192,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "perm",
+        "SmartEPD": "PERM",
         "openLCA": {
           "@id": "fb3ec0de-548d-4508-aea5-00b73bf6f702",
           "name": "Resource | Use of renewable primary energy resources used as raw materials (PERM)"
@@ -200,7 +200,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "penrt",
+        "SmartEPD": "PENRT",
         "openLCA": {
           "@id": "06159210-646b-4c8d-8583-da9b3b95a6c1",
           "name": "Resource | Total use of non renewable primary energy resources (PENRT)"
@@ -274,7 +274,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-luluc",
+        "SmartEPD": "GWP-luluc",
         "openLCA": {
           "@id": "4331bbdb-978a-490d-8707-eeb047f01a55",
           "name": "EN15804 EF3.0 | Global Warming Potential - land use and land use change (GWP-luluc)"
@@ -330,7 +330,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-biogenic",
+        "SmartEPD": "GWP-biogenic",
         "openLCA": {
           "@id": "2356e1ab-0185-4db5-86e5-16de51c7485c",
           "name": "EN15804 EF3.0 | Global Warming Potential - biogenic (GWP-biogenic)"
@@ -346,7 +346,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "ep-marine",
+        "SmartEPD": "EP-marine",
         "openLCA": {
           "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
           "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
@@ -354,7 +354,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-fossil",
+        "SmartEPD": "GWP-fossil",
         "openLCA": {
           "@id": "5f635281-343e-44fb-83df-1971b155e6b6",
           "name": "EN15804 EF3.0 | Global Warming Potential - fossil fuels (GWP-fossil)"
@@ -378,7 +378,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "pere",
+        "SmartEPD": "PERE",
         "openLCA": {
           "@id": "20f32be5-0398-4288-9b6d-accddd195317",
           "name": "Resource | Use of renewable primary energy resources used as energy carrier (PERE)"
@@ -386,7 +386,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "penre",
+        "SmartEPD": "PENRE",
         "openLCA": {
           "@id": "ac857178-2b45-46ec-892a-a9a4332f0372",
           "name": "Resource | Use of non renewable primary energy resources used as energy carrier (PENRE)"
@@ -402,7 +402,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "hwd",
+        "SmartEPD": "HWD",
         "openLCA": {
           "@id": "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
           "name": "Waste | Hazardous waste disposed (HWD)"
@@ -410,7 +410,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "fw",
+        "SmartEPD": "FW",
         "openLCA": {
           "@id": "3cf952c8-f3a4-461d-8c96-96456ca62246",
           "name": "Resource | Use of net fresh water (FW)"
@@ -426,7 +426,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "nhwd",
+        "SmartEPD": "NHWD",
         "openLCA": {
           "@id": "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
           "name": "Waste | Non hazardous waste disposed (NHWD)"
@@ -434,7 +434,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "nrsf",
+        "SmartEPD": "NRSF",
         "openLCA": {
           "@id": "89def144-d39a-4287-b86f-efde453ddcb2",
           "name": "Resource | Use of non renewable secondary fuels (NRSF)"
@@ -442,7 +442,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "penrt",
+        "SmartEPD": "PENRT",
         "openLCA": {
           "@id": "06159210-646b-4c8d-8583-da9b3b95a6c1",
           "name": "Resource | Total use of non renewable primary energy resources (PENRT)"
@@ -450,7 +450,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "mer",
+        "SmartEPD": "MER",
         "openLCA": {
           "@id": "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
           "name": "Output | Materials for energy recovery (MER)"
@@ -466,7 +466,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "pert",
+        "SmartEPD": "PERT",
         "openLCA": {
           "@id": "53f97275-fa8a-4cdd-9024-65936002acd0",
           "name": "Resource | Total use of renewable primary energy resources (PERT)"
@@ -474,7 +474,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "mfr",
+        "SmartEPD": "MFR",
         "openLCA": {
           "@id": "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
           "name": "Output | Materials for recycling (MFR)"
@@ -482,7 +482,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "rsf",
+        "SmartEPD": "RSF",
         "openLCA": {
           "@id": "64333088-a55f-4aa2-9a31-c10b07816787",
           "name": "Resource | Use of renewable secondary fuels (RSF)"
@@ -490,7 +490,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "penrm",
+        "SmartEPD": "PENRM",
         "openLCA": {
           "@id": "1421caa0-679d-4bf4-b282-0eb850ccae27",
           "name": "Resource | Use of non renewable primary energy resources used as raw materials (PENRM)"
@@ -498,7 +498,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "perm",
+        "SmartEPD": "PERM",
         "openLCA": {
           "@id": "fb3ec0de-548d-4508-aea5-00b73bf6f702",
           "name": "Resource | Use of renewable primary energy resources used as raw materials (PERM)"
@@ -506,7 +506,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "sm",
+        "SmartEPD": "SM",
         "openLCA": {
           "@id": "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
           "name": "Resource | Use of secondary materials (SM)"
@@ -514,7 +514,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "rwd",
+        "SmartEPD": "RWD",
         "openLCA": {
           "@id": "3449546e-52ad-4b39-b809-9fb77cea8ff6",
           "name": "Waste | Radioactive waste disposed (RWD)"
@@ -556,7 +556,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-luluc",
+        "SmartEPD": "GWP-luluc",
         "openLCA": {
           "@id": "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
           "name": "EN15804 EF3.1 | Global Warming Potential - land use and land use change (GWP-luluc)"
@@ -572,7 +572,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-biogenic",
+        "SmartEPD": "GWP-biogenic",
         "openLCA": {
           "@id": "a7ea186c-9749-11ed-a8fc-0242ac120002",
           "name": "EN15804 EF3.1 | Global Warming Potential - biogenic (GWP-biogenic)"
@@ -580,7 +580,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "ep-marine",
+        "SmartEPD": "EP-marine",
         "openLCA": {
           "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
           "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
@@ -644,7 +644,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-fossil",
+        "SmartEPD": "GWP-fossil",
         "openLCA": {
           "@id": "a7ea19c0-9749-11ed-a8fc-0242ac120002",
           "name": "EN15804 EF3.1 | Global Warming Potential - fossil fuels (GWP-fossil)"
@@ -700,7 +700,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "sm",
+        "SmartEPD": "SM",
         "openLCA": {
           "@id": "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
           "name": "Resource | Use of secondary materials (SM)"
@@ -708,7 +708,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "fw",
+        "SmartEPD": "FW",
         "openLCA": {
           "@id": "3cf952c8-f3a4-461d-8c96-96456ca62246",
           "name": "Resource | Use of net fresh water (FW)"
@@ -732,7 +732,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "hwd",
+        "SmartEPD": "HWD",
         "openLCA": {
           "@id": "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
           "name": "Waste | Hazardous waste disposed (HWD)"
@@ -740,7 +740,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "pere",
+        "SmartEPD": "PERE",
         "openLCA": {
           "@id": "20f32be5-0398-4288-9b6d-accddd195317",
           "name": "Resource | Use of renewable primary energy resources used as energy carrier (PERE)"
@@ -748,7 +748,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "rwd",
+        "SmartEPD": "RWD",
         "openLCA": {
           "@id": "3449546e-52ad-4b39-b809-9fb77cea8ff6",
           "name": "Waste | Radioactive waste disposed (RWD)"
@@ -756,7 +756,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "penre",
+        "SmartEPD": "PENRE",
         "openLCA": {
           "@id": "ac857178-2b45-46ec-892a-a9a4332f0372",
           "name": "Resource | Use of non renewable primary energy resources used as energy carrier (PENRE)"
@@ -764,7 +764,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "mfr",
+        "SmartEPD": "MFR",
         "openLCA": {
           "@id": "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
           "name": "Output | Materials for recycling (MFR)"
@@ -772,7 +772,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "penrm",
+        "SmartEPD": "PENRM",
         "openLCA": {
           "@id": "1421caa0-679d-4bf4-b282-0eb850ccae27",
           "name": "Resource | Use of non renewable primary energy resources used as raw materials (PENRM)"
@@ -780,7 +780,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "pert",
+        "SmartEPD": "PERT",
         "openLCA": {
           "@id": "53f97275-fa8a-4cdd-9024-65936002acd0",
           "name": "Resource | Total use of renewable primary energy resources (PERT)"
@@ -788,7 +788,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "mer",
+        "SmartEPD": "MER",
         "openLCA": {
           "@id": "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
           "name": "Output | Materials for energy recovery (MER)"
@@ -796,7 +796,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "penrt",
+        "SmartEPD": "PENRT",
         "openLCA": {
           "@id": "06159210-646b-4c8d-8583-da9b3b95a6c1",
           "name": "Resource | Total use of non renewable primary energy resources (PENRT)"
@@ -804,7 +804,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "perm",
+        "SmartEPD": "PERM",
         "openLCA": {
           "@id": "fb3ec0de-548d-4508-aea5-00b73bf6f702",
           "name": "Resource | Use of renewable primary energy resources used as raw materials (PERM)"
@@ -812,7 +812,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "rsf",
+        "SmartEPD": "RSF",
         "openLCA": {
           "@id": "64333088-a55f-4aa2-9a31-c10b07816787",
           "name": "Resource | Use of renewable secondary fuels (RSF)"
@@ -820,7 +820,7 @@
         "type": "resource"
       },
       {
-        "SmartEPD": "nhwd",
+        "SmartEPD": "NHWD",
         "openLCA": {
           "@id": "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
           "name": "Waste | Non hazardous waste disposed (NHWD)"
@@ -828,7 +828,7 @@
         "type": "output"
       },
       {
-        "SmartEPD": "nrsf",
+        "SmartEPD": "NRSF",
         "openLCA": {
           "@id": "89def144-d39a-4287-b86f-efde453ddcb2",
           "name": "Resource | Use of non renewable secondary fuels (NRSF)"
@@ -960,7 +960,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-luluc",
+        "SmartEPD": "GWP-luluc",
         "openLCA": {
           "@id": "4331bbdb-978a-490d-8707-eeb047f01a55",
           "name": "EN15804 EF3.0 | Global Warming Potential - land use and land use change (GWP-luluc)"
@@ -1032,7 +1032,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-fossil",
+        "SmartEPD": "GWP-fossil",
         "openLCA": {
           "@id": "5f635281-343e-44fb-83df-1971b155e6b6",
           "name": "EN15804 EF3.0 | Global Warming Potential - fossil fuels (GWP-fossil)"
@@ -1040,7 +1040,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "ep-marine",
+        "SmartEPD": "EP-marine",
         "openLCA": {
           "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
           "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
@@ -1048,7 +1048,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-biogenic",
+        "SmartEPD": "GWP-biogenic",
         "openLCA": {
           "@id": "2356e1ab-0185-4db5-86e5-16de51c7485c",
           "name": "EN15804 EF3.0 | Global Warming Potential - biogenic (GWP-biogenic)"
@@ -1082,7 +1082,7 @@
     },
     "indicators": [
       {
-        "SmartEPD": "gwp-luluc",
+        "SmartEPD": "GWP-luluc",
         "openLCA": {
           "@id": "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
           "name": "EN15804 EF3.1 | Global Warming Potential - land use and land use change (GWP-luluc)"
@@ -1130,7 +1130,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "ep-marine",
+        "SmartEPD": "EP-marine",
         "openLCA": {
           "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
           "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
@@ -1138,7 +1138,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-fossil",
+        "SmartEPD": "GWP-fossil",
         "openLCA": {
           "@id": "a7ea19c0-9749-11ed-a8fc-0242ac120002",
           "name": "EN15804 EF3.1 | Global Warming Potential - fossil fuels (GWP-fossil)"
@@ -1210,7 +1210,7 @@
         "type": "impact"
       },
       {
-        "SmartEPD": "gwp-biogenic",
+        "SmartEPD": "GWP-biogenic",
         "openLCA": {
           "@id": "a7ea186c-9749-11ed-a8fc-0242ac120002",
           "name": "EN15804 EF3.1 | Global Warming Potential - biogenic (GWP-biogenic)"
