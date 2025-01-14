@@ -26,5 +26,4 @@ public class MappingTest {
 			assertFalse(m.refs().isEmpty());
 		}
 	}
-
 }

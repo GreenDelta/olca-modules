@@ -11,6 +11,7 @@ import java.util.Objects;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Result;
+import org.openlca.io.openepd.EpdConverter;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,18 @@ public class SmartEpdWriter {
 		var smartEpd = new SmartEpd();
 		smartEpd.productName(epd.name)
 				.productDescription(epd.description);
+
+		// declared unit
+		var unit = getDeclaredUnit();
+		if (unit != null) {
+			smartEpd.declaredUnit(unit);
+			EpdConverter.massInKgOf(epd.product)
+					.ifPresent(smartEpd::massPerUnit);
+		}
+
+		// write results
 		update(smartEpd);
+
 		return smartEpd;
 	}
 
@@ -180,6 +192,14 @@ public class SmartEpdWriter {
 			}
 		}
 		return mapping != null ? mapping.method() : null;
+	}
+
+	private SmartDeclaredUnit getDeclaredUnit() {
+		if (epd.product == null || epd.product.unit == null)
+			return null;
+		return new SmartDeclaredUnit()
+				.unit(epd.product.unit.name)
+				.qty(epd.product.amount);
 	}
 
 	private record ResultMap(

@@ -23,8 +23,8 @@ public record SmartEpd(JsonObject json) {
 
 	public static Optional<SmartEpd> of(JsonElement e) {
 		return e != null && e.isJsonObject()
-			? Optional.of(new SmartEpd(e.getAsJsonObject()))
-			: Optional.empty();
+				? Optional.of(new SmartEpd(e.getAsJsonObject()))
+				: Optional.empty();
 	}
 
 	public static List<SmartEpd> allOf(JsonArray array) {
@@ -86,6 +86,28 @@ public record SmartEpd(JsonObject json) {
 
 	public SmartEpd scopeDescription(String scopeDescription) {
 		Json.put(json, "scope_description", scopeDescription);
+		return this;
+	}
+
+	public SmartDeclaredUnit declaredUnit() {
+		return SmartDeclaredUnit
+				.of(Json.getObject(json, "declared_unit"))
+				.orElse(null);
+	}
+
+	public SmartEpd declaredUnit(SmartDeclaredUnit u) {
+		if (u != null) {
+			Json.put(json, "declared_unit", u.json());
+		}
+		return this;
+	}
+
+	public double massPerUnit() {
+		return Json.getDouble(json, "mass_per_functional_unit", 0);
+	}
+
+	public SmartEpd massPerUnit(double massPerUnit) {
+		Json.put(json, "mass_per_functional_unit", massPerUnit);
 		return this;
 	}
 
