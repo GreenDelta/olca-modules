@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
@@ -55,5 +56,10 @@ record Ref(String id, String name) {
 		return id != null
 				? id.hashCode()
 				: System.identityHashCode(this);
+	}
+
+	static boolean matches(Ref ref, RootEntity entity) {
+		return ref != null && entity != null
+				&& Objects.equals(ref.id, entity.refId);
 	}
 }

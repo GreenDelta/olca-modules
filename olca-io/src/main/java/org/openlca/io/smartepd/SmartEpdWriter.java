@@ -19,9 +19,13 @@ public class SmartEpdWriter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Epd epd;
+	private final List<MethodMapping> methods;
+	private final List<IndicatorMapping> indicators;
 
 	private SmartEpdWriter(Epd epd) {
 		this.epd = Objects.requireNonNull(epd);
+		this.methods = MethodMapping.getDefault();
+		this.indicators = IndicatorMapping.getDefault();
 	}
 
 	public static SmartEpdWriter of(Epd epd) {
@@ -31,7 +35,7 @@ public class SmartEpdWriter {
 	public SmartEpd write() {
 		var smartEpd = new SmartEpd();
 		smartEpd.productName(epd.name)
-			.productDescription(epd.description);
+				.productDescription(epd.description);
 		update(smartEpd);
 		return smartEpd;
 	}
@@ -40,7 +44,6 @@ public class SmartEpdWriter {
 		if (smartEpd == null)
 			return;
 
-		var mappings = MethodMapping.getAll();
 		var results = new ResultMap();
 		var mods = EnumSet.noneOf(SmartModule.class);
 
@@ -57,23 +60,23 @@ public class SmartEpdWriter {
 			mods.add(smartMod);
 
 			// find the method mapping
-			var mapping = findMapping(mod.result, mappings);
-			if (mapping == null) {
-				log.warn("no mapping found for module: {}", mod.name);
-				continue;
+			var method = findMethod(mod.result);
+			if (method == null) {
+				log.warn("no method mapping found for module: {}", mod.name);
 			}
+			var methodId = method != null ? method.id() : "Unknown LCIA";
 
 			// collect the results
 			for (var r : mod.result.impactResults) {
-				var indicator = findIndicator(r, mapping);
+				var indicator = findIndicator(r);
 				if (indicator == null) {
 					log.warn("no mapping found for indicator: {}", r.indicator);
 					continue;
 				}
 				results.put(
-					mapping.smartEpd(),
-					indicator,
-					new SmartModuleValue(smartMod, r.amount));
+						methodId,
+						indicator,
+						new SmartModuleValue(smartMod, r.amount));
 			}
 		}
 
@@ -91,27 +94,70 @@ public class SmartEpdWriter {
 		}
 	}
 
-	private SmartIndicator findIndicator(ImpactResult r, MethodMapping mapping) {
-		if (r == null || r.indicator == null || r.indicator.refId == null)
+	private SmartIndicator findIndicator(ImpactResult r) {
+		if (r == null || r.indicator == null)
 			return null;
-		for (var i : mapping.indicators()) {
-			if (i.ref() == null)
-				continue;
-			if (Objects.equals(i.ref().id(), r.indicator.refId)) {
-				var indicator = SmartIndicator.of(i.smartEpd()).orElse(null);
-				if (indicator != null)
-					return indicator;
+
+		// find by code
+		var code = r.indicator.code;
+		if (Strings.notEmpty(code)) {
+			var smartIndicator = SmartIndicator.of(code).orElse(null);
+			if (smartIndicator != null)
+				return smartIndicator;
+		}
+
+		// find by name
+		var name = r.indicator.name;
+		if (Strings.notEmpty(name)) {
+			var smartIndicator = SmartIndicator.of(name).orElse(null);
+			if (smartIndicator != null)
+				return smartIndicator;
+		}
+
+		// find by mapping ID
+		var refId = r.indicator.refId;
+		if (Strings.nullOrEmpty(refId))
+			return null;
+		for (var i : indicators) {
+			for (var ref : i.refs()) {
+				if (Objects.equals(ref.id(), refId)) {
+					return i.indicator();
+				}
 			}
 		}
 		return null;
 	}
 
-	private MethodMapping findMapping(
-		Result result, List<MethodMapping> mappings
-	) {
-		if (result == null || mappings == null)
+	private SmartMethod findMethod(Result result) {
+		if (result == null)
 			return null;
 
+		// if there is a method defined in the result, first try to find a
+		// mapping for this method
+		if (result.impactMethod != null) {
+			var method = result.impactMethod;
+
+			// check the code
+			if (Strings.notEmpty(method.code)) {
+				var smartMethod = SmartMethod.of(method.code).orElse(null);
+				if (smartMethod != null)
+					return smartMethod;
+			}
+
+			// check the name
+			var smartMethod = SmartMethod.of(method.name).orElse(null);
+			if (smartMethod != null)
+				return smartMethod;
+
+			// search mappings for the method ID
+			for (var m : methods) {
+				if (Ref.matches(m.ref(), result.impactMethod))
+					return m.method();
+			}
+		}
+
+		// if no method is defined in the result, try to find the best mapping for
+		// the used indicators in the result
 		var indicatorIds = new HashSet<String>();
 		for (var i : result.impactResults) {
 			if (i.indicator == null || i.indicator.refId == null)
@@ -121,13 +167,10 @@ public class SmartEpdWriter {
 
 		MethodMapping mapping = null;
 		int matchCount = 0;
-		for (var m : mappings) {
+		for (var m : methods) {
 			int count = 0;
 			for (var i : m.indicators()) {
-				if (i.ref() == null)
-					continue;
-				if (indicatorIds.contains(i.ref().id())
-					&& Strings.notEmpty(i.smartEpd())) {
+				if (indicatorIds.contains(i)) {
 					count++;
 				}
 			}
@@ -136,11 +179,11 @@ public class SmartEpdWriter {
 				mapping = m;
 			}
 		}
-		return mapping;
+		return mapping != null ? mapping.method() : null;
 	}
 
 	private record ResultMap(
-		Map<SmartIndicator, List<SmartResult>> results
+			Map<SmartIndicator, List<SmartResult>> results
 	) {
 
 		ResultMap() {
@@ -151,30 +194,32 @@ public class SmartEpdWriter {
 			return results.isEmpty();
 		}
 
-		void put(String method, SmartIndicator indicator, SmartModuleValue value) {
-			if (method == null || indicator == null || value == null)
+		void put(
+				String methodId, SmartIndicator indicator, SmartModuleValue value
+		) {
+			if (methodId == null || indicator == null || value == null)
 				return;
 			var list = results.computeIfAbsent(indicator, $ -> new ArrayList<>());
 			SmartResult result;
 			if (indicator.isImpact()) {
 				result = list.stream()
-					.filter(r -> r.method().equals(method))
-					.findFirst()
-					.orElseGet(() -> {
-						var r = new SmartResult()
-							.method(method)
-							.impact(indicator.id())
-							.unit(indicator.unit());
-						list.add(r);
-						return r;
-					});
+						.filter(r -> r.method().equals(methodId))
+						.findFirst()
+						.orElseGet(() -> {
+							var r = new SmartResult()
+									.method(methodId)
+									.impact(indicator.id())
+									.unit(indicator.unit());
+							list.add(r);
+							return r;
+						});
 			} else {
 				if (!list.isEmpty()) {
 					result = list.getFirst();
 				} else {
 					result = new SmartResult()
-						.indicator(indicator.id())
-						.unit(indicator.unit());
+							.indicator(indicator.id())
+							.unit(indicator.unit());
 					list.add(result);
 				}
 			}
@@ -186,8 +231,8 @@ public class SmartEpdWriter {
 			for (var e : results.entrySet()) {
 				var indicator = e.getKey();
 				if (e.getValue() == null
-					|| indicator == null
-					|| indicator.type() != type)
+						|| indicator == null
+						|| indicator.type() != type)
 					continue;
 				rs.addAll(e.getValue());
 			}
