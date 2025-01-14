@@ -198,14 +198,26 @@ public enum SmartIndicator {
 	/// Exported thermal energy
 	EET(SmartIndicatorType.OUTPUT, "EET", "MJ");
 
-	public final SmartIndicatorType type;
-	public final String id;
-	public final String unit;
+	private final SmartIndicatorType type;
+	private final String id;
+	private final String unit;
 
 	SmartIndicator(SmartIndicatorType type, String id, String unit) {
 		this.type = type;
 		this.id = id;
 		this.unit = unit;
+	}
+
+	public String id() {
+		return id;
+	}
+
+	public String unit() {
+		return unit;
+	}
+
+	public SmartIndicatorType type() {
+		return type;
 	}
 
 	public static Optional<SmartIndicator> of(String id) {

@@ -163,8 +163,8 @@ public class SmartEpdWriter {
 					.orElseGet(() -> {
 						var r = new SmartResult()
 							.method(method)
-							.impact(indicator.id)
-							.unit(indicator.unit);
+							.impact(indicator.id())
+							.unit(indicator.unit());
 						list.add(r);
 						return r;
 					});
@@ -173,8 +173,8 @@ public class SmartEpdWriter {
 					result = list.getFirst();
 				} else {
 					result = new SmartResult()
-						.indicator(indicator.id)
-						.unit(indicator.unit);
+						.indicator(indicator.id())
+						.unit(indicator.unit());
 					list.add(result);
 				}
 			}
@@ -187,7 +187,7 @@ public class SmartEpdWriter {
 				var indicator = e.getKey();
 				if (e.getValue() == null
 					|| indicator == null
-					|| indicator.type != type)
+					|| indicator.type() != type)
 					continue;
 				rs.addAll(e.getValue());
 			}
