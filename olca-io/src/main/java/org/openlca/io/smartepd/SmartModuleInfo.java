@@ -59,10 +59,10 @@ class SmartModuleInfo {
 		var obj = new JsonObject();
 
 		// aggregation type: 1 = A1-A3, 2 = A1, A2, A3
-		int aggType = stage == SmartStage.PRODUCTION
-			&& modules.contains(SmartModule.A1A2A3)
-			? 1 : 2;
-		Json.put(obj, "show_as", aggType);
+		if (stage == SmartStage.PRODUCTION) {
+			int aggType = modules.contains(SmartModule.A1A2A3) ? 1 : 2;
+			Json.put(obj, "show_as", aggType);
+		}
 
 		for (var mod : modules) {
 			if (mod == SmartModule.A1A2A3) {
