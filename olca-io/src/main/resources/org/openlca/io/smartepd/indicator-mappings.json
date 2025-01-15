@@ -18,6 +18,34 @@
     ]
   },
   {
+    "SmartEPD": "ADP-fossil",
+    "type": "impact",
+    "openLCA": [
+      {
+        "@id": "804ebcdf-309d-4098-8ed8-fdaf2f389981",
+        "name": "CML | Abiotic depletion potential for fossil resources (ADPF)"
+      },
+      {
+        "@id": "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
+        "name": "EN15804 (EF3.0 & 3.1) | Abiotic depletion potential - fossil resources (ADPF)"
+      }
+    ]
+  },
+  {
+    "SmartEPD": "ADP-minerals&metals",
+    "type": "impact",
+    "openLCA": [
+      {
+        "@id": "f7c73bb9-ab1a-4249-9c6d-379a0de6f67e",
+        "name": "CML | Abiotic depletion potential for non fossil resources (ADPE)"
+      },
+      {
+        "@id": "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
+        "name": "EN15804 (EF3.0 & 3.1) | Abiotic depletion potential - non-fossil resources (ADPE)"
+      }
+    ]
+  },
+  {
     "SmartEPD": "EP",
     "type": "impact",
     "openLCA": [
@@ -118,6 +146,20 @@
       {
         "@id": "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
         "name": "EN15804 EF3.1 | Global Warming Potential - land use and land use change (GWP-luluc)"
+      }
+    ]
+  },
+  {
+    "SmartEPD": "GWP-GHG",
+    "type": "impact",
+    "openLCA": [
+      {
+        "@id": "fb774615-0575-45de-9a89-1ded92f19770",
+        "name": "EN15804 (EF 3.0) | Global warming potential except emissions and uptake of biogenic carbon (GWP-IOBC/GHG)"
+      },
+      {
+        "@id": "345f758b-5471-4e70-956e-997ef22a13f8",
+        "name": "EN15804 (EF 3.1) | Global warming potential except emissions and uptake of biogenic carbon (GWP-IOBC/GHG)"
       }
     ]
   },

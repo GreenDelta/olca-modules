@@ -67,10 +67,10 @@ public enum SmartIndicator {
 	PM2_5(SmartIndicatorType.IMPACT, "PM2.5", "kg PM2.5 eq"),
 
 	/// Abiotic depletion potential for fossil resources
-	ADP_FOSSIL(SmartIndicatorType.IMPACT, "ADP-fossil", "kg oil eq"),
+	ADP_FOSSIL(SmartIndicatorType.IMPACT, "ADP-fossil", "MJ"),
 
 	/// Mineral resource scarcity
-	ADP_MINERALS_METALS(SmartIndicatorType.IMPACT, "ADP-minerals&metals", "kg Cu eq"),
+	ADP_MINERALS_METALS(SmartIndicatorType.IMPACT, "ADP-minerals&metals", "kg Sb eq"),
 
 	/// Land Use
 	LU(SmartIndicatorType.IMPACT, "LU", "m2 yr"),
