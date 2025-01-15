@@ -89,15 +89,28 @@ public record SmartEpd(JsonObject json) {
 		return this;
 	}
 
-	public SmartDeclaredUnit declaredUnit() {
-		return SmartDeclaredUnit
-				.of(Json.getObject(json, "declared_unit"))
+	public SmartRefUnit refUnit() {
+		var type = Json.getInt(json, "unit_type", 1);
+		var key = type == SmartRefUnit.FUNCTIONAL
+				? "functional_unit"
+				: "declared_unit";
+		return SmartRefUnit
+				.of(Json.getObject(json, key))
 				.orElse(null);
 	}
 
-	public SmartEpd declaredUnit(SmartDeclaredUnit u) {
+	public SmartEpd declaredUnit(SmartRefUnit u) {
+		Json.put(json, "unit_type", SmartRefUnit.DECLARED);
 		if (u != null) {
 			Json.put(json, "declared_unit", u.json());
+		}
+		return this;
+	}
+
+	public SmartEpd functionalUnit(SmartRefUnit u) {
+		Json.put(json, "unit_type", SmartRefUnit.FUNCTIONAL);
+		if (u != null) {
+			Json.put(json, "functional_unit", u.json());
 		}
 		return this;
 	}

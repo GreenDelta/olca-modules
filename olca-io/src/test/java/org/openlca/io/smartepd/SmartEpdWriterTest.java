@@ -47,7 +47,7 @@ public class SmartEpdWriterTest {
 		var smartEpd = SmartEpdWriter.of(epd).write();
 
 		// check the declared unit
-		var decUnit = smartEpd.declaredUnit();
+		var decUnit = smartEpd.refUnit();
 		assertNotNull(decUnit);
 		assertEquals(1, decUnit.qty(), 1e-9);
 		assertEquals("kg", decUnit.unit());

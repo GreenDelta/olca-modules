@@ -36,7 +36,7 @@ public class SmartEpdWriter {
 	public SmartEpd write() {
 		var smartEpd = new SmartEpd();
 		smartEpd.productName(epd.name)
-				.productDescription(epd.description);
+				.productDescription(Strings.cut(epd.description, 2000));
 
 		// declared unit
 		var unit = getDeclaredUnit();
@@ -194,10 +194,10 @@ public class SmartEpdWriter {
 		return mapping != null ? mapping.method() : null;
 	}
 
-	private SmartDeclaredUnit getDeclaredUnit() {
+	private SmartRefUnit getDeclaredUnit() {
 		if (epd.product == null || epd.product.unit == null)
 			return null;
-		return new SmartDeclaredUnit()
+		return new SmartRefUnit()
 				.unit(epd.product.unit.name)
 				.qty(epd.product.amount);
 	}
