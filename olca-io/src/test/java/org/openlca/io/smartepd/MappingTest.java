@@ -8,7 +8,7 @@ public class MappingTest {
 
 	@Test
 	public void testMethodMappings() {
-		var mappings = MethodMapping.getDefault();
+		var mappings = SmartMethodMapping.getDefault();
 		assertFalse(mappings.isEmpty());
 		for (var m : mappings) {
 			assertNotNull(m.method());
@@ -19,7 +19,7 @@ public class MappingTest {
 
 	@Test
 	public void testIndicatorMappings() {
-		var mappings = IndicatorMapping.getDefault();
+		var mappings = SmartIndicatorMapping.getDefault();
 		assertFalse(mappings.isEmpty());
 		for (var m : mappings) {
 			assertNotNull(m.indicator());

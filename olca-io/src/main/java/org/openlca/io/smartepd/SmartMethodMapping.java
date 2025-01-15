@@ -21,26 +21,26 @@ import com.google.gson.JsonObject;
 /// @param method     the SmartEPD method
 /// @param ref        the reference of the openLCA method
 /// @param indicators the list of indicators IDs that are defined in the
-///                                     openLCA method
-record MethodMapping(
-		SmartMethod method, Ref ref, Set<String> indicators
+///                   openLCA method
+record SmartMethodMapping(
+		SmartMethod method, SmartRef ref, Set<String> indicators
 ) {
 
-	static List<MethodMapping> getDefault() {
-		var in = MethodMapping.class.getResourceAsStream("method-mappings.json");
+	public static List<SmartMethodMapping> getDefault() {
+		var in = SmartMethodMapping.class.getResourceAsStream("method-mappings.json");
 		if (in == null)
 			return List.of();
 		try (in; var reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
 			var array = new Gson().fromJson(reader, JsonArray.class);
 			return allOf(array);
 		} catch (Exception e) {
-			LoggerFactory.getLogger(MethodMapping.class)
+			LoggerFactory.getLogger(SmartMethodMapping.class)
 					.error("failed to load method mapping", e);
 			return List.of();
 		}
 	}
 
-	private static Optional<MethodMapping> of(JsonElement e) {
+	private static Optional<SmartMethodMapping> of(JsonElement e) {
 		if (e == null || !e.isJsonObject())
 			return Optional.empty();
 		var obj = e.getAsJsonObject();
@@ -48,7 +48,7 @@ record MethodMapping(
 		var method = SmartMethod.of(smartId).orElse(null);
 		if (method == null)
 			return Optional.empty();
-		var ref = Ref.of(obj.get("openLCA")).orElse(null);
+		var ref = SmartRef.of(obj.get("openLCA")).orElse(null);
 		if (ref == null)
 			return Optional.empty();
 
@@ -65,13 +65,13 @@ record MethodMapping(
 			}
 		}
 
-		return Optional.of(new MethodMapping(method, ref, indicators));
+		return Optional.of(new SmartMethodMapping(method, ref, indicators));
 	}
 
-	private static List<MethodMapping> allOf(JsonArray array) {
+	private static List<SmartMethodMapping> allOf(JsonArray array) {
 		if (array == null)
 			return List.of();
-		var results = new ArrayList<MethodMapping>(array.size());
+		var results = new ArrayList<SmartMethodMapping>(array.size());
 		for (var el : array) {
 			of(el).ifPresent(results::add);
 		}

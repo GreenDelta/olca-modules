@@ -3,6 +3,7 @@ package org.openlca.io.smartepd;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.openlca.jsonld.Json;
@@ -12,10 +13,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-record IndicatorMapping(SmartIndicator indicator,	List<Ref> refs) {
+public record SmartIndicatorMapping(
+		SmartIndicator indicator, List<SmartRef> refs
+) {
 
-	static List<IndicatorMapping> getDefault() {
-		var in = IndicatorMapping.class.getResourceAsStream(
+	public SmartIndicatorMapping(SmartIndicator indicator, List<SmartRef> refs) {
+		this.indicator = Objects.requireNonNull(indicator);
+		this.refs = Objects.requireNonNull(refs);
+	}
+
+	public static List<SmartIndicatorMapping> getDefault() {
+		var in = SmartIndicatorMapping.class.getResourceAsStream(
 				"indicator-mappings.json");
 		if (in == null)
 			return List.of();
@@ -28,7 +36,7 @@ record IndicatorMapping(SmartIndicator indicator,	List<Ref> refs) {
 		}
 	}
 
-	private static Optional<IndicatorMapping> of(JsonElement e) {
+	private static Optional<SmartIndicatorMapping> of(JsonElement e) {
 		if (e == null || !e.isJsonObject())
 			return Optional.empty();
 		var obj = e.getAsJsonObject();
@@ -36,14 +44,14 @@ record IndicatorMapping(SmartIndicator indicator,	List<Ref> refs) {
 		var indicator = SmartIndicator.of(smartId).orElse(null);
 		if (indicator == null)
 			return Optional.empty();
-		var refs = Ref.allOf(Json.getArray(obj, "openLCA"));
-		return Optional.of(new IndicatorMapping(indicator, refs));
+		var refs = SmartRef.allOf(Json.getArray(obj, "openLCA"));
+		return Optional.of(new SmartIndicatorMapping(indicator, refs));
 	}
 
-	private static List<IndicatorMapping> allOf(JsonArray array) {
+	private static List<SmartIndicatorMapping> allOf(JsonArray array) {
 		if (array == null)
 			return List.of();
-		var results = new ArrayList<IndicatorMapping>(array.size());
+		var results = new ArrayList<SmartIndicatorMapping>(array.size());
 		for (var el : array) {
 			of(el).ifPresent(results::add);
 		}
@@ -52,14 +60,12 @@ record IndicatorMapping(SmartIndicator indicator,	List<Ref> refs) {
 
 	JsonObject json() {
 		var obj = new JsonObject();
-		if (indicator != null) {
-			Json.put(obj, "SmartEPD", indicator.id());
-			var type = indicator.type();
-			if (type != null) {
-				Json.put(obj, "type", type.name().toLowerCase());
-			}
+		Json.put(obj, "SmartEPD", indicator.id());
+		var type = indicator.type();
+		if (type != null) {
+			Json.put(obj, "type", type.name().toLowerCase());
 		}
-		if (refs != null && !refs.isEmpty()) {
+		if (!refs.isEmpty()) {
 			var array = new JsonArray(refs.size());
 			for (var ref : refs) {
 				array.add(ref.json());

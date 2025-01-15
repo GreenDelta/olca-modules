@@ -20,13 +20,13 @@ public class SmartEpdWriter {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Epd epd;
-	private final List<MethodMapping> methods;
-	private final List<IndicatorMapping> indicators;
+	private final List<SmartMethodMapping> methods;
+	private final List<SmartIndicatorMapping> indicators;
 
 	private SmartEpdWriter(Epd epd) {
 		this.epd = Objects.requireNonNull(epd);
-		this.methods = MethodMapping.getDefault();
-		this.indicators = IndicatorMapping.getDefault();
+		this.methods = SmartMethodMapping.getDefault();
+		this.indicators = SmartIndicatorMapping.getDefault();
 	}
 
 	public static SmartEpdWriter of(Epd epd) {
@@ -163,7 +163,7 @@ public class SmartEpdWriter {
 
 			// search mappings for the method ID
 			for (var m : methods) {
-				if (Ref.matches(m.ref(), result.impactMethod))
+				if (SmartRef.matches(m.ref(), result.impactMethod))
 					return m.method();
 			}
 		}
@@ -177,7 +177,7 @@ public class SmartEpdWriter {
 			indicatorIds.add(i.indicator.refId);
 		}
 
-		MethodMapping mapping = null;
+		SmartMethodMapping mapping = null;
 		int matchCount = 0;
 		for (var m : methods) {
 			int count = 0;

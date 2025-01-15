@@ -14,21 +14,21 @@ import com.google.gson.JsonObject;
 
 /// Describes a reference to an openLCA entity in the indicator and method
 /// mappings.
-record Ref(String id, String name) {
+public record SmartRef(String id, String name) {
 
-	static Optional<Ref> of(JsonElement e) {
+	static Optional<SmartRef> of(JsonElement e) {
 		if (e == null || !e.isJsonObject())
 			return Optional.empty();
 		var obj = e.getAsJsonObject();
-		return Optional.of(new Ref(
+		return Optional.of(new SmartRef(
 				Json.getString(obj, "@id"),
 				Json.getString(obj, "name")));
 	}
 
-	static List<Ref> allOf(JsonArray array) {
+	static List<SmartRef> allOf(JsonArray array) {
 		if (array == null)
 			return List.of();
-		var refs = new ArrayList<Ref>(array.size());
+		var refs = new ArrayList<SmartRef>(array.size());
 		for (var el : array) {
 			of(el).ifPresent(refs::add);
 		}
@@ -46,7 +46,7 @@ record Ref(String id, String name) {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!(obj instanceof Ref other))
+		if (!(obj instanceof SmartRef other))
 			return false;
 		return Objects.equals(id, other.id);
 	}
@@ -58,7 +58,7 @@ record Ref(String id, String name) {
 				: System.identityHashCode(this);
 	}
 
-	static boolean matches(Ref ref, RootEntity entity) {
+	static boolean matches(SmartRef ref, RootEntity entity) {
 		return ref != null && entity != null
 				&& Objects.equals(ref.id, entity.refId);
 	}
