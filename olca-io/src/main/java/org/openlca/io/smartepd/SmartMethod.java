@@ -22,7 +22,9 @@ public enum SmartMethod {
 
 	EF_3_0("EF3.0"),
 
-	EF_3_1("EF3.1");
+	EF_3_1("EF3.1"),
+
+	UNKNOWN("Unknown LCIA");
 
 	private final String id;
 

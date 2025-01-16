@@ -75,8 +75,8 @@ public class SmartEpdWriter {
 			var method = findMethod(mod.result);
 			if (method == null) {
 				log.warn("no method mapping found for module: {}", mod.name);
+				method = SmartMethod.UNKNOWN;
 			}
-			var methodId = method != null ? method.id() : "Unknown LCIA";
 
 			// collect the results
 			for (var r : mod.result.impactResults) {
@@ -86,7 +86,7 @@ public class SmartEpdWriter {
 					continue;
 				}
 				results.put(
-						methodId,
+						method,
 						indicator,
 						new SmartModuleValue(smartMod, r.amount));
 			}
@@ -215,21 +215,21 @@ public class SmartEpdWriter {
 		}
 
 		void put(
-				String methodId, SmartIndicator indicator, SmartModuleValue value
+				SmartMethod method, SmartIndicator indicator, SmartModuleValue value
 		) {
-			if (methodId == null || indicator == null || value == null)
+			if (method == null || indicator == null || value == null)
 				return;
 			var list = results.computeIfAbsent(indicator, $ -> new ArrayList<>());
 			SmartResult result;
 			if (indicator.isImpact()) {
 				result = list.stream()
-						.filter(r -> r.method().equals(methodId))
+						.filter(r -> r.method().equals(method.id()))
 						.findFirst()
 						.orElseGet(() -> {
 							var r = new SmartResult()
-									.method(methodId)
+									.method(method.id())
 									.impact(indicator.id())
-									.unit(indicator.unit());
+									.unit(indicator.unitFor(method));
 							list.add(r);
 							return r;
 						});
@@ -239,7 +239,7 @@ public class SmartEpdWriter {
 				} else {
 					result = new SmartResult()
 							.indicator(indicator.id())
-							.unit(indicator.unit());
+							.unit(indicator.defaultUnit());
 					list.add(result);
 				}
 			}

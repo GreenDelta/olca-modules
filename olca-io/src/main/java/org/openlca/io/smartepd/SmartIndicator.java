@@ -1,8 +1,18 @@
 package org.openlca.io.smartepd;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 public enum SmartIndicator {
 
@@ -200,20 +210,33 @@ public enum SmartIndicator {
 
 	private final SmartIndicatorType type;
 	private final String id;
-	private final String unit;
+	private final String defaultUnit;
 
-	SmartIndicator(SmartIndicatorType type, String id, String unit) {
+	SmartIndicator(SmartIndicatorType type, String id, String defaultUnit) {
 		this.type = type;
 		this.id = id;
-		this.unit = unit;
+		this.defaultUnit = defaultUnit;
 	}
 
 	public String id() {
 		return id;
 	}
 
-	public String unit() {
-		return unit;
+	public String defaultUnit() {
+		return defaultUnit;
+	}
+
+	public String unitFor(SmartMethod method) {
+		if (method == null)
+			return defaultUnit;
+		var units = Unit.map.get(this);
+		if (units == null)
+			return defaultUnit;
+		for (var u : units) {
+			if (u.method == method)
+				return u.symbol;
+		}
+		return defaultUnit;
 	}
 
 	public SmartIndicatorType type() {
@@ -245,5 +268,49 @@ public enum SmartIndicator {
 
 	public boolean isOutput() {
 		return type == SmartIndicatorType.OUTPUT;
+	}
+
+	private record Unit(SmartMethod method, String symbol) {
+
+		static final Map<SmartIndicator, List<Unit>> map;
+
+		static {
+			map = new EnumMap<>(SmartIndicator.class);
+			var in = Unit.class.getResourceAsStream("indicator-units.json");
+			if (in != null) {
+				try (in) {
+					var json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+					var array = new Gson().fromJson(json, JsonArray.class);
+					for (var e : array) {
+						if (!e.isJsonObject())
+							continue;
+
+						var obj = e.getAsJsonObject();
+						var methodId = Json.getString(obj, "method");
+						if (Strings.nullOrEmpty(methodId) || methodId.equals("_"))
+							continue;
+						var method = SmartMethod.of(methodId).orElse(null);
+						if (method == null)
+							continue;
+
+						var indicator = SmartIndicator
+								.of(Json.getString(obj, "indicator"))
+								.orElse(null);
+						if (indicator == null)
+							continue;
+
+						var unit = Json.getString(obj, "unit");
+						if (Strings.nullOrEmpty(unit))
+							continue;
+						map.computeIfAbsent(indicator, k -> new ArrayList<>())
+								.add(new Unit(method, unit));
+					}
+				} catch (Exception e) {
+					var log = LoggerFactory.getLogger(Unit.class);
+					log.error("failed to read indicator units", e);
+				}
+			}
+		}
+
 	}
 }
