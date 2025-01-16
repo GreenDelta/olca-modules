@@ -68,7 +68,7 @@ public enum SmartIndicator {
 	EP_MARINE(SmartIndicatorType.IMPACT, "EP-marine", "kg N eq"),
 
 	/// Freshwater consumption
-	FW(SmartIndicatorType.IMPACT, "FW", "m3"),
+	FW(SmartIndicatorType.RESOURCE, "FW", "m3"),
 
 	/// Ionizing radiation
 	IRP(SmartIndicatorType.IMPACT, "IRP", "kg Bq (Cobalt 60) eq"),
