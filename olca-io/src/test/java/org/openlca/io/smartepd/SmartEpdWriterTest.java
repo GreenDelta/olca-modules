@@ -54,7 +54,7 @@ public class SmartEpdWriterTest {
 		assertEquals(1.0, smartEpd.massPerUnit(), 1e-9);
 
 		// check the results
-		var impacts = smartEpd.resultsOf(SmartIndicatorType.IMPACT)
+		var impacts = smartEpd.resultListsOf(SmartIndicatorType.IMPACT)
 				.getFirst()
 				.results()
 				.getFirst();

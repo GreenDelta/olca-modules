@@ -99,9 +99,9 @@ public class SmartEpdWriter {
 
 		SmartModuleInfo.write(smartEpd, mods);
 		for (var type : SmartIndicatorType.values()) {
-			var result = results.resultOf(type);
-			if (result != null && !result.results().isEmpty()) {
-				smartEpd.put(type, result);
+			var list = results.resultOf(type);
+			if (!list.isEmpty()) {
+				smartEpd.putResultsAndLists(type, list);
 			}
 		}
 	}
@@ -246,17 +246,17 @@ public class SmartEpdWriter {
 			value.addTo(result.json());
 		}
 
-		SmartResultList resultOf(SmartIndicatorType type) {
-			var rs = new ArrayList<SmartResult>();
+		List<SmartResult> resultOf(SmartIndicatorType type) {
+			var list = new ArrayList<SmartResult>();
 			for (var e : results.entrySet()) {
 				var indicator = e.getKey();
 				if (e.getValue() == null
 						|| indicator == null
 						|| indicator.type() != type)
 					continue;
-				rs.addAll(e.getValue());
+				list.addAll(e.getValue());
 			}
-			return new SmartResultList(type).results(rs);
+			return list;
 		}
 	}
 }

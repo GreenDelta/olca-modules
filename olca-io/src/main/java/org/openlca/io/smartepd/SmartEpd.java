@@ -205,18 +205,35 @@ public record SmartEpd(JsonObject json) {
 		return this;
 	}
 
-	public List<SmartResultList> resultsOf(SmartIndicatorType type) {
-		var array = Json.getArray(json, keyOf(type));
+	public List<SmartResultList> resultListsOf(SmartIndicatorType type) {
+		var array = Json.getArray(json, listKeyOf(type));
 		return SmartResultList.allOf(array);
 	}
 
-	public void put(SmartIndicatorType type, SmartResultList results) {
-		if (type == null || results == null)
-			return;
-		put(type, List.of(results));
+	public List<SmartResult> resultsOf(SmartIndicatorType type) {
+		var array = Json.getArray(json, keyOf(type));
+		if ( array != null )
+			return SmartResult.allOf(array);
+		var lists = resultListsOf(type);
+		return !lists.isEmpty()
+				? lists.getFirst().results()
+				: List.of();
 	}
 
-	public void put(SmartIndicatorType type, List<SmartResultList> results) {
+	/// In the SmartEPD format, results can be written as lists and lists of
+	/// lists. It is not always clear what is allowed and required when. This
+	/// method writes both, the results and the lists of results.
+	public void putResultsAndLists(
+			SmartIndicatorType type, List<SmartResult> results
+	) {
+		if (type == null || results == null)
+			return;
+		putResults(type, results);
+		var list = new SmartResultList(type).results(results);
+		putResultLists(type, List.of(list));
+	}
+
+	public void putResults(SmartIndicatorType type, List<SmartResult> results) {
 		if (type == null || results == null)
 			return;
 		var array = new JsonArray(results.size());
@@ -226,13 +243,35 @@ public record SmartEpd(JsonObject json) {
 		Json.put(json, keyOf(type), array);
 	}
 
-	private String keyOf(SmartIndicatorType type) {
+	public void putResultLists(
+			SmartIndicatorType type, List<SmartResultList> lists
+	) {
+		if (type == null || lists == null)
+			return;
+		var array = new JsonArray(lists.size());
+		for (var result : lists) {
+			array.add(result.json());
+		}
+		Json.put(json, listKeyOf(type), array);
+	}
+
+	private String listKeyOf(SmartIndicatorType type) {
 		if (type == null)
 			return "null";
 		return switch (type) {
 			case IMPACT -> "impacts_list";
 			case RESOURCE -> "resource_uses_list";
 			case OUTPUT -> "output_flows_list";
+		};
+	}
+
+	private String keyOf(SmartIndicatorType type) {
+		if (type == null)
+			return "null";
+		return switch (type) {
+			case IMPACT -> "impacts";
+			case RESOURCE -> "resource_uses";
+			case OUTPUT -> "output_flows";
 		};
 	}
 

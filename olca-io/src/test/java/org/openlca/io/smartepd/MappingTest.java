@@ -118,7 +118,7 @@ public class MappingTest {
 		var smart = SmartEpdWriter.of(epd).write();
 
 		for (var i : SmartIndicator.values()) {
-			var impact = smart.resultsOf(i.type())
+			var impact = smart.resultListsOf(i.type())
 					.getFirst()
 					.results()
 					.stream()
@@ -155,7 +155,7 @@ public class MappingTest {
 			result.impactResults.add(r);
 
 			var smart = SmartEpdWriter.of(epd).write();
-			var smartImpact = smart.resultsOf(SmartIndicatorType.IMPACT)
+			var smartImpact = smart.resultListsOf(SmartIndicatorType.IMPACT)
 					.getFirst()
 					.results()
 					.stream()

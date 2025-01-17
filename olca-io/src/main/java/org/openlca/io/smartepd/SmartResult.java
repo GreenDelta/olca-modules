@@ -40,6 +40,16 @@ public record SmartResult(JsonObject json) {
 		return results;
 	}
 
+	public static JsonArray toJsonArray(List<SmartResult> results) {
+		if (results == null)
+			return new JsonArray();
+		var array = new JsonArray(results.size());
+		for (var r : results) {
+			array.add(r.json);
+		}
+		return array;
+	}
+
 	public String method() {
 		return Json.getString(json, "lca_method");
 	}
