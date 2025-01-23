@@ -11,7 +11,4 @@ public enum SmartIndicatorType {
 	/// Output indicators, like waste etc.
 	OUTPUT;
 
-
-
-
 }

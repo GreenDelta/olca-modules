@@ -55,6 +55,14 @@ public class SmartEpdClient {
 				: Res.of(new SmartProject(res.value()));
 	}
 
+	public Res<SmartProjectSettings> getProjectSettings(String id) {
+		var res = new Req("public/projects/" + id + "/settings")
+				.sendReadJsonObject();
+		return res.hasError()
+				? res.wrapError("failed to get settings for project: " + id)
+				: Res.of(new SmartProjectSettings(res.value()));
+	}
+
 	/// Creates a new project.
 	public Res<SmartProject> postProject(SmartProject project) {
 		if (project == null)
