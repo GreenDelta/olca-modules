@@ -66,12 +66,12 @@ class SmartModuleInfo {
 
 		for (var mod : modules) {
 			if (mod == SmartModule.A1A2A3) {
-				Json.put(obj, "A1", true);
-				Json.put(obj, "A2", true);
-				Json.put(obj, "A3", true);
+				Json.put(obj, "a1", true);
+				Json.put(obj, "a2", true);
+				Json.put(obj, "a3", true);
 				continue;
 			}
-			Json.put(obj, mod.name(), true);
+			Json.put(obj, mod.name().toLowerCase(), true);
 		}
 
 		Json.put(info, keyOf(stage), obj);
