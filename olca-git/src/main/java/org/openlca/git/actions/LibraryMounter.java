@@ -94,11 +94,11 @@ class LibraryMounter {
 		var toUnmount = localLibs.stream()
 				.filter(Predicate.not(remoteLibs::contains))
 				.collect(Collectors.toList());
-		var unmounter = new Unmounter(repo.database);
+		var unmounter = Unmounter.keepNone(repo.database);
 		for (var lib : toUnmount) {
 			if (!dbLibs.contains(lib))
 				continue;
-			unmounter.unmountUnsafe(lib);
+			unmounter.unmount(lib);
 		}
 	}
 

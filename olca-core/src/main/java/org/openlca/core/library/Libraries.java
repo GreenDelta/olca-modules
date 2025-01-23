@@ -5,7 +5,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.reader.LibReader;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.descriptors.Descriptor;
 
 public final class Libraries {
 
@@ -40,6 +48,25 @@ public final class Libraries {
 			}
 		}
 		return order;
+	}
+
+	public static void fillExchangesOf(IDatabase db, LibReader lib, Process process) {
+		var exchanges = lib.getExchanges(TechFlow.of(process), db);
+		var qref = process.quantitativeReference;
+		if (qref != null) {
+			process.quantitativeReference = exchanges.stream()
+					.filter(e -> Objects.equals(qref.flow, e.flow)
+							& qref.isInput == e.isInput)
+					.findFirst()
+					.orElse(null);
+		}
+		process.exchanges.clear();
+		process.exchanges.addAll(exchanges);
+	}
+
+	public static void fillFactorsOf(IDatabase db, LibReader lib, ImpactCategory impact) {
+		var factors = lib.getImpactFactors(Descriptor.of(impact), db);
+		impact.impactFactors.addAll(factors);
 	}
 
 }

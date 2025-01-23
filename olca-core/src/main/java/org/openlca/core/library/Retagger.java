@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 
 class Retagger {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private static final Logger log = LoggerFactory.getLogger(Retagger.class);
 	private final IDatabase db;
 	private final Library lib;
 	private final String libId;
@@ -48,7 +48,7 @@ class Retagger {
 				total += switch (type) {
 					case PROCESS -> updateProcessesOf(refIds);
 					case IMPACT_CATEGORY -> updateImpactsOf(refIds);
-					default -> updateAllOf(type, refIds);
+					default -> updateAllOf(db, type, refIds, libId);
 				};
 			}
 			if (total > 0) {
@@ -57,7 +57,7 @@ class Retagger {
 		}
 	}
 
-	private int updateAllOf(ModelType type, Set<String> ids) {
+	static int updateAllOf(IDatabase db, ModelType type, Set<String> ids, String libId) {
 		var clazz = type.getModelClass();
 		if (clazz == null)
 			return 0;
