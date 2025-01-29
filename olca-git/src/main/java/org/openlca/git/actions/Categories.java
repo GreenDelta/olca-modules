@@ -30,7 +30,7 @@ class Categories {
 	}
 
 	private void init(OlcaRepository repo, String commitId, String path) {
-		repo.references.find().commit(commitId).iterate(entry -> {
+		repo.references.find().includeCategories().commit(commitId).iterate(entry -> {
 			if (!entry.isCategory)
 				return;
 			var refId = getRefId(entry.path);

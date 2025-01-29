@@ -92,6 +92,7 @@ public class References {
 		private ModelType type;
 		private String refId;
 		private boolean includeCategories;
+		private boolean includeLibraries;
 		private boolean recursive = true;
 
 		public Find path(String path) {
@@ -118,6 +119,11 @@ public class References {
 
 		public Find includeCategories() {
 			this.includeCategories = true;
+			return this;
+		}
+
+		public Find includeLibraries() {
+			this.includeLibraries = true;
 			return this;
 		}
 
@@ -194,6 +200,8 @@ public class References {
 				if (!includeCategories && recursive) {
 					iterateModels(commit, consumer);
 				} else if (RepositoryInfo.FILE_NAME.equals(path)) {
+					if (!includeLibraries)
+						return;
 					var libs = repo.getLibraries(commit).stream()
 							.map(lib -> new Reference(RepositoryInfo.FILE_NAME + "/" + lib, commit.getName(), null))
 							.collect(Collectors.toList());
@@ -244,7 +252,10 @@ public class References {
 				try (var walk = new TreeWalk(repo)) {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
-					var filter = KnownFilesFilter.createForPath(path).includeLibraries();
+					KnownFilesFilter filter = KnownFilesFilter.createForPath(path);
+					if (includeLibraries) {
+						filter.includeLibraries();
+					}
 					walk.setFilter(filter);
 					while (walk.next()) {
 						var name = GitUtil.decode(walk.getNameString());
