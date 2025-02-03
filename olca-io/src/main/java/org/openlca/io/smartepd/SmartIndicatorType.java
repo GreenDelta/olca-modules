@@ -9,5 +9,6 @@ public enum SmartIndicatorType {
 	RESOURCE,
 
 	/// Output indicators, like waste etc.
-	OUTPUT
+	OUTPUT;
+
 }

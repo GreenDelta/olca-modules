@@ -69,13 +69,7 @@ public record SmartResultList(
 	}
 
 	public SmartResultList results(List<SmartResult> impacts) {
-		if (impacts == null || impacts.isEmpty())
-			return this;
-		var array = new JsonArray(impacts.size());
-		for (var impact : impacts) {
-			array.add(impact.json());
-		}
-		Json.put(json, keyOf(type), array);
+		Json.put(json, keyOf(type), SmartResult.toJsonArray(impacts));
 		return this;
 	}
 }

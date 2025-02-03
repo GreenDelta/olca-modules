@@ -435,6 +435,16 @@ public class Json {
 		return obj;
 	}
 
+	/// Formats the given JSON element as pretty string.
+	public static String toPrettyString(JsonElement json) {
+		if (json == null)
+			return "null";
+		return new Gson().newBuilder()
+				.setPrettyPrinting()
+				.create()
+				.toJson(json);
+	}
+
 	/**
 	 * Writes the given JSON element to the given file. Possible exceptions are
 	 * rethrown as runtime exceptions.

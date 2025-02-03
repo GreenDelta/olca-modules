@@ -1,1328 +1,222 @@
 [
   {
-    "priority": 1,
     "SmartEPD": "CML 2016 v4.8",
     "openLCA": {
       "@id": "72d932a7-cb17-424e-b603-cbb5957a5187",
       "name": "EN15804+A1 (CML 4.8)"
     },
     "indicators": [
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "06dcd26f-025f-401a-a7c1-5e457eb54637",
-          "name": "CML | Depletion potential of the stratospheric ozone layer (ODP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "77e416eb-a363-4258-a04e-171d843a6460",
-          "name": "CML | Global warming potential (GWP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP",
-        "openLCA": {
-          "@id": "f58827d0-b407-4ec6-be75-8b69efb98a0f",
-          "name": "CML | Eutrophication potential (EP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "804ebcdf-309d-4098-8ed8-fdaf2f389981",
-          "name": "CML | Abiotic depletion potential for fossil resources (ADPF)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "1e84a202-dae6-42aa-9e9d-71ea48b8be00",
-          "name": "CML | Formation potential of tropospheric ozone (POCP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "f7c73bb9-ab1a-4249-9c6d-379a0de6f67e",
-          "name": "CML | Abiotic depletion potential for non fossil resources (ADPE)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "b4274add-93b7-4905-a5e4-2e878c4e4216",
-          "name": "CML | Acidification potential of soil and water (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "CRU",
-        "openLCA": {
-          "@id": "a2b32f97-3fc7-4af2-b209-525bc6426f33",
-          "name": "Output | Components for re-use (CRU)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PENRM",
-        "openLCA": {
-          "@id": "1421caa0-679d-4bf4-b282-0eb850ccae27",
-          "name": "Resource | Use of non renewable primary energy resources used as raw materials (PENRM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "EET",
-        "openLCA": {
-          "@id": "98daf38a-7a79-46d3-9a37-2b7bd0955810",
-          "name": "Output | Exported thermal energy (EET)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PERT",
-        "openLCA": {
-          "@id": "53f97275-fa8a-4cdd-9024-65936002acd0",
-          "name": "Resource | Total use of renewable primary energy resources (PERT)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "RSF",
-        "openLCA": {
-          "@id": "64333088-a55f-4aa2-9a31-c10b07816787",
-          "name": "Resource | Use of renewable secondary fuels (RSF)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "FW",
-        "openLCA": {
-          "@id": "3cf952c8-f3a4-461d-8c96-96456ca62246",
-          "name": "Resource | Use of net fresh water (FW)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "SM",
-        "openLCA": {
-          "@id": "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
-          "name": "Resource | Use of secondary materials (SM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "EEE",
-        "openLCA": {
-          "@id": "4da0c987-2b76-40d6-9e9e-82a017aaaf29",
-          "name": "Output | Exported electrical energy (EEE)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "RWD",
-        "openLCA": {
-          "@id": "3449546e-52ad-4b39-b809-9fb77cea8ff6",
-          "name": "Waste | Radioactive waste disposed (RWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PENRE",
-        "openLCA": {
-          "@id": "ac857178-2b45-46ec-892a-a9a4332f0372",
-          "name": "Resource | Use of non renewable primary energy resources used as energy carrier (PENRE)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "NHWD",
-        "openLCA": {
-          "@id": "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
-          "name": "Waste | Non hazardous waste disposed (NHWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "NRSF",
-        "openLCA": {
-          "@id": "89def144-d39a-4287-b86f-efde453ddcb2",
-          "name": "Resource | Use of non renewable secondary fuels (NRSF)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "MER",
-        "openLCA": {
-          "@id": "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
-          "name": "Output | Materials for energy recovery (MER)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "HWD",
-        "openLCA": {
-          "@id": "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
-          "name": "Waste | Hazardous waste disposed (HWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "MFR",
-        "openLCA": {
-          "@id": "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
-          "name": "Output | Materials for recycling (MFR)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PERE",
-        "openLCA": {
-          "@id": "20f32be5-0398-4288-9b6d-accddd195317",
-          "name": "Resource | Use of renewable primary energy resources used as energy carrier (PERE)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PERM",
-        "openLCA": {
-          "@id": "fb3ec0de-548d-4508-aea5-00b73bf6f702",
-          "name": "Resource | Use of renewable primary energy resources used as raw materials (PERM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PENRT",
-        "openLCA": {
-          "@id": "06159210-646b-4c8d-8583-da9b3b95a6c1",
-          "name": "Resource | Total use of non renewable primary energy resources (PENRT)"
-        },
-        "type": "resource"
-      }
+      "06dcd26f-025f-401a-a7c1-5e457eb54637",
+      "77e416eb-a363-4258-a04e-171d843a6460",
+      "f58827d0-b407-4ec6-be75-8b69efb98a0f",
+      "804ebcdf-309d-4098-8ed8-fdaf2f389981",
+      "1e84a202-dae6-42aa-9e9d-71ea48b8be00",
+      "f7c73bb9-ab1a-4249-9c6d-379a0de6f67e",
+      "b4274add-93b7-4905-a5e4-2e878c4e4216",
+      "a2b32f97-3fc7-4af2-b209-525bc6426f33",
+      "1421caa0-679d-4bf4-b282-0eb850ccae27",
+      "98daf38a-7a79-46d3-9a37-2b7bd0955810",
+      "53f97275-fa8a-4cdd-9024-65936002acd0",
+      "64333088-a55f-4aa2-9a31-c10b07816787",
+      "3cf952c8-f3a4-461d-8c96-96456ca62246",
+      "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
+      "4da0c987-2b76-40d6-9e9e-82a017aaaf29",
+      "3449546e-52ad-4b39-b809-9fb77cea8ff6",
+      "ac857178-2b45-46ec-892a-a9a4332f0372",
+      "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
+      "89def144-d39a-4287-b86f-efde453ddcb2",
+      "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
+      "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
+      "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
+      "20f32be5-0398-4288-9b6d-accddd195317",
+      "fb3ec0de-548d-4508-aea5-00b73bf6f702",
+      "06159210-646b-4c8d-8583-da9b3b95a6c1"
     ]
   },
   {
-    "priority": 1,
     "SmartEPD": "EF3.0",
     "openLCA": {
       "@id": "21563ee2-a730-4c97-a5fd-c63603035887",
       "name": "EN15804+A2 (EF 3.0)"
     },
     "indicators": [
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "b5c610fe-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Photochemical Ozone Creation Potential (POCP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - non-fossil resources (ADPE)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "WDP",
-        "openLCA": {
-          "@id": "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Water (user) deprivation potential (WDP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "b5c629d6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Depletion potential of the stratospheric ozone layer (ODP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "fb774615-0575-45de-9a89-1ded92f19770",
-          "name": "EN15804 EF3.0 | Global warming potential except emissions and uptake of biogenic carbon (GWP-IOBC/GHG)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-terrestrial",
-        "openLCA": {
-          "@id": "b5c614d2-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - terrestrial (EP-terrestrial)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "PM",
-        "openLCA": {
-          "@id": "b5c602c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential incidence of disease due to PM emissions (PM)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-luluc",
-        "openLCA": {
-          "@id": "4331bbdb-978a-490d-8707-eeb047f01a55",
-          "name": "EN15804 EF3.0 | Global Warming Potential - land use and land use change (GWP-luluc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "b5c611c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Acidification potential, Accumulated Exceedance (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-nc",
-        "openLCA": {
-          "@id": "3af763a5-b7a1-48c9-9cee-1f223481fcef",
-          "name": "EN15804 EF3.0 | Potential Comparative Toxic Unit for humans - non-cancer effects (HTP-nc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Potential Soil quality index (SQP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-fw",
-        "openLCA": {
-          "@id": "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
-          "name": "EN15804 | Eutrophication potential - freshwater (EP-freshwater)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ETP-fw",
-        "openLCA": {
-          "@id": "ee1082d1-b0f7-43ca-a1f0-21e2a4a74511",
-          "name": "EN15804 EF3.0 | Potential Comparative Toxic Unit for ecosystems (ETP-fw)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - fossil resources (ADPF)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-biogenic",
-        "openLCA": {
-          "@id": "2356e1ab-0185-4db5-86e5-16de51c7485c",
-          "name": "EN15804 EF3.0 | Global Warming Potential - biogenic (GWP-biogenic)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "IRP",
-        "openLCA": {
-          "@id": "b5c632be-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential Human exposure efficiency relative to U235 (IRP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-marine",
-        "openLCA": {
-          "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-fossil",
-        "openLCA": {
-          "@id": "5f635281-343e-44fb-83df-1971b155e6b6",
-          "name": "EN15804 EF3.0 | Global Warming Potential - fossil fuels (GWP-fossil)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "6a37f984-a4b3-458a-a20a-64418c145fa2",
-          "name": "EN15804 EF3.0 | Global Warming Potential - total (GWP-total)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-c",
-        "openLCA": {
-          "@id": "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
-          "name": "EN15804 | Potential Comparative Toxic Unit for humans - cancer effects (HTP-c)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "PERE",
-        "openLCA": {
-          "@id": "20f32be5-0398-4288-9b6d-accddd195317",
-          "name": "Resource | Use of renewable primary energy resources used as energy carrier (PERE)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PENRE",
-        "openLCA": {
-          "@id": "ac857178-2b45-46ec-892a-a9a4332f0372",
-          "name": "Resource | Use of non renewable primary energy resources used as energy carrier (PENRE)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "CRU",
-        "openLCA": {
-          "@id": "a2b32f97-3fc7-4af2-b209-525bc6426f33",
-          "name": "Output | Components for re-use (CRU)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "HWD",
-        "openLCA": {
-          "@id": "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
-          "name": "Waste | Hazardous waste disposed (HWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "FW",
-        "openLCA": {
-          "@id": "3cf952c8-f3a4-461d-8c96-96456ca62246",
-          "name": "Resource | Use of net fresh water (FW)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "EEE",
-        "openLCA": {
-          "@id": "4da0c987-2b76-40d6-9e9e-82a017aaaf29",
-          "name": "Output | Exported electrical energy (EEE)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "NHWD",
-        "openLCA": {
-          "@id": "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
-          "name": "Waste | Non hazardous waste disposed (NHWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "NRSF",
-        "openLCA": {
-          "@id": "89def144-d39a-4287-b86f-efde453ddcb2",
-          "name": "Resource | Use of non renewable secondary fuels (NRSF)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PENRT",
-        "openLCA": {
-          "@id": "06159210-646b-4c8d-8583-da9b3b95a6c1",
-          "name": "Resource | Total use of non renewable primary energy resources (PENRT)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "MER",
-        "openLCA": {
-          "@id": "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
-          "name": "Output | Materials for energy recovery (MER)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "EET",
-        "openLCA": {
-          "@id": "98daf38a-7a79-46d3-9a37-2b7bd0955810",
-          "name": "Output | Exported thermal energy (EET)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PERT",
-        "openLCA": {
-          "@id": "53f97275-fa8a-4cdd-9024-65936002acd0",
-          "name": "Resource | Total use of renewable primary energy resources (PERT)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "MFR",
-        "openLCA": {
-          "@id": "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
-          "name": "Output | Materials for recycling (MFR)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "RSF",
-        "openLCA": {
-          "@id": "64333088-a55f-4aa2-9a31-c10b07816787",
-          "name": "Resource | Use of renewable secondary fuels (RSF)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PENRM",
-        "openLCA": {
-          "@id": "1421caa0-679d-4bf4-b282-0eb850ccae27",
-          "name": "Resource | Use of non renewable primary energy resources used as raw materials (PENRM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PERM",
-        "openLCA": {
-          "@id": "fb3ec0de-548d-4508-aea5-00b73bf6f702",
-          "name": "Resource | Use of renewable primary energy resources used as raw materials (PERM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "SM",
-        "openLCA": {
-          "@id": "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
-          "name": "Resource | Use of secondary materials (SM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "RWD",
-        "openLCA": {
-          "@id": "3449546e-52ad-4b39-b809-9fb77cea8ff6",
-          "name": "Waste | Radioactive waste disposed (RWD)"
-        },
-        "type": "output"
-      }
+      "b5c610fe-def3-11e6-bf01-fe55135034f3",
+      "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
+      "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
+      "b5c629d6-def3-11e6-bf01-fe55135034f3",
+      "fb774615-0575-45de-9a89-1ded92f19770",
+      "b5c614d2-def3-11e6-bf01-fe55135034f3",
+      "b5c602c6-def3-11e6-bf01-fe55135034f3",
+      "4331bbdb-978a-490d-8707-eeb047f01a55",
+      "b5c611c6-def3-11e6-bf01-fe55135034f3",
+      "3af763a5-b7a1-48c9-9cee-1f223481fcef",
+      "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
+      "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
+      "ee1082d1-b0f7-43ca-a1f0-21e2a4a74511",
+      "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
+      "2356e1ab-0185-4db5-86e5-16de51c7485c",
+      "b5c632be-def3-11e6-bf01-fe55135034f3",
+      "b5c619fa-def3-11e6-bf01-fe55135034f3",
+      "5f635281-343e-44fb-83df-1971b155e6b6",
+      "6a37f984-a4b3-458a-a20a-64418c145fa2",
+      "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
+      "20f32be5-0398-4288-9b6d-accddd195317",
+      "ac857178-2b45-46ec-892a-a9a4332f0372",
+      "a2b32f97-3fc7-4af2-b209-525bc6426f33",
+      "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
+      "3cf952c8-f3a4-461d-8c96-96456ca62246",
+      "4da0c987-2b76-40d6-9e9e-82a017aaaf29",
+      "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
+      "89def144-d39a-4287-b86f-efde453ddcb2",
+      "06159210-646b-4c8d-8583-da9b3b95a6c1",
+      "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
+      "98daf38a-7a79-46d3-9a37-2b7bd0955810",
+      "53f97275-fa8a-4cdd-9024-65936002acd0",
+      "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
+      "64333088-a55f-4aa2-9a31-c10b07816787",
+      "1421caa0-679d-4bf4-b282-0eb850ccae27",
+      "fb3ec0de-548d-4508-aea5-00b73bf6f702",
+      "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
+      "3449546e-52ad-4b39-b809-9fb77cea8ff6"
     ]
   },
   {
-    "priority": 1,
     "SmartEPD": "EF3.1",
     "openLCA": {
       "@id": "c1f97ab2-d0b3-4d23-a16a-b0fcb4f781b7",
       "name": "EN15804+A2 (EF 3.1)"
     },
     "indicators": [
-      {
-        "SmartEPD": "ETP-fw",
-        "openLCA": {
-          "@id": "05316e7a-b254-4bea-9cf0-6bf33eb5c630",
-          "name": "EN15804 EF3.1 | Potential Comparative Toxic Unit for ecosystems (ETP-fw)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "IRP",
-        "openLCA": {
-          "@id": "b5c632be-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential Human exposure efficiency relative to U235 (IRP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "PM",
-        "openLCA": {
-          "@id": "b5c602c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential incidence of disease due to PM emissions (PM)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-luluc",
-        "openLCA": {
-          "@id": "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - land use and land use change (GWP-luluc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "b5c629d6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Depletion potential of the stratospheric ozone layer (ODP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-biogenic",
-        "openLCA": {
-          "@id": "a7ea186c-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - biogenic (GWP-biogenic)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-marine",
-        "openLCA": {
-          "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "a7ea142a-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - total (GWP-total)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-terrestrial",
-        "openLCA": {
-          "@id": "b5c614d2-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - terrestrial (EP-terrestrial)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-fw",
-        "openLCA": {
-          "@id": "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
-          "name": "EN15804 | Eutrophication potential - freshwater (EP-freshwater)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - non-fossil resources (ADPE)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-nc",
-        "openLCA": {
-          "@id": "7cfdcfcf-b222-4b26-888a-a55f9fbf7ac8",
-          "name": "EN15804 EF3.1 | Potential Comparative Toxic Unit for humans - non-cancer effects (HTP-nc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "WDP",
-        "openLCA": {
-          "@id": "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Water (user) deprivation potential (WDP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - fossil resources (ADPF)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-fossil",
-        "openLCA": {
-          "@id": "a7ea19c0-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - fossil fuels (GWP-fossil)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-c",
-        "openLCA": {
-          "@id": "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
-          "name": "EN15804 | Potential Comparative Toxic Unit for humans - cancer effects (HTP-c)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "b5c610fe-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Photochemical Ozone Creation Potential (POCP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Potential Soil quality index (SQP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "345f758b-5471-4e70-956e-997ef22a13f8",
-          "name": "EN15804 EF3.1 | Global warming potential except emissions and uptake of biogenic carbon (GWP-IOBC/GHG)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "b5c611c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Acidification potential, Accumulated Exceedance (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EET",
-        "openLCA": {
-          "@id": "98daf38a-7a79-46d3-9a37-2b7bd0955810",
-          "name": "Output | Exported thermal energy (EET)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "SM",
-        "openLCA": {
-          "@id": "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
-          "name": "Resource | Use of secondary materials (SM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "FW",
-        "openLCA": {
-          "@id": "3cf952c8-f3a4-461d-8c96-96456ca62246",
-          "name": "Resource | Use of net fresh water (FW)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "EEE",
-        "openLCA": {
-          "@id": "4da0c987-2b76-40d6-9e9e-82a017aaaf29",
-          "name": "Output | Exported electrical energy (EEE)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "CRU",
-        "openLCA": {
-          "@id": "a2b32f97-3fc7-4af2-b209-525bc6426f33",
-          "name": "Output | Components for re-use (CRU)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "HWD",
-        "openLCA": {
-          "@id": "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
-          "name": "Waste | Hazardous waste disposed (HWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PERE",
-        "openLCA": {
-          "@id": "20f32be5-0398-4288-9b6d-accddd195317",
-          "name": "Resource | Use of renewable primary energy resources used as energy carrier (PERE)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "RWD",
-        "openLCA": {
-          "@id": "3449546e-52ad-4b39-b809-9fb77cea8ff6",
-          "name": "Waste | Radioactive waste disposed (RWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PENRE",
-        "openLCA": {
-          "@id": "ac857178-2b45-46ec-892a-a9a4332f0372",
-          "name": "Resource | Use of non renewable primary energy resources used as energy carrier (PENRE)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "MFR",
-        "openLCA": {
-          "@id": "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
-          "name": "Output | Materials for recycling (MFR)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PENRM",
-        "openLCA": {
-          "@id": "1421caa0-679d-4bf4-b282-0eb850ccae27",
-          "name": "Resource | Use of non renewable primary energy resources used as raw materials (PENRM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PERT",
-        "openLCA": {
-          "@id": "53f97275-fa8a-4cdd-9024-65936002acd0",
-          "name": "Resource | Total use of renewable primary energy resources (PERT)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "MER",
-        "openLCA": {
-          "@id": "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
-          "name": "Output | Materials for energy recovery (MER)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "PENRT",
-        "openLCA": {
-          "@id": "06159210-646b-4c8d-8583-da9b3b95a6c1",
-          "name": "Resource | Total use of non renewable primary energy resources (PENRT)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "PERM",
-        "openLCA": {
-          "@id": "fb3ec0de-548d-4508-aea5-00b73bf6f702",
-          "name": "Resource | Use of renewable primary energy resources used as raw materials (PERM)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "RSF",
-        "openLCA": {
-          "@id": "64333088-a55f-4aa2-9a31-c10b07816787",
-          "name": "Resource | Use of renewable secondary fuels (RSF)"
-        },
-        "type": "resource"
-      },
-      {
-        "SmartEPD": "NHWD",
-        "openLCA": {
-          "@id": "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
-          "name": "Waste | Non hazardous waste disposed (NHWD)"
-        },
-        "type": "output"
-      },
-      {
-        "SmartEPD": "NRSF",
-        "openLCA": {
-          "@id": "89def144-d39a-4287-b86f-efde453ddcb2",
-          "name": "Resource | Use of non renewable secondary fuels (NRSF)"
-        },
-        "type": "resource"
-      }
+      "05316e7a-b254-4bea-9cf0-6bf33eb5c630",
+      "b5c632be-def3-11e6-bf01-fe55135034f3",
+      "b5c602c6-def3-11e6-bf01-fe55135034f3",
+      "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
+      "b5c629d6-def3-11e6-bf01-fe55135034f3",
+      "a7ea186c-9749-11ed-a8fc-0242ac120002",
+      "b5c619fa-def3-11e6-bf01-fe55135034f3",
+      "a7ea142a-9749-11ed-a8fc-0242ac120002",
+      "b5c614d2-def3-11e6-bf01-fe55135034f3",
+      "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
+      "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
+      "7cfdcfcf-b222-4b26-888a-a55f9fbf7ac8",
+      "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
+      "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
+      "a7ea19c0-9749-11ed-a8fc-0242ac120002",
+      "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
+      "b5c610fe-def3-11e6-bf01-fe55135034f3",
+      "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
+      "345f758b-5471-4e70-956e-997ef22a13f8",
+      "b5c611c6-def3-11e6-bf01-fe55135034f3",
+      "98daf38a-7a79-46d3-9a37-2b7bd0955810",
+      "c6a1f35f-2d09-4f54-8dfb-97e502e1ce92",
+      "3cf952c8-f3a4-461d-8c96-96456ca62246",
+      "4da0c987-2b76-40d6-9e9e-82a017aaaf29",
+      "a2b32f97-3fc7-4af2-b209-525bc6426f33",
+      "430f9e0f-59b2-46a0-8e0d-55e0e84948fc",
+      "20f32be5-0398-4288-9b6d-accddd195317",
+      "3449546e-52ad-4b39-b809-9fb77cea8ff6",
+      "ac857178-2b45-46ec-892a-a9a4332f0372",
+      "d7fe48a5-4103-49c8-9aae-b0b5dfdbd6ae",
+      "1421caa0-679d-4bf4-b282-0eb850ccae27",
+      "53f97275-fa8a-4cdd-9024-65936002acd0",
+      "59a9181c-3aaf-46ee-8b13-2b3723b6e447",
+      "06159210-646b-4c8d-8583-da9b3b95a6c1",
+      "fb3ec0de-548d-4508-aea5-00b73bf6f702",
+      "64333088-a55f-4aa2-9a31-c10b07816787",
+      "b29ef66b-e286-4afa-949f-62f1a7b4d7fa",
+      "89def144-d39a-4287-b86f-efde453ddcb2"
     ]
   },
   {
-    "priority": 2,
     "SmartEPD": "CML 2016 v4.8",
     "openLCA": {
       "@id": "9e506445-372b-4db1-808c-d075b6828780",
       "name": "Environment | EN15804+A1 (CML 4.8)"
     },
     "indicators": [
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "b4274add-93b7-4905-a5e4-2e878c4e4216",
-          "name": "CML | Acidification potential of soil and water (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "77e416eb-a363-4258-a04e-171d843a6460",
-          "name": "CML | Global warming potential (GWP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "804ebcdf-309d-4098-8ed8-fdaf2f389981",
-          "name": "CML | Abiotic depletion potential for fossil resources (ADPF)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP",
-        "openLCA": {
-          "@id": "f58827d0-b407-4ec6-be75-8b69efb98a0f",
-          "name": "CML | Eutrophication potential (EP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "f7c73bb9-ab1a-4249-9c6d-379a0de6f67e",
-          "name": "CML | Abiotic depletion potential for non fossil resources (ADPE)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "06dcd26f-025f-401a-a7c1-5e457eb54637",
-          "name": "CML | Depletion potential of the stratospheric ozone layer (ODP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "1e84a202-dae6-42aa-9e9d-71ea48b8be00",
-          "name": "CML | Formation potential of tropospheric ozone (POCP)"
-        },
-        "type": "impact"
-      }
+      "b4274add-93b7-4905-a5e4-2e878c4e4216",
+      "77e416eb-a363-4258-a04e-171d843a6460",
+      "804ebcdf-309d-4098-8ed8-fdaf2f389981",
+      "f58827d0-b407-4ec6-be75-8b69efb98a0f",
+      "f7c73bb9-ab1a-4249-9c6d-379a0de6f67e",
+      "06dcd26f-025f-401a-a7c1-5e457eb54637",
+      "1e84a202-dae6-42aa-9e9d-71ea48b8be00"
     ]
   },
   {
-    "priority": 2,
     "SmartEPD": "EF3.0",
     "openLCA": {
       "@id": "2fa957c8-eebf-4a5e-a833-a9e14b4c9b2b",
       "name": "Environment | EN15804+A2 (EF 3.0)"
     },
     "indicators": [
-      {
-        "SmartEPD": "WDP",
-        "openLCA": {
-          "@id": "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Water (user) deprivation potential (WDP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "b5c610fe-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Photochemical Ozone Creation Potential (POCP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Potential Soil quality index (SQP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "PM",
-        "openLCA": {
-          "@id": "b5c602c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential incidence of disease due to PM emissions (PM)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-fw",
-        "openLCA": {
-          "@id": "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
-          "name": "EN15804 | Eutrophication potential - freshwater (EP-freshwater)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "b5c611c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Acidification potential, Accumulated Exceedance (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-luluc",
-        "openLCA": {
-          "@id": "4331bbdb-978a-490d-8707-eeb047f01a55",
-          "name": "EN15804 EF3.0 | Global Warming Potential - land use and land use change (GWP-luluc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - non-fossil resources (ADPE)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-terrestrial",
-        "openLCA": {
-          "@id": "b5c614d2-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - terrestrial (EP-terrestrial)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-nc",
-        "openLCA": {
-          "@id": "3af763a5-b7a1-48c9-9cee-1f223481fcef",
-          "name": "EN15804 EF3.0 | Potential Comparative Toxic Unit for humans - non-cancer effects (HTP-nc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ETP-fw",
-        "openLCA": {
-          "@id": "ee1082d1-b0f7-43ca-a1f0-21e2a4a74511",
-          "name": "EN15804 EF3.0 | Potential Comparative Toxic Unit for ecosystems (ETP-fw)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-c",
-        "openLCA": {
-          "@id": "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
-          "name": "EN15804 | Potential Comparative Toxic Unit for humans - cancer effects (HTP-c)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "6a37f984-a4b3-458a-a20a-64418c145fa2",
-          "name": "EN15804 EF3.0 | Global Warming Potential - total (GWP-total)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - fossil resources (ADPF)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "fb774615-0575-45de-9a89-1ded92f19770",
-          "name": "EN15804 EF3.0 | Global warming potential except emissions and uptake of biogenic carbon (GWP-IOBC/GHG)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-fossil",
-        "openLCA": {
-          "@id": "5f635281-343e-44fb-83df-1971b155e6b6",
-          "name": "EN15804 EF3.0 | Global Warming Potential - fossil fuels (GWP-fossil)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-marine",
-        "openLCA": {
-          "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-biogenic",
-        "openLCA": {
-          "@id": "2356e1ab-0185-4db5-86e5-16de51c7485c",
-          "name": "EN15804 EF3.0 | Global Warming Potential - biogenic (GWP-biogenic)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "IRP",
-        "openLCA": {
-          "@id": "b5c632be-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential Human exposure efficiency relative to U235 (IRP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "b5c629d6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Depletion potential of the stratospheric ozone layer (ODP)"
-        },
-        "type": "impact"
-      }
+      "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
+      "b5c610fe-def3-11e6-bf01-fe55135034f3",
+      "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
+      "b5c602c6-def3-11e6-bf01-fe55135034f3",
+      "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
+      "b5c611c6-def3-11e6-bf01-fe55135034f3",
+      "4331bbdb-978a-490d-8707-eeb047f01a55",
+      "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
+      "b5c614d2-def3-11e6-bf01-fe55135034f3",
+      "3af763a5-b7a1-48c9-9cee-1f223481fcef",
+      "ee1082d1-b0f7-43ca-a1f0-21e2a4a74511",
+      "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
+      "6a37f984-a4b3-458a-a20a-64418c145fa2",
+      "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
+      "fb774615-0575-45de-9a89-1ded92f19770",
+      "5f635281-343e-44fb-83df-1971b155e6b6",
+      "b5c619fa-def3-11e6-bf01-fe55135034f3",
+      "2356e1ab-0185-4db5-86e5-16de51c7485c",
+      "b5c632be-def3-11e6-bf01-fe55135034f3",
+      "b5c629d6-def3-11e6-bf01-fe55135034f3"
     ]
   },
   {
-    "priority": 2,
     "SmartEPD": "EF3.1",
     "openLCA": {
       "@id": "1584d54f-169f-4dd1-ad71-5f36b2046f96",
       "name": "Environment | EN15804+A2 (EF 3.1)"
     },
     "indicators": [
-      {
-        "SmartEPD": "GWP-luluc",
-        "openLCA": {
-          "@id": "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - land use and land use change (GWP-luluc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "WDP",
-        "openLCA": {
-          "@id": "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Water (user) deprivation potential (WDP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "a7ea142a-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - total (GWP-total)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - non-fossil resources (ADPE)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Potential Soil quality index (SQP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "345f758b-5471-4e70-956e-997ef22a13f8",
-          "name": "EN15804 EF3.1 | Global warming potential except emissions and uptake of biogenic carbon (GWP-IOBC/GHG)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-marine",
-        "openLCA": {
-          "@id": "b5c619fa-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - marine (EP-marine)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-fossil",
-        "openLCA": {
-          "@id": "a7ea19c0-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - fossil fuels (GWP-fossil)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "b5c610fe-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Photochemical Ozone Creation Potential (POCP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-fw",
-        "openLCA": {
-          "@id": "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
-          "name": "EN15804 | Eutrophication potential - freshwater (EP-freshwater)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP-terrestrial",
-        "openLCA": {
-          "@id": "b5c614d2-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Eutrophication potential - terrestrial (EP-terrestrial)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ETP-fw",
-        "openLCA": {
-          "@id": "05316e7a-b254-4bea-9cf0-6bf33eb5c630",
-          "name": "EN15804 EF3.1 | Potential Comparative Toxic Unit for ecosystems (ETP-fw)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-nc",
-        "openLCA": {
-          "@id": "7cfdcfcf-b222-4b26-888a-a55f9fbf7ac8",
-          "name": "EN15804 EF3.1 | Potential Comparative Toxic Unit for humans - non-cancer effects (HTP-nc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "",
-        "openLCA": {
-          "@id": "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
-          "name": "EN15804 | Abiotic depletion potential - fossil resources (ADPF)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "PM",
-        "openLCA": {
-          "@id": "b5c602c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential incidence of disease due to PM emissions (PM)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-c",
-        "openLCA": {
-          "@id": "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
-          "name": "EN15804 | Potential Comparative Toxic Unit for humans - cancer effects (HTP-c)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-biogenic",
-        "openLCA": {
-          "@id": "a7ea186c-9749-11ed-a8fc-0242ac120002",
-          "name": "EN15804 EF3.1 | Global Warming Potential - biogenic (GWP-biogenic)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "b5c611c6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Acidification potential, Accumulated Exceedance (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "b5c629d6-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Depletion potential of the stratospheric ozone layer (ODP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "IRP",
-        "openLCA": {
-          "@id": "b5c632be-def3-11e6-bf01-fe55135034f3",
-          "name": "EN15804 | Potential Human exposure efficiency relative to U235 (IRP)"
-        },
-        "type": "impact"
-      }
+      "a7ea1ae2-9749-11ed-a8fc-0242ac120002",
+      "b2ad66ce-c78d-11e6-9d9d-cec0c932ce01",
+      "a7ea142a-9749-11ed-a8fc-0242ac120002",
+      "b2ad6494-c78d-11e6-9d9d-cec0c932ce01",
+      "b2ad6890-c78d-11e6-9d9d-cec0c932ce01",
+      "345f758b-5471-4e70-956e-997ef22a13f8",
+      "b5c619fa-def3-11e6-bf01-fe55135034f3",
+      "a7ea19c0-9749-11ed-a8fc-0242ac120002",
+      "b5c610fe-def3-11e6-bf01-fe55135034f3",
+      "b53ec18f-7377-4ad3-86eb-cc3f4f276b2b",
+      "b5c614d2-def3-11e6-bf01-fe55135034f3",
+      "05316e7a-b254-4bea-9cf0-6bf33eb5c630",
+      "7cfdcfcf-b222-4b26-888a-a55f9fbf7ac8",
+      "b2ad6110-c78d-11e6-9d9d-cec0c932ce01",
+      "b5c602c6-def3-11e6-bf01-fe55135034f3",
+      "2299222a-bbd8-474f-9d4f-4dd1f18aea7c",
+      "a7ea186c-9749-11ed-a8fc-0242ac120002",
+      "b5c611c6-def3-11e6-bf01-fe55135034f3",
+      "b5c629d6-def3-11e6-bf01-fe55135034f3",
+      "b5c632be-def3-11e6-bf01-fe55135034f3"
     ]
   },
   {
-    "priority": 2,
     "SmartEPD": "TRACI 2.1",
     "openLCA": {
       "@id": "d1984b62-b844-44e9-934c-88831fceca84",
       "name": "Environment | TRACI 2.1"
     },
     "indicators": [
-      {
-        "SmartEPD": "AP",
-        "openLCA": {
-          "@id": "70bd8aa7-7f62-4c5c-b163-569c761c2b34",
-          "name": "TRACI | Acidification potential (AP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "GWP-total",
-        "openLCA": {
-          "@id": "70b9d355-9853-416c-92ee-ea53558d73be",
-          "name": "TRACI | Global warming potential (GWP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ETP-fw",
-        "openLCA": {
-          "@id": "719cd116-5334-4763-bf5a-4caa58ce178e",
-          "name": "TRACI | Ecotoxicity potential (ETP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "EP",
-        "openLCA": {
-          "@id": "55863471-9515-4ada-9fd9-3613c4519596",
-          "name": "TRACI | Eutrophication potential (EP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-c",
-        "openLCA": {
-          "@id": "5583abb4-bfc7-41d0-b24d-f354b17e9f05",
-          "name": "TRACI | Human health cancer (HTP-c)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "HTP-nc",
-        "openLCA": {
-          "@id": "1dd112ca-c0a0-49ab-b645-a9e4ea2168d1",
-          "name": "TRACI | Human health noncancer (HTP-nc)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "ODP",
-        "openLCA": {
-          "@id": "ae129244-e881-451d-8aff-4b74c3cecd1b",
-          "name": "TRACI | Ozone depletion potential (ODP)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "PM",
-        "openLCA": {
-          "@id": "5839deee-7375-472e-82f4-5f891f9048e3",
-          "name": "TRACI | Human health criteria pollutants (PM)"
-        },
-        "type": "impact"
-      },
-      {
-        "SmartEPD": "POCP",
-        "openLCA": {
-          "@id": "b764d78a-e615-4737-87b2-27fe84767ed0",
-          "name": "TRACI | Smog formation potential (SFP)"
-        },
-        "type": "impact"
-      }
+      "70bd8aa7-7f62-4c5c-b163-569c761c2b34",
+      "70b9d355-9853-416c-92ee-ea53558d73be",
+      "719cd116-5334-4763-bf5a-4caa58ce178e",
+      "55863471-9515-4ada-9fd9-3613c4519596",
+      "5583abb4-bfc7-41d0-b24d-f354b17e9f05",
+      "1dd112ca-c0a0-49ab-b645-a9e4ea2168d1",
+      "ae129244-e881-451d-8aff-4b74c3cecd1b",
+      "5839deee-7375-472e-82f4-5f891f9048e3",
+      "b764d78a-e615-4737-87b2-27fe84767ed0"
     ]
   }
 ]

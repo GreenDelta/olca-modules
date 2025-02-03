@@ -41,18 +41,26 @@ public class SmartEpdClient {
 
 	public Res<List<SmartProject>> getProjects() {
 		var res = new Req("public/projects")
-			.sendReadJsonArray();
+				.sendReadJsonArray();
 		return res.hasError()
-			? res.wrapError("failed to get projects")
-			: Res.of(SmartProject.allOf(res.value()));
+				? res.wrapError("failed to get projects")
+				: Res.of(SmartProject.allOf(res.value()));
 	}
 
 	public Res<SmartProject> getProject(String id) {
 		var res = new Req("public/projects/" + id)
-			.sendReadJsonObject();
+				.sendReadJsonObject();
 		return res.hasError()
-			? res.wrapError("failed to get project: " + id)
-			: Res.of(new SmartProject(res.value()));
+				? res.wrapError("failed to get project: " + id)
+				: Res.of(new SmartProject(res.value()));
+	}
+
+	public Res<SmartProjectSettings> getProjectSettings(String id) {
+		var res = new Req("public/projects/" + id + "/settings")
+				.sendReadJsonObject();
+		return res.hasError()
+				? res.wrapError("failed to get settings for project: " + id)
+				: Res.of(new SmartProjectSettings(res.value()));
 	}
 
 	/// Creates a new project.
@@ -60,11 +68,11 @@ public class SmartEpdClient {
 		if (project == null)
 			return Res.error("project is null");
 		var res = new Req("public/projects")
-			.post(project.json())
-			.sendReadJsonObject();
+				.post(project.json())
+				.sendReadJsonObject();
 		return res.hasError()
-			? res.wrapError("failed to create project")
-			: Res.of(new SmartProject(res.value()));
+				? res.wrapError("failed to create project")
+				: Res.of(new SmartProject(res.value()));
 	}
 
 	/// Updates an existing project.
@@ -72,20 +80,20 @@ public class SmartEpdClient {
 		if (project == null)
 			return Res.error("project is null");
 		var res = new Req("public/projects/" + project.id())
-			.put(project.json())
-			.sendReadJsonObject();
+				.put(project.json())
+				.sendReadJsonObject();
 		return res.hasError()
-			? res.wrapError("failed to update project")
-			: Res.of(new SmartProject(res.value()));
+				? res.wrapError("failed to update project")
+				: Res.of(new SmartProject(res.value()));
 	}
 
 	public Res<Void> deleteProject(String id) {
 		var res = new Req("public/projects/" + id)
-			.delete()
-			.send();
+				.delete()
+				.send();
 		return res.hasError()
-			? res.wrapError("failed to delete project: " + id)
-			: Res.VOID;
+				? res.wrapError("failed to delete project: " + id)
+				: Res.VOID;
 	}
 
 	// endregion
@@ -94,18 +102,18 @@ public class SmartEpdClient {
 
 	public Res<List<SmartEpd>> getEpds(String projectId) {
 		var res = new Req("public/projects/" + projectId + "/epds")
-			.sendReadJsonArray();
+				.sendReadJsonArray();
 		return res.hasError()
-			? res.wrapError("failed to get EPDs of project: " + projectId)
-			: Res.of(SmartEpd.allOf(res.value()));
+				? res.wrapError("failed to get EPDs of project: " + projectId)
+				: Res.of(SmartEpd.allOf(res.value()));
 	}
 
 	public Res<SmartEpd> getEpd(String id) {
 		var res = new Req("public/epds/" + id)
-			.sendReadJsonObject();
+				.sendReadJsonObject();
 		return res.hasError()
-			? res.wrapError("failed to get EPD: " + id)
-			: Res.of(new SmartEpd(res.value()));
+				? res.wrapError("failed to get EPD: " + id)
+				: Res.of(new SmartEpd(res.value()));
 	}
 
 	/// Creates a new EPD.
@@ -113,11 +121,11 @@ public class SmartEpdClient {
 		if (epd == null)
 			return Res.error("EPD is null");
 		var res = new Req("public/epds")
-			.post(epd.json())
-			.sendReadJsonObject();
+				.post(epd.json())
+				.sendReadJsonObject();
 		return res.hasError()
-			? res.wrapError("failed to create EPD")
-			: Res.of(new SmartEpd(res.value()));
+				? res.wrapError("failed to create EPD")
+				: Res.of(new SmartEpd(res.value()));
 	}
 
 	/// Updates an existing EPD.
@@ -125,20 +133,20 @@ public class SmartEpdClient {
 		if (epd == null)
 			return Res.error("EPD is null");
 		var res = new Req("public/epds/" + epd.id())
-			.patch(epd.json())
-			.sendReadJsonObject();
+				.patch(epd.json())
+				.sendReadJsonObject();
 		return res.hasError()
-			? res.wrapError("failed to update EPD")
-			: Res.of(new SmartEpd(res.value()));
+				? res.wrapError("failed to update EPD")
+				: Res.of(new SmartEpd(res.value()));
 	}
 
 	public Res<Void> deleteEpd(String id) {
 		var res = new Req("public/epds/" + id)
-			.delete()
-			.send();
+				.delete()
+				.send();
 		return res.hasError()
-			? res.wrapError("failed to delete EPD: " + id)
-			: Res.VOID;
+				? res.wrapError("failed to delete EPD: " + id)
+				: Res.VOID;
 	}
 
 	// endregion
@@ -149,7 +157,7 @@ public class SmartEpdClient {
 
 		Req(String path) {
 			r = HttpRequest.newBuilder(URI.create(url + path))
-				.header("apiKey", apiKey);
+					.header("apiKey", apiKey);
 		}
 
 		Req delete() {
@@ -160,19 +168,21 @@ public class SmartEpdClient {
 		Req post(JsonObject obj) {
 			var json = new Gson().toJson(obj);
 			r = r.POST(HttpRequest.BodyPublishers.ofString(json))
-				.header("Content-Type", "application/json");
+					.header("Content-Type", "application/json");
 			return this;
 		}
 
 		Req put(JsonObject obj) {
 			var json = new Gson().toJson(obj);
-			r = r.PUT(HttpRequest.BodyPublishers.ofString(json));
+			r = r.PUT(HttpRequest.BodyPublishers.ofString(json))
+					.header("Content-Type", "application/json");
 			return this;
 		}
 
 		Req patch(JsonObject obj) {
 			var json = new Gson().toJson(obj);
-			r = r.method("PATCH", HttpRequest.BodyPublishers.ofString(json));
+			r = r.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
+					.header("Content-Type", "application/json");
 			return this;
 		}
 
@@ -182,8 +192,8 @@ public class SmartEpdClient {
 				return res.castError();
 			var json = res.value();
 			return json.isJsonObject()
-				? Res.of(json.getAsJsonObject())
-				: Res.error("returned JSON is not an object");
+					? Res.of(json.getAsJsonObject())
+					: Res.error("returned JSON is not an object");
 		}
 
 		Res<JsonArray> sendReadJsonArray() {
@@ -192,8 +202,8 @@ public class SmartEpdClient {
 				return res.castError();
 			var json = res.value();
 			return json.isJsonArray()
-				? Res.of(json.getAsJsonArray())
-				: Res.error("returned JSON is not an array");
+					? Res.of(json.getAsJsonArray())
+					: Res.error("returned JSON is not an array");
 		}
 
 		private Res<JsonElement> sendReadJson() {
@@ -214,7 +224,7 @@ public class SmartEpdClient {
 				var resp = client.send(req, BodyHandlers.ofString());
 				if (resp.statusCode() >= 300) {
 					return Res.error("request failed with status " + resp.statusCode()
-						+ ": " + resp.body());
+							+ ": " + resp.body());
 				}
 				return Res.of(resp.body());
 			} catch (Exception e) {

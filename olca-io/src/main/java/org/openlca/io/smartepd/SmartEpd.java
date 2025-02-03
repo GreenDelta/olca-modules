@@ -23,8 +23,8 @@ public record SmartEpd(JsonObject json) {
 
 	public static Optional<SmartEpd> of(JsonElement e) {
 		return e != null && e.isJsonObject()
-			? Optional.of(new SmartEpd(e.getAsJsonObject()))
-			: Optional.empty();
+				? Optional.of(new SmartEpd(e.getAsJsonObject()))
+				: Optional.empty();
 	}
 
 	public static List<SmartEpd> allOf(JsonArray array) {
@@ -86,6 +86,41 @@ public record SmartEpd(JsonObject json) {
 
 	public SmartEpd scopeDescription(String scopeDescription) {
 		Json.put(json, "scope_description", scopeDescription);
+		return this;
+	}
+
+	public SmartRefUnit refUnit() {
+		var type = Json.getInt(json, "unit_type", 1);
+		var key = type == SmartRefUnit.FUNCTIONAL
+				? "functional_unit"
+				: "declared_unit";
+		return SmartRefUnit
+				.of(Json.getObject(json, key))
+				.orElse(null);
+	}
+
+	public SmartEpd declaredUnit(SmartRefUnit u) {
+		Json.put(json, "unit_type", SmartRefUnit.DECLARED);
+		if (u != null) {
+			Json.put(json, "declared_unit", u.json());
+		}
+		return this;
+	}
+
+	public SmartEpd functionalUnit(SmartRefUnit u) {
+		Json.put(json, "unit_type", SmartRefUnit.FUNCTIONAL);
+		if (u != null) {
+			Json.put(json, "functional_unit", u.json());
+		}
+		return this;
+	}
+
+	public double massPerUnit() {
+		return Json.getDouble(json, "mass_per_functional_unit", 0);
+	}
+
+	public SmartEpd massPerUnit(double massPerUnit) {
+		Json.put(json, "mass_per_functional_unit", massPerUnit);
 		return this;
 	}
 
@@ -170,18 +205,35 @@ public record SmartEpd(JsonObject json) {
 		return this;
 	}
 
-	public List<SmartResultList> resultsOf(SmartIndicatorType type) {
-		var array = Json.getArray(json, keyOf(type));
+	public List<SmartResultList> resultListsOf(SmartIndicatorType type) {
+		var array = Json.getArray(json, listKeyOf(type));
 		return SmartResultList.allOf(array);
 	}
 
-	public void put(SmartIndicatorType type, SmartResultList results) {
-		if (type == null || results == null)
-			return;
-		put(type, List.of(results));
+	public List<SmartResult> resultsOf(SmartIndicatorType type) {
+		var array = Json.getArray(json, keyOf(type));
+		if ( array != null )
+			return SmartResult.allOf(array);
+		var lists = resultListsOf(type);
+		return !lists.isEmpty()
+				? lists.getFirst().results()
+				: List.of();
 	}
 
-	public void put(SmartIndicatorType type, List<SmartResultList> results) {
+	/// In the SmartEPD format, results can be written as lists and lists of
+	/// lists. It is not always clear what is allowed and required when. This
+	/// method writes both, the results and the lists of results.
+	public void putResultsAndLists(
+			SmartIndicatorType type, List<SmartResult> results
+	) {
+		if (type == null || results == null)
+			return;
+		putResults(type, results);
+		var list = new SmartResultList(type).results(results);
+		putResultLists(type, List.of(list));
+	}
+
+	public void putResults(SmartIndicatorType type, List<SmartResult> results) {
 		if (type == null || results == null)
 			return;
 		var array = new JsonArray(results.size());
@@ -191,13 +243,35 @@ public record SmartEpd(JsonObject json) {
 		Json.put(json, keyOf(type), array);
 	}
 
-	private String keyOf(SmartIndicatorType type) {
+	public void putResultLists(
+			SmartIndicatorType type, List<SmartResultList> lists
+	) {
+		if (type == null || lists == null)
+			return;
+		var array = new JsonArray(lists.size());
+		for (var result : lists) {
+			array.add(result.json());
+		}
+		Json.put(json, listKeyOf(type), array);
+	}
+
+	private String listKeyOf(SmartIndicatorType type) {
 		if (type == null)
 			return "null";
 		return switch (type) {
 			case IMPACT -> "impacts_list";
 			case RESOURCE -> "resource_uses_list";
 			case OUTPUT -> "output_flows_list";
+		};
+	}
+
+	private String keyOf(SmartIndicatorType type) {
+		if (type == null)
+			return "null";
+		return switch (type) {
+			case IMPACT -> "impacts";
+			case RESOURCE -> "resource_uses";
+			case OUTPUT -> "output_flows";
 		};
 	}
 

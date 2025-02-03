@@ -1,0 +1,592 @@
+[
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "ADP-fossil",
+    "unit": "MJ"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "ADP-fossil",
+    "unit": "MJ, net calorific value"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "ADP-fossil",
+    "unit": "kg oil eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "ADP-fossil",
+    "unit": "MJ"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "ADP-minerals\u0026metals",
+    "unit": "kg Sb eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "ADP-minerals\u0026metals",
+    "unit": "kg Sb eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "ADP-minerals\u0026metals",
+    "unit": "kg Cu eq"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "AP",
+    "unit": "kg SO2 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "AP",
+    "unit": "mol H+ eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "AP",
+    "unit": "mol H+ eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "AP",
+    "unit": "kg SO2 eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "AP",
+    "unit": "kg SO2 eq"
+  },
+  {
+    "method": "_",
+    "indicator": "BCEK",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "BCEP",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "BCEW",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "BCRK",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "BCRP",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "CCE",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "CCR",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "CRU",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "CWNR",
+    "unit": "kg CO2"
+  },
+  {
+    "method": "_",
+    "indicator": "EEE",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "EET",
+    "unit": "MJ"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "EP",
+    "unit": "kg PO4 eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "EP",
+    "unit": "kg N eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "EP-fw",
+    "unit": "kg P eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "EP-fw",
+    "unit": "kg P eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "EP-marine",
+    "unit": "kg N eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "EP-marine",
+    "unit": "kg N eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "EP-terrestrial",
+    "unit": "mol N eq"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "ETP-fw",
+    "unit": "kg 1,4-DCB eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "ETP-fw",
+    "unit": "kg 1,4-DCB"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "ETP-fw",
+    "unit": "CTUe"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "ETP-fw-total",
+    "unit": "CTUe"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "ETP-fwio",
+    "unit": "CTUe"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "ETP-fwio",
+    "unit": "CTUe"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "ETP-fwo",
+    "unit": "CTUe"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "ETP-fwo",
+    "unit": "CTUe"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "ETP-mar",
+    "unit": "kg 1,4-DCB eq"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "ETP-ter",
+    "unit": "kg 1,4-DCB eq"
+  },
+  {
+    "method": "_",
+    "indicator": "FW",
+    "unit": "m3"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "FW",
+    "unit": "m3"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "GWP- fossil",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "GWP- total",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "GWP-biogenic",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "GWP-biogenic",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR6 GWP 100",
+    "indicator": "GWP-biogenic",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "GWP-fossil",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR6 GWP 100",
+    "indicator": "GWP-fossil",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "GWP-GHG",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "GWP-luluc",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "GWP-luluc",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR6 GWP 100",
+    "indicator": "GWP-luluc",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "GWP-total",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR5 GWP 20",
+    "indicator": "GWP-total",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR6 GWP 100",
+    "indicator": "GWP-total",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "GWP-total",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR6 GWP 100",
+    "indicator": "GWP-total (excl biogenic)",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "GWP-total (excl biogenic)",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "IPCC AR6 GWP 100",
+    "indicator": "GWP-total (incl biogenic)",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "GWP-total (incl biogenic)",
+    "unit": "kg CO2 eq"
+  },
+  {
+    "method": "_",
+    "indicator": "HLRW",
+    "unit": "kg"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "HTP",
+    "unit": "kg 1,4-DCB eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "HTP-c",
+    "unit": "kg 1,4-DCB"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "HTP-c",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "HTP-c-total",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "HTP-cio",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "HTP-cio",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "HTP-co",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "HTP-co",
+    "unit": "CTUh"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "HTP-nc",
+    "unit": "kg 1,4-DCB"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "HTP-nc",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "HTP-nc-total",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "HTP-ncio",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "HTP-ncio",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "HTP-nco",
+    "unit": "CTUh"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "HTP-nco",
+    "unit": "CTUh"
+  },
+  {
+    "method": "_",
+    "indicator": "HWD",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "ILLRW",
+    "unit": "kg"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "IRP",
+    "unit": "kBq U235 eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "IRP",
+    "unit": "kg Bq (Cobalt 60) eq"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "LU",
+    "unit": "m2 (annual crop land area)"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "LU",
+    "unit": "m2 yr"
+  },
+  {
+    "method": "_",
+    "indicator": "MER",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "MFR",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "MNER",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "NHWD",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "NRPRE",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "NRPRM",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "NRPRT",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "NRSF",
+    "unit": "MJ"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "ODP",
+    "unit": "kg CFC-11 eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "ODP",
+    "unit": "kg CFC11 eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "ODP",
+    "unit": "kg CFC-11 eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "ODP",
+    "unit": "kg CFC 11 eq"
+  },
+  {
+    "method": "_",
+    "indicator": "PENRE",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "PENRM",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "PENRT",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "PERE",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "PERM",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "PERT",
+    "unit": "MJ"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "PM",
+    "unit": "disease incidence"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "PM",
+    "unit": "kg PM2.5 eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "PM2.5",
+    "unit": "kg PM2.5 eq"
+  },
+  {
+    "method": "CML 2016 v4.8",
+    "indicator": "POCP",
+    "unit": "kg C2H4 eq"
+  },
+  {
+    "method": "EF3.0",
+    "indicator": "POCP",
+    "unit": "kg NMVOC eq"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "POCP",
+    "unit": "kg NMVOC eq"
+  },
+  {
+    "method": "ReCiPe 2016 v1.1",
+    "indicator": "POCP",
+    "unit": "kg NOx eq"
+  },
+  {
+    "method": "TRACI 2.1",
+    "indicator": "POCP",
+    "unit": "kg O3 eq"
+  },
+  {
+    "method": "_",
+    "indicator": "RPRE",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "RPRM",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "RPRT",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "RSF",
+    "unit": "MJ"
+  },
+  {
+    "method": "_",
+    "indicator": "RWD",
+    "unit": "kg"
+  },
+  {
+    "method": "_",
+    "indicator": "SM",
+    "unit": "kg"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "SQI",
+    "unit": "dimensionless"
+  },
+  {
+    "method": "AWARE",
+    "indicator": "WDP",
+    "unit": "m3"
+  },
+  {
+    "method": "EF3.1",
+    "indicator": "WDP",
+    "unit": "m3 world eq deprived"
+  }
+]
