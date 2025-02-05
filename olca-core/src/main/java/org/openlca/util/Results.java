@@ -95,6 +95,9 @@ public class Results {
 		}
 
 		private FlowResult flowOf(EnviFlow enviFlow) {
+			var amount = result.getTotalFlowValueOf(enviFlow);
+			if (amount == 0)
+				return null;
 			var flow = em.find(Flow.class, enviFlow.flow().id);
 			if (flow == null)
 				return null;
@@ -102,7 +105,7 @@ public class Results {
 			r.flow = flow;
 			r.flowPropertyFactor = flow.getReferenceFactor();
 			r.unit = flow.getReferenceUnit();
-			r.amount = result.getTotalFlowValueOf(enviFlow);
+			r.amount = amount;
 			r.isInput = enviFlow.isInput();
 			var loc = enviFlow.location();
 			if (loc != null) {
