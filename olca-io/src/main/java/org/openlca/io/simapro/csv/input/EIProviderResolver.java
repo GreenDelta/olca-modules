@@ -10,6 +10,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.util.Strings;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,55 @@ public class EIProviderResolver {
 				continue;
 			}
 			map.put(key, new Provider(key, tf));
+		}
+
+		log.info("collected {} providers", map.size());
+		return new EIProviderResolver(map);
+	}
+
+	/// Creates a provider resolver for the results of the given database. The
+	/// result names in the database need to follow the pattern:
+	/// `{process} | {flow} - {location code}`
+	/// The process and flow names are case-insensitive and the location code
+	/// needs to start with an uppercase letter.
+	public static EIProviderResolver forResultsOf(IDatabase db) {
+		if (db == null)
+			return new EIProviderResolver(Collections.emptyMap());
+
+		var log = LoggerFactory.getLogger(EIProviderResolver.class);
+		log.info("collect result providers from database");
+		var map = new HashMap<String, Provider>();
+
+		for (var d : db.getDescriptors(Result.class)) {
+			var result = db.get(Result.class, d.id);
+			var refFlow = result.referenceFlow;
+			if (Strings.nullOrEmpty(result.name) || refFlow == null)
+				continue;
+
+			var name = result.name;
+			var parts = name.split("\\|");
+			if (parts.length < 2)
+				continue;
+			var process = parts[0].strip();
+
+			String flow = null;
+			String location = null;
+			var rest = parts[1].strip();
+			for (int i = 0; i < rest.length(); i++) {
+				if (rest.charAt(i) != '-' || (i + 1) == rest.length())
+					continue;
+				var code = rest.substring(i + 1).strip();
+				if (Character.isUpperCase(code.charAt(0))) {
+					flow = rest.substring(0, i).strip();
+					location = code;
+					break;
+				}
+			}
+
+			if (flow == null)
+				continue;
+			var key = keyOf(process, flow, location);
+			map.put(key, new Provider(key, TechFlow.of(result)));
 		}
 
 		log.info("collected {} providers", map.size());
