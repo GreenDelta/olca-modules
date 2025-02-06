@@ -1,8 +1,10 @@
 package org.openlca.core.library;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.CategoryDao;
@@ -13,66 +15,39 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.CategoryContentTest;
 
 public class Unmounter {
 
-	protected final IDatabase database;
-	protected final Retention retention;
+	private final IDatabase database;
+	private final Retention retention;
+	private final String lib;
+	private final LibReader reader;
 	private final CategoryContentTest test;
 
-	public static SimpleUnmounter keepNone(IDatabase database) {
-		return new SimpleUnmounter(database);
+	public static void keepNone(IDatabase database, String lib) {
+		if (lib == null)
+			return;
+		new Unmounter(database, Retention.KEEP_NONE, lib, null).unmount();
 	}
 
-	// TODO
-	// public static RetainingUnmounter keepUsed(IDatabase database) {
-	// }
-
-	public static RetainingUnmounter keepAll(IDatabase database) {
-		return new RetainingUnmounter(database, Retention.KEEP_ALL);
+	public static void keepAll(IDatabase database, LibReader reader) {
+		if (reader == null)
+			return;
+		new Unmounter(database, Retention.KEEP_ALL, reader.libraryName(), reader).unmount();
 	}
 
-	private Unmounter(IDatabase database, Retention retention) {
+	private Unmounter(IDatabase database, Retention retention, String lib, LibReader reader) {
 		this.database = database;
 		this.retention = retention;
+		this.lib = lib;
+		this.reader = reader;
 		this.test = new CategoryContentTest(database);
 	}
 
-	public static class SimpleUnmounter extends Unmounter {
-
-		private SimpleUnmounter(IDatabase database) {
-			super(database, Retention.KEEP_NONE);
-		}
-
-		public void unmount(String lib) {
-			if (retention != Retention.KEEP_NONE)
-				throw new UnsupportedOperationException(
-						"Unmounting library by name is only possible with Retention.KEEP_NONE");
-			if (lib == null)
-				return;
-			unmount(lib, null);
-		}
-
-	}
-
-	public static class RetainingUnmounter extends Unmounter {
-
-		private RetainingUnmounter(IDatabase database, Retention retention) {
-			super(database, retention);
-		}
-
-		public void unmount(LibReader lib) {
-			if (lib == null)
-				return;
-			unmount(lib.libraryName(), lib);
-		}
-
-	}
-
-	protected void unmount(String lib, LibReader reader) {
-		var categoriesToDelete = collectLibraryCategories(lib).stream()
-				.collect(Collectors.toMap(c -> c.id, c -> c));
+	protected void unmount() {
+		var categoriesToDelete = collectLibraryCategories();
 		var processDao = new ProcessDao(database);
 		var methodDao = new ImpactMethodDao(database);
 		for (var type : ModelType.values()) {
@@ -83,10 +58,11 @@ public class Unmounter {
 			for (var descriptor : dao.getDescriptors()) {
 				if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
 					continue;
-				if (retention == Retention.KEEP_NONE) {
+				if (!keep(descriptor)) {
 					dao.delete(descriptor.id);
 				} else {
 					untag.add(descriptor.refId);
+					removeFromMap(categoriesToDelete, categoriesToDelete.get(descriptor.category));
 					if (type == ModelType.PROCESS) {
 						var process = processDao.getForId(descriptor.id);
 						Libraries.fillExchangesOf(database, reader, process);
@@ -108,34 +84,48 @@ public class Unmounter {
 		database.removeLibrary(lib);
 	}
 
-	private List<Category> collectLibraryCategories(String lib) {
-		if (retention == Retention.KEEP_ALL)
-			return new ArrayList<>();
-		var categories = new ArrayList<Category>();
-		for (var category : new CategoryDao(database).getRootCategories()) {
-			categories.addAll(collectCategories(category, lib));
-		}
-		return categories;
+	private boolean keep(RootDescriptor descriptor) {
+		if (retention == Retention.KEEP_NONE)
+			return false;
+		return true;
 	}
 
-	private List<Category> collectCategories(Category category, String lib) {
+	private Map<Long, Category> collectLibraryCategories() {
+		if (retention == Retention.KEEP_ALL)
+			return new HashMap<>();
 		var categories = new ArrayList<Category>();
-		if (hasOnlyLibraryContent(category, lib)) {
+		for (var category : new CategoryDao(database).getRootCategories()) {
+			categories.addAll(collectCategories(category));
+		}
+		return categories.stream()
+				.collect(Collectors.toMap(c -> c.id, c -> c));
+	}
+
+	private List<Category> collectCategories(Category category) {
+		var categories = new ArrayList<Category>();
+		if (hasOnlyLibraryContent(category)) {
 			categories.add(category);
 		}
 		for (var child : category.childCategories) {
-			categories.addAll(collectCategories(child, lib));
+			categories.addAll(collectCategories(child));
 		}
 		return categories;
 	}
 
-	private boolean hasOnlyLibraryContent(Category category, String lib) {
+	private boolean hasOnlyLibraryContent(Category category) {
 		if (!test.hasOnlyLibraryContent(category, lib))
 			return false;
 		for (var child : category.childCategories)
-			if (!hasOnlyLibraryContent(child, lib))
+			if (!hasOnlyLibraryContent(child))
 				return false;
 		return true;
+	}
+
+	private void removeFromMap(Map<Long, Category> map, Category category) {
+		if (category == null)
+			return;
+		map.remove(category.id);
+		removeFromMap(map, category.category);
 	}
 
 	public enum Retention {
