@@ -58,6 +58,19 @@ public class TypedRefIdMap<T> {
 		return new ArrayList<>(refIds.values());
 	}
 
+	public TypedRefIdSet keySet() {
+		var keys = new TypedRefIdSet();
+		map.keySet().forEach(type -> {
+			var refIds = map.get(type);
+			if (refIds == null || refIds.isEmpty())
+				return;
+			refIds.keySet().forEach(refId -> {
+				keys.add(new TypedRefId(type, refId));
+			});
+		});
+		return keys;
+	}
+
 	public List<T> values() {
 		return map.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
 	}

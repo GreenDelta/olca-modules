@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
 
@@ -24,6 +25,10 @@ public class TypedRefIdSet {
 
 	public void add(ModelType type, String refId) {
 		map.computeIfAbsent(type, t -> new HashSet<>()).add(refId);
+	}
+
+	public void addAll(TypedRefIdSet pairs) {
+		pairs.forEach(ref -> add(ref));
 	}
 
 	public void addAll(Collection<? extends TypedRefId> pairs) {
@@ -54,6 +59,15 @@ public class TypedRefIdSet {
 
 	public void clear() {
 		map.clear();
+	}
+
+	public void forEach(Consumer<TypedRefId> forEach) {
+		map.keySet().forEach(type -> {
+			var refIds = map.get(type);
+			if (refIds == null)
+				return;
+			refIds.forEach(refId -> forEach.accept(new TypedRefId(type, refId)));
+		});
 	}
 
 	public void forEach(ForEach forEach) {
