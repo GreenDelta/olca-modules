@@ -3,6 +3,7 @@ package org.openlca.git.util;
 import java.util.Collection;
 
 import org.openlca.git.model.ModelRef;
+import org.openlca.util.TypedRefIdSet;
 
 public class ModelRefSet extends TypedRefIdSet {
 

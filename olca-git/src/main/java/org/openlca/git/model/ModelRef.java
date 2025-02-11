@@ -1,9 +1,9 @@
 package org.openlca.git.model;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.TypedRefId;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
-import org.openlca.git.util.TypedRefId;
 import org.openlca.util.Strings;
 
 public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
@@ -19,7 +19,7 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	public final boolean isLibrary;
 
 	public ModelRef(String path) {
-		super(path);
+		super(getType(path), getRefId(path));
 		path = trimPaths(path);
 		this.isEmptyCategory = GitUtil.isEmptyCategoryPath(path);
 		if (this.isEmptyCategory) {
@@ -46,6 +46,27 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		this.isDataset = ref.isDataset;
 		this.isRepositoryInfo = ref.isRepositoryInfo;
 		this.isLibrary = ref.isLibrary;
+	}
+
+	private static ModelType getType(String path) {
+		if (path.isEmpty())
+			return null;
+		for (var type : ModelType.values())
+			if (type.name().equals(path.split("/")[0].trim()))
+				return type;
+		return null;
+	}
+
+	private static String getRefId(String path) {
+		var parts = path.split("/");
+		if (parts.length < 2)
+			return null;
+		if (parts[0].equals(RepositoryInfo.FILE_NAME))
+			return parts[1];
+		var binDir = GitUtil.findBinDir(path);
+		if (binDir != null)
+			return GitUtil.getRefId(binDir);
+		return GitUtil.getRefId(path);
 	}
 
 	private static String nameOf(String path) {

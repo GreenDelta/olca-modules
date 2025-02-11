@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.model.Reference;
-import org.openlca.git.util.TypedRefId;
-import org.openlca.git.util.TypedRefIdMap;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Strings;
+import org.openlca.util.TypedRefIdMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

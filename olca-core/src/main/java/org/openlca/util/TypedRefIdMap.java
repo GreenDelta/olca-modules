@@ -1,4 +1,4 @@
-package org.openlca.git.util;
+package org.openlca.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.TypedRefId;
 
 public class TypedRefIdMap<T> {
 

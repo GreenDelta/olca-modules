@@ -1,6 +1,7 @@
 package org.openlca.git.util;
 
 import org.openlca.git.model.ModelRef;
+import org.openlca.util.TypedRefIdMap;
 
 public class ModelRefMap<T> extends TypedRefIdMap<T> {
 

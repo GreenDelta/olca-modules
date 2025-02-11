@@ -1,4 +1,4 @@
-package org.openlca.git.util;
+package org.openlca.util;
 
 import java.util.Collection;
 import java.util.EnumMap;
@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.TypedRefId;
 
 public class TypedRefIdSet {
 
