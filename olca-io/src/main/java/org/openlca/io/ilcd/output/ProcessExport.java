@@ -1,18 +1,37 @@
 package org.openlca.io.ilcd.output;
 
+import java.io.File;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ilcd.commons.*;
+import org.openlca.ilcd.commons.Compliance;
+import org.openlca.ilcd.commons.DataQualityIndicator;
+import org.openlca.ilcd.commons.FlowCompleteness;
+import org.openlca.ilcd.commons.ImpactCategory;
+import org.openlca.ilcd.commons.LangString;
+import org.openlca.ilcd.commons.ModellingApproach;
+import org.openlca.ilcd.commons.ModellingPrinciple;
+import org.openlca.ilcd.commons.Quality;
+import org.openlca.ilcd.commons.QualityIndicator;
+import org.openlca.ilcd.commons.QuantitativeReferenceType;
+import org.openlca.ilcd.commons.Ref;
+import org.openlca.ilcd.commons.ReviewType;
 import org.openlca.ilcd.processes.ComplianceDeclaration;
 import org.openlca.ilcd.processes.FlowCompletenessEntry;
+import org.openlca.ilcd.processes.ImpactResult;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.processes.ReviewMethod;
 import org.openlca.ilcd.processes.ReviewScope;
+import org.openlca.ilcd.sources.FileRef;
+import org.openlca.ilcd.sources.Source;
+import org.openlca.ilcd.util.Sources;
 import org.openlca.ilcd.util.TimeExtension;
+import org.openlca.io.Xml;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +46,23 @@ public class ProcessExport {
 	private final org.openlca.core.model.Process proc;
 	private ProcessDoc doc;
 
+	// Optionally add the impact results of the process
+	private Result result;
+	private File flowChart;
+
 	public ProcessExport(Export exp, org.openlca.core.model.Process proc) {
 		this.exp = exp;
 		this.proc = proc;
+	}
+
+	public ProcessExport withImpactResultsOf(Result result) {
+		this.result = result;
+		return this;
+	}
+
+	private ProcessExport withFlowChart(File flowChart) {
+		this.flowChart = flowChart;
+		return this;
 	}
 
 	public void write() {
@@ -68,6 +101,8 @@ public class ProcessExport {
 		}
 
 		new ExchangeConversion(proc, exp).run(ds);
+		addImpactResults(ds);
+
 		exp.store.put(ds);
 	}
 
@@ -119,11 +154,24 @@ public class ProcessExport {
 	}
 
 	private void mapTechnology(Process ds) {
-		if (doc == null)
-			return;
-		if (Strings.notEmpty(doc.technology)) {
+		if (doc != null && Strings.notEmpty(doc.technology)) {
 			var tech = ds.withProcessInfo().withTechnology();
 			exp.add(tech::withDescription, doc.technology);
+		}
+		if (flowChart != null && flowChart.exists()) {
+			var source = new Source();
+			Sources.withUUID(source, UUID.randomUUID().toString());
+			Sources.withVersion(source, "1.0");
+			Sources.withTimeStamp(source, Xml.calendar(System.currentTimeMillis()));
+			Sources.withName(source, LangString.of("Flow chart for " + proc.name));
+			Sources.withDataSetInfo(source)
+					.withFiles()
+					.add(new FileRef().withUri("../external_docs/" + flowChart.getName()));
+			exp.store.put(source, new File[]{flowChart});
+			ds.withProcessInfo()
+					.withTechnology()
+					.withPictures()
+					.add(Ref.of(source));
 		}
 	}
 
@@ -253,7 +301,7 @@ public class ProcessExport {
 		for (var c : doc.complianceDeclarations) {
 			var dec = new ComplianceDeclaration()
 					.withSystem(exp.writeRef(c.system));
-		  Compliance.fromValue(c.aspects.get("Overall compliance"))
+			Compliance.fromValue(c.aspects.get("Overall compliance"))
 					.ifPresent(dec::withApproval);
 			Compliance.fromValue(c.aspects.get("Nomenclature compliance"))
 					.ifPresent(dec::withNomenclature);
@@ -268,4 +316,20 @@ public class ProcessExport {
 			decs.add(dec);
 		}
 	}
+
+	private void addImpactResults(Process ds) {
+		if (result == null || result.impactResults.isEmpty())
+			return;
+		for (var impact : result.impactResults) {
+			if (impact.indicator == null)
+				continue;
+			var ref = exp.writeRef(impact.indicator);
+			var r = new ImpactResult()
+					.withMethod(ref)
+					.withAmount(impact.amount);
+			exp.add(r::withComment, impact.description);
+			ds.withImpactResults().add(r);
+		}
+	}
+
 }

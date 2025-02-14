@@ -92,7 +92,7 @@ public class Export {
 	 * value is a non-empty string.
 	 */
 	void add(Supplier<List<LangString>> str, String value) {
-		if (value == null || value.isEmpty())
+		if (value == null || value.isBlank())
 			return;
 		str.get().add(LangString.of(value, lang));
 	}
