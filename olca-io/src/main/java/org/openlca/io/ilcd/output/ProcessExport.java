@@ -50,7 +50,7 @@ public class ProcessExport {
 		mapComplianceSystems(ds);
 
 		ds.withAdminInfo(ProcessAdminInfo.create(exp, proc));
-		var params = new ProcessParameterConversion(exp).run(proc);
+		var params = ProcessParameters.convert(exp, proc);
 		if (!params.isEmpty()) {
 			ds.withProcessInfo()
 					.withParameterModel()
