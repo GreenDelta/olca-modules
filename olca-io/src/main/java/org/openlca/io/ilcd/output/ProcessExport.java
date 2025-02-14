@@ -60,7 +60,7 @@ public class ProcessExport {
 		return this;
 	}
 
-	private ProcessExport withFlowChart(File flowChart) {
+	public ProcessExport withFlowChart(File flowChart) {
 		this.flowChart = flowChart;
 		return this;
 	}
