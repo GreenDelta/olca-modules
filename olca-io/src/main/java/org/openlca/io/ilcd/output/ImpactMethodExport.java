@@ -5,12 +5,14 @@ import org.openlca.core.model.ImpactMethod;
 public class ImpactMethodExport {
 
 	private final Export exp;
+	private final ImpactMethod method;
 
-	public ImpactMethodExport(Export exp) {
+	public ImpactMethodExport(Export exp, ImpactMethod method) {
 		this.exp = exp;
+		this.method = method;
 	}
 
-	public void write(ImpactMethod method) {
+	public void write() {
 		if (method == null)
 			return;
 		for (var impact : method.impactCategories) {

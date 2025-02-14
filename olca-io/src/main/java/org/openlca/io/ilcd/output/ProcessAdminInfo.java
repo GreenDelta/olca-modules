@@ -14,16 +14,20 @@ import java.util.Date;
 class ProcessAdminInfo {
 
 	private final Export exp;
-	private Process process;
+	private final Process process;
 	private ProcessDoc doc;
 	private AdminInfo adminInfo;
 
-	ProcessAdminInfo(Export exp) {
+	private ProcessAdminInfo(Export exp, Process process) {
 		this.exp = exp;
+		this.process = process;
 	}
 
-	AdminInfo create(Process process) {
-		this.process = process;
+	static AdminInfo create(Export exp, Process process) {
+		return new ProcessAdminInfo(exp, process).create();
+	}
+
+	private AdminInfo create() {
 		this.doc = process.documentation;
 		adminInfo = new AdminInfo();
 		if (doc == null)

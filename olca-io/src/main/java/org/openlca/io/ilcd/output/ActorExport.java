@@ -11,28 +11,27 @@ import org.openlca.io.Xml;
 public class ActorExport {
 
 	private final Export exp;
-	private Actor actor;
+	private final Actor actor;
 	private String baseUri;
 
-	public ActorExport(Export exp) {
+	public ActorExport(Export exp, Actor actor) {
 		this.exp = exp;
+		this.actor = actor;
 	}
 
 	public void setBaseUri(String baseUri) {
 		this.baseUri = baseUri;
 	}
 
-	public void write(Actor actor) {
+	public void write() {
 		if (actor == null || exp.store.contains(Contact.class, actor.refId))
 			return;
-		this.actor = actor;
 		var contact = new Contact();
 		contact
 				.withAdminInfo(makeAdminInfo())
 				.withContactInfo()
 				.withDataSetInfo(makeDataSetInfo());
 		exp.store.put(contact);
-		this.actor = null;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

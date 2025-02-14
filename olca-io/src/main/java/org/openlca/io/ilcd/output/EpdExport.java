@@ -24,12 +24,14 @@ import org.openlca.util.Strings;
 public class EpdExport {
 
 	private final Export exp;
+	private final Epd epd;
 
-	public EpdExport(Export exp) {
+	public EpdExport(Export exp, Epd epd) {
 		this.exp = exp;
+		this.epd = epd;
 	}
 
-	public void write(Epd epd) {
+	public void write() {
 		if (epd == null || exp.store.contains(Process.class, epd.refId))
 			return;
 
@@ -45,16 +47,16 @@ public class EpdExport {
 		ds.withModelling()
 				.withInventoryMethod()
 				.withProcessType(ProcessType.EPD);
-		writeRefFlow(epd, ds);
-		writeReview(epd, ds);
-		writePublication(epd, ds);
-		writeMetaData(epd, ds);
+		writeRefFlow(ds);
+		writeReview(ds);
+		writePublication(ds);
+		writeMetaData(ds);
 
-		writeResults(epd, ds);
+		writeResults(ds);
 		exp.store.put(ds);
 	}
 
-	private void writeRefFlow(Epd epd, Process process) {
+	private void writeRefFlow(Process process) {
 		var product = epd.product;
 		if (product == null)
 			return;
@@ -75,7 +77,7 @@ public class EpdExport {
 		process.withExchanges().add(e);
 	}
 
-	private void writePublication(Epd epd, Process ds) {
+	private void writePublication(Process ds) {
 		Epds.withPublication(ds)
 				.withVersion(Version.asString(epd.version))
 				.withLastRevision(Xml.calendar(epd.lastChange))
@@ -85,7 +87,7 @@ public class EpdExport {
 	}
 
 
-	private void writeReview(Epd epd, Process p) {
+	private void writeReview(Process p) {
 		var reviewer = exp.writeRef(epd.verifier);
 		if (reviewer != null) {
 			var review = new Review();
@@ -97,7 +99,7 @@ public class EpdExport {
 		}
 	}
 
-	private void writeResults(Epd epd, Process ds) {
+	private void writeResults(Process ds) {
 		var results = new HashMap<String, EpdIndicatorResult>();
 		for (var m : epd.modules) {
 			if (m.result == null)
@@ -132,7 +134,7 @@ public class EpdExport {
 
 	}
 
-	private void writeMetaData(Epd epd, Process ds) {
+	private void writeMetaData(Process ds) {
 
 		// PCR
 		var pcr = exp.writeRef(epd.pcr);

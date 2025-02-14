@@ -109,7 +109,7 @@ class ExchangeConversion {
 			}
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
-			log.warn("could not load default provider " + provider, e);
+			log.warn("could not load default provider {}", provider, e);
 		}
 	}
 

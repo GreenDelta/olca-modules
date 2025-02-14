@@ -6,8 +6,18 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.*;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
@@ -45,31 +55,23 @@ public class Export {
 		if (e == null)
 			return;
 		try {
-			if (e instanceof Epd epd) {
-				new EpdExport(this).write(epd);
-			} else if (e instanceof ImpactMethod method) {
-				new ImpactMethodExport(this).write(method);
-			} else if (e instanceof ImpactCategory impact) {
-				new ImpactCategoryExport(this).write(impact);
-			} else if (e instanceof ProductSystem system) {
-				new SystemExport(this).write(system);
-			} else if (e instanceof Process process) {
-				new ProcessExport(this).write(process);
-			} else if (e instanceof Flow flow) {
-				new FlowExport(this).write(flow);
-			} else if (e instanceof FlowProperty prop) {
-				new FlowPropertyExport(this).run(prop);
-			} else if (e instanceof UnitGroup group) {
-				new UnitGroupExport(this).write(group);
-			} else if (e instanceof Actor actor) {
-				new ActorExport(this).write(actor);
-			} else if (e instanceof Source source) {
-				new SourceExport(this).run(source);
-			} else {
-				log.error("cannot convert type to ILCD: {}", e);
+			switch (e) {
+				case Epd epd -> new EpdExport(this, epd).write();
+				case ImpactMethod method ->
+						new ImpactMethodExport(this, method).write();
+				case ImpactCategory impact ->
+						new ImpactCategoryExport(this, impact).write();
+				case ProductSystem system -> new SystemExport(this, system).write();
+				case Process process -> new ProcessExport(this, process).write();
+				case Flow flow -> new FlowExport(this, flow).write();
+				case FlowProperty prop -> new FlowPropertyExport(this, prop).run();
+				case UnitGroup group -> new UnitGroupExport(this, group).write();
+				case Actor actor -> new ActorExport(this, actor).write();
+				case Source source -> new SourceExport(this, source).run();
+				default -> log.error("cannot convert type to ILCD: {}", e);
 			}
 		} catch (Exception ex) {
-			log.error("export of " + e + " failed", ex);
+			log.error("export of {} failed", e, ex);
 		}
 	}
 

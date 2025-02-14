@@ -18,21 +18,21 @@ public class SourceExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final Export exp;
+	private final org.openlca.core.model.Source source;
 	private String baseUri;
-	private org.openlca.core.model.Source source;
 
-	public SourceExport(Export exp) {
+	public SourceExport(Export exp, org.openlca.core.model.Source source) {
 		this.exp = exp;
+		this.source = source;
 	}
 
 	public void setBaseUri(String baseUri) {
 		this.baseUri = baseUri;
 	}
 
-	public void run(org.openlca.core.model.Source source) {
+	public void run() {
 		if (source == null || exp.store.contains(Source.class, source.refId))
 			return;
-		this.source = source;
 		log.trace("Run source export with {}", source);
 		var ds = new Source()
 				.withAdminInfo(makeAdminInfo());

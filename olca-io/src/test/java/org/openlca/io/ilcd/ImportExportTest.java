@@ -83,7 +83,7 @@ public class ImportExportTest {
 		var contact = imp.store().get(Contact.class, id);
 		var actor = new ContactImport(imp, contact).run();
 		assertEquals(id, actor.refId);
-		new ActorExport(export).write(actor);
+		new ActorExport(export, actor).write();
 		assertTrue(store.contains(Contact.class, id));
 	}
 
@@ -93,7 +93,7 @@ public class ImportExportTest {
 		var ds = imp.store().get(Source.class, id);
 		var source = new SourceImport(imp, ds).run();
 		assertEquals(id, source.refId);
-		new SourceExport(export).run(source);
+		new SourceExport(export, source).run();
 		assertTrue(store.contains(Source.class, id));
 	}
 
@@ -103,7 +103,7 @@ public class ImportExportTest {
 		var ds = imp.store().get(UnitGroup.class, id);
 		var group = new UnitGroupImport(imp, ds).run();
 		assertEquals(id, group.refId);
-		new UnitGroupExport(export).write(group);
+		new UnitGroupExport(export, group).write();
 		assertTrue(store.contains(UnitGroup.class, id));
 	}
 
@@ -113,7 +113,7 @@ public class ImportExportTest {
 		var ds = imp.store().get(FlowProperty.class, id);
 		var prop = new FlowPropertyImport(imp, ds).run();
 		assertEquals(id, prop.refId);
-		new FlowPropertyExport(export).run(prop);
+		new FlowPropertyExport(export, prop).run();
 		assertTrue(store.contains(FlowProperty.class, id));
 	}
 
@@ -123,7 +123,7 @@ public class ImportExportTest {
 		var ds = imp.store().get(Flow.class, id);
 		var syncFlow = new FlowImport(imp, ds).run();
 		assertEquals(id, syncFlow.flow().refId);
-		new FlowExport(export).write(syncFlow.flow());
+		new FlowExport(export, syncFlow.flow()).write();
 		assertTrue(store.contains(Flow.class, id));
 	}
 
@@ -133,7 +133,7 @@ public class ImportExportTest {
 		var ds = imp.store().get(Process.class, id);
 		var process = new ProcessImport(imp, ds).run();
 		assertEquals(id, process.refId);
-		new ProcessExport(export).write(process);
+		new ProcessExport(export, process).write();
 		assertTrue(store.contains(Process.class, id));
 	}
 

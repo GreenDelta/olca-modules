@@ -13,21 +13,21 @@ import org.openlca.io.Xml;
 public class UnitGroupExport {
 
 	private final Export exp;
-	private org.openlca.core.model.UnitGroup unitGroup;
+	private final org.openlca.core.model.UnitGroup unitGroup;
 	private String baseUri;
 
-	public UnitGroupExport(Export exp) {
+	public UnitGroupExport(Export exp, org.openlca.core.model.UnitGroup unitGroup) {
 		this.exp = exp;
+		this.unitGroup = unitGroup;
 	}
 
 	public void setBaseUri(String baseUri) {
 		this.baseUri = baseUri;
 	}
 
-	public void write(org.openlca.core.model.UnitGroup unitGroup) {
+	public void write() {
 		if (exp.store.contains(UnitGroup.class, unitGroup.refId))
 			return;
-		this.unitGroup = unitGroup;
 		var ds = new UnitGroup()
 				.withAdminInfo(makeAdminInfo());
 		ds.withUnitGroupInfo()
@@ -35,7 +35,6 @@ public class UnitGroupExport {
 				.withQuantitativeReference(makeQRef());
 		makeUnits(ds);
 		exp.store.put(ds);
-		this.unitGroup = null;
 	}
 
 	private DataSetInfo makeDataSetInfo() {

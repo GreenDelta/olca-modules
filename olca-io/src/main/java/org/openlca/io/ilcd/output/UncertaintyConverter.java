@@ -12,7 +12,7 @@ import org.openlca.ilcd.util.ExchangeExtension;
  */
 class UncertaintyConverter {
 
-	public void map(Exchange o, org.openlca.ilcd.processes.Exchange i) {
+	void map(Exchange o, org.openlca.ilcd.processes.Exchange i) {
 		Uncertainty uncertainty = o.uncertainty;
 		if (uncertainty == null
 				|| uncertainty.distributionType == UncertaintyType.NONE)
@@ -35,7 +35,7 @@ class UncertaintyConverter {
 		}
 	}
 
-	public void map(Parameter o, org.openlca.ilcd.processes.Parameter i) {
+	void map(Parameter o, org.openlca.ilcd.processes.Parameter i) {
 		var uncertainty = o.uncertainty;
 		if (uncertainty == null
 				|| uncertainty.distributionType == UncertaintyType.NONE)

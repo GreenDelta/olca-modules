@@ -31,27 +31,26 @@ public class SystemExport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Export exp;
-	private ProductSystem system;
+	private final ProductSystem system;
 
 	private final Map<Long, Integer> processIDs = new HashMap<>();
 	private final Map<Long, Integer> exchangeIDs = new HashMap<>();
 	private final Map<Long, ProcessDescriptor> processes = new HashMap<>();
 	private final Map<Long, FlowDescriptor> flows = new HashMap<>();
 
-	public SystemExport(Export exp) {
+	public SystemExport(Export exp, ProductSystem system) {
 		this.exp = exp;
+		this.system = system;
 	}
 
-	public void write(ProductSystem system) {
+	public void write() {
 		if (system == null || exp.store.contains(Model.class, system.refId))
 			return;
-		this.system = system;
 		log.trace("Run product system export with {}", system);
 		loadMaps();
 		Model model = initModel();
 		mapLinks(model);
 		exp.store.put(model);
-		this.system = null;
 	}
 
 	private void loadMaps() {
@@ -146,7 +145,7 @@ public class SystemExport {
 		var set = system.parameterSets.stream()
 				.filter(s -> s.isBaseline)
 				.findAny()
-				.orElse(system.parameterSets.get(0));
+				.orElse(system.parameterSets.getFirst());
 		for (var redef : set.parameters) {
 			Long context = redef.contextId;
 			if (redef.contextId == null || context != id)

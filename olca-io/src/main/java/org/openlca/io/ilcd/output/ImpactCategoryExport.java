@@ -15,12 +15,14 @@ import java.util.List;
 public class ImpactCategoryExport {
 
 	private final Export exp;
+	private final ImpactCategory impact;
 
-	public ImpactCategoryExport(Export exp) {
+	public ImpactCategoryExport(Export exp, ImpactCategory impact) {
 		this.exp = exp;
+		this.impact = impact;
 	}
 
-	public void write(ImpactCategory impact) {
+	public void write() {
 		if (impact == null || exp.store.contains(ImpactMethod.class, impact.refId))
 			return;
 		var m = new ImpactMethod();

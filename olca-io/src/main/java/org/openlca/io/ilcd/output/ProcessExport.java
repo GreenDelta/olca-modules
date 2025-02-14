@@ -24,19 +24,19 @@ public class ProcessExport {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final Export exp;
-	private org.openlca.core.model.Process process;
+	private final org.openlca.core.model.Process proc;
 	private ProcessDoc doc;
 
-	public ProcessExport(Export exp) {
+	public ProcessExport(Export exp, org.openlca.core.model.Process proc) {
 		this.exp = exp;
+		this.proc = proc;
 	}
 
-	public void write(org.openlca.core.model.Process p) {
-		if (p == null || exp.store.contains(Process.class, p.refId))
+	public void write() {
+		if (proc == null || exp.store.contains(Process.class, proc.refId))
 			return;
-		log.trace("Run process export with {}", p);
-		this.process = p;
-		this.doc = p.documentation;
+		log.trace("Run process export with {}", proc);
+		this.doc = proc.documentation;
 
 		var ds = new Process();
 		mapDataSetInfo(ds);
@@ -49,8 +49,8 @@ public class ProcessExport {
 		mapCompleteness(ds);
 		mapComplianceSystems(ds);
 
-		ds.withAdminInfo(new ProcessAdminInfo(exp).create(p));
-		var params = new ProcessParameterConversion(exp).run(p);
+		ds.withAdminInfo(ProcessAdminInfo.create(exp, proc));
+		var params = new ProcessParameterConversion(exp).run(proc);
 		if (!params.isEmpty()) {
 			ds.withProcessInfo()
 					.withParameterModel()
@@ -58,7 +58,7 @@ public class ProcessExport {
 					.addAll(params);
 		}
 
-		Exchange qRef = p.quantitativeReference;
+		Exchange qRef = proc.quantitativeReference;
 		if (qRef != null) {
 			ds.withProcessInfo()
 					.withQuantitativeReference()
@@ -67,18 +67,18 @@ public class ProcessExport {
 					.add(qRef.internalId);
 		}
 
-		new ExchangeConversion(p, exp).run(ds);
+		new ExchangeConversion(proc, exp).run(ds);
 		exp.store.put(ds);
 	}
 
 	private void mapDataSetInfo(Process ds) {
 		var info = ds.withProcessInfo()
 				.withDataSetInfo()
-				.withUUID(process.refId);
+				.withUUID(proc.refId);
 		var name = info.withProcessName();
-		exp.add(name::withBaseName, process.name);
-		exp.add(info::withComment, process.description);
-		Categories.toClassification(process.category, info::withClassifications);
+		exp.add(name::withBaseName, proc.name);
+		exp.add(info::withComment, proc.description);
+		Categories.toClassification(proc.category, info::withClassifications);
 	}
 
 	private void mapTime(Process ds) {
@@ -100,13 +100,13 @@ public class ProcessExport {
 	private void mapGeography(Process ds) {
 		if (doc == null)
 			return;
-		if (process.location == null && doc.geography == null)
+		if (proc.location == null && doc.geography == null)
 			return;
 		var loc = ds.withProcessInfo()
 				.withGeography()
 				.withLocation();
-		if (process.location != null) {
-			var oLoc = process.location;
+		if (proc.location != null) {
+			var oLoc = proc.location;
 			loc.withCode(oLoc.code);
 			// do not write (0.0, 0.0) locations; these are the default
 			// location coordinates in openLCA but probably never a valid
@@ -129,9 +129,9 @@ public class ProcessExport {
 
 	private void mapInventoryMethod(Process ds) {
 		var method = ds.withModelling().withInventoryMethod();
-		if (process.processType != null) {
+		if (proc.processType != null) {
 			method.withProcessType(
-					process.processType == ProcessType.UNIT_PROCESS
+					proc.processType == ProcessType.UNIT_PROCESS
 							? org.openlca.ilcd.commons.ProcessType.UNIT_PROCESS_BLACK_BOX
 							: org.openlca.ilcd.commons.ProcessType.LCI_RESULT);
 		}
@@ -147,9 +147,9 @@ public class ProcessExport {
 	}
 
 	private ModellingApproach getAllocationMethod() {
-		if (process.defaultAllocationMethod == null)
+		if (proc.defaultAllocationMethod == null)
 			return null;
-		return switch (process.defaultAllocationMethod) {
+		return switch (proc.defaultAllocationMethod) {
 			case CAUSAL -> ModellingApproach.ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT;
 			case ECONOMIC -> ModellingApproach.ALLOCATION_MARKET_VALUE;
 			case PHYSICAL -> ModellingApproach.ALLOCATION_PHYSICAL_CAUSALITY;

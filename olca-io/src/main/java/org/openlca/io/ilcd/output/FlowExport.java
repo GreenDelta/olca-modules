@@ -15,17 +15,17 @@ import java.util.List;
 public class FlowExport {
 
 	private final Export exp;
-	private org.openlca.core.model.Flow flow;
+	private final org.openlca.core.model.Flow flow;
 	private String baseUri;
 
-	public FlowExport(Export exp) {
+	public FlowExport(Export exp, org.openlca.core.model.Flow flow) {
 		this.exp = exp;
+		this.flow = flow;
 	}
 
-	public void write(org.openlca.core.model.Flow flow) {
+	public void write() {
 		if (flow == null || exp.store.contains(Flow.class, flow.refId))
 			return;
-		this.flow = flow;
 		var iFlow = new Flow()
 				.withAdminInfo(makeAdminInfo())
 				.withModelling(makeModellingInfo());
@@ -36,7 +36,6 @@ public class FlowExport {
 		makeFlowProperties(iFlow.withFlowProperties());
 		addLocation(iFlow);
 		exp.store.put(iFlow);
-		this.flow = null;
 	}
 
 	private DataSetInfo makeDataSetInfo() {
