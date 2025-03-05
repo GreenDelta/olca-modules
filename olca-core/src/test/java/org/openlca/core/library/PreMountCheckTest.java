@@ -1,6 +1,9 @@
 package org.openlca.core.library;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,11 +28,13 @@ public class PreMountCheckTest {
 	public void setup() throws Exception {
 		var dir = Files.createTempDirectory("_olca").toFile();
 		lib = Library.of(dir);
+		db.addLibrary(lib.name());
 	}
 
 	@After
 	public void cleanup() {
 		Dirs.delete(lib.folder());
+		db.removeDataPackage(lib.name());
 	}
 
 	@Test
@@ -40,7 +45,7 @@ public class PreMountCheckTest {
 	@Test
 	public void testPresent() {
 		with(group -> {
-			group.library = lib.name();
+			group.dataPackage = lib.name();
 			db.insert(group);
 			return PreMountState.PRESENT;
 		});
@@ -49,9 +54,11 @@ public class PreMountCheckTest {
 	@Test
 	public void testTagConflict() {
 		with(group -> {
-			group.library = "another lib";
+			var other = "another library";
+			db.addLibrary(other);
+			group.dataPackage = other;
 			db.insert(group);
-			return  PreMountState.TAG_CONFLICT;
+			return PreMountState.TAG_CONFLICT;
 		});
 	}
 

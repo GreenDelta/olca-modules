@@ -35,8 +35,8 @@ public class DescriptorBuilder<T extends Descriptor>{
 		return this;
 	}
 
-	public DescriptorBuilder<T> library(String library) {
-		descriptor.library = library;
+	public DescriptorBuilder<T> dataPackage(String dataPackage) {
+		descriptor.dataPackage = dataPackage;
 		return this;
 	}
 

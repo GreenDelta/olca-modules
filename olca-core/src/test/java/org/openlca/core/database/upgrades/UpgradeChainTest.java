@@ -59,6 +59,9 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
+		// roll back Upgrade15
+		u.dropTable("tbl_data_packages");
+		
 		// roll back Upgrade14
 		u.dropTable("tbl_analysis_groups");
 		u.dropTable("tbl_analysis_group_processes");
@@ -210,7 +213,6 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_impact_factors", "f_location"));
 		assertTrue(u.columnExists("tbl_locations", "geodata"));
 		assertTrue(u.columnExists("tbl_allocation_factors", "formula"));
-		assertTrue(u.tableExists("tbl_libraries"));
 		assertTrue(u.columnExists("tbl_project_variants", "description"));
 		assertTrue(u.columnExists("tbl_projects", "is_with_costs"));
 		assertTrue(u.columnExists("tbl_projects", "is_with_regionalization"));
@@ -272,6 +274,9 @@ public class UpgradeChainTest {
 		});
 		assertEquals("VARCHAR(5120)", paramFormulaSize.get());
 
+		// check Upgrade15
+		assertTrue(u.tableExists("tbl_data_packages"));
+		
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());
 	}

@@ -1,14 +1,15 @@
 package org.openlca.git;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.jsonld.JsonStoreWriter;
-import org.openlca.jsonld.LibraryLink;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 
@@ -19,11 +20,11 @@ public record RepositoryInfo(JsonObject json) {
 
 	public static final String FILE_NAME = PackageInfo.FILE_NAME;
 	static final int REPOSITORY_CLIENT_VERSION_FALLBACK = 1;
-	public static final int REPOSITORY_CURRENT_CLIENT_VERSION = 6;
-	public static final List<Integer> REPOSITORY_SUPPORTED_CLIENT_VERSIONS = Arrays.asList(1, 2, 3, 4, 5, 6);
+	public static final int REPOSITORY_CURRENT_CLIENT_VERSION = 7;
+	public static final List<Integer> REPOSITORY_SUPPORTED_CLIENT_VERSIONS = Arrays.asList(1, 2, 3, 4, 5, 6, 7);
 	static final int REPOSITORY_SERVER_VERSION_FALLBACK = 1;
-	public static final int REPOSITORY_CURRENT_SERVER_VERSION = 5;
-	public static final List<Integer> REPOSITORY_SUPPORTED_SERVER_VERSIONS = Arrays.asList(1, 2, 3, 4, 5);
+	public static final int REPOSITORY_CURRENT_SERVER_VERSION = 6;
+	public static final List<Integer> REPOSITORY_SUPPORTED_SERVER_VERSIONS = Arrays.asList(1, 2, 3, 4, 5, 6);
 
 	public static RepositoryInfo of(JsonElement json) {
 		var obj = json != null && json.isJsonObject()
@@ -47,9 +48,9 @@ public record RepositoryInfo(JsonObject json) {
 	public RepositoryInfo merge(RepositoryInfo with) {
 		// TODO currently if a library is in one of the commits, it is kept,
 		// include this in conflict resolution
-		var mergedLibraries = new ArrayList<>(this.libraries());
-		mergedLibraries.addAll(with.libraries());
-		var merged = RepositoryInfo.create().withLibraries(mergedLibraries);
+		var mergedPackages = new HashSet<>(this.dataPackages());
+		mergedPackages.addAll(with.dataPackages());
+		var merged = RepositoryInfo.create().withDataPackages(mergedPackages);
 		merged.withSchemaVersion(SchemaVersion.current());
 		merged.withRepositoryClientVersion(
 				Math.max(this.repositoryClientVersion(), with.repositoryClientVersion()));
@@ -66,8 +67,8 @@ public record RepositoryInfo(JsonObject json) {
 		return PackageInfo.of(json).schemaVersion();
 	}
 
-	public List<LibraryLink> libraries() {
-		return PackageInfo.of(json).libraries();
+	public Set<DataPackage> dataPackages() {
+		return PackageInfo.of(json).dataPackages();
 	}
 
 	public int repositoryClientVersion() {
@@ -78,8 +79,8 @@ public record RepositoryInfo(JsonObject json) {
 		return Json.getInt(json, "repositoryServerVersion", REPOSITORY_SERVER_VERSION_FALLBACK);
 	}
 
-	public RepositoryInfo withLibraries(Collection<LibraryLink> links) {
-		var json = PackageInfo.of(this.json).withLibraries(links).json();
+	public RepositoryInfo withDataPackages(Collection<DataPackage> packages) {
+		var json = PackageInfo.of(this.json).withDataPackages(packages).json();
 		return of(json);
 	}
 

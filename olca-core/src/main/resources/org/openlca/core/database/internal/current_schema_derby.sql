@@ -19,32 +19,35 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (14);
+INSERT INTO openlca_version (version) VALUES (15);
 
 
-CREATE TABLE tbl_libraries (
+CREATE TABLE tbl_data_packages (
 
-    id  VARCHAR(255),
+    name       VARCHAR(255),
+    version    BIGINT,
+    url        VARCHAR(1000),
+	is_library SMALLINT default 0,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (name)
 );
 
 
 CREATE TABLE tbl_categories (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id             BIGINT NOT NULL,
+    ref_id         VARCHAR(36),
+    name           VARCHAR(2048),
+    version        BIGINT,
+    last_change    BIGINT,
+    f_category     BIGINT,
+    tags           VARCHAR(255),
+    data_package   VARCHAR(255),
+    description    CLOB(64 K),
 
     other_properties BLOB(5 M),
 
-    model_type   VARCHAR(255),
+    model_type     VARCHAR(255),
 
     PRIMARY KEY (id)
 );
@@ -53,26 +56,26 @@ CREATE INDEX idx_category_ref_id ON tbl_categories(ref_id);
 
 CREATE TABLE tbl_actors (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id             BIGINT NOT NULL,
+    ref_id         VARCHAR(36),
+    name           VARCHAR(2048),
+    version        BIGINT,
+    last_change    BIGINT,
+    f_category     BIGINT,
+    tags           VARCHAR(255),
+    data_package   VARCHAR(255),
+    description    CLOB(64 K),
 
     other_properties BLOB(5 M),
 
-    telefax      VARCHAR(255),
-    website      VARCHAR(255),
-    address      VARCHAR(255),
-    zip_code     VARCHAR(255),
-    email        VARCHAR(255),
-    telephone    VARCHAR(255),
-    country      VARCHAR(255),
-    city         VARCHAR(255),
+    telefax        VARCHAR(255),
+    website        VARCHAR(255),
+    address        VARCHAR(255),
+    zip_code       VARCHAR(255),
+    email          VARCHAR(255),
+    telephone      VARCHAR(255),
+    country        VARCHAR(255),
+    city           VARCHAR(255),
 
     PRIMARY KEY (id)
 );
@@ -81,22 +84,22 @@ CREATE INDEX idx_actor_ref_id ON tbl_actors(ref_id);
 
 CREATE TABLE tbl_locations (
 
-    id           BIGINT NOT NULL,
-    ref_id       VARCHAR(36),
-    name         VARCHAR(2048),
-    version      BIGINT,
-    last_change  BIGINT,
-    f_category   BIGINT,
-    tags         VARCHAR(255),
-    library      VARCHAR(255),
-    description  CLOB(64 K),
+    id             BIGINT NOT NULL,
+    ref_id         VARCHAR(36),
+    name           VARCHAR(2048),
+    version        BIGINT,
+    last_change    BIGINT,
+    f_category     BIGINT,
+    tags           VARCHAR(255),
+    data_package   VARCHAR(255),
+    description    CLOB(64 K),
 
     other_properties BLOB(5 M),
 
-    longitude    DOUBLE,
-    latitude     DOUBLE,
-    code         VARCHAR(255),
-    geodata      BLOB(32 M),
+    longitude      DOUBLE,
+    latitude       DOUBLE,
+    code           VARCHAR(255),
+    geodata        BLOB(32 M),
 
     PRIMARY KEY (id)
 );
@@ -113,7 +116,7 @@ CREATE TABLE tbl_sources (
     last_change     BIGINT,
     f_category      BIGINT,
     tags            VARCHAR(255),
-    library         VARCHAR(255),
+    data_package    VARCHAR(255),
     description     CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -169,7 +172,7 @@ CREATE TABLE tbl_unit_groups (
     last_change              BIGINT,
     f_category               BIGINT,
     tags                     VARCHAR(255),
-    library                  VARCHAR(255),
+    data_package             VARCHAR(255),
     description              CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -195,7 +198,7 @@ CREATE TABLE tbl_flow_properties (
     last_change         BIGINT,
     f_category          BIGINT,
     tags                VARCHAR(255),
-    library             VARCHAR(255),
+    data_package        VARCHAR(255),
     description         CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -220,7 +223,7 @@ CREATE TABLE tbl_flows (
     last_change                BIGINT,
     f_category                 BIGINT,
     tags                       VARCHAR(255),
-    library                    VARCHAR(255),
+    data_package               VARCHAR(255),
     description                CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -265,7 +268,7 @@ CREATE TABLE tbl_processes (
     last_change                BIGINT,
     f_category                 BIGINT,
     tags                       VARCHAR(255),
-    library                    VARCHAR(255),
+    data_package               VARCHAR(255),
     description                CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -413,7 +416,7 @@ CREATE TABLE tbl_product_systems (
     last_change                    BIGINT,
     f_category                     BIGINT,
     tags                           VARCHAR(255),
-    library                        VARCHAR(255),
+    data_package                   VARCHAR(255),
     description                    CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -486,20 +489,20 @@ CREATE TABLE tbl_analysis_group_processes (
 
 CREATE TABLE tbl_impact_methods (
 
-    id            BIGINT NOT NULL,
-    ref_id        VARCHAR(36),
-    name          VARCHAR(2048),
-    version       BIGINT,
-    last_change   BIGINT,
-    f_category    BIGINT,
-    tags          VARCHAR(255),
-    library       VARCHAR(255),
-    description   CLOB(64 K),
+    id             BIGINT NOT NULL,
+    ref_id         VARCHAR(36),
+    name           VARCHAR(2048),
+    version        BIGINT,
+    last_change    BIGINT,
+    f_category     BIGINT,
+    tags           VARCHAR(255),
+    data_package   VARCHAR(255),
+    description    CLOB(64 K),
 
     other_properties BLOB(5 M),
 
-    code        VARCHAR(255),
-    f_source      BIGINT,
+    code           VARCHAR(255),
+    f_source       BIGINT,
 
     PRIMARY KEY (id)
 
@@ -515,7 +518,7 @@ CREATE TABLE tbl_impact_categories (
     last_change     BIGINT,
     f_category      BIGINT,
     tags            VARCHAR(255),
-    library         VARCHAR(255),
+    data_package    VARCHAR(255),
     description     CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -595,7 +598,7 @@ CREATE TABLE tbl_parameters (
     last_change         BIGINT,
     f_category          BIGINT,
     tags                VARCHAR(255),
-    library             VARCHAR(255),
+    data_package        VARCHAR(255),
     description         CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -645,7 +648,7 @@ CREATE TABLE tbl_projects (
     last_change              BIGINT,
     f_category               BIGINT,
     tags                     VARCHAR(255),
-    library                  VARCHAR(255),
+    data_package             VARCHAR(255),
     description              CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -694,7 +697,7 @@ CREATE TABLE tbl_currencies (
     last_change           BIGINT,
     f_category            BIGINT,
     tags                  VARCHAR(255),
-    library               VARCHAR(255),
+    data_package          VARCHAR(255),
     description           CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -727,7 +730,7 @@ CREATE TABLE tbl_social_indicators (
     last_change          BIGINT,
     f_category           BIGINT,
     tags                 VARCHAR(255),
-    library              VARCHAR(255),
+    data_package         VARCHAR(255),
     description          CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -766,7 +769,7 @@ CREATE TABLE tbl_dq_systems (
     last_change        BIGINT,
     f_category         BIGINT,
     tags               VARCHAR(255),
-    library            VARCHAR(255),
+    data_package       VARCHAR(255),
     description        CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -806,7 +809,7 @@ CREATE TABLE tbl_results (
     last_change          BIGINT,
     f_category           BIGINT,
     tags                 VARCHAR(255),
-    library              VARCHAR(255),
+    data_package         VARCHAR(255),
     description          CLOB(64 K),
 
     other_properties BLOB(5 M),
@@ -853,7 +856,7 @@ CREATE TABLE tbl_epds (
     last_change          BIGINT,
     f_category           BIGINT,
     tags                 VARCHAR(255),
-    library              VARCHAR(255),
+    data_package         VARCHAR(255),
     description          CLOB(64 K),
 
     other_properties BLOB(5 M),

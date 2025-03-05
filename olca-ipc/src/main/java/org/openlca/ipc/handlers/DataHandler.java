@@ -19,7 +19,7 @@ public class DataHandler {
 	private final JsonDataService service;
 
 	public DataHandler(HandlerContext context) {
-		this.service = new JsonDataService(context.db());
+		this.service = new JsonDataService(context.db(), context.db().getDataPackages());
 	}
 
 	@Rpc("data/get/descriptors")

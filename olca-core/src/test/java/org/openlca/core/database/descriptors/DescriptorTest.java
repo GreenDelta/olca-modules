@@ -1,13 +1,15 @@
 package org.openlca.core.database.descriptors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-
-import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openlca.core.Tests;
@@ -41,7 +43,8 @@ public class DescriptorTest {
 
 	@Test
 	public void testRootDescriptors() throws Exception {
-
+		var dataPackage = "lib7";
+		db.addLibrary(dataPackage);
 		var cat = db.insert(Category.of("some", null));
 		var refId = UUID.randomUUID().toString();
 		var version = Version.of(1, 2, 3).getValue();
@@ -53,7 +56,7 @@ public class DescriptorTest {
 			assertEquals("tags", d.tags);
 			assertEquals(version, d.version);
 			assertEquals(lastChange, d.lastChange);
-			assertEquals("lib7", d.library);
+			assertEquals(dataPackage, d.dataPackage);
 			assertEquals(cat.id, d.category.longValue());
 		};
 
@@ -69,7 +72,7 @@ public class DescriptorTest {
 			e.tags = "tags";
 			e.version = version;
 			e.lastChange = lastChange;
-			e.library = "lib7";
+			e.dataPackage = dataPackage;
 			db.insert(e);
 			check(e, test);
 			db.delete(e);
@@ -107,7 +110,6 @@ public class DescriptorTest {
 		});
 		db.delete(units, mass, loc, flow);
 	}
-
 
 	@Test
 	public void testImpactDescriptor() {

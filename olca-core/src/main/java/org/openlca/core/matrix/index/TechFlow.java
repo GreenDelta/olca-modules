@@ -124,18 +124,11 @@ public record TechFlow(
 	}
 
 	/**
-	 * Returns true if the underlying process of this product is from a library.
-	 */
-	public boolean isFromLibrary() {
-		return provider().isFromLibrary();
-	}
-
-	/**
-	 * Returns the library ID if the process of this product is from a library,
+	 * Returns the data package if the process of this product is from a data package,
 	 * otherwise `null` is returned.
 	 */
-	public String library() {
-		return provider().library;
+	public String dataPackage() {
+		return provider().dataPackage;
 	}
 
 	public boolean isProductSystem() {

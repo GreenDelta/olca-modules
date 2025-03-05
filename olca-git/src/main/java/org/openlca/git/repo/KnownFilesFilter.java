@@ -16,7 +16,7 @@ class KnownFilesFilter extends TreeFilter {
 
 	private final Integer depth;
 	private boolean includeEmptyCategoryTags;
-	private boolean includeLibraries;
+	private boolean includeDataPackages;
 
 	private KnownFilesFilter(Integer depth) {
 		this.depth = depth;
@@ -35,8 +35,8 @@ class KnownFilesFilter extends TreeFilter {
 		return this;
 	}
 
-	public KnownFilesFilter includeLibraries() {
-		this.includeLibraries = true;
+	public KnownFilesFilter includeDataPackages() {
+		this.includeDataPackages = true;
 		return this;
 	}
 
@@ -111,7 +111,7 @@ class KnownFilesFilter extends TreeFilter {
 		if (isModelTypeRootDirectory(path, mode, depth))
 			return true;
 		if (isRepositoryInfo(path, mode, depth))
-			return includeLibraries;
+			return includeDataPackages;
 		if (isEmptyCategoryTag(path, mode, depth))
 			return includeEmptyCategoryTags;
 		if (isDataset(path, mode, depth))
