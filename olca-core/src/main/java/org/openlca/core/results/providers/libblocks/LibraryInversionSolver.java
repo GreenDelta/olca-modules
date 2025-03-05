@@ -33,7 +33,7 @@ public class LibraryInversionSolver {
 		var demand = context.data().demand;
 		// if the reference flow comes already from a library, we can
 		// construct the result directly from the library matrices
-		if (demand.techFlow().isFromLibrary())
+		if (context.libraries().dataPackages.isLibrary(demand.techFlow().dataPackage()))
 			return SingleLibraryResult.of(context);
 		return new LibraryInversionSolver(context).solve();
 	}
@@ -175,7 +175,7 @@ public class LibraryInversionSolver {
 		int[] map = f.techIndex.mapTo(techIdx.index);
 		f.techMatrix.iterate((row, col, value) -> {
 			var colFlow = f.techIndex.at(col);
-			if (colFlow.isFromLibrary())
+			if (libs.dataPackages.isLibrary(colFlow.dataPackage()))
 				return;
 			techMatrix.set(map[row], map[col], value);
 		});
@@ -198,7 +198,7 @@ public class LibraryInversionSolver {
 			int[] colMap = f.techIndex.mapTo(techIdx.index);
 			f.enviMatrix.iterate((row, col, value) -> {
 				var colFlow = f.techIndex.at(col);
-				if (colFlow.isFromLibrary())
+				if (libs.dataPackages.isLibrary(colFlow.dataPackage()))
 					return;
 				enviMatrix.set(rowMap[row], colMap[col], value);
 			});

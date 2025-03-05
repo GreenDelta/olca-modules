@@ -90,13 +90,16 @@ public class MounterTest {
 	}
 
 	private void checkState() {
-		assertTrue(db.getLibraries().contains("props 1.0"));
+		var dataPackages = db.getDataPackages();
+		assertTrue(dataPackages.isLibrary("props 1.0"));
 		var dbUnits = db.get(UnitGroup.class, units.refId);
-		assertEquals(unitLib.name(), dbUnits.library);
+		assertNotNull(dbUnits.dataPackage);
+		assertEquals(unitLib.name(), dbUnits.dataPackage);
 		var dbMass = db.get(FlowProperty.class, prop.refId);
-		assertEquals(propsLib.name(), dbMass.library);
-		var dbLibs = db.getLibraries();
-		assertTrue(dbLibs.contains(unitLib.name()));
-		assertTrue(dbLibs.contains(propsLib.name()));
+		assertNotNull(dbMass.dataPackage);
+		assertEquals(propsLib.name(), dbMass.dataPackage);
+		dataPackages = db.getDataPackages();
+		assertTrue(dataPackages.isLibrary(unitLib.name()));
+		assertTrue(dataPackages.isLibrary(propsLib.name()));
 	}
 }

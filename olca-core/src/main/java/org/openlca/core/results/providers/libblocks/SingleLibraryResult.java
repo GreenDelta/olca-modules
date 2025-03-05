@@ -24,8 +24,8 @@ class SingleLibraryResult {
 	private ResultProvider calculate() {
 		var f = context.data();
 		var demand = context.demand();
-		var lib = demand.techFlow().library();
-		var reader = context.libraries().get(lib);
+		var p = demand.techFlow().dataPackage();
+		var reader = context.libraries().get(p);
 
 		var data = new MatrixData();
 		data.demand = demand;

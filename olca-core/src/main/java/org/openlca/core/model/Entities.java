@@ -33,7 +33,7 @@ class Entities {
 		copyRefFields(from, to);
 		to.category = from.category;
 		to.tags = from.tags;
-		to.library = from.library;
+		to.dataPackage = from.dataPackage;
 		to.version = from.version;
 		to.lastChange = from.lastChange;
 	}

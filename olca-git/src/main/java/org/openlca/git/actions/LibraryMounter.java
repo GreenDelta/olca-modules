@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
@@ -20,25 +21,29 @@ import org.openlca.git.util.ProgressMonitor;
 class LibraryMounter {
 
 	private final ClientRepository repo;
-	private final Set<String> localLibs;
-	private final Set<String> remoteLibs;
-	private final Set<String> dbLibs;
+	private final Set<DataPackage> localLibs;
+	private final Set<DataPackage> remoteLibs;
+	private final Set<DataPackage> dbLibs;
 	private LibraryResolver libraryResolver;
 	private ProgressMonitor progressMonitor;
 
-	private LibraryMounter(ClientRepository repo, Set<String> localLibs, Set<String> remoteLibs) {
+	private LibraryMounter(ClientRepository repo, Set<DataPackage> localLibs, Set<DataPackage> remoteLibs) {
 		this.repo = repo;
 		this.localLibs = localLibs;
 		this.remoteLibs = remoteLibs;
-		this.dbLibs = repo.database.getLibraries();
+		this.dbLibs = repo.database.getDataPackages().getAll();
 	}
 
 	static LibraryMounter of(ClientRepository repo, Commit localCommit, Commit remoteCommit) {
-		return new LibraryMounter(repo, repo.getLibraries(localCommit), repo.getLibraries(remoteCommit));
+		return new LibraryMounter(repo, 
+				repo.getDataPackages(localCommit), 
+				repo.getDataPackages(remoteCommit));
 	}
 
 	static LibraryMounter of(ClientRepository repo, Commit remoteCommit) {
-		return new LibraryMounter(repo, repo.database.getLibraries(), repo.getLibraries(remoteCommit));
+		return new LibraryMounter(repo, 
+				repo.database.getDataPackages().getAll(),
+				repo.getDataPackages(remoteCommit));
 	}
 
 	LibraryMounter with(LibraryResolver libraryResolver) {
@@ -82,7 +87,7 @@ class LibraryMounter {
 				continue;
 			if (libraryResolver == null)
 				throw new IllegalStateException("Could not mount libraries because no library resolver was set");
-			var lib = libraryResolver.resolve(remoteLib);
+			var lib = libraryResolver.resolve(remoteLib.name());
 			if (lib == null)
 				return null;
 			libs.add(lib);
@@ -97,7 +102,7 @@ class LibraryMounter {
 		for (var lib : toUnmount) {
 			if (!dbLibs.contains(lib))
 				continue;
-			Unmounter.keepNone(repo.database, lib);
+			Unmounter.keepNone(repo.database, lib.name());
 		}
 	}
 

@@ -39,15 +39,15 @@ public class DbLibrarySwap implements Runnable {
 	@Override
 	public void run() {
 		try {
+			db.addLibrary(lib.libraryName());
 			var replacedTechFlows = techFlowsOf(db);
-			var libId = lib.libraryName();
 			var meta = new File(lib.library().folder(), "meta.zip");
 			try (var zip = ZipReader.of(meta)) {
 				var imp = new JsonImport(zip, db);
 				imp.setUpdateMode(UpdateMode.ALWAYS);
 				imp.setCallback(e -> {
 					if (e instanceof RootEntity ce) {
-						ce.library = libId;
+						ce.dataPackage = lib.libraryName();
 						db.update(ce);
 					}
 				});
@@ -88,7 +88,7 @@ public class DbLibrarySwap implements Runnable {
 			sql = "select id, f_reference_process from tbl_product_systems";
 			nativeSql.query(sql, usedProcHandler);
 			sql = "select f_product_system, f_provider from tbl_process_links";
-			nativeSql.query(sql,usedProcHandler);
+			nativeSql.query(sql, usedProcHandler);
 
 			// remove unused processes from product systems
 			sql = "select f_product_system, f_process from tbl_product_system_processes";
@@ -105,8 +105,6 @@ public class DbLibrarySwap implements Runnable {
 				}
 				return true;
 			});
-
-			db.addLibrary(libId);
 		} catch (Exception e) {
 			throw new RuntimeException("failed to add library", e);
 		}
@@ -114,12 +112,12 @@ public class DbLibrarySwap implements Runnable {
 
 	private List<TechFlow> techFlowsOf(IDatabase db) {
 		var processes = new ProcessDao(db).getDescriptors()
-			.stream()
-			.collect(map());
+				.stream()
+				.collect(map());
 		var flows = new FlowDao(db).getDescriptors()
-			.stream()
-			.filter(d -> d.flowType != FlowType.ELEMENTARY_FLOW)
-			.collect(map());
+				.stream()
+				.filter(d -> d.flowType != FlowType.ELEMENTARY_FLOW)
+				.collect(map());
 
 		var libIdx = lib.techIndex();
 		var list = new ArrayList<TechFlow>();
@@ -132,7 +130,6 @@ public class DbLibrarySwap implements Runnable {
 		}
 		return list;
 	}
-
 
 	private <T extends RootDescriptor> Collector<T, ?, Map<String, T>> map() {
 		return Collectors.toMap((T d) -> d.refId, (T d) -> d, (T d1, T d2) -> d1);

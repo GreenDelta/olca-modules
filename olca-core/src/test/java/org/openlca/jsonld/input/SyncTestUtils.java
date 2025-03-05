@@ -1,5 +1,7 @@
 package org.openlca.jsonld.input;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -8,9 +10,6 @@ import java.util.Objects;
 import org.openlca.core.database.IDatabase;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.validation.Validation;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 class SyncTestUtils {
 

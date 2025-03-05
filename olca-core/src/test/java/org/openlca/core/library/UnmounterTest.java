@@ -64,7 +64,7 @@ public class UnmounterTest {
 		var P = Process.of("P", p);
 		var W = Process.of("W", w);
 		for (var xi : List.of(units, mass, e, p, w, P, W)) {
-			xi.library = "lib";
+			xi.dataPackage = "lib";
 			db.insert(xi);
 		}
 
@@ -137,6 +137,7 @@ public class UnmounterTest {
 		for (var ref : refs) {
 			db.delete(ref);
 		}
+		db.removeDataPackage("lib");
 	}
 
 	@Test
@@ -154,10 +155,10 @@ public class UnmounterTest {
 		var lib = libDir.getLibrary("lib").orElseThrow();
 		var libReader = LibReader.of(lib, db).create();
 		Unmounter.keepAll(db, libReader);
-
+		var datapackages = db.getDataPackages();
 		// reload e and the system; check that all is unmounted
 		e = db.get(Flow.class, e.id);
-		assertFalse(e.isFromLibrary());
+		assertFalse(datapackages.isFromLibrary(e));
 		system = db.get(ProductSystem.class, system.id);
 		Process P = null, W = null;
 		for (var pid : system.processes) {
@@ -167,9 +168,9 @@ public class UnmounterTest {
 			} else if (p.name.equals("W")) {
 				W = p;
 			}
-			assertFalse(p.isFromLibrary());
+			assertFalse(datapackages.isFromLibrary(p));
 			for (var e : p.exchanges) {
-				assertFalse(e.flow.isFromLibrary());
+				assertFalse(datapackages.isFromLibrary(e.flow));
 			}
 		}
 

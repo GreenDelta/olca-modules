@@ -3,6 +3,7 @@ package org.openlca.jsonld;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.core.model.ModelType;
 
 import com.google.gson.Gson;
@@ -34,10 +35,10 @@ public interface JsonStoreWriter {
 		put(path, data);
 	}
 
-	default void putLibraryLinks(Collection<LibraryLink> libraries) {
-		if (libraries == null || libraries.isEmpty())
+	default void putDataPackages(Collection<DataPackage> packages) {
+		if (packages == null || packages.isEmpty())
 			return;
-		PackageInfo.create().withLibraries(libraries).writeTo(this);
+		PackageInfo.create().withDataPackages(packages).writeTo(this);
 	}
 
 	void put(String path, byte[] data);

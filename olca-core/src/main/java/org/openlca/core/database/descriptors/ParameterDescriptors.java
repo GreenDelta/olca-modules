@@ -34,7 +34,7 @@ public class ParameterDescriptors
 				 	d.version,
 				 	d.last_change,
 				 	d.f_category,
-				 	d.library,
+				 	d.data_package,
 				 	d.tags from tbl_parameters d
 				 	where d.scope = '"""
 				+ ParameterScope.GLOBAL.name() + "'";

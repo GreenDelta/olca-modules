@@ -59,6 +59,13 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
+		// roll back Upgrade15
+		u.dropTable("tbl_data_packages");
+		u.createTable("tbl_libraries", "CREATE TABLE tbl_libraries (id VARCHAR(255), PRIMARY KEY (id))");
+		for (var table : catEntityTables) {
+			u.renameColumn(table, "data_package", "library VARCHAR(255)");
+		}
+
 		// roll back Upgrade14
 		u.dropTable("tbl_analysis_groups");
 		u.dropTable("tbl_analysis_group_processes");
@@ -210,13 +217,11 @@ public class UpgradeChainTest {
 		assertTrue(u.columnExists("tbl_impact_factors", "f_location"));
 		assertTrue(u.columnExists("tbl_locations", "geodata"));
 		assertTrue(u.columnExists("tbl_allocation_factors", "formula"));
-		assertTrue(u.tableExists("tbl_libraries"));
 		assertTrue(u.columnExists("tbl_project_variants", "description"));
 		assertTrue(u.columnExists("tbl_projects", "is_with_costs"));
 		assertTrue(u.columnExists("tbl_projects", "is_with_regionalization"));
 		for (var table : catEntityTables) {
 			assertTrue(u.columnExists(table, "tags"));
-			assertTrue(u.columnExists(table, "library"));
 		}
 
 		// check Upgrade11
@@ -271,6 +276,12 @@ public class UpgradeChainTest {
 			return false;
 		});
 		assertEquals("VARCHAR(5120)", paramFormulaSize.get());
+
+		// check Upgrade15
+		assertTrue(u.tableExists("tbl_data_packages"));
+		for (var table : catEntityTables) {
+			assertTrue(u.columnExists(table, "data_package"));
+		}
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

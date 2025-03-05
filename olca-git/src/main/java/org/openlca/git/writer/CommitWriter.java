@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -21,6 +22,7 @@ import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.Compatibility;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
@@ -31,7 +33,6 @@ import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
-import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,7 +251,7 @@ public abstract class CommitWriter {
 
 	private void appendRepositoryInfo(TreeFormatter tree) {
 		try {
-			var schemaBytes = usedFeatures.createInfo(getLibraries())
+			var schemaBytes = usedFeatures.createInfo(getDataPackages())
 					.json().toString().getBytes(StandardCharsets.UTF_8);
 			var blobId = insertBlob(schemaBytes);
 			if (blobId != null) {
@@ -332,8 +333,8 @@ public abstract class CommitWriter {
 		}
 	}
 
-	protected List<LibraryLink> getLibraries() {
-		return List.of();
+	protected Set<DataPackage> getDataPackages() {
+		return Set.of();
 	}
 
 	protected abstract byte[] getData(Diff change) throws IOException;

@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReader;
@@ -28,11 +29,13 @@ public class LibStrip implements Runnable {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
+	private final DataPackages dataPackages;
 	private final LibReader lib;
 
 	private LibStrip(IDatabase db, LibReader lib) {
 		this.db = Objects.requireNonNull(db);
 		this.lib = Objects.requireNonNull(lib);
+		this.dataPackages = db.getDataPackages();
 	}
 
 	public static LibStrip of(IDatabase db, LibReader lib) {
@@ -126,7 +129,7 @@ public class LibStrip implements Runnable {
 		}
 
 		try (var sourceZip = lib.library().openJsonZip();
-				 var targetZip = ZipStore.open(stripped.getJsonZip())) {
+				var targetZip = ZipStore.open(stripped.getJsonZip())) {
 			for (var type : ModelType.values()) {
 				var ids = sourceZip.getRefIds(type);
 				for (var id : ids) {
@@ -154,7 +157,7 @@ public class LibStrip implements Runnable {
 			if (!e.isLinkable() || e.defaultProviderId == 0)
 				return;
 			var techFlow = processes.getProvider(e.defaultProviderId, e.flowId);
-			if (techFlow != null && isLib(techFlow.library())) {
+			if (dataPackages.isLibrary(techFlow.dataPackage())) {
 				used.add(techFlow);
 			}
 		});
@@ -162,7 +165,7 @@ public class LibStrip implements Runnable {
 		for (var system : db.getAll(ProductSystem.class)) {
 
 			var ref = system.referenceProcess;
-			if (ref != null && isLib(ref.library)) {
+			if (dataPackages.isFromLibrary(ref)) {
 				used.add(TechFlow.of(ref));
 				continue;
 			}
@@ -171,17 +174,13 @@ public class LibStrip implements Runnable {
 				var p = processes.getProvider(link.providerId, link.flowId);
 				if (p == null)
 					continue;
-				if (isLib(p.library())) {
+				if (dataPackages.isLibrary(p.dataPackage())) {
 					used.add(p);
 				}
 			}
 		}
 
 		return used;
-	}
-
-	private boolean isLib(String libId) {
-		return libId != null && libId.equals(lib.libraryName());
 	}
 
 }

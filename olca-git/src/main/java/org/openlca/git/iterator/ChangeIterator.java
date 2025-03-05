@@ -77,7 +77,7 @@ public class ChangeIterator extends EntryIterator {
 			if (change.diffType == DiffType.MOVED) {
 				split.add(Diff.added(change.newRef));
 				split.add(Diff.deleted(change.oldRef));
-			} else if (change.isLibrary) {
+			} else if (change.isDataPackage) {
 				if (repo.commits.head() == null) {
 					split.add(Diff.added(new Reference(RepositoryInfo.FILE_NAME)));
 				} else {

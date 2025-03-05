@@ -28,12 +28,12 @@ public class Conflicts {
 	}
 
 	public List<TriDiff> withWorkspace() {
-		var workspaceChanges = repo.diffs.find().excludeLibraries().withDatabase();
+		var workspaceChanges = repo.diffs.find().excludeDataPackages().withDatabase();
 		if (workspaceChanges.isEmpty())
 			return new ArrayList<>();
 		var remoteCommit = repo.commits.find().refs(ref).latest();
 		this.commonParent = repo.localHistory.commonParentOf(ref);
-		remoteChanges = repo.diffs.find().excludeLibraries().commit(commonParent).with(remoteCommit);
+		remoteChanges = repo.diffs.find().excludeDataPackages().commit(commonParent).with(remoteCommit);
 		return between(workspaceChanges, remoteChanges);
 	}
 
@@ -44,10 +44,10 @@ public class Conflicts {
 			return new ArrayList<>();
 		if (commonParent != null && localCommit.id.equals(commonParent.id))
 			return new ArrayList<>();
-		var localChanges = repo.diffs.find().excludeLibraries().commit(commonParent).with(localCommit);
+		var localChanges = repo.diffs.find().excludeDataPackages().commit(commonParent).with(localCommit);
 		if (remoteChanges == null || commonParent != null && !commonParent.equals(this.commonParent)) {
 			var remoteCommit = repo.commits.find().refs(ref).latest();
-			remoteChanges = repo.diffs.find().excludeLibraries().commit(commonParent).with(remoteCommit);
+			remoteChanges = repo.diffs.find().excludeDataPackages().commit(commonParent).with(remoteCommit);
 		}
 		if (localChanges.isEmpty() || remoteChanges.isEmpty())
 			return new ArrayList<>();

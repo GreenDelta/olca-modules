@@ -6,14 +6,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 
 public final class ProductSystems {
 
@@ -27,13 +28,13 @@ public final class ProductSystems {
 	public static boolean hasLibraryLinks(ProductSystem sys, IDatabase db) {
 		if (sys == null || db == null)
 			return false;
-		if (sys.referenceProcess != null
-				&& sys.referenceProcess.isFromLibrary())
+		var dataPackages = db.getDataPackages();
+		if (dataPackages.isFromLibrary(sys.referenceProcess))
 			return true;
 		var processes = new ProcessDao(db).descriptorMap();
 		for (var processID : sys.processes) {
 			var process = processes.get(processID);
-			if (process != null && process.isFromLibrary())
+			if (dataPackages.isFromLibrary(process))
 				return true;
 		}
 		return false;

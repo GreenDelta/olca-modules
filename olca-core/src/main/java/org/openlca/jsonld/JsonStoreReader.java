@@ -4,7 +4,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.core.model.ModelType;
 
 import com.google.gson.Gson;
@@ -73,8 +75,8 @@ public interface JsonStoreReader {
 		return new Gson().fromJson(json, JsonElement.class);
 	}
 
-	default List<LibraryLink> getLibraryLinks() {
-		return PackageInfo.readFrom(this).libraries();
+	default Set<DataPackage> getDataPackages() {
+		return PackageInfo.readFrom(this).dataPackages();
 	}
 
 	/**

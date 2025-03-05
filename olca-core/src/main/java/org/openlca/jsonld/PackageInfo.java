@@ -1,13 +1,17 @@
 package org.openlca.jsonld;
 
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.model.Version;
+import org.openlca.util.Strings;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public record PackageInfo(JsonObject json) {
 
@@ -40,26 +44,73 @@ public record PackageInfo(JsonObject json) {
 		return new SchemaVersion(value);
 	}
 
-	public List<LibraryLink> libraries() {
+	public Set<DataPackage> dataPackages() {
+		// support legacy field name
 		var array = Json.getArray(json, "libraries");
-		if (array == null)
-			return Collections.emptyList();
+		if (array == null) {
+			array = Json.getArray(json, "dataPackages");
+		}
 		return Json.stream(array)
-				.map(LibraryLink::parseFrom)
+				.map(this::parseFrom)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
-				.toList();
+				.collect(Collectors.toSet());
 	}
 
-	public PackageInfo withLibraries(Collection<LibraryLink> links) {
-		if (links == null || links.isEmpty())
+	private Optional<DataPackage> parseFrom(JsonElement json) {
+		if (json == null)
+			return Optional.empty();
+
+		// for backwards compatibility we accept plain library IDs here
+		if (json.isJsonPrimitive()) {
+			var prim = json.getAsJsonPrimitive();
+			if (!prim.isString())
+				return Optional.empty();
+			var name = prim.getAsString();
+			return name.isBlank()
+					? Optional.empty()
+					: Optional.of(DataPackage.library(name, null));
+		}
+
+		if (!json.isJsonObject())
+			return Optional.empty();
+
+		var obj = json.getAsJsonObject();
+		// for backwards compatibility we accept library id field as name here
+		var name = Json.getString(obj, "id");
+		var url = Json.getString(obj, "url");
+		if (!Strings.nullOrEmpty(name))
+			return Optional.of(DataPackage.library(name, url));
+		name = Json.getString(obj, "name");
+		if (Strings.nullOrEmpty(name))
+			return Optional.empty();
+		var version = Version.fromString(Json.getString(obj, "version"));
+		var isLibrary = Json.getBool(obj, "isLibrary", false);
+		return Optional.of(new DataPackage(name, version, url, isLibrary));
+	}
+
+	public PackageInfo withDataPackages(Collection<DataPackage> packages) {
+		if (packages == null || packages.isEmpty())
 			return this;
 		var array = new JsonArray();
-		for (var link : links) {
-			array.add(link.toJson());
+		for (var p : packages) {
+			array.add(toJson(p));
 		}
-		json.add("libraries", array);
+		json.add("dataPackages", array);
 		return this;
+	}
+
+	private JsonObject toJson(DataPackage p) {
+		var obj = new JsonObject();
+		Json.put(obj, "name", p.name());
+		if (p.version().getValue() != 0l) {
+			Json.put(obj, "version", p.version().toString());
+		}
+		if (p.url() != null) {
+			Json.put(obj, "url", p.url());
+		}
+		Json.put(obj, "isLibrary", p.isLibrary());
+		return obj;
 	}
 
 	public PackageInfo withSchemaVersion(SchemaVersion version) {

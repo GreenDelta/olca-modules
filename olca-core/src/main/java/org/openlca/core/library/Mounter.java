@@ -102,7 +102,7 @@ public class Mounter implements Runnable {
 		if (clazz == null)
 			return;
 		var table = clazz.getAnnotation(Table.class);
-		var sql = "select ref_id, library from " + table.name();
+		var sql = "select ref_id, data_package from " + table.name();
 		NativeSql.on(db).updateRows(sql, r -> {
 			var id = r.getString(1);
 			if (refIds.contains(id)) {

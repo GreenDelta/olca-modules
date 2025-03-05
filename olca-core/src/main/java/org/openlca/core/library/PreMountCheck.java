@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.JsonStoreReader;
@@ -46,11 +47,12 @@ public record PreMountCheck(IDatabase db, Library library)
 
 	private Result execOn(Library lib) {
 		PreMountState state = null;
+		var dataPackages = db.getDataPackages();
 		try (var zip = lib.openJsonZip()) {
 			for (var type : ModelType.values()) {
 				if (type == ModelType.CATEGORY)
 					continue;
-				var next = new TableState(type).get(lib.name(), zip);
+				var next = new TableState(type, dataPackages).get(lib.name(), zip);
 				if (next == null)
 					continue;
 				state = next.join(state);
@@ -127,10 +129,12 @@ public record PreMountCheck(IDatabase db, Library library)
 	private class TableState {
 
 		private final ModelType type;
+		private final DataPackages dataPackages;
 		private PreMountState state;
 
-		private TableState(ModelType type) {
+		private TableState(ModelType type, DataPackages dataPackages) {
 			this.type = type;
+			this.dataPackages = dataPackages;
 		}
 
 		private PreMountState get(String libName, JsonStoreReader reader) {
@@ -141,14 +145,15 @@ public record PreMountCheck(IDatabase db, Library library)
 			if (libIds.isEmpty())
 				return null;
 			var visited = new HashSet<String>();
-			var query = "select ref_id, library from " + table.name();
+			var query = "select ref_id, data_package from " + table.name();
 			NativeSql.on(db).query(query, r -> {
 				var refId = r.getString(1);
 				if (refId == null || !libIds.contains(refId))
 					return true;
 				visited.add(refId);
-				var lib = r.getString(2);
-				state = Objects.equals(lib, libName)
+				var dataPackage = r.getString(2);
+				state = dataPackages.isLibrary(dataPackage) 
+						&& Objects.equals(dataPackage, libName)
 					? PreMountState.PRESENT.join(state)
 					: PreMountState.TAG_CONFLICT.join(state);
 				return state != PreMountState.CONFLICT;

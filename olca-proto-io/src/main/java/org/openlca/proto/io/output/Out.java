@@ -86,8 +86,9 @@ public final class Out {
 					break;
 
 				case "library":
+					// TODO filter libraries or rename field to dataPackage
 					if (e instanceof RootEntity ce) {
-						set(proto, field, ce.library);
+						set(proto, field, ce.dataPackage);
 					}
 					break;
 

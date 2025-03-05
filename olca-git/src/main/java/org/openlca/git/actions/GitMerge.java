@@ -115,8 +115,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	}
 
 	private String createMergeCommit() throws IOException {
-		var localLibs = repo.getLibraries(localCommit);
-		var remoteLibs = repo.getLibraries(remoteCommit);
+		var localLibs = repo.getDataPackages(localCommit);
+		var remoteLibs = repo.getDataPackages(remoteCommit);
 		if (!localLibs.equals(remoteLibs)) {
 			mergeResults.add(Diff.modified(
 					repo.references.get(RepositoryInfo.FILE_NAME, remoteCommit.id),

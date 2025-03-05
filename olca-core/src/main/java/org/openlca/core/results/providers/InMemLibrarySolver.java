@@ -95,12 +95,12 @@ public class InMemLibrarySolver {
 
 			var libs = new HashSet<String>();
 			for (var imp : impIdx) {
-				if (!imp.isFromLibrary() || libs.contains(imp.library))
+				if (!ctx.libraries().dataPackages.isFromLibrary(imp) || libs.contains(imp.dataPackage))
 					continue;
-				libs.add(imp.library);
-				var lib = ctx.libraries().get(imp.library);
+				libs.add(imp.dataPackage);
+				var lib = ctx.libraries().get(imp.dataPackage);
 				if (lib == null) {
-					log.error("could not find library {}", imp.library);
+					log.error("could not find library {}", imp.dataPackage);
 					continue;
 				}
 				if (!lib.hasImpactData())
@@ -112,7 +112,7 @@ public class InMemLibrarySolver {
 						|| MatrixIndex.isAbsent(libEnviIdx)
 						|| matrix == null)
 					continue;
-				log.info("map impact model of library {}", imp.library);
+				log.info("map impact model of library {}", imp.dataPackage);
 				mapImpactMatrix(libImpIdx, libEnviIdx, matrix, impBuffer);
 			}
 
@@ -144,8 +144,8 @@ public class InMemLibrarySolver {
 		private void fillInventory() {
 			var libs = new HashSet<String>();
 			for (var techFlow : origin.techIndex) {
-				if (techFlow.isFromLibrary()) {
-					libs.add(techFlow.library());
+				if (ctx.libraries().dataPackages.isLibrary(techFlow.dataPackage())) {
+					libs.add(techFlow.dataPackage());
 				}
 			}
 			if (libs.isEmpty())
@@ -188,9 +188,9 @@ public class InMemLibrarySolver {
 				}
 
 				for (var techFlow : libTechIdx) {
-					if (!libs.contains(techFlow.library())) {
-						libs.add(techFlow.library());
-						queue.add(techFlow.library());
+					if (!libs.contains(techFlow.dataPackage())) {
+						libs.add(techFlow.dataPackage());
+						queue.add(techFlow.dataPackage());
 					}
 				}
 			}

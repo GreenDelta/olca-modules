@@ -3,6 +3,7 @@ package org.openlca.core.matrix.linking;
 import java.util.HashSet;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
@@ -14,10 +15,12 @@ public class DefaultProcessLinker implements ITechIndexBuilder {
 
 	private final ProviderIndex providers;
 	private final ExchangeTable exchanges;
-
+	private final DataPackages dataPackages;
+	
 	private DefaultProcessLinker(LinkingInfo linking) {
 		this.providers = ProviderIndex.of(linking);
 		this.exchanges = new ExchangeTable(linking.db());
+		this.dataPackages = linking.dataPackages;
 	}
 
 	public static DefaultProcessLinker of(IDatabase db) {
@@ -101,9 +104,11 @@ public class DefaultProcessLinker implements ITechIndexBuilder {
 			&& next.provider() instanceof ProcessDescriptor nex) {
 
 			// prefer library processes
-			if (cur.isFromLibrary() && !nex.isFromLibrary())
+			var curIsLib = dataPackages.isFromLibrary(cur);
+			var nexIsLib =  dataPackages.isFromLibrary(nex);
+			if (curIsLib && !nexIsLib)
 				return false;
-			if (nex.isFromLibrary() && !cur.isFromLibrary())
+			if (nexIsLib && !curIsLib)
 				return true;
 
 			// prefer LCI results to unit processes

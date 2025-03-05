@@ -67,7 +67,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		Function<Integer, TechFlow> product = i -> {
 			var flow = db.insert(Flow.product("p" + i, mass));
 			var process = Process.of("p" + i, flow);
-			process.library = libID;
+			process.dataPackage = libID;
 			process = db.insert(process);
 			return TechFlow.of(process, flow);
 		};
@@ -95,7 +95,7 @@ public record ResultProviderTest(ResultProvider provider) {
 		// impact factors
 		Function<Integer, ImpactDescriptor> impact = i -> {
 			var imp = ImpactCategory.of("i" + i);
-			imp.library = libID;
+			imp.dataPackage = libID;
 			imp = db.insert(imp);
 			return Descriptor.of(imp);
 		};

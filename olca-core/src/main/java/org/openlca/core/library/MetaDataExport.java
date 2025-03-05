@@ -5,12 +5,24 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.*;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Exchanges;
-import org.openlca.util.Strings;
 
 /**
  * Writes the meta-data (JSON-LD) package in a library export.
@@ -19,10 +31,12 @@ class MetaDataExport implements Runnable {
 
 	private final LibraryExport export;
 	private final IDatabase db;
+	private final DataPackages dataPackages;
 
 	MetaDataExport(LibraryExport export) {
 		this.export = export;
 		this.db = export.db;
+		this.dataPackages = db.getDataPackages();
 	}
 
 	@Override
@@ -52,8 +66,8 @@ class MetaDataExport implements Runnable {
 				var descriptors = db.getDescriptors(type);
 				for (var d : descriptors) {
 					// filter out library data
-					if (Strings.notEmpty(d.library)) {
-						dependencies.add(d.library);
+					if (dataPackages.isFromLibrary(d)) {
+						dependencies.add(d.dataPackage);
 						continue;
 					}
 					var full = db.get(type, d.id);

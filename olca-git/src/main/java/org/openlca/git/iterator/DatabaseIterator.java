@@ -68,7 +68,7 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(ClientRepository repo, ModelType type) {
 		var entries = repo.descriptors.getCategories(type).stream()
-				.filter(c -> !repo.descriptors.isOnlyInLibraries(c))
+				.filter(c -> !repo.descriptors.isOnlyInDataPackages(c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(collect(repo, repo.descriptors.get(type)));
@@ -77,11 +77,11 @@ public class DatabaseIterator extends EntryIterator {
 
 	private static List<TreeEntry> init(ClientRepository repo, Category category) {
 		var entries = category.childCategories.stream()
-				.filter(c -> !repo.descriptors.isOnlyInLibraries(c))
+				.filter(c -> !repo.descriptors.isOnlyInDataPackages(c))
 				.map(TreeEntry::new)
 				.collect(Collectors.toList());
 		entries.addAll(collect(repo, repo.descriptors.get(category)));
-		if (entries.isEmpty() && !repo.descriptors.isOnlyInLibraries(category)) {
+		if (entries.isEmpty() && !repo.descriptors.isOnlyInDataPackages(category)) {
 			entries.add(TreeEntry.empty());
 		}
 		return entries;
@@ -90,7 +90,7 @@ public class DatabaseIterator extends EntryIterator {
 	private static List<TreeEntry> collect(ClientRepository repo, Set<RootDescriptor> descriptors) {
 		var entries = new ArrayList<TreeEntry>();
 		for (var d : descriptors) {
-			if (d.isFromLibrary())
+			if (!Strings.nullOrEmpty(d.dataPackage))
 				continue;
 			entries.add(new TreeEntry(d));
 			if (hasBinaries(repo, d)) {

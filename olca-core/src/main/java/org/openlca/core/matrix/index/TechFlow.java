@@ -109,13 +109,12 @@ public record TechFlow(
 				: null;
 	}
 
-	public boolean isFromLibrary() {
-		return provider().isFromLibrary();
-	}
-
-	/// Returns the library ID in case the provider is an entity from a library.
-	public String library() {
-		return provider().library;
+	/**
+	 * Returns the data package if the process of this product is from a data package,
+	 * otherwise `null` is returned.
+	 */
+	public String dataPackage() {
+		return provider().dataPackage;
 	}
 
 	/// Returns the provider type of this tech-flow.

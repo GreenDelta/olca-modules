@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
@@ -30,7 +31,7 @@ public class LazyLibrarySolver implements ResultProvider {
 
 	private final IDatabase db;
 	private final LibReaderRegistry libs;
-	private final HashSet<String> usedLibs = new HashSet<>();
+	private final Set<String> usedLibs = new HashSet<>();
 	private final MatrixSolver solver;
 
 	private final Demand demand;
@@ -188,7 +189,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		var techF = foregroundData.techMatrix;
 		for (int i = 0; i < techF.columns(); i++) {
 			var product = index.at(i);
-			if (product.isFromLibrary() && product.isProcess())
+			if (libs.dataPackages.isLibrary(product.dataPackage()) && product.isProcess())
 				continue;
 			t[i] = techF.get(i, i) * scalingVector[i];
 		}
@@ -204,10 +205,10 @@ public class LazyLibrarySolver implements ResultProvider {
 				continue;
 			for (int iB = 0; iB < libDiag.length; iB++) {
 				var product = indexB.at(iB);
-				var productLib = product.library();
-				if (!Objects.equals(productLib, libId))
+				var productLib = libs.get(product.dataPackage());
+				if (productLib == null 
+						|| !Objects.equals(productLib.libraryName(), libId))
 					continue;
-
 				var i = index.of(product);
 				if (i < 0)
 					continue;
@@ -237,14 +238,14 @@ public class LazyLibrarySolver implements ResultProvider {
 		var index = fullData.techIndex;
 		var product = index.at(techFlow);
 		column = new double[index.size()];
-		var libId = product.library();
+		var packageId = product.dataPackage();
 
 		// in case of a foreground product or result, we just need
 		// to copy the column of the foreground system into the
 		// first part of the result column as the tech. index of
 		// the foreground system is exactly the first part of the
 		// combined index
-		if (libId == null || !product.isProcess()) {
+		if (!libs.dataPackages.isLibrary(packageId) || !product.isProcess()) {
 			var colF = foregroundData.techMatrix.getColumn(techFlow);
 			System.arraycopy(colF, 0, column, 0, colF.length);
 			return put(techFlow, techColumns, column);
@@ -252,7 +253,7 @@ public class LazyLibrarySolver implements ResultProvider {
 
 		// in case of a library product, we need to map
 		// the column entries
-		var lib = libs.get(libId);
+		var lib = libs.get(packageId);
 		var libIndex = lib.techIndex();
 		if (libIndex == null)
 			return column;
@@ -286,7 +287,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		// sub-solutions of libraries recursively
 		var queue = new ArrayDeque<Pair<TechFlow, Double>>();
 		var start = fullData.techIndex.at(techFlow);
-		if (start.isFromLibrary() && start.isProcess()) {
+		if (libs.dataPackages.isLibrary(start.dataPackage()) && start.isProcess()) {
 			// start process is a library process
 			queue.push(Pair.of(start, start.isWaste() ? -1.0 : 1.0));
 		} else {
@@ -303,7 +304,7 @@ public class LazyLibrarySolver implements ResultProvider {
 				if (value == 0)
 					continue;
 				var provider = idxF.at(i);
-				if (provider.isFromLibrary() && provider.isProcess()) {
+				if (libs.dataPackages.isLibrary(provider.dataPackage()) && provider.isProcess()) {
 					queue.push(Pair.of(provider, value));
 				} else {
 					int index = techIndex.of(provider);
@@ -316,14 +317,13 @@ public class LazyLibrarySolver implements ResultProvider {
 		while (!queue.isEmpty()) {
 			var pair = queue.pop();
 			var p = pair.first;
-			var libId = p.library();
-			if (libId == null)
+			if (!libs.dataPackages.isLibrary(p.dataPackage()))
 				continue;
 			double factor = p.isWaste()
 					? -pair.second
 					: pair.second;
 
-			var lib = libs.get(libId);
+			var lib = libs.get(p.dataPackage());
 			var libIndex = lib.techIndex();
 			if (libIndex == null)
 				continue;
@@ -336,8 +336,7 @@ public class LazyLibrarySolver implements ResultProvider {
 				if (value == 0)
 					continue;
 				var provider = libIndex.at(i);
-				var subLibID = provider.library();
-				if (Objects.equals(libId, subLibID)) {
+				if (Objects.equals(p.dataPackage(), provider.dataPackage())) {
 					int index = techIndex.of(provider);
 					solution[index] += factor * value;
 				} else {
@@ -371,14 +370,14 @@ public class LazyLibrarySolver implements ResultProvider {
 
 		column = new double[flowIdx.size()];
 		var product = fullData.techIndex.at(techFlow);
-		var libId = product.library();
+		var libId = product.dataPackage();
 
 		// in case of a foreground product or result, we just need
 		// to copy the column of the foreground system into the
 		// first part of the result column, as the flow index of
 		// the foreground system is exactly the first part of the
 		// combined index
-		if (libId == null || !product.isProcess()) {
+		if (!libs.dataPackages.isLibrary(libId) || !product.isProcess()) {
 			var flowMatrixF = foregroundData.enviMatrix;
 			if (flowMatrixF != null) {
 				var colF = flowMatrixF.getColumn(techFlow);
@@ -514,8 +513,8 @@ public class LazyLibrarySolver implements ResultProvider {
 	}
 
 	/**
-	 * Returns the characterization factors of the combined system.
-	 * we cache this matrix in the `fullData` object.
+	 * Returns the characterization factors of the combined system. we cache
+	 * this matrix in the `fullData` object.
 	 */
 	private MatrixReader impactFactors() {
 		if (fullData.impactMatrix != null)
@@ -533,7 +532,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		// the foreground database
 		var impactsF = new ImpactIndex();
 		impactIndex.each((index, impact) -> {
-			if (!impact.isFromLibrary()) {
+			if (libs.dataPackages.isFromLibrary(impact)) {
 				impactsF.add(impact);
 			}
 		});
@@ -565,8 +564,8 @@ public class LazyLibrarySolver implements ResultProvider {
 
 		var usedLibs = new HashSet<String>();
 		impactIndex.each((_idx, impact) -> {
-			if (impact.library != null) {
-				usedLibs.add(impact.library);
+			if (libs.dataPackages.isFromLibrary(impact)) {
+				usedLibs.add(impact.dataPackage);
 			}
 		});
 		for (var libId : usedLibs) {

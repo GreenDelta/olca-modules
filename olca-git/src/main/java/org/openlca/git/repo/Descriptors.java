@@ -18,6 +18,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.util.Path;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,39 +67,39 @@ public class Descriptors {
 		}
 	}
 
-	public boolean isFromLibrary(TypedRefId ref) {
+	public boolean isFromDataPackage(TypedRefId ref) {
 		var descriptor = get(ref);
-		return descriptor != null && descriptor.isFromLibrary();
+		return descriptor != null && !Strings.nullOrEmpty(descriptor.dataPackage);
 	}
 	
-	public boolean isOnlyInLibraries(Category category) {
-		return isOnlyInLibraries(category, new HashSet<>());
+	public boolean isOnlyInDataPackages(Category category) {
+		return isOnlyInDataPackages(category, new HashSet<>());
 	}
 
-	public boolean isOnlyInLibraries(Category category, Set<String> libraries) {
+	public boolean isOnlyInDataPackages(Category category, Set<String> dataPackages) {
 		if (category == null)
 			return false;
-		var isOnlyInLibs = false;
+		var isOnlyInDataPackages = false;
 		for (var model : get(category)) {
-			if (!model.isFromLibrary())
+			if (Strings.nullOrEmpty(model.dataPackage))
 				return false;
-			if (!libraries.contains(model.library))
+			if (!dataPackages.contains(model.dataPackage))
 				return false;
-			isOnlyInLibs = true;
+			isOnlyInDataPackages = true;
 		}
 		for (var child : category.childCategories) {
-			if (!isOnlyInLibraries(child, libraries))
+			if (!isOnlyInDataPackages(child, dataPackages))
 				return false;
-			isOnlyInLibs = true;
+			isOnlyInDataPackages = true;
 		}
-		return isOnlyInLibs;		
+		return isOnlyInDataPackages;		
 	}
 	
-	public String getLibrary(TypedRefId ref) {
+	public String getDataPackage(TypedRefId ref) {
 		var descriptor = get(ref);
 		if (descriptor == null)
 			return null;
-		return descriptor.library;
+		return descriptor.dataPackage;
 	}
 	
 	public Set<RootDescriptor> get(ModelType type) {

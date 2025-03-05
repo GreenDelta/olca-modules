@@ -32,13 +32,13 @@ public class LibImpactMatrix {
 		// collect the used libraries
 		var libs = new HashSet<String>();
 		impactIndex.each((_i, impact) -> {
-			if (impact.library != null) {
-				libs.add(impact.library);
+			if (libraries.dataPackages.isFromLibrary(impact)) {
+				libs.add(impact.dataPackage);
 			}
 		});
 
 		// collect the factors from the database
-		var dbFactors = fromDB(db);
+		var dbFactors = fromDB(db, libraries);
 		if (dbFactors != null && libs.isEmpty())
 			return dbFactors.data();
 
@@ -72,10 +72,10 @@ public class LibImpactMatrix {
 		return builder.finish().data();
 	}
 
-	private IndexedMatrix<ImpactDescriptor, EnviFlow> fromDB(IDatabase db) {
+	private IndexedMatrix<ImpactDescriptor, EnviFlow> fromDB(IDatabase db, LibReaderRegistry libraries) {
 		var dbIdx = new ImpactIndex();
 		impactIndex.each((i, impact) -> {
-			if (!impact.isFromLibrary()) {
+			if (!libraries.dataPackages.isFromLibrary(impact)) {
 				dbIdx.add(impact);
 			}
 		});

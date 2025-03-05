@@ -61,10 +61,10 @@ public final class ResultProviders {
 		var libReaders = new ArrayList<LibReader>();
 		var libNames = new HashSet<String>();
 		for (var techFlow : techIdx) {
-			if (!techFlow.isFromLibrary() || libNames.contains(techFlow.library()))
+			if (!ctx.libraries().dataPackages.isLibrary(techFlow.dataPackage()) || libNames.contains(techFlow.dataPackage()))
 				continue;
-			libNames.add(techFlow.library());
-			var lib = ctx.libraries().get(techFlow.library());
+			libNames.add(techFlow.dataPackage());
+			var lib = ctx.libraries().get(techFlow.dataPackage());
 			if (lib != null) {
 				libReaders.add(lib);
 			}

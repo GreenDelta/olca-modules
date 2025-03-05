@@ -2,8 +2,8 @@ package org.openlca.git.repo;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,6 +15,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.DatabaseIterator;
 import org.openlca.git.model.Commit;
@@ -53,7 +54,7 @@ public class Diffs {
 		private String entry;
 		private boolean onlyCategories;
 		private boolean excludeCategories;
-		private boolean excludeLibraries;
+		private boolean excludeDataPackages;
 		private boolean unsorted;
 
 		public Find commit(Commit commit) {
@@ -81,8 +82,8 @@ public class Diffs {
 			return this;
 		}
 
-		public Find excludeLibraries() {
-			this.excludeLibraries = true;
+		public Find excludeDataPackages() {
+			this.excludeDataPackages = true;
 			return this;
 		}
 
@@ -97,7 +98,7 @@ public class Diffs {
 			this.leftCommit = getRevCommit(commit, true);
 			var diffs = diffOfDatabase(path);
 			if (repo instanceof ClientRepository c) {
-				diffs.addAll(getLibraryDiffs(repo.getLibraries(leftCommit), c.database.getLibraries()));
+				diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(leftCommit), c.database.getDataPackages().getAll()));
 			}
 			return sort(diffs);
 		}
@@ -118,7 +119,7 @@ public class Diffs {
 			this.leftCommit = getRevCommit(leftCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
 			var diffs = diffOfCommits(path);
-			diffs.addAll(getLibraryDiffs(repo.getLibraries(this.leftCommit), repo.getLibraries(rightCommit)));
+			diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(this.leftCommit), repo.getDataPackages(rightCommit)));
 			return sort(diffs);
 		}
 
@@ -126,7 +127,7 @@ public class Diffs {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
 			var diffs = diffOfCommits(path);
-			diffs.addAll(getLibraryDiffs(repo.getLibraries(this.leftCommit), repo.getLibraries(rightCommit)));
+			diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(this.leftCommit), repo.getDataPackages(rightCommit)));
 			return sort(diffs);
 		}
 
@@ -217,24 +218,24 @@ public class Diffs {
 			return new ArrayList<>(diffs.values());
 		}
 
-		private List<Diff> getLibraryDiffs(Collection<String> leftLibraries, Collection<String> rightLibraries) {
-			if (excludeLibraries || onlyCategories || (path != null && !path.equals(RepositoryInfo.FILE_NAME)))
+		private List<Diff> getDataPackagesDiffs(Set<DataPackage> left, Set<DataPackage> right) {
+			if (excludeDataPackages || onlyCategories || (path != null && !path.equals(RepositoryInfo.FILE_NAME)))
 				return new ArrayList<>();
 			var diffs = new ArrayList<Diff>();
-			leftLibraries.stream()
-					.filter(Predicate.not(rightLibraries::contains))
-					.map(library -> new Diff(DiffType.DELETED, libraryReference(library, leftCommit), null))
+			left.stream()
+					.filter(Predicate.not(right::contains))
+					.map(library -> new Diff(DiffType.DELETED, dataPackageReference(library, leftCommit), null))
 					.forEach(diffs::add);
-			rightLibraries.stream()
-					.filter(Predicate.not(leftLibraries::contains))
-					.map(library -> new Diff(DiffType.ADDED, null, libraryReference(library, rightCommit)))
+			right.stream()
+					.filter(Predicate.not(left::contains))
+					.map(library -> new Diff(DiffType.ADDED, null, dataPackageReference(library, rightCommit)))
 					.forEach(diffs::add);
 			return diffs;
 		}
 
-		private Reference libraryReference(String library, RevCommit commit) {
+		private Reference dataPackageReference(DataPackage p, RevCommit commit) {
 			var commitId = commit != null ? commit.getName() : null;
-			return new Reference(RepositoryInfo.FILE_NAME + "/" + library, commitId, null);
+			return new Reference(RepositoryInfo.FILE_NAME + "/" + p.name(), commitId, null);
 		}
 
 		private void addDiff(ModelRefMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)

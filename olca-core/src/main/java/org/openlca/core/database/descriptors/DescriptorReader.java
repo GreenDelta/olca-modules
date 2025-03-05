@@ -106,11 +106,11 @@ public interface DescriptorReader<T extends RootDescriptor> {
 		}
 	}
 
-	default String getLibrary(ResultSet r) {
+	default String getDataPackage(ResultSet r) {
 		try {
 			return r.getString(7);
 		} catch (SQLException e) {
-			throw ex("failed to read field 'library'", e);
+			throw ex("failed to read field 'data-package'", e);
 		}
 	}
 

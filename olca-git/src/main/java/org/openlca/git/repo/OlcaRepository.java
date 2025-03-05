@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
@@ -14,11 +13,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.GitUtil;
-import org.openlca.jsonld.LibraryLink;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,29 +72,27 @@ public class OlcaRepository extends FileRepository {
 		}
 	}
 
-	public Set<String> getLibraries() {
-		return getLibraries((String) null);
+	public Set<DataPackage> getDataPackages() {
+		return getDataPackages((String) null);
 	}
 
-	public Set<String> getLibraries(RevCommit commit) {
+	public Set<DataPackage> getDataPackages(RevCommit commit) {
 		if (commit == null)
 			return new HashSet<>();
-		return getLibraries(commit.name());
+		return getDataPackages(commit.name());
 	}
 
-	public Set<String> getLibraries(Commit commit) {
+	public Set<DataPackage> getDataPackages(Commit commit) {
 		if (commit == null)
 			return new HashSet<>();
-		return getLibraries(commit.id);
+		return getDataPackages(commit.id);
 	}
 
-	private Set<String> getLibraries(String commitId) {
+	private Set<DataPackage> getDataPackages(String commitId) {
 		var info = getInfo(commitId);
 		if (info == null)
 			return new HashSet<>();
-		return info.libraries().stream()
-				.map(LibraryLink::id)
-				.collect(Collectors.toSet());
+		return info.dataPackages();
 	}
 
 	public RevCommit getHeadCommit() {

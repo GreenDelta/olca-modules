@@ -18,7 +18,7 @@ public class JsonDataServiceTest {
 	@Test
 	public void testCrud() {
 
-		var service = new JsonDataService(db);
+		var service = new JsonDataService(db, db.getDataPackages());
 
 		for (var type : ModelType.values()) {
 			if (type == ModelType.CATEGORY)

@@ -141,7 +141,7 @@ public class DiffsTests extends AbstractRepositoryTests {
 		Assert.assertEquals(1, diffs.size());
 		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library_b", diffs.get(0));
 
-		repo.database.removeLibrary("library_a");
+		repo.database.removeDataPackage("library_a");
 		diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(2, diffs.size());
 		assertModel(DiffType.DELETED, RepositoryInfo.FILE_NAME + "/library_a", diffs.get(0));

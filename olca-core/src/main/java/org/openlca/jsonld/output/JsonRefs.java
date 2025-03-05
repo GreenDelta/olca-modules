@@ -1,24 +1,27 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonObject;
-import gnu.trove.map.hash.TLongObjectHashMap;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.JsonObject;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * JsonRefs helps to create data set references when no full-entities are
@@ -31,26 +34,28 @@ public class JsonRefs {
 	private final IDatabase db;
 	private final PathBuilder categories;
 	private final Map<ModelType, TLongObjectHashMap<? extends RootDescriptor>> cache;
+	private final DataPackages dataPackages;
 	private Map<Long, String> _locationCodes;
 	private Map<Long, String> _refUnits;
-	private boolean writeLibraryFields;
+	private boolean writeDataPackageFields;
 
 	private JsonRefs(IDatabase db) {
 		this.db = db;
 		this.categories = Categories.pathsOf(db);
 		this.cache = new EnumMap<>(ModelType.class);
+		this.dataPackages = db.getDataPackages();
 	}
 
 	public static JsonRefs of(IDatabase db) {
 		return new JsonRefs(db);
 	}
 
-	/// If set to `true`, created references will contain the `library` field
-	/// when the referenced dataset belongs to a library. Typically, this should
+	/// If set to `true`, created references will contain the `dataPackage` field
+	/// when the referenced dataset belongs to a data package. Typically, this should
 	/// be only done when references are exported to a service API and not in
 	/// the standard JSON exports.
-	public JsonRefs withLibraryFields(boolean b) {
-		writeLibraryFields = b;
+	public JsonRefs withDataPackageFields(boolean b) {
+		writeDataPackageFields = b;
 		return this;
 	}
 
@@ -71,8 +76,16 @@ public class JsonRefs {
 		Json.put(ref, "name", d.name);
 		Json.put(ref, "category", categories.pathOf(d.category));
 
-		if (writeLibraryFields && d.isFromLibrary()) {
-			Json.put(ref, "library", d.library);
+		if (writeDataPackageFields) {
+			var dataPackage = dataPackages.get(d.dataPackage);
+			if (dataPackage != null) {
+				// TODO is support of legacy field name required?
+				if (dataPackage.isLibrary()) {
+					Json.put(ref, "library", dataPackage.name());
+				} else {
+					Json.put(ref, "dataPackage", dataPackage.id());
+				}
+			}
 		}
 
 		if (d instanceof FlowDescriptor fd) {
@@ -107,7 +120,7 @@ public class JsonRefs {
 		if (type == null)
 			return null;
 		var map = cache.computeIfAbsent(
-			type, _type -> Daos.root(db, type).descriptorMap());
+				type, _type -> Daos.root(db, type).descriptorMap());
 		return map.get(id);
 	}
 
@@ -126,10 +139,10 @@ public class JsonRefs {
 		if (_refUnits == null) {
 			_refUnits = new HashMap<>();
 			var query = """
-				select prop.id, unit.name from tbl_flow_properties prop
-				  inner join tbl_unit_groups as ug on prop.f_unit_group = ug.id
-				  inner join tbl_units unit on ug.f_reference_unit = unit.id
-				""";
+					select prop.id, unit.name from tbl_flow_properties prop
+					  inner join tbl_unit_groups as ug on prop.f_unit_group = ug.id
+					  inner join tbl_units unit on ug.f_reference_unit = unit.id
+					""";
 			NativeSql.on(db).query(query, r -> {
 				_refUnits.put(r.getLong(1), r.getString(2));
 				return true;

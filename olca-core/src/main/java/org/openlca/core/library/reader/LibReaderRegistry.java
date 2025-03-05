@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.slf4j.LoggerFactory;
@@ -15,8 +16,10 @@ import org.slf4j.LoggerFactory;
 public class LibReaderRegistry {
 
 	private final Map<String, LibReader> readers = new HashMap<>();
+	public final DataPackages dataPackages;
 
-	private LibReaderRegistry() {
+	private LibReaderRegistry(IDatabase db) {
+		this.dataPackages = db.getDataPackages();
 	}
 
 	/**
@@ -24,8 +27,8 @@ public class LibReaderRegistry {
 	 * linked to the given database.
 	 */
 	public static LibReaderRegistry of(IDatabase db, LibraryDir libDir) {
-		var reg = new LibReaderRegistry();
-		var mounted = db.getLibraries().stream()
+		var reg = new LibReaderRegistry(db);
+		var mounted = db.getDataPackages().getLibraries().stream()
 				.map(libDir::getLibrary)
 				.filter(Optional::isPresent)
 				.map(Optional::get)
@@ -47,7 +50,7 @@ public class LibReaderRegistry {
 	}
 
 	public static LibReaderRegistry of(IDatabase db, Library lib) {
-		var reg = new LibReaderRegistry();
+		var reg = new LibReaderRegistry(db);
 		var reader = LibReader.of(lib, db).create();
 		reg.readers.put(lib.name(), reader);
 		return reg;
@@ -56,28 +59,29 @@ public class LibReaderRegistry {
 	/**
 	 * Creates a registry for the given library readers.
 	 */
-	public static LibReaderRegistry of(Iterable<LibReader> readers) {
-		var reg = new LibReaderRegistry();
+	public static LibReaderRegistry of(IDatabase db, Iterable<LibReader> readers) {
+		var reg = new LibReaderRegistry(db);
 		for (var r : readers) {
 			reg.readers.put(r.libraryName(), r);
 		}
 		return reg;
 	}
-
+	
 	/**
-	 * Gets the library reader for the given library ID. If there is no reader
-	 * registered for this ID it returns an empty-reader (which responds with
+	 * Gets the library reader for the given library name. If there is no reader
+	 * registered for this name it returns an empty-reader (which responds with
 	 * {@code null} and {@code false}). So {@code null} checking of the returned
-	 * object is not required, but it is for the methods of that returned reader.
+	 * object is not required, but it is for the methods of that returned
+	 * reader.
 	 */
-	public LibReader get(String libraryId) {
-		var registered = readers.get(libraryId);
+	public LibReader get(String libraryName) {
+		var registered = readers.get(libraryName);
 		if (registered != null)
 			return registered;
 		var log = LoggerFactory.getLogger(getClass());
-		log.error("library '{}' is not registered", libraryId);
+		log.error("library '{}' is not registered", libraryName);
 		var empty = EmptyLibReader.instance();
-		readers.put(libraryId, empty);
+		readers.put(libraryName, empty);
 		return empty;
 	}
 

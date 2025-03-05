@@ -692,6 +692,6 @@ public class JsonResultService {
 	}
 
 	private JsonRefs refs() {
-		return JsonRefs.of(db).withLibraryFields(true);
+		return JsonRefs.of(db).withDataPackageFields(true);
 	}
 }

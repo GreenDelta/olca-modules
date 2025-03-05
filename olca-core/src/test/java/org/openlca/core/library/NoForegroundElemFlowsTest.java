@@ -36,6 +36,7 @@ public class NoForegroundElemFlowsTest {
 		var libDir = LibraryDir.of(tmpDir.toFile());
 		var lib = libDir.create("testlib 1");
 		var db = Tests.getDb();
+		db.addLibrary(lib.name());
 
 		// create the reference data
 		var units = UnitGroup.of("Units of mass", "kg");
@@ -53,7 +54,7 @@ public class NoForegroundElemFlowsTest {
 		for (int i = 1; i < 4; i++) {
 			var product = db.insert(Flow.product("p" + i, mass));
 			var process = Process.of("p" + i, product);
-			process.library = lib.name();
+			process.dataPackage = lib.name();
 			db.insert(process);
 			libProviders.add(TechFlow.of(process));
 			if (i == 2) {
@@ -70,7 +71,7 @@ public class NoForegroundElemFlowsTest {
 		process.input(libProcess.quantitativeReference.flow, 0.5);
 		db.insert(process);
 		var system = ProductSystem.of(process)
-			.link(libProcess, process);
+				.link(libProcess, process);
 		system.targetAmount = 2;
 		db.insert(system);
 
@@ -81,14 +82,14 @@ public class NoForegroundElemFlowsTest {
 		IxEnviIndex.of(enviIndex, ctx).writeToDir(lib.folder());
 
 		// write the library matrices
-		var matrixA = DenseMatrix.of(new double[][]{
-			{1.0, -0.1, 0.0}, // p1
-			{-0.5, 1.0, -0.2}, // p2
-			{0.0, -0.7, 1.0} // p3
+		var matrixA = DenseMatrix.of(new double[][] {
+				{ 1.0, -0.1, 0.0 }, // p1
+				{ -0.5, 1.0, -0.2 }, // p2
+				{ 0.0, -0.7, 1.0 } // p3
 		});
-		var matrixB = DenseMatrix.of(new double[][]{
-			{-3.0, -4.0, -7.0}, // e1
-			{9.0, 2.0, 3.0} // e2
+		var matrixB = DenseMatrix.of(new double[][] {
+				{ -3.0, -4.0, -7.0 }, // e1
+				{ 9.0, 2.0, 3.0 } // e2
 		});
 		var solver = new JavaSolver();
 		var inv = solver.invert(matrixA);
@@ -101,8 +102,8 @@ public class NoForegroundElemFlowsTest {
 		// calculate the results
 		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db)
-			.withLibraries(LibReaderRegistry.of(db, lib))
-			.calculate(setup);
+				.withLibraries(LibReaderRegistry.of(db, lib))
+				.calculate(setup);
 
 		// check the result
 		var expected = matrixM.getColumn(1);

@@ -43,7 +43,7 @@ public class LocationDescriptors
 					d.version,
 					d.last_change,
 					d.f_category,
-					d.library,
+					d.data_package,
 					d.tags,
 					d.code from tbl_locations d""";
 	}

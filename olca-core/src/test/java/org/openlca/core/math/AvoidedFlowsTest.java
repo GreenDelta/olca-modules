@@ -7,10 +7,7 @@ import org.openlca.core.TestProcess;
 import org.openlca.core.TestSystem;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProductSystem;
-import org.openlca.core.results.LcaResult;
 
 public class AvoidedFlowsTest {
 

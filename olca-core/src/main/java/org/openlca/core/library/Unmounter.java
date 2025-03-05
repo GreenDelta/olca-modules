@@ -78,14 +78,14 @@ public class Unmounter {
 			untag(type);
 		}
 		new CategoryDao(database).deleteAll(categoriesToDelete.values());
-		database.removeLibrary(lib);
+		database.removeDataPackage(lib);
 	}
 
 	private void untag(ModelType type) {
 		var dao = Daos.root(database, type);
 		var untag = new HashSet<String>();
 		for (var descriptor : dao.getDescriptors()) {
-			if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
+			if (!lib.equals(descriptor.dataPackage))
 				continue;
 			if (!keep(descriptor)) {
 				dao.delete(descriptor.id);
@@ -129,12 +129,12 @@ public class Unmounter {
 		for (var type : ModelType.values()) {
 			for (var descriptor : Daos.root(database, type).getDescriptors()) {
 				var ref = new TypedRefId(descriptor.type, descriptor.refId);
-				if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
+				if (!lib.equals(descriptor.dataPackage))
 					continue;
 				if (keep.contains(ref))
 					continue;
 				references.iterateUsages(ref, usage -> {
-					if (usage.library == null || !usage.library.equals(lib)) {
+					if (!lib.equals(usage.dataPackage)) {
 						keep(usage);
 						return false;
 					}
@@ -152,7 +152,7 @@ public class Unmounter {
 			return;
 		keep.put(ref, true);
 		references.iterateReferences(ref, reference -> {
-			if (!lib.equals(reference.library))
+			if (!lib.equals(reference.dataPackage))
 				return;
 			keep(reference);
 		});
@@ -182,7 +182,7 @@ public class Unmounter {
 	}
 
 	private boolean hasOnlyLibraryContent(Category category) {
-		if (!categoryTest.hasOnlyLibraryContent(category, lib))
+		if (!categoryTest.hasOnlyDataPackageContent(category, lib))
 			return false;
 		for (var child : category.childCategories)
 			if (!hasOnlyLibraryContent(child))

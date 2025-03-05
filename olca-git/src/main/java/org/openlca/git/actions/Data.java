@@ -50,7 +50,7 @@ class Data {
 
 	List<Diff> doImport(Predicate<Diff> doImport, Function<Diff, Reference> toRef) {
 		var toImport = changes.stream()
-				.filter(diff -> !diff.isLibrary)
+				.filter(diff -> !diff.isDataPackage)
 				.filter(doImport)
 				.map(toRef)
 				.collect(Collectors.toList());
@@ -63,7 +63,7 @@ class Data {
 
 	List<Diff> doDelete(Predicate<Diff> doDelete, Function<Diff, Reference> toRef) {
 		var toDelete = changes.stream()
-				.filter(diff -> !diff.isLibrary)
+				.filter(diff -> !diff.isDataPackage)
 				.filter(doDelete)
 				.map(toRef)
 				.collect(Collectors.toList());

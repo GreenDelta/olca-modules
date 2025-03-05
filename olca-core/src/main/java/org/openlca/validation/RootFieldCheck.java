@@ -5,17 +5,19 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Table;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.util.Strings;
+
+import jakarta.persistence.Table;
 
 class RootFieldCheck implements Runnable {
 
 	private final Validation v;
 	private final Set<String> refIds = new HashSet<>();
-	private Set<String> _libs;
+	private DataPackages _dataPackages;
 	private boolean foundErrors = false;
 
 	RootFieldCheck(Validation v) {
@@ -26,7 +28,8 @@ class RootFieldCheck implements Runnable {
 	public void run() {
 		try {
 			for (var type : ModelType.values()) {
-				if (type == ModelType.PARAMETER) // do not check local parameters!
+				if (type == ModelType.PARAMETER) // do not check local
+													// parameters!
 					continue;
 				var clazz = type.getModelClass();
 				if (clazz == null)
@@ -53,11 +56,11 @@ class RootFieldCheck implements Runnable {
 		if (table == null)
 			return;
 		var sql = "select " +
-			/* 1 */ "id, " +
-			/* 2 */ "ref_id, " +
-			/* 3 */ "name, " +
-			/* 4 */ "f_category, " +
-			/* 5 */ "library from " + table.name();
+		/* 1 */ "id, " +
+		/* 2 */ "ref_id, " +
+		/* 3 */ "name, " +
+		/* 4 */ "f_category, " +
+		/* 5 */ "data_package from " + table.name();
 		NativeSql.on(v.db).query(sql, r -> {
 			checkRow(type, r);
 			return !v.wasCanceled();
@@ -68,12 +71,12 @@ class RootFieldCheck implements Runnable {
 		if (v.wasCanceled())
 			return;
 		var sql = "select " +
-			/* 1 */ "id, " +
-			/* 2 */ "ref_id, " +
-			/* 3 */ "name, " +
-			/* 4 */ "f_category, " +
-			/* 5 */ "library, " +
-			/* 6 */ "f_owner from tbl_parameters";
+		/* 1 */ "id, " +
+		/* 2 */ "ref_id, " +
+		/* 3 */ "name, " +
+		/* 4 */ "f_category, " +
+		/* 5 */ "data_package, " +
+		/* 6 */ "f_owner from tbl_parameters";
 		NativeSql.on(v.db).query(sql, r -> {
 			long owner = r.getLong(6);
 			if (r.wasNull() || owner <= 0) {
@@ -105,28 +108,28 @@ class RootFieldCheck implements Runnable {
 
 		var category = r.getLong(4);
 		if (category != 0
-			&& !v.ids.contains(ModelType.CATEGORY, category)) {
+				&& !v.ids.contains(ModelType.CATEGORY, category)) {
 			v.error(id, type, "invalid category link @" + category);
 			foundErrors = true;
 		} else if (category == id && type == ModelType.CATEGORY) {
 			v.error(id, type, "cyclic category reference: @" + id
 					+ ", this can be fixed with the following SQL statement: "
-			+ "update tbl_categories set f_category = null where id = f_category");
+					+ "update tbl_categories set f_category = null where id = f_category");
 		}
 
-		var library = r.getString(5);
-		if (Strings.notEmpty(library)) {
-			if (!libraries().contains(library)) {
-				v.error(id, type, "points to unlinked library @" + library);
+		var dataPackage = r.getString(5);
+		if (Strings.notEmpty(dataPackage)) {
+			if (!dataPackages().contains(dataPackage)) {
+				v.error(id, type, "points to unlinked library @" + dataPackage);
 				foundErrors = true;
 			}
 		}
 	}
 
-	private Set<String> libraries() {
-		if (_libs != null)
-			return _libs;
-		_libs = v.db.getLibraries();
-		return _libs;
+	private DataPackages dataPackages() {
+		if (_dataPackages != null)
+			return _dataPackages;
+		_dataPackages = v.db.getDataPackages();
+		return _dataPackages;
 	}
 }

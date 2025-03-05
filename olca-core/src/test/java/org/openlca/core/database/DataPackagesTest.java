@@ -5,31 +5,30 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.openlca.core.Tests;
 
-public class LibraryTest {
+public class DataPackagesTest {
 
 	@Test
-	public void testDatabaseLibraries() {
+	public void testDatabaseDataPackages() {
 		var db = Tests.getDb();
 
 		// add libraries
 		for (int i = 1; i < 4; i++) {
 			db.addLibrary("lib " + i);
 		}
-		var libs = db.getLibraries();
+		var dataPackages = db.getDataPackages();
 		for (int i = 1; i < 4; i++) {
-			assertTrue(libs.contains("lib " + i));
+			assertTrue(dataPackages.contains("lib " + i));
 		}
 
 		// remove a library
-		assertTrue(db.getLibraries().contains("lib 3"));
-		db.removeLibrary("lib 3");
-		assertFalse(db.getLibraries().contains("lib 3"));
+		db.removeDataPackage("lib 3");
+		assertFalse(db.getDataPackages().contains("lib 3"));
 
 		// delete all libraries
 		for (int i = 1; i < 4; i++) {
-			db.removeLibrary("lib " + i);
+			db.removeDataPackage("lib " + i);
 		}
-		assertTrue(db.getLibraries().isEmpty());
+		assertTrue(db.getDataPackages().isEmpty());
 
 	}
 }

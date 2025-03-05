@@ -16,6 +16,7 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	public final boolean isEmptyCategory;
 	public final boolean isDataset;
 	public final boolean isRepositoryInfo;
+	public final boolean isDataPackage;
 	public final boolean isLibrary;
 
 	public ModelRef(String path) {
@@ -32,7 +33,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		this.isCategory = type != null && path.contains("/") && Strings.nullOrEmpty(refId);
 		this.isDataset = path.contains("/") && refId != null && !path.startsWith(RepositoryInfo.FILE_NAME + "/");
 		this.isRepositoryInfo = RepositoryInfo.FILE_NAME.equals(path);
-		this.isLibrary = path.startsWith(RepositoryInfo.FILE_NAME + "/");
+		this.isDataPackage = path.startsWith(RepositoryInfo.FILE_NAME + "/");
+		this.isLibrary = path.startsWith(RepositoryInfo.FILE_NAME + "/library:");
 	}
 
 	public ModelRef(ModelRef ref) {
@@ -45,6 +47,7 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		this.isEmptyCategory = ref.isEmptyCategory;
 		this.isDataset = ref.isDataset;
 		this.isRepositoryInfo = ref.isRepositoryInfo;
+		this.isDataPackage = ref.isDataPackage;
 		this.isLibrary = ref.isLibrary;
 	}
 
@@ -61,8 +64,11 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		var parts = path.split("/");
 		if (parts.length < 2)
 			return null;
-		if (parts[0].equals(RepositoryInfo.FILE_NAME))
+		if (parts[0].equals(RepositoryInfo.FILE_NAME)) {
+			if (parts[1].startsWith("library:"))
+				return parts[1].substring(8);
 			return parts[1];
+		}
 		var binDir = GitUtil.findBinDir(path);
 		if (binDir != null)
 			return GitUtil.getRefId(binDir);
@@ -70,6 +76,8 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 	}
 
 	private static String nameOf(String path) {
+		if (path.startsWith(RepositoryInfo.FILE_NAME + "/library:"))
+			return path.substring(RepositoryInfo.FILE_NAME.length() + 9);
 		return path.contains("/")
 				? path.substring(path.lastIndexOf("/") + 1)
 				: path;

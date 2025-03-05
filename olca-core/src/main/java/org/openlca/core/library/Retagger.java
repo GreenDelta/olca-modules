@@ -67,7 +67,7 @@ class Retagger {
 			return 0;
 		}
 		log.info("update table: " + table.name());
-		var sql = "select ref_id, library from " + table.name();
+		var sql = "select ref_id, data_package from " + table.name();
 		var count = new AtomicInteger(0);
 		NativeSql.on(db).updateRows(sql, r -> {
 			var id = r.getString(1);
@@ -87,7 +87,7 @@ class Retagger {
 			var p = db.get(Process.class, refId);
 			if (p == null)
 				continue;
-			p.library = libId;
+			p.dataPackage = libId;
 			var qRef = p.quantitativeReference;
 			if (qRef != null) {
 				qRef.amount = ReferenceAmount.get(qRef);
@@ -116,7 +116,7 @@ class Retagger {
 			var impact = db.get(ImpactCategory.class, refId);
 			if (impact == null)
 				continue;
-			impact.library = libId;
+			impact.dataPackage = libId;
 			impact.impactFactors.clear();
 			impact.parameters.clear();
 			db.update(impact);

@@ -3,6 +3,7 @@ package org.openlca.core.matrix.linking;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ProcessType;
@@ -29,9 +30,11 @@ public class LinkingInfo {
 	// The number of unit processes. Note that input-output models typically
 	// result in very large unit process databases which we want to link eagerly.
 	private long unitCount;
+	final DataPackages dataPackages;
 
 	private LinkingInfo(IDatabase db) {
 		this.db = db;
+		this.dataPackages = db.getDataPackages();
 		var sql = NativeSql.on(db);
 
 		var seqQuery = "select seq_count from sequence" +
@@ -43,7 +46,7 @@ public class LinkingInfo {
 
 		processes = new ProcessDao(db).getDescriptors();
 		for (var d : processes) {
-			if (d.isFromLibrary()) {
+			if (dataPackages.isFromLibrary(d)) {
 				libraryCount++;
 			} else if (d.processType == ProcessType.LCI_RESULT) {
 				resultCount++;

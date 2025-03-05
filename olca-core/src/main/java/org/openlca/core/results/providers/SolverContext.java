@@ -2,6 +2,7 @@ package org.openlca.core.results.providers;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
@@ -49,7 +50,7 @@ public class SolverContext {
 	}
 
 	public boolean hasLibraryLinks() {
-		return matrixData.hasLibraryLinks();
+		return matrixData.hasLibraryLinks(db != null ? db.getDataPackages() : new DataPackages());
 	}
 
 	public SolverContext withLibraries(LibReaderRegistry libraries) {

@@ -38,7 +38,7 @@ public class CategoryDao
 						d.version,
 						d.last_change,
 						d.f_category,
-						d.library,
+						d.data_package,
 						d.tags,
 						d.model_type from
 				""" + getEntityTable() + " d";
@@ -58,7 +58,7 @@ public class CategoryDao
 			if (!r.wasNull()) {
 				d.category = catId;
 			}
-			d.library = r.getString(7);
+			d.dataPackage = r.getString(7);
 			d.tags = r.getString(8);
 			d.categoryType =  NativeSql.enumItemOf(
 					ModelType.class, r.getString(9));

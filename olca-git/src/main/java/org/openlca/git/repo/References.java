@@ -18,6 +18,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Reference;
@@ -92,7 +93,7 @@ public class References {
 		private ModelType type;
 		private String refId;
 		private boolean includeCategories;
-		private boolean includeLibraries;
+		private boolean includeDataPackages;
 		private boolean recursive = true;
 
 		public Find path(String path) {
@@ -122,8 +123,8 @@ public class References {
 			return this;
 		}
 
-		public Find includeLibraries() {
-			this.includeLibraries = true;
+		public Find includeDataPackages() {
+			this.includeDataPackages = true;
 			return this;
 		}
 
@@ -200,13 +201,13 @@ public class References {
 				if (!includeCategories && recursive) {
 					iterateModels(commit, consumer);
 				} else if (RepositoryInfo.FILE_NAME.equals(path)) {
-					if (!includeLibraries)
+					if (!includeDataPackages)
 						return;
-					var libs = repo.getLibraries(commit).stream()
-							.map(lib -> new Reference(RepositoryInfo.FILE_NAME + "/" + lib, commit.getName(), null))
+					var dps = repo.getDataPackages(commit).stream()
+							.map(p -> refOf(p, commit.getName()))
 							.collect(Collectors.toList());
-					for (var lib : libs)
-						if (!consumer.apply(lib))
+					for (var dp: dps)
+						if (!consumer.apply(dp))
 							return;
 				} else {
 					var treeId = Strings.nullOrEmpty(path)
@@ -219,6 +220,15 @@ public class References {
 			} catch (IOException e) {
 				log.error("Error walking commit " + commitId, e);
 			}
+		}
+
+		private Reference refOf(DataPackage p, String commitId) {
+			var path = RepositoryInfo.FILE_NAME + "/";
+			if (p.isLibrary()) {
+				path += "library:";
+			}
+			path += p.id();
+			return new Reference(path, commitId, null);
 		}
 
 		private void iterateModels(RevCommit commit, Function<Reference, Boolean> consumer) {
@@ -253,14 +263,14 @@ public class References {
 					walk.addTree(treeId);
 					walk.setRecursive(false);
 					KnownFilesFilter filter = KnownFilesFilter.createForPath(path);
-					if (includeLibraries) {
-						filter.includeLibraries();
+					if (includeDataPackages) {
+						filter.includeDataPackages();
 					}
 					walk.setFilter(filter);
 					while (walk.next()) {
 						var name = GitUtil.decode(walk.getNameString());
 						var isRepositoryInfo = name.equals(RepositoryInfo.FILE_NAME);
-						if (isRepositoryInfo && repo.getLibraries(commit).isEmpty())
+						if (isRepositoryInfo && repo.getDataPackages(commit).isEmpty())
 							continue;
 						var id = walk.getObjectId(0);
 						var fullPath = name;
@@ -269,13 +279,12 @@ public class References {
 						}
 						var ref = new Reference(fullPath, commit.name(), id);
 						if (isRepositoryInfo && recursive) {
-							var libs = repo.getLibraries(commit).stream()
-									.map(lib -> new Reference(RepositoryInfo.FILE_NAME + "/" + lib, commit.getName(),
-											null))
+							var dps = repo.getDataPackages(commit).stream()
+									.map(p -> refOf(p, commit.getName()))
 									.collect(Collectors.toList());
-							for (var lib : libs)
-								if (!consumer.apply(lib))
-									break;
+							for (var dp: dps)
+								if (!consumer.apply(dp))
+									return;
 							continue;
 						}
 						if (!consumer.apply(ref))

@@ -1,14 +1,15 @@
 package org.openlca.git.writer;
 
-import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.jsonld.Json;
-import org.openlca.jsonld.LibraryLink;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 
@@ -31,6 +32,12 @@ public class UsedFeatures {
 	 * server: 5)
 	 */
 	private int schemaVersion = 2;
+
+	/**
+	 * Has packages, that are not legacy libraries (only name) (client: 7,
+	 * server: 6)
+	 */
+	private boolean usesPackageFormat;
 
 	/**
 	 * Repository contains empty categories (client: 3, server: 3)
@@ -135,30 +142,51 @@ public class UsedFeatures {
 		return false;
 	}
 
-	RepositoryInfo createInfo(List<LibraryLink> libraries) {
-		if (didUnmountLibrary(libraries)) {
+	RepositoryInfo createInfo(Set<DataPackage> packages) {
+		if (usesPackageFormat(packages)) {
+			usesPackageFormat = true;
+		} else if (didUnmountLibrary(packages)) {
 			unmountLibrary = true;
 		}
 		var info = RepositoryInfo.create()
-				.withLibraries(libraries)
+				.withDataPackages(packages)
 				.withSchemaVersion(new SchemaVersion(schemaVersion))
 				.withRepositoryClientVersion(getClientVersion())
 				.withRepositoryServerVersion(getServerVersion());
 		return info;
 	}
 
-	private boolean didUnmountLibrary(List<LibraryLink> libraries) {
-		if (previous == null)
+	private boolean usesPackageFormat(Set<DataPackage> packages) {
+		if (packages == null || packages.isEmpty())
 			return false;
-		var libraryIds = libraries.stream().map(LibraryLink::id).toList();
-		for (var lib : previous.libraries())
-			if (!libraryIds.contains(lib.id()))
+		for (var p : packages)
+			if (isPackageFormat(p))
 				return true;
 		return false;
 	}
 
+	private boolean didUnmountLibrary(Set<DataPackage> packages) {
+		if (previous == null || previous.dataPackages().isEmpty())
+			return false;
+		if (packages == null || packages.isEmpty())
+			return true;
+		var libraryIds = packages.stream()
+				.filter(Predicate.not(this::isPackageFormat))
+				.map(p -> p.name()).toList();
+		for (var p : previous.dataPackages())
+			if (!isPackageFormat(p) && !libraryIds.contains(p.name()))
+				return true;
+		return false;
+	}
+	
+	private boolean isPackageFormat(DataPackage p) {
+		return !p.isLibrary() || p.version().getValue() != 0l;
+	}
+
 	private int getClientVersion() {
 		var previousClient = previous != null ? previous.repositoryClientVersion() : 2;
+		if (usesPackageFormat)
+			return max(previousClient, 7);
 		if (schemaVersion == 5)
 			return max(previousClient, 6);
 		if (schemaVersion == 4)
@@ -172,6 +200,8 @@ public class UsedFeatures {
 
 	private int getServerVersion() {
 		var previousServer = previous != null ? previous.repositoryServerVersion() : 2;
+		if (usesPackageFormat)
+			return max(previousServer, 6);
 		if (schemaVersion == 4 || schemaVersion == 5)
 			return max(previousServer, 5);
 		if (schemaVersion == 3)
