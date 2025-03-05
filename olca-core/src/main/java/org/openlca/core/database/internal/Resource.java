@@ -7,13 +7,11 @@ import org.slf4j.LoggerFactory;
 
 public enum Resource {
 
-	CURRENT_SCHEMA_DERBY("current_schema_derby.sql"),
-
-	CURRENT_SCHEMA_MYSQL("current_schema_mysql.sql");
+	CURRENT_SCHEMA_DERBY("current_schema_derby.sql");
 
 	private final String file;
 
-	private Resource(String file) {
+	Resource(String file) {
 		this.file = file;
 	}
 
