@@ -38,7 +38,7 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 				   	d.version,
 				   	d.last_change,
 				   	d.f_category,
-				   	d.library,
+				   	d.data_package,
 				   	d.tags from
 				""" + getEntityTable() + " d";
 		if (condition != null) {
@@ -58,7 +58,7 @@ public class RootEntityDao<T extends RootEntity, V extends RootDescriptor>
 			if (!r.wasNull()) {
 				d.category = catId;
 			}
-			d.library = r.getString(7);
+			d.dataPackage = r.getString(7);
 			d.tags = r.getString(8);
 			list.add(d);
 			return true;

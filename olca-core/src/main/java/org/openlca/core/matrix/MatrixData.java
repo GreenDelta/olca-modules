@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
@@ -124,12 +125,12 @@ public class MatrixData {
 			|| techMatrix instanceof CSCMatrix;
 	}
 
-	public boolean hasLibraryLinks() {
+	public boolean hasLibraryLinks(DataPackages dataPackages) {
 		if (_hasLibraryLinks != null)
 			return _hasLibraryLinks;
 		if (techIndex != null) {
 			for (var product : techIndex) {
-				if (product.isFromLibrary()) {
+				if (dataPackages.isLibrary(product.dataPackage())) {
 					_hasLibraryLinks = true;
 					return true;
 				}
@@ -137,7 +138,7 @@ public class MatrixData {
 		}
 		if (impactIndex != null) {
 			for (var impact : impactIndex) {
-				if (impact.isFromLibrary()) {
+				if (dataPackages.isFromLibrary(impact)) {
 					_hasLibraryLinks = true;
 					return true;
 				}

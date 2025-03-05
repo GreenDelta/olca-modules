@@ -11,6 +11,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Version;
 
 public class CategoryContentTestTest {
 
@@ -36,15 +37,44 @@ public class CategoryContentTestTest {
 	public void testLibContent() {
 		var actor = Actor.of("abc");
 		actor.category = category;
-		actor.library = "lib 1";
+		var lib = "lib 1";
+		db.addLibrary(lib);
+		actor.dataPackage = lib;
 		db.insert(actor);
 
 		var test = new CategoryContentTest(db);
 		var c = category;
 		while (c != null) {
+			assertTrue(test.hasDataPackageContent(c));
+			assertTrue(test.hasDataPackageContent(c, lib));
+			assertFalse(test.hasDataPackageContent(c, "lib 2"));
 			assertTrue(test.hasLibraryContent(c));
-			assertTrue(test.hasLibraryContent(c, "lib 1"));
+			assertTrue(test.hasLibraryContent(c, lib));
 			assertFalse(test.hasLibraryContent(c, "lib 2"));
+			c = c.category;
+		}
+
+		db.delete(actor);
+		db.removeDataPackage(lib);
+	}
+
+	@Test
+	public void testNonLibContent() {
+		var actor = Actor.of("abc");
+		actor.category = category;
+		actor.dataPackage = "pack 1";
+		db.insert(actor);
+		db.addDataPackage("pack 1", Version.of(1, 1, 1));
+		
+		var test = new CategoryContentTest(db);
+		var c = category;
+		while (c != null) {
+			assertTrue(test.hasDataPackageContent(c));
+			assertTrue(test.hasDataPackageContent(c, "pack 1"));
+			assertTrue(test.hasNonLibraryContent(c));
+			assertTrue(test.hasNonLibraryContent(c));
+			assertFalse(test.hasLibraryContent(c));
+			assertFalse(test.hasLibraryContent(c, "pack 1"));
 			c = c.category;
 		}
 
@@ -52,7 +82,7 @@ public class CategoryContentTestTest {
 	}
 
 	@Test
-	public void testNonLibContent() {
+	public void testNonDataPackageContent() {
 		var actor = Actor.of("abc");
 		actor.category = category;
 		db.insert(actor);
@@ -60,6 +90,9 @@ public class CategoryContentTestTest {
 		var test = new CategoryContentTest(db);
 		var c = category;
 		while (c != null) {
+			assertTrue(test.hasNonDataPackageContent(c));
+			assertFalse(test.hasDataPackageContent(c));
+			assertFalse(test.hasDataPackageContent(c, "lib 1"));
 			assertTrue(test.hasNonLibraryContent(c));
 			assertFalse(test.hasLibraryContent(c));
 			assertFalse(test.hasLibraryContent(c, "lib 1"));

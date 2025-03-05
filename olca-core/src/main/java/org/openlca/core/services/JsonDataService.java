@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
@@ -24,7 +25,7 @@ import org.openlca.util.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public record JsonDataService(IDatabase db) {
+public record JsonDataService(IDatabase db, DataPackages dataPackages) {
 
 	/**
 	 * Get the data set for the given type and ID. Returns an empty response if
@@ -49,7 +50,7 @@ public record JsonDataService(IDatabase db) {
 			if (entity == null)
 				return Response.empty();
 			var json = new JsonExport(db, new MemStore())
-					.withLibraryFields(true)
+					.withDataPackageFields(true)
 					.withReferences(false)
 					.getWriter(entity)
 					.write(entity);
@@ -70,7 +71,7 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("type is missing");
 		try {
 			var export = new JsonExport(db, new MemStore())
-					.withLibraryFields(true)
+					.withDataPackageFields(true)
 					.withReferences(false);
 			JsonWriter<T> writer = null;
 			var array = new JsonArray();
@@ -103,8 +104,8 @@ public record JsonDataService(IDatabase db) {
 	}
 
 	/**
-	 * Get the descriptor for the given type and ID. Returns an empty response if
-	 * no such descriptor exists.
+	 * Get the descriptor for the given type and ID. Returns an empty response
+	 * if no such descriptor exists.
 	 */
 	public Response<JsonObject> getDescriptor(
 			Class<? extends RootEntity> type, String id) {
@@ -129,8 +130,14 @@ public record JsonDataService(IDatabase db) {
 			if (d == null)
 				return Response.empty();
 			var ref = Json.asRef(d);
-			if (d.isFromLibrary()) {
-				Json.put(ref, "library", d.library);
+			if (!Strings.nullOrEmpty(d.dataPackage)) {
+				// TODO is support of legacy field name required?
+				if (dataPackages.isFromLibrary(d)) {
+					Json.put(ref, "library", d.dataPackage);
+				} else {
+					var dataPackage = dataPackages.get(d.dataPackage);
+					Json.put(ref, "dataPackage", dataPackage != null ? dataPackage.id() : d.dataPackage);
+				}
 			}
 			return Response.of(ref);
 		} catch (Exception e) {
@@ -152,14 +159,16 @@ public record JsonDataService(IDatabase db) {
 	}
 
 	/**
-	 * Inserts or updates the given data set in the database depending on if it is
-	 * already present or not. An ID does not have to be provided; if not
+	 * Inserts or updates the given data set in the database depending on if it
+	 * is already present or not. An ID does not have to be provided; if not
 	 * available it will be generated.
 	 *
-	 * @param type the type of the entity
-	 * @param json the data set
+	 * @param type
+	 *            the type of the entity
+	 * @param json
+	 *            the data set
 	 * @return the descriptor of the inserted or updated entity or a
-	 * corresponding error.
+	 *         corresponding error.
 	 */
 	public <T extends RootEntity> Response<JsonObject> put(
 			Class<T> type, JsonObject json) {
@@ -179,7 +188,7 @@ public record JsonDataService(IDatabase db) {
 					: null;
 
 			if (entity != null) {
-				if (entity.isFromLibrary())
+				if (dataPackages.isFromLibrary(entity))
 					return Response.error("library data cannot be updated");
 
 				reader.update(entity, json);
@@ -235,7 +244,7 @@ public record JsonDataService(IDatabase db) {
 			var entity = db.get(type, id);
 			if (entity == null)
 				return Response.empty();
-			if (entity.isFromLibrary())
+			if (dataPackages.isFromLibrary(entity))
 				return Response.error("library data cannot be deleted");
 			var ref = Json.asRef(entity);
 			db.delete(entity);
@@ -310,6 +319,6 @@ public record JsonDataService(IDatabase db) {
 	}
 
 	private JsonRefs refs() {
-		return JsonRefs.of(db).withLibraryFields(true);
+		return JsonRefs.of(db).withDataPackageFields(true);
 	}
 }

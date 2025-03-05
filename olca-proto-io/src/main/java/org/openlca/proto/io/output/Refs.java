@@ -128,7 +128,8 @@ public final class Refs {
 				case "version" -> Out.set(proto, field, Version.asString(d.version));
 				case "last_change" ->
 					Out.set(proto, field, Out.dateTimeOf(d.lastChange));
-				case "library" -> Out.set(proto, field, d.library);
+				// TODO filter libraries or rename field to dataPackage
+				case "library" -> Out.set(proto, field, d.dataPackage);
 			}
 		}
 	}

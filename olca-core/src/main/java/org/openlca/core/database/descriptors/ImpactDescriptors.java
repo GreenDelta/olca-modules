@@ -35,7 +35,7 @@ public class ImpactDescriptors
 					d.version,
 					d.last_change,
 					d.f_category,
-					d.library,
+					d.data_package,
 					d.tags,
 					d.reference_unit,
 					d.direction from tbl_impact_categories d""";

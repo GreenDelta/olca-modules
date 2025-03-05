@@ -52,7 +52,9 @@ public class JsonNewFieldsV2Test {
 
 	@Test
 	public void testLibraryAndTags() {
-		process.library = "some-lib";
+		var lib = "some-lib";
+		db.addLibrary(lib);
+		process.dataPackage = lib;
 		process.tags = "some,tags";
 		process = db.update(process);
 		var store = withExport(export -> export.write(process));
@@ -60,7 +62,7 @@ public class JsonNewFieldsV2Test {
 		new JsonImport(store, db).run();
 		var copy = db.get(Process.class, process.refId);
 		assertEquals("some,tags", copy.tags);
-		assertNull(copy.library);
+		assertNull(copy.dataPackage);
 	}
 
 	@Test

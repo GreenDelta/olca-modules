@@ -20,7 +20,7 @@ final class Util {
 		d.version = r.getVersion(row);
 		d.lastChange = r.getLastChange(row);
 		d.category = r.getCategory(row);
-		d.library = r.getLibrary(row);
+		d.dataPackage = r.getDataPackage(row);
 		d.tags = r.getTags(row);
 	}
 }

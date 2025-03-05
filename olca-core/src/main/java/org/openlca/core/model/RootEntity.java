@@ -4,14 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import org.openlca.util.BinUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToOne;
-import org.openlca.util.BinUtils;
 
 /**
  * A categorized entity is a root entity with a category.
@@ -37,23 +39,14 @@ public abstract class RootEntity extends RefEntity {
 	public String tags;
 
 	/**
-	 * If a data set belongs to a library, this field must contain
-	 * the identifier (which is typically a combination of library
-	 * name and version, e.g. ecoinvent_apos_3.6).
+	 * If a data set belongs to a data package.
 	 */
-	@Column(name = "library")
-	public String library;
+	@Column(name = "data_package")
+	public String dataPackage;
 
 	@Lob
 	@Column(name = "other_properties")
 	public byte[] otherProperties;
-
-	/**
-	 * Returns true if this data set is from a library.
-	 */
-	public boolean isFromLibrary() {
-		return library != null;
-	}
 
 	/**
 	 * Reads other attached properties of this entity as a Json object. This

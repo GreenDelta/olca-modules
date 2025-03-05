@@ -18,6 +18,8 @@ import java.util.Set;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.ModelType;
@@ -28,7 +30,6 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.MemStore;
-import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -40,6 +41,7 @@ import com.google.gson.JsonObject;
 public class JsonExport {
 
 	final IDatabase db;
+	final DataPackages dataPackages;
 	final JsonStoreWriter writer;
 	boolean exportReferences = true;
 	boolean skipLibraryData = true;
@@ -49,8 +51,8 @@ public class JsonExport {
 
 	final JsonRefs dbRefs;
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
-	private final Set<String> referencedLibraries = new HashSet<>();
-
+	private final Set<DataPackage> referencedDataPackages = new HashSet<>();
+	
 	/// Exporting providers can lead to a stack overflow when calling write
 	/// recursively. Thus, we need to queue them.
 	private final ArrayDeque<WriteItem<?>> pQueue = new ArrayDeque<>();
@@ -66,6 +68,9 @@ public class JsonExport {
 
 	public JsonExport(IDatabase db, JsonStoreWriter writer) {
 		this.db = db;
+		this.dataPackages = db != null 
+				? db.getDataPackages() 
+				: null;
 		this.writer = Objects.requireNonNull(writer);
 		this.dbRefs = db != null
 				? JsonRefs.of(db)
@@ -99,22 +104,22 @@ public class JsonExport {
 	}
 
 	/// If set to `true`, created datasets and references will contain the
-	/// `library` field when the respective dataset belongs to a library.
+	/// `dataPackage` field when the respective dataset belongs to a data package.
 	/// Typically, this should be only done when datasets are exported to a
 	/// service API and not in the standard JSON exports.
-	public JsonExport withLibraryFields(boolean b) {
+	public JsonExport withDataPackageFields(boolean b) {
 		writeLibraryFields = b;
 		if (dbRefs != null) {
-			dbRefs.withLibraryFields(b);
+			dbRefs.withDataPackageFields(b);
 		}
 		return this;
 	}
 
-	// Returns the libraries that are referenced by the exported data sets.
-	public Set<String> getReferencedLibraries() {
-		return referencedLibraries;
+	// Returns the data packages that are referenced by the exported data sets.
+	public Set<DataPackage> getReferencedDataPackages() {
+		return referencedDataPackages;
 	}
-
+	
 	boolean hasVisited(ModelType type, String refId) {
 		var set = visited.get(type);
 		return set != null && set.contains(refId);
@@ -219,10 +224,13 @@ public class JsonExport {
 		visited.computeIfAbsent(type, $ -> new HashSet<>())
 				.add(entity.refId);
 
-		if (Strings.notEmpty(entity.library)) {
-			referencedLibraries.add(entity.library);
-			if (skipLibraryData) {
-				return;
+		if (entity.dataPackage != null) {
+			var dataPackage = dataPackages.get(entity.dataPackage);
+			if (dataPackage != null) {
+				referencedDataPackages.add(dataPackage);
+				if (skipLibraryData && dataPackage.isLibrary()) {
+					return;
+				}
 			}
 		}
 

@@ -23,7 +23,7 @@ import org.openlca.util.TypedRefIdMap;
 public class ModelReferences {
 
 	private IDatabase database;
-	private TypedRefIdMap<IdAndLibrary> refIdToId = new TypedRefIdMap<>();
+	private TypedRefIdMap<IdAndPackage> refIdToId = new TypedRefIdMap<>();
 	private EnumMap<ModelType, Map<Long, String>> idToRefId = new EnumMap<>(ModelType.class);
 	private ReferenceMap references = new ReferenceMap();
 	private ReferenceMap usages = new ReferenceMap();
@@ -62,21 +62,21 @@ public class ModelReferences {
 		iterate(usages, pair, consumer);
 	}
 
-	public String getLibrary(TypedRefId pair) {
-		var idAndLib = refIdToId.get(pair);
-		if (idAndLib == null)
+	public String getDataPackage(TypedRefId pair) {
+		var idAndPackage = refIdToId.get(pair);
+		if (idAndPackage == null)
 			return null;
-		return idAndLib.library;
+		return idAndPackage.dataPackage;
 	}
 
 	private boolean iterate(ReferenceMap map, TypedRefId pair, Function<ModelReference, Boolean> consumer) {
 		var typeMap = map.get(pair.type);
 		if (typeMap == null)
 			return true;
-		var idAndLib = refIdToId.get(pair);
-		if (idAndLib == null)
+		var idAndPackage = refIdToId.get(pair);
+		if (idAndPackage == null)
 			return true;
-		var idMap = typeMap.get(idAndLib.id);
+		var idMap = typeMap.get(idAndPackage.id);
 		if (idMap == null)
 			return true;
 		for (var type : idMap.keySet()) {
@@ -84,8 +84,8 @@ public class ModelReferences {
 				var refId = idToRefId.get(type).get(id);
 				if (Strings.nullOrEmpty(refId))
 					continue;
-				var library = refIdToId.get(type, refId).library;
-				if (!consumer.apply(new ModelReference(type, id, refId, library)))
+				var dataPackage = refIdToId.get(type, refId).dataPackage;
+				if (!consumer.apply(new ModelReference(type, id, refId, dataPackage)))
 					return false;
 			}
 		}
@@ -159,12 +159,12 @@ public class ModelReferences {
 	}
 
 	private void scanGlobalParameters() {
-		var query = "SELECT id, ref_id, library FROM tbl_parameters WHERE scope = 'GLOBAL'";
+		var query = "SELECT id, ref_id, data_package FROM tbl_parameters WHERE scope = 'GLOBAL'";
 		NativeSql.on(database).query(query, rs -> {
 			var id = rs.getLong(1);
 			var refId = rs.getString(2);
-			var lib = rs.getString(3);
-			putRefId(ModelType.PARAMETER, id, refId, lib);
+			var dataPackage = rs.getString(3);
+			putRefId(ModelType.PARAMETER, id, refId, dataPackage);
 			return true;
 		});
 	}
@@ -376,7 +376,7 @@ public class ModelReferences {
 			}
 		}
 		var query = "SELECT " + fields.stream().collect(Collectors.joining(","))
-				+ (isRootEntity ? ",ref_id,library " : "")
+				+ (isRootEntity ? ",ref_id,data_package " : "")
 				+ " FROM " + table;
 		NativeSql.on(database).query(query, rs -> {
 			var values = new Object[fields.size()];
@@ -390,8 +390,8 @@ public class ModelReferences {
 			var id = (long) values[0];
 			if (isRootEntity) {
 				var refId = rs.getString(fields.size() + 1);
-				var lib = rs.getString(fields.size() + 2);
-				putRefId(sourceField.type, id, refId, lib);
+				var dataPackage = rs.getString(fields.size() + 2);
+				putRefId(sourceField.type, id, refId, dataPackage);
 			}
 			handler.handle(values);
 			return true;
@@ -409,8 +409,8 @@ public class ModelReferences {
 				.add(sourceId);
 	}
 
-	private void putRefId(ModelType type, long id, String refId, String library) {
-		refIdToId.put(new TypedRefId(type, refId), new IdAndLibrary(id, library));
+	private void putRefId(ModelType type, long id, String refId, String dataPackage) {
+		refIdToId.put(new TypedRefId(type, refId), new IdAndPackage(id, dataPackage));
 		idToRefId.computeIfAbsent(type, t -> new HashMap<>()).put(id, refId);
 	}
 
@@ -459,12 +459,12 @@ public class ModelReferences {
 	public class ModelReference extends TypedRefId {
 
 		public final long id;
-		public final String library;
+		public final String dataPackage;
 
-		private ModelReference(ModelType type, long id, String refId, String library) {
+		private ModelReference(ModelType type, long id, String refId, String dataPackage) {
 			super(type, refId);
 			this.id = id;
-			this.library = library;
+			this.dataPackage = dataPackage;
 		}
 
 	}
@@ -485,7 +485,7 @@ public class ModelReferences {
 
 	}
 
-	private record IdAndLibrary(long id, String library) {
+	private record IdAndPackage(long id, String dataPackage) {
 	}
 
 }

@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixConfig;
@@ -21,7 +23,6 @@ import org.openlca.core.matrix.io.index.IxImpactIndex;
 import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ public class LibraryExport implements Runnable {
 	final IDatabase db;
 	final File folder;
 	final LibraryInfo info;
+	final DataPackages dataPackages;
 
 	private AllocationMethod allocation;
 	private boolean withUncertainties;
@@ -42,6 +44,7 @@ public class LibraryExport implements Runnable {
 		this.db = db;
 		this.folder = folder;
 		this.info = LibraryInfo.of(folder.getName());
+		this.dataPackages = db.getDataPackages();
 	}
 
 	public LibraryExport withAllocation(AllocationMethod method) {
@@ -158,7 +161,7 @@ public class LibraryExport implements Runnable {
 		// here we filter out LCIA categories from other libraries; this is fine
 		var impacts = new ImpactCategoryDao(db).getDescriptors()
 			.stream()
-			.filter(d -> Strings.nullOrEmpty(d.library))
+			.filter(Predicate.not(dataPackages::isFromLibrary))
 			.toList();
 		if (impacts.isEmpty())
 			return;

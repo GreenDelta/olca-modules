@@ -14,6 +14,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
@@ -21,7 +22,6 @@ import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
-import org.openlca.jsonld.LibraryLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class DbCommitWriter extends CommitWriter {
 	private ExecutorService threads;
 	private IDatabase database;
 	private ClientRepository repo;
-	private Set<String> libraries = new HashSet<>();
+	private Set<DataPackage> dataPackages = new HashSet<>();
 
 	public DbCommitWriter(ClientRepository repo) {
 		this(repo, new DatabaseBinaryResolver(repo.database));
@@ -78,7 +78,7 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Diff> changes) throws IOException {
 		try {
-			libraries = getLibraries(changes);
+			dataPackages = getDataPackages(changes);
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			var parentCommitIds = getParentCommitIds();
 			usedFeatures = UsedFeatures.of(repo, parentCommitIds);
@@ -101,7 +101,7 @@ public class DbCommitWriter extends CommitWriter {
 		threads = Executors.newCachedThreadPool();
 		converter = new Converter(database, threads, progressMonitor, usedFeatures);
 		converter.start(changes.stream()
-				.filter(d -> d.diffType != DiffType.DELETED && !d.isRepositoryInfo && !d.isLibrary)
+				.filter(d -> d.diffType != DiffType.DELETED && !d.isRepositoryInfo && !d.isDataPackage)
 				.sorted()
 				.toList());
 		return ChangeIterator.of(repo, remoteCommitId, binaryResolver, changes);
@@ -125,7 +125,7 @@ public class DbCommitWriter extends CommitWriter {
 	private List<Diff> filterInvalid(List<Diff> changes) {
 		var remaining = changes.stream()
 				.filter(c -> {
-					if (c.isRepositoryInfo || c.isLibrary)
+					if (c.isRepositoryInfo || c.isDataPackage)
 						return true;
 					if (c.type == null) {
 						var val = "{ path: " + c.path + ", type: " + c.type + ", refId: " + c.refId + "}";
@@ -153,18 +153,20 @@ public class DbCommitWriter extends CommitWriter {
 		return remaining;
 	}
 
-	private Set<String> getLibraries(List<Diff> changes) {
-		var libraries = repo.getLibraries();
+	private Set<DataPackage> getDataPackages(List<Diff> changes) {
+		var dbDataPackages = database.getDataPackages();
+		var dataPackages = repo.getDataPackages();
 		for (var diff : changes) {
-			if (!diff.isLibrary)
+			if (!diff.isDataPackage)
 				continue;
+			var p = dbDataPackages.get(diff.name);
 			if (diff.diffType == DiffType.DELETED) {
-				libraries.remove(diff.name);
+				dataPackages.remove(p);
 			} else {
-				libraries.add(diff.name);
+				dataPackages.add(p);
 			}
 		}
-		return libraries;
+		return dataPackages;
 	}
 
 	protected void cleanUp() throws IOException {
@@ -179,8 +181,8 @@ public class DbCommitWriter extends CommitWriter {
 	}
 
 	@Override
-	protected List<LibraryLink> getLibraries() {
-		return LibraryLink.of(libraries);
+	protected Set<DataPackage> getDataPackages() {
+		return dataPackages;
 	}
 
 	@Override

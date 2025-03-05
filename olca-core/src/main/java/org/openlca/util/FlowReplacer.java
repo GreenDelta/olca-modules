@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -30,11 +31,13 @@ public class FlowReplacer {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final IDatabase db;
+	private final DataPackages dataPackages;
 	private final Set<ModelType> ownerTypes;
 
 	private FlowReplacer(IDatabase db) {
 		this.db = Objects.requireNonNull(db);
 		this.ownerTypes = EnumSet.noneOf(ModelType.class);
+		this.dataPackages = db.getDataPackages();
 	}
 
 	public static FlowReplacer of(IDatabase db) {
@@ -43,14 +46,15 @@ public class FlowReplacer {
 
 	// region utils
 
-	/// Get the used flows from the database. This includes flows from processes,
+	/// Get the used flows from the database. This includes flows from
+	/// processes,
 	/// impact categories, results, and EPDs. Note that maybe not all returned
 	/// flows can be replaced, because they are maybe only used in library data.
 	public static List<FlowDescriptor> getUsedFlowsOf(IDatabase db) {
 		if (db == null)
 			return Collections.emptyList();
 
-		var tables = new String[]{
+		var tables = new String[] {
 				"tbl_exchanges",
 				"tbl_impact_factors",
 				"tbl_flow_results",
@@ -76,8 +80,7 @@ public class FlowReplacer {
 	/// the flows have exactly the same set of flow properties as the replacer
 	/// is currently not smart enough to handle all conversions.
 	public static List<FlowDescriptor> getCandidatesOf(
-			IDatabase db, FlowDescriptor flow
-	) {
+			IDatabase db, FlowDescriptor flow) {
 		if (db == null || flow == null || flow.flowType == null)
 			return Collections.emptyList();
 
@@ -172,12 +175,12 @@ public class FlowReplacer {
 
 		// collect library processes, they are not changed
 		var sql = NativeSql.on(db);
-		var libQ = "select id, library from tbl_processes " +
-				"where library is not null";
+		var libQ = "select id, data_package from tbl_processes " +
+				"where data_package is not null";
 		var libProcs = new TLongHashSet();
 		sql.query(libQ, r -> {
-			var lib = r.getString(2);
-			if (Strings.notEmpty(lib)) {
+			var dataPackage = r.getString(2);
+			if (dataPackages.isLibrary(dataPackage)) {
 				libProcs.add(r.getLong(1));
 			}
 			return true;
@@ -299,18 +302,15 @@ public class FlowReplacer {
 		VersionUpdate.of(db, ImpactCategory.class).run(changed);
 	}
 
-
 	private record RepDef(
-			long origin, long target, TLongLongMap propFacs, String err
-	) {
+			long origin, long target, TLongLongMap propFacs, String err) {
 
 		static RepDef error(String msg) {
 			return new RepDef(-1L, -1L, null, msg);
 		}
 
 		static RepDef of(
-				IDatabase db, FlowDescriptor origin, FlowDescriptor target
-		) {
+				IDatabase db, FlowDescriptor origin, FlowDescriptor target) {
 
 			if (origin == null || target == null)
 				return RepDef.error("original or target flow missing");

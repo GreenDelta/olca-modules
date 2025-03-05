@@ -34,8 +34,7 @@ class Util {
 
 	@SuppressWarnings("unchecked")
 	static <T extends RefEntity> JsonWriter<T> writerOf(
-			T entity, JsonExport export
-	) {
+			T entity, JsonExport export) {
 		return (JsonWriter<T>) switch (entity) {
 			case Actor ignored -> new ActorWriter(export);
 			case Currency ignored -> new CurrencyWriter(export);
@@ -65,8 +64,14 @@ class Util {
 		if (exp != null
 				&& entity != null
 				&& exp.writeLibraryFields
-				&& entity.isFromLibrary()) {
-			Json.put(obj, "library", entity.library);
+				&& !Strings.nullOrEmpty(entity.dataPackage)) {
+			// TODO is support of legacy field name required?
+			if (exp.dataPackages.isFromLibrary(entity)) {
+				Json.put(obj, "library", entity.dataPackage);
+			} else {
+				var dataPackage = exp.dataPackages.get(entity.dataPackage);
+				Json.put(obj, "dataPackage", dataPackage != null ? dataPackage.id() : entity.dataPackage);
+			}
 		}
 		mapOtherProperties(entity, obj);
 		return obj;

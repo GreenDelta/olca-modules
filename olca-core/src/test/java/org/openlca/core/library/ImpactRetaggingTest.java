@@ -1,6 +1,7 @@
 package org.openlca.core.library;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -51,10 +52,13 @@ public class ImpactRetaggingTest {
 			.apply(lib, MountAction.RETAG)
 			.run();
 
-		assertTrue(db.hasLibraries());
-		assertTrue(db.getLibraries().contains("lib"));
+		var dataPackages = db.getDataPackages();
+		assertTrue(!dataPackages.isEmpty());
+		assertTrue(dataPackages.isLibrary("lib"));
 		impact = db.get(ImpactCategory.class, impact.id);
-		assertEquals("lib", impact.library);
+		assertNotNull(impact.dataPackage);
+		assertTrue(dataPackages.isLibrary(impact.dataPackage));
+		assertEquals("lib", impact.dataPackage);
 		assertEquals(Direction.INPUT, impact.direction);
 		assertTrue(impact.impactFactors.isEmpty());
 
@@ -70,7 +74,7 @@ public class ImpactRetaggingTest {
 		}
 
 		db.delete(impact, r2, r1, mass, units);
-		db.removeLibrary("lib");
+		db.removeDataPackage("lib");
 		Dirs.delete(tempDir);
 	}
 

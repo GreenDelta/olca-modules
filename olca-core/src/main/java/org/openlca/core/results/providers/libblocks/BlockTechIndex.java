@@ -32,7 +32,7 @@ public class BlockTechIndex {
 		front = new TechIndex();
 		var f = context.data();
 		for (var techFlow : f.techIndex) {
-			if (!techFlow.isFromLibrary()) {
+			if (!context.libraries().dataPackages.isLibrary(techFlow.dataPackage())) {
 				front.add(techFlow);
 			}
 		}

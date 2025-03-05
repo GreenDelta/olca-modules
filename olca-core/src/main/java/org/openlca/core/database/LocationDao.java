@@ -26,7 +26,7 @@ public class LocationDao
 						d.version,
 						d.last_change,
 						d.f_category,
-						d.library,
+						d.data_package,
 						d.tags,
 						d.code from
 				""" + getEntityTable() + " d";
@@ -47,7 +47,7 @@ public class LocationDao
 			if (!r.wasNull()) {
 				d.category = catId;
 			}
-			d.library = r.getString(7);
+			d.dataPackage = r.getString(7);
 			d.tags = r.getString(8);
 			d.code = r.getString(9);
 			list.add(d);

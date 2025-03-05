@@ -3,7 +3,6 @@ package org.openlca.core.model;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**

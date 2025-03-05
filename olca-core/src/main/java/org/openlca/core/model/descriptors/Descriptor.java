@@ -41,10 +41,10 @@ public class Descriptor implements Copyable<Descriptor> {
 	public long lastChange;
 
 	/**
-	 * Contains the library identifier if the corresponding data set of this
-	 * descriptor belongs to a library. Otherwise this field is empty (or null).
+	 * Contains the data package identifier (name@version) if the corresponding data set of this
+	 * descriptor belongs to a data package. Otherwise this field is empty (or null).
 	 */
-	public String library;
+	public String dataPackage;
 
 	/**
 	 * Tags are stored in a single string separated by commas `,`.
@@ -82,13 +82,6 @@ public class Descriptor implements Copyable<Descriptor> {
 			+ ", type=" + type + "]";
 	}
 
-	/**
-	 * Returns true if the data set of this descriptor is from a library.
-	 */
-	public boolean isFromLibrary() {
-		return library != null;
-	}
-
 	static Descriptor createUnknownDescriptor(RefEntity e) {
 		var d = new Descriptor();
 		setBaseValues(e, d);
@@ -112,7 +105,9 @@ public class Descriptor implements Copyable<Descriptor> {
 		if (e.category != null) {
 			d.category = e.category.id;
 		}
-		d.library = e.library;
+		if (e.dataPackage != null) {
+			d.dataPackage = e.dataPackage;
+		}
 		d.tags = e.tags;
 		d.lastChange = e.lastChange;
 		d.version = e.version;
@@ -339,7 +334,7 @@ public class Descriptor implements Copyable<Descriptor> {
 		to.refId = from.refId;
 		to.type = from.type;
 		to.version = from.version;
-		to.library = from.library;
+		to.dataPackage = from.dataPackage;
 		to.tags = from.tags;
 		if (from instanceof RootDescriptor fromCat
 			&& to instanceof RootDescriptor toCat) {

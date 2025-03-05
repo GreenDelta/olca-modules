@@ -16,14 +16,17 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (11);
+INSERT INTO openlca_version (version) VALUES (15);
 
 
-CREATE TABLE tbl_libraries (
+CREATE TABLE tbl_data_packages (
 
-    id  VARCHAR(255),
+    name       VARCHAR(255),
+    version    BIGINT,
+    url        VARCHAR(1000),
+	is_library TINYINT default 0,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (name)
 );
 
 
@@ -36,7 +39,7 @@ CREATE TABLE tbl_categories (
     last_change  BIGINT,
     f_category   BIGINT,
     tags         VARCHAR(255),
-    library      VARCHAR(255),
+    data_package VARCHAR(255),
     description  TEXT,
 
     model_type   VARCHAR(255),
@@ -55,7 +58,7 @@ CREATE TABLE tbl_actors (
     last_change  BIGINT,
     f_category   BIGINT,
     tags         VARCHAR(255),
-    library      VARCHAR(255),
+    data_package VARCHAR(255),
     description  TEXT,
 
     telefax      VARCHAR(255),
@@ -81,7 +84,7 @@ CREATE TABLE tbl_locations (
     last_change  BIGINT,
     f_category   BIGINT,
     tags         VARCHAR(255),
-    library      VARCHAR(255),
+    data_package VARCHAR(255),
     description  TEXT,
 
     longitude    DOUBLE,
@@ -104,7 +107,7 @@ CREATE TABLE tbl_sources (
     last_change     BIGINT,
     f_category      BIGINT,
     tags            VARCHAR(255),
-    library         VARCHAR(255),
+    data_package    VARCHAR(255),
     description     TEXT,
 
     source_year     SMALLINT,
@@ -152,7 +155,7 @@ CREATE TABLE tbl_unit_groups (
     last_change              BIGINT,
     f_category               BIGINT,
     tags                     VARCHAR(255),
-    library                  VARCHAR(255),
+    data_package             VARCHAR(255),
     description              TEXT,
 
     f_reference_unit         BIGINT,
@@ -176,7 +179,7 @@ CREATE TABLE tbl_flow_properties (
     last_change         BIGINT,
     f_category          BIGINT,
     tags                VARCHAR(255),
-    library             VARCHAR(255),
+    data_package        VARCHAR(255),
     description         TEXT,
 
     flow_property_type  VARCHAR(255),
@@ -199,7 +202,7 @@ CREATE TABLE tbl_flows (
     last_change                BIGINT,
     f_category                 BIGINT,
     tags                       VARCHAR(255),
-    library                    VARCHAR(255),
+    data_package               VARCHAR(255),
     description                TEXT,
 
     synonyms                   VARCHAR(16383),
@@ -242,7 +245,7 @@ CREATE TABLE tbl_processes (
     last_change                BIGINT,
     f_category                 BIGINT,
     tags                       VARCHAR(255),
-    library                    VARCHAR(255),
+   	data_package               VARCHAR(255),
     description                TEXT,
 
     process_type               VARCHAR(255),
@@ -359,7 +362,7 @@ CREATE TABLE tbl_product_systems (
     last_change                    BIGINT,
     f_category                     BIGINT,
     tags                           VARCHAR(255),
-    library                        VARCHAR(255),
+    data_package                   VARCHAR(255),
     description                    TEXT,
 
     cutoff                         DOUBLE,
@@ -418,7 +421,7 @@ CREATE TABLE tbl_impact_methods (
     last_change   BIGINT,
     f_category    BIGINT,
     tags          VARCHAR(255),
-    library       VARCHAR(255),
+    data_package  VARCHAR(255),
     description   TEXT,
 
     code        VARCHAR(255),
@@ -438,7 +441,7 @@ CREATE TABLE tbl_impact_categories (
     last_change     BIGINT,
     f_category      BIGINT,
     tags            VARCHAR(255),
-    library         VARCHAR(255),
+    data_package    VARCHAR(255),
     description     TEXT,
 
     direction       VARCHAR(255),
@@ -519,7 +522,7 @@ CREATE TABLE tbl_parameters (
     last_change         BIGINT,
     f_category          BIGINT,
     tags                VARCHAR(255),
-    library             VARCHAR(255),
+    data_package        VARCHAR(255),
     description         TEXT,
 
     is_input_param      TINYINT default 0,
@@ -573,7 +576,7 @@ CREATE TABLE tbl_projects (
     last_change              BIGINT,
     f_category               BIGINT,
     tags                     VARCHAR(255),
-    library                  VARCHAR(255),
+    data_package             VARCHAR(255),
     description              TEXT,
 
     f_impact_method          BIGINT,
@@ -620,7 +623,7 @@ CREATE TABLE tbl_currencies (
     last_change           BIGINT,
     f_category            BIGINT,
     tags                  VARCHAR(255),
-    library               VARCHAR(255),
+    data_package          VARCHAR(255),
     description           TEXT,
 
     code                  VARCHAR(255),
@@ -651,7 +654,7 @@ CREATE TABLE tbl_social_indicators (
     last_change          BIGINT,
     f_category           BIGINT,
     tags                 VARCHAR(255),
-    library              VARCHAR(255),
+    data_package         VARCHAR(255),
     description          TEXT,
 
     activity_variable    VARCHAR(255),
@@ -688,7 +691,7 @@ CREATE TABLE tbl_dq_systems (
     last_change        BIGINT,
     f_category         BIGINT,
     tags               VARCHAR(255),
-    library            VARCHAR(255),
+    data_package       VARCHAR(255),
     description        TEXT,
 
     f_source           BIGINT,
@@ -726,7 +729,7 @@ CREATE TABLE tbl_results (
     last_change          BIGINT,
     f_category           BIGINT,
     tags                 VARCHAR(255),
-    library              VARCHAR(255),
+    data_package         VARCHAR(255),
     description          TEXT,
 
     f_product_system     BIGINT,
@@ -771,7 +774,7 @@ CREATE TABLE tbl_epds (
     last_change          BIGINT,
     f_category           BIGINT,
     tags                 VARCHAR(255),
-    library              VARCHAR(255),
+    data_package         VARCHAR(255),
     description          TEXT,
 
     f_flow               BIGINT,
