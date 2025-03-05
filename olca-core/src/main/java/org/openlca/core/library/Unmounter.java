@@ -124,6 +124,8 @@ public class Unmounter {
 	}
 
 	private void determineToKeep() {
+		if (retention != Retention.KEEP_USED)
+			return;
 		for (var type : ModelType.values()) {
 			for (var descriptor : Daos.root(database, type).getDescriptors()) {
 				var ref = new TypedRefId(descriptor.type, descriptor.refId);
