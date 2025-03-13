@@ -55,7 +55,7 @@ public final class ModelPath {
 		};
 	}
 
-	static Optional<ModelType> typeOf(String folder) {
+	public static Optional<ModelType> typeOf(String folder) {
 		if (Strings.nullOrEmpty(folder))
 			return Optional.empty();
 		return switch (folder.strip().toLowerCase(Locale.US)) {
