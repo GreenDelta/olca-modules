@@ -259,7 +259,8 @@ public class References {
 					walk.setFilter(filter);
 					while (walk.next()) {
 						var name = GitUtil.decode(walk.getNameString());
-						if (name.equals(RepositoryInfo.FILE_NAME) && repo.getLibraries(commit).isEmpty())
+						var isRepositoryInfo = name.equals(RepositoryInfo.FILE_NAME);
+						if (isRepositoryInfo && repo.getLibraries(commit).isEmpty())
 							continue;
 						var id = walk.getObjectId(0);
 						var fullPath = name;
@@ -267,6 +268,16 @@ public class References {
 							fullPath = path + "/" + name;
 						}
 						var ref = new Reference(fullPath, commit.name(), id);
+						if (isRepositoryInfo && recursive) {
+							var libs = repo.getLibraries(commit).stream()
+									.map(lib -> new Reference(RepositoryInfo.FILE_NAME + "/" + lib, commit.getName(),
+											null))
+									.collect(Collectors.toList());
+							for (var lib : libs)
+								if (!consumer.apply(lib))
+									break;
+							continue;
+						}
 						if (!consumer.apply(ref))
 							break;
 						if (recursive && walk.getFileMode() == FileMode.TREE) {
