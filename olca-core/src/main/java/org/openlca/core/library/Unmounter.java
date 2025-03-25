@@ -152,7 +152,7 @@ public class Unmounter {
 			return;
 		keep.put(ref, true);
 		references.iterateReferences(ref, reference -> {
-			if (reference.library == null || !lib.equals(reference.library))
+			if (!lib.equals(reference.library))
 				return;
 			keep(reference);
 		});
@@ -201,7 +201,7 @@ public class Unmounter {
 
 	public enum Retention {
 
-		KEEP_NONE, KEEP_USED, KEEP_ALL;
+		KEEP_NONE, KEEP_USED, KEEP_ALL
 
 	}
 

@@ -50,8 +50,15 @@ public final class Libraries {
 		return order;
 	}
 
-	public static void fillExchangesOf(IDatabase db, LibReader lib, Process process) {
+	/// Adds the exchanges of the given process from the library to the process
+	/// This does not update the process in the database.
+	public static void fillExchangesOf(
+			IDatabase db, LibReader lib, Process process
+	) {
+		if (db == null || lib == null || process == null)
+			return;
 		var exchanges = lib.getExchanges(TechFlow.of(process), db);
+
 		var qref = process.quantitativeReference;
 		if (qref != null) {
 			process.quantitativeReference = exchanges.stream()
@@ -60,11 +67,24 @@ public final class Libraries {
 					.findFirst()
 					.orElse(null);
 		}
+
 		process.exchanges.clear();
-		process.exchanges.addAll(exchanges);
+		int iid = Math.max(process.lastInternalId, 1);
+		for (var e : exchanges) {
+			iid++;
+			e.internalId = iid;
+			process.exchanges.add(e);
+		}
+		process.lastInternalId = iid;
 	}
 
-	public static void fillFactorsOf(IDatabase db, LibReader lib, ImpactCategory impact) {
+	/// Adds the impact factors from the library to the given impact category.
+	/// This does not update the impact category in the database.
+	public static void fillFactorsOf(
+			IDatabase db, LibReader lib, ImpactCategory impact
+	) {
+		if (db == null || lib == null || impact == null)
+			return;
 		var factors = lib.getImpactFactors(Descriptor.of(impact), db);
 		impact.impactFactors.addAll(factors);
 	}
