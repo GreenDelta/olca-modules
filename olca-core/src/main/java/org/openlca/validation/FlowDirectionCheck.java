@@ -1,13 +1,14 @@
 package org.openlca.validation;
 
-import gnu.trove.map.hash.TLongByteHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+
+import gnu.trove.map.hash.TLongByteHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 class FlowDirectionCheck implements Runnable {
 
@@ -81,7 +82,7 @@ class FlowDirectionCheck implements Runnable {
 				} else if ((direction == input && !isInput)
 					|| (direction == output && isInput)) {
 					directions.put(flowId, error);
-					v.error(flowId, ModelType.FLOW,
+					v.warning(flowId, ModelType.FLOW,
 						"elementary flow is used as input and output of processes");
 					foundErrors = true;
 				}
