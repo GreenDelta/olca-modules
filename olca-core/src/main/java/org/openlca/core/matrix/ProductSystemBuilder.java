@@ -18,6 +18,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,10 +135,10 @@ public class ProductSystemBuilder {
 
 	private byte providerTypeOf(TechFlow provider) {
 		if (provider.isProductSystem())
-			return ProcessLink.ProviderType.SUB_SYSTEM;
+			return ProviderType.SUB_SYSTEM;
 		if (provider.isResult())
-			return ProcessLink.ProviderType.RESULT;
-		return ProcessLink.ProviderType.PROCESS;
+			return ProviderType.RESULT;
+		return ProviderType.PROCESS;
 	}
 
 	/**

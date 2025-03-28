@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.ProcessLink;
+import org.openlca.core.model.ProviderType;
 import org.openlca.util.KeyGen;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +154,7 @@ class Upgrade11 implements IUpgrade {
 	private void setLinkProviderTypes(DbUtil u) {
 		u.createColumn("tbl_process_links",
 				"provider_type SMALLINT NOT NULL DEFAULT "
-						+ ProcessLink.ProviderType.PROCESS);
+						+ ProviderType.PROCESS);
 
 		// collect the IDs of product systems that are sub-systems;
 		// we do not result instances as providers prior this update
@@ -172,7 +172,7 @@ class Upgrade11 implements IUpgrade {
 		// update process links of a sub system provider
 		sql.updateRows("SELECT provider_type FROM tbl_process_links " +
 				"WHERE f_provider IN " + NativeSql.asList(systemIds), r -> {
-			r.updateByte(1, ProcessLink.ProviderType.SUB_SYSTEM);
+			r.updateByte(1, ProviderType.SUB_SYSTEM);
 			r.updateRow();
 			return true;
 		});

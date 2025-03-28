@@ -13,6 +13,7 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -81,7 +82,7 @@ public class Update8Test {
 		ProductSystemDao dao = new ProductSystemDao(db);
 		ProductSystem system = new ProductSystem();
 		ProcessLink link = new ProcessLink();
-		link.providerType = ProcessLink.ProviderType.SUB_SYSTEM;
+		link.providerType = ProviderType.SUB_SYSTEM;
 		system.processLinks.add(link);
 		dao.insert(system);
 

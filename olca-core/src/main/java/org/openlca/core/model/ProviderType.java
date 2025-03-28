@@ -1,29 +1,25 @@
 package org.openlca.core.model;
 
-public enum ProviderType {
+/// The provider type in process links.
+public interface ProviderType {
 
-	PROCESS(0),
+	/// PROCESS is always the default provider type if not specified.
+	byte PROCESS = 0;
+	byte SUB_SYSTEM = 1;
+	byte RESULT = 2;
 
-	SUB_SYSTEM(1),
-
-	RESULT(2);
-
-	public final byte value;
-
-	ProviderType(int value) {
-		this.value = (byte) value;
-	}
-
-	public static ProviderType of(byte value) {
-		return switch (value) {
-			case 1 -> SUB_SYSTEM;
-			case 2 -> RESULT;
+	static byte of(ModelType type) {
+		if (type == null)
+			return PROCESS;
+		return switch (type) {
+			case PRODUCT_SYSTEM -> SUB_SYSTEM;
+			case RESULT -> RESULT;
 			default -> PROCESS;
 		};
 	}
 
-	public ModelType toModelType() {
-		return switch (this) {
+	static ModelType toModelType(byte type) {
+		return switch (type) {
 			case SUB_SYSTEM -> ModelType.PRODUCT_SYSTEM;
 			case RESULT -> ModelType.RESULT;
 			default -> ModelType.PROCESS;

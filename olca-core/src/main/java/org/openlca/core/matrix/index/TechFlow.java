@@ -120,15 +120,8 @@ public record TechFlow(
 	}
 
 	/// Returns the provider type of this tech-flow.
-	public ProviderType type() {
-		var t = provider.type;
-		if (t == null)
-			return ProviderType.PROCESS;
-		return switch (t) {
-			case PRODUCT_SYSTEM -> ProviderType.SUB_SYSTEM;
-			case RESULT -> ProviderType.RESULT;
-			default -> ProviderType.PROCESS;
-		};
+	public byte providerType() {
+		return ProviderType.of(provider.type);
 	}
 
 	public boolean isProductSystem() {

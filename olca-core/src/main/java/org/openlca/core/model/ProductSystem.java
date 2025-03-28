@@ -117,7 +117,7 @@ public final class ProductSystem extends RootEntity
 					continue;
 				var link = new ProcessLink();
 				link.flowId = output.flow.id;
-				link.providerType = ProcessLink.ProviderType.PROCESS;
+				link.providerType = ProviderType.PROCESS;
 				if (output.flow.flowType == FlowType.WASTE_FLOW) {
 					link.processId = provider.id;
 					link.exchangeId = output.id;
@@ -133,14 +133,14 @@ public final class ProductSystem extends RootEntity
 		return this;
 	}
 
-	public ProductSystem link(TechFlow provider, Process process) {
-		if (provider == null || process == null)
+	public ProductSystem link(TechFlow techFlow, Process process) {
+		if (techFlow == null || process == null)
 			return this;
-		processes.add(provider.providerId());
+		processes.add(techFlow.providerId());
 		processes.add(process.id);
-		boolean isWaste = provider.isWaste();
+		boolean isWaste = techFlow.isWaste();
 		for (var e : process.exchanges) {
-			if (e.flow == null || e.flow.id != provider.flowId())
+			if (e.flow == null || e.flow.id != techFlow.flowId())
 				continue;
 			if (e.isInput == isWaste)
 				continue;
@@ -148,8 +148,8 @@ public final class ProductSystem extends RootEntity
 			link.processId = process.id;
 			link.flowId = e.flow.id;
 			link.exchangeId = e.id;
-			link.setProviderType(provider.provider().type);
-			link.providerId = provider.providerId();
+			link.providerType = techFlow.providerType();
+			link.providerId = techFlow.providerId();
 			processLinks.add(link);
 		}
 		return this;

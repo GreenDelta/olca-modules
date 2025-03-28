@@ -45,7 +45,7 @@ public class ProcessLink implements Copyable<ProcessLink> {
 	public long exchangeId;
 
 	/**
-	 * The type of the provider of this link. This can be a process (0),
+	 * The type of the provider of this link. This can be a process (0, default),
 	 * sub-system (1), or result (2).
 	 */
 	@Column(name = "provider_type")
@@ -74,18 +74,6 @@ public class ProcessLink implements Copyable<ProcessLink> {
 		return providerType == ProviderType.RESULT;
 	}
 
-	public void setProviderType(ModelType type) {
-		if (type == null) {
-			providerType = ProviderType.PROCESS;
-		} else {
-			providerType = switch (type) {
-				case PRODUCT_SYSTEM -> ProviderType.SUB_SYSTEM;
-				case RESULT -> ProviderType.RESULT;
-				default -> ProviderType.PROCESS;
-			};
-		}
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
@@ -108,12 +96,6 @@ public class ProcessLink implements Copyable<ProcessLink> {
 				this.providerId,
 				this.processId,
 				this.exchangeId);
-	}
-
-	public interface ProviderType {
-		byte PROCESS = 0;
-		byte SUB_SYSTEM = 1;
-		byte RESULT = 2;
 	}
 
 }

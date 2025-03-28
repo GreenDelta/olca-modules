@@ -17,6 +17,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 
 import gnu.trove.set.hash.TLongHashSet;
@@ -68,7 +69,6 @@ public class SubResultTree {
 				parent = db.update(parent);
 				previousLevel[parentIdx] =parent;
 				var  parentLink= new ProcessLink();
-				parentLink.setProviderType(ModelType.PROCESS);
 				parentLink.providerId = child.id;
 				parentLink.processId = parent.id;
 				parentLink.exchangeId = findExchangeOf(parent, linkFlow).id;
@@ -89,7 +89,7 @@ public class SubResultTree {
 					nextLevel[j] = child;
 					system.processes.add(result.id);
 					var link = new ProcessLink();
-					link.setProviderType(ModelType.RESULT);
+					link.providerType = ProviderType.RESULT;
 					link.providerId = result.id;
 					link.processId = child.id;
 					link.exchangeId = findExchangeOf(child, resultFlow).id;

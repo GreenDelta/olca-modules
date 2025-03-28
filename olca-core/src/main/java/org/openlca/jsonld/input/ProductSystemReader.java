@@ -15,6 +15,7 @@ import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
@@ -255,7 +256,7 @@ public class ProductSystemReader implements EntityReader<ProductSystem> {
 				return null;
 			var link = new ProcessLink();
 			link.providerId = provider.id;
-			link.setProviderType(provider.type);
+			link.providerType = ProviderType.of(provider.type);
 			link.processId = processId;
 			link.flowId = flow.id;
 			link.exchangeId = exchangeId;

@@ -15,10 +15,10 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ImpactResult;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -60,7 +60,7 @@ public class LinkedResultTest {
 		var system = ProductSystem.of(process);
 		system.processes.add(result.id);
 		var link = new ProcessLink();
-		link.setProviderType(ModelType.RESULT);
+		link.providerType = ProviderType.RESULT;
 		link.providerId = result.id;
 		link.flowId = product2.id;
 		link.processId = process.id;
@@ -111,7 +111,7 @@ public class LinkedResultTest {
 		// test the upstream tree
 		var tree = UpstreamTree.of(r.provider(), impact);
 		assertEquals(42.0, tree.root.result, 1e-10);
-		assertEquals(42.0, tree.childs(tree.root).get(0).result, 1e-10);
+		assertEquals(42.0, tree.childs(tree.root).getFirst().result, 1e-10);
 		r.dispose();
 	}
 
