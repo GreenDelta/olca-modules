@@ -367,6 +367,7 @@ CREATE TABLE tbl_exchanges (
     resulting_amount_formula  VARCHAR(1000),
     avoided_product           SMALLINT default 0,
     f_default_provider        BIGINT,
+    default_provider_type     SMALLINT default 0,
     f_location                BIGINT,
     description               CLOB(64 K),
 

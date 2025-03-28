@@ -59,6 +59,9 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
+		// roll back Upgrade15
+		u.dropColumn("tbl_exchanges", "default_provider_type");
+
 		// roll back Upgrade14
 		u.dropTable("tbl_analysis_groups");
 		u.dropTable("tbl_analysis_group_processes");
@@ -73,7 +76,6 @@ public class UpgradeChainTest {
 			u.createColumn(table, "parameter2_formula VARCHAR(1000)");
 			u.createColumn(table, "parameter3_formula VARCHAR(1000)");
 		}
-
 
 		// roll back Upgrade12
 		for (var table : catEntityTables) {
@@ -271,6 +273,9 @@ public class UpgradeChainTest {
 			return false;
 		});
 		assertEquals("VARCHAR(5120)", paramFormulaSize.get());
+
+		// check Upgrade15
+		assertTrue(u.columnExists("tbl_exchanges", "default_provider_type"));
 
 		// finally, check that we now have the current database version
 		assertEquals(IDatabase.CURRENT_VERSION, db.getVersion());

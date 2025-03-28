@@ -30,14 +30,17 @@ public class Exchange extends AbstractExchange implements Copyable<Exchange> {
 	@Column(name = "internal_id")
 	public int internalId;
 
-	/**
-	 * If the exchange is an product input or waste output this field can
-	 * contain a process ID which produces the respective product or treats the
-	 * waste flow. This field is used when processes are automatically linked in
-	 * product system graphs. A value of zero means that no link is set.
-	 */
+
+	/// If the exchange is a product input or waste output this field can
+	/// contain an ID of a provider that should be linked by default to this
+	/// exchange.  A value of zero means that no link is set.
 	@Column(name = "f_default_provider")
 	public long defaultProviderId;
+
+	/// The type of the default provider, this is only relevant if the default
+	/// provider is set.
+	@Column(name = "default_provider_type")
+	public byte defaultProviderType;
 
 	/**
 	 * An optional formula for the exchange amount. The evaluated value of this
@@ -124,6 +127,7 @@ public class Exchange extends AbstractExchange implements Copyable<Exchange> {
 		clone.isAvoided = isAvoided;
 		clone.baseUncertainty = baseUncertainty;
 		clone.defaultProviderId = defaultProviderId;
+		clone.defaultProviderType = defaultProviderType;
 		clone.flow = flow;
 		clone.flowPropertyFactor = flowPropertyFactor;
 		clone.isInput = isInput;
