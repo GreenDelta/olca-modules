@@ -1,107 +1,103 @@
 package org.openlca.core.matrix.index;
 
+import java.util.Objects;
+
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.util.Exchanges;
 
-/**
- * In openLCA, we map the process-product pairs of a product system to the
- * respective rows and columns of the matrices in the inventory model.
- * Multi-output processes are split into multiple vectors that each are relate
- * to a single process-product pair. This also includes waste treatment
- * processes (where the treatment of waste is the product) and product systems
- * that are sub-systems of other product systems (and are handled like processes
- * in these systems with their quantitative reference as product).
- */
+/// A TechFlow describes a provider-flow pair in a product system. A provider
+/// is typically a process but can also be a product system or result. The flow
+/// is a product output or waste input of that provider. These provider-flow
+/// pairs are mapped to the rows and columns of the matrices in the inventory
+/// model. Multi-output processes are split into multiple vectors that each are
+/// related to a single process-flow pair.
 public record TechFlow(
-        RootDescriptor provider, FlowDescriptor flow) {
+		RootDescriptor provider, FlowDescriptor flow
+) {
 
-	public static TechFlow of(RootDescriptor process, FlowDescriptor flow) {
-		return new TechFlow(process, flow);
+	public TechFlow {
+		Objects.requireNonNull(provider, "provider must not be null");
+		Objects.requireNonNull(flow, "flow must not be null");
+	}
+
+	public static TechFlow of(RootDescriptor provider, FlowDescriptor flow) {
+		return new TechFlow(provider, flow);
 	}
 
 	public static TechFlow of(Process process, Flow flow) {
 		return of(Descriptor.of(process), Descriptor.of(flow));
 	}
 
-	/**
-	 * Creates a product where the given product system is the provider and the
-	 * reference flow of the system the product.
-	 */
+	/// Creates a tech-flow from the given product system with the reference flow
+	/// of that system. If the system does not have a valid reference flow, an
+	/// exception is thrown.
 	public static TechFlow of(ProductSystem system) {
-		Flow flow = system.referenceExchange != null
-				? system.referenceExchange.flow
-				: null;
-		return of(Descriptor.of(system), Descriptor.of(flow));
+		var qRef = system.referenceExchange;
+		if (!Exchanges.isProviderFlow(qRef)) {
+			throw new IllegalArgumentException(
+					"the reference exchange of the product system is not a provider flow");
+		}
+		return of(Descriptor.of(system), Descriptor.of(qRef.flow));
 	}
 
-	/**
-	 * Creates a process product with the quantitative reference flow of the process
-	 * as the provider flow. Note that the quantitative reference flow must be a
-	 * product output or waste input in this case. Make sure that this is the case
-	 * and what you want when calling this method. Otherwise use another
-	 * construction method.
-	 */
+	/// Creates a tech-flow from the given process with the quantitative reference
+	/// of that process as provider flow. If the process does not have a valid
+	/// quantitative reference, an exception is thrown.
 	public static TechFlow of(Process process) {
-		var flow = process.quantitativeReference != null
-				? process.quantitativeReference.flow
-				: null;
-		return of(Descriptor.of(process), Descriptor.of(flow));
+		var qRef = process.quantitativeReference;
+		if (!Exchanges.isProviderFlow(qRef)) {
+			throw new IllegalArgumentException(
+					"the quantitative reference of the process is not a provider flow");
+		}
+		return of(Descriptor.of(process), Descriptor.of(qRef.flow));
 	}
 
+	/// Creates a tech-flow from the given result with the reference flow of that
+	/// result. If the result does not have a valid reference flow, an exception
+	/// is thrown.
 	public static TechFlow of(Result result) {
-		var flow = result.referenceFlow != null
-			? result.referenceFlow.flow
-			: null;
-		return of(Descriptor.of(result), Descriptor.of(flow));
+		var qRef = result.referenceFlow;
+		if (isProviderFlow(qRef)) {
+			throw new IllegalArgumentException(
+					"the reference exchange of the result is not a provider flow");
+		}
+		return of(Descriptor.of(result), Descriptor.of(qRef.flow));
 	}
 
-	/**
-	 * Returns the process of process-product pair. Note that this can be also the
-	 * descriptor of a product system when it is a sub-system of another product
-	 * system because in this case such systems are handled just like processes
-	 * (they are mapped to the technology matrix $mathbf{A}$ via the `TechIndex`
-	 * etc.).
-	 */
-	@Override
-	public RootDescriptor provider() {
-		return provider;
+	private static boolean isProviderFlow(FlowResult r) {
+		if (r == null || r.flow == null || r.flow.flowType == null)
+			return false;
+		return switch (r.flow.flowType) {
+			case PRODUCT_FLOW -> !r.isInput;
+			case WASTE_FLOW -> r.isInput;
+			default -> false;
+		};
 	}
 
-	/**
-	 * Returns the product flow of the process-product pair. Note that this can also
-	 * be a waste flow (which is then an input of the process and the treatment of
-	 * waste is the product of the process).
-	 */
-	@Override
-	public FlowDescriptor flow() {
-		return flow;
-	}
 
-	/**
-	 * Returns true if the given process and flow ID are the same as of the process
-	 * or product system and product or waste flow of this process product.
-	 */
-	public boolean matches(long processId, long flowId) {
-		return processId == providerId() && flowId == flowId();
+	/// Returns `true` if the given provider and flow ID are the same as of the
+	/// provider and flow of this tech-flow.
+	public boolean matches(long providerId, long flowId) {
+		return providerId == providerId() && flowId == flowId();
 	}
 
 	public long flowId() {
-		return flow().id;
+		return flow.id;
 	}
 
-	/**
-	 * Returns the ID of the underlying process or product system of this provider.
-	 */
 	public long providerId() {
-		return provider().id;
+		return provider.id;
 	}
 
 	public LongPair pair() {
@@ -109,33 +105,30 @@ public record TechFlow(
 	}
 
 	public Long locationId() {
-		if (provider() instanceof ProcessDescriptor)
-			return ((ProcessDescriptor) provider()).location;
-		return null;
+		return provider() instanceof ProcessDescriptor p
+				? p.location
+				: null;
 	}
 
-	/**
-	 * Returns true when the flow of this "product" is (an input of) a waste flow.
-	 * This means that the corresponding process is a waste treatment process in
-	 * this case.
-	 */
-	public boolean isWaste() {
-		return flow().flowType == FlowType.WASTE_FLOW;
-	}
-
-	/**
-	 * Returns true if the underlying process of this product is from a library.
-	 */
 	public boolean isFromLibrary() {
 		return provider().isFromLibrary();
 	}
 
-	/**
-	 * Returns the library ID if the process of this product is from a library,
-	 * otherwise `null` is returned.
-	 */
+	/// Returns the library ID in case the provider is an entity from a library.
 	public String library() {
 		return provider().library;
+	}
+
+	/// Returns the provider type of this tech-flow.
+	public ProviderType type() {
+		var t = provider.type;
+		if (t == null)
+			return ProviderType.PROCESS;
+		return switch (t) {
+			case PRODUCT_SYSTEM -> ProviderType.SUB_SYSTEM;
+			case RESULT -> ProviderType.RESULT;
+			default -> ProviderType.PROCESS;
+		};
 	}
 
 	public boolean isProductSystem() {
@@ -148,5 +141,9 @@ public record TechFlow(
 
 	public boolean isResult() {
 		return provider.type == ModelType.RESULT;
+	}
+
+	public boolean isWaste() {
+		return flow.flowType == FlowType.WASTE_FLOW;
 	}
 }
