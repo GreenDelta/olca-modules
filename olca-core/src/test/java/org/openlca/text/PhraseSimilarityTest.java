@@ -27,4 +27,14 @@ public class PhraseSimilarityTest {
 			parser.parse("600 kPa"));
 		assertEquals(0.5 * (3.0/7.0 + 3.0/6.0), r, 1e-10);
 	}
+
+	@Test
+	public void testNoMatch() {
+		var similarity = new PhraseSimilarity();
+		var parser = new PhraseParser();
+		var s = similarity.get(
+			parser.parse("Carbon footprint"),
+			parser.parse("Climate change"));
+		assertEquals(0.0, s, 1e-10);
+	}
 }

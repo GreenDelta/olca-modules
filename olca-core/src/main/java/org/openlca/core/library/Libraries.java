@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Stack;
 
 import org.openlca.core.database.IDatabase;
@@ -14,6 +13,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.util.Exchanges;
 
 public final class Libraries {
 
@@ -50,27 +50,22 @@ public final class Libraries {
 		return order;
 	}
 
-	/// Adds the exchanges of the given process from the library to the process
-	/// This does not update the process in the database.
+	/// Adds all exchanges to the given process. A library process in the database
+	/// only contains its provider flow (the product output or waste input of that
+	/// process). This method adds all other exchanges to the process too. This is
+	/// useful when the process should be displayed in the database or when it is
+	/// converted into a non-library process. Note that this method does not
+	/// update the process in the database.
 	public static void fillExchangesOf(
 			IDatabase db, LibReader lib, Process process
 	) {
 		if (db == null || lib == null || process == null)
 			return;
-		var exchanges = lib.getExchanges(TechFlow.of(process), db);
-
-		var qref = process.quantitativeReference;
-		if (qref != null) {
-			process.quantitativeReference = exchanges.stream()
-					.filter(e -> Objects.equals(qref.flow, e.flow)
-							& qref.isInput == e.isInput)
-					.findFirst()
-					.orElse(null);
-		}
-
-		process.exchanges.clear();
 		int iid = Math.max(process.lastInternalId, 1);
+		var exchanges = lib.getExchanges(TechFlow.of(process), db);
 		for (var e : exchanges) {
+			if (Exchanges.isProviderFlow(e))
+				continue;
 			iid++;
 			e.internalId = iid;
 			process.exchanges.add(e);
@@ -78,8 +73,8 @@ public final class Libraries {
 		process.lastInternalId = iid;
 	}
 
-	/// Adds the impact factors from the library to the given impact category.
-	/// This does not update the impact category in the database.
+	/// Adds all impact factors to the given impact category. This does not update
+	/// the impact category in the database.
 	public static void fillFactorsOf(
 			IDatabase db, LibReader lib, ImpactCategory impact
 	) {
