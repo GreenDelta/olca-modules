@@ -7,7 +7,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.MatrixCache;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
@@ -251,7 +251,7 @@ public record JsonDataService(IDatabase db) {
 	 */
 	public Response<JsonArray> getProviders() {
 		try {
-			var providers = ProcessTable.create(db).getProviders();
+			var providers = ProviderMap.create(db).getAll();
 			var array = new JsonArray();
 			var refs = refs();
 			for (var p : providers) {
@@ -270,7 +270,7 @@ public record JsonDataService(IDatabase db) {
 			var flow = db.getDescriptor(Flow.class, flowId);
 			if (flow == null)
 				return Response.empty();
-			var providers = ProcessTable.create(db).getProviders(flow.id);
+			var providers = ProviderMap.create(db).getProvidersOf(flow.id);
 			var array = new JsonArray();
 			var refs = refs();
 			for (var p : providers) {

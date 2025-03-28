@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 
@@ -14,7 +14,7 @@ import org.openlca.core.model.ProcessType;
  * Searches for the best provider for a given product input or waste output in
  * the database.
  */
-public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
+public record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 
 	/**
 	 * Find the best provider for the given product input or waste output
@@ -23,7 +23,7 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 	public TechFlow find(CalcExchange e) {
 		if (e == null || cancel())
 			return null;
-		List<TechFlow> providers = processTable.getProviders(e.flowId);
+		List<TechFlow> providers = providerMap.getProvidersOf(e.flowId);
 		if (providers.isEmpty())
 			return null;
 
@@ -41,13 +41,13 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 
 		// check form single options and callback
 		if (providers.size() == 1)
-			return providers.get(0);
+			return providers.getFirst();
 		if (config.callback() != null) {
 			providers = config.callback().select(e, providers);
-			if (providers == null || providers.size() == 0)
+			if (providers == null || providers.isEmpty())
 				return null;
 			if (providers.size() == 1)
-				return providers.get(0);
+				return providers.getFirst();
 		}
 
 		TechFlow candidate = null;
@@ -70,8 +70,8 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 			if (newOption.providerId() == e.defaultProviderId)
 				return true;
 		}
-		ProcessType oldType = processTable.getType(old.providerId());
-		ProcessType newType = processTable.getType(newOption.providerId());
+		ProcessType oldType = providerMap.getType(old.providerId());
+		ProcessType newType = providerMap.getType(newOption.providerId());
 		if (oldType == config.preferredType()
 			&& newType != config.preferredType())
 			return false;
@@ -108,7 +108,7 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 	}
 
 	TechFlow getProvider(long id, long flowId) {
-		return processTable.getProvider(id, flowId);
+		return providerMap.get(id, flowId);
 	}
 
 }

@@ -11,7 +11,7 @@ import com.google.protobuf.Empty;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.ProviderIndex;
 import org.openlca.core.model.Category;
@@ -334,7 +334,7 @@ class DataFetchService extends
 			return proto.build();
 		};
 
-		ProcessTable.create(db).getProviders()
+		ProviderMap.create(db).getAll()
 			.stream()
 			.map(mapper)
 			.filter(Objects::nonNull)

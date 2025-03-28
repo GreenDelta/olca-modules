@@ -15,7 +15,7 @@ public final class MatrixCache {
 
 	private FlowTable flowTypeTable;
 	private ConversionTable conversionTable;
-	private ProcessTable processTable;
+	private ProviderMap providerMap;
 
 	private LoadingCache<Long, List<CalcExchange>> exchangeCache;
 
@@ -33,7 +33,7 @@ public final class MatrixCache {
 		if (!lazy) {
 			flowTypeTable = FlowTable.create(database);
 			conversionTable = ConversionTable.create(database);
-			processTable = ProcessTable.create(database);
+			providerMap = ProviderMap.create(database);
 			exchangeCache = ExchangeCache.create(database, conversionTable,
 					flowTypeTable);
 		}
@@ -55,10 +55,10 @@ public final class MatrixCache {
 		return conversionTable;
 	}
 
-	public ProcessTable getProcessTable() {
-		if (processTable == null)
-			processTable = ProcessTable.create(database);
-		return processTable;
+	public ProviderMap getProcessTable() {
+		if (providerMap == null)
+			providerMap = ProviderMap.create(database);
+		return providerMap;
 	}
 
 	public LoadingCache<Long, List<CalcExchange>> getExchangeCache() {
@@ -75,27 +75,21 @@ public final class MatrixCache {
 			conversionTable.reload();
 		if (exchangeCache != null)
 			exchangeCache.invalidateAll();
-		processTable = null;
+		providerMap = null;
 	}
 
 	public synchronized void evict(ModelType type, long id) {
 		if (type == null)
 			return;
 		switch (type) {
-		case FLOW:
-			baseEviction();
-			break;
-		case FLOW_PROPERTY:
-			baseEviction();
-			break;
-		case PROCESS:
-			evictProcess(id);
-			break;
-		case UNIT_GROUP:
-			baseEviction();
-			break;
-		default:
-			break;
+			case FLOW, FLOW_PROPERTY, UNIT_GROUP:
+				baseEviction();
+				break;
+			case PROCESS:
+				evictProcess(id);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -111,11 +105,11 @@ public final class MatrixCache {
 			flowTypeTable.reload(database);
 			exchangeCache.invalidateAll();
 		}
-		processTable = null;
+		providerMap = null;
 	}
 
 	private void evictProcess(long id) {
-		processTable = null;
+		providerMap = null;
 		if (exchangeCache != null)
 			exchangeCache.invalidate(id);
 	}
@@ -124,20 +118,14 @@ public final class MatrixCache {
 		if (type == null)
 			return;
 		switch (type) {
-		case FLOW:
-			baseEviction();
-			break;
-		case FLOW_PROPERTY:
-			baseEviction();
-			break;
-		case PROCESS:
-			processTable = null;
-			break;
-		case UNIT_GROUP:
-			baseEviction();
-			break;
-		default:
-			break;
+			case FLOW, FLOW_PROPERTY, UNIT_GROUP:
+				baseEviction();
+				break;
+			case PROCESS:
+				providerMap = null;
+				break;
+			default:
+				break;
 		}
 	}
 
