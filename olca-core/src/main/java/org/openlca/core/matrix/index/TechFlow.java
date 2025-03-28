@@ -68,7 +68,7 @@ public record TechFlow(
 	/// is thrown.
 	public static TechFlow of(Result result) {
 		var qRef = result.referenceFlow;
-		if (isProviderFlow(qRef)) {
+		if (!isProviderFlow(qRef)) {
 			throw new IllegalArgumentException(
 					"the reference exchange of the result is not a provider flow");
 		}
@@ -84,7 +84,6 @@ public record TechFlow(
 			default -> false;
 		};
 	}
-
 
 	/// Returns `true` if the given provider and flow ID are the same as of the
 	/// provider and flow of this tech-flow.
