@@ -251,7 +251,7 @@ public record JsonDataService(IDatabase db) {
 	 */
 	public Response<JsonArray> getProviders() {
 		try {
-			var providers = ProviderMap.create(db).getAll();
+			var providers = ProviderMap.create(db).getTechFlows();
 			var array = new JsonArray();
 			var refs = refs();
 			for (var p : providers) {

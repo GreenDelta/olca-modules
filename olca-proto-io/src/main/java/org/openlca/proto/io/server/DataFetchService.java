@@ -334,7 +334,7 @@ class DataFetchService extends
 			return proto.build();
 		};
 
-		ProviderMap.create(db).getAll()
+		ProviderMap.create(db).getTechFlows()
 			.stream()
 			.map(mapper)
 			.filter(Objects::nonNull)

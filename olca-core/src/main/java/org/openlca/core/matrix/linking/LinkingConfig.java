@@ -6,6 +6,10 @@ import org.openlca.core.model.ProcessType;
 
 public class LinkingConfig {
 
+	public enum PreferredType {
+		UNIT_PROCESS, SYSTEM_PROCESS, RESULT
+	}
+
 	private ProcessType preferredType = ProcessType.LCI_RESULT;
 	private ProviderLinking providerLinking = ProviderLinking.PREFER_DEFAULTS;
 	private Double cutoff;

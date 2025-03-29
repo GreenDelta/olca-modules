@@ -102,7 +102,7 @@ public class ForegroundSystemGenerator implements Runnable {
 		}
 
 		// link with background system
-		var providers = ProviderMap.create(db).getAll();
+		var providers = ProviderMap.create(db).getTechFlows();
 		if (providers.size() > 0) {
 			for (int i = 0; i < size; i++) {
 				var provider = providers.get(

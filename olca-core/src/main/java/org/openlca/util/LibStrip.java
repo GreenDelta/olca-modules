@@ -153,7 +153,7 @@ public class LibStrip implements Runnable {
 		new ExchangeTable(db).each(e -> {
 			if (!e.isLinkable() || e.defaultProviderId == 0)
 				return;
-			var techFlow = processes.get(e.defaultProviderId, e.flowId);
+			var techFlow = processes.getTechFlow(e.defaultProviderId, e.flowId);
 			if (techFlow != null && isLib(techFlow.library())) {
 				used.add(techFlow);
 			}
@@ -168,7 +168,7 @@ public class LibStrip implements Runnable {
 			}
 
 			for (var link : system.processLinks) {
-				var p = processes.get(link.providerId, link.flowId);
+				var p = processes.getTechFlow(link.providerId, link.flowId);
 				if (p == null)
 					continue;
 				if (isLib(p.library())) {

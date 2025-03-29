@@ -108,7 +108,7 @@ public record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 	}
 
 	TechFlow getProvider(long id, long flowId) {
-		return providerMap.get(id, flowId);
+		return providerMap.getTechFlow(id, flowId);
 	}
 
 }
