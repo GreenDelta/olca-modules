@@ -303,7 +303,7 @@ public class LazyLibrarySolver implements ResultProvider {
 				if (value == 0)
 					continue;
 				var provider = idxF.at(i);
-				if (provider.isFromLibrary()) {
+				if (provider.isFromLibrary() && provider.isProcess()) {
 					queue.push(Pair.of(provider, value));
 				} else {
 					int index = techIndex.of(provider);
