@@ -1,4 +1,4 @@
-package org.openlca.core.results;
+package org.openlca.core.results.agroups;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +27,6 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.results.agroups.AnalysisGroupResult;
 
 public class AnalysisGroupResultTest {
 

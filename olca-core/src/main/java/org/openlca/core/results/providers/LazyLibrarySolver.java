@@ -188,7 +188,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		var techF = foregroundData.techMatrix;
 		for (int i = 0; i < techF.columns(); i++) {
 			var product = index.at(i);
-			if (product.isFromLibrary())
+			if (product.isFromLibrary() && product.isProcess())
 				continue;
 			t[i] = techF.get(i, i) * scalingVector[i];
 		}
@@ -239,12 +239,12 @@ public class LazyLibrarySolver implements ResultProvider {
 		column = new double[index.size()];
 		var libId = product.library();
 
-		// in case of a foreground product, we just need
-		// to copy the column of the foreground system
-		// into the first part of the result column as
-		// the tech. index of the foreground system is
-		// exactly the first part of the combined index
-		if (libId == null) {
+		// in case of a foreground product or result, we just need
+		// to copy the column of the foreground system into the
+		// first part of the result column as the tech. index of
+		// the foreground system is exactly the first part of the
+		// combined index
+		if (libId == null || !product.isProcess()) {
 			var colF = foregroundData.techMatrix.getColumn(techFlow);
 			System.arraycopy(colF, 0, column, 0, colF.length);
 			return put(techFlow, techColumns, column);
@@ -286,7 +286,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		// sub-solutions of libraries recursively
 		var queue = new ArrayDeque<Pair<TechFlow, Double>>();
 		var start = fullData.techIndex.at(techFlow);
-		if (start.isFromLibrary()) {
+		if (start.isFromLibrary() && start.isProcess()) {
 			// start process is a library process
 			queue.push(Pair.of(start, start.isWaste() ? -1.0 : 1.0));
 		} else {
@@ -303,7 +303,7 @@ public class LazyLibrarySolver implements ResultProvider {
 				if (value == 0)
 					continue;
 				var provider = idxF.at(i);
-				if (provider.isFromLibrary()) {
+				if (provider.isFromLibrary() && provider.isProcess()) {
 					queue.push(Pair.of(provider, value));
 				} else {
 					int index = techIndex.of(provider);
@@ -373,12 +373,12 @@ public class LazyLibrarySolver implements ResultProvider {
 		var product = fullData.techIndex.at(techFlow);
 		var libId = product.library();
 
-		// in case of a foreground product, we just need
-		// to copy the column of the foreground system
-		// into the first part of the result column as
-		// the flow index of the foreground system is
-		// exactly the first part of the combined index
-		if (libId == null) {
+		// in case of a foreground product or result, we just need
+		// to copy the column of the foreground system into the
+		// first part of the result column, as the flow index of
+		// the foreground system is exactly the first part of the
+		// combined index
+		if (libId == null || !product.isProcess()) {
 			var flowMatrixF = foregroundData.enviMatrix;
 			if (flowMatrixF != null) {
 				var colF = flowMatrixF.getColumn(techFlow);
