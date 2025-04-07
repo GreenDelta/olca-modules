@@ -12,10 +12,10 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// The sub-graph of the product system which when expanded to a tree would
+/// The sub-graph of the product system which, when expanded to a tree, would
 /// have the reference process as root and the grouped nodes as leafs of that
 /// tree. Multiple nodes with different groups could occur along a path in such
-/// a tree but the final node would be also a grouped node. It can be very
+/// a tree, but the final node would be also a grouped node. It can be very
 /// memory intensive when such a tree is really constructed, and thus it is
 /// better to collect the results in a traversal of that sub-graph.
 record SubGraph(
@@ -115,6 +115,9 @@ record SubGraph(
 
 		private record Node(long id, Node prev) {
 
+			/// With this node as the leaf of a path, this method adds
+			/// all nodes along the path to the collected nodes of the
+			/// builder.
 			void addPathTo(Builder b) {
 				b.nodes.add(id);
 				if (prev != null) {
