@@ -34,7 +34,7 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			? config.cutoff().getAsDouble()
 			: 0;
 		this.system = system;
-		this.providers = new ProviderSearch(cache.getProcessTable(), config);
+		this.providers = new ProviderSearch(cache.getProviderMap(), config);
 	}
 
 	@Override

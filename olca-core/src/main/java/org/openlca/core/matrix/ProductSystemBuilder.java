@@ -48,7 +48,7 @@ public class ProductSystemBuilder {
 	public ProductSystemBuilder(ITechIndexBuilder linker) {
 		this.linker = Objects.requireNonNull(linker);
 		this.matrixCache = null;
-		this.config = null;
+		this.config = new LinkingConfig();
 	}
 
 	/**

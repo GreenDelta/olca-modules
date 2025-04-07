@@ -89,6 +89,10 @@ public class ProviderMap {
 		};
 	}
 
+	public RootDescriptor getProvider(long id) {
+		return providers.get(id);
+	}
+
 	/// Returns the list of possible providers for the flow with the
 	/// given ID.
 	public List<TechFlow> getProvidersOf(long flowId) {

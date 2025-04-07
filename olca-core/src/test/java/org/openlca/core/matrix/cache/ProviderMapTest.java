@@ -41,7 +41,7 @@ public class ProviderMapTest {
 		var W = Process.of("W", w);
 		W.output(e, 4);
 
-		var entities = List.of(units, mass, e, p, q, r, w, P, Q, R, W);
+		entities = List.of(units, mass, e, p, q, r, w, P, Q, R, W);
 		for (var entity : entities) {
 			db.insert(entity);
 		}

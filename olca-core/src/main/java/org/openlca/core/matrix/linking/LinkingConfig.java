@@ -2,24 +2,22 @@ package org.openlca.core.matrix.linking;
 
 import java.util.OptionalDouble;
 
-import org.openlca.core.model.ProcessType;
-
 public class LinkingConfig {
 
 	public enum PreferredType {
 		UNIT_PROCESS, SYSTEM_PROCESS, RESULT
 	}
 
-	private ProcessType preferredType = ProcessType.LCI_RESULT;
+	private PreferredType preferredType = PreferredType.SYSTEM_PROCESS;
 	private ProviderLinking providerLinking = ProviderLinking.PREFER_DEFAULTS;
 	private Double cutoff;
 	private LinkingCallback callback;
 
-	public ProcessType preferredType() {
+	public PreferredType preferredType() {
 		return preferredType;
 	}
 
-	public LinkingConfig preferredType(ProcessType type) {
+	public LinkingConfig preferredType(PreferredType type) {
 		if (type != null) {
 			this.preferredType = type;
 		}
@@ -39,8 +37,8 @@ public class LinkingConfig {
 
 	public OptionalDouble cutoff() {
 		return cutoff == null || cutoff == 0
-			? OptionalDouble.empty()
-			: OptionalDouble.of(cutoff);
+				? OptionalDouble.empty()
+				: OptionalDouble.of(cutoff);
 	}
 
 	public LinkingConfig cutoff(Double cutoff) {

@@ -5,10 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.cache.ProviderMap;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.linking.LinkingConfig.PreferredType;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * Searches for the best provider for a given product input or waste output in
@@ -70,13 +73,26 @@ public record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 			if (newOption.providerId() == e.defaultProviderId)
 				return true;
 		}
-		ProcessType oldType = providerMap.getType(old.providerId());
-		ProcessType newType = providerMap.getType(newOption.providerId());
+		var oldType = typeOf(old.providerId());
+		var newType = typeOf(newOption.providerId());
 		if (oldType == config.preferredType()
-			&& newType != config.preferredType())
+				&& newType != config.preferredType())
 			return false;
 		return oldType != config.preferredType()
 			&& newType == config.preferredType();
+	}
+
+	private PreferredType typeOf(long providerId) {
+		var provider = providerMap.getProvider(providerId);
+		if (provider == null)
+			return null;
+		if (provider instanceof ProcessDescriptor p)
+			return  p.processType == ProcessType.UNIT_PROCESS
+					? PreferredType.UNIT_PROCESS
+					: PreferredType.SYSTEM_PROCESS;
+		return provider.type == ModelType.RESULT
+				? PreferredType.RESULT
+				: null;
 	}
 
 	/**

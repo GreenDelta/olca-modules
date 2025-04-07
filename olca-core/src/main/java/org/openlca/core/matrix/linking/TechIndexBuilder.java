@@ -27,7 +27,7 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 			LinkingConfig config) {
 		this.cache = cache;
 		this.system = system;
-		this.providers = new ProviderSearch(cache.getProcessTable(), config);
+		this.providers = new ProviderSearch(cache.getProviderMap(), config);
 	}
 
 	@Override

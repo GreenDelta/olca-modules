@@ -55,9 +55,10 @@ public final class MatrixCache {
 		return conversionTable;
 	}
 
-	public ProviderMap getProcessTable() {
-		if (providerMap == null)
+	public ProviderMap getProviderMap() {
+		if (providerMap == null) {
 			providerMap = ProviderMap.create(database);
+		}
 		return providerMap;
 	}
 
