@@ -52,6 +52,7 @@ public class InMemLibrarySolver {
 		}
 
 		MatrixData build() {
+			log.info("load all library data into memory");
 			fillInventory();
 			fillImpactModel();
 

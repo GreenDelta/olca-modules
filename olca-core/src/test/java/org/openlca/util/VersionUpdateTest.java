@@ -39,6 +39,7 @@ public class VersionUpdateTest {
 		units = db.get(UnitGroup.class, units.id);
 		assertEquals(5L, units.version);
 		assertTrue(t0 < units.lastChange);
+		db.delete(units);
 	}
 
 
