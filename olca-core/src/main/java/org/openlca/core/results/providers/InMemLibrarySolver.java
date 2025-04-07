@@ -114,6 +114,10 @@ public class InMemLibrarySolver {
 				log.info("map impact model of library {}", imp.library);
 				mapImpactMatrix(libImpIdx, libEnviIdx, matrix, impBuffer);
 			}
+
+			if (!impBuffer.isEmpty()) {
+				full.impactMatrix = impBuffer.finish();
+			}
 		}
 
 		private void mapImpactMatrix(
@@ -143,7 +147,7 @@ public class InMemLibrarySolver {
 					libs.add(techFlow.library());
 				}
 			}
-			if (!libs.isEmpty())
+			if (libs.isEmpty())
 				return;
 
 			var techBuffer = new MatrixBuilder();
