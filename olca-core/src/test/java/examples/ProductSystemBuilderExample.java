@@ -7,7 +7,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.matrix.ProductSystemBuilder;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.LinkingConfig.PreferredType;
 import org.openlca.core.matrix.linking.ProviderLinking;
@@ -30,7 +29,7 @@ public class ProductSystemBuilderExample {
 		var config = new LinkingConfig()
 			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
 			.preferredType(PreferredType.UNIT_PROCESS);
-		var system = new ProductSystemBuilder(MatrixCache.createLazy(db), config)
+		var system = new ProductSystemBuilder(db, config)
 			.build(p);
 
 		// save the product system

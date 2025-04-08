@@ -1,14 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.model.UncertaintyType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -18,13 +9,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class ExchangeCache {
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.model.UncertaintyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
+public class ExchangeCache {
 
 	public static LoadingCache<Long, List<CalcExchange>> create(
 			IDatabase database, ConversionTable conversionTable,
 			FlowTable flowTypes) {
 		return CacheBuilder.newBuilder().build(
 				new ExchangeLoader(database, conversionTable, flowTypes));
+	}
+
+	public static LoadingCache<Long, List<CalcExchange>> create(IDatabase db) {
+		return CacheBuilder.newBuilder().build(
+				new ExchangeLoader(
+						db, ConversionTable.create(db), FlowTable.create(db)));
 	}
 
 	private static class ExchangeLoader extends

@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.matrix.cache.ExchangeCache;
+import org.openlca.core.matrix.cache.ExchangeTable.Linkable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
@@ -18,23 +21,25 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.LoadingCache;
+
 public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final MatrixCache cache;
-	private final ProviderSearch providers;
 	private final ProductSystem system;
+	private final ProviderSearch providers;
+	private final LoadingCache<Long, List<CalcExchange>> exchanges;
 	private final double cutoff;
 
-	public TechIndexCutoffBuilder(MatrixCache cache, ProductSystem system,
-		LinkingConfig config) {
-		this.cache = cache;
+	public TechIndexCutoffBuilder(
+			IDatabase db, ProductSystem system,	LinkingConfig config) {
+
 		this.cutoff = config.cutoff().isPresent()
 			? config.cutoff().getAsDouble()
 			: 0;
 		this.system = system;
-		this.providers = new ProviderSearch(cache.getProviderMap(), config);
+		this.providers = new ProviderSearch(ProviderMap.create(db), config);
+		this.exchanges = ExchangeCache.create(db);
 	}
 
 	@Override
@@ -120,9 +125,8 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 
 		private void followLinks(Node node, List<CalcExchange> exchanges,
 			List<Node> nextLayer) {
-			for (CalcExchange linkExchange : providers
-				.getLinkCandidates(exchanges)) {
-				TechFlow provider = providers.find(linkExchange);
+			for (CalcExchange linkExchange : providers.getLinkCandidates(exchanges)) {
+				TechFlow provider = providers.find(Linkable.of(linkExchange));
 				if (provider == null)
 					continue;
 				double amount = amount(linkExchange);
@@ -216,10 +220,11 @@ public class TechIndexCutoffBuilder implements ITechIndexBuilder {
 			if (next.isEmpty())
 				return Collections.emptyMap();
 			Set<Long> processIds = new HashSet<>();
-			for (Node node : next)
+			for (Node node : next) {
 				processIds.add(node.flow.providerId());
+			}
 			try {
-				return cache.getExchangeCache().getAll(processIds);
+				return exchanges.getAll(processIds);
 			} catch (Exception e) {
 				Logger log = LoggerFactory.getLogger(getClass());
 				log.error("failed to load exchanges from cache", e);

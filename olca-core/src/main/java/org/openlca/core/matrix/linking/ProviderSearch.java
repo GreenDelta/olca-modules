@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.cache.ExchangeTable.Linkable;
 import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig.PreferredType;
@@ -17,16 +18,16 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
  * Searches for the best provider for a given product input or waste output in
  * the database.
  */
-public record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
+record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 
 	/**
 	 * Find the best provider for the given product input or waste output
 	 * according to the search settings.
 	 */
-	public TechFlow find(CalcExchange e) {
+	public TechFlow find(Linkable e) {
 		if (e == null || cancel())
 			return null;
-		List<TechFlow> providers = providerMap.getProvidersOf(e.flowId);
+		List<TechFlow> providers = providerMap.getProvidersOf(e.flowId());
 		if (providers.isEmpty())
 			return null;
 
@@ -35,7 +36,7 @@ public record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 		// when there are multiple options.
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
 			for (TechFlow provider : providers) {
-				if (provider.providerId() == e.defaultProviderId)
+				if (provider.providerId() == e.defaultProviderId())
 					return provider;
 			}
 			if (config.providerLinking() == ProviderLinking.ONLY_DEFAULTS)
@@ -62,15 +63,15 @@ public record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 		return candidate;
 	}
 
-	private boolean isBetter(CalcExchange e, TechFlow old, TechFlow newOption) {
+	private boolean isBetter(Linkable e, TechFlow old, TechFlow newOption) {
 		if (old == null)
 			return true;
 		if (newOption == null)
 			return false;
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
-			if (old.providerId() == e.defaultProviderId)
+			if (old.providerId() == e.defaultProviderId())
 				return false;
-			if (newOption.providerId() == e.defaultProviderId)
+			if (newOption.providerId() == e.defaultProviderId())
 				return true;
 		}
 		var oldType = typeOf(old.providerId());

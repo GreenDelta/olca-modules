@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ParameterizedEntity;
@@ -215,7 +214,7 @@ public record JsonDataService(IDatabase db) {
 			return Response.error("process does not have a quantitative reference");
 		var system = db.insert(ProductSystem.of(process));
 		var config = JsonUtil.linkingConfigOf(jsonConfig);
-		var builder = new ProductSystemBuilder(MatrixCache.createLazy(db), config);
+		var builder = new ProductSystemBuilder(db, config);
 		builder.autoComplete(system);
 		system = ProductSystemBuilder.update(db, system);
 		var ref = Json.asRef(system);

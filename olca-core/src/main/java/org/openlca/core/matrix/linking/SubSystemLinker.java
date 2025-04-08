@@ -79,9 +79,9 @@ public class SubSystemLinker implements ITechIndexBuilder {
 			return true;
 
 		// prefer default providers
-		if (current.providerId() == linkable.providerId())
+		if (current.providerId() == linkable.defaultProviderId())
 			return false;
-		if (next.providerId() == linkable.providerId())
+		if (next.providerId() == linkable.defaultProviderId())
 			return true;
 
 		// prefer system processes

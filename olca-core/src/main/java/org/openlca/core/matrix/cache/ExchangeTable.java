@@ -161,17 +161,15 @@ public class ExchangeTable {
 		return linkables;
 	}
 
-	/**
-	 * A {@code Linkable} describes a product input or waste output of a process
-	 * that can be linked to a provider.
-	 */
+	/// A `Linkable` is a product input or waste output of a process that can be
+	/// linked to a provider.
 	public record Linkable(
 		long exchangeId,
 		long processId,
 		long flowId,
 		boolean isInput,
 		boolean isAvoided,
-		long providerId,
+		long defaultProviderId,
 		long locationId,
 		FlowType flowType
 	) {
@@ -211,6 +209,19 @@ public class ExchangeTable {
 		private static boolean isLinkable(FlowType type, boolean isInput) {
 			return (type == FlowType.PRODUCT_FLOW && isInput)
 				|| (type == FlowType.WASTE_FLOW && !isInput);
+		}
+
+		public static Linkable of(CalcExchange e) {
+			return new Linkable(
+				e.exchangeId,
+				e.processId,
+				e.flowId,
+				e.isInput,
+				e.isAvoided,
+				e.defaultProviderId,
+				e.locationId,
+				e.flowType
+			);
 		}
 	}
 

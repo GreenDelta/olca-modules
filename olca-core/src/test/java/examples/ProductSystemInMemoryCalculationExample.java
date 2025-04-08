@@ -7,7 +7,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.ProductSystemBuilder;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.matrix.linking.LinkingConfig.PreferredType;
 import org.openlca.core.matrix.linking.ProviderLinking;
@@ -27,7 +26,6 @@ public class ProductSystemInMemoryCalculationExample {
 		String workspace = "C:/Users/Besitzer/openLCA-data-1.4";
 		String dbPath = workspace + "/databases/ecoinvent_2_2_unit";
 		IDatabase db = new Derby(new File(dbPath));
-		MatrixCache mcache = MatrixCache.createLazy(db);
 
 		// load the reference process and create
 		// the product system with auto-completion
@@ -37,7 +35,7 @@ public class ProductSystemInMemoryCalculationExample {
 		var config = new LinkingConfig()
 			.providerLinking(ProviderLinking.PREFER_DEFAULTS)
 			.preferredType(PreferredType.UNIT_PROCESS);
-		var builder = new ProductSystemBuilder(mcache, config);
+		var builder = new ProductSystemBuilder(db, config);
 		var system = builder.build(p);
 		var method = db.get(ImpactMethod.class,
 			"207ffac9-aaa8-401d-ac90-874defd3751a");

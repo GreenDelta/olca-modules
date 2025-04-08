@@ -3,6 +3,7 @@ package org.openlca.core.matrix.linking;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.cache.ExchangeTable.Linkable;
 import org.openlca.core.matrix.index.TechFlow;
 
 /**
@@ -28,6 +29,6 @@ public interface LinkingCallback {
 	 *
 	 * TODO: update doc
 	 */
-	List<TechFlow> select(CalcExchange e, List<TechFlow> providerCandidates);
+	List<TechFlow> select(Linkable e, List<TechFlow> providerCandidates);
 
 }

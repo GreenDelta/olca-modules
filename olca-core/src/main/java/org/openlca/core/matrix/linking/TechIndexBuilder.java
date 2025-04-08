@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.openlca.core.matrix.CalcExchange;
-import org.openlca.core.matrix.cache.MatrixCache;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.cache.ExchangeTable;
+import org.openlca.core.matrix.cache.ExchangeTable.Linkable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
@@ -19,47 +19,46 @@ import org.slf4j.LoggerFactory;
 public class TechIndexBuilder implements ITechIndexBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-	private final ProviderSearch providers;
-	private final MatrixCache cache;
 	private final ProductSystem system;
+	private final ProviderSearch providers;
+	private final ExchangeTable exchanges;
 
-	public TechIndexBuilder(MatrixCache cache, ProductSystem system,
-			LinkingConfig config) {
-		this.cache = cache;
+	public TechIndexBuilder(
+			IDatabase db, ProductSystem system, LinkingConfig config
+	) {
 		this.system = system;
-		this.providers = new ProviderSearch(cache.getProviderMap(), config);
+		this.providers = new ProviderSearch(ProviderMap.create(db), config);
+		this.exchanges = new ExchangeTable(db);
 	}
 
 	@Override
 	public TechIndex build(TechFlow refFlow) {
+
 		log.trace("build product index for {}", refFlow);
 		var index = new TechIndex(refFlow);
 		addSystemLinks(index);
-		List<TechFlow> block = new ArrayList<>();
+
+		var block = new ArrayList<TechFlow>();
 		block.add(refFlow);
 		var handled = new HashSet<TechFlow>();
+
 		while (!block.isEmpty()) {
-			var nextBlock = new ArrayList<TechFlow>();
 			log.trace("fetch next block with {} entries", block.size());
-			Map<Long, List<CalcExchange>> exchanges = fetchExchanges(block);
-			for (TechFlow recipient : block) {
-				handled.add(recipient);
-				List<CalcExchange> all = exchanges.get(recipient.providerId());
-				List<CalcExchange> candidates = providers
-						.getLinkCandidates(all);
-				for (CalcExchange linkExchange : candidates) {
-					TechFlow provider = providers.find(linkExchange);
-					if (provider == null)
-						continue;
-					LongPair exchange = new LongPair(recipient.providerId(),
-							linkExchange.exchangeId);
-					index.putLink(exchange, provider);
-					if (!handled.contains(provider)
-							&& !nextBlock.contains(provider))
-						nextBlock.add(provider);
-				}
+
+			var linkables = linkablesOf(block);
+			handled.addAll(block);
+			block.clear();
+
+			for (var linkable : linkables) {
+				TechFlow provider = providers.find(linkable);
+				if (provider == null)
+					continue;
+				var exchange = new LongPair(
+						linkable.processId(), linkable.exchangeId());
+				index.putLink(exchange, provider);
+				if (!handled.contains(provider)	&& !block.contains(provider))
+					block.add(provider);
 			}
-			block = nextBlock;
 		}
 		return index;
 	}
@@ -76,20 +75,14 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 		}
 	}
 
-	private Map<Long, List<CalcExchange>> fetchExchanges(List<TechFlow> block) {
+	private List<Linkable> linkablesOf(List<TechFlow> block) {
 		if (block.isEmpty())
-			return Collections.emptyMap();
-		Set<Long> processIds = new HashSet<>();
-		for (TechFlow provider : block) {
-			processIds.add(provider.providerId());
+			return Collections.emptyList();
+		var ids = new HashSet<Long>();
+		for (var provider : block) {
+			ids.add(provider.providerId());
 		}
-		try {
-			return cache.getExchangeCache().getAll(processIds);
-		} catch (Exception e) {
-			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("failed to load exchanges from cache", e);
-			return Collections.emptyMap();
-		}
+		return exchanges.linkablesOf(ids);
 	}
 
 }

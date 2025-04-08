@@ -14,7 +14,6 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.ProductSystemBuilder;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.model.CalculationSetup;
@@ -199,7 +198,7 @@ public class AnalysisGroupResultTest {
 
 	private ProductSystem systemOf(Process root) {
 		var system = new ProductSystemBuilder(
-			MatrixCache.createLazy(db), new LinkingConfig()).build(root);
+			db, new LinkingConfig()).build(root);
 		var groups = new ArrayList<AnalysisGroup>();
 		for (var pid : system.processes) {
 			var p = db.get(Process.class, pid);
