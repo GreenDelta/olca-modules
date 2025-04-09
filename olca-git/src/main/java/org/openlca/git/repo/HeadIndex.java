@@ -1,6 +1,8 @@
 package org.openlca.git.repo;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,7 +23,7 @@ import com.google.gson.JsonObject;
 public class HeadIndex {
 
 	private static final int VERSION = 1;
-	private static final String FILE_NAME = "head.index";
+	private static final String FILE_NAME = "x-olca-head.index";
 	private final OlcaRepository repo;
 	private final Map<String, Set<String>> subPaths = new HashMap<>();
 	private final Map<String, MetaInfo> metaInfo = new HashMap<>();
@@ -66,6 +68,7 @@ public class HeadIndex {
 
 	private void load() {
 		metaInfo.clear();
+		checkLegacyFile();
 		var file = new File(repo.dir, FILE_NAME);
 		if (!file.exists())
 			return;
@@ -92,6 +95,34 @@ public class HeadIndex {
 			var version = Json.getLong(obj, "v", 0);
 			var lastChange = Json.getLong(obj, "l", 0);
 			metaInfo.put(path, new MetaInfo(version, lastChange));
+		}
+	}
+
+	private void checkLegacyFile() {
+		var file = new File(repo.dir, "head.index");
+		if (!file.exists())
+			return;
+		var ignoreFile = new File(repo.dir, "x-olca-ignore-legacy-file");
+		if (ignoreFile.exists())
+			return;
+		try {
+			var content = new String(Files.readAllBytes(file.toPath()), "utf-8");
+			if (!content.startsWith("{\"version\":1,")) {
+				ignoreFile.createNewFile();
+				return;
+			}
+			var newFile = new File(repo.dir, FILE_NAME);
+			if (newFile.exists()) {
+				Files.delete(file.toPath());
+			} else {
+				Files.move(file.toPath(), newFile.toPath());
+			}
+		} catch (IOException e) {
+			try {
+				ignoreFile.createNewFile();
+			} catch (IOException e1) {
+				// ignore
+			}
 		}
 	}
 

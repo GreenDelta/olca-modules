@@ -104,6 +104,15 @@ public class TypedRefIdSet {
 		return null;
 	}
 
+	public boolean isEmpty() {
+		if (map.isEmpty())
+			return true;
+		for (var type : map.keySet())
+			if (!map.get(type).isEmpty())
+				return false;
+		return true;
+	}
+	
 	public interface ForEach {
 
 		void accept(ModelType type, String refId);

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.persistence.Table;
 
-class Retagger {
+public class Retagger {
 
 	private static final Logger log = LoggerFactory.getLogger(Retagger.class);
 	private final IDatabase db;
@@ -34,7 +34,7 @@ class Retagger {
 		return new Retagger(db, lib);
 	}
 
-	public boolean hasDeleted() {
+	boolean hasDeleted() {
 		return hasDeleted;
 	}
 
@@ -57,7 +57,7 @@ class Retagger {
 		}
 	}
 
-	static int updateAllOf(IDatabase db, ModelType type, Set<String> ids, String libId) {
+	public static int updateAllOf(IDatabase db, ModelType type, Set<String> ids, String dataPackage) {
 		var clazz = type.getModelClass();
 		if (clazz == null)
 			return 0;
@@ -72,7 +72,7 @@ class Retagger {
 		NativeSql.on(db).updateRows(sql, r -> {
 			var id = r.getString(1);
 			if (ids.contains(id)) {
-				r.updateString(2, libId);
+				r.updateString(2, dataPackage);
 				r.updateRow();
 				count.incrementAndGet();
 			}
