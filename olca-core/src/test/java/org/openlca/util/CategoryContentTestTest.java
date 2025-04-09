@@ -1,6 +1,7 @@
 package org.openlca.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +12,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Version;
 
 public class CategoryContentTestTest {
 
@@ -64,7 +64,7 @@ public class CategoryContentTestTest {
 		actor.category = category;
 		actor.dataPackage = "pack 1";
 		db.insert(actor);
-		db.addDataPackage("pack 1", Version.of(1, 1, 1));
+		db.addDataPackage("pack 1");
 		
 		var test = new CategoryContentTest(db);
 		var c = category;

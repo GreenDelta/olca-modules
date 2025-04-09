@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.store.EntityStore;
@@ -106,14 +105,13 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	default DataPackage getDataPackage(String name) {
-		var sql = "select name, version, url, is_library from tbl_data_packages where name = '" + name + "'";
+		var sql = "select name, url, is_library from tbl_data_packages where name = '" + name + "'";
 		var packages = new ArrayList<DataPackage>();
 		NativeSql.on(this).query(sql, r -> {
 			packages.add(new DataPackage(
 					r.getString(1),
-					new Version(r.getLong(2)),
-					r.getString(3),
-					r.getBoolean(4)));
+					r.getString(2),
+					r.getBoolean(3)));
 			return true;
 		});
 		if (packages.isEmpty())
@@ -122,14 +120,13 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	default DataPackages getDataPackages() {
-		var sql = "select name, version, url, is_library from tbl_data_packages";
+		var sql = "select name, url, is_library from tbl_data_packages";
 		var packages = new HashSet<DataPackage>();
 		NativeSql.on(this).query(sql, r -> {
 			packages.add(new DataPackage(
 					r.getString(1),
-					new Version(r.getLong(2)),
-					r.getString(3),
-					r.getBoolean(4)));
+					r.getString(2),
+					r.getBoolean(3)));
 			return true;
 		});
 		return new DataPackages(packages);
@@ -145,17 +142,14 @@ public interface IDatabase extends EntityStore, Closeable {
 	/**
 	 * Add data package with the given name from this database.
 	 */
-	default void addDataPackage(String name, Version version) {
+	default void addDataPackage(String name) {
 		var dataPackage = getDataPackage(name);
 		if (dataPackage != null) {
-			if (!dataPackage.isLibrary && dataPackage.version().equals(version))
-				return;
 			throw new IllegalStateException(
-					"There is already a data package with the name " + name + " and a different version ("
-							+ version.toString() + ") registered");
+					"There is already a data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
-				"insert into tbl_data_packages(name, version, is_library) VALUES ('" + name + "', " + version.getValue() + ", 0)");
+				"insert into tbl_data_packages(name, is_library) values ('" + name + "', 0)");
 	}
 
 	@Override
@@ -344,22 +338,16 @@ public interface IDatabase extends EntityStore, Closeable {
 		}
 	}
 
-	public record DataPackage(String name, Version version, String url, boolean isLibrary) {
+	public record DataPackage(String name, String url, boolean isLibrary) {
 
 		public static DataPackage library(String name, String url) {
-			return new DataPackage(name, new Version(0), url, true);
+			return new DataPackage(name, url, true);
 		}
 
 		public String id() {
-			if (version().getValue() == 0l)
-				return name;
-			return name + "@" + version.toString();
+			return name;
 		}
 
-		public Version version() {
-			return version != null ? version : new Version(0);
-		}
-		
 		@Override
 		public final boolean equals(Object o) {
 			if (!(o instanceof DataPackage p))

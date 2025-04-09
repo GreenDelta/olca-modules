@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase.DataPackage;
-import org.openlca.core.model.Version;
 import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
@@ -84,9 +83,8 @@ public record PackageInfo(JsonObject json) {
 		name = Json.getString(obj, "name");
 		if (Strings.nullOrEmpty(name))
 			return Optional.empty();
-		var version = Version.fromString(Json.getString(obj, "version"));
 		var isLibrary = Json.getBool(obj, "isLibrary", false);
-		return Optional.of(new DataPackage(name, version, url, isLibrary));
+		return Optional.of(new DataPackage(name, url, isLibrary));
 	}
 
 	public PackageInfo withDataPackages(Collection<DataPackage> packages) {
@@ -103,9 +101,6 @@ public record PackageInfo(JsonObject json) {
 	private JsonObject toJson(DataPackage p) {
 		var obj = new JsonObject();
 		Json.put(obj, "name", p.name());
-		if (p.version().getValue() != 0l) {
-			Json.put(obj, "version", p.version().toString());
-		}
 		if (p.url() != null) {
 			Json.put(obj, "url", p.url());
 		}

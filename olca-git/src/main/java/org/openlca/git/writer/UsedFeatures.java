@@ -180,7 +180,7 @@ public class UsedFeatures {
 	}
 	
 	private boolean isPackageFormat(DataPackage p) {
-		return !p.isLibrary() || p.version().getValue() != 0l;
+		return !p.isLibrary();
 	}
 
 	private int getClientVersion() {
