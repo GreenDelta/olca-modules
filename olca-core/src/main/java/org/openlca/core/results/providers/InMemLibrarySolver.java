@@ -173,8 +173,11 @@ public class InMemLibrarySolver {
 					log.error("could not find library {}", libId);
 					continue;
 				}
-				log.info("map inventory of library {}", libId);
 				var libTechIdx = lib.techIndex();
+				if (MatrixIndex.isAbsent(libTechIdx))
+					continue;
+
+				log.info("map inventory of library {}", libId);
 				var libA = lib.matrixOf(LibMatrix.A);
 				mapTechMatrix(libTechIdx, libA, techBuffer);
 
@@ -209,6 +212,8 @@ public class InMemLibrarySolver {
 		private void mapTechMatrix(
 				TechIndex idx, MatrixReader m, MatrixBuilder buffer
 		) {
+			if (idx == null || m == null)
+				return;
 			if (full.techIndex == null) {
 				full.techIndex = new TechIndex();
 			}
@@ -242,9 +247,9 @@ public class InMemLibrarySolver {
 			fullEnviIdx.addAll(enviIdx);
 			var fullTechIdx = full.techIndex;
 			buffer.minSize(fullEnviIdx.size(), fullTechIdx.size());
-			if (m == null)
-				return;
 
+			if (m == null || techIndex == null)
+				return;
 			m.iterate((row, col, val) -> {
 				var rowFlow = enviIdx.at(row);
 				var colFlow = techIndex.at(col);
