@@ -227,7 +227,7 @@ public class References {
 			if (p.isLibrary()) {
 				path += "library:";
 			}
-			path += p.id();
+			path += p.name();
 			return new Reference(path, commitId, null);
 		}
 

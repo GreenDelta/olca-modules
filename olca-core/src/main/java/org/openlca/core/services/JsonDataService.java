@@ -136,7 +136,7 @@ public record JsonDataService(IDatabase db, DataPackages dataPackages) {
 					Json.put(ref, "library", d.dataPackage);
 				} else {
 					var dataPackage = dataPackages.get(d.dataPackage);
-					Json.put(ref, "dataPackage", dataPackage != null ? dataPackage.id() : d.dataPackage);
+					Json.put(ref, "dataPackage", dataPackage != null ? dataPackage.name() : d.dataPackage);
 				}
 			}
 			return Response.of(ref);

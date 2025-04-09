@@ -83,7 +83,7 @@ public class JsonRefs {
 				if (dataPackage.isLibrary()) {
 					Json.put(ref, "library", dataPackage.name());
 				} else {
-					Json.put(ref, "dataPackage", dataPackage.id());
+					Json.put(ref, "dataPackage", dataPackage.name());
 				}
 			}
 		}

@@ -70,7 +70,7 @@ class Util {
 				Json.put(obj, "library", entity.dataPackage);
 			} else {
 				var dataPackage = exp.dataPackages.get(entity.dataPackage);
-				Json.put(obj, "dataPackage", dataPackage != null ? dataPackage.id() : entity.dataPackage);
+				Json.put(obj, "dataPackage", dataPackage != null ? dataPackage.name() : entity.dataPackage);
 			}
 		}
 		mapOtherProperties(entity, obj);

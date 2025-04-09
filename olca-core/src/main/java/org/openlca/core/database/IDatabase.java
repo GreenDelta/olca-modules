@@ -344,10 +344,6 @@ public interface IDatabase extends EntityStore, Closeable {
 			return new DataPackage(name, url, true);
 		}
 
-		public String id() {
-			return name;
-		}
-
 		@Override
 		public final boolean equals(Object o) {
 			if (!(o instanceof DataPackage p))
