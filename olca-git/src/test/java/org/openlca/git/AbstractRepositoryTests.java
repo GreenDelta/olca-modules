@@ -26,6 +26,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.descriptors.Descriptors;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
@@ -79,9 +81,14 @@ public abstract class AbstractRepositoryTests {
 		}
 
 		public TestRepository(String remotePath) throws GitAPIException, IOException, URISyntaxException {
-			super(init(remotePath), Derby.createInMemory());
+			this(remotePath, Derby.createInMemory());
+		}
+		
+		public TestRepository(String remotePath, IDatabase database) throws GitAPIException, IOException, URISyntaxException {
+			super(init(remotePath), database, Descriptors.of(database));
 			var id = UUID.randomUUID().toString();
 			this.name = "repo-" + id.substring(0, id.indexOf("-"));
+			
 		}
 
 		private static File init(String remotePath) throws GitAPIException, IOException, URISyntaxException {

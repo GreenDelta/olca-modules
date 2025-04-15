@@ -56,7 +56,7 @@ public class VersionUpdate {
 	private void exec(IdContainer ids) {
 		if (ids.isEmpty() || db == null || table == null)
 			return;
-		var q = "select id, version, last_change from " + table;
+		var q = "select id, version, last_change, data_package from " + table;
 		if (ids.value != null) {
 			q += " where id = " + ids.value;
 		}
@@ -69,6 +69,7 @@ public class VersionUpdate {
 			v.incUpdate();
 			r.updateLong(2, v.getValue());
 			r.updateLong(3, date);
+			r.updateString(4, null);
 			r.updateRow();
 			return true;
 		});

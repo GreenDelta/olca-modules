@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolution;
@@ -30,19 +31,28 @@ class GitStoreReader implements JsonStoreReader {
 	private final Commit localCommit;
 	private final Categories categories;
 	private final ModelRefMap<Reference> changes;
-	private final ConflictResolver conflictResolver;
 	private final byte[] repoInfo;
+	private ConflictResolver conflictResolver;
+	private DataPackage dataPackage;
 	final List<Diff> resolvedConflicts = new ArrayList<>();
 
-	GitStoreReader(OlcaRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> changes,
-			ConflictResolver conflictResolver) {
+	GitStoreReader(OlcaRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> changes) {
 		this.repo = repo;
 		this.categories = Categories.of(repo, remoteCommit.id);
 		this.localCommit = localCommit;
-		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		this.changes = new ModelRefMap<Reference>();
 		this.repoInfo = repo.datasets.getRepositoryInfo(remoteCommit);
 		changes.forEach(ref -> this.changes.put(ref, ref));
+	}
+
+	GitStoreReader resolveConflictsWith(ConflictResolver conflictResolver) {
+		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
+		return this;
+	}
+	
+	GitStoreReader into(DataPackage dataPackage) {
+		this.dataPackage = dataPackage;
+		return this;
 	}
 
 	@Override
@@ -129,6 +139,7 @@ class GitStoreReader implements JsonStoreReader {
 		} else {
 			resolvedConflicts.add(Diff.modified(localRef, mergedRef));
 		}
+		resolution.data.remove("dataPackage");
 		return resolution.data;
 	}
 
@@ -192,7 +203,11 @@ class GitStoreReader implements JsonStoreReader {
 	private JsonObject parse(String data) {
 		if (Strings.nullOrEmpty(data))
 			return null;
-		return gson.fromJson(data, JsonObject.class);
+		var dataset = gson.fromJson(data, JsonObject.class);
+		if (dataPackage != null) {
+			dataset.addProperty("dataPackage", dataPackage.name());
+		}
+		return dataset;
 	}
 
 }

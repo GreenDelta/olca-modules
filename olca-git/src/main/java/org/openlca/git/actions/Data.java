@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.Reference;
@@ -19,6 +20,7 @@ class Data {
 	private Commit remoteCommit;
 	private List<Diff> changes;
 	private ProgressMonitor progressMonitor;
+	private DataPackage dataPackage;
 	private ConflictResolver conflictResolver;
 
 	static Data of(ClientRepository repo, Commit remoteCommit) {
@@ -43,8 +45,13 @@ class Data {
 		return this;
 	}
 
-	Data with(ConflictResolver conflictResolver) {
+	Data resolveConflictsWith(ConflictResolver conflictResolver) {
 		this.conflictResolver = conflictResolver;
+		return this;
+	}
+	
+	Data into(DataPackage dataPackage) {
+		this.dataPackage = dataPackage;
 		return this;
 	}
 
@@ -54,7 +61,9 @@ class Data {
 				.filter(doImport)
 				.map(toRef)
 				.collect(Collectors.toList());
-		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, toImport, conflictResolver);
+		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, toImport)
+				.into(dataPackage)
+				.resolveConflictsWith(conflictResolver);
 		return ImportData.from(gitStore)
 				.with(progressMonitor)
 				.into(repo.database)

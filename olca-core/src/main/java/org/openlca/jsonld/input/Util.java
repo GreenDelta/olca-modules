@@ -23,9 +23,10 @@ class Util {
 		if (!(e instanceof RootEntity re))
 			return;
 
-		// version & last change
+		// version, last change & data package
 		re.version = getVersion(obj);
 		re.lastChange = getLastChange(obj);
+		re.dataPackage = Json.getString(obj, "dataPackage");
 
 		// category
 		var path = Json.getString(obj, "category");
@@ -36,7 +37,7 @@ class Util {
 		var tags = Json.getStrings(Json.getArray(obj, "tags"));
 		re.tags = tags.length > 0
 			? String.join(",", tags)
-		  : null;
+		  : null;		
 
 		// other properties
 		var extProps = Json.getObject(obj, "otherProperties");

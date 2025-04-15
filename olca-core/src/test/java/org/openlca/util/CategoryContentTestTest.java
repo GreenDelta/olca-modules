@@ -64,7 +64,7 @@ public class CategoryContentTestTest {
 		actor.category = category;
 		actor.dataPackage = "pack 1";
 		db.insert(actor);
-		db.addDataPackage("pack 1");
+		db.addDataPackage("pack 1", null);
 		
 		var test = new CategoryContentTest(db);
 		var c = category;

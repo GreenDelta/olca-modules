@@ -3,6 +3,7 @@ package org.openlca.core.model;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
 
 import org.openlca.util.BinUtils;
 
@@ -77,4 +78,11 @@ public abstract class RootEntity extends RefEntity {
 		var data = new Gson().toJson(json).getBytes(StandardCharsets.UTF_8);
 		otherProperties = BinUtils.gzip(data);
 	}
+	
+	public void wasUpdated() {
+		lastChange = Calendar.getInstance().getTimeInMillis();
+		Version.incUpdate(this);
+		dataPackage = null;
+	}
+	
 }

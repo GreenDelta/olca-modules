@@ -7,6 +7,7 @@ import java.util.List;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.RepositoryInfo;
@@ -23,6 +24,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 
 	private final ClientRepository repo;
 	private PersonIdent committer;
+	private DataPackage dataPackage;
 	private ConflictResolver conflictResolver = ConflictResolver.NULL;
 	private LibraryResolver libraryResolver;
 	private boolean applyStash;
@@ -37,6 +39,11 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 
 	public static GitMerge on(ClientRepository repo) {
 		return new GitMerge(repo);
+	}
+
+	public GitMerge into(DataPackage dataPackage) {
+		this.dataPackage = dataPackage;
+		return this;
 	}
 
 	public GitMerge as(PersonIdent committer) {
@@ -71,8 +78,9 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 			return mountResult;
 		var data = Data.of(repo, localCommit, remoteCommit)
 				.changes(changes)
+				.into(dataPackage)
 				.with(progressMonitor)
-				.with(conflictResolver);
+				.resolveConflictsWith(conflictResolver);
 		mergeResults.addAll(data.doImport(d -> d.diffType != DiffType.DELETED, d -> d.newRef));
 		mergeResults.addAll(data.doDelete(c -> c.diffType == DiffType.DELETED, c -> c.oldRef));
 		libraries.unmountObsolete();

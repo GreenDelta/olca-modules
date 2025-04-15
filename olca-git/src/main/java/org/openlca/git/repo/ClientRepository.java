@@ -7,6 +7,7 @@ import java.util.Map;
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.descriptors.Descriptors;
 import org.openlca.core.model.Version;
 import org.openlca.git.model.Reference;
 import org.openlca.jsonld.Json;
@@ -18,12 +19,12 @@ public class ClientRepository extends OlcaRepository {
 	public final FileStore fileStore;
 	public final Descriptors descriptors;
 
-	public ClientRepository(File gitDir, IDatabase database) throws IOException {
+	public ClientRepository(File gitDir, IDatabase database, Descriptors descriptors) throws IOException {
 		super(gitDir);
 		this.index = HeadIndex.of(this);
 		this.database = database;
 		this.fileStore = new FileStore(database);
-		this.descriptors = Descriptors.of(database);
+		this.descriptors = descriptors;
 	}
 
 	public boolean equalsWorkspace(Reference ref) {

@@ -91,17 +91,18 @@ public interface IDatabase extends EntityStore, Closeable {
 	 * library in the file system. Nothing is done if a library with this ID is
 	 * already registered.
 	 */
-	default void addLibrary(String name) {
+	default DataPackage addLibrary(String name) {
 		var dataPackage = getDataPackage(name);
 		if (dataPackage != null) {
 			if (dataPackage.isLibrary)
-				return;
+				return dataPackage;
 			throw new IllegalStateException(
 					"There is already a non-library data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
 				"insert into tbl_data_packages(name, version, is_library) "
 						+ "values ('" + name + "', 0, 1)");
+		return new DataPackage(name, null, true);
 	}
 
 	default DataPackage getDataPackage(String name) {
@@ -142,14 +143,16 @@ public interface IDatabase extends EntityStore, Closeable {
 	/**
 	 * Add data package with the given name from this database.
 	 */
-	default void addDataPackage(String name) {
+	default DataPackage addDataPackage(String name, String url) {
 		var dataPackage = getDataPackage(name);
 		if (dataPackage != null) {
 			throw new IllegalStateException(
 					"There is already a data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
-				"insert into tbl_data_packages(name, is_library) values ('" + name + "', 0)");
+				"insert into tbl_data_packages(name, url, is_library) "
+						+ "values ('" + name + "', '" + url + "', 0)");
+		return new DataPackage(name, null, false);
 	}
 
 	@Override

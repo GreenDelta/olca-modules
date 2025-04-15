@@ -1,6 +1,5 @@
 package org.openlca.util;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.expressions.InterpreterException;
@@ -61,9 +59,10 @@ public class Parameters {
 	}
 
 	/**
-	 * Returns true if the given parameter of the given owner is used in formulas of
-	 * the owner or in parameter redefinitions in the database. The formulas of the
-	 * owner are checked in the given object and not in the database.
+	 * Returns true if the given parameter of the given owner is used in
+	 * formulas of the owner or in parameter redefinitions in the database. The
+	 * formulas of the owner are checked in the given object and not in the
+	 * database.
 	 */
 	public static boolean isUsed(
 			Parameter param, ParameterizedEntity owner, IDatabase db) {
@@ -106,10 +105,10 @@ public class Parameters {
 	}
 
 	/**
-	 * Find the entities in the database where the parameter of the given owner is
-	 * redefined. In the user interface this can be used as a check if a the
-	 * renaming of a local parameter will change other entities (projects or product
-	 * systems) where this parameter is redefined.
+	 * Find the entities in the database where the parameter of the given owner
+	 * is redefined. In the user interface this can be used as a check if a the
+	 * renaming of a local parameter will change other entities (projects or
+	 * product systems) where this parameter is redefined.
 	 */
 	public static List<RootDescriptor> findRedefOwners(
 			Parameter param, ParameterizedEntity owner, IDatabase db) {
@@ -143,9 +142,9 @@ public class Parameters {
 
 	/**
 	 * Rename the given parameter of the given owner. This will rename it in all
-	 * formulas of the owner **and** in redefinitions of this parameter in projects
-	 * and product systems. This will update the owner in the database and return
-	 * the updated instance.
+	 * formulas of the owner **and** in redefinitions of this parameter in
+	 * projects and product systems. This will update the owner in the database
+	 * and return the updated instance.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends ParameterizedEntity> T rename(
@@ -211,9 +210,10 @@ public class Parameters {
 			}
 
 			var dao = new ProcessDao(db);
-			return (T) (process.id == 0
-					? dao.insert(process)
-					: dao.update(process));
+			if (process.id == 0)
+				return (T) dao.insert(process);
+			process.wasUpdated();
+			return (T) dao.update(process);
 		}
 
 		// rename in impact formulas
@@ -226,9 +226,10 @@ public class Parameters {
 			}
 
 			var dao = new ImpactCategoryDao(db);
-			return (T) (impact.id == 0
-					? dao.insert(impact)
-					: dao.update(impact));
+			if (impact.id == 0)
+				return (T) dao.insert(impact);
+			impact.wasUpdated();
+			return (T) dao.update(impact);
 		}
 
 		throw new IllegalArgumentException(
@@ -236,11 +237,11 @@ public class Parameters {
 	}
 
 	/**
-	 * Renames the given global parameter in the database. Renaming the parameter
-	 * means that it is also renamed in all places where it is used: formulas of
-	 * exchanges, impact factors, other parameters, and parameter redefinitions.
-	 * Formulas of which are in the scope of a local parameter with the same name
-	 * are not changed.
+	 * Renames the given global parameter in the database. Renaming the
+	 * parameter means that it is also renamed in all places where it is used:
+	 * formulas of exchanges, impact factors, other parameters, and parameter
+	 * redefinitions. Formulas of which are in the scope of a local parameter
+	 * with the same name are not changed.
 	 */
 	public static Parameter rename(IDatabase db, Parameter param, String name) {
 		if (param.scope != ParameterScope.GLOBAL) {
@@ -256,8 +257,7 @@ public class Parameters {
 		// new name, we do not have to change the formulas or redefinitions
 		if (Strings.nullOrEmpty(param.name) || eq(param.name, name)) {
 			param.name = name;
-			Version.incUpdate(param);
-			param.lastChange = new Date().getTime();
+			param.wasUpdated();
 			return new ParameterDao(db).update(param);
 		}
 
@@ -347,16 +347,15 @@ public class Parameters {
 
 		// finally, update the parameter
 		param.name = name;
-		Version.incUpdate(param);
-		param.lastChange = new Date().getTime();
+		param.wasUpdated();
 		return new ParameterDao(db).update(param);
 	}
 
 	/**
 	 * Parameter redefinitions are used in inner objects (project variants or
-	 * parameter sets) of root entities (projects or product systems). This utility
-	 * function replaces the IDs of these inner objects with the IDs of the
-	 * corresponding root entities in the given set of IDs.
+	 * parameter sets) of root entities (projects or product systems). This
+	 * utility function replaces the IDs of these inner objects with the IDs of
+	 * the corresponding root entities in the given set of IDs.
 	 */
 	private static void swapRedefOwners(IDatabase db, TLongHashSet owners) {
 		if (owners.isEmpty())

@@ -1,4 +1,4 @@
-package org.openlca.git.repo;
+package org.openlca.core.database.descriptors;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -15,7 +15,6 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.git.util.Path;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 import org.openlca.util.Strings;
@@ -54,7 +53,7 @@ public class Descriptors {
 		loadCategories();
 	}
 
-	static Descriptors of(IDatabase database) {
+	public static Descriptors of(IDatabase database) {
 		return new Descriptors(database);
 	}
 
@@ -83,7 +82,7 @@ public class Descriptors {
 		for (var model : get(category)) {
 			if (Strings.nullOrEmpty(model.dataPackage))
 				return false;
-			if (!dataPackages.contains(model.dataPackage))
+			if (!dataPackages.isEmpty() && !dataPackages.contains(model.dataPackage))
 				return false;
 			isOnlyInDataPackages = true;
 		}
@@ -163,9 +162,15 @@ public class Descriptors {
 				rootCategories.computeIfAbsent(category.modelType, k -> new ArrayList<>())
 						.add(category);
 			}
-			categoriesByPath.put(Path.of(category), category);
+			categoriesByPath.put(getPath(category), category);
 			categoriesById.put(category.id, category);
 		}
+	}
+	
+	private String getPath(Category category) {
+		var paths = Categories.path(category);
+		paths.add(0, category.modelType.name());
+		return Strings.join(paths, '/');
 	}
 
 	private class DescriptorsMaps {
