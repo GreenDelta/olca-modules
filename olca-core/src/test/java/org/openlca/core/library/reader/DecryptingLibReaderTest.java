@@ -9,7 +9,7 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
-import org.openlca.core.library.LibraryExport;
+import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;

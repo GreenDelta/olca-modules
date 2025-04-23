@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.Flow;

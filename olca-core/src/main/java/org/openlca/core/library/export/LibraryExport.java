@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.library.export;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
+import org.openlca.core.library.Library;
+import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
@@ -60,6 +62,9 @@ public class LibraryExport implements Runnable {
 		return this;
 	}
 
+	/// Uses the given matrix data for the export. Note that this will modify
+	/// the matrix data for processes that are not scaled to 1 unit of product
+	/// output or waste input.
 	public LibraryExport withData(MatrixData data) {
 		if (data == null)
 			return this;
@@ -93,7 +98,7 @@ public class LibraryExport implements Runnable {
 		var lib = Library.of(folder);
 		// create a thread pool and start writing the meta-data
 		var exec = Executors.newFixedThreadPool(4);
-		exec.execute(new MetaDataExport(this));
+		exec.execute(new JsonWriter(this));
 		createMatrices(lib, exec);
 		try {
 			exec.shutdown();

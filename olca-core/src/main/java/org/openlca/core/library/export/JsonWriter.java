@@ -1,4 +1,4 @@
-package org.openlca.core.library;
+package org.openlca.core.library.export;
 
 import java.io.File;
 import java.util.HashSet;
@@ -15,12 +15,12 @@ import org.openlca.util.Strings;
 /**
  * Writes the meta-data (JSON-LD) package in a library export.
  */
-class MetaDataExport implements Runnable {
+class JsonWriter implements Runnable {
 
 	private final LibraryExport export;
 	private final IDatabase db;
 
-	MetaDataExport(LibraryExport export) {
+	JsonWriter(LibraryExport export) {
 		this.export = export;
 		this.db = export.db;
 	}
