@@ -96,10 +96,14 @@ public class LibraryExport implements Runnable {
 	public void run() {
 		log.info("start library export of database {}", db.getName());
 		var lib = Library.of(folder);
-		// create a thread pool and start writing the meta-data
+
+		buildMatrices();
+		var scaler = Scaler.scale(data);
+
 		var exec = Executors.newFixedThreadPool(4);
-		exec.execute(new JsonWriter(this));
-		createMatrices(lib, exec);
+		exec.execute(new JsonWriter(this, scaler));
+		writeMatrices(lib, exec);
+
 		try {
 			exec.shutdown();
 			while (true) {
@@ -116,11 +120,7 @@ public class LibraryExport implements Runnable {
 		}
 	}
 
-	private void createMatrices(Library lib, ExecutorService exec) {
-		buildMatrices();
-		if (data == null)
-			return;
-		normalizeInventory();
+	private void writeMatrices(Library lib, ExecutorService exec) {
 		exec.execute(() -> {
 			log.info("write matrices");
 			MatrixExport.toNpy(db, folder, data).writeMatrices();
@@ -139,7 +139,7 @@ public class LibraryExport implements Runnable {
 		});
 
 		if (withInversion) {
-			exec.execute(this::calculateInverse);
+			exec.execute(this::createInverse);
 		}
 	}
 
@@ -153,6 +153,7 @@ public class LibraryExport implements Runnable {
 		// Calculation dependencies between libraries are not allowed.
 		var techIdx = TechIndex.of(db);
 		if (!techIdx.isEmpty()) {
+			log.info("build inventory of {} processes", techIdx.size());
 			data = MatrixConfig.of(db, techIdx)
 				.withUncertainties(withUncertainties)
 				.withRegionalization(info.isRegionalized())
@@ -184,48 +185,7 @@ public class LibraryExport implements Runnable {
 			.addTo(data);
 	}
 
-	/**
-	 * Normalize the columns of the technology matrix A and intervention matrix B to one
-	 * unit of output or input for each product or waste flow.
-	 */
-	private void normalizeInventory() {
-		if (data == null || data.techMatrix == null)
-			return;
-		log.info("normalize matrices to 1 | -1");
-		var matrixA = data.techMatrix.asMutable();
-		data.techMatrix = matrixA;
-		var matrixB = data.enviMatrix != null
-			? data.enviMatrix.asMutable()
-			: null;
-		data.enviMatrix = matrixB;
-		int n = matrixA.columns();
-		for (int j = 0; j < n; j++) {
-			double f = Math.abs(matrixA.get(j, j));
-			if (f == 1)
-				continue;
-
-			// normalize column j in matrix A
-			for (int i = 0; i < n; i++) {
-				double val = matrixA.get(i, j);
-				if (val == 0)
-					continue;
-				matrixA.set(i, j, val / f);
-			}
-
-			// normalize column j in matrix B
-			if (matrixB == null)
-				continue;
-			int m = matrixB.rows();
-			for (int i = 0; i < m; i++) {
-				double val = matrixB.get(i, j);
-				if (val == 0)
-					continue;
-				matrixB.set(i, j, val / f);
-			}
-		}
-	}
-
-	private void calculateInverse() {
+	private void createInverse() {
 		if (data.techMatrix == null)
 			return;
 		var solver = MatrixSolver.get();

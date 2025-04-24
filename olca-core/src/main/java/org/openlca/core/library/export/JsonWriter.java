@@ -18,10 +18,12 @@ import org.openlca.util.Strings;
 class JsonWriter implements Runnable {
 
 	private final LibraryExport export;
+	private final Scaler scaler;
 	private final IDatabase db;
 
-	JsonWriter(LibraryExport export) {
+	JsonWriter(LibraryExport export, Scaler scaler) {
 		this.export = export;
+		this.scaler = scaler;
 		this.db = export.db;
 	}
 
@@ -85,6 +87,8 @@ class JsonWriter implements Runnable {
 				e -> !Exchanges.isProviderFlow(e));
 		libProc.allocationFactors.clear();
 		libProc.parameters.clear();
+		scaler.scale(libProc);
+
 		for (var e : libProc.exchanges) {
 			e.amount = 1.0;
 			e.formula = null;
