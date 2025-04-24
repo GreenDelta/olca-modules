@@ -19,7 +19,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (14);
+INSERT INTO openlca_version (version) VALUES (15);
 
 
 CREATE TABLE tbl_libraries (
