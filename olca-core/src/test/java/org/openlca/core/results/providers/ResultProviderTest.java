@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized;
 import org.openlca.core.DataDir;
 import org.openlca.core.Tests;
 import org.openlca.core.library.LibraryDir;
-import org.openlca.core.library.LibraryExport;
+import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;

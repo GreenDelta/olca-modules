@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.upgrades.Upgrades;
-import org.openlca.core.library.LibraryExport;
+import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.nativelib.NativeLib;
 

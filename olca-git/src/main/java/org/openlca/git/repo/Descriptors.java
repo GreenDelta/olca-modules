@@ -70,7 +70,7 @@ public class Descriptors {
 		var descriptor = get(ref);
 		return descriptor != null && descriptor.isFromLibrary();
 	}
-	
+
 	public boolean isOnlyInLibraries(Category category) {
 		return isOnlyInLibraries(category, new HashSet<>());
 	}
@@ -82,7 +82,7 @@ public class Descriptors {
 		for (var model : get(category)) {
 			if (!model.isFromLibrary())
 				return false;
-			if (!libraries.contains(model.library))
+			if (libraries != null && !libraries.isEmpty() && !libraries.contains(model.library))
 				return false;
 			isOnlyInLibs = true;
 		}
@@ -91,16 +91,16 @@ public class Descriptors {
 				return false;
 			isOnlyInLibs = true;
 		}
-		return isOnlyInLibs;		
+		return isOnlyInLibs;
 	}
-	
+
 	public String getLibrary(TypedRefId ref) {
 		var descriptor = get(ref);
 		if (descriptor == null)
 			return null;
 		return descriptor.library;
 	}
-	
+
 	public Set<RootDescriptor> get(ModelType type) {
 		if (type == null)
 			return new HashSet<>();
