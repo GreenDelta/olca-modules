@@ -121,7 +121,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		var array = new JsonArray();
 		for (var e : p.exchanges) {
 			var obj = new JsonObject();
-			map(e, obj);
+			mapExchange(e, obj);
 			if (Objects.equals(p.quantitativeReference, e)) {
 				Json.put(obj, "isQuantitativeReference", true);
 			}
@@ -180,7 +180,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 		return obj;
 	}
 
-	private void map(Exchange e, JsonObject obj) {
+	private void mapExchange(Exchange e, JsonObject obj) {
 
 		Json.put(obj, "@type", Exchange.class.getSimpleName());
 		Json.put(obj, "isAvoidedProduct", e.isAvoided);
@@ -205,6 +205,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 				: null;
 		Json.put(obj, "flowProperty", exp.handleRef(property));
 		Json.put(obj, "uncertainty", Uncertainties.map(e.uncertainty));
-		Json.put(obj, "defaultProvider", exp.handleProvider(e.defaultProviderId));
+		Json.put(obj, "defaultProvider",
+				exp.handleProvider(e.defaultProviderId, e.defaultProviderType));
 	}
 }

@@ -22,6 +22,7 @@ import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -160,23 +161,23 @@ public class JsonExport {
 		return Json.asRef(e);
 	}
 
-	JsonObject handleProvider(long pid) {
+	JsonObject handleProvider(long pid, byte type) {
 		if (pid == 0 || db == null || dbRefs == null)
 			return null;
-		var d = dbRefs.descriptorOf(ModelType.PROCESS, pid);
+		var modelType = ProviderType.toModelType(type);
+		var d = dbRefs.descriptorOf(modelType, pid);
 		if (d == null)
 			return null;
 		var ref = dbRefs.asRef(d);
-		if (ref == null)
-			return null;
+		if (ref == null
+				|| !exportReferences
+				|| hasVisited(modelType, d.refId)
+				|| (modelType != ModelType.RESULT && !exportProviders))
+			return ref;
 
-		if (exportReferences
-				&& exportProviders
-				&& !hasVisited(ModelType.PROCESS, d.refId)) {
-			var item = WriteItem.of(d);
-			if (!pQueue.contains(item)) {
-				pQueue.add(item);
-			}
+		var item = WriteItem.of(d);
+		if (!pQueue.contains(item)) {
+			pQueue.add(item);
 		}
 		return ref;
 	}
