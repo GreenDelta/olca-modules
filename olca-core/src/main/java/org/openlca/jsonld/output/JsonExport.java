@@ -35,10 +35,12 @@ import org.openlca.util.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-/**
- * Writes entities to an entity store (e.g. a document or zip file). It also
- * writes the referenced entities to this store if they are not yet contained.
- */
+/// Exports datasets to JSON. The export has quite some configuration options.
+/// Note that the export is NOT thread-safe currently, specifically when you
+/// export with default-providers recursively. However, in the Git writer it
+/// is currently used in a multithreaded context, which seems to work with its
+/// current settings. But this could break; we should make this export
+/// thread-safe at some point!
 public class JsonExport {
 
 	final IDatabase db;
@@ -182,10 +184,13 @@ public class JsonExport {
 			// we export results that are set as providers
 			// even when the provider-export-flag is set to
 			// false, but only when they are not linked to
-			// a product system
+			// a product system; in that case, the export
+			// does not use the provider queue!
 			var result = db.get(Result.class, pid);
-			if (result == null || result.productSystem != null)
-				return ref;
+			if (result != null && result.productSystem == null) {
+				writeNext(result, null);
+			}
+			return ref;
 		}
 
 		var item = WriteItem.of(d);

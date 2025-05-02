@@ -9,6 +9,7 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
@@ -70,7 +71,7 @@ public class DefaultProviderExportTest {
 		root = Process.of("Root", rootFlow);
 		linkProvider(root, p, P);
 		linkProvider(root, r, R);
-		linkProvider(root, s, PS);
+		linkProvider(root, s, S);
 		linkProvider(root, t, T);
 		db.insert(rootFlow, root);
 	}
@@ -134,13 +135,19 @@ public class DefaultProviderExportTest {
 	}
 
 	private void has(Class<? extends RootEntity> type, String name) {
-		var e = db.getForName(type, name);
-		assertNotNull(e);
+		var provider = db.getForName(type, name);
+		assertNotNull(provider);
+		for (var e : root.exchanges) {
+			if (e.defaultProviderId == provider.id
+					&& ProviderType.of(ModelType.of(type)) == e.defaultProviderType)
+				return;
+		}
+		fail("could not find provider " + type.getSimpleName() + " " + name);
 	}
 
 	private void hasNot(Class<? extends RootEntity> type, String name) {
-		var e = db.getForName(type, name);
-		assertNull(e);
+		var provider = db.getForName(type, name);
+		assertNull(provider);
 	}
 
 }
