@@ -1,21 +1,24 @@
 
 package org.openlca.proto.io.input;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.SocialAspect;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
+import org.openlca.proto.ProtoExchange;
 import org.openlca.proto.ProtoProcess;
 import org.openlca.proto.ProtoProcessDocumentation;
 import org.openlca.proto.ProtoProcessType;
 import org.openlca.util.Strings;
+
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 
@@ -140,14 +143,6 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 			}
 			exchanges.put(e.internalId, e);
 
-			// provider
-			if (protoEx.hasDefaultProvider()) {
-				var providerId = protoEx.getDefaultProvider().getId();
-				resolver.resolveProvider(providerId, e);
-			} else {
-				e.defaultProviderId = 0;
-			}
-
 			// flow and quantity
 			e.flow = Util.getFlow(resolver, protoEx.getFlow());
 			var quantity = Quantity.of(e.flow)
@@ -167,6 +162,7 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 			e.baseUncertainty = protoEx.getBaseUncertainty();
 			e.uncertainty = Util.uncertaintyOf(protoEx.getUncertainty());
 			e.location = Util.getLocation(resolver, protoEx.getLocation());
+			mapDefaultProvider(protoEx, e);
 
 			// costs
 			e.costFormula = protoEx.getCostFormula();
@@ -180,6 +176,21 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 				p.quantitativeReference = e;
 			}
 		}
+	}
+
+	private void mapDefaultProvider(ProtoExchange protoEx, Exchange e) {
+		e.defaultProviderId = 0;
+		if (!protoEx.hasDefaultProvider())
+			return;
+		var providerId = protoEx.getDefaultProvider().getId();
+		if (Strings.nullOrEmpty(providerId))
+			return;
+		e.defaultProviderType = switch (protoEx.getDefaultProvider().getType()) {
+			case ProductSystem -> ProviderType.SUB_SYSTEM;
+			case Result -> ProviderType.RESULT;
+			default -> ProviderType.PROCESS;
+		};
+		resolver.resolveProvider(providerId, e);
 	}
 
 	private void mapSocialAspects(Process p, ProtoProcess proto) {

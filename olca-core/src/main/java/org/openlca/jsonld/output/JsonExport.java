@@ -24,6 +24,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
@@ -171,9 +172,21 @@ public class JsonExport {
 		var ref = dbRefs.asRef(d);
 		if (ref == null
 				|| !exportReferences
-				|| hasVisited(modelType, d.refId)
-				|| (modelType != ModelType.RESULT && !exportProviders))
+				|| hasVisited(modelType, d.refId))
 			return ref;
+
+		if (!exportProviders) {
+			if (modelType != ModelType.RESULT)
+				return ref;
+
+			// we export results that are set as providers
+			// even when the provider-export-flag is set to
+			// false, but only when they are not linked to
+			// a product system
+			var result = db.get(Result.class, pid);
+			if (result == null || result.productSystem != null)
+				return ref;
+		}
 
 		var item = WriteItem.of(d);
 		if (!pQueue.contains(item)) {

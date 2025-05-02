@@ -12,6 +12,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -149,6 +150,16 @@ public class ProtoImport implements Runnable, EntityResolver {
 
 	@Override
 	public void resolveProvider(String providerId, Exchange exchange) {
-		providers.add(providerId, exchange);
+		if (providerId == null || exchange == null)
+			return;
+		var type = ProviderType.toModelClass(exchange.defaultProviderType);
+		if (type == Process.class) {
+			providers.add(providerId, exchange);
+			return;
+		}
+		var d = getDescriptor(type, providerId);
+		if (d != null) {
+			exchange.defaultProviderId = d.id;
+		}
 	}
 }

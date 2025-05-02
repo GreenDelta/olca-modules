@@ -114,6 +114,15 @@ public class DefaultProviderExportTest {
 		hasNot(Result.class, "T");
 	}
 
+	@Test
+	public void testWithDefaultProviders() {
+		doIO(new JsonExport(db, store).withDefaultProviders(true));
+		has(Process.class, "P");
+		has(Result.class, "R");
+		has(ProductSystem.class, "S");
+		has(Result.class, "T");
+	}
+
 	private void doIO(JsonExport export) {
 		export.write(root);
 		db.clear();

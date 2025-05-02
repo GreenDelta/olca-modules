@@ -4,6 +4,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.store.EntityStore;
@@ -51,9 +52,12 @@ record GenericStoreResolver(EntityStore store) implements EntityResolver {
 
 	@Override
 	public void resolveProvider(String providerId, Exchange exchange) {
-		var process = store.get(Process.class, providerId);
-		if (process != null) {
-			exchange.defaultProviderId = process.id;
+		if (providerId == null || exchange == null)
+			return;
+		var type = ProviderType.toModelClass(exchange.defaultProviderType);
+		var provider = store.get(type, providerId);
+		if (provider != null) {
+			exchange.defaultProviderId = provider.id;
 		}
 	}
 }

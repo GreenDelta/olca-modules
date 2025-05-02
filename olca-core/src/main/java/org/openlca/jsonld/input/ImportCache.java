@@ -57,14 +57,11 @@ class ImportCache {
 		var cacheMap = cache.get(type);
 		if (cacheMap == null)
 			return null;
-		var cacheObj = cacheMap.get(refId);
-		if (cacheObj == null)
-			return null;
-		if (cacheObj instanceof Descriptor d)
-			return d;
-		if (cacheObj instanceof RootEntity e)
-			return Descriptor.of(e);
-		return null;
+		return switch (cacheMap.get(refId)) {
+			case Descriptor d -> d;
+			case RootEntity e -> Descriptor.of(e);
+			case null, default -> null;
+		};
 	}
 
 	<T extends RootEntity> ImportItem<T> fetch(Class<T> type, String refId) {
