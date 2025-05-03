@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.UnitDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.DQSystem;
@@ -15,6 +14,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.io.Import;
@@ -67,7 +67,6 @@ public class DatabaseImport implements Import {
 		// need to be updated with a default flow property
 		var unitImport = new UnitGroupImport(conf);
 		unitImport.run();
-		var requireUpdate = unitImport.getRequirePropertyUpdate();
 
 		// import flow properties
 		conf.syncAll(FlowProperty.class, prop -> {
@@ -76,11 +75,12 @@ public class DatabaseImport implements Import {
 			return copy;
 		});
 
-		// update unit groups
+		// update default properties in unit groups
 		var db = conf.target();
-		for (var refId : requireUpdate.keySet()) {
-			var unitGroup = requireUpdate.get(refId);
-			long propId = conf.seq().get(SeqMap.FLOW_PROPERTY, refId);
+		for (var link : unitImport.getDefaultLinks()) {
+			var unitGroup = link.targetUnitGroup();
+			long propId = conf.seq().get(
+					ModelType.FLOW_PROPERTY, link.sourcePropertyId());
 			unitGroup.defaultFlowProperty = db.get(FlowProperty.class, propId);
 			db.update(unitGroup);
 		}
@@ -124,9 +124,7 @@ public class DatabaseImport implements Import {
 				.filter(p -> !existing.contains(p.name))
 				.forEach(p -> {
 					var copy = p.copy();
-					if (!conf.seq().contains(SeqMap.CATEGORY, p.refId)) {
-						copy.refId = p.refId;
-					}
+					copy.refId = p.refId;
 					copy.category = conf.swap(p.category);
 					conf.target().insert(copy);
 				});
@@ -145,12 +143,12 @@ public class DatabaseImport implements Import {
 	}
 
 	private void copySocialIndicators() {
-		conf.syncAll(SocialIndicator.class, indicator -> {
-			var copy = indicator.copy();
-			copy.activityQuantity = conf.swap(indicator.activityQuantity);
-			if (indicator.activityUnit != null) {
-				long unitId = conf.seq().get(SeqMap.UNIT, indicator.activityUnit.refId);
-				copy.activityUnit = new UnitDao(conf.target()).getForId(unitId);
+		conf.syncAll(SocialIndicator.class, src -> {
+			var copy = src.copy();
+			copy.activityQuantity = conf.swap(src.activityQuantity);
+			if (src.activityUnit != null) {
+				copy.activityUnit = Config.findUnit(
+						copy.activityQuantity, src.activityUnit.refId);
 			}
 			return copy;
 		});
@@ -163,8 +161,10 @@ public class DatabaseImport implements Import {
 			copy.source = conf.swap(impact.source);
 			for (var f : copy.impactFactors) {
 				f.flow = conf.swap(f.flow);
-				f.unit = refs.switchRef(f.unit);
 				f.flowPropertyFactor = refs.switchRef(f.flowPropertyFactor, f.flow);
+				f.unit = f.unit != null
+						? Config.findUnit(f.flowPropertyFactor, f.unit.refId)
+						: null;
 				f.location = conf.swap(f.location);
 			}
 			return copy;
@@ -172,7 +172,6 @@ public class DatabaseImport implements Import {
 	}
 
 	private void copyEpds() {
-		var refs = new RefSwitcher(conf);
 		conf.syncAll(Epd.class, epd -> {
 			var copy = epd.copy();
 			copy.pcr = conf.swap(epd.pcr);
@@ -182,8 +181,10 @@ public class DatabaseImport implements Import {
 			if (copy.product != null) {
 				var p = copy.product;
 				p.flow = conf.swap(p.flow);
-				p.unit = refs.switchRef(p.unit);
 				p.property = conf.swap(p.property);
+				p.unit = p.unit != null
+						? Config.findUnit(p.property, p.unit.refId)
+						: null;
 			}
 			for (var mod : copy.modules) {
 				mod.result = conf.swap(mod.result);

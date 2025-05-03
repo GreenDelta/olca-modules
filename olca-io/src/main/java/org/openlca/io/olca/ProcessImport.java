@@ -6,6 +6,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
@@ -44,7 +45,7 @@ class ProcessImport {
 	private void run() {
 		for (var d : srcDao.getDescriptors()) {
 			try {
-				long destId = conf.seq().get(SeqMap.PROCESS, d.refId);
+				long destId = conf.seq().get(ModelType.PROCESS, d.id);
 				if (destId != 0) {
 					providerMap.put(d.id, destId);
 				} else {
@@ -60,21 +61,21 @@ class ProcessImport {
 	private void copy(ProcessDescriptor d) {
 
 		// init copy
-		var process = srcDao.getForId(d.id);
-		if (process == null)
+		var src = srcDao.getForId(d.id);
+		if (src == null)
 			return;
-		var copy = process.copy();
-		copy.refId = process.refId;
+		var copy = src.copy();
+		copy.refId = src.refId;
 
 		// swap references
-		copy.category = conf.swap(process.category);
-		copy.location = conf.swap(process.location);
+		copy.category = conf.swap(src.category);
+		copy.location = conf.swap(src.location);
 		copy.dqSystem = conf.swap(copy.dqSystem);
 		copy.exchangeDqSystem = conf.swap(copy.exchangeDqSystem);
 		copy.socialDqSystem = conf.swap(copy.socialDqSystem);
 
 		swapExchangeRefs(copy);
-		swapAllocationProducts(process, copy);
+		swapAllocationProducts(copy);
 		swapDocRefs(copy);
 		for (var a : copy.socialAspects) {
 			a.indicator = conf.swap(a.indicator);
@@ -82,8 +83,8 @@ class ProcessImport {
 		}
 
 		copy = destDao.insert(copy);
-		conf.seq().put(SeqMap.PROCESS, process.refId, copy.id);
-		providerMap.put(process.id, copy.id);
+		conf.seq().put(ModelType.PROCESS, src.id, copy.id);
+		providerMap.put(src.id, copy.id);
 
 		// collect old default providers; they have a negative sign
 		for (var e : copy.exchanges) {
@@ -108,7 +109,9 @@ class ProcessImport {
 			// swap references
 			e.flow = conf.swap(e.flow);
 			e.flowPropertyFactor = refs.switchRef(e.flowPropertyFactor, e.flow);
-			e.unit = refs.switchRef(e.unit);
+			e.unit = e.unit != null
+					? Config.findUnit(e.flowPropertyFactor, e.unit.refId)
+					: null;
 			e.currency = conf.swap(e.currency);
 			e.location = conf.swap(e.location);
 
@@ -142,16 +145,11 @@ class ProcessImport {
 				&& e.unit != null;
 	}
 
-	private void swapAllocationProducts(Process process, Process copy) {
+	private void swapAllocationProducts(Process copy) {
 		for (var f : copy.allocationFactors) {
-			String productId = null;
-			for (var e : process.exchanges) {
-				if (e.flow != null && e.flow.id == f.productId) {
-					productId = e.flow.refId;
-					break;
-				}
+			if (f.productId != 0) {
+				f.productId = conf.seq().get(ModelType.FLOW, f.productId);
 			}
-			f.productId = conf.seq().get(SeqMap.FLOW, productId);
 		}
 	}
 

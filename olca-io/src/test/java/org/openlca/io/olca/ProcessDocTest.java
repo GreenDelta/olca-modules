@@ -118,7 +118,7 @@ public class ProcessDocTest {
 				assertTrue(scope.methods.contains("Cross checks"));
 				assertTrue(scope.methods.contains("Expert judgement"));
 				assertEquals(rev.report.refId, source.refId);
-				assertEquals(rev.reviewers.get(0).refId, actor.refId);
+				assertEquals(rev.reviewers.getFirst().refId, actor.refId);
 				assertEquals("ok", rev.assessment.get("Data quality"));
 				assertEquals("uff", rev.assessment.get("Modelling"));
 			}

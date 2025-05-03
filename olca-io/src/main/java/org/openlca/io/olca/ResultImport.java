@@ -42,7 +42,9 @@ class ResultImport {
 	private void swapRefsOf(FlowResult e) {
 		e.flow = conf.swap(e.flow);
 		e.flowPropertyFactor = refs.switchRef(e.flowPropertyFactor, e.flow);
-		e.unit = refs.switchRef(e.unit);
+		e.unit = e.unit != null
+				? Config.findUnit(e.flowPropertyFactor, e.unit.refId)
+				: null;
 		e.location = conf.swap(e.location);
 	}
 }

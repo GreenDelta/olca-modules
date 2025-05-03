@@ -1,14 +1,12 @@
 package org.openlca.io.olca;
 
-import java.util.Calendar;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openlca.core.database.UnitGroupDao;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,7 @@ class UnitGroupImport {
 	private final RefSwitcher refs;
 	private final SeqMap seq;
 
-	private final HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
+	private final List<DefaultLink> defaultLinks = new ArrayList<>();
 
 	UnitGroupImport(Config conf) {
 		this.srcDao = new UnitGroupDao(conf.source());
@@ -31,13 +29,10 @@ class UnitGroupImport {
 		this.seq = conf.seq();
 	}
 
-	/**
-	 * Returns a map with UUIDs of flow properties and corresponding unit groups
-	 * that should have these flow properties assigned as default flow property.
-	 * This can be done *after* the flow property import.
-	 */
-	public HashMap<String, UnitGroup> getRequirePropertyUpdate() {
-		return requirePropertyUpdate;
+	/// Returns the default flow property links that need to be applied after the
+	/// import of flow properties.
+	public List<DefaultLink> getDefaultLinks() {
+		return defaultLinks;
 	}
 
 	public void run() {
@@ -61,20 +56,17 @@ class UnitGroupImport {
 		boolean updated = false;
 		for (Unit srcUnit : src.units) {
 			Unit destUnit = dest.getUnit(srcUnit.name);
-			if (!updated && destUnit != null) {
-				seq.put(SeqMap.UNIT, srcUnit.refId, destUnit.id);
-			} else {
-				destUnit = srcUnit.copy();
-				destUnit.refId = srcUnit.refId;
-				dest.units.add(destUnit);
-				updated = true;
-			}
+			if (destUnit != null)
+				continue;
+			destUnit = srcUnit.copy();
+			destUnit.refId = srcUnit.refId;
+			dest.units.add(destUnit);
+			updated = true;
 		}
 		if (updated) {
-			dest.lastChange = Calendar.getInstance().getTimeInMillis();
-			Version.incUpdate(dest);
+			dest.lastChange = System.currentTimeMillis();
+			dest.version += 1;
 			dest = destDao.update(dest);
-			indexUnits(src, dest);
 			log.info("updated unit group {}", dest);
 		}
 	}
@@ -87,11 +79,10 @@ class UnitGroupImport {
 		dest.defaultFlowProperty = null;
 		dest.category = refs.switchRef(src.category);
 		dest = destDao.insert(dest);
-		seq.put(SeqMap.UNIT_GROUP, src.refId, dest.id);
-		indexUnits(src, dest);
-		FlowProperty defaultProperty = src.defaultFlowProperty;
-		if (defaultProperty != null)
-			requirePropertyUpdate.put(defaultProperty.refId, dest);
+		seq.put(ModelType.UNIT_GROUP, src.id, dest.id);
+		if (src.defaultFlowProperty != null) {
+			defaultLinks.add(new DefaultLink(dest, src.defaultFlowProperty.id));
+		}
 	}
 
 	private void switchUnitRefIds(UnitGroup srcGroup, UnitGroup destGroup) {
@@ -103,16 +94,9 @@ class UnitGroupImport {
 		}
 	}
 
-	private void indexUnits(UnitGroup srcGroup, UnitGroup destGroup) {
-		for (Unit srcUnit : srcGroup.units) {
-			Unit destUnit = destGroup.getUnit(srcUnit.name);
-			if (destUnit == null) {
-				log.error("failed to update unit group {}, {} is missing",
-						destGroup, srcUnit);
-				continue;
-			}
-			seq.put(SeqMap.UNIT, srcUnit.refId, destUnit.id);
-		}
+	/// Stores the default flow property link for a unit group. We need to set
+	/// the link after the import of flow properties.
+	record DefaultLink(UnitGroup targetUnitGroup, long sourcePropertyId) {
 	}
 
 }

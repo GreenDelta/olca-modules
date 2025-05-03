@@ -2,7 +2,6 @@ package org.openlca.io.olca;
 
 import java.util.Objects;
 
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 
@@ -43,14 +42,15 @@ class ProjectImport {
 
 	private void swapRefsOf(ProjectVariant variant) {
 		variant.productSystem = conf.swap(variant.productSystem);
-		variant.unit = refs.switchRef(variant.unit);
 		swapPropertyOf(variant);
+		variant.unit = variant.flowPropertyFactor != null && variant.unit != null
+				? Config.findUnit(variant.flowPropertyFactor, variant.unit.refId)
+				: null;
+
 		for (var param : variant.parameterRedefs) {
 			if (param.contextId == null)
 				continue;
-			param.contextId = param.contextType == ModelType.IMPACT_CATEGORY
-					? refs.getDestImpactId(param.contextId)
-					: refs.getDestProcessId(param.contextId);
+			param.contextId = conf.seq().get(param.contextType, param.contextId);
 		}
 	}
 

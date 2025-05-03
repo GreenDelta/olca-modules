@@ -32,21 +32,23 @@ class ProductSystemImport {
 		});
 	}
 
-	private void swapQRef(ProductSystem system, ProductSystem copy) {
-		if (system.referenceExchange == null || copy.referenceProcess == null)
+	private void swapQRef(ProductSystem src, ProductSystem copy) {
+		if (src.referenceExchange == null || copy.referenceProcess == null)
 			return;
 		copy.referenceExchange = copy.referenceProcess.exchanges.stream()
-				.filter(e -> isSame(system.referenceExchange, e))
+				.filter(e -> isSame(src.referenceExchange, e))
 				.findAny()
 				.orElse(null);
 		var refFlow = copy.referenceExchange != null
 				? copy.referenceExchange.flow
 				: null;
-		if (refFlow != null) {
-			copy.targetFlowPropertyFactor =
-					refs.switchRef(system.targetFlowPropertyFactor, refFlow);
-		}
-		copy.targetUnit = refs.switchRef(system.targetUnit);
+		if (refFlow == null)
+			return;
+		copy.targetFlowPropertyFactor =
+				refs.switchRef(src.targetFlowPropertyFactor, refFlow);
+		copy.targetUnit = src.targetUnit != null
+				? Config.findUnit(copy.targetFlowPropertyFactor, src.targetUnit.refId)
+				: null;
 	}
 
 	private boolean isSame(Exchange e, Exchange copy) {
