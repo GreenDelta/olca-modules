@@ -146,24 +146,20 @@ public class DatabaseImport implements Import {
 		conf.syncAll(SocialIndicator.class, src -> {
 			var copy = src.copy();
 			copy.activityQuantity = conf.swap(src.activityQuantity);
-			if (src.activityUnit != null) {
-				copy.activityUnit = Config.findUnit(
-						copy.activityQuantity, src.activityUnit.refId);
-			}
+			copy.activityUnit = conf.mapUnit(copy.activityQuantity, src.activityUnit);
 			return copy;
 		});
 	}
 
 	private void copyImpactCategories() {
-		var refs = new RefSwitcher(conf);
 		conf.syncAll(ImpactCategory.class, impact -> {
 			var copy = impact.copy();
 			copy.source = conf.swap(impact.source);
 			for (var f : copy.impactFactors) {
 				f.flow = conf.swap(f.flow);
-				f.flowPropertyFactor = refs.switchRef(f.flowPropertyFactor, f.flow);
+				f.flowPropertyFactor = conf.mapFactor(f.flow, f.flowPropertyFactor);
 				f.unit = f.unit != null
-						? Config.findUnit(f.flowPropertyFactor, f.unit.refId)
+						? conf.mapUnit(f.flowPropertyFactor, f.unit)
 						: null;
 				f.location = conf.swap(f.location);
 			}
@@ -182,9 +178,7 @@ public class DatabaseImport implements Import {
 				var p = copy.product;
 				p.flow = conf.swap(p.flow);
 				p.property = conf.swap(p.property);
-				p.unit = p.unit != null
-						? Config.findUnit(p.property, p.unit.refId)
-						: null;
+				p.unit = conf.mapUnit(p.property, p.unit);
 			}
 			for (var mod : copy.modules) {
 				mod.result = conf.swap(mod.result);

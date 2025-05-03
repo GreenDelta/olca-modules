@@ -20,7 +20,6 @@ class ProcessImport {
 	private final ImportLog log;
 	private final ProcessDao srcDao;
 	private final ProcessDao destDao;
-	private final RefSwitcher refs;
 
 	// Required for translating the default provider links: we import exchanges
 	// with possible links to processes that are not yet imported
@@ -35,7 +34,6 @@ class ProcessImport {
 		this.log = config.log();
 		this.srcDao = new ProcessDao(config.source());
 		this.destDao = new ProcessDao(config.target());
-		this.refs = new RefSwitcher(conf);
 	}
 
 	static void run(Config conf) {
@@ -108,10 +106,8 @@ class ProcessImport {
 
 			// swap references
 			e.flow = conf.swap(e.flow);
-			e.flowPropertyFactor = refs.switchRef(e.flowPropertyFactor, e.flow);
-			e.unit = e.unit != null
-					? Config.findUnit(e.flowPropertyFactor, e.unit.refId)
-					: null;
+			e.flowPropertyFactor = conf.mapFactor(e.flow, e.flowPropertyFactor);
+			e.unit = conf.mapUnit(e.flowPropertyFactor, e.unit);
 			e.currency = conf.swap(e.currency);
 			e.location = conf.swap(e.location);
 

@@ -8,11 +8,9 @@ import org.openlca.core.model.ProjectVariant;
 class ProjectImport {
 
 	private final Config conf;
-	private final RefSwitcher refs;
 
 	private ProjectImport(Config conf) {
 		this.conf = conf;
-		this.refs = new RefSwitcher(conf);
 	}
 
 	static void run(Config conf) {
@@ -43,10 +41,7 @@ class ProjectImport {
 	private void swapRefsOf(ProjectVariant variant) {
 		variant.productSystem = conf.swap(variant.productSystem);
 		swapPropertyOf(variant);
-		variant.unit = variant.flowPropertyFactor != null && variant.unit != null
-				? Config.findUnit(variant.flowPropertyFactor, variant.unit.refId)
-				: null;
-
+		variant.unit = conf.mapUnit(variant.flowPropertyFactor, variant.unit);
 		for (var param : variant.parameterRedefs) {
 			if (param.contextId == null)
 				continue;
@@ -63,7 +58,7 @@ class ProjectImport {
 			return;
 		}
 		var flow = system.referenceExchange.flow;
-		variant.flowPropertyFactor = refs.switchRef(
-				variant.flowPropertyFactor, flow);
+		variant.flowPropertyFactor = conf.mapFactor(
+				flow, variant.flowPropertyFactor);
 	}
 }

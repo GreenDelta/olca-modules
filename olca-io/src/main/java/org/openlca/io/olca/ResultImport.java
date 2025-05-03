@@ -8,11 +8,9 @@ import org.openlca.core.model.Result;
 class ResultImport {
 
 	private final Config conf;
-	private final RefSwitcher refs;
 
 	private ResultImport(Config conf) {
 		this.conf = conf;
-		this.refs = new RefSwitcher(conf);
 	}
 
 	static void run(Config conf) {
@@ -41,10 +39,8 @@ class ResultImport {
 
 	private void swapRefsOf(FlowResult e) {
 		e.flow = conf.swap(e.flow);
-		e.flowPropertyFactor = refs.switchRef(e.flowPropertyFactor, e.flow);
-		e.unit = e.unit != null
-				? Config.findUnit(e.flowPropertyFactor, e.unit.refId)
-				: null;
+		e.flowPropertyFactor = conf.mapFactor(e.flow, e.flowPropertyFactor);
+		e.unit = conf.mapUnit(e.flowPropertyFactor, e.unit);
 		e.location = conf.swap(e.location);
 	}
 }

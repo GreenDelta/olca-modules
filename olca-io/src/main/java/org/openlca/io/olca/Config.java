@@ -4,12 +4,12 @@ import java.util.function.Function;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
-import org.slf4j.LoggerFactory;
 
 record Config(
 		IDatabase source,
@@ -41,7 +41,7 @@ record Config(
 		}
 	}
 
-	boolean isMapped(ModelType seqType,long sourceId) {
+	boolean isMapped(ModelType seqType, long sourceId) {
 		return seq.isMapped(seqType, sourceId);
 	}
 
@@ -77,29 +77,59 @@ record Config(
 		return (T) target.get(clazz, id);
 	}
 
-	static Unit findUnit(FlowPropertyFactor fac, String unitRefId) {
-		return fac != null
-				? findUnit(fac.flowProperty, unitRefId)
+	/// Returns the corresponding flow property factor of the destination flow.
+	FlowPropertyFactor mapFactor(Flow destFlow, FlowPropertyFactor srcFactor) {
+		if (srcFactor == null || destFlow == null)
+			return null;
+		FlowProperty srcProp = srcFactor.flowProperty;
+		if (srcProp == null)
+			return null;
+		long propId = seq.get(ModelType.FLOW_PROPERTY, srcProp.id);
+		for (FlowPropertyFactor fac : destFlow.flowPropertyFactors) {
+			if (fac.flowProperty == null)
+				continue;
+			if (propId == fac.flowProperty.id)
+				return fac;
+		}
+
+		log.error("could not find flow property "
+				+ srcFactor.flowProperty.refId + " in flow " + destFlow.refId);
+		return null;
+	}
+
+	Unit mapUnit(FlowPropertyFactor destFac, Unit srcUnit) {
+		return destFac != null
+				? mapUnit(destFac.flowProperty, srcUnit)
 				: null;
 	}
 
-	static Unit findUnit(FlowProperty prop, String unitRefId) {
-		if (prop == null || prop.unitGroup == null || unitRefId == null)
+	Unit mapUnit(FlowProperty destProp, Unit srcUnit) {
+		if (destProp == null
+				|| destProp.unitGroup == null
+				|| srcUnit == null)
 			return null;
 
 		// first check the reference unit, because this is often requested
-		var refUnit = prop.getReferenceUnit();
-		if (refUnit != null && unitRefId.equals(refUnit.refId))
-			return refUnit;
+		var refUnit = destProp.getReferenceUnit();
 
-		// then check the other units in the group
-		for (var u : prop.unitGroup.units) {
-			if (unitRefId.equals(u.refId))
-				return u;
+		// first, try to find it by refId
+		var refId = srcUnit.refId;
+		if (refId != null) {
+			if (refUnit != null && refId.equals(refUnit.refId))
+				return refUnit;
+			for (var u : destProp.unitGroup.units) {
+				if (refId.equals(u.refId))
+					return u;
+			}
 		}
 
-		LoggerFactory.getLogger(Config.class)
-				.error("could not fiend unit {} in flow property {}", unitRefId, prop);
+		// then, try to find it by name
+		var u = destProp.unitGroup.getUnit(srcUnit.name);
+		if (u != null)
+			return u;
+
+		log.error("could not find unit " + srcUnit.name
+				+ " in flow property " + destProp.name);
 		return null;
 	}
 }

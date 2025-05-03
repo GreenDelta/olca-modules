@@ -9,12 +9,10 @@ class ProductSystemImport {
 
 	private final Config conf;
 	private final SeqMap seq;
-	private final RefSwitcher refs;
 
 	private ProductSystemImport(Config conf) {
 		this.conf = conf;
 		this.seq = conf.seq();
-		this.refs = new RefSwitcher(conf);
 	}
 
 	static void run(Config conf) {
@@ -45,10 +43,9 @@ class ProductSystemImport {
 		if (refFlow == null)
 			return;
 		copy.targetFlowPropertyFactor =
-				refs.switchRef(src.targetFlowPropertyFactor, refFlow);
-		copy.targetUnit = src.targetUnit != null
-				? Config.findUnit(copy.targetFlowPropertyFactor, src.targetUnit.refId)
-				: null;
+				conf.mapFactor(refFlow, src.targetFlowPropertyFactor);
+		copy.targetUnit =
+				conf.mapUnit(copy.targetFlowPropertyFactor, src.targetUnit);
 	}
 
 	private boolean isSame(Exchange e, Exchange copy) {
