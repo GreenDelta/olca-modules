@@ -1,14 +1,9 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RefEntityDao;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RefEntity;
 
 /**
  * We copy most of the entities from the source database to the target database
@@ -21,25 +16,9 @@ import org.openlca.core.model.RefEntity;
 class RefSwitcher {
 
 	private final SeqMap seq;
-	private final IDatabase target;
 
 	RefSwitcher(Config conf) {
-		this.target = conf.target();
 		this.seq = conf.seq();
-	}
-
-	Category switchRef(Category srcCategory) {
-		return switchRef(ModelType.CATEGORY, new CategoryDao(target), srcCategory);
-	}
-
-	private <T extends RefEntity> T switchRef(
-			ModelType type, RefEntityDao<T, ?> dao, T srcEntity) {
-		if (srcEntity == null)
-			return null;
-		long id = seq.get(type, srcEntity.id);
-		if (id == 0)
-			return null;
-		return dao.getForId(id);
 	}
 
 	/**

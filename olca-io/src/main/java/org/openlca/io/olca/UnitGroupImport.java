@@ -15,17 +15,17 @@ class UnitGroupImport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private final Config conf;
 	private final UnitGroupDao srcDao;
 	private final UnitGroupDao destDao;
-	private final RefSwitcher refs;
 	private final SeqMap seq;
 
 	private final List<DefaultLink> defaultLinks = new ArrayList<>();
 
 	UnitGroupImport(Config conf) {
+		this.conf = conf;
 		this.srcDao = new UnitGroupDao(conf.source());
 		this.destDao = new UnitGroupDao(conf.target());
-		this.refs = new RefSwitcher(conf);
 		this.seq = conf.seq();
 	}
 
@@ -77,7 +77,7 @@ class UnitGroupImport {
 		dest.refId = src.refId;
 		switchUnitRefIds(src, dest);
 		dest.defaultFlowProperty = null;
-		dest.category = refs.switchRef(src.category);
+		dest.category = conf.swap(src.category);
 		dest = destDao.insert(dest);
 		seq.put(ModelType.UNIT_GROUP, src.id, dest.id);
 		if (src.defaultFlowProperty != null) {
