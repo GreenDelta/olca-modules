@@ -2,6 +2,7 @@ package org.openlca.io.olca;
 
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.ModelType;
 
 import com.google.common.base.Objects;
 
@@ -23,20 +24,25 @@ class CurrencyImport {
 			var ref = sourceDao.getReferenceCurrency();
 			if (ref == null)
 				return;
-			var targetRef = !conf.contains(Seq.CURRENCY, ref.refId)
-					? copy(ref, null)
-					: conf.target().get(Currency.class, ref.refId);
+
+			// first copy the reference currency
+			var targetRef = conf.isMapped(ModelType.CURRENCY, ref.id)
+					? conf.target().get(Currency.class, ref.refId)
+					: copy(ref, null);
 			if (targetRef == null) {
 				conf.log().error(
 						"failed to copy reference currency; " + ref.refId);
 				return;
 			}
-			for (var c : sourceDao.getAll()) {
-				if (Objects.equal(ref, c))
+
+			// now copy all other currencies and link them to the
+			// reference currency
+			for (var src : sourceDao.getAll()) {
+				if (Objects.equal(ref, src))
 					continue;
-				if (conf.contains(Seq.CURRENCY, c.refId))
+				if (conf.isMapped(ModelType.CURRENCY, src.id))
 					continue;
-				copy(c, targetRef);
+				copy(src, targetRef);
 			}
 		} catch (Exception e) {
 			conf.log().error("Currency import failed", e);

@@ -24,7 +24,7 @@ class Entities {
 	}
 
 	static void copyRefFields(RefEntity from, RefEntity to) {
-		to.refId = (UUID.randomUUID().toString());
+		to.refId = UUID.randomUUID().toString();
 		to.name = from.name;
 		to.description = from.description;
 	}

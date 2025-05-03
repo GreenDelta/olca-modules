@@ -44,7 +44,7 @@ class ProcessImport {
 	private void run() {
 		for (var d : srcDao.getDescriptors()) {
 			try {
-				long destId = conf.seq().get(Seq.PROCESS, d.refId);
+				long destId = conf.seq().get(SeqMap.PROCESS, d.refId);
 				if (destId != 0) {
 					providerMap.put(d.id, destId);
 				} else {
@@ -82,7 +82,7 @@ class ProcessImport {
 		}
 
 		copy = destDao.insert(copy);
-		conf.seq().put(Seq.PROCESS, process.refId, copy.id);
+		conf.seq().put(SeqMap.PROCESS, process.refId, copy.id);
 		providerMap.put(process.id, copy.id);
 
 		// collect old default providers; they have a negative sign
@@ -151,7 +151,7 @@ class ProcessImport {
 					break;
 				}
 			}
-			f.productId = conf.seq().get(Seq.FLOW, productId);
+			f.productId = conf.seq().get(SeqMap.FLOW, productId);
 		}
 	}
 

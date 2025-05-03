@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
@@ -19,7 +20,7 @@ class UnitGroupImport {
 	private final UnitGroupDao srcDao;
 	private final UnitGroupDao destDao;
 	private final RefSwitcher refs;
-	private final Seq seq;
+	private final SeqMap seq;
 
 	private final HashMap<String, UnitGroup> requirePropertyUpdate = new HashMap<>();
 
@@ -42,55 +43,55 @@ class UnitGroupImport {
 	public void run() {
 		log.trace("import unit groups");
 		try {
-			for (var descriptor : srcDao.getDescriptors()) {
-				if (seq.contains(Seq.UNIT_GROUP, descriptor.refId))
-					synchUnitGroup(descriptor);
-				else
-					createUnitGroup(descriptor);
+			for (var src : srcDao.getDescriptors()) {
+				if (seq.isMapped(ModelType.UNIT_GROUP, src.id)) {
+					syncUnitGroup(src);
+				} else {
+					createUnitGroup(src);
+				}
 			}
 		} catch (Exception e) {
 			log.error("failed to import unit groups", e);
 		}
 	}
 
-	private void synchUnitGroup(UnitGroupDescriptor descriptor) {
-		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
-		UnitGroup destGroup = destDao.getForId(seq.get(Seq.UNIT_GROUP,
-				descriptor.refId));
+	private void syncUnitGroup(UnitGroupDescriptor d) {
+		UnitGroup src = srcDao.getForId(d.id);
+		UnitGroup dest = destDao.getForId(seq.get(ModelType.UNIT_GROUP, d.id));
 		boolean updated = false;
-		for (Unit srcUnit : srcGroup.units) {
-			Unit destUnit = destGroup.getUnit(srcUnit.name);
+		for (Unit srcUnit : src.units) {
+			Unit destUnit = dest.getUnit(srcUnit.name);
 			if (!updated && destUnit != null) {
-				seq.put(Seq.UNIT, srcUnit.refId, destUnit.id);
+				seq.put(SeqMap.UNIT, srcUnit.refId, destUnit.id);
 			} else {
 				destUnit = srcUnit.copy();
 				destUnit.refId = srcUnit.refId;
-				destGroup.units.add(destUnit);
+				dest.units.add(destUnit);
 				updated = true;
 			}
 		}
 		if (updated) {
-			destGroup.lastChange = Calendar.getInstance().getTimeInMillis();
-			Version.incUpdate(destGroup);
-			destGroup = destDao.update(destGroup);
-			indexUnits(srcGroup, destGroup);
-			log.info("updated unit group {}", destGroup);
+			dest.lastChange = Calendar.getInstance().getTimeInMillis();
+			Version.incUpdate(dest);
+			dest = destDao.update(dest);
+			indexUnits(src, dest);
+			log.info("updated unit group {}", dest);
 		}
 	}
 
-	private void createUnitGroup(UnitGroupDescriptor descriptor) {
-		UnitGroup srcGroup = srcDao.getForId(descriptor.id);
-		UnitGroup destGroup = srcGroup.copy();
-		destGroup.refId = srcGroup.refId;
-		switchUnitRefIds(srcGroup, destGroup);
-		destGroup.defaultFlowProperty = null;
-		destGroup.category = refs.switchRef(srcGroup.category);
-		destGroup = destDao.insert(destGroup);
-		seq.put(Seq.UNIT_GROUP, srcGroup.refId, destGroup.id);
-		indexUnits(srcGroup, destGroup);
-		FlowProperty defaultProperty = srcGroup.defaultFlowProperty;
+	private void createUnitGroup(UnitGroupDescriptor d) {
+		UnitGroup src = srcDao.getForId(d.id);
+		UnitGroup dest = src.copy();
+		dest.refId = src.refId;
+		switchUnitRefIds(src, dest);
+		dest.defaultFlowProperty = null;
+		dest.category = refs.switchRef(src.category);
+		dest = destDao.insert(dest);
+		seq.put(SeqMap.UNIT_GROUP, src.refId, dest.id);
+		indexUnits(src, dest);
+		FlowProperty defaultProperty = src.defaultFlowProperty;
 		if (defaultProperty != null)
-			requirePropertyUpdate.put(defaultProperty.refId, destGroup);
+			requirePropertyUpdate.put(defaultProperty.refId, dest);
 	}
 
 	private void switchUnitRefIds(UnitGroup srcGroup, UnitGroup destGroup) {
@@ -110,7 +111,7 @@ class UnitGroupImport {
 						destGroup, srcUnit);
 				continue;
 			}
-			seq.put(Seq.UNIT, srcUnit.refId, destUnit.id);
+			seq.put(SeqMap.UNIT, srcUnit.refId, destUnit.id);
 		}
 	}
 

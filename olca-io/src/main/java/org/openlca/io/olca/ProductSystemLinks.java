@@ -123,7 +123,7 @@ class ProductSystemLinks {
 				id = queryId(sql);
 			} catch (Exception e) {
 				Logger log = LoggerFactory.getLogger(getClass());
-				log.error("failed to search exchange: " + sql, e);
+				log.error("failed to search exchange: {}", sql, e);
 				id = -1;
 			}
 		}

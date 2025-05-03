@@ -80,7 +80,7 @@ public class DatabaseImport implements Import {
 		var db = conf.target();
 		for (var refId : requireUpdate.keySet()) {
 			var unitGroup = requireUpdate.get(refId);
-			long propId = conf.seq().get(Seq.FLOW_PROPERTY, refId);
+			long propId = conf.seq().get(SeqMap.FLOW_PROPERTY, refId);
 			unitGroup.defaultFlowProperty = db.get(FlowProperty.class, propId);
 			db.update(unitGroup);
 		}
@@ -124,7 +124,7 @@ public class DatabaseImport implements Import {
 				.filter(p -> !existing.contains(p.name))
 				.forEach(p -> {
 					var copy = p.copy();
-					if (!conf.seq().contains(Seq.CATEGORY, p.refId)) {
+					if (!conf.seq().contains(SeqMap.CATEGORY, p.refId)) {
 						copy.refId = p.refId;
 					}
 					copy.category = conf.swap(p.category);
@@ -149,7 +149,7 @@ public class DatabaseImport implements Import {
 			var copy = indicator.copy();
 			copy.activityQuantity = conf.swap(indicator.activityQuantity);
 			if (indicator.activityUnit != null) {
-				long unitId = conf.seq().get(Seq.UNIT, indicator.activityUnit.refId);
+				long unitId = conf.seq().get(SeqMap.UNIT, indicator.activityUnit.refId);
 				copy.activityUnit = new UnitDao(conf.target()).getForId(unitId);
 			}
 			return copy;

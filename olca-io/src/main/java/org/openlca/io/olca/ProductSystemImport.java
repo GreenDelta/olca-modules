@@ -8,10 +8,12 @@ import org.openlca.util.Strings;
 class ProductSystemImport {
 
 	private final Config conf;
+	private final SeqMap seq;
 	private final RefSwitcher refs;
 
 	private ProductSystemImport(Config conf) {
 		this.conf = conf;
+		this.seq = conf.seq();
 		this.refs = new RefSwitcher(conf);
 	}
 
@@ -62,8 +64,8 @@ class ProductSystemImport {
 				if (p.contextId == null)
 					continue;
 				p.contextId = p.contextType == ModelType.IMPACT_CATEGORY
-						? refs.getDestImpactId(p.contextId)
-						: refs.getDestProcessId(p.contextId);
+						? seq.get(ModelType.IMPACT_CATEGORY, p.contextId)
+						: seq.get(ModelType.PROCESS, p.contextId);
 			}
 		}
 	}

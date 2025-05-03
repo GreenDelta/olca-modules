@@ -11,7 +11,7 @@ class CategoryImport {
 
 	private final CategoryDao sourceDao;
 	private final CategoryDao destDao;
-	private final Seq seq;
+	private final SeqMap seq;
 
 	private CategoryImport(Config conf) {
 		this.sourceDao = new CategoryDao(conf.source());
@@ -79,7 +79,7 @@ class CategoryImport {
 	private void index(Category srcRoot, Category destRoot) {
 		if (srcRoot == null || destRoot == null)
 			return;
-		seq.put(Seq.CATEGORY, srcRoot.refId, destRoot.id);
+		seq.put(ModelType.CATEGORY, srcRoot.id, destRoot.id);
 		for (var srcChild : srcRoot.childCategories) {
 			var destChild = find(srcChild, destRoot.childCategories);
 			index(srcChild, destChild);
