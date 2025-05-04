@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
@@ -15,6 +16,7 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.io.Import;
@@ -54,6 +56,7 @@ public class DatabaseImport implements Import {
 			CategoryImport.run(conf);
 			copyUnits();
 			copyEntities();
+			swapDefaultProviders();
 			copyMappingFiles();
 			FileImport.run(conf);
 		} catch (Exception e) {
@@ -206,5 +209,23 @@ public class DatabaseImport implements Import {
 				conf.log().error("failed to copy mapping file " + file.name, e);
 			}
 		}
+	}
+
+	private void swapDefaultProviders() {
+		// see the process import for more information how default providers
+		// are handled (as negative values of their original IDs when they are
+		// not available in the import yet)
+		var q = "select f_default_provider, default_provider_type " +
+				"from tbl_exchanges where f_default_provider < 0";
+		NativeSql.on(conf.target()).updateRows(q, r -> {
+			long sourceId = Math.abs(r.getLong(1));
+			var type = ProviderType.toModelType(r.getByte(2));
+			long targetId = conf.seq().get(type, sourceId);
+			if (targetId > 0) {
+				r.updateLong(1, targetId);
+				r.updateRow();
+			}
+			return true;
+		});
 	}
 }
