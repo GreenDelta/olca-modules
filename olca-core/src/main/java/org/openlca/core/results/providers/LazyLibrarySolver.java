@@ -3,8 +3,11 @@ package org.openlca.core.results.providers;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
@@ -54,7 +57,7 @@ public class LazyLibrarySolver implements ResultProvider {
 	private final TIntObjectHashMap<double[]> directImpacts = newCache();
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
-	private double totalCosts;
+	private Double totalCosts;
 	private double[] directCosts;
 	private final TIntObjectMap<Double> totalCostsOfOne;
 
@@ -689,8 +692,8 @@ public class LazyLibrarySolver implements ResultProvider {
 
 	@Override
 	public double directCostsOf(int techFlow) {
-		return directCosts != null
-				? directCosts[techFlow]
+		return hasCosts()
+				? directCosts()[techFlow]
 				: 0;
 	}
 
@@ -705,13 +708,71 @@ public class LazyLibrarySolver implements ResultProvider {
 			return 0;
 
 		var s = solutionOfOne(techFlow);
-		var c = solver.dot(s, directCosts);
+		var c = solver.dot(s, directCosts());
 		totalCostsOfOne.put(techFlow, c);
 		return c;
 	}
 
 	@Override
 	public double totalCosts() {
+		if (!hasCosts())
+			return 0;
+		if (totalCosts != null)
+			return totalCosts;
+		totalCosts = solver.dot(scalingVector, directCosts());
 		return totalCosts;
 	}
+
+	private double[] directCosts() {
+		if (directCosts != null)
+			return directCosts;
+
+		var s = scalingVector;
+		var costs = new double[s.length];
+		var libCosts = LibCosts.allOf(usedLibs, libs);
+		var techIdx = techIndex();
+
+		for (int i = 0; i < techIdx.size(); i++) {
+			var techFlow = techIdx.at(i);
+
+			if (techFlow.isFromLibrary()) {
+				var cs = libCosts.get(techFlow.library());
+				if (cs != null) {
+					costs[i] = s[i] * cs.get(techFlow);
+				}
+			} else {
+				if (foregroundData.costVector == null)
+					continue;
+				var j = foregroundData.techIndex.of(techFlow);
+				costs[i] = s[i] * foregroundData.costVector[j];
+			}
+		}
+
+		directCosts = costs;
+		return directCosts;
+	}
+
+	private record LibCosts(TechIndex libIdx, double[] costs) {
+
+		static Map<String, LibCosts> allOf(
+				Set<String> usedLibs, LibReaderRegistry libs
+		) {
+			var map = new HashMap<String, LibCosts>();
+			for (var libId : usedLibs) {
+				var lib = libs.get(libId);
+				if (lib == null || !lib.hasCostData())
+					continue;
+				map.put(libId, new LibCosts(lib.techIndex(), lib.costs()));
+			}
+			return map;
+		}
+
+		double get(TechFlow techFlow) {
+			if (costs == null || libIdx == null)
+				return 0;
+			int i = libIdx.of(techFlow);
+			return costs[i];
+		}
+	}
+
 }
