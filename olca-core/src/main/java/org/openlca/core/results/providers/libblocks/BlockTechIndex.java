@@ -56,7 +56,7 @@ public class BlockTechIndex {
 
 	private boolean areSparse(List<Block> blocks) {
 		if (blocks.size() == 1)
-			return blocks.get(0).isSparse();
+			return blocks.getFirst().isSparse();
 		double entries = 0;
 		double total = 0;
 		for (var block : blocks) {
