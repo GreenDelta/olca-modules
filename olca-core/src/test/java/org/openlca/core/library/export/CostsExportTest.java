@@ -14,7 +14,9 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.Mounter;
-import org.openlca.core.math.SystemCalculator;
+import org.openlca.core.library.reader.LibReaderRegistry;
+import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Exchange;
@@ -23,6 +25,11 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.results.LcaResult;
+import org.openlca.core.results.providers.InMemLibrarySolver;
+import org.openlca.core.results.providers.LazyLibrarySolver;
+import org.openlca.core.results.providers.SolverContext;
+import org.openlca.core.results.providers.libblocks.LibraryInversionSolver;
 import org.openlca.npy.Npy;
 import org.openlca.util.Dirs;
 
@@ -121,7 +128,7 @@ public class CostsExportTest {
 	/// library processes and calculate it. The expected total cost
 	/// result for each of these processes is then equal to the cost
 	/// intensities of the library (but with a negative value for the
-	/// waste flow: [-6.25-1.625-1.0]
+	/// waste flow: [-6.25, -1.625, -1.0]
 	@Test
 	public void testMountAndCalc() {
 		var lib = Library.of(libDir);
@@ -155,12 +162,28 @@ public class CostsExportTest {
 			}
 			db.insert(sys);
 
-			var setup = CalculationSetup.of(sys).withCosts(true);
-			var r = new SystemCalculator(db)
-					.withLibraries(LibraryDir.of(libRoot))
-					.calculate(setup);
-			assertEquals(expected[i], r.getTotalCosts(), 1e-16);
+			// we test this with all possible library result providers
+			var setup = CalculationSetup.of(sys)
+					.withCosts(true);
+			var techIdx = TechIndex.of(db, setup);
+			var data = MatrixData.of(db, techIdx)
+					.withSetup(setup)
+					.build();
+			var libs = LibReaderRegistry.of(db,LibraryDir.of(libRoot) );
+			var context = SolverContext.of(db, data)
+					.withLibraries(libs)
+					.withSolver(Tests.getDefaultSolver());
+
+			var providers = List.of(
+					LazyLibrarySolver.solve(context),
+					InMemLibrarySolver.solve(context),
+					LibraryInversionSolver.solve(context)
+			);
+			for (var p : providers) {
+				var r = new LcaResult(p);
+				assertEquals("failed with " + p.getClass().getSimpleName(),
+						expected[i], r.getTotalCosts(), 1e-16);
+			}
 		}
 	}
-
 }

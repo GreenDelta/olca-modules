@@ -3,6 +3,7 @@ package org.openlca.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
@@ -18,6 +19,7 @@ public class Tests {
 	private static final boolean USE_FILE_BASED_DB = false;
 	private static IDatabase db;
 	private static List<MatrixSolver> solvers;
+	private static MatrixSolver defaultSolver;
 
 	public static List<MatrixSolver> getSolvers() {
 		if (solvers != null)
@@ -37,7 +39,7 @@ public class Tests {
 				solvers.add(new NativeSolver());
 			}
 
-      // the MKL based solver
+			// the MKL based solver
 			if (!MKL.isLoaded() && MKL.isLibraryDir(dataDir)) {
 				MKL.loadFrom(dataDir);
 			}
@@ -49,7 +51,21 @@ public class Tests {
 	}
 
 	public static MatrixSolver getDefaultSolver() {
-		return new JavaSolver();
+		if (defaultSolver != null)
+			return defaultSolver;
+		MatrixSolver solver = null;
+		for (var s : getSolvers()) {
+			if (s instanceof MKLSolver) {
+				solver = s;
+				break;
+			}
+			if (solver == null
+					|| (!solver.isNative() && s.isNative())) {
+				solver = s;
+			}
+		}
+		defaultSolver = Objects.requireNonNull(solver);
+		return defaultSolver;
 	}
 
 	public static void emptyCache() {

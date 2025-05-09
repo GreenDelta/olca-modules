@@ -263,7 +263,12 @@ public class InMemLibrarySolver {
 				TechIndex idx, double[] costs, TDoubleArrayList buffer
 		) {
 			var fullIdx = full.techIndex;
-			buffer.ensureCapacity(fullIdx.size());
+			if (buffer.size() < fullIdx.size()) {
+				buffer.ensureCapacity(fullIdx.size());
+				for (int i = buffer.size(); i < fullIdx.size(); i++) {
+					buffer.add(0);
+				}
+			}
 			if (costs == null)
 				return;
 			for (var col = 0; col < costs.length; col++) {

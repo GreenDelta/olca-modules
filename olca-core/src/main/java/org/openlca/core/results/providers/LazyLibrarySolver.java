@@ -58,7 +58,7 @@ public class LazyLibrarySolver implements ResultProvider {
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
 	private Double totalCosts;
-	private double[] directCosts;
+	private double[] _costs;
 	private final TIntObjectMap<Double> totalCostsOfOne;
 
 	private LazyLibrarySolver(SolverContext context) {
@@ -693,7 +693,7 @@ public class LazyLibrarySolver implements ResultProvider {
 	@Override
 	public double directCostsOf(int techFlow) {
 		return hasCosts()
-				? directCosts()[techFlow]
+				? costs()[techFlow]
 				: 0;
 	}
 
@@ -704,11 +704,9 @@ public class LazyLibrarySolver implements ResultProvider {
 		var cached = totalCostsOfOne.get(techFlow);
 		if (cached != null)
 			return cached;
-		if (directCosts == null)
-			return 0;
 
 		var s = solutionOfOne(techFlow);
-		var c = solver.dot(s, directCosts());
+		var c = solver.dot(s, costs());
 		totalCostsOfOne.put(techFlow, c);
 		return c;
 	}
@@ -719,18 +717,17 @@ public class LazyLibrarySolver implements ResultProvider {
 			return 0;
 		if (totalCosts != null)
 			return totalCosts;
-		totalCosts = solver.dot(scalingVector, directCosts());
+		totalCosts = solver.dot(scalingVector, costs());
 		return totalCosts;
 	}
 
-	private double[] directCosts() {
-		if (directCosts != null)
-			return directCosts;
+	private double[] costs() {
+		if (_costs != null)
+			return _costs;
 
-		var s = scalingVector;
-		var costs = new double[s.length];
-		var libCosts = LibCosts.allOf(usedLibs, libs);
 		var techIdx = techIndex();
+		var costs = new double[techIdx.size()];
+		var libCosts = LibCosts.allOf(usedLibs, libs);
 
 		for (int i = 0; i < techIdx.size(); i++) {
 			var techFlow = techIdx.at(i);
@@ -738,18 +735,18 @@ public class LazyLibrarySolver implements ResultProvider {
 			if (techFlow.isFromLibrary()) {
 				var cs = libCosts.get(techFlow.library());
 				if (cs != null) {
-					costs[i] = s[i] * cs.get(techFlow);
+					costs[i] = cs.get(techFlow);
 				}
 			} else {
 				if (foregroundData.costVector == null)
 					continue;
 				var j = foregroundData.techIndex.of(techFlow);
-				costs[i] = s[i] * foregroundData.costVector[j];
+				costs[i] = foregroundData.costVector[j];
 			}
 		}
 
-		directCosts = costs;
-		return directCosts;
+		_costs = costs;
+		return _costs;
 	}
 
 	private record LibCosts(TechIndex libIdx, double[] costs) {
