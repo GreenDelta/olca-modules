@@ -104,6 +104,17 @@ public interface MatrixSolver {
 	 * platform native high-performance math-library.
 	 */
 	default boolean isNative() {
-		return this instanceof NativeSolver;
+		return this instanceof NativeSolver || this instanceof MKLSolver;
+	}
+
+	default double dot(double[] a, double[] b) {
+		if (a == null || b == null)
+			return 0;
+		int n = Math.min(a.length, b.length);
+		double s = 0.0;
+		for (int i = 0; i < n; i++) {
+			s += a[i] * b[i];
+		}
+		return s;
 	}
 }

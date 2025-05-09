@@ -24,6 +24,7 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.util.Pair;
 
 import gnu.trove.impl.Constants;
+import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LazyLibrarySolver implements ResultProvider {
@@ -53,6 +54,10 @@ public class LazyLibrarySolver implements ResultProvider {
 	private final TIntObjectHashMap<double[]> directImpacts = newCache();
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
+	private double totalCosts;
+	private double[] directCosts;
+	private final TIntObjectMap<Double> totalCostsOfOne;
+
 	private LazyLibrarySolver(SolverContext context) {
 		this.db = context.db();
 		this.libs = context.libraries();
@@ -65,6 +70,9 @@ public class LazyLibrarySolver implements ResultProvider {
 		this.foregroundSolution = InversionResult.of(context)
 				.calculate()
 				.provider();
+		this.totalCostsOfOne = foregroundData.costVector != null
+				? new TIntObjectHashMap<>()
+				: null;
 	}
 
 	private static TIntObjectHashMap<double[]> newCache() {
@@ -157,8 +165,7 @@ public class LazyLibrarySolver implements ResultProvider {
 
 	@Override
 	public boolean hasCosts() {
-		// TODO: not yet implemented
-		return false;
+		return foregroundData.costVector != null;
 	}
 
 	@Override
@@ -682,17 +689,29 @@ public class LazyLibrarySolver implements ResultProvider {
 
 	@Override
 	public double directCostsOf(int techFlow) {
-		// TODO: not yet implemented
-		return 0;
+		return directCosts != null
+				? directCosts[techFlow]
+				: 0;
 	}
 
 	@Override
 	public double totalCostsOfOne(int techFlow) {
-		return 0;
+		if (totalCostsOfOne == null)
+			return 0;
+		var cached = totalCostsOfOne.get(techFlow);
+		if (cached != null)
+			return cached;
+		if (directCosts == null)
+			return 0;
+
+		var s = solutionOfOne(techFlow);
+		var c = solver.dot(s, directCosts);
+		totalCostsOfOne.put(techFlow, c);
+		return c;
 	}
 
 	@Override
 	public double totalCosts() {
-		return 0;
+		return totalCosts;
 	}
 }

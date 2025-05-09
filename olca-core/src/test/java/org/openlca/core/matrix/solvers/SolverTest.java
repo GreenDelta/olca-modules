@@ -2,6 +2,7 @@ package org.openlca.core.matrix.solvers;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
@@ -112,5 +113,4 @@ public class SolverTest {
 		flow.id = id;
 		return flow;
 	}
-
 }
