@@ -63,6 +63,17 @@ import org.openlca.util.Dirs;
 ///
 /// 	direct_costs = costs * diagm(s)
 ///# = [1.93  -9.93]
+///
+///   INV = A^-1
+/// 	t = diag(A) .* s
+/// 	tau = t ./ (diag(A) .* diag(INV))
+/// 	# = [0.875, 1.0]
+///
+/// 	cost_intensities = costs * INV
+/// 	# = [0.0  8.0]
+///
+/// 	upstream_costs = cost_intensities * diagm(tau)
+///  	# = = [0.0  8.0]
 ///```
 public class ScalingCostsExportTest {
 
@@ -157,19 +168,33 @@ public class ScalingCostsExportTest {
 				InMemLibrarySolver.solve(context),
 				LibraryInversionSolver.solve(context)
 		);
+
+
+		var tfT = TechFlow.of(T);
+		var tfQ = TechFlow.of(Q);
+		var tfP = TechFlow.of(db.getForName(Process.class, "P"));
+		var techFlows = List.of(tfT, tfQ, tfP);
+
 		for (var p : providers) {
-			var name =  p.getClass().getSimpleName();
+			var name = p.getClass().getSimpleName();
 			var r = new LcaResult(p);
 			assertEquals("incorrect total costs with " + name,
 					-8.0, r.getTotalCosts(), 1e-8);
 
-			var tfQ = TechFlow.of(Q);
-			assertEquals("incorrect direct costs with " + name,
-					-9.93103448275862, r.getDirectCostsOf(tfQ), 1e-8);
-
-			var tfP = TechFlow.of(db.getForName(Process.class, "P"));
-			assertEquals("incorrect direct costs with " + name,
-					1.93103448275862, r.getDirectCostsOf(tfP), 1e-8);
+			var expectedDirect = new double[]{
+					0.0, -9.93103448275862, 1.93103448275862};
+			for (int i = 0; i < techFlows.size(); i++) {
+				var tf = techFlows.get(i);
+				assertEquals("incorrect direct costs with " + name,
+						expectedDirect[i], r.getDirectCostsOf(tf), 1e-8);
+			}
+			var expectedUpstream = new double[]{
+					-8.0, -8.0, 0.0};
+			for (int i = 0; i < techFlows.size(); i++) {
+				var tf = techFlows.get(i);
+				assertEquals("incorrect upstream costs with " + name,
+						expectedUpstream[i], r.getTotalCostsOf(tf), 1e-8);
+			}
 		}
 	}
 }

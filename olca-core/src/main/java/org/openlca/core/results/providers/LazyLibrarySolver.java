@@ -693,7 +693,7 @@ public class LazyLibrarySolver implements ResultProvider {
 	@Override
 	public double directCostsOf(int techFlow) {
 		return hasCosts()
-				? costs()[techFlow]
+				? scalingFactorOf(techFlow) * costs()[techFlow]
 				: 0;
 	}
 
