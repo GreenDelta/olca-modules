@@ -92,6 +92,8 @@ class JsonWriter implements Runnable {
 		for (var e : libProc.exchanges) {
 			e.amount = 1.0;
 			e.formula = null;
+			e.costs = null;
+			e.currency = null;
 			if (e.flow == null)
 				continue;
 			e.unit = e.flow.getReferenceUnit();

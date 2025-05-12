@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.index.TechFlow;
@@ -61,8 +62,11 @@ public final class Libraries {
 	) {
 		if (db == null || lib == null || process == null)
 			return;
+		var techFlow = TechFlow.of(process);
+
+		// add the exchanges, ignoring provider flows
+		var exchanges = lib.getExchanges(techFlow, db);
 		int iid = Math.max(process.lastInternalId, 1);
-		var exchanges = lib.getExchanges(TechFlow.of(process), db);
 		for (var e : exchanges) {
 			if (Exchanges.isProviderFlow(e))
 				continue;
@@ -71,6 +75,18 @@ public final class Libraries {
 			process.exchanges.add(e);
 		}
 		process.lastInternalId = iid;
+
+		// also, add the net costs to the quant. ref. if applicable
+		// "costs" for provider flows mean added value; so we have
+		// to invert the value
+		var qRef = process.quantitativeReference;
+		if (Exchanges.isProviderFlow(qRef)) {
+			var costs = getNetCosts(lib, techFlow);
+			if (costs != 0) {
+				qRef.costs = -costs;
+				qRef.currency = new CurrencyDao(db).getReferenceCurrency();
+			}
+		}
 	}
 
 	/// Adds all impact factors to the given impact category. This does not update
@@ -84,4 +100,13 @@ public final class Libraries {
 		impact.impactFactors.addAll(factors);
 	}
 
+	private static double getNetCosts(LibReader lib, TechFlow techFlow) {
+		if (!lib.hasCostData())
+			return 0;
+		var costs = lib.costs();
+		if (costs == null)
+			return 0;
+		int i = lib.techIndex().of(techFlow);
+		return i < 0 ? 0 : costs[i];
+	}
 }
