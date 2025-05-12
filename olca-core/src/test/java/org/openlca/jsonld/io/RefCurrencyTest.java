@@ -16,36 +16,40 @@ public class RefCurrencyTest {
 
 	@Test
 	public void testRefLink() {
-		var eur = Currency.of("EUR");
-		eur.referenceCurrency = eur;
-		var pln = Currency.of("PLN");
-		pln.referenceCurrency = eur;
-		pln.conversionFactor = 0.25;
-		db.insert(eur, pln);
+		// the error did not show up everytime so we try a few more
+		for (int i = 1; i < 10; i++) {
 
-		var store = new MemStore();
-		var exp = new JsonExport(db, store);
-		exp.write(eur);
-		exp.write(pln);
-		db.clear();
+			var eur = Currency.of("EUR");
+			eur.referenceCurrency = eur;
+			var pln = Currency.of("PLN");
+			pln.referenceCurrency = eur;
+			pln.conversionFactor = 0.25;
+			db.insert(eur, pln);
 
-		new JsonImport(store, db).run();
+			var store = new MemStore();
+			var exp = new JsonExport(db, store);
+			exp.write(eur);
+			exp.write(pln);
+			db.clear();
 
-		var cs = db.getAll(Currency.class);
-		assertEquals(2, cs.size());
-		eur = cs.stream()
-				.filter(c -> c.name.equals("EUR"))
-				.findFirst()
-				.orElseThrow();
-		pln = cs.stream()
-				.filter(c -> c.name.equals("PLN"))
-				.findFirst()
-				.orElseThrow();
+			new JsonImport(store, db).run();
 
-		assertSame(eur, eur.referenceCurrency);
-		assertSame(eur, pln.referenceCurrency);
+			var cs = db.getAll(Currency.class);
+			assertEquals(2, cs.size());
+			eur = cs.stream()
+					.filter(c -> c.name.equals("EUR"))
+					.findFirst()
+					.orElseThrow();
+			pln = cs.stream()
+					.filter(c -> c.name.equals("PLN"))
+					.findFirst()
+					.orElseThrow();
 
-		db.delete(eur, pln);
+			assertSame(eur, eur.referenceCurrency);
+			assertSame(eur, pln.referenceCurrency);
+
+			db.delete(eur, pln);
+		}
 	}
 }
 

@@ -93,6 +93,8 @@ class ImportCache {
 			}
 		}
 
+		// when there is no JSON, but the model is in the
+		// database, set it to visited
 		var json = imp.reader.get(modelType, refId);
 		if (json == null) {
 			if (model == null)
@@ -101,6 +103,7 @@ class ImportCache {
 			return ImportItem.visited(model);
 		}
 
+		// check if the model should be updated
 		if (skipImport(model, json)) {
 			visited(model);
 			return ImportItem.visited(model);
