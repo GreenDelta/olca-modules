@@ -120,11 +120,12 @@ public class EpdImport {
 			return null;
 		if (Strings.nullOrEmpty(epdName))
 			return CategoryDao.sync(imp.db(), ModelType.RESULT, base);
+		var last = epdName.replace('/', '|');
 		if (base == null)
-			return CategoryDao.sync(imp.db(), ModelType.RESULT, epdName);
+			return CategoryDao.sync(imp.db(), ModelType.RESULT, last);
 		var path = new String[base.length + 1];
 		System.arraycopy(base, 0, path, 0, base.length);
-		path[base.length] = epdName;
+		path[base.length] = last;
 		return CategoryDao.sync(imp.db(), ModelType.RESULT, path);
 	}
 
