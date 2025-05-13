@@ -314,6 +314,13 @@ public class Import implements org.openlca.io.Import {
 	}
 
 	Category syncCategory(IDataSet ds, ModelType type) {
+		var path = categoryPathOf(ds);
+		return path != null && path.length > 0
+				? CategoryDao.sync(db, type, path)
+				: null;
+	}
+
+	String[] categoryPathOf(IDataSet ds) {
 		var path = Categories.getPath(ds);
 		if (path == null || path.length == 0)
 			return null;
@@ -327,6 +334,6 @@ public class Import implements org.openlca.io.Import {
 				path[i] = seg.replace('/', '|');
 			}
 		}
-		return CategoryDao.sync(db, type, path);
+		return path;
 	}
 }

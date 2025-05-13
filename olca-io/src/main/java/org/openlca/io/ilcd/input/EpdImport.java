@@ -6,7 +6,20 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.openlca.core.model.*;
+import org.openlca.core.database.CategoryDao;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
+import org.openlca.core.model.EpdProduct;
+import org.openlca.core.model.EpdType;
+import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ImpactResult;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.Source;
+import org.openlca.ilcd.commons.IDataSet;
 import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.processes.epd.EpdValue;
@@ -59,6 +72,7 @@ public class EpdImport {
 			oEpd.product.amount = refFlow.amount;
 		}
 
+		Category resultCategory = null;
 		for (var scope : Scope.allOf(results)) {
 			var suffix = scope.toString();
 
@@ -82,7 +96,9 @@ public class EpdImport {
 					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
 			imp.log().info("import EPD result: " + result.name);
-			result.category = imp.syncCategory(ds, ModelType.RESULT);
+			result.category = resultCategory == null
+					? (resultCategory = resultCategoryOf(ds, oEpd.name))
+					: resultCategory;
 
 			if (refFlow != null) {
 				var resultRef = refFlow.copy();
@@ -96,6 +112,20 @@ public class EpdImport {
 		}
 
 		imp.insert(oEpd);
+	}
+
+	private Category resultCategoryOf(IDataSet ds, String epdName) {
+		var base = imp.categoryPathOf(ds);
+		if (base == null && Strings.nullOrEmpty(epdName))
+			return null;
+		if (Strings.nullOrEmpty(epdName))
+			return CategoryDao.sync(imp.db(), ModelType.RESULT, base);
+		if (base == null)
+			return CategoryDao.sync(imp.db(), ModelType.RESULT, epdName);
+		var path = new String[base.length + 1];
+		System.arraycopy(base, 0, path, 0, base.length);
+		path[base.length] = epdName;
+		return CategoryDao.sync(imp.db(), ModelType.RESULT, path);
 	}
 
 	private void mapEpdMetaData(Epd oEpd) {
@@ -312,7 +342,7 @@ public class EpdImport {
 		@Override
 		public String toString() {
 			if (module == null)
-				return "";
+				return "unknown";
 			return scenario != null
 					? module + " - " + scenario
 					: module;
