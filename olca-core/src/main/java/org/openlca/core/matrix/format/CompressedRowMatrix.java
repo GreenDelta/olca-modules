@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-public class CompressedRowMatrix implements Matrix {
+public final class CompressedRowMatrix implements Matrix {
 
 	double[] values;
 	int[] columnIndices;

@@ -13,6 +13,7 @@ import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
@@ -180,16 +181,36 @@ public class LibraryExport implements Runnable {
 		if (impacts.isEmpty())
 			return;
 
+		// create the impact index
 		var impactIdx = ImpactIndex.of(impacts);
 		if (data == null) {
 			data = new MatrixData();
 		}
 		data.impactIndex = impactIdx;
+
+		// make sure all elementary flows of the impacts are in the envi index
+		var impactEnviIdx = info.isRegionalized()
+				? EnviIndex.createRegionalized(db, impactIdx)
+				: EnviIndex.create(db, impactIdx);
 		if (data.enviIndex == null) {
-			data.enviIndex = info.isRegionalized()
-					? EnviIndex.createRegionalized(db, impactIdx)
-					: EnviIndex.create(db, impactIdx);
+			data.enviIndex = impactEnviIdx;
+		} else {
+			data.enviIndex.addAll(impactEnviIdx);
 		}
+
+		// when there is a technosphere matrix and an intervention index
+		// but no intervention matrix, we create an empty matrix B
+		if (data.techMatrix != null && !data.enviIndex.isEmpty()) {
+			if (data.enviMatrix == null) {
+				data.enviMatrix = new HashPointMatrix(
+						data.enviIndex.size(), data.techIndex.size());
+			} else {
+				data.enviMatrix = MatrixShape.ensureIfPresent(data.enviMatrix,
+						data.enviIndex.size(), data.techIndex.size());
+			}
+		}
+
+		// build the
 		ImpactBuilder.of(db, data.enviIndex)
 				.withUncertainties(withUncertainties)
 				.build()
