@@ -227,7 +227,7 @@ public class References {
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
 					TreeFilter filter = KnownFilesFilter.create();
-					if (path != null) {
+					if (!Strings.nullOrEmpty(path)) {
 						filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 					}
 					if (type != null && refId != null) {
