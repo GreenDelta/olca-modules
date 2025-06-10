@@ -1,7 +1,6 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -11,9 +10,9 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.GitMerge.MergeResult;
+import org.openlca.git.actions.LibraryMounter.MountException;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
-import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.Constants;
@@ -29,7 +28,6 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private Commit localCommit;
 	private Commit remoteCommit;
 	private List<Diff> changes;
-	private List<Diff> mergeResults = new ArrayList<>();
 
 	private GitMerge(ClientRepository repo) {
 		this.repo = repo;
@@ -63,28 +61,26 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	public MergeResult run() throws IOException, GitAPIException {
 		if (!prepare())
 			return MergeResult.NO_CHANGES;
-		var libraries = LibraryMounter.of(repo, localCommit, remoteCommit)
-				.with(libraryResolver)
-				.with(progressMonitor);
-		var mountResult = libraries.mountNew();
-		if (mountResult == MergeResult.MOUNT_ERROR || mountResult == MergeResult.ABORTED)
-			return mountResult;
-		var data = Data.of(repo, localCommit, remoteCommit)
-				.changes(changes)
-				.with(progressMonitor)
-				.with(conflictResolver);
-		mergeResults.addAll(data.doImport(d -> d.diffType != DiffType.DELETED, d -> d.newRef));
-		mergeResults.addAll(data.doDelete(c -> c.diffType == DiffType.DELETED, c -> c.oldRef));
-		libraries.unmountObsolete();
-		progressMonitor.beginTask("Reloading descriptors");
-		repo.descriptors.reload();
+		List<Diff> merged = null;
+		try {
+			merged = Data.of(repo, localCommit, remoteCommit)
+					.with(conflictResolver)
+					.with(libraryResolver)
+					.with(progressMonitor)
+					.changes(changes)
+					.update();
+			if (merged == null)
+				return MergeResult.ABORTED;
+		} catch (MountException e) {
+			return MergeResult.MOUNT_ERROR;
+		}
 		if (applyStash)
 			return MergeResult.SUCCESS;
 		var ahead = repo.localHistory.getAheadOf(Constants.REMOTE_REF);
 		if (ahead.isEmpty()) {
 			updateHead();
 		} else {
-			createMergeCommit();
+			createMergeCommit(merged);
 		}
 		return MergeResult.SUCCESS;
 	}
@@ -114,18 +110,18 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		return repo.commits.stash();
 	}
 
-	private String createMergeCommit() throws IOException {
+	private String createMergeCommit(List<Diff> merged) throws IOException {
 		var localLibs = repo.getLibraries(localCommit);
 		var remoteLibs = repo.getLibraries(remoteCommit);
 		if (!localLibs.equals(remoteLibs)) {
-			mergeResults.add(Diff.modified(
+			merged.add(Diff.modified(
 					repo.references.get(RepositoryInfo.FILE_NAME, remoteCommit.id),
 					new Reference(RepositoryInfo.FILE_NAME)));
 		}
 		return new DbCommitWriter(repo)
 				.as(committer)
 				.merge(localCommit.id, remoteCommit.id)
-				.write("Merge remote-tracking branch", mergeResults);
+				.write("Merge remote-tracking branch", merged);
 	}
 
 	private void updateHead() throws IOException {

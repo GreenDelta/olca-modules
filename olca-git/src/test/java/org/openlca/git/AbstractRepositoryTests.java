@@ -74,10 +74,6 @@ public abstract class AbstractRepositoryTests {
 
 		private final String name;
 
-		public TestRepository() throws GitAPIException, IOException, URISyntaxException {
-			this(null);
-		}
-
 		public TestRepository(String remotePath) throws GitAPIException, IOException, URISyntaxException {
 			super(init(remotePath), Derby.createInMemory());
 			var id = UUID.randomUUID().toString();

@@ -7,7 +7,6 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
-import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.ClientRepository;
 
 public class GitReset extends GitProgressAction<String> {
@@ -43,9 +42,12 @@ public class GitReset extends GitProgressAction<String> {
 	@Override
 	public String run() throws IOException {
 		checkValidInputs();
-		updateDatabase();
-		progressMonitor.beginTask("Reloading descriptors");
-		repo.descriptors.reload();
+		Data.of(repo, commit)
+				.with(libraryResolver)
+				.with(progressMonitor)
+				.changes(changes)
+				.undo()
+				.update();
 		return null;
 	}
 
@@ -61,21 +63,6 @@ public class GitReset extends GitProgressAction<String> {
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");
 		Compatibility.checkRepositoryClientVersion(repo);
-	}
-
-	private void updateDatabase() throws IOException {
-		var libraries = LibraryMounter.of(repo, commit)
-				.with(libraryResolver)
-				.with(progressMonitor);
-		libraries.mountNew();
-		var data = Data.of(repo, commit)
-				.changes(changes)
-				.with(progressMonitor);
-		if (commit != null) {
-			data.doImport(d -> d.diffType != DiffType.ADDED, d -> d.oldRef);
-		}
-		data.doDelete(d -> d.diffType == DiffType.ADDED, d -> d.newRef);
-		libraries.unmountObsolete();
 	}
 
 }
