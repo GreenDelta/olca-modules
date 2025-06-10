@@ -310,6 +310,8 @@ public class ModelReferences {
 				return true;
 			var name = rs.getString(2);
 			var parameterId = nameToParameter.get(name);
+			if (parameterId == null)
+				return true;
 			putRef(ownerType, ownerId, ModelType.PARAMETER, parameterId);
 			return true;
 		});

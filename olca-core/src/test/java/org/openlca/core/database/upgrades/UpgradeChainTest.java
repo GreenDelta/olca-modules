@@ -59,12 +59,15 @@ public class UpgradeChainTest {
 				"tbl_unit_groups",
 		};
 
-		// roll back Upgrade15
+		// roll back Upgrade16
 		u.dropTable("tbl_data_packages");
 		u.createTable("tbl_libraries", "CREATE TABLE tbl_libraries (id VARCHAR(255), PRIMARY KEY (id))");
 		for (var table : catEntityTables) {
 			u.renameColumn(table, "data_package", "library VARCHAR(255)");
 		}
+
+		// roll back Upgrade15
+		u.dropColumn("tbl_exchanges", "default_provider_type");
 
 		// roll back Upgrade14
 		u.dropTable("tbl_analysis_groups");
@@ -80,7 +83,6 @@ public class UpgradeChainTest {
 			u.createColumn(table, "parameter2_formula VARCHAR(1000)");
 			u.createColumn(table, "parameter3_formula VARCHAR(1000)");
 		}
-
 
 		// roll back Upgrade12
 		for (var table : catEntityTables) {
@@ -278,6 +280,9 @@ public class UpgradeChainTest {
 		assertEquals("VARCHAR(5120)", paramFormulaSize.get());
 
 		// check Upgrade15
+		assertTrue(u.columnExists("tbl_exchanges", "default_provider_type"));
+
+		// check Upgrade16
 		assertTrue(u.tableExists("tbl_data_packages"));
 		for (var table : catEntityTables) {
 			assertTrue(u.columnExists(table, "data_package"));

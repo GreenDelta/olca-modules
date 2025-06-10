@@ -52,7 +52,7 @@ public class TestDatabaseImport {
 		assertNotNull(indicator);
 		process = target.get(Process.class, "pr");
 		assertEquals(1, process.socialAspects.size());
-		aspect = process.socialAspects.get(0);
+		aspect = process.socialAspects.getFirst();
 		assertNotNull(aspect.indicator);
 		assertEquals("si", aspect.indicator.refId);
 	}

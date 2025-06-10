@@ -16,7 +16,6 @@ import org.openlca.core.model.Uncertainty;
 public class UncertaintyTableTest {
 
 	private final IDatabase db = Tests.getDb();
-	private final MatrixCache cache = MatrixCache.createLazy(db);
 
 	@Test
 	public void testForExchange() throws Exception {
@@ -27,9 +26,9 @@ public class UncertaintyTableTest {
 		process.exchanges.add(exchange);
 		db.insert(process);
 
-		var e = cache.getExchangeCache()
+		var e = ExchangeCache.create(db)
 			.get(process.id)
-			.get(0);
+			.getFirst();
 		assertEquals(1, e.parameter1, 1e-16);
 		assertEquals(2, e.parameter2, 1e-16);
 		assertEquals(3, e.parameter3, 1e-16);

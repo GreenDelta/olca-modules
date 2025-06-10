@@ -2,7 +2,7 @@ package org.openlca.git.writer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -327,7 +327,7 @@ public abstract class CommitWriter {
 		if (!progressMonitor.isCanceled())
 			return;
 		try {
-			Git.wrap(repo).gc().setExpire(Calendar.getInstance().getTime()).call();
+			Git.wrap(repo).gc().setExpire(Instant.now()).call();
 		} catch (GitAPIException e) {
 			// ignore cleanup error
 		}

@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.Flow;

@@ -12,16 +12,17 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RiskLevel;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
+import org.openlca.util.Strings;
 
 import com.google.gson.JsonObject;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
-import org.openlca.util.Strings;
 
 public class ProcessReader implements EntityReader<Process> {
 
@@ -107,18 +108,10 @@ public class ProcessReader implements EntityReader<Process> {
 			if (e == null) {
 				e = new Exchange();
 				e.internalId = internalId == -1
-					?  ++p.lastInternalId
-				: internalId;
+						? ++p.lastInternalId
+						: internalId;
 			}
 			exchanges.put(e.internalId, e);
-
-			// provider
-			var providerId = Json.getRefId(o, "defaultProvider");
-			if (providerId != null) {
-				resolver.resolveProvider(providerId, e);
-			} else {
-				e.defaultProviderId = 0;
-			}
 
 			// flow and quantity
 			e.flow = resolver.get(Flow.class, Json.getRefId(o, "flow"));
@@ -135,12 +128,13 @@ public class ProcessReader implements EntityReader<Process> {
 			e.dqEntry = Json.getString(o, "dqEntry");
 			var baseUnc = Json.getDouble(o, "baseUncertainty");
 			e.baseUncertainty = baseUnc.isPresent()
-				? baseUnc.getAsDouble()
-				: null;
+					? baseUnc.getAsDouble()
+					: null;
 			var u = Json.getObject(o, "uncertainty");
 			e.uncertainty = u != null
-				? Uncertainties.read(u)
-				: null;
+					? Uncertainties.read(u)
+					: null;
+			mapDefaultProvider(o, e);
 
 			// costs
 			e.costFormula = Json.getString(o, "costFormula");
@@ -159,6 +153,22 @@ public class ProcessReader implements EntityReader<Process> {
 				p.quantitativeReference = e;
 			}
 		}
+	}
+
+	private void mapDefaultProvider(JsonObject exchangeJson, Exchange e) {
+		e.defaultProviderId = 0;
+		var ref = Json.getObject(exchangeJson, "defaultProvider");
+		if (ref == null)
+			return;
+		var providerId = Json.getString(ref, "@id");
+		if (providerId == null)
+			return;
+		e.defaultProviderType = switch (Json.getString(ref, "@type")) {
+			case "ProductSystem" -> ProviderType.SUB_SYSTEM;
+			case "Result" -> ProviderType.RESULT;
+			case null, default -> ProviderType.PROCESS;
+		};
+		resolver.resolveProvider(providerId, e);
 	}
 
 	private void mapSocialAspects(JsonObject json, Process p) {
@@ -198,7 +208,7 @@ public class ProcessReader implements EntityReader<Process> {
 				factor.formula = formula;
 			}
 			factor.method = Json.getEnum(
-				obj, "allocationType", AllocationMethod.class);
+					obj, "allocationType", AllocationMethod.class);
 			p.allocationFactors.add(factor);
 		});
 	}

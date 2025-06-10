@@ -70,6 +70,9 @@ public interface EntityResolver {
 	 */
 	Category getCategory(ModelType type, String path);
 
+	/// Resolves the default provider for the given exchange. This should
+	/// directly set the provider ID to the given exchange if applicable. Before
+	/// passing the exchange into this method, the provider type must be set.
 	void resolveProvider(String providerId, Exchange exchange);
 
 	/**

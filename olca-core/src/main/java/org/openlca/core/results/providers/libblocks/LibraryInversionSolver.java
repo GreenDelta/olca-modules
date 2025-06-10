@@ -1,5 +1,7 @@
 package org.openlca.core.results.providers.libblocks;
 
+import java.util.function.BiConsumer;
+
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
@@ -8,6 +10,7 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.MatrixIndex;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.results.providers.InversionResult;
 import org.openlca.core.results.providers.InversionResultProvider;
@@ -33,9 +36,9 @@ public class LibraryInversionSolver {
 		var demand = context.data().demand;
 		// if the reference flow comes already from a library, we can
 		// construct the result directly from the library matrices
-		if (context.libraries().dataPackages.isLibrary(demand.techFlow().dataPackage()))
-			return SingleLibraryResult.of(context);
-		return new LibraryInversionSolver(context).solve();
+		return context.libraries().dataPackages.isLibrary(demand.techFlow().dataPackage())
+			? SingleLibraryResult.of(context)
+			: new LibraryInversionSolver(context).solve();
 	}
 
 	private LibraryInversionSolver(SolverContext context) {
@@ -47,8 +50,8 @@ public class LibraryInversionSolver {
 
 		int n = techIdx.size();
 		techMatrix = techIdx.isSparse
-			? new HashPointMatrix(n, n)
-			: new DenseMatrix(n, n);
+				? new HashPointMatrix(n, n)
+				: new DenseMatrix(n, n);
 		inverse = new DenseMatrix(n, n);
 
 		if (enviIdx.isEmpty()) {
@@ -57,8 +60,8 @@ public class LibraryInversionSolver {
 		} else {
 			int m = enviIdx.size();
 			enviMatrix = techIdx.isSparse
-				? new HashPointMatrix(m, n)
-				: new DenseMatrix(m, n);
+					? new HashPointMatrix(m, n)
+					: new DenseMatrix(m, n);
 			intensities = new DenseMatrix(m, n);
 		}
 	}
@@ -95,27 +98,28 @@ public class LibraryInversionSolver {
 		data.techIndex = techIdx.index;
 		data.enviIndex = enviIdx.index;
 		data.enviMatrix = enviMatrix;
+		data.costVector = loadCosts();
 
 		// add LCIA data
 		var f = context.data();
 		if (MatrixIndex.isPresent(data.enviIndex)
-			&& MatrixIndex.isPresent(f.impactIndex)) {
+				&& MatrixIndex.isPresent(f.impactIndex)) {
 			data.impactIndex = f.impactIndex;
 			data.impactMatrix = LibImpactMatrix.of(f.impactIndex, data.enviIndex)
-				.build(context.db(), libs);
+					.build(context.db(), libs);
 		}
 
 		var result = InversionResult.of(context.solver(), data)
-			.withInverse(inverse)
-			.withFlowIntensities(intensities)
-			.calculate();
+				.withInverse(inverse)
+				.withFlowIntensities(intensities)
+				.calculate();
 		return InversionResultProvider.of(result);
 	}
 
 	private void addInterventionsOf(Block block, MatrixReader libInv) {
 		if (enviMatrix == null || !enviIdx.contains(block.id()))
 			return;
-		var lib =block.reader();
+		var lib = block.reader();
 		var libB = lib.matrixOf(LibMatrix.B);
 		if (libB == null)
 			return;
@@ -131,19 +135,19 @@ public class LibraryInversionSolver {
 		} else {
 			int[] rowMap = enviIdx.map(block.id());
 			libB.iterate((row, col, value) ->
-				enviMatrix.set(rowMap[row], col + offset, value));
+					enviMatrix.set(rowMap[row], col + offset, value));
 			libM.iterate((row, col, value) ->
-				intensities.set(rowMap[row], col + offset, value));
+					intensities.set(rowMap[row], col + offset, value));
 		}
 	}
 
 	private void addLinkInversionOf(
-		Block block, Matrix topInv, MatrixReader libInv) {
+			Block block, Matrix topInv, MatrixReader libInv) {
 		int rows = libInv.rows();
 		int cols = topInv.columns();
 		var links = techMatrix.isSparse()
-			? new HashPointMatrix(rows, cols)
-			: new DenseMatrix(rows, cols);
+				? new HashPointMatrix(rows, cols)
+				: new DenseMatrix(rows, cols);
 		for (int c = 0; c < cols; c++) {
 			for (int r = 0; r < rows; r++) {
 				double value = techMatrix.get(r + block.offset(), c);
@@ -180,7 +184,7 @@ public class LibraryInversionSolver {
 			techMatrix.set(map[row], map[col], value);
 		});
 		var blockA = new DenseMatrix(
-			techIdx.front.size(), techIdx.front.size());
+				techIdx.front.size(), techIdx.front.size());
 		techMatrix.copyTo(blockA);
 		var topInv = solver.invert(blockA);
 		topInv.copyTo(inverse);
@@ -208,5 +212,34 @@ public class LibraryInversionSolver {
 		inverse.copyTo(leftInv);
 		var leftIntensities = solver.multiply(enviMatrix, leftInv);
 		leftIntensities.copyTo(intensities);
+	}
+
+	private double[] loadCosts() {
+		var d = context.data();
+		if (d.costVector == null)
+			return null;
+
+		var idx = techIdx.index;
+		var costs = new double[techIdx.size()];
+		BiConsumer<TechIndex, double[]> mapFn = (blockIdx, blockCosts) -> {
+			if (blockIdx == null || blockCosts == null)
+				return;
+			for (int bi = 0; bi < blockIdx.size(); bi++) {
+				var techFlow = blockIdx.at(bi);
+				var i = idx.of(techFlow);
+				if (i < 0)
+					continue;
+				costs[i] = blockCosts[bi];
+			}
+		};
+
+		mapFn.accept(techIdx.front, d.costVector);
+		for (var block : techIdx.blocks) {
+			var r = block.reader();
+			if (!r.hasCostData())
+				continue;
+			mapFn.accept(r.techIndex(), r.costs());
+		}
+		return costs;
 	}
 }

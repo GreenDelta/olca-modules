@@ -56,6 +56,7 @@ public class Diffs {
 		private boolean excludeCategories;
 		private boolean excludeDataPackages;
 		private boolean unsorted;
+		private boolean swapLeftAndRight;
 
 		public Find commit(Commit commit) {
 			this.commit = commit;
@@ -92,6 +93,18 @@ public class Diffs {
 			return this;
 		}
 
+		public List<Diff> databaseWithCommit() {
+			if (!(repo instanceof ClientRepository))
+				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
+			this.swapLeftAndRight = true;
+			this.rightCommit = getRevCommit(commit, true);
+			var diffs = diffOfDatabase(path);
+			if (repo instanceof ClientRepository c) {
+				diffs.addAll(getDataPackagesDiffs(c.database.getDataPackages().getAll(), repo.getDataPackages(rightCommit)));
+			}
+			return sort(diffs);
+		}
+
 		public List<Diff> withDatabase() {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
@@ -105,8 +118,12 @@ public class Diffs {
 
 		private List<Diff> diffOfDatabase(String prefix) {
 			try {
-				var left = createIterator(leftCommit, prefix);
-				var right = createDatabaseIterator(prefix);
+				var left = swapLeftAndRight
+						? createDatabaseIterator(prefix)
+						: createIterator(leftCommit, prefix);
+				var right = swapLeftAndRight
+						? createIterator(rightCommit, prefix)
+						: createDatabaseIterator(prefix);
 				return diffOf(prefix, left, right, this::diffOfDatabase);
 			} catch (IOException e) {
 				log.error("Error getting diffs for path " + prefix, e);
@@ -115,8 +132,8 @@ public class Diffs {
 		}
 
 		public List<Diff> withPreviousCommit() {
-			var leftCommit = repo.commits.find().before(commit.id).latest();
-			this.leftCommit = getRevCommit(leftCommit, false);
+			var previousCommit = repo.commits.find().before(commit.id).latest();
+			this.leftCommit = getRevCommit(previousCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
 			var diffs = diffOfCommits(path);
 			diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(this.leftCommit), repo.getDataPackages(rightCommit)));
@@ -249,9 +266,7 @@ public class Diffs {
 			var oldCommitId = leftCommit != null
 					? leftCommit.getId().getName()
 					: null;
-			var oldRef = oldId != null
-					? new Reference(oldPath, oldCommitId, oldId)
-					: null;
+			var oldRef = new Reference(oldPath, oldCommitId, oldId);
 			var isEmptyCategory = isEmptyCategory(rightCommit, path);
 			var newPath = isEmptyCategory
 					? GitUtil.toEmptyCategoryPath(path)

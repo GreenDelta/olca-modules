@@ -6,7 +6,6 @@ import java.util.Objects;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.matrix.cache.MatrixCache;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
@@ -32,22 +31,22 @@ public class ProductSystemBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final MatrixCache matrixCache;
+	private final IDatabase db;
 	private final LinkingConfig config;
 	private final ITechIndexBuilder linker;
 
 	/**
 	 * Create a new product system builder.
 	 */
-	public ProductSystemBuilder(MatrixCache matrixCache, LinkingConfig config) {
-		this.matrixCache = Objects.requireNonNull(matrixCache);
+	public ProductSystemBuilder(IDatabase db, LinkingConfig config) {
+		this.db = Objects.requireNonNull(db);
 		this.config = Objects.requireNonNull(config);
 		this.linker = null;
 	}
 
 	public ProductSystemBuilder(ITechIndexBuilder linker) {
 		this.linker = Objects.requireNonNull(linker);
-		this.matrixCache = null;
+		this.db = null;
 		this.config = null;
 	}
 
@@ -103,9 +102,9 @@ public class ProductSystemBuilder {
 	private ITechIndexBuilder selectBuilderFor(ProductSystem system) {
 		if (linker != null)
 			return linker;
-		return config.cutoff().isEmpty()
-			? new TechIndexBuilder(matrixCache, system, config)
-			: new TechIndexCutoffBuilder(matrixCache, system, config);
+		return config != null && config.cutoff().isEmpty()
+			? new TechIndexBuilder(db, system, config)
+			: new TechIndexCutoffBuilder(db, system, config);
 	}
 
 	private void addLinksAndProcesses(ProductSystem system, TechIndex index) {

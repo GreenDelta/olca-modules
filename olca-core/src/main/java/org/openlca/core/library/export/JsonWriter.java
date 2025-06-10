@@ -1,42 +1,30 @@
-package org.openlca.core.library;
+package org.openlca.core.library.export;
 
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
-import org.openlca.core.model.Actor;
-import org.openlca.core.model.Currency;
-import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.Result;
-import org.openlca.core.model.SocialIndicator;
-import org.openlca.core.model.Source;
-import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.*;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Exchanges;
+import org.openlca.util.Strings;
 
 /**
  * Writes the meta-data (JSON-LD) package in a library export.
  */
-class MetaDataExport implements Runnable {
+class JsonWriter implements Runnable {
 
 	private final LibraryExport export;
+	private final Scaler scaler;
 	private final IDatabase db;
-	private final DataPackages dataPackages;
 
-	MetaDataExport(LibraryExport export) {
+	JsonWriter(LibraryExport export, Scaler scaler) {
 		this.export = export;
+		this.scaler = scaler;
 		this.db = export.db;
-		this.dataPackages = db.getDataPackages();
 	}
 
 	@Override
@@ -66,7 +54,7 @@ class MetaDataExport implements Runnable {
 				var descriptors = db.getDescriptors(type);
 				for (var d : descriptors) {
 					// filter out library data
-					if (dataPackages.isFromLibrary(d)) {
+					if (Strings.notEmpty(d.dataPackage)) {
 						dependencies.add(d.dataPackage);
 						continue;
 					}
@@ -99,9 +87,13 @@ class MetaDataExport implements Runnable {
 				e -> !Exchanges.isProviderFlow(e));
 		libProc.allocationFactors.clear();
 		libProc.parameters.clear();
+		scaler.scale(libProc);
+
 		for (var e : libProc.exchanges) {
 			e.amount = 1.0;
 			e.formula = null;
+			e.costs = null;
+			e.currency = null;
 			if (e.flow == null)
 				continue;
 			e.unit = e.flow.getReferenceUnit();

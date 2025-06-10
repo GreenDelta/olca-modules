@@ -9,7 +9,7 @@ import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
@@ -102,7 +102,7 @@ public class ForegroundSystemGenerator implements Runnable {
 		}
 
 		// link with background system
-		var providers = ProcessTable.create(db).getProviders();
+		var providers = ProviderMap.create(db).getTechFlows();
 		if (providers.size() > 0) {
 			for (int i = 0; i < size; i++) {
 				var provider = providers.get(

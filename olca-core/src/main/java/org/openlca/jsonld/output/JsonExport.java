@@ -24,7 +24,9 @@ import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
@@ -34,10 +36,12 @@ import org.openlca.jsonld.MemStore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-/**
- * Writes entities to an entity store (e.g. a document or zip file). It also
- * writes the referenced entities to this store if they are not yet contained.
- */
+/// Exports datasets to JSON. The export has quite some configuration options.
+/// Note that the export is NOT thread-safe currently, specifically when you
+/// export with default-providers recursively. However, in the Git writer it
+/// is currently used in a multithreaded context, which seems to work with its
+/// current settings. But this could break; we should make this export
+/// thread-safe at some point!
 public class JsonExport {
 
 	final IDatabase db;
@@ -165,23 +169,38 @@ public class JsonExport {
 		return Json.asRef(e);
 	}
 
-	JsonObject handleProvider(long pid) {
+	JsonObject handleProvider(long pid, byte type) {
 		if (pid == 0 || db == null || dbRefs == null)
 			return null;
-		var d = dbRefs.descriptorOf(ModelType.PROCESS, pid);
+		var modelType = ProviderType.toModelType(type);
+		var d = dbRefs.descriptorOf(modelType, pid);
 		if (d == null)
 			return null;
 		var ref = dbRefs.asRef(d);
-		if (ref == null)
-			return null;
+		if (ref == null
+				|| !exportReferences
+				|| hasVisited(modelType, d.refId))
+			return ref;
 
-		if (exportReferences
-				&& exportProviders
-				&& !hasVisited(ModelType.PROCESS, d.refId)) {
-			var item = WriteItem.of(d);
-			if (!pQueue.contains(item)) {
-				pQueue.add(item);
+		if (!exportProviders) {
+			if (modelType != ModelType.RESULT)
+				return ref;
+
+			// we export results that are set as providers
+			// even when the provider-export-flag is set to
+			// false, but only when they are not linked to
+			// a product system; in that case, the export
+			// does not use the provider queue!
+			var result = db.get(Result.class, pid);
+			if (result != null && result.productSystem == null) {
+				writeNext(result, null);
 			}
+			return ref;
+		}
+
+		var item = WriteItem.of(d);
+		if (!pQueue.contains(item)) {
+			pQueue.add(item);
 		}
 		return ref;
 	}

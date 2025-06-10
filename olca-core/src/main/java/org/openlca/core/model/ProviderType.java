@@ -25,4 +25,12 @@ public interface ProviderType {
 			default -> ModelType.PROCESS;
 		};
 	}
+
+	static Class<? extends RootEntity> toModelClass(byte type) {
+		return switch (type) {
+			case SUB_SYSTEM -> ProductSystem.class;
+			case RESULT -> Result.class;
+			default -> Process.class;
+		};
+	}
 }

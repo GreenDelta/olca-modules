@@ -28,9 +28,17 @@ public class BatchImport<T extends RootEntity> {
 	}
 
 	public static int batchSizeOf(ModelType type) {
+		// types with possibly very large datasets and recursive types should be
+		// excluded from batch imports
 		return switch (type) {
-			case IMPACT_CATEGORY, PRODUCT_SYSTEM -> 1;
-			case LOCATION, PROCESS, RESULT -> 100;
+			case CATEGORY,
+					 CURRENCY,
+					 IMPACT_CATEGORY,
+					 PROCESS,
+					 PRODUCT_SYSTEM,
+					 UNIT_GROUP -> 1;
+			case LOCATION,
+					 RESULT -> 100;
 			default -> 1000;
 		};
 	}

@@ -10,7 +10,7 @@ import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.cache.ExchangeTable;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.index.TechFlow;
@@ -150,13 +150,13 @@ public class LibStrip implements Runnable {
 	}
 
 	private Set<TechFlow> getUsedLibraryProviders() {
-		var processes = ProcessTable.create(db);
+		var processes = ProviderMap.create(db);
 		var used = new HashSet<TechFlow>();
 
 		new ExchangeTable(db).each(e -> {
 			if (!e.isLinkable() || e.defaultProviderId == 0)
 				return;
-			var techFlow = processes.getProvider(e.defaultProviderId, e.flowId);
+			var techFlow = processes.getTechFlow(e.defaultProviderId, e.flowId);
 			if (dataPackages.isLibrary(techFlow.dataPackage())) {
 				used.add(techFlow);
 			}
@@ -171,7 +171,7 @@ public class LibStrip implements Runnable {
 			}
 
 			for (var link : system.processLinks) {
-				var p = processes.getProvider(link.providerId, link.flowId);
+				var p = processes.getTechFlow(link.providerId, link.flowId);
 				if (p == null)
 					continue;
 				if (dataPackages.isLibrary(p.dataPackage())) {

@@ -12,7 +12,7 @@ final class CacheUtil {
 	public static String asSql(Iterable<? extends Long> ids) {
 		if (ids == null)
 			return "()";
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		b.append('(');
 		boolean first = true;
 		for (Long id : ids) {

@@ -1,5 +1,6 @@
 package org.openlca.git.actions;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,7 +57,7 @@ class LibraryMounter {
 		return this;
 	}
 
-	MergeResult mountNew() {
+	MergeResult mountNew() throws MountException {
 		var newLibraries = resolveNewLibraries();
 		if (newLibraries.size() == 0)
 			return MergeResult.NO_CHANGES;
@@ -71,7 +72,7 @@ class LibraryMounter {
 			handled.add(next);
 			var checkResult = PreMountCheck.check(repo.database, next);
 			if (checkResult.isError())
-				return MergeResult.MOUNT_ERROR;
+				throw new MountException();
 			checkResult.getStates().forEach(p -> handled.add(p.first));
 			Mounter.of(repo.database, next)
 					.applyDefaultsOf(checkResult)
@@ -104,6 +105,12 @@ class LibraryMounter {
 				continue;
 			Unmounter.keepNone(repo.database, lib.name());
 		}
+	}
+	
+	class MountException extends IOException {
+
+		private static final long serialVersionUID = 7656323523482743101L;
+		
 	}
 
 }

@@ -152,7 +152,7 @@ public class RefsTest {
 		system.link(pP, qQ);
 		var sysParams = new ParameterRedefSet();
 		sysParams.parameters.add(
-				ParameterRedef.of(qQ.parameters.get(0), qQ));
+				ParameterRedef.of(qQ.parameters.getFirst(), qQ));
 		system.parameterSets.add(sysParams);
 		db.insert(system);
 
@@ -176,10 +176,10 @@ public class RefsTest {
 		// project
 		var project = Project.of("project");
 		project.impactMethod = method;
-		project.nwSet = method.nwSets.get(0);
+		project.nwSet = method.nwSets.getFirst();
 		var variant = ProjectVariant.of("v1", system);
 		variant.parameterRedefs.add(
-				system.parameterSets.get(0).parameters.get(0).copy());
+				system.parameterSets.getFirst().parameters.getFirst().copy());
 		project.variants.add(variant);
 		db.insert(project);
 
@@ -220,7 +220,7 @@ public class RefsTest {
 	public void testUnits() {
 		var units = get(UnitGroup.class, "units");
 		check(units.referenceUnit, "kg");
-		check(units.units.get(0), "kg");
+		check(units.units.getFirst(), "kg");
 		var mass = get(FlowProperty.class, "mass");
 		check(mass.unitGroup, "units");
 		check(units.defaultFlowProperty, "mass");
@@ -253,7 +253,7 @@ public class RefsTest {
 				get(Flow.class, "e"));
 		for (var flow : flows) {
 			check(flow.referenceFlowProperty, "mass");
-			check(flow.flowPropertyFactors.get(0).flowProperty, "mass");
+			check(flow.flowPropertyFactors.getFirst().flowProperty, "mass");
 		}
 	}
 
@@ -261,7 +261,7 @@ public class RefsTest {
 	public void testImpactCategory() {
 		var impact = get(ImpactCategory.class, "impact");
 		check(impact.source, "source");
-		var factor = impact.impactFactors.get(0);
+		var factor = impact.impactFactors.getFirst();
 		check(factor.flow, "e");
 		check(factor.flowPropertyFactor.flowProperty, "mass");
 		check(factor.unit, "kg");
@@ -272,10 +272,10 @@ public class RefsTest {
 	public void testImpactMethod() {
 		var method = get(ImpactMethod.class, "method");
 		check(method.source, "source");
-		check(method.impactCategories.get(0), "impact");
-		var nws = method.nwSets.get(0);
+		check(method.impactCategories.getFirst(), "impact");
+		var nws = method.nwSets.getFirst();
 		check(nws, "nws");
-		check(nws.factors.get(0).impactCategory, "impact");
+		check(nws.factors.getFirst().impactCategory, "impact");
 	}
 
 	@Test
@@ -294,9 +294,9 @@ public class RefsTest {
 			check(doc.dataGenerator, "actor");
 			check(doc.dataDocumentor, "actor");
 			check(doc.publication, "source");
-			check(doc.reviews.get(0).reviewers.get(0), "actor");
-			check(doc.reviews.get(0).report, "source");
-			check(doc.sources.get(0), "source");
+			check(doc.reviews.getFirst().reviewers.getFirst(), "actor");
+			check(doc.reviews.getFirst().report, "source");
+			check(doc.sources.getFirst(), "source");
 
 			// quantitative reference
 			var flow = p.name.equals("pP") ? "p" : "q";
@@ -348,7 +348,7 @@ public class RefsTest {
 				List.of(pP.id, qQ.id)));
 
 		// link IDs
-		var link = sys.processLinks.get(0);
+		var link = sys.processLinks.getFirst();
 		assertEquals(pP.id, link.providerId);
 		assertEquals(qQ.id, link.processId);
 		assertEquals(pP.quantitativeReference.flow.id, link.flowId);
@@ -361,7 +361,7 @@ public class RefsTest {
 				link.exchangeId);
 
 		// parameter redef.
-		var param = sys.parameterSets.get(0).parameters.get(0);
+		var param = sys.parameterSets.getFirst().parameters.getFirst();
 		assertEquals(qQ.id, param.contextId.longValue());
 	}
 
@@ -377,8 +377,8 @@ public class RefsTest {
 			check(e.flowPropertyFactor.flowProperty, "mass");
 		};
 		checkFlow.accept(r.referenceFlow);
-		checkFlow.accept(r.flowResults.get(0));
-		check(r.impactResults.get(0).indicator, "impact");
+		checkFlow.accept(r.flowResults.getFirst());
+		check(r.impactResults.getFirst().indicator, "impact");
 	}
 
 	@Test
@@ -391,7 +391,7 @@ public class RefsTest {
 		check(epd.manufacturer , "actor");
 		check(epd.programOperator , "actor");
 		check(epd.verifier , "actor");
-		check(epd.modules.get(0).result, "result");
+		check(epd.modules.getFirst().result, "result");
 	}
 
 	@Test
@@ -399,13 +399,13 @@ public class RefsTest {
 		var project = get(Project.class, "project");
 		check(project.impactMethod, "method");
 		check(project.nwSet, "nws");
-		var v = project.variants.get(0);
+		var v = project.variants.getFirst();
 		check(v.productSystem, "system");
 		check(v.unit, "kg");
 		check(v.flowPropertyFactor.flowProperty, "mass");
 		var qQ = get(Process.class, "qQ");
 		assertEquals(
-				qQ.id, v.parameterRedefs.get(0).contextId.longValue());
+				qQ.id, v.parameterRedefs.getFirst().contextId.longValue());
 	}
 
 	private <T extends RootEntity> T get(Class<T> type, String name) {

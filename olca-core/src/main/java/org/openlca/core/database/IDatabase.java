@@ -34,7 +34,7 @@ public interface IDatabase extends EntityStore, Closeable {
 	 * The current database schema version of this package. Together with the
 	 * getVersion-method this can be used to check for updates of a database.
 	 */
-	int CURRENT_VERSION = 15;
+	int CURRENT_VERSION = 16;
 
 	/**
 	 * Creates a native SQL connection to the underlying database. The
@@ -100,8 +100,8 @@ public interface IDatabase extends EntityStore, Closeable {
 					"There is already a non-library data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
-				"insert into tbl_data_packages(name, version, is_library) "
-						+ "values ('" + name + "', 0, 1)");
+				"insert into tbl_data_packages(name, is_library) "
+						+ "values ('" + name + "', 1)");
 		return new DataPackage(name, null, true);
 	}
 

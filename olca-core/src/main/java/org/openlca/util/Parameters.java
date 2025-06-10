@@ -189,6 +189,10 @@ public class Parameters {
 					p.formula, oldName, newName);
 		}
 
+		// update the version and last change date of the owner
+		owner.lastChange = System.currentTimeMillis();
+		owner.version++;
+
 		// rename in other process formulas
 		if (owner instanceof Process process) {
 			for (var e : process.exchanges) {

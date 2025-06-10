@@ -5,25 +5,29 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.CalcExchange;
+import org.openlca.core.matrix.cache.ExchangeTable.Linkable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.linking.LinkingConfig.PreferredType;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /**
  * Searches for the best provider for a given product input or waste output in
  * the database.
  */
-public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
+record ProviderSearch(ProviderMap providerMap, LinkingConfig config) {
 
 	/**
 	 * Find the best provider for the given product input or waste output
 	 * according to the search settings.
 	 */
-	public TechFlow find(CalcExchange e) {
+	public TechFlow find(Linkable e) {
 		if (e == null || cancel())
 			return null;
-		List<TechFlow> providers = processTable.getProviders(e.flowId);
+		List<TechFlow> providers = providerMap.getProvidersOf(e.flowId());
 		if (providers.isEmpty())
 			return null;
 
@@ -32,7 +36,7 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		// when there are multiple options.
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
 			for (TechFlow provider : providers) {
-				if (provider.providerId() == e.defaultProviderId)
+				if (provider.providerId() == e.defaultProviderId())
 					return provider;
 			}
 			if (config.providerLinking() == ProviderLinking.ONLY_DEFAULTS)
@@ -41,13 +45,13 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 
 		// check form single options and callback
 		if (providers.size() == 1)
-			return providers.get(0);
+			return providers.getFirst();
 		if (config.callback() != null) {
 			providers = config.callback().select(e, providers);
-			if (providers == null || providers.size() == 0)
+			if (providers == null || providers.isEmpty())
 				return null;
 			if (providers.size() == 1)
-				return providers.get(0);
+				return providers.getFirst();
 		}
 
 		TechFlow candidate = null;
@@ -59,24 +63,37 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 		return candidate;
 	}
 
-	private boolean isBetter(CalcExchange e, TechFlow old, TechFlow newOption) {
+	private boolean isBetter(Linkable e, TechFlow old, TechFlow newOption) {
 		if (old == null)
 			return true;
 		if (newOption == null)
 			return false;
 		if (config.providerLinking() != ProviderLinking.IGNORE_DEFAULTS) {
-			if (old.providerId() == e.defaultProviderId)
+			if (old.providerId() == e.defaultProviderId())
 				return false;
-			if (newOption.providerId() == e.defaultProviderId)
+			if (newOption.providerId() == e.defaultProviderId())
 				return true;
 		}
-		ProcessType oldType = processTable.getType(old.providerId());
-		ProcessType newType = processTable.getType(newOption.providerId());
+		var oldType = typeOf(old.providerId());
+		var newType = typeOf(newOption.providerId());
 		if (oldType == config.preferredType()
-			&& newType != config.preferredType())
+				&& newType != config.preferredType())
 			return false;
 		return oldType != config.preferredType()
 			&& newType == config.preferredType();
+	}
+
+	private PreferredType typeOf(long providerId) {
+		var provider = providerMap.getProvider(providerId);
+		if (provider == null)
+			return null;
+		if (provider instanceof ProcessDescriptor p)
+			return  p.processType == ProcessType.UNIT_PROCESS
+					? PreferredType.UNIT_PROCESS
+					: PreferredType.SYSTEM_PROCESS;
+		return provider.type == ModelType.RESULT
+				? PreferredType.RESULT
+				: null;
 	}
 
 	/**
@@ -108,7 +125,7 @@ public record ProviderSearch(ProcessTable processTable, LinkingConfig config) {
 	}
 
 	TechFlow getProvider(long id, long flowId) {
-		return processTable.getProvider(id, flowId);
+		return providerMap.getTechFlow(id, flowId);
 	}
 
 }

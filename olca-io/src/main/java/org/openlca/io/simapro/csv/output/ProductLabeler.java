@@ -2,7 +2,7 @@ package org.openlca.io.simapro.csv.output;
 
 
 import gnu.trove.set.hash.TLongHashSet;
-import org.openlca.core.matrix.cache.ProcessTable;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
@@ -17,7 +17,7 @@ class ProductLabeler {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final SimaProExport config;
 	private final TLongHashSet exportIds;
-	private ProcessTable processes;
+	private ProviderMap processes;
 
 	private ProductLabeler(SimaProExport export) {
 		this.config = export;
@@ -105,9 +105,9 @@ class ProductLabeler {
 					e.defaultProviderId);
 		}
 		if (processes == null) {
-			processes = ProcessTable.create(db);
+			processes = ProviderMap.create(db);
 		}
-		var providers = processes.getProviders(e.flow.id);
+		var providers = processes.getProvidersOf(e.flow.id);
 		if (providers.isEmpty())
 			return null;
 		Process candidate = null;

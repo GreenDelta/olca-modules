@@ -19,7 +19,7 @@ CREATE TABLE openlca_version (
     version SMALLINT
 
 );
-INSERT INTO openlca_version (version) VALUES (15);
+INSERT INTO openlca_version (version) VALUES (16);
 
 
 CREATE TABLE tbl_data_packages (
@@ -369,6 +369,7 @@ CREATE TABLE tbl_exchanges (
     resulting_amount_formula  VARCHAR(1000),
     avoided_product           SMALLINT default 0,
     f_default_provider        BIGINT,
+    default_provider_type     SMALLINT default 0,
     f_location                BIGINT,
     description               CLOB(64 K),
 

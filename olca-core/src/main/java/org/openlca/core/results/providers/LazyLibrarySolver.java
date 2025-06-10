@@ -3,7 +3,9 @@ package org.openlca.core.results.providers;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,6 +27,7 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.util.Pair;
 
 import gnu.trove.impl.Constants;
+import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class LazyLibrarySolver implements ResultProvider {
@@ -54,6 +57,10 @@ public class LazyLibrarySolver implements ResultProvider {
 	private final TIntObjectHashMap<double[]> directImpacts = newCache();
 	private final TIntObjectHashMap<double[]> totalImpactsOfOne = newCache();
 
+	private Double totalCosts;
+	private double[] _costs;
+	private final TIntObjectMap<Double> totalCostsOfOne;
+
 	private LazyLibrarySolver(SolverContext context) {
 		this.db = context.db();
 		this.libs = context.libraries();
@@ -66,6 +73,9 @@ public class LazyLibrarySolver implements ResultProvider {
 		this.foregroundSolution = InversionResult.of(context)
 				.calculate()
 				.provider();
+		this.totalCostsOfOne = foregroundData.costVector != null
+				? new TIntObjectHashMap<>()
+				: null;
 	}
 
 	private static TIntObjectHashMap<double[]> newCache() {
@@ -158,8 +168,7 @@ public class LazyLibrarySolver implements ResultProvider {
 
 	@Override
 	public boolean hasCosts() {
-		// TODO: not yet implemented
-		return false;
+		return foregroundData.costVector != null;
 	}
 
 	@Override
@@ -681,17 +690,84 @@ public class LazyLibrarySolver implements ResultProvider {
 
 	@Override
 	public double directCostsOf(int techFlow) {
-		// TODO: not yet implemented
-		return 0;
+		return hasCosts()
+				? scalingFactorOf(techFlow) * costs()[techFlow]
+				: 0;
 	}
 
 	@Override
 	public double totalCostsOfOne(int techFlow) {
-		return 0;
+		if (totalCostsOfOne == null)
+			return 0;
+		var cached = totalCostsOfOne.get(techFlow);
+		if (cached != null)
+			return cached;
+
+		var s = solutionOfOne(techFlow);
+		var c = solver.dot(s, costs());
+		totalCostsOfOne.put(techFlow, c);
+		return c;
 	}
 
 	@Override
 	public double totalCosts() {
-		return 0;
+		if (!hasCosts())
+			return 0;
+		if (totalCosts != null)
+			return totalCosts;
+		totalCosts = solver.dot(scalingVector, costs());
+		return totalCosts;
 	}
+
+	private double[] costs() {
+		if (_costs != null)
+			return _costs;
+
+		var techIdx = techIndex();
+		var costs = new double[techIdx.size()];
+		var libCosts = LibCosts.allOf(usedLibs, libs);
+
+		for (int i = 0; i < techIdx.size(); i++) {
+			var techFlow = techIdx.at(i);
+
+			if (libs.dataPackages.isLibrary(techFlow.dataPackage())) {
+				var cs = libCosts.get(techFlow.dataPackage());
+				if (cs != null) {
+					costs[i] = cs.get(techFlow);
+				}
+			} else {
+				if (foregroundData.costVector == null)
+					continue;
+				var j = foregroundData.techIndex.of(techFlow);
+				costs[i] = foregroundData.costVector[j];
+			}
+		}
+
+		_costs = costs;
+		return _costs;
+	}
+
+	private record LibCosts(TechIndex libIdx, double[] costs) {
+
+		static Map<String, LibCosts> allOf(
+				Set<String> usedLibs, LibReaderRegistry libs
+		) {
+			var map = new HashMap<String, LibCosts>();
+			for (var libId : usedLibs) {
+				var lib = libs.get(libId);
+				if (lib == null || !lib.hasCostData())
+					continue;
+				map.put(libId, new LibCosts(lib.techIndex(), lib.costs()));
+			}
+			return map;
+		}
+
+		double get(TechFlow techFlow) {
+			if (costs == null || libIdx == null)
+				return 0;
+			int i = libIdx.of(techFlow);
+			return costs[i];
+		}
+	}
+
 }

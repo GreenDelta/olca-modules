@@ -1,12 +1,14 @@
 package org.openlca.core.matrix.solvers;
 
+import static org.junit.Assert.*;
+
+import java.util.List;
+
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openlca.core.DataDir;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
@@ -18,42 +20,33 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.LcaResult;
-import org.openlca.nativelib.NativeLib;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@Deprecated
-@RunWith(Theories.class)
-public class SolverTest {
+@RunWith(Parameterized.class)
+public record BasicSolverTest(MatrixSolver solver) {
 
-	@BeforeClass
-	public static void setup() {
-		NativeLib.loadFrom(DataDir.get().root());
+	@Parameters
+	public static List<MatrixSolver> solvers() {
+		return Tests.getSolvers();
 	}
 
-	private final Logger log = LoggerFactory.getLogger(SolverTest.class);
+	@Test
+	public void testDot() {
+		var v = new double[]{1, 2, 3};
+		assertEquals(14.0, solver.dot(v, v), 1e-16);
+	}
 
-	@DataPoint
-	public static MatrixSolver denseSolver = new NativeSolver();
-
-	@DataPoint
-	public static MatrixSolver javaSolver = new JavaSolver();
-
-	@Theory
-	public void testSimpleSolve(MatrixSolver solver) {
-		log.info("Test simple solve with {}", solver.getClass());
+	@Test
+	public void testSimpleSolve() {
 		Matrix a = solver.matrix(2, 2);
 		a.set(0, 0, 1);
 		a.set(1, 0, -5);
 		a.set(1, 1, 4);
 		double[] x = solver.solve(a, 0, 1);
-		Assert.assertArrayEquals(new double[] { 1, 1.25 }, x, 1e-14);
+		Assert.assertArrayEquals(new double[]{1, 1.25}, x, 1e-14);
 	}
 
-	@Theory
-	public void testSolve1x1System(MatrixSolver solver) {
-		log.info("Test solve 1x1 matrix with {}", solver.getClass());
-
+	@Test
+	public void testSolve1x1System() {
 		var flow = new FlowDescriptor();
 		flow.id = 1;
 		var process = new ProcessDescriptor();
@@ -82,28 +75,27 @@ public class SolverTest {
 		data.enviMatrix = enviMatrix;
 
 		var result = LcaResult.of(Tests.getDb(), data);
-		Assert.assertArrayEquals(new double[] { 0, 1, 2, 3 },
+		Assert.assertArrayEquals(new double[]{0, 1, 2, 3},
 				result.provider().totalFlows(), 1e-14);
 	}
 
-	@Theory
-	public void testSimpleMult(MatrixSolver solver) {
-		log.info("Test simple multiplication with {}", solver.getClass());
+	@Test
+	public void testSimpleMult() {
 		Matrix a = solver.matrix(2, 3);
-		a.setValues(new double[][] {
-				{ 1, 2, 3 },
-				{ 4, 5, 6 }
+		a.setValues(new double[][]{
+				{1, 2, 3},
+				{4, 5, 6}
 		});
 		Matrix b = solver.matrix(3, 2);
-		b.setValues(new double[][] {
-				{ 7, 10 },
-				{ 8, 11 },
-				{ 9, 12 }
+		b.setValues(new double[][]{
+				{7, 10},
+				{8, 11},
+				{9, 12}
 		});
 		Matrix c = solver.multiply(a, b);
-		Assert.assertArrayEquals(new double[] { 50, 122 },
+		Assert.assertArrayEquals(new double[]{50, 122},
 				c.getColumn(0), 1e-14);
-		Assert.assertArrayEquals(new double[] { 68, 167 },
+		Assert.assertArrayEquals(new double[]{68, 167},
 				c.getColumn(1), 1e-14);
 	}
 
@@ -112,5 +104,4 @@ public class SolverTest {
 		flow.id = id;
 		return flow;
 	}
-
 }

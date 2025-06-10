@@ -2,14 +2,14 @@ package org.openlca.git.actions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.git.actions.GitMerge.MergeResult;
+import org.openlca.git.actions.LibraryMounter.MountException;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
-import org.openlca.git.model.Reference;
+import org.openlca.git.model.DiffType;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
 
@@ -19,8 +19,11 @@ class Data {
 	private Commit localCommit;
 	private Commit remoteCommit;
 	private List<Diff> changes;
+	/* If true ADDED will be treated as DELETED and DELETED as ADDED */
+	private boolean undo;
 	private ProgressMonitor progressMonitor;
 	private DataPackage dataPackage;
+	private LibraryResolver libraryResolver;
 	private ConflictResolver conflictResolver;
 
 	static Data of(ClientRepository repo, Commit remoteCommit) {
@@ -40,12 +43,22 @@ class Data {
 		return this;
 	}
 
+	Data undo() {
+		this.undo = true;
+		return this;
+	}
+
 	Data with(ProgressMonitor progressMonitor) {
 		this.progressMonitor = progressMonitor;
 		return this;
 	}
 
-	Data resolveConflictsWith(ConflictResolver conflictResolver) {
+	Data with(LibraryResolver libraryResolver) {
+		this.libraryResolver = libraryResolver;
+		return this;
+	}
+
+	Data with(ConflictResolver conflictResolver) {
 		this.conflictResolver = conflictResolver;
 		return this;
 	}
@@ -55,11 +68,29 @@ class Data {
 		return this;
 	}
 
-	List<Diff> doImport(Predicate<Diff> doImport, Function<Diff, Reference> toRef) {
+	List<Diff> update() throws MountException {
+		var merged = new ArrayList<Diff>();
+		var libraries = LibraryMounter.of(repo, localCommit, remoteCommit)
+				.with(libraryResolver)
+				.with(progressMonitor);
+		var mountResult = libraries.mountNew();
+		if (mountResult == MergeResult.ABORTED)
+			return null;
+		merged.addAll(doImport());
+		merged.addAll(doDelete());
+		libraries.unmountObsolete();
+		progressMonitor.beginTask("Reloading descriptors");
+		repo.descriptors.reload();
+		return merged;
+	}
+
+	private List<Diff> doImport() {
+		if (remoteCommit == null)
+			return new ArrayList<>();
 		var toImport = changes.stream()
 				.filter(diff -> !diff.isDataPackage)
-				.filter(doImport)
-				.map(toRef)
+				.filter(diff -> diff.diffType != (undo ? DiffType.ADDED : DiffType.DELETED))
+				.map(diff -> undo ? diff.oldRef : diff.newRef)
 				.collect(Collectors.toList());
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, toImport)
 				.into(dataPackage)
@@ -70,11 +101,11 @@ class Data {
 				.run();
 	}
 
-	List<Diff> doDelete(Predicate<Diff> doDelete, Function<Diff, Reference> toRef) {
+	private List<Diff> doDelete() {
 		var toDelete = changes.stream()
 				.filter(diff -> !diff.isDataPackage)
-				.filter(doDelete)
-				.map(toRef)
+				.filter(diff -> diff.diffType == (undo ? DiffType.ADDED : DiffType.DELETED))
+				.map(diff -> undo ? diff.newRef : diff.oldRef)
 				.collect(Collectors.toList());
 		if (toDelete.isEmpty())
 			return new ArrayList<>();

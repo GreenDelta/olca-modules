@@ -1,17 +1,19 @@
-package org.openlca.core.library;
+package org.openlca.core.library.export;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.ImpactCategoryDao;
+import org.openlca.core.library.Library;
+import org.openlca.core.library.LibraryInfo;
 import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixConfig;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.DenseMatrix;
+import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
@@ -23,6 +25,9 @@ import org.openlca.core.matrix.io.index.IxImpactIndex;
 import org.openlca.core.matrix.io.index.IxTechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.npy.Npy;
+import org.openlca.npy.NpyDoubleArray;
+import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +38,9 @@ public class LibraryExport implements Runnable {
 	final IDatabase db;
 	final File folder;
 	final LibraryInfo info;
-	final DataPackages dataPackages;
 
 	private AllocationMethod allocation;
+	private boolean withCosts;
 	private boolean withUncertainties;
 	private MatrixData data;
 	private boolean withInversion;
@@ -44,7 +49,6 @@ public class LibraryExport implements Runnable {
 		this.db = db;
 		this.folder = folder;
 		this.info = LibraryInfo.of(folder.getName());
-		this.dataPackages = db.getDataPackages();
 	}
 
 	public LibraryExport withAllocation(AllocationMethod method) {
@@ -56,22 +60,31 @@ public class LibraryExport implements Runnable {
 		if (info == null)
 			return this;
 		this.info.name(info.name())
-			.isRegionalized(info.isRegionalized())
-			.description(info.description());
+				.isRegionalized(info.isRegionalized())
+				.description(info.description());
 		this.info.dependencies().clear();
 		this.info.dependencies().addAll(info.dependencies());
 		return this;
 	}
 
+	/// Uses the given matrix data for the export. Note that this will modify
+	/// the matrix data for processes that are not scaled to 1 unit of product
+	/// output or waste input.
 	public LibraryExport withData(MatrixData data) {
 		if (data == null)
 			return this;
 		this.data = data;
+		withCosts = data.costVector != null;
 		withUncertainties = data.techUncertainties != null
-			|| data.enviUncertainties != null
-			|| data.impactUncertainties != null;
+				|| data.enviUncertainties != null
+				|| data.impactUncertainties != null;
 		info.isRegionalized(
-			data.enviIndex != null && data.enviIndex.isRegionalized());
+				data.enviIndex != null && data.enviIndex.isRegionalized());
+		return this;
+	}
+
+	public LibraryExport withCosts(boolean b) {
+		withCosts = b;
 		return this;
 	}
 
@@ -94,10 +107,14 @@ public class LibraryExport implements Runnable {
 	public void run() {
 		log.info("start library export of database {}", db.getName());
 		var lib = Library.of(folder);
-		// create a thread pool and start writing the meta-data
+
+		buildMatrices();
+		var scaler = Scaler.scale(data);
+
 		var exec = Executors.newFixedThreadPool(4);
-		exec.execute(new MetaDataExport(this));
-		createMatrices(lib, exec);
+		exec.execute(new JsonWriter(this, scaler));
+		writeMatrices(lib, exec);
+
 		try {
 			exec.shutdown();
 			while (true) {
@@ -114,11 +131,7 @@ public class LibraryExport implements Runnable {
 		}
 	}
 
-	private void createMatrices(Library lib, ExecutorService exec) {
-		buildMatrices();
-		if (data == null)
-			return;
-		normalizeInventory();
+	private void writeMatrices(Library lib, ExecutorService exec) {
 		exec.execute(() -> {
 			log.info("write matrices");
 			MatrixExport.toNpy(db, folder, data).writeMatrices();
@@ -137,7 +150,7 @@ public class LibraryExport implements Runnable {
 		});
 
 		if (withInversion) {
-			exec.execute(this::calculateInverse);
+			exec.execute(this::createInverse);
 		}
 	}
 
@@ -151,81 +164,63 @@ public class LibraryExport implements Runnable {
 		// Calculation dependencies between libraries are not allowed.
 		var techIdx = TechIndex.of(db);
 		if (!techIdx.isEmpty()) {
+			log.info("build inventory of {} processes", techIdx.size());
 			data = MatrixConfig.of(db, techIdx)
-				.withUncertainties(withUncertainties)
-				.withRegionalization(info.isRegionalized())
-				.withAllocation(allocation)
-				.build();
+					.withCosts(withCosts)
+					.withUncertainties(withUncertainties)
+					.withRegionalization(info.isRegionalized())
+					.withAllocation(allocation)
+					.build();
 		}
 
 		// here we filter out LCIA categories from other libraries; this is fine
 		var impacts = new ImpactCategoryDao(db).getDescriptors()
-			.stream()
-			.filter(Predicate.not(dataPackages::isFromLibrary))
-			.toList();
+				.stream()
+				.filter(d -> Strings.nullOrEmpty(d.dataPackage))
+				.toList();
 		if (impacts.isEmpty())
 			return;
 
+		// create the impact index
 		var impactIdx = ImpactIndex.of(impacts);
 		if (data == null) {
 			data = new MatrixData();
 		}
 		data.impactIndex = impactIdx;
-		if (data.enviIndex == null) {
-			data.enviIndex = info.isRegionalized()
+
+		// make sure all elementary flows of the impacts are in the envi index
+		var impactEnviIdx = info.isRegionalized()
 				? EnviIndex.createRegionalized(db, impactIdx)
 				: EnviIndex.create(db, impactIdx);
+		if (data.enviIndex == null) {
+			data.enviIndex = impactEnviIdx;
+		} else {
+			data.enviIndex.addAll(impactEnviIdx);
 		}
+
+		// when there is a technosphere matrix and an intervention index
+		// but no intervention matrix, we create an empty matrix B
+		if (data.techMatrix != null && !data.enviIndex.isEmpty()) {
+			if (data.enviMatrix == null) {
+				data.enviMatrix = new HashPointMatrix(
+						data.enviIndex.size(), data.techIndex.size());
+			} else {
+				data.enviMatrix = MatrixShape.ensureIfPresent(data.enviMatrix,
+						data.enviIndex.size(), data.techIndex.size());
+			}
+		}
+
+		// build the
 		ImpactBuilder.of(db, data.enviIndex)
-			.withUncertainties(withUncertainties)
-			.build()
-			.addTo(data);
+				.withUncertainties(withUncertainties)
+				.build()
+				.addTo(data);
 	}
 
-	/**
-	 * Normalize the columns of the technology matrix A and intervention matrix B to one
-	 * unit of output or input for each product or waste flow.
-	 */
-	private void normalizeInventory() {
-		if (data == null || data.techMatrix == null)
-			return;
-		log.info("normalize matrices to 1 | -1");
-		var matrixA = data.techMatrix.asMutable();
-		data.techMatrix = matrixA;
-		var matrixB = data.enviMatrix != null
-			? data.enviMatrix.asMutable()
-			: null;
-		data.enviMatrix = matrixB;
-		int n = matrixA.columns();
-		for (int j = 0; j < n; j++) {
-			double f = Math.abs(matrixA.get(j, j));
-			if (f == 1)
-				continue;
-
-			// normalize column j in matrix A
-			for (int i = 0; i < n; i++) {
-				double val = matrixA.get(i, j);
-				if (val == 0)
-					continue;
-				matrixA.set(i, j, val / f);
-			}
-
-			// normalize column j in matrix B
-			if (matrixB == null)
-				continue;
-			int m = matrixB.rows();
-			for (int i = 0; i < m; i++) {
-				double val = matrixB.get(i, j);
-				if (val == 0)
-					continue;
-				matrixB.set(i, j, val / f);
-			}
-		}
-	}
-
-	private void calculateInverse() {
+	private void createInverse() {
 		if (data.techMatrix == null)
 			return;
+
 		var solver = MatrixSolver.get();
 		if (!solver.isNative()) {
 			log.warn("no native libraries loaded");
@@ -233,10 +228,24 @@ public class LibraryExport implements Runnable {
 		log.info("create matrix INV");
 		var inv = solver.invert(data.techMatrix);
 		NpyMatrix.write(folder, "INV", inv);
-		if (data.enviMatrix == null)
-			return;
-		log.info("create matrix M");
-		var m = solver.multiply(data.enviMatrix, inv);
-		NpyMatrix.write(folder, "M", m);
+
+		if (data.enviMatrix != null) {
+			log.info("create matrix M");
+			var m = solver.multiply(data.enviMatrix, inv);
+			NpyMatrix.write(folder, "M", m);
+		}
+
+		if (data.costVector != null) {
+			log.info("create vector costs_i");
+			int n = data.costVector.length;
+			var costs = new DenseMatrix(1, n, data.costVector);
+			var costsI = solver.multiply(costs, inv);
+			var data = costsI instanceof DenseMatrix dense
+					? dense.data
+					: costsI.getRow(0);
+			var array = new NpyDoubleArray(new int[]{n}, data, false);
+			var file = new File(folder, "costs_i.npy");
+			Npy.write(file, array);
+		}
 	}
 }

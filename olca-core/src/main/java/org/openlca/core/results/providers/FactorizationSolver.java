@@ -329,11 +329,7 @@ public class FactorizationSolver implements ResultProvider {
 		if (data.costVector == null)
 			return 0;
 		var s = solutionOfOne(techFlow);
-		double c = 0.0;
-		for (int j = 0; j < s.length; j++) {
-			c += s[j] * data.costVector[j];
-		}
-		return c;
+		return solver.dot(s, data.costVector);
 	}
 
 	@Override

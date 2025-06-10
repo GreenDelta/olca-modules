@@ -8,11 +8,11 @@ import org.openlca.util.Strings;
 class ProductSystemImport {
 
 	private final Config conf;
-	private final RefSwitcher refs;
+	private final SeqMap seq;
 
 	private ProductSystemImport(Config conf) {
 		this.conf = conf;
-		this.refs = new RefSwitcher(conf);
+		this.seq = conf.seq();
 	}
 
 	static void run(Config conf) {
@@ -30,21 +30,22 @@ class ProductSystemImport {
 		});
 	}
 
-	private void swapQRef(ProductSystem system, ProductSystem copy) {
-		if (system.referenceExchange == null || copy.referenceProcess == null)
+	private void swapQRef(ProductSystem src, ProductSystem copy) {
+		if (src.referenceExchange == null || copy.referenceProcess == null)
 			return;
 		copy.referenceExchange = copy.referenceProcess.exchanges.stream()
-				.filter(e -> isSame(system.referenceExchange, e))
+				.filter(e -> isSame(src.referenceExchange, e))
 				.findAny()
 				.orElse(null);
 		var refFlow = copy.referenceExchange != null
 				? copy.referenceExchange.flow
 				: null;
-		if (refFlow != null) {
-			copy.targetFlowPropertyFactor =
-					refs.switchRef(system.targetFlowPropertyFactor, refFlow);
-		}
-		copy.targetUnit = refs.switchRef(system.targetUnit);
+		if (refFlow == null)
+			return;
+		copy.targetFlowPropertyFactor =
+				conf.mapFactor(refFlow, src.targetFlowPropertyFactor);
+		copy.targetUnit =
+				conf.mapUnit(copy.targetFlowPropertyFactor, src.targetUnit);
 	}
 
 	private boolean isSame(Exchange e, Exchange copy) {
@@ -62,8 +63,8 @@ class ProductSystemImport {
 				if (p.contextId == null)
 					continue;
 				p.contextId = p.contextType == ModelType.IMPACT_CATEGORY
-						? refs.getDestImpactId(p.contextId)
-						: refs.getDestProcessId(p.contextId);
+						? seq.get(ModelType.IMPACT_CATEGORY, p.contextId)
+						: seq.get(ModelType.PROCESS, p.contextId);
 			}
 		}
 	}

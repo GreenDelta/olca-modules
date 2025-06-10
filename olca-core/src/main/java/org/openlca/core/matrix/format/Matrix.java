@@ -3,7 +3,8 @@ package org.openlca.core.matrix.format;
 /**
  * Interface with the general matrix operations used in openLCA.
  */
-public interface Matrix extends MatrixReader {
+public sealed interface Matrix extends MatrixReader
+		permits DenseMatrix, CompressedRowMatrix, HashPointMatrix, JavaMatrix  {
 
 	/**
 	 * Set the entry in the given row and column to the given value.

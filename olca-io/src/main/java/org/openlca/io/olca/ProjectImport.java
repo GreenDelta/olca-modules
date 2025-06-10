@@ -2,18 +2,15 @@ package org.openlca.io.olca;
 
 import java.util.Objects;
 
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 
 class ProjectImport {
 
 	private final Config conf;
-	private final RefSwitcher refs;
 
 	private ProjectImport(Config conf) {
 		this.conf = conf;
-		this.refs = new RefSwitcher(conf);
 	}
 
 	static void run(Config conf) {
@@ -43,14 +40,12 @@ class ProjectImport {
 
 	private void swapRefsOf(ProjectVariant variant) {
 		variant.productSystem = conf.swap(variant.productSystem);
-		variant.unit = refs.switchRef(variant.unit);
 		swapPropertyOf(variant);
+		variant.unit = conf.mapUnit(variant.flowPropertyFactor, variant.unit);
 		for (var param : variant.parameterRedefs) {
 			if (param.contextId == null)
 				continue;
-			param.contextId = param.contextType == ModelType.IMPACT_CATEGORY
-					? refs.getDestImpactId(param.contextId)
-					: refs.getDestProcessId(param.contextId);
+			param.contextId = conf.seq().get(param.contextType, param.contextId);
 		}
 	}
 
@@ -63,7 +58,7 @@ class ProjectImport {
 			return;
 		}
 		var flow = system.referenceExchange.flow;
-		variant.flowPropertyFactor = refs.switchRef(
-				variant.flowPropertyFactor, flow);
+		variant.flowPropertyFactor = conf.mapFactor(
+				flow, variant.flowPropertyFactor);
 	}
 }

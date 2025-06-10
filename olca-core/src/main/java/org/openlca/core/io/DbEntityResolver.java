@@ -8,6 +8,8 @@ import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProviderType;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.util.Strings;
@@ -68,7 +70,8 @@ public class DbEntityResolver implements EntityResolver {
 	public void resolveProvider(String providerId, Exchange exchange) {
 		if (providerId == null || exchange == null)
 			return;
-		var d = new ProcessDao(db).getDescriptorForRefId(providerId);
+		var type = ProviderType.toModelClass(exchange.defaultProviderType);
+		var d = db.getDescriptor(type, providerId);
 		exchange.defaultProviderId = d != null ? d.id : 0;
 	}
 }
