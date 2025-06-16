@@ -25,6 +25,7 @@ INSERT INTO openlca_version (version) VALUES (16);
 CREATE TABLE tbl_data_packages (
 
     name       VARCHAR(255),
+    version    VARCHAR(255),
     url        VARCHAR(1000),
 	is_library SMALLINT default 0,
 

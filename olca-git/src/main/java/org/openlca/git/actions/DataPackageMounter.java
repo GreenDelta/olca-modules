@@ -117,7 +117,12 @@ class DataPackageMounter {
 
 	private MergeResult mountDataPackage(DataPackage dataPackage, ClientRepository repo)
 			throws IOException, GitAPIException {
+		var commit = repo.commits.get(dataPackage.version());
+		if (commit == null)
+			throw new IllegalStateException(
+					"Could not find commit " + dataPackage.version() + " in repository " + dataPackage.name());
 		var result = GitMerge.on(repo)
+				.commit(commit)
 				.into(dataPackage)
 				.resolveConflictsWith(conflictResolver)
 				.resolveDependenciesWith(dependencyResolver)
@@ -125,7 +130,7 @@ class DataPackageMounter {
 				.run();
 		if (result.type() == MergeResultType.MOUNT_ERROR || result.type() == MergeResultType.ABORTED)
 			return result;
-		repo.database.addDataPackage(dataPackage.name(), dataPackage.url());
+		repo.database.addDataPackage(dataPackage.name(), dataPackage.version(), dataPackage.url());
 		return result;
 	}
 

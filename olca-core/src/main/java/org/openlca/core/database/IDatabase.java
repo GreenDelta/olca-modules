@@ -102,17 +102,18 @@ public interface IDatabase extends EntityStore, Closeable {
 		NativeSql.on(this).runUpdate(
 				"insert into tbl_data_packages(name, is_library) "
 						+ "values ('" + name + "', 1)");
-		return new DataPackage(name, null, true);
+		return new DataPackage(name, null, null, true);
 	}
 
 	default DataPackage getDataPackage(String name) {
-		var sql = "select name, url, is_library from tbl_data_packages where name = '" + name + "'";
+		var sql = "select name, version, url, is_library from tbl_data_packages where name = '" + name + "'";
 		var packages = new ArrayList<DataPackage>();
 		NativeSql.on(this).query(sql, r -> {
 			packages.add(new DataPackage(
 					r.getString(1),
 					r.getString(2),
-					r.getBoolean(3)));
+					r.getString(3),
+					r.getBoolean(4)));
 			return true;
 		});
 		if (packages.isEmpty())
@@ -121,13 +122,14 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	default DataPackages getDataPackages() {
-		var sql = "select name, url, is_library from tbl_data_packages";
+		var sql = "select name, version, url, is_library from tbl_data_packages";
 		var packages = new HashSet<DataPackage>();
 		NativeSql.on(this).query(sql, r -> {
 			packages.add(new DataPackage(
 					r.getString(1),
 					r.getString(2),
-					r.getBoolean(3)));
+					r.getString(3),
+					r.getBoolean(4)));
 			return true;
 		});
 		return new DataPackages(packages);
@@ -143,16 +145,22 @@ public interface IDatabase extends EntityStore, Closeable {
 	/**
 	 * Add data package with the given name from this database.
 	 */
-	default DataPackage addDataPackage(String name, String url) {
+	default DataPackage addDataPackage(String name, String version, String url) {
 		var dataPackage = getDataPackage(name);
 		if (dataPackage != null) {
 			throw new IllegalStateException(
 					"There is already a data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
-				"insert into tbl_data_packages(name, url, is_library) "
-						+ "values ('" + name + "', '" + url + "', 0)");
-		return new DataPackage(name, null, false);
+				"insert into tbl_data_packages(name, version, url, is_library) "
+						+ "values ('" + name + "', '" + version + "', '" + url + "', 0)");
+		return new DataPackage(name, version, url, false);
+	}
+
+	default DataPackage updateDataPackage(String name, String version) {
+		NativeSql.on(this)
+				.runUpdate("update tbl_data_packages set version = '" + version + "' where name = '" + name + "'");
+		return getDataPackage(name);
 	}
 
 	@Override
@@ -341,10 +349,10 @@ public interface IDatabase extends EntityStore, Closeable {
 		}
 	}
 
-	public record DataPackage(String name, String url, boolean isLibrary) {
+	public record DataPackage(String name, String version, String url, boolean isLibrary) {
 
 		public static DataPackage library(String name, String url) {
-			return new DataPackage(name, url, true);
+			return new DataPackage(name, null, url, true);
 		}
 
 		@Override

@@ -139,13 +139,13 @@ public class DiffsTests extends AbstractRepositoryTests {
 		repo.database.addLibrary("library_b");
 		var diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(1, diffs.size());
-		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library_b", diffs.get(0));
+		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library:library_b", diffs.get(0));
 
 		repo.database.removeDataPackage("library_a");
 		diffs = repo.diffs.find().withDatabase();
 		Assert.assertEquals(2, diffs.size());
-		assertModel(DiffType.DELETED, RepositoryInfo.FILE_NAME + "/library_a", diffs.get(0));
-		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library_b", diffs.get(1));
+		assertModel(DiffType.DELETED, RepositoryInfo.FILE_NAME + "/library:library_a", diffs.get(0));
+		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library:library_b", diffs.get(1));
 	}
 
 	@Test
@@ -238,11 +238,11 @@ public class DiffsTests extends AbstractRepositoryTests {
 		var diffs = repo.diffs.find().commit(null).with(commits[0]);
 		Assert.assertEquals(2, diffs.size());
 		assertModel(DiffType.ADDED, "ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json", diffs.get(0));
-		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library_a", diffs.get(1));
+		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library:library_a", diffs.get(1));
 
 		diffs = repo.diffs.find().commit(commits[0]).with(commits[1]);
 		Assert.assertEquals(1, diffs.size());
-		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library_b", diffs.get(0));
+		assertModel(DiffType.ADDED, RepositoryInfo.FILE_NAME + "/library:library_b", diffs.get(0));
 	}
 
 	@Test

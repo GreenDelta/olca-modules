@@ -84,7 +84,8 @@ public record PackageInfo(JsonObject json) {
 		if (Strings.nullOrEmpty(name))
 			return Optional.empty();
 		var isLibrary = Json.getBool(obj, "isLibrary", false);
-		return Optional.of(new DataPackage(name, url, isLibrary));
+		var version = Json.getString(obj, "version");
+		return Optional.of(new DataPackage(name, version, url, isLibrary));
 	}
 
 	public PackageInfo withDataPackages(Collection<DataPackage> packages) {
@@ -103,6 +104,9 @@ public record PackageInfo(JsonObject json) {
 		Json.put(obj, "name", p.name());
 		if (p.url() != null) {
 			Json.put(obj, "url", p.url());
+		}
+		if (p.version() != null) {
+			Json.put(obj, "version", p.version());
 		}
 		Json.put(obj, "isLibrary", p.isLibrary());
 		return obj;

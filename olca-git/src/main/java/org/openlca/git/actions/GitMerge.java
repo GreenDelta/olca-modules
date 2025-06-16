@@ -45,6 +45,11 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		return this;
 	}
 
+	public GitMerge commit(Commit commit) {
+		this.remoteCommit = commit;
+		return this;
+	}
+
 	public GitMerge as(PersonIdent committer) {
 		this.committer = committer;
 		return this;
@@ -101,7 +106,9 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		if (behind.isEmpty())
 			return false;
 		localCommit = repo.commits.get(repo.commits.resolve(Constants.LOCAL_BRANCH));
-		remoteCommit = getRemoteCommit();
+		if (remoteCommit == null) {
+			remoteCommit = getRemoteCommit();
+		}
 		if (remoteCommit == null)
 			return false;
 		var commonParent = repo.localHistory.commonParentOf(ref);

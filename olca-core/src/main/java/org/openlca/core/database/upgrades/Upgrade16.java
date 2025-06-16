@@ -22,7 +22,7 @@ class Upgrade16 implements IUpgrade {
 				CREATE TABLE tbl_data_packages (
 
 					name       VARCHAR(255),
-					version    BIGINT,
+					version    VARCHAR(255),
 					url        VARCHAR(1000),
 					is_library SMALLINT default 0,
 
