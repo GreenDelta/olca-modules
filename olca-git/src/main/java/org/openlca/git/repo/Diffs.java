@@ -252,7 +252,12 @@ public class Diffs {
 
 		private Reference dataPackageReference(DataPackage p, RevCommit commit) {
 			var commitId = commit != null ? commit.getName() : null;
-			return new Reference(RepositoryInfo.FILE_NAME + "/" + p.name(), commitId, null);
+			var path = RepositoryInfo.FILE_NAME + "/";
+			if (p.isLibrary()) {
+				path += "library:";
+			}
+			path += p.name();
+			return new Reference(path, commitId, null);
 		}
 
 		private void addDiff(ModelRefMap<Diff> diffs, DiffType type, String path, ObjectId oldId, ObjectId newId)

@@ -159,10 +159,10 @@ public class DbCommitWriter extends CommitWriter {
 		for (var diff : changes) {
 			if (!diff.isDataPackage)
 				continue;
-			var p = dbDataPackages.get(diff.name);
 			if (diff.diffType == DiffType.DELETED) {
-				dataPackages.remove(p);
+				dataPackages.remove(new DataPackage(diff.name, null, diff.isLibrary));
 			} else {
+				var p = dbDataPackages.get(diff.name);
 				dataPackages.add(p);
 			}
 		}

@@ -1,12 +1,14 @@
 package org.openlca.git.actions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.openlca.core.database.IDatabase.DataPackage;
 import org.openlca.git.actions.GitMerge.MergeResult;
-import org.openlca.git.actions.LibraryMounter.MountException;
+import org.openlca.git.actions.GitMerge.MergeResultType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
@@ -23,7 +25,7 @@ class Data {
 	private boolean undo;
 	private ProgressMonitor progressMonitor;
 	private DataPackage dataPackage;
-	private LibraryResolver libraryResolver;
+	private DependencyResolver dependencyResolver;
 	private ConflictResolver conflictResolver;
 
 	static Data of(ClientRepository repo, Commit remoteCommit) {
@@ -53,8 +55,8 @@ class Data {
 		return this;
 	}
 
-	Data with(LibraryResolver libraryResolver) {
-		this.libraryResolver = libraryResolver;
+	Data with(DependencyResolver libraryResolver) {
+		this.dependencyResolver = libraryResolver;
 		return this;
 	}
 
@@ -62,26 +64,27 @@ class Data {
 		this.conflictResolver = conflictResolver;
 		return this;
 	}
-	
+
 	Data into(DataPackage dataPackage) {
 		this.dataPackage = dataPackage;
 		return this;
 	}
 
-	List<Diff> update() throws MountException {
+	UpdateResult update() throws IOException, GitAPIException {
 		var merged = new ArrayList<Diff>();
-		var libraries = LibraryMounter.of(repo, localCommit, remoteCommit)
-				.with(libraryResolver)
+		var dataPackages = DataPackageMounter.of(repo, localCommit, remoteCommit)
+				.with(dependencyResolver)
+				.with(conflictResolver)
 				.with(progressMonitor);
-		var mountResult = libraries.mountNew();
-		if (mountResult == MergeResult.ABORTED)
-			return null;
+		var mountResult = dataPackages.mountNew();
+		if (mountResult.type() == MergeResultType.ABORTED || mountResult.type() == MergeResultType.MOUNT_ERROR)
+			return new UpdateResult(merged, mountResult);
 		merged.addAll(doImport());
 		merged.addAll(doDelete());
-		libraries.unmountObsolete();
+		dataPackages.unmountObsolete();
 		progressMonitor.beginTask("Reloading descriptors");
 		repo.descriptors.reload();
-		return merged;
+		return new UpdateResult(merged, mountResult);
 	}
 
 	private List<Diff> doImport() {
@@ -114,6 +117,9 @@ class Data {
 				.with(conflictResolver)
 				.data(toDelete)
 				.run();
+	}
+
+	record UpdateResult(List<Diff> merged, MergeResult mergeResult) {
 	}
 
 }

@@ -3,6 +3,7 @@ package org.openlca.git.actions;
 import java.io.IOException;
 import java.util.List;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -42,7 +43,7 @@ public class GitStashCreate extends GitReset {
 	}
 
 	@Override
-	public String run() throws IOException {
+	public String run() throws IOException, GitAPIException {
 		checkValidInputs();
 		var commitId = writeStashCommit();
 		super.run();

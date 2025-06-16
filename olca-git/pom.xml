@@ -16,7 +16,7 @@
 			<artifactId>org.eclipse.jgit</artifactId>
 			<version>7.3.0.202506031305-r</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-core</artifactId>
@@ -27,6 +27,12 @@
 			<groupId>com.github.sarveswaran-m</groupId>
 			<artifactId>util.concurrent.blockingMap</artifactId>
 			<version>0.91</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openlca</groupId>
+			<artifactId>olca-license</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 
 		<dependency>

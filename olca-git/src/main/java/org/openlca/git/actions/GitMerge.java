@@ -1,7 +1,9 @@
 package org.openlca.git.actions;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -11,7 +13,6 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.GitMerge.MergeResult;
-import org.openlca.git.actions.LibraryMounter.MountException;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.Reference;
@@ -25,7 +26,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	private PersonIdent committer;
 	private DataPackage dataPackage;
 	private ConflictResolver conflictResolver = ConflictResolver.NULL;
-	private LibraryResolver libraryResolver;
+	private DependencyResolver dependencyResolver;
 	private boolean applyStash;
 	private Commit localCommit;
 	private Commit remoteCommit;
@@ -54,8 +55,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		return this;
 	}
 
-	public GitMerge resolveLibrariesWith(LibraryResolver libraryResolver) {
-		this.libraryResolver = libraryResolver;
+	public GitMerge resolveDependenciesWith(DependencyResolver dependencyResolver) {
+		this.dependencyResolver = dependencyResolver;
 		return this;
 	}
 
@@ -67,31 +68,26 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 	@Override
 	public MergeResult run() throws IOException, GitAPIException {
 		if (!prepare())
-			return MergeResult.NO_CHANGES;
-		List<Diff> merged = null;
-		try {
-			merged = Data.of(repo, localCommit, remoteCommit)
-					.with(conflictResolver)
-					.with(libraryResolver)
-					.with(progressMonitor)
-					.into(dataPackage)
-					.changes(changes)
-					.update();
-			if (merged == null)
-				return MergeResult.ABORTED;
-		} catch (MountException e) {
-			return MergeResult.MOUNT_ERROR;
-		}
-
+			return new MergeResult(MergeResultType.NO_CHANGES);
+		var updateResult = Data.of(repo, localCommit, remoteCommit)
+				.with(conflictResolver)
+				.with(dependencyResolver)
+				.with(progressMonitor)
+				.into(dataPackage)
+				.changes(changes)
+				.update();
+		var mergeResultType = updateResult.mergeResult().type();
+		if (mergeResultType == MergeResultType.ABORTED || mergeResultType == MergeResultType.MOUNT_ERROR)
+			return updateResult.mergeResult();
 		if (applyStash)
-			return MergeResult.SUCCESS;
+			return new MergeResult(MergeResultType.SUCCESS, updateResult.mergeResult().mountedDataPackages());
 		var ahead = repo.localHistory.getAheadOf(Constants.REMOTE_REF);
 		if (ahead.isEmpty()) {
 			updateHead();
 		} else {
-			createMergeCommit(merged);
+			createMergeCommit(updateResult.merged());
 		}
-		return MergeResult.SUCCESS;
+		return new MergeResult(MergeResultType.SUCCESS, updateResult.mergeResult().mountedDataPackages());
 	}
 
 	private boolean prepare() throws GitAPIException, UnsupportedClientVersionException {
@@ -141,7 +137,15 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		repo.index.reload();
 	}
 
-	public static enum MergeResult {
+	public static record MergeResult(MergeResultType type, Set<DataPackage> mountedDataPackages) {
+
+		public MergeResult(MergeResultType type) {
+			this(type, new HashSet<>());
+		}
+
+	}
+
+	public static enum MergeResultType {
 
 		NO_CHANGES, SUCCESS, MOUNT_ERROR, ABORTED;
 

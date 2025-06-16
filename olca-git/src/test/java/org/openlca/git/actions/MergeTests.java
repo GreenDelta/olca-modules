@@ -16,7 +16,7 @@ import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolution;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
-import org.openlca.git.actions.GitMerge.MergeResult;
+import org.openlca.git.actions.GitMerge.MergeResultType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.ModelRefMap;
 import org.openlca.util.Dirs;
@@ -48,7 +48,7 @@ public class MergeTests extends AbstractRepositoryTests {
 		GitPush.from(repo).run();
 		GitFetch.to(otherRepo).run();
 		var result = GitMerge.on(otherRepo).run();
-		Assert.assertEquals(MergeResult.SUCCESS, result);
+		Assert.assertEquals(MergeResultType.SUCCESS, result.type());
 		otherRepo.assertEqualRecursive(otherRepo.createIterator(),
 				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
 				RepositoryInfo.FILE_NAME);

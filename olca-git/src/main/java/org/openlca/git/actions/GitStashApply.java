@@ -11,7 +11,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 	private final ClientRepository repo;
 	private PersonIdent committer;
 	private ConflictResolver conflictResolver;
-	private LibraryResolver libraryResolver;
+	private DependencyResolver dependencyResolver;
 
 	private GitStashApply(ClientRepository repo) {
 		this.repo = repo;
@@ -26,8 +26,8 @@ public class GitStashApply extends GitProgressAction<Void> {
 		return this;
 	}
 
-	public GitStashApply resolveLibrariesWith(LibraryResolver libraryResolver) {
-		this.libraryResolver = libraryResolver;
+	public GitStashApply resolveDependenciesWith(DependencyResolver dependencyResolver) {
+		this.dependencyResolver = dependencyResolver;
 		return this;
 	}
 
@@ -38,7 +38,7 @@ public class GitStashApply extends GitProgressAction<Void> {
 		GitMerge.on(repo)
 				.as(committer)
 				.resolveConflictsWith(conflictResolver)
-				.resolveLibrariesWith(libraryResolver)
+				.resolveDependenciesWith(dependencyResolver)
 				.applyStash()
 				.withProgress(progressMonitor)
 				.run();

@@ -72,6 +72,17 @@ public class OlcaRepository extends FileRepository {
 		}
 	}
 
+	public DataPackage getDataPackage(String name) {
+		return getDataPackage(name, null);
+	}
+
+	public DataPackage getDataPackage(String name, String commitId) {
+		for (var dataPackage : getDataPackages(commitId))
+			if (dataPackage.name().equals(name))
+				return dataPackage;
+		return null;
+	}
+
 	public Set<DataPackage> getDataPackages() {
 		return getDataPackages((String) null);
 	}
@@ -88,7 +99,7 @@ public class OlcaRepository extends FileRepository {
 		return getDataPackages(commit.id);
 	}
 
-	private Set<DataPackage> getDataPackages(String commitId) {
+	public Set<DataPackage> getDataPackages(String commitId) {
 		var info = getInfo(commitId);
 		if (info == null)
 			return new HashSet<>();

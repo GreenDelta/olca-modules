@@ -20,6 +20,7 @@ import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.CategoryContentTest;
 import org.openlca.util.TypedRefIdMap;
+import org.openlca.util.TypedRefIdSet;
 
 public class Unmounter {
 
@@ -29,41 +30,68 @@ public class Unmounter {
 	private final LibReader reader;
 	private final ProcessDao processDao;
 	private final ImpactMethodDao methodDao;
+	private final TypedRefIdMap<Boolean> keep;
 	private CategoryContentTest categoryTest;
 	private Map<Long, Category> categoriesToDelete;
-	private TypedRefIdMap<Boolean> keep;
 	private ModelReferences references;
 
 	public static void keepNone(IDatabase database, String lib) {
 		if (lib == null)
 			return;
-		new Unmounter(database, Retention.KEEP_NONE, lib, null).unmount();
+		new Unmounter(database, Retention.KEEP_NONE, lib, null, null).unmount();
+	}
+
+	public static void keepUsed(IDatabase database, String lib) {
+		if (lib == null)
+			return;
+		new Unmounter(database, Retention.KEEP_USED, lib, null, null).unmount();
 	}
 
 	public static void keepUsed(IDatabase database, LibReader reader) {
 		if (reader == null)
 			return;
-		new Unmounter(database, Retention.KEEP_USED, reader.libraryName(), reader).unmount();
+		new Unmounter(database, Retention.KEEP_USED, reader.libraryName(), reader, null).unmount();
+	}
+
+	public static void keepSelection(IDatabase database, String lib, TypedRefIdSet keep) {
+		if (lib == null)
+			return;
+		new Unmounter(database, Retention.KEEP_SELECTION, lib, null, keep).unmount();
+	}
+
+	public static void keepSelection(IDatabase database, LibReader reader, TypedRefIdSet keep) {
+		if (reader == null)
+			return;
+		new Unmounter(database, Retention.KEEP_SELECTION, reader.libraryName(), reader, keep).unmount();
+	}
+
+	public static void keepAll(IDatabase database, String lib) {
+		if (lib == null)
+			return;
+		new Unmounter(database, Retention.KEEP_ALL, lib, null, null).unmount();
 	}
 
 	public static void keepAll(IDatabase database, LibReader reader) {
 		if (reader == null)
 			return;
-		new Unmounter(database, Retention.KEEP_ALL, reader.libraryName(), reader).unmount();
+		new Unmounter(database, Retention.KEEP_ALL, reader.libraryName(), reader, null).unmount();
 	}
 
-	private Unmounter(IDatabase database, Retention retention, String lib, LibReader reader) {
+	private Unmounter(IDatabase database, Retention retention, String lib, LibReader reader, TypedRefIdSet keep) {
 		this.database = database;
 		this.retention = retention;
 		this.lib = lib;
 		this.reader = reader;
 		this.processDao = new ProcessDao(database);
 		this.methodDao = new ImpactMethodDao(database);
+		this.keep = new TypedRefIdMap<>();
+		if (keep != null) {
+			keep.forEach(value -> this.keep.put(value, true));
+		}
 	}
 
 	private void init() {
 		this.categoriesToDelete = collectLibraryCategories();
-		this.keep = new TypedRefIdMap<>();
 		this.references = retention == Retention.KEEP_USED
 				? ModelReferences.scan(database)
 				: null;
@@ -201,7 +229,7 @@ public class Unmounter {
 
 	public enum Retention {
 
-		KEEP_NONE, KEEP_USED, KEEP_ALL
+		KEEP_NONE, KEEP_USED, KEEP_SELECTION, KEEP_ALL
 
 	}
 

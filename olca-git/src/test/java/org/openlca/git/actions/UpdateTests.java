@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,7 +31,7 @@ public class UpdateTests extends AbstractRepositoryTests {
 	}
 
 	@Test
-	public void testUpdate() throws IOException {
+	public void testUpdate() throws IOException, GitAPIException {
 		repo.create("ACTOR/0aa39f5b-5021-4b6b-9330-739f082dfae0.json");
 		repo.commitWorkspace();
 		GitDatabaseUpdate.on(otherRepo).run();

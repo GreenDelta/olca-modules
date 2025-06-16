@@ -3,6 +3,7 @@ package org.openlca.git.actions;
 import java.io.IOException;
 import java.util.List;
 
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.openlca.git.Compatibility;
 import org.openlca.git.Compatibility.UnsupportedClientVersionException;
 import org.openlca.git.model.Commit;
@@ -12,7 +13,7 @@ import org.openlca.git.repo.ClientRepository;
 public class GitReset extends GitProgressAction<String> {
 
 	protected final ClientRepository repo;
-	protected LibraryResolver libraryResolver;
+	protected DependencyResolver dependencyResolver;
 	protected Commit commit;
 	protected List<Diff> changes;
 
@@ -24,8 +25,8 @@ public class GitReset extends GitProgressAction<String> {
 		return new GitReset(repo);
 	}
 
-	public GitReset resolveLibrariesWith(LibraryResolver libraryResolver) {
-		this.libraryResolver = libraryResolver;
+	public GitReset resolveDependenciesWith(DependencyResolver dependencyResolver) {
+		this.dependencyResolver = dependencyResolver;
 		return this;
 	}
 
@@ -40,10 +41,10 @@ public class GitReset extends GitProgressAction<String> {
 	}
 
 	@Override
-	public String run() throws IOException {
+	public String run() throws IOException, GitAPIException {
 		checkValidInputs();
 		Data.of(repo, commit)
-				.with(libraryResolver)
+				.with(dependencyResolver)
 				.with(progressMonitor)
 				.changes(changes)
 				.undo()
