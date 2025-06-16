@@ -2,8 +2,8 @@ package org.openlca.core.matrix.linking;
 
 import java.util.HashSet;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;

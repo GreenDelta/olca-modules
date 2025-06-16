@@ -5,7 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
+import org.openlca.core.database.DataPackage.DataPackageType;
 import org.openlca.util.Strings;
 
 import com.google.gson.JsonArray;
@@ -83,11 +84,21 @@ public record PackageInfo(JsonObject json) {
 		name = Json.getString(obj, "name");
 		if (Strings.nullOrEmpty(name))
 			return Optional.empty();
-		var isLibrary = Json.getBool(obj, "isLibrary", false);
+		var type = getDataPackageType(obj);
+		if (type == null)
+			return Optional.empty();
 		var version = Json.getString(obj, "version");
-		return Optional.of(new DataPackage(name, version, url, isLibrary));
+		return Optional.of(new DataPackage(type, name, version, url));
 	}
 
+	private DataPackageType getDataPackageType(JsonObject obj) {
+		var type = Json.getString(obj, "type");
+		for (var t : DataPackageType.values())
+			if (t.name().equals(type))
+				return t;
+		return null;
+	}
+	
 	public PackageInfo withDataPackages(Collection<DataPackage> packages) {
 		if (packages == null || packages.isEmpty())
 			return this;
@@ -101,6 +112,7 @@ public record PackageInfo(JsonObject json) {
 
 	private JsonObject toJson(DataPackage p) {
 		var obj = new JsonObject();
+		Json.put(obj, "type", p.type().name());
 		Json.put(obj, "name", p.name());
 		if (p.url() != null) {
 			Json.put(obj, "url", p.url());
@@ -108,7 +120,6 @@ public record PackageInfo(JsonObject json) {
 		if (p.version() != null) {
 			Json.put(obj, "version", p.version());
 		}
-		Json.put(obj, "isLibrary", p.isLibrary());
 		return obj;
 	}
 

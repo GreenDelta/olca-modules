@@ -21,10 +21,10 @@ class Upgrade16 implements IUpgrade {
 		u.createTable("tbl_data_packages", """
 				CREATE TABLE tbl_data_packages (
 
-					name       VARCHAR(255),
-					version    VARCHAR(255),
-					url        VARCHAR(1000),
-					is_library SMALLINT default 0,
+					package_type VARCHAR(255),
+					name         VARCHAR(255),
+					version      VARCHAR(255),
+					url          VARCHAR(1000),
 
 				    PRIMARY KEY (name)
 				)
@@ -54,7 +54,7 @@ class Upgrade16 implements IUpgrade {
 		}
 		NativeSql.on(db).query("SELECT id FROM tbl_libraries", rs -> {
 			var name = rs.getString(1);
-			NativeSql.on(db).runUpdate("INSERT INTO tbl_data_packages(name, is_library) VALUES ('" + name + "', 1)");
+			NativeSql.on(db).runUpdate("INSERT INTO tbl_data_packages(package_type, name) VALUES ('LIBRARY', " + name + "')");
 			return true;
 		});
 		u.dropTable("tbl_libraries");

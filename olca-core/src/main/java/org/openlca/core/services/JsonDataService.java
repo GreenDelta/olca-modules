@@ -3,8 +3,8 @@ package org.openlca.core.services;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.ProviderMap;

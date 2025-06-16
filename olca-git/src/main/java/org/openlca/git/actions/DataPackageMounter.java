@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.Mounter;
 import org.openlca.core.library.PreMountCheck;
@@ -78,7 +78,7 @@ class DataPackageMounter {
 			var name = next.dataPackage().name();
 			var task = next.dataPackage().isLibrary()
 					? "Library " + name
-					: "Data package " + name;
+					: "Repository " + name;
 			progressMonitor.subTask(task);
 			if (handled.contains(next.dataPackage()))
 				continue;
@@ -130,7 +130,7 @@ class DataPackageMounter {
 				.run();
 		if (result.type() == MergeResultType.MOUNT_ERROR || result.type() == MergeResultType.ABORTED)
 			return result;
-		repo.database.addDataPackage(dataPackage.name(), dataPackage.version(), dataPackage.url());
+		repo.database.addRepository(dataPackage.name(), dataPackage.version(), dataPackage.url());
 		return result;
 	}
 

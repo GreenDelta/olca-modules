@@ -2,8 +2,8 @@ package org.openlca.core.matrix.linking;
 
 import java.util.List;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ProcessType;

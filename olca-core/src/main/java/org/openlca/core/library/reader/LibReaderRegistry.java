@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
 import org.slf4j.LoggerFactory;

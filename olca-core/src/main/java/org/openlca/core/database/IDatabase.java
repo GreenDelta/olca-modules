@@ -5,20 +5,16 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
+import org.openlca.core.database.DataPackage.DataPackageType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.store.EntityStore;
-import org.openlca.util.Strings;
 import org.openlca.util.TLongSets;
 
 import gnu.trove.set.TLongSet;
@@ -94,26 +90,26 @@ public interface IDatabase extends EntityStore, Closeable {
 	default DataPackage addLibrary(String name) {
 		var dataPackage = getDataPackage(name);
 		if (dataPackage != null) {
-			if (dataPackage.isLibrary)
+			if (dataPackage.isLibrary())
 				return dataPackage;
 			throw new IllegalStateException(
 					"There is already a non-library data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
-				"insert into tbl_data_packages(name, is_library) "
-						+ "values ('" + name + "', 1)");
-		return new DataPackage(name, null, null, true);
+				"insert into tbl_data_packages(package_type, name) "
+						+ "values ('LIBRARY', '" + name + "')");
+		return DataPackage.library(name, null);
 	}
 
 	default DataPackage getDataPackage(String name) {
-		var sql = "select name, version, url, is_library from tbl_data_packages where name = '" + name + "'";
+		var sql = "select package_type, name, version, url from tbl_data_packages where name = '" + name + "'";
 		var packages = new ArrayList<DataPackage>();
 		NativeSql.on(this).query(sql, r -> {
 			packages.add(new DataPackage(
-					r.getString(1),
+					DataPackageType.valueOf(r.getString(1)),
 					r.getString(2),
 					r.getString(3),
-					r.getBoolean(4)));
+					r.getString(4)));
 			return true;
 		});
 		if (packages.isEmpty())
@@ -122,14 +118,14 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	default DataPackages getDataPackages() {
-		var sql = "select name, version, url, is_library from tbl_data_packages";
+		var sql = "select package_type, name, version, url from tbl_data_packages";
 		var packages = new HashSet<DataPackage>();
 		NativeSql.on(this).query(sql, r -> {
 			packages.add(new DataPackage(
-					r.getString(1),
+					DataPackageType.valueOf(r.getString(1)),
 					r.getString(2),
 					r.getString(3),
-					r.getBoolean(4)));
+					r.getString(4)));
 			return true;
 		});
 		return new DataPackages(packages);
@@ -143,21 +139,21 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	/**
-	 * Add data package with the given name from this database.
+	 * Add repository data package with the given name from this database.
 	 */
-	default DataPackage addDataPackage(String name, String version, String url) {
+	default DataPackage addRepository(String name, String version, String url) {
 		var dataPackage = getDataPackage(name);
 		if (dataPackage != null) {
 			throw new IllegalStateException(
 					"There is already a data package with the name " + name + " registered");
 		}
 		NativeSql.on(this).runUpdate(
-				"insert into tbl_data_packages(name, version, url, is_library) "
-						+ "values ('" + name + "', '" + version + "', '" + url + "', 0)");
-		return new DataPackage(name, version, url, false);
+				"insert into tbl_data_packages(package_type, name, version, url) "
+						+ "values ('REPOSITORY', '" + name + "', '" + version + "', '" + url + "')");
+		return DataPackage.repository(name, version, url);
 	}
 
-	default DataPackage updateDataPackage(String name, String version) {
+	default DataPackage updateRepository(String name, String version) {
 		NativeSql.on(this)
 				.runUpdate("update tbl_data_packages set version = '" + version + "' where name = '" + name + "'");
 		return getDataPackage(name);
@@ -347,84 +343,6 @@ public interface IDatabase extends EntityStore, Closeable {
 		} finally {
 			em.close();
 		}
-	}
-
-	public record DataPackage(String name, String version, String url, boolean isLibrary) {
-
-		public static DataPackage library(String name, String url) {
-			return new DataPackage(name, null, url, true);
-		}
-
-		@Override
-		public final boolean equals(Object o) {
-			if (!(o instanceof DataPackage p))
-				return false;
-			return name.equals(p.name);
-		}
-
-		@Override
-		public final int hashCode() {
-			return name.hashCode();
-		}
-
-	}
-
-	public static class DataPackages {
-
-		private final Map<String, DataPackage> packages;
-
-		public DataPackages() {
-			this.packages = new HashMap<>();
-		}
-
-		public DataPackages(Set<DataPackage> dataPackages) {
-			this.packages = dataPackages.stream()
-					.collect(Collectors.toMap(
-							p -> p.name,
-							p -> p));
-		}
-
-		public DataPackage get(String name) {
-			return packages.get(name);
-		}
-
-		public boolean contains(String name) {
-			return get(name) != null;
-		}
-
-		public boolean isEmpty() {
-			return packages.isEmpty();
-		}
-
-		public boolean isFromLibrary(Descriptor d) {
-			return d != null && isLibrary(d.dataPackage);
-		}
-
-		public boolean isFromLibrary(RootEntity e) {
-			return e != null && isLibrary(e.dataPackage);
-		}
-
-		public boolean isLibrary(String name) {
-			if (Strings.nullOrEmpty(name))
-				return false;
-			var p = get(name);
-			// check defensive, if package is not found assume its a library
-			if (p == null)
-				return true;
-			return p.isLibrary;
-		}
-
-		public Set<DataPackage> getAll() {
-			return new HashSet<>(packages.values());
-		}
-
-		public Set<String> getLibraries() {
-			return packages.values().stream()
-					.filter(DataPackage::isLibrary)
-					.map(DataPackage::name)
-					.collect(Collectors.toSet());
-		}
-
 	}
 
 }

@@ -3,7 +3,7 @@ package org.openlca.jsonld;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.model.ModelType;
 
 import com.google.gson.Gson;

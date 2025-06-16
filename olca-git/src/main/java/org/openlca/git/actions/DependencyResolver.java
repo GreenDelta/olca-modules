@@ -1,6 +1,6 @@
 package org.openlca.git.actions;
 
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.library.Library;
 import org.openlca.git.repo.ClientRepository;
 

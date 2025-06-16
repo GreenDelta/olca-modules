@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.git.actions.GitMerge.MergeResult;
 import org.openlca.git.actions.GitMerge.MergeResultType;
 import org.openlca.git.model.Commit;

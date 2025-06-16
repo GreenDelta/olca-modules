@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.core.database.Daos;
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;

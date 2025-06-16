@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.JsonStoreReader;

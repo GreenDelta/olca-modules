@@ -16,10 +16,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.database.Daos;
+import org.openlca.core.database.DataPackage;
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.IDatabase.DataPackage;
-import org.openlca.core.database.IDatabase.DataPackages;
 import org.openlca.core.model.Callback;
 import org.openlca.core.model.Callback.Message;
 import org.openlca.core.model.ModelType;

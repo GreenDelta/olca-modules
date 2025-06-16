@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import org.eclipse.jgit.lib.ObjectId;
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.git.RepositoryInfo;

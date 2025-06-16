@@ -15,7 +15,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.DatabaseIterator;
 import org.openlca.git.model.Commit;
@@ -253,9 +253,7 @@ public class Diffs {
 		private Reference dataPackageReference(DataPackage p, RevCommit commit) {
 			var commitId = commit != null ? commit.getName() : null;
 			var path = RepositoryInfo.FILE_NAME + "/";
-			if (p.isLibrary()) {
-				path += "library:";
-			}
+			path += p.type().name().toLowerCase() + ":";
 			path += p.name();
 			return new Reference(path, commitId, null);
 		}

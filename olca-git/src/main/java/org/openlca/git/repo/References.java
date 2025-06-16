@@ -18,7 +18,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.openlca.core.database.IDatabase.DataPackage;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Reference;
@@ -206,7 +206,7 @@ public class References {
 					var dps = repo.getDataPackages(commit).stream()
 							.map(p -> refOf(p, commit.getName()))
 							.collect(Collectors.toList());
-					for (var dp: dps)
+					for (var dp : dps)
 						if (!consumer.apply(dp))
 							return;
 				} else {
@@ -224,9 +224,7 @@ public class References {
 
 		private Reference refOf(DataPackage p, String commitId) {
 			var path = RepositoryInfo.FILE_NAME + "/";
-			if (p.isLibrary()) {
-				path += "library:";
-			}
+			path += p.type().name().toLowerCase() + ":";
 			path += p.name();
 			return new Reference(path, commitId, null);
 		}
@@ -282,7 +280,7 @@ public class References {
 							var dps = repo.getDataPackages(commit).stream()
 									.map(p -> refOf(p, commit.getName()))
 									.collect(Collectors.toList());
-							for (var dp: dps)
+							for (var dp : dps)
 								if (!consumer.apply(dp))
 									return;
 							continue;
