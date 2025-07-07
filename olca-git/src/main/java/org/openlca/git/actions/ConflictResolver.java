@@ -1,6 +1,6 @@
 package org.openlca.git.actions;
 
-import org.openlca.git.model.ModelRef;
+import org.openlca.core.model.TypedRefId;
 
 import com.google.gson.JsonObject;
 
@@ -8,57 +8,111 @@ public interface ConflictResolver {
 
 	static final ConflictResolver NULL = new ConflictResolver() {
 		@Override
-		public boolean isConflict(ModelRef ref) {
+		public boolean isConflict(TypedRefId ref) {
 			return false;
 		}
 
 		@Override
-		public ConflictResolutionType peekConflictResolution(ModelRef ref) {
+		public ConflictResolutionInfo peekConflictResolution(TypedRefId ref) {
 			return null;
 		}
 
 		@Override
-		public ConflictResolution resolveConflict(ModelRef ref, JsonObject fromHistory) {
+		public ConflictResolutionInfo peekConflictResolutionWithWorkspace(TypedRefId ref) {
+			return null;
+		}
+
+		@Override
+		public ConflictResolution resolveConflict(TypedRefId ref, JsonObject fromHistory) {
+			return null;
+		}
+
+		@Override
+		public ConflictResolution resolveConflictWithWorkspace(TypedRefId ref, JsonObject other) {
 			return null;
 		}
 	};
 
-	boolean isConflict(ModelRef ref);
+	/**
+	 * Return if a conflict exists for the given ref
+	 */
+	boolean isConflict(TypedRefId ref);
 
-	ConflictResolutionType peekConflictResolution(ModelRef ref);
+	/**
+	 * Return either local or workspace conflict resolution info for the given
+	 * ref, this way - during merge - it can be determined if data sets need to
+	 * be loaded for merging.
+	 */
+	ConflictResolutionInfo peekConflictResolution(TypedRefId ref);
 
-	ConflictResolution resolveConflict(ModelRef ref, JsonObject fromHistory);
+	/**
+	 * Return workspace conflict resolution info for the given ref, this way -
+	 * during merge - it can be determined if data sets need to be loaded for
+	 * merging.
+	 */
+	ConflictResolutionInfo peekConflictResolutionWithWorkspace(TypedRefId ref);
 
-	public class ConflictResolution {
+	/**
+	 * Return the conflict resolution for the given ref, if conflicts exist with
+	 * both LOCAL and WORKSPACE, return LOCAL conflict
+	 */
+	ConflictResolution resolveConflict(TypedRefId ref, JsonObject other);
 
-		public final ConflictResolutionType type;
+	/**
+	 * In case that conflicts with both LOCAL and WORKSPACE exist, this method
+	 * is used to retrieve the WORKSPACE conflict
+	 */
+	ConflictResolution resolveConflictWithWorkspace(TypedRefId ref, JsonObject other);
+
+	public class ConflictResolution extends ConflictResolutionInfo {
+
 		public final JsonObject data;
 
-		private ConflictResolution(ConflictResolutionType type, JsonObject mergedData) {
-			this.type = type;
+		private ConflictResolution(ConflictResolutionType type, GitContext conflictWith, JsonObject mergedData) {
+			super(type, conflictWith);
 			this.data = mergedData;
 		}
 
-		public static ConflictResolution overwrite() {
-			return new ConflictResolution(ConflictResolutionType.OVERWRITE, null);
+		public static ConflictResolution isEqual(GitContext context) {
+			return new ConflictResolution(ConflictResolutionType.IS_EQUAL, context, null);
 		}
 
-		public static ConflictResolution keep() {
-			return new ConflictResolution(ConflictResolutionType.KEEP, null);
+		public static ConflictResolution keep(GitContext context) {
+			return new ConflictResolution(ConflictResolutionType.KEEP, context, null);
 		}
 
-		public static ConflictResolution isEqual() {
-			return new ConflictResolution(ConflictResolutionType.IS_EQUAL, null);
+		public static ConflictResolution overwrite(GitContext context) {
+			return new ConflictResolution(ConflictResolutionType.OVERWRITE, context, null);
 		}
 
-		public static ConflictResolution merge(JsonObject mergedData) {
-			return new ConflictResolution(ConflictResolutionType.MERGE, mergedData);
+		public static ConflictResolution merge(GitContext context, JsonObject mergedData) {
+			return new ConflictResolution(ConflictResolutionType.MERGE, context, mergedData);
 		}
 
 	}
 
 	public enum ConflictResolutionType {
-		OVERWRITE, KEEP, MERGE, IS_EQUAL;
+
+		IS_EQUAL, KEEP, OVERWRITE, MERGE;
+
+	}
+
+	public class ConflictResolutionInfo {
+
+		public final ConflictResolutionType type;
+		public final GitContext context;
+
+		private ConflictResolutionInfo(ConflictResolutionType type, GitContext context) {
+			this.type = type;
+			this.context = context;
+		}
+
+	}
+
+	public enum GitContext {
+
+		LOCAL, WORKSPACE;
+
 	}
 
 }

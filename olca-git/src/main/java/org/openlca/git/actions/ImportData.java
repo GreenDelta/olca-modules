@@ -1,10 +1,8 @@
 package org.openlca.git.actions;
 
-import java.util.List;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
-import org.openlca.git.model.Diff;
+import org.openlca.git.actions.GitStoreReader.MergedDataImpl;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.input.BatchImport;
 import org.openlca.jsonld.input.JsonImport;
@@ -54,7 +52,7 @@ class ImportData {
 			ModelType.EPD
 	};
 
-	List<Diff> run() {
+	MergedDataImpl run() {
 		var jsonImport = new JsonImport(gitStore, database);
 		jsonImport.setUpdateMode(UpdateMode.ALWAYS);
 		progressMonitor.beginTask("Importing data sets", gitStore.size());
@@ -81,7 +79,7 @@ class ImportData {
 			}
 			batchImport.close();
 		}
-		return gitStore.resolvedConflicts;
+		return gitStore.mergedData;
 	}
 
 }

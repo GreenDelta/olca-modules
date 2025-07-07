@@ -45,12 +45,6 @@ class DataPackageMounter {
 				repo.getDataPackages(remoteCommit));
 	}
 
-	static DataPackageMounter of(ClientRepository repo, Commit remoteCommit) {
-		return new DataPackageMounter(repo,
-				repo.database.getDataPackages().getAll(),
-				repo.getDataPackages(remoteCommit));
-	}
-
 	DataPackageMounter with(DependencyResolver libraryResolver) {
 		this.dependencyResolver = libraryResolver;
 		return this;

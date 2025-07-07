@@ -15,6 +15,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openlca.core.database.DataPackage;
 import org.openlca.core.database.IDatabase;
+import org.openlca.git.actions.MergedData;
 import org.openlca.git.iterator.ChangeIterator;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
@@ -36,6 +37,7 @@ public class DbCommitWriter extends CommitWriter {
 	private IDatabase database;
 	private ClientRepository repo;
 	private Set<DataPackage> dataPackages = new HashSet<>();
+	private MergedData mergedData;
 
 	public DbCommitWriter(ClientRepository repo) {
 		this(repo, new DatabaseBinaryResolver(repo.database));
@@ -71,8 +73,13 @@ public class DbCommitWriter extends CommitWriter {
 	}
 
 	public DbCommitWriter merge(String localCommitId, String remoteCommitId) {
+		return merge(localCommitId, remoteCommitId, null);
+	}
+
+	public DbCommitWriter merge(String localCommitId, String remoteCommitId, MergedData mergedData) {
 		this.localCommitId = localCommitId;
 		this.remoteCommitId = remoteCommitId;
+		this.mergedData = mergedData;
 		return this;
 	}
 
@@ -188,11 +195,20 @@ public class DbCommitWriter extends CommitWriter {
 	@Override
 	protected byte[] getData(Diff change) {
 		try {
+			var merged = getMergedData(change);
+			if (merged != null)
+				return merged;
 			return converter.take(change.path);
 		} catch (InterruptedException e) {
 			log.error("Error taking data for " + change.path, e);
 			return null;
 		}
+	}
+
+	private byte[] getMergedData(Diff change) {
+		if (mergedData == null)
+			return null;
+		return mergedData.get(change);
 	}
 
 }

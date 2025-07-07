@@ -90,7 +90,7 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		if (ahead.isEmpty()) {
 			updateHead();
 		} else {
-			createMergeCommit(updateResult.merged());
+			createMergeCommit(updateResult.mergedData());
 		}
 		return new MergeResult(MergeResultType.SUCCESS, updateResult.mergeResult().mountedDataPackages());
 	}
@@ -122,18 +122,20 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		return repo.commits.stash();
 	}
 
-	private String createMergeCommit(List<Diff> merged) throws IOException {
+	private String createMergeCommit(MergedData mergedData) throws IOException {
 		var localLibs = repo.getDataPackages(localCommit);
 		var remoteLibs = repo.getDataPackages(remoteCommit);
+		var diffs = mergedData.getDiffs();
 		if (!localLibs.equals(remoteLibs)) {
-			merged.add(Diff.modified(
+			// TODO is this correct?
+			diffs.add(Diff.modified(
 					repo.references.get(RepositoryInfo.FILE_NAME, remoteCommit.id),
 					new Reference(RepositoryInfo.FILE_NAME)));
 		}
 		return new DbCommitWriter(repo)
 				.as(committer)
-				.merge(localCommit.id, remoteCommit.id)
-				.write("Merge remote-tracking branch", merged);
+				.merge(localCommit.id, remoteCommit.id, mergedData)
+				.write("Merge remote-tracking branch", diffs);
 	}
 
 	private void updateHead() throws IOException {

@@ -32,7 +32,9 @@ public class GitDatabaseUpdate extends GitProgressAction<List<Diff>> {
 				.changes(repo.diffs.find().databaseWithCommit())
 				.with(dependencyResolver)
 				.with(progressMonitor)
-				.update().merged();
+				.update()
+				.mergedData()
+				.getDiffs();
 	}
 
 }

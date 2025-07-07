@@ -11,11 +11,13 @@ import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.Version;
 import org.openlca.git.AbstractRepositoryTests;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolution;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
+import org.openlca.git.actions.ConflictResolver.GitContext;
 import org.openlca.git.actions.GitMerge.MergeResultType;
 import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.ModelRefMap;
@@ -187,9 +189,9 @@ public class MergeTests extends AbstractRepositoryTests {
 		GitMerge.on(otherRepo)
 				.resolveConflictsWith(new StaticConflictResolutions(new ModelRefMap<ConflictResolution>()
 						.put(new ModelRef("ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json"),
-								ConflictResolution.keep())
+								ConflictResolution.keep(GitContext.LOCAL))
 						.put(new ModelRef("ACTOR/category2/1.json"),
-								ConflictResolution.overwrite())))
+								ConflictResolution.overwrite(GitContext.LOCAL))))
 				.run();
 		otherRepo.assertDatabaseEquals(
 				"ACTOR/category/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
@@ -211,12 +213,12 @@ public class MergeTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testConflictResolutionIsEqual() throws IOException, GitAPIException {
-		runConflictTest(ConflictResolution.isEqual(), 0);
+		runConflictTest(ConflictResolution.isEqual(GitContext.LOCAL), 0);
 	}
 
 	@Test
 	public void testConflictResolutionKeep() throws IOException, GitAPIException {
-		runConflictTest(ConflictResolution.keep(), 0);
+		runConflictTest(ConflictResolution.keep(GitContext.LOCAL), 0);
 		otherRepo.assertDatabaseEquals(
 				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
 				"ACTOR/test/1.json");
@@ -228,7 +230,7 @@ public class MergeTests extends AbstractRepositoryTests {
 
 	@Test
 	public void testConflictResolutionOverwrite() throws IOException, GitAPIException {
-		runConflictTest(ConflictResolution.overwrite(), 1);
+		runConflictTest(ConflictResolution.overwrite(GitContext.LOCAL), 1);
 		otherRepo.assertDatabaseEquals(
 				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json",
 				"ACTOR/test/1.json");
@@ -245,7 +247,7 @@ public class MergeTests extends AbstractRepositoryTests {
 		merged.addProperty("@id", "1");
 		merged.addProperty("version", Version.asString(Version.valueOf(1, 1, 1)));
 		merged.addProperty("lastChange", Instant.ofEpochMilli(System.currentTimeMillis()).toString());
-		runConflictTest(ConflictResolution.merge(merged), 1);
+		runConflictTest(ConflictResolution.merge(GitContext.LOCAL, merged), 1);
 		otherRepo.assertDatabaseEquals(
 				"ACTOR/1.json",
 				"ACTOR/test/0AA.39_f5b-5.021-93_30.739f082dfae0..json");
@@ -314,21 +316,31 @@ public class MergeTests extends AbstractRepositoryTests {
 		}
 
 		@Override
-		public boolean isConflict(ModelRef ref) {
+		public boolean isConflict(TypedRefId ref) {
 			return resolutions.contains(ref);
 		}
 
 		@Override
-		public ConflictResolution resolveConflict(ModelRef ref, JsonObject fromHistory) {
+		public ConflictResolutionInfo peekConflictResolution(TypedRefId ref) {
+			var resolution = resolutions.get(ref);
+			if (resolution == null)
+				return null;
+			return resolution;
+		}
+
+		@Override
+		public ConflictResolutionInfo peekConflictResolutionWithWorkspace(TypedRefId ref) {
+			return null;
+		}
+		
+		@Override
+		public ConflictResolution resolveConflict(TypedRefId ref, JsonObject fromHistory) {
 			return resolutions.get(ref);
 		}
 
 		@Override
-		public ConflictResolutionType peekConflictResolution(ModelRef ref) {
-			var resolution = resolutions.get(ref);
-			if (resolution == null)
-				return null;
-			return resolution.type;
+		public ConflictResolution resolveConflictWithWorkspace(TypedRefId ref, JsonObject other) {
+			return null;
 		}
 
 	}

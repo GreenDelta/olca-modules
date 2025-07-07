@@ -1,5 +1,6 @@
 package org.openlca.git.actions;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +10,9 @@ import org.openlca.core.database.DataPackage;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolution;
+import org.openlca.git.actions.ConflictResolver.ConflictResolutionInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
+import org.openlca.git.actions.ConflictResolver.GitContext;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.ModelRef;
@@ -20,6 +23,8 @@ import org.openlca.git.util.ModelRefMap;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
 import org.openlca.util.Strings;
+import org.openlca.util.TypedRefIdMap;
+import org.openlca.util.TypedRefIdSet;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -34,7 +39,7 @@ class GitStoreReader implements JsonStoreReader {
 	private final byte[] repoInfo;
 	private ConflictResolver conflictResolver;
 	private DataPackage dataPackage;
-	final List<Diff> resolvedConflicts = new ArrayList<>();
+	final MergedDataImpl mergedData;
 
 	GitStoreReader(OlcaRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> changes) {
 		this.repo = repo;
@@ -43,13 +48,14 @@ class GitStoreReader implements JsonStoreReader {
 		this.changes = new ModelRefMap<Reference>();
 		this.repoInfo = repo.datasets.getRepositoryInfo(remoteCommit);
 		changes.forEach(ref -> this.changes.put(ref, ref));
+		this.mergedData = new MergedDataImpl(repo, localCommit);
 	}
 
 	GitStoreReader resolveConflictsWith(ConflictResolver conflictResolver) {
 		this.conflictResolver = conflictResolver != null ? conflictResolver : ConflictResolver.NULL;
 		return this;
 	}
-	
+
 	GitStoreReader into(DataPackage dataPackage) {
 		this.dataPackage = dataPackage;
 		return this;
@@ -83,64 +89,101 @@ class GitStoreReader implements JsonStoreReader {
 		var ref = changes.get(type, refId);
 		if (ref == null)
 			return null;
-		if (conflictResolver.peekConflictResolution(ref) == ConflictResolutionType.IS_EQUAL)
+		var peeked = conflictResolver.peekConflictResolution(ref);
+		if (peeked != null && peeked.type == ConflictResolutionType.IS_EQUAL)
 			return null;
-		var data = repo.datasets.get(ref);
-		var remote = parse(data);
+		var remote = parse(repo.datasets.get(ref));
 		if (!conflictResolver.isConflict(ref))
 			return remote;
 		var resolution = conflictResolver.resolveConflict(ref, remote);
-		if (resolution == null)
-			throw new ConflictException(type, refId);
-		if (resolution.type == ConflictResolutionType.IS_EQUAL)
-			return null;
-		if (resolution.type == ConflictResolutionType.OVERWRITE) {
-			resolveOverwrite(ref);
-			return remote;
-		}
-		if (resolution.type == ConflictResolutionType.KEEP && localCommit != null) {
-			resolveKeep(ref);
-			return null;
-		}
-		return resolveMerge(ref, resolution);
+		return resolveConflict(ref, resolution, remote);
 	}
 
-	private void resolveOverwrite(Reference ref) {
+	private JsonObject resolveConflict(Reference ref, ConflictResolution resolution, JsonObject json) {
+		if (resolution == null)
+			throw new ConflictException(ref);
+		if (resolution.context == GitContext.LOCAL) {
+			resolveLocalConflict(ref, resolution);
+			var workspaceResolution = conflictResolver.peekConflictResolutionWithWorkspace(ref);
+			if (workspaceResolution != null && workspaceResolution.type != ConflictResolutionType.IS_EQUAL) {
+				json = getLocalJson(ref, resolution, json);
+				resolution = conflictResolver.resolveConflictWithWorkspace(ref, json);
+				return resolveConflict(ref, resolution, json);
+			}
+		}
+		if (resolution.type == ConflictResolutionType.IS_EQUAL || resolution.type == ConflictResolutionType.KEEP)
+			return null;
+		if (resolution.type == ConflictResolutionType.OVERWRITE)
+			return json;
+		resolution.data.remove("dataPackage");
+		return resolution.data;
+	}
+
+	private void resolveLocalConflict(Reference ref, ConflictResolution resolution) {
+		switch (resolution.type) {
+			case MERGE:
+				resolveMerge(ref, resolution);
+				break;
+			case OVERWRITE:
+				resolveOverwrite(ref, resolution);
+				break;
+			case KEEP:
+				resolveKeep(ref, resolution);
+				break;
+			case IS_EQUAL:
+				break;
+		}
+	}
+
+	private JsonObject getLocalJson(Reference ref, ConflictResolution resolution, JsonObject remoteJson) {
+		return switch (resolution.type) {
+			case MERGE -> resolution.data;
+			case OVERWRITE -> remoteJson;
+			case KEEP -> parse(repo.datasets.get(repo.references.get(ref.type, ref.refId, localCommit.id)));
+			case IS_EQUAL -> null; // not relevant
+		};
+	}
+
+	private void resolveKeep(Reference ref, ConflictResolutionInfo resolution) {
+		if (localCommit == null || resolution.context == GitContext.WORKSPACE)
+			return;
+		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
+		if (localRef == null) {
+			mergedData.keep(Diff.deleted(ref));
+		} else if (!ref.path.equals(localRef.path)) {
+			mergedData.keep(Diff.moved(ref, localRef));
+		} else {
+			mergedData.keep(Diff.modified(ref, localRef));
+		}
+	}
+
+	private void resolveOverwrite(Reference ref, ConflictResolution resolution) {
+		if (resolution.context == GitContext.WORKSPACE)
+			return;
 		// commit writer will use remote commit version when no conflict
 		// resolution change is provided, only in case of a move, the
 		// deletion needs to be applied to the repo otherwise the dataset will
 		// appear in both categories
 		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
 		if (localRef != null && !ref.path.equals(localRef.path)) {
-			resolvedConflicts.add(Diff.deleted(localRef));
+			mergedData.delete(Diff.deleted(localRef));
 		}
 	}
 
-	private void resolveKeep(Reference ref) {
-		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
-		if (localRef == null) {
-			resolvedConflicts.add(Diff.deleted(ref));
-		} else if (!ref.path.equals(localRef.path)) {
-			resolvedConflicts.add(Diff.moved(ref, localRef));
-		} else {
-			resolvedConflicts.add(Diff.modified(ref, localRef));
-		}
-	}
-
-	private JsonObject resolveMerge(Reference ref, ConflictResolution resolution) {
+	private void resolveMerge(Reference ref, ConflictResolution resolution) {
+		if (localCommit == null || resolution.context == GitContext.WORKSPACE)
+			return;
 		var localRef = repo.references.get(ref.type, ref.refId, localCommit.id);
 		var category = Json.getString(resolution.data, "category");
 		var mergedPath = GitUtil.toDatasetPath(localRef.type, category, localRef.refId);
 		var mergedRef = new Reference(mergedPath);
 		if (!mergedPath.equals(localRef.path)) {
-			resolvedConflicts.add(Diff.moved(localRef, mergedRef));
+			mergedData.merged(Diff.moved(localRef, mergedRef), resolution.data);
 		} else if (!mergedPath.equals(ref.path)) {
-			resolvedConflicts.add(Diff.moved(ref, mergedRef));
+			mergedData.merged(Diff.moved(ref, mergedRef), resolution.data);
 		} else {
-			resolvedConflicts.add(Diff.modified(localRef, mergedRef));
+			mergedData.merged(Diff.modified(localRef, mergedRef), resolution.data);
 		}
-		resolution.data.remove("dataPackage");
-		return resolution.data;
 	}
 
 	private boolean hasChanged(ModelType type, String refId) {
@@ -191,12 +234,20 @@ class GitStoreReader implements JsonStoreReader {
 		// can skip that. Returning null values to still display progress
 		// in ImportData
 		var resolution = conflictResolver.peekConflictResolution(ref);
-		if (resolution == ConflictResolutionType.IS_EQUAL)
-			return null;
-		if (resolution == ConflictResolutionType.KEEP && localCommit != null) {
-			resolveKeep(ref);
-			return null;
+		if (resolution == null)
+			return ref;
+		if (resolution.context == GitContext.LOCAL) {
+			if (resolution.type == ConflictResolutionType.KEEP) {
+				resolveKeep(ref, resolution);
+			}
+			var workspaceResolution = conflictResolver.peekConflictResolutionWithWorkspace(ref);
+			if (workspaceResolution != null && workspaceResolution.type != ConflictResolutionType.IS_EQUAL) {
+				resolution = workspaceResolution;
+			}
 		}
+		if (resolution.type == ConflictResolutionType.IS_EQUAL
+				|| resolution.type == ConflictResolutionType.KEEP)
+			return null;
 		return ref;
 	}
 
@@ -208,6 +259,55 @@ class GitStoreReader implements JsonStoreReader {
 			dataset.addProperty("dataPackage", dataPackage.name());
 		}
 		return dataset;
+	}
+
+	static class MergedDataImpl implements MergedData {
+
+		private final OlcaRepository repo;
+		private final Commit localCommit;
+		private final List<Diff> diffs = new ArrayList<>();
+		private final TypedRefIdSet keep = new TypedRefIdSet();
+		private final TypedRefIdMap<JsonObject> merged = new TypedRefIdMap<>();
+
+		MergedDataImpl(OlcaRepository repo, Commit localCommit) {
+			this.repo = repo;
+			this.localCommit = localCommit;
+		}
+
+		void delete(Diff diff) {
+			diffs.add(diff);
+		}
+
+		void keep(Diff diff) {
+			diffs.add(diff);
+			keep.add(diff);
+		}
+
+		void merged(Diff diff, JsonObject mergedData) {
+			diffs.add(diff);
+			merged.put(diff, mergedData);
+		}
+
+		@Override
+		public byte[] get(Diff diff) {
+			if (merged.contains(diff))
+				try {
+					return gson.toJson(merged.get(diff)).getBytes("utf-8");
+				} catch (UnsupportedEncodingException e) {
+					return null;
+				}
+			if (keep.contains(diff)) {
+				var ref = repo.references.get(diff.type, diff.refId, localCommit.id);
+				return repo.datasets.getBytes(ref);
+			}
+			return null;
+		}
+
+		@Override
+		public List<Diff> getDiffs() {
+			return diffs;
+		}
+
 	}
 
 }

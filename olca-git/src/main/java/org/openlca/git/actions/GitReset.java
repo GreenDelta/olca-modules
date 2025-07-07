@@ -2,6 +2,7 @@ package org.openlca.git.actions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.openlca.git.Compatibility;
@@ -47,7 +48,6 @@ public class GitReset extends GitProgressAction<String> {
 				.with(dependencyResolver)
 				.with(progressMonitor)
 				.changes(changes)
-				.undo()
 				.update();
 		return null;
 	}
@@ -59,7 +59,9 @@ public class GitReset extends GitProgressAction<String> {
 			commit = repo.commits.head();
 		}
 		if (changes == null) {
-			changes = repo.diffs.find().commit(commit).withDatabase();
+			changes = repo.diffs.find().commit(commit).withDatabase().stream()
+					.map(Diff::flip)
+					.collect(Collectors.toList());
 		}
 		if (changes.isEmpty())
 			throw new IllegalStateException("No changes found");

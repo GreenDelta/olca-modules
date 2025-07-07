@@ -1,5 +1,6 @@
 package org.openlca.git.model;
 
+import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
 
 /**
@@ -24,26 +25,24 @@ public class TriDiff extends ModelRef {
 		return any.path;
 	}
 
-	public boolean noAction() {
+	public boolean isEqual() {
 		if (left == null && right == null)
 			return true;
 		if (left == null || right == null)
 			return false;
 		if (left.diffType == DiffType.DELETED)
 			return right.diffType == DiffType.DELETED;
-		return hasEqualObjectId();
+		return right.diffType != DiffType.DELETED && hasEqualObjectId();
 	}
 
-	public boolean conflict() {
+	public boolean isConflict() {
 		if (left == null || right == null)
 			return false;
-		switch (left.diffType) {
-			case ADDED, MODIFIED, MOVED:
-				return !hasEqualObjectId();
-			case DELETED:
-				return right.diffType != DiffType.DELETED;
-		}
-		return false;
+		return !isEqual();
+	}
+
+	public boolean equalsWorkspace(ClientRepository repo) {
+		return right != null && repo.equalsWorkspace(right.newRef);
 	}
 
 	private boolean hasEqualObjectId() {

@@ -15,6 +15,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.actions.ConflictResolver.ConflictResolutionType;
+import org.openlca.git.actions.ConflictResolver.GitContext;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.ProgressMonitor;
@@ -111,8 +112,15 @@ class DeleteData {
 		var resolution = conflictResolver.resolveConflict(ref, null);
 		if (resolution == null)
 			throw new ConflictException(ref);
-		if (resolution.type == ConflictResolutionType.OVERWRITE) {
+		var workspaceResolution = conflictResolver.resolveConflictWithWorkspace(ref, null);
+		if (resolution.type == ConflictResolutionType.OVERWRITE && resolution.context == GitContext.LOCAL) {
 			resolvedConflicts.add(Diff.deleted(ref));
+			return workspaceResolution != null && workspaceResolution.type == ConflictResolutionType.KEEP;
+		}
+		if (workspaceResolution != null) {
+			if (workspaceResolution.type == ConflictResolutionType.OVERWRITE)
+				return resolution.type == ConflictResolutionType.KEEP;
+			return workspaceResolution.type == ConflictResolutionType.KEEP;
 		}
 		return resolution.type == ConflictResolutionType.KEEP;
 	}

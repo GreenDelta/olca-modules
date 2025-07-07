@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
@@ -79,12 +80,13 @@ public abstract class AbstractRepositoryTests {
 		public TestRepository(String remotePath) throws GitAPIException, IOException, URISyntaxException {
 			this(remotePath, Derby.createInMemory());
 		}
-		
-		public TestRepository(String remotePath, IDatabase database) throws GitAPIException, IOException, URISyntaxException {
+
+		public TestRepository(String remotePath, IDatabase database)
+				throws GitAPIException, IOException, URISyntaxException {
 			super(init(remotePath), database, Descriptors.of(database));
 			var id = UUID.randomUUID().toString();
 			this.name = "repo-" + id.substring(0, id.indexOf("-"));
-			
+
 		}
 
 		private static File init(String remotePath) throws GitAPIException, IOException, URISyntaxException {
@@ -354,6 +356,7 @@ public abstract class AbstractRepositoryTests {
 		@Override
 		public void close() {
 			super.close();
+			new WindowCacheConfig().install();
 			Dirs.delete(dir);
 		}
 

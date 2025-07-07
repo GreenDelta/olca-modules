@@ -46,6 +46,16 @@ public class Diff extends ModelRef {
 		}).toList();
 	}
 
+	public Diff flip() {
+		return switch (this.diffType) {
+			case ADDED -> Diff.deleted(this.newRef);
+			case MODIFIED -> Diff.modified(this.newRef, this.oldRef);
+			case MOVED -> Diff.moved(this.newRef, this.oldRef);
+			case DELETED -> Diff.added(this.oldRef);
+		};
+		
+	}
+	
 	@Override
 	protected String fieldsToString() {
 		var s = super.fieldsToString();

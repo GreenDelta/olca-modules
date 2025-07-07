@@ -16,7 +16,11 @@ public class Conflicts {
 	private final ClientRepository repo;
 	private final String ref;
 	private Commit commonParent;
+	private Commit remoteCommit;
 	private List<Diff> remoteChanges;
+
+	public final List<TriDiff> local = new ArrayList<>();
+	public final List<TriDiff> workspace = new ArrayList<>();
 
 	private Conflicts(ClientRepository repo, String ref) {
 		this.repo = repo;
@@ -24,34 +28,45 @@ public class Conflicts {
 	}
 
 	public static Conflicts of(ClientRepository repo, String ref) {
-		return new Conflicts(repo, ref);
+		return new Conflicts(repo, ref).init();
 	}
 
-	public List<TriDiff> withWorkspace() {
+	private Conflicts init() {
+		findWithWorkspace();
+		findWithLocal();
+		return this;
+	}
+
+	private void findWithWorkspace() {
 		var workspaceChanges = repo.diffs.find().excludeDataPackages().withDatabase();
 		if (workspaceChanges.isEmpty())
-			return new ArrayList<>();
-		var remoteCommit = repo.commits.find().refs(ref).latest();
-		this.commonParent = repo.localHistory.commonParentOf(ref);
-		remoteChanges = repo.diffs.find().excludeDataPackages().commit(commonParent).with(remoteCommit);
-		return between(workspaceChanges, remoteChanges);
+			return;
+		remoteCommit = repo.commits.find().refs(ref).latest();
+		commonParent = repo.localHistory.commonParentOf(ref);
+		remoteChanges = diffsOf(commonParent, remoteCommit);
+		var conflicts = between(workspaceChanges, remoteChanges);
+		workspace.addAll(conflicts);
 	}
 
-	public List<TriDiff> withLocal() {
+	private void findWithLocal() {
 		var localCommit = repo.commits.get(repo.commits.resolve(Constants.LOCAL_BRANCH));
 		var commonParent = repo.localHistory.commonParentOf(ref);
 		if (localCommit == null)
-			return new ArrayList<>();
+			return;
 		if (commonParent != null && localCommit.id.equals(commonParent.id))
-			return new ArrayList<>();
-		var localChanges = repo.diffs.find().excludeDataPackages().commit(commonParent).with(localCommit);
+			return;
+		var localChanges = diffsOf(commonParent, localCommit);
 		if (remoteChanges == null || commonParent != null && !commonParent.equals(this.commonParent)) {
-			var remoteCommit = repo.commits.find().refs(ref).latest();
-			remoteChanges = repo.diffs.find().excludeDataPackages().commit(commonParent).with(remoteCommit);
+			remoteChanges = diffsOf(commonParent, remoteCommit);
 		}
 		if (localChanges.isEmpty() || remoteChanges.isEmpty())
-			return new ArrayList<>();
-		return between(localChanges, remoteChanges);
+			return;
+		var conflicts = between(localChanges, remoteChanges);
+		local.addAll(conflicts);
+	}
+
+	private List<Diff> diffsOf(Commit left, Commit right) {
+		return repo.diffs.find().excludeDataPackages().excludeCategories().commit(left).with(right);
 	}
 
 	private List<TriDiff> between(List<Diff> localChanges, List<Diff> remoteChanges) {
