@@ -29,7 +29,7 @@ public class GitDatabaseUpdate extends GitProgressAction<List<Diff>> {
 		if (repo == null)
 			throw new IllegalStateException("Git repository must be set");
 		return Data.of(repo, repo.commits.head())
-				.changes(repo.diffs.find().databaseWithCommit())
+				.changes(repo.diffs.find().withDatabase().stream().map(Diff::flip).toList())
 				.with(dependencyResolver)
 				.with(progressMonitor)
 				.update()

@@ -70,7 +70,7 @@ public class Descriptors {
 		var descriptor = get(ref);
 		return descriptor != null && !Strings.nullOrEmpty(descriptor.dataPackage);
 	}
-	
+
 	public boolean isOnlyInDataPackages(Category category) {
 		return isOnlyInDataPackages(category, new HashSet<>());
 	}
@@ -91,16 +91,29 @@ public class Descriptors {
 				return false;
 			isOnlyInDataPackages = true;
 		}
-		return isOnlyInDataPackages;		
+		return isOnlyInDataPackages;
 	}
-	
+
+	public boolean isInDataPackageOrNoDataPackage(Category category, String dataPackage) {
+		if (category == null)
+			return false;
+		for (var model : get(category)) {
+			if (Strings.nullOrEmpty(model.dataPackage) || model.dataPackage.equals(dataPackage))
+				return true;
+		}
+		for (var child : category.childCategories)
+			if (isInDataPackageOrNoDataPackage(child, dataPackage))
+				return true;
+		return false;
+	}
+
 	public String getDataPackage(TypedRefId ref) {
 		var descriptor = get(ref);
 		if (descriptor == null)
 			return null;
 		return descriptor.dataPackage;
 	}
-	
+
 	public Set<RootDescriptor> get(ModelType type) {
 		if (type == null)
 			return new HashSet<>();
@@ -166,7 +179,7 @@ public class Descriptors {
 			categoriesById.put(category.id, category);
 		}
 	}
-	
+
 	private String getPath(Category category) {
 		var paths = Categories.path(category);
 		paths.add(0, category.modelType.name());

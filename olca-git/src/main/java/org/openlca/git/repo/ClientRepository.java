@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.descriptors.Descriptors;
@@ -17,13 +18,21 @@ public class ClientRepository extends OlcaRepository {
 	public final HeadIndex index;
 	public final IDatabase database;
 	public final FileStore fileStore;
+	public final DataPackage dataPackage;
 	public final Descriptors descriptors;
 
-	public ClientRepository(File gitDir, IDatabase database, Descriptors descriptors) throws IOException {
+	public ClientRepository(File gitDir, IDatabase database, Descriptors descriptors)
+			throws IOException {
+		this(gitDir, database, null, descriptors);
+	}
+
+	public ClientRepository(File gitDir, IDatabase database, DataPackage dataPackage, Descriptors descriptors)
+			throws IOException {
 		super(gitDir);
 		this.index = HeadIndex.of(this);
 		this.database = database;
 		this.fileStore = new FileStore(database);
+		this.dataPackage = dataPackage;
 		this.descriptors = descriptors;
 	}
 

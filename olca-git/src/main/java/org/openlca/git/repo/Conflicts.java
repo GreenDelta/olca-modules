@@ -50,9 +50,9 @@ public class Conflicts {
 
 	private void findWithLocal() {
 		var localCommit = repo.commits.get(repo.commits.resolve(Constants.LOCAL_BRANCH));
-		var commonParent = repo.localHistory.commonParentOf(ref);
 		if (localCommit == null)
 			return;
+		var commonParent = repo.localHistory.commonParentOf(ref);
 		if (commonParent != null && localCommit.id.equals(commonParent.id))
 			return;
 		var localChanges = diffsOf(commonParent, localCommit);

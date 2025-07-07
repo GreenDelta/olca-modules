@@ -56,7 +56,6 @@ public class Diffs {
 		private boolean excludeCategories;
 		private boolean excludeDataPackages;
 		private boolean unsorted;
-		private boolean swapLeftAndRight;
 
 		public Find commit(Commit commit) {
 			this.commit = commit;
@@ -93,18 +92,6 @@ public class Diffs {
 			return this;
 		}
 
-		public List<Diff> databaseWithCommit() {
-			if (!(repo instanceof ClientRepository))
-				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
-			this.swapLeftAndRight = true;
-			this.rightCommit = getRevCommit(commit, true);
-			var diffs = diffOfDatabase(path);
-			if (repo instanceof ClientRepository c) {
-				diffs.addAll(getDataPackagesDiffs(c.database.getDataPackages().getAll(), repo.getDataPackages(rightCommit)));
-			}
-			return sort(diffs);
-		}
-
 		public List<Diff> withDatabase() {
 			if (!(repo instanceof ClientRepository))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
@@ -118,12 +105,8 @@ public class Diffs {
 
 		private List<Diff> diffOfDatabase(String prefix) {
 			try {
-				var left = swapLeftAndRight
-						? createDatabaseIterator(prefix)
-						: createIterator(leftCommit, prefix);
-				var right = swapLeftAndRight
-						? createIterator(rightCommit, prefix)
-						: createDatabaseIterator(prefix);
+				var left = createIterator(leftCommit, prefix);
+				var right = createDatabaseIterator(prefix);
 				return diffOf(prefix, left, right, this::diffOfDatabase);
 			} catch (IOException e) {
 				log.error("Error getting diffs for path " + prefix, e);
