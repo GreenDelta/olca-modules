@@ -106,7 +106,7 @@ class Data {
 	private boolean doDelete(Diff change) {
 		if (change.diffType != DiffType.DELETED)
 			return false;
-		if (!conflictResolver.isConflict(change))
+		if (conflictResolver == null || !conflictResolver.isConflict(change))
 			return true;
 		// if the data set was deleted in remote, but kept in local and then
 		// overwritten or merged in workspace, the workspace version needs to be
