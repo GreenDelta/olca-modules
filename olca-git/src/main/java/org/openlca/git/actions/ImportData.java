@@ -1,6 +1,7 @@
 package org.openlca.git.actions;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.library.Retagger;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.actions.GitStoreReader.MergedDataImpl;
 import org.openlca.git.util.ProgressMonitor;
@@ -78,6 +79,11 @@ class ImportData {
 				progressMonitor.worked(1);
 			}
 			batchImport.close();
+		}
+		if (gitStore.dataPackage != null) {
+			for (var type : gitStore.tag.types()) {
+				Retagger.updateAllOf(database, type, gitStore.tag.refIds(), gitStore.dataPackage.name());
+			}
 		}
 		return gitStore.mergedData;
 	}

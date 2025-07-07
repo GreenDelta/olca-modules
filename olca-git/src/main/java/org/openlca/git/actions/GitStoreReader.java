@@ -38,7 +38,8 @@ class GitStoreReader implements JsonStoreReader {
 	private final ModelRefMap<Reference> changes;
 	private final byte[] repoInfo;
 	private ConflictResolver conflictResolver;
-	private DataPackage dataPackage;
+	DataPackage dataPackage;
+	final TypedRefIdSet tag = new TypedRefIdSet();
 	final MergedDataImpl mergedData;
 
 	GitStoreReader(OlcaRepository repo, Commit localCommit, Commit remoteCommit, List<Reference> changes) {
@@ -111,8 +112,12 @@ class GitStoreReader implements JsonStoreReader {
 				return resolveConflict(ref, resolution, json);
 			}
 		}
-		if (resolution.type == ConflictResolutionType.IS_EQUAL || resolution.type == ConflictResolutionType.KEEP)
+		if (resolution.type == ConflictResolutionType.KEEP)
 			return null;
+		if (resolution.type == ConflictResolutionType.IS_EQUAL && dataPackage != null) {
+			tag.add(ref);
+			return null;
+		}
 		if (resolution.type == ConflictResolutionType.OVERWRITE)
 			return json;
 		resolution.data.remove("dataPackage");
@@ -245,9 +250,12 @@ class GitStoreReader implements JsonStoreReader {
 				resolution = workspaceResolution;
 			}
 		}
-		if (resolution.type == ConflictResolutionType.IS_EQUAL
-				|| resolution.type == ConflictResolutionType.KEEP)
+		if (resolution.type == ConflictResolutionType.KEEP)
 			return null;
+		if (resolution.type == ConflictResolutionType.IS_EQUAL && dataPackage != null) {
+			tag.add(ref);
+			return null;
+		}
 		return ref;
 	}
 
