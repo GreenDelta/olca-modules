@@ -112,15 +112,13 @@ public class LcaResult implements IResult {
 
 	public List<TechFlowValue> getScalingFactors() {
 		var s = provider.scalingVector();
-		return techValuesOf((i, techFlow) -> s[i]);
+		return techValuesOf((i, techFlow) -> get(s, i));
 	}
 
 	public double getScalingFactorOf(TechFlow product) {
 		int idx = techIndex().of(product);
 		var scalingVector = provider.scalingVector();
-		if (idx < 0 || idx > scalingVector.length)
-			return 0;
-		return scalingVector[idx];
+		return get(scalingVector, idx);
 	}
 
 	public List<TechFlowValue> getTotalityFactors() {
@@ -129,14 +127,14 @@ public class LcaResult implements IResult {
 
 	public double getTotalityFactorOf(TechFlow techFlow) {
 		int idx = techIndex().of(techFlow);
-		return  idx >= 0
+		return idx >= 0
 				? provider.totalFactorOf(idx)
 				: 0;
 	}
 
 	public List<TechFlowValue> getTotalRequirements() {
 		var t = provider.totalRequirements();
-		return techValuesOf((i, techFlow) -> t[i]);
+		return techValuesOf((i, techFlow) -> get(t, i));
 	}
 
 	public double getTotalRequirementsOf(TechFlow techFlow) {
@@ -168,11 +166,11 @@ public class LcaResult implements IResult {
 		if (!hasEnviFlows())
 			return Collections.emptyList();
 		var g = provider.totalFlows();
-		return enviViewsOf((i, $) -> g[i]);
+		return enviViewsOf((i, $) -> get(g, i));
 	}
 
 	public double getTotalFlowValueOf(EnviFlow flow) {
-		return enviViewOf(flow, i -> provider.totalFlows()[i]);
+		return enviViewOf(flow, i -> get(provider.totalFlows(), i));
 	}
 
 	public List<TechFlowValue> getDirectFlowValuesOf(EnviFlow enviFlow) {
@@ -200,7 +198,7 @@ public class LcaResult implements IResult {
 			return Collections.emptyList();
 		var techIdx = provider.indexOf(techFlow);
 		var values = provider.directFlowsOf(techIdx);
-		return enviViewsOf((enviIdx, $) -> values[enviIdx]);
+		return enviViewsOf((enviIdx, $) -> get(values, enviIdx));
 	}
 
 	public double getDirectFlowOf(EnviFlow enviFlow, TechFlow techFlow) {
@@ -216,7 +214,7 @@ public class LcaResult implements IResult {
 		if (techIdx < 0 || !hasEnviFlows())
 			return Collections.emptyList();
 		var values = provider.totalFlowsOfOne(techIdx);
-		return enviViewsOf((enviIdx, $) -> values[enviIdx]);
+		return enviViewsOf((enviIdx, $) -> get(values, enviIdx));
 	}
 
 	public double getTotalFlowOfOne(EnviFlow enviFlow, TechFlow techFlow) {
@@ -232,7 +230,7 @@ public class LcaResult implements IResult {
 		if (techIdx < 0)
 			return Collections.emptyList();
 		var values = provider.totalFlowsOf(techIdx);
-		return enviViewsOf((enviIdx, $) -> values[enviIdx]);
+		return enviViewsOf((enviIdx, $) -> get(values, enviIdx));
 	}
 
 	public double getTotalFlowOf(EnviFlow enviFlow, TechFlow techFlow) {
@@ -251,7 +249,7 @@ public class LcaResult implements IResult {
 		if (!hasImpacts())
 			return Collections.emptyList();
 		var values = provider.totalImpacts();
-		return impactValuesOf((impactIdx, $) -> values[impactIdx]);
+		return impactValuesOf((impactIdx, $) -> get(values, impactIdx));
 	}
 
 	public double getTotalImpactValueOf(ImpactDescriptor impact) {
@@ -259,7 +257,7 @@ public class LcaResult implements IResult {
 		if (idx < 0)
 			return 0;
 		var values = provider.totalImpacts();
-		return values[idx];
+		return get(values, idx);
 	}
 
 	public List<TechFlowValue> getDirectImpactValuesOf(ImpactDescriptor impact) {
@@ -283,7 +281,7 @@ public class LcaResult implements IResult {
 		if (techIdx < 0 || !hasImpacts())
 			return Collections.emptyList();
 		var values = provider.directImpactsOf(techIdx);
-		return impactValuesOf((impactIdx, $) -> values[impactIdx]);
+		return impactValuesOf((impactIdx, $) -> get(values, impactIdx));
 	}
 
 	public double getDirectImpactOf(ImpactDescriptor impact, TechFlow techFlow) {
@@ -299,7 +297,7 @@ public class LcaResult implements IResult {
 		if (techIdx < 0 || !hasImpacts())
 			return Collections.emptyList();
 		var values = provider.totalImpactsOfOne(techIdx);
-		return impactValuesOf((impactIdx, $) -> values[impactIdx]);
+		return impactValuesOf((impactIdx, $) -> get(values, impactIdx));
 	}
 
 	public double getTotalImpactOfOne(ImpactDescriptor impact, TechFlow techFlow) {
@@ -315,7 +313,7 @@ public class LcaResult implements IResult {
 		if (techIdx < 0)
 			return Collections.emptyList();
 		var values = provider.totalImpactsOf(techIdx);
-		return impactValuesOf((impactIdx, $) -> values[impactIdx]);
+		return impactValuesOf((impactIdx, $) -> get(values, impactIdx));
 	}
 
 	public double getTotalImpactOf(ImpactDescriptor impact, TechFlow techFlow) {
@@ -568,4 +566,10 @@ public class LcaResult implements IResult {
 	}
 
 	// endregion
+
+	private double get(double[] xs, int i) {
+		return i < 0 || xs == null || i >= xs.length
+				? 0
+				: xs[i];
+	}
 }

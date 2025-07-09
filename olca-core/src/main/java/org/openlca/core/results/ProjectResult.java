@@ -38,36 +38,36 @@ public class ProjectResult {
 	}
 
 	public double getTotalFlowResult(ProjectVariant variant, EnviFlow flow) {
-		LcaResult r = results.get(variant);
-		if (r == null)
-			return 0;
-		return r.getTotalFlowValueOf(flow);
+		var r = results.get(variant);
+		return r != null && r.hasEnviFlows()
+				? r.getTotalFlowValueOf(flow)
+				: 0;
 	}
 
 	public List<EnviFlowValue> getTotalFlowResults(ProjectVariant variant) {
-		var result = results.get(variant);
-		return result != null
-				? result.getTotalFlows()
+		var r = results.get(variant);
+		return r != null && r.hasEnviFlows()
+				? r.getTotalFlows()
 				: Collections.emptyList();
 	}
 
 	public List<Contribution<ProjectVariant>> getContributions(EnviFlow flow) {
 		return Contributions.calculate(
-			getVariants(), variant -> getTotalFlowResult(variant, flow));
+				getVariants(), variant -> getTotalFlowResult(variant, flow));
 	}
 
 	public double getTotalImpactResult(
-		ProjectVariant variant, ImpactDescriptor impact) {
-		LcaResult result = results.get(variant);
-		if (result == null)
-			return 0;
-		return result.getTotalImpactValueOf(impact);
+			ProjectVariant variant, ImpactDescriptor impact) {
+		var r = results.get(variant);
+		return r != null && r.hasImpacts()
+				? r.getTotalImpactValueOf(impact)
+				: 0;
 	}
 
 	public List<Contribution<ProjectVariant>> getContributions(
-		ImpactDescriptor impact) {
+			ImpactDescriptor impact) {
 		return Contributions.calculate(getVariants(),
-			variant -> getTotalImpactResult(variant, impact));
+				variant -> getTotalImpactResult(variant, impact));
 	}
 
 	public boolean hasImpacts() {

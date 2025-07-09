@@ -45,6 +45,8 @@ public abstract class MatrixExport {
 	 * Writes only the matrices without the indices into the respective format.
 	 */
 	public void writeMatrices() {
+		if (data == null)
+			return;
 
 		if (data.techMatrix != null) {
 			write(data.techMatrix, "A");

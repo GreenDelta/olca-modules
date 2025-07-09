@@ -132,6 +132,8 @@ public class LibraryExport implements Runnable {
 	}
 
 	private void writeMatrices(Library lib, ExecutorService exec) {
+		if (data == null)
+			return;
 		exec.execute(() -> {
 			log.info("write matrices");
 			MatrixExport.toNpy(db, folder, data).writeMatrices();
