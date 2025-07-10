@@ -51,12 +51,12 @@ public class JsonExport {
 	boolean skipLibraryData = true;
 	boolean exportProviders = false;
 	boolean skipExternalFiles = false;
-	boolean writeLibraryFields = false;
+	boolean writeDataPackageFields = false;
 
 	final JsonRefs dbRefs;
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
-	private final Set<DataPackage> referencedDataPackages = new HashSet<>();
-	
+	private final Set<DataPackage> referencedLibraries = new HashSet<>();
+
 	/// Exporting providers can lead to a stack overflow when calling write
 	/// recursively. Thus, we need to queue them.
 	private final ArrayDeque<WriteItem<?>> pQueue = new ArrayDeque<>();
@@ -72,8 +72,8 @@ public class JsonExport {
 
 	public JsonExport(IDatabase db, JsonStoreWriter writer) {
 		this.db = db;
-		this.dataPackages = db != null 
-				? db.getDataPackages() 
+		this.dataPackages = db != null
+				? db.getDataPackages()
 				: null;
 		this.writer = Objects.requireNonNull(writer);
 		this.dbRefs = db != null
@@ -108,22 +108,23 @@ public class JsonExport {
 	}
 
 	/// If set to `true`, created datasets and references will contain the
-	/// `dataPackage` field when the respective dataset belongs to a data package.
+	/// `dataPackage` field when the respective dataset belongs to a data
+	/// package.
 	/// Typically, this should be only done when datasets are exported to a
 	/// service API and not in the standard JSON exports.
 	public JsonExport withDataPackageFields(boolean b) {
-		writeLibraryFields = b;
+		writeDataPackageFields = b;
 		if (dbRefs != null) {
 			dbRefs.withDataPackageFields(b);
 		}
 		return this;
 	}
 
-	// Returns the data packages that are referenced by the exported data sets.
-	public Set<DataPackage> getReferencedDataPackages() {
-		return referencedDataPackages;
+	// Returns the data libraries that are referenced by the exported data sets.
+	public Set<DataPackage> getReferencedLibraries() {
+		return referencedLibraries;
 	}
-	
+
 	boolean hasVisited(ModelType type, String refId) {
 		var set = visited.get(type);
 		return set != null && set.contains(refId);
@@ -245,11 +246,11 @@ public class JsonExport {
 
 		if (entity.dataPackage != null) {
 			var dataPackage = dataPackages.get(entity.dataPackage);
-			if (dataPackage != null) {
-				referencedDataPackages.add(dataPackage);
-				if (skipLibraryData && dataPackage.isLibrary()) {
+			if (dataPackage != null && dataPackage.isLibrary()) {
+				referencedLibraries.add(dataPackage);
+				// TODO should data package link be exported?
+				if (skipLibraryData)
 					return;
-				}
 			}
 		}
 
@@ -350,8 +351,7 @@ public class JsonExport {
 	}
 
 	private record WriteItem<T extends RootEntity>(
-			ModelType type, T entity, Descriptor descriptor
-	) {
+			ModelType type, T entity, Descriptor descriptor) {
 
 		static <T extends RootEntity> WriteItem<T> of(T entity) {
 			var type = ModelType.of(entity);

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
+import org.openlca.core.database.DataPackage;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ModelReferences;
@@ -26,7 +27,7 @@ public class Unmounter {
 
 	private final IDatabase database;
 	private final Retention retention;
-	private final String lib;
+	private final DataPackage dataPackage;
 	private final LibReader reader;
 	private final ProcessDao processDao;
 	private final ImpactMethodDao methodDao;
@@ -35,16 +36,16 @@ public class Unmounter {
 	private Map<Long, Category> categoriesToDelete;
 	private ModelReferences references;
 
-	public static void keepNone(IDatabase database, String lib) {
-		if (lib == null)
+	public static void keepNone(IDatabase database, String dataPackage) {
+		if (dataPackage == null)
 			return;
-		new Unmounter(database, Retention.KEEP_NONE, lib, null, null).unmount();
+		new Unmounter(database, Retention.KEEP_NONE, dataPackage, null, null).unmount();
 	}
 
-	public static void keepUsed(IDatabase database, String lib) {
-		if (lib == null)
+	public static void keepUsed(IDatabase database, String dataPackage) {
+		if (dataPackage == null)
 			return;
-		new Unmounter(database, Retention.KEEP_USED, lib, null, null).unmount();
+		new Unmounter(database, Retention.KEEP_USED, dataPackage, null, null).unmount();
 	}
 
 	public static void keepUsed(IDatabase database, LibReader reader) {
@@ -53,10 +54,10 @@ public class Unmounter {
 		new Unmounter(database, Retention.KEEP_USED, reader.libraryName(), reader, null).unmount();
 	}
 
-	public static void keepSelection(IDatabase database, String lib, TypedRefIdSet keep) {
-		if (lib == null)
+	public static void keepSelection(IDatabase database, String dataPackage, TypedRefIdSet keep) {
+		if (dataPackage == null)
 			return;
-		new Unmounter(database, Retention.KEEP_SELECTION, lib, null, keep).unmount();
+		new Unmounter(database, Retention.KEEP_SELECTION, dataPackage, null, keep).unmount();
 	}
 
 	public static void keepSelection(IDatabase database, LibReader reader, TypedRefIdSet keep) {
@@ -65,10 +66,10 @@ public class Unmounter {
 		new Unmounter(database, Retention.KEEP_SELECTION, reader.libraryName(), reader, keep).unmount();
 	}
 
-	public static void keepAll(IDatabase database, String lib) {
-		if (lib == null)
+	public static void keepAll(IDatabase database, String dataPackage) {
+		if (dataPackage == null)
 			return;
-		new Unmounter(database, Retention.KEEP_ALL, lib, null, null).unmount();
+		new Unmounter(database, Retention.KEEP_ALL, dataPackage, null, null).unmount();
 	}
 
 	public static void keepAll(IDatabase database, LibReader reader) {
@@ -77,10 +78,11 @@ public class Unmounter {
 		new Unmounter(database, Retention.KEEP_ALL, reader.libraryName(), reader, null).unmount();
 	}
 
-	private Unmounter(IDatabase database, Retention retention, String lib, LibReader reader, TypedRefIdSet keep) {
+	private Unmounter(IDatabase database, Retention retention, String dataPackage, LibReader reader,
+			TypedRefIdSet keep) {
 		this.database = database;
 		this.retention = retention;
-		this.lib = lib;
+		this.dataPackage = database.getDataPackage(dataPackage);
 		this.reader = reader;
 		this.processDao = new ProcessDao(database);
 		this.methodDao = new ImpactMethodDao(database);
@@ -91,7 +93,7 @@ public class Unmounter {
 	}
 
 	private void init() {
-		this.categoriesToDelete = collectLibraryCategories();
+		this.categoriesToDelete = collectDataPackageCategories();
 		this.references = retention == Retention.KEEP_USED
 				? ModelReferences.scan(database)
 				: null;
@@ -106,14 +108,14 @@ public class Unmounter {
 			untag(type);
 		}
 		new CategoryDao(database).deleteAll(categoriesToDelete.values());
-		database.removeDataPackage(lib);
+		database.removeDataPackage(dataPackage.name());
 	}
 
 	private void untag(ModelType type) {
 		var dao = Daos.root(database, type);
 		var untag = new HashSet<String>();
 		for (var descriptor : dao.getDescriptors()) {
-			if (!lib.equals(descriptor.dataPackage))
+			if (!dataPackage.name().equals(descriptor.dataPackage))
 				continue;
 			if (!keep(descriptor)) {
 				dao.delete(descriptor.id);
@@ -140,12 +142,16 @@ public class Unmounter {
 		keepCategory(descriptor.category);
 		if (descriptor.type == ModelType.PROCESS) {
 			var process = processDao.getForId(descriptor.id);
-			Libraries.fillExchangesOf(database, reader, process);
+			if (dataPackage.isLibrary() && reader != null) {
+				Libraries.fillExchangesOf(database, reader, process);
+			}
 			processDao.update(process);
 		} else if (descriptor.type == ModelType.IMPACT_METHOD) {
 			var method = methodDao.getForId(descriptor.id);
-			for (var impact : method.impactCategories) {
-				Libraries.fillFactorsOf(database, reader, impact);
+			if (dataPackage.isLibrary() && reader != null) {
+				for (var impact : method.impactCategories) {
+					Libraries.fillFactorsOf(database, reader, impact);
+				}
 			}
 			methodDao.update(method);
 		}
@@ -157,12 +163,12 @@ public class Unmounter {
 		for (var type : ModelType.values()) {
 			for (var descriptor : Daos.root(database, type).getDescriptors()) {
 				var ref = new TypedRefId(descriptor.type, descriptor.refId);
-				if (!lib.equals(descriptor.dataPackage))
+				if (!dataPackage.name().equals(descriptor.dataPackage))
 					continue;
 				if (keep.contains(ref))
 					continue;
 				references.iterateUsages(ref, usage -> {
-					if (!lib.equals(usage.dataPackage)) {
+					if (!dataPackage.name().equals(usage.dataPackage)) {
 						keep(usage);
 						return false;
 					}
@@ -180,13 +186,13 @@ public class Unmounter {
 			return;
 		keep.put(ref, true);
 		references.iterateReferences(ref, reference -> {
-			if (!lib.equals(reference.dataPackage))
+			if (!dataPackage.name().equals(reference.dataPackage))
 				return;
 			keep(reference);
 		});
 	}
 
-	private Map<Long, Category> collectLibraryCategories() {
+	private Map<Long, Category> collectDataPackageCategories() {
 		if (retention == Retention.KEEP_ALL)
 			return new HashMap<>();
 		this.categoryTest = new CategoryContentTest(database);
@@ -200,7 +206,7 @@ public class Unmounter {
 
 	private List<Category> collectCategories(Category category) {
 		var categories = new ArrayList<Category>();
-		if (hasOnlyLibraryContent(category)) {
+		if (hasOnlyDataPackageContent(category)) {
 			categories.add(category);
 		}
 		for (var child : category.childCategories) {
@@ -209,11 +215,11 @@ public class Unmounter {
 		return categories;
 	}
 
-	private boolean hasOnlyLibraryContent(Category category) {
-		if (!categoryTest.hasOnlyDataPackageContent(category, lib))
+	private boolean hasOnlyDataPackageContent(Category category) {
+		if (!categoryTest.hasOnlyDataPackageContent(category, dataPackage.name()))
 			return false;
 		for (var child : category.childCategories)
-			if (!hasOnlyLibraryContent(child))
+			if (!hasOnlyDataPackageContent(child))
 				return false;
 		return true;
 	}

@@ -63,14 +63,12 @@ class Util {
 		mapBasicAttributes(entity, obj);
 		if (exp != null
 				&& entity != null
-				&& exp.writeLibraryFields
+				&& exp.writeDataPackageFields
 				&& !Strings.nullOrEmpty(entity.dataPackage)) {
-			// TODO is support of legacy field name required?
 			if (exp.dataPackages.isFromLibrary(entity)) {
 				Json.put(obj, "library", entity.dataPackage);
 			} else {
-				var dataPackage = exp.dataPackages.get(entity.dataPackage);
-				Json.put(obj, "dataPackage", dataPackage != null ? dataPackage.name() : entity.dataPackage);
+				Json.put(obj, "dataPackage", entity.dataPackage);				
 			}
 		}
 		mapOtherProperties(entity, obj);
