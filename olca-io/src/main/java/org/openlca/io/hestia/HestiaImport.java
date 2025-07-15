@@ -2,10 +2,12 @@ package org.openlca.io.hestia;
 
 import java.util.Objects;
 
+import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.hestia.HestiaExchange.Emission;
@@ -81,15 +83,36 @@ public class HestiaImport {
 	}
 
 	private void mapExchanges(Cycle cycle, Site site, Process process) {
+
 		for (var product : cycle.products()) {
-			exchangeOf(product, site, process, FlowType.PRODUCT_FLOW);
+			var prim = product.isPrimary();
+			var type = prim
+					? FlowType.PRODUCT_FLOW
+					: FlowType.WASTE_FLOW;
+			exchangeOf(product, site, process, type);
+
+			// we take the "category" of the primary product also as category
+			// of the process
+			if (prim) {
+				mapProcessCategory(product.term(), process);
+			}
 		}
+
 		for (var input : cycle.inputs()) {
 			exchangeOf(input, site, process, FlowType.PRODUCT_FLOW);
 		}
 		for (var emission : cycle.emissions()) {
 			exchangeOf(emission, site, process, FlowType.ELEMENTARY_FLOW);
 		}
+	}
+
+	private void mapProcessCategory(Term term, Process process) {
+		if (term == null)
+			return;
+		var cat = term.getCategoryName();
+		if (Strings.nullOrEmpty(cat))
+			return;
+		process.category = CategoryDao.sync(db, ModelType.PROCESS, cat);
 	}
 
 	private Site siteOf(Cycle cycle) {
