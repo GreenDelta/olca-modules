@@ -1,5 +1,8 @@
 package org.openlca.io.hestia;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,18 +37,50 @@ public record Cycle(JsonObject json) implements HestiaObject {
 	}
 
 	public Date endDate() {
-		return Json.getDate(json, "endDate");
+		var s = Json.getString(json, "endDate");
+		try {
+			var year = Integer.parseInt(s);
+			var instant = LocalDate.of(year, Month.DECEMBER, 31)
+					.atStartOfDay(ZoneId.systemDefault())
+					.toInstant();
+			return Date.from(instant);
+		} catch (Exception ignored) {
+		}
+		return Json.parseDate(s);
 	}
 
 	public Date startDate() {
-		return Json.getDate(json, "startDate");
+		var s = Json.getString(json, "startDate");
+		try {
+			var year = Integer.parseInt(s);
+			var instant = LocalDate.of(year, Month.JANUARY, 1)
+					.atStartOfDay(ZoneId.systemDefault())
+					.toInstant();
+			return Date.from(instant);
+		} catch (Exception ignored) {
+		}
+		return Json.parseDate(s);
 	}
 
-	public Site site() {
+	public HestiaRef site() {
 		var obj = Json.getObject(json, "site");
-		if (obj == null)
-			return null;
-		return new Site(obj);
+		return obj != null
+				? new HestiaRef(obj)
+				: null;
+	}
+
+	public HestiaRef defaultSource() {
+		var obj = Json.getObject(json, "defaultSource");
+		return obj != null
+				? new HestiaRef(obj)
+				: null;
+	}
+
+	public List<HestiaRef> aggregatedSources() {
+		var refs = new ArrayList<HestiaRef>();
+		Json.forEachObject(json, "aggregatedSources",
+				obj -> refs.add(new HestiaRef(obj)));
+		return refs;
 	}
 
 	public List<Input> inputs() {

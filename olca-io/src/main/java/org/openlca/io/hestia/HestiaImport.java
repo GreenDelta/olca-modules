@@ -22,12 +22,14 @@ public class HestiaImport {
 	private final IDatabase db;
 	private final FlowFetch flows;
 	private final LocationMap locations;
+	private final SourceFetch sources;
 
 	public HestiaImport(HestiaClient client, IDatabase db, FlowMap flowMap) {
 		this.client = Objects.requireNonNull(client);
 		this.db = Objects.requireNonNull(db);
 		this.flows = FlowFetch.of(log, db, flowMap);
 		this.locations = LocationMap.of(db);
+		this.sources = SourceFetch.of(log, client, db);
 	}
 
 	public ImportLog log() {
@@ -41,7 +43,7 @@ public class HestiaImport {
 		var refId = KeyGen.get("cycle", cycleId);
 		if (db.get(Process.class, refId) != null)
 			return Res.error("a mapped process for cycle ID " + cycleId
-				+ " already exists: " + refId);
+					+ " already exists: " + refId);
 
 		// fetch the cycle
 		var res = client.getCycle(cycleId);
@@ -55,38 +57,51 @@ public class HestiaImport {
 		// create and map the process
 		try {
 			var process = new Process();
+			process.documentation = new ProcessDoc();
 			process.refId = refId;
 			process.name = cycle.name();
 			process.description = cycle.description();
-			process.documentation = new ProcessDoc();
 			process.location = locations.get(site);
 			mapDates(cycle, process);
 
-			for (var product : cycle.products()) {
-				exchangeOf(product, site, process, FlowType.PRODUCT_FLOW);
-			}
-			for (var input : cycle.inputs()) {
-				exchangeOf(input, site, process, FlowType.PRODUCT_FLOW);
-			}
-			for (var emission : cycle.emissions()) {
-				exchangeOf(emission, site, process, FlowType.ELEMENTARY_FLOW);
+			var sources = this.sources.get(cycle);
+			if (!sources.isEmpty()) {
+				process.documentation.sources.addAll(sources);
 			}
 
+			mapExchanges(cycle, site, process);
+
 			db.insert(process);
+			log.imported(process);
+
 			return Res.of(process);
 		} catch (Exception e) {
 			return Res.error("mapping process data failed", e);
 		}
 	}
 
-	private Site siteOf(Cycle cycle) {
-		var site = cycle.site();
-		if (site != null && Strings.notEmpty(site.id())) {
-			var siteRes = client.getSite(site.id());
-			if (!siteRes.hasError())
-				return siteRes.value();
+	private void mapExchanges(Cycle cycle, Site site, Process process) {
+		for (var product : cycle.products()) {
+			exchangeOf(product, site, process, FlowType.PRODUCT_FLOW);
 		}
-		return site;
+		for (var input : cycle.inputs()) {
+			exchangeOf(input, site, process, FlowType.PRODUCT_FLOW);
+		}
+		for (var emission : cycle.emissions()) {
+			exchangeOf(emission, site, process, FlowType.ELEMENTARY_FLOW);
+		}
+	}
+
+	private Site siteOf(Cycle cycle) {
+		var ref = cycle.site();
+		if (ref == null || Strings.nullOrEmpty(ref.id()))
+			return null;
+		var res = client.getSite(ref.id());
+		if (res.hasError()) {
+			log.error(res.error());
+			return null;
+		}
+		return res.value();
 	}
 
 	private void exchangeOf(
@@ -110,7 +125,7 @@ public class HestiaImport {
 				}
 			}
 			case Emission emission ->
-				ex.description = emission.methodModelDescription();
+					ex.description = emission.methodModelDescription();
 		}
 	}
 
