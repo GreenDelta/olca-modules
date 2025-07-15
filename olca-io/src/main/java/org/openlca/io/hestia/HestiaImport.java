@@ -3,7 +3,9 @@ package org.openlca.io.hestia;
 import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.hestia.HestiaExchange.Emission;
@@ -12,22 +14,24 @@ import org.openlca.io.hestia.HestiaExchange.Product;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Res;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HestiaImport {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final ImportLog log = new ImportLog();
 	private final HestiaClient client;
 	private final IDatabase db;
-	private final FlowMap flows;
+	private final FlowFetch flows;
 	private final LocationMap locations;
 
-	public HestiaImport(HestiaClient client, IDatabase db) {
+	public HestiaImport(HestiaClient client, IDatabase db, FlowMap flowMap) {
 		this.client = Objects.requireNonNull(client);
 		this.db = Objects.requireNonNull(db);
-		this.flows = FlowMap.create(db);
+		this.flows = FlowFetch.of(log, db, flowMap);
 		this.locations = LocationMap.of(db);
+	}
+
+	public ImportLog log() {
+		return log;
 	}
 
 	public Res<Process> importCycle(String cycleId) {
@@ -40,7 +44,6 @@ public class HestiaImport {
 				+ " already exists: " + refId);
 
 		// fetch the cycle
-		log.info("importing cycle {}", cycleId);
 		var res = client.getCycle(cycleId);
 		if (res.hasError())
 			return res.wrapError("failed to fetch cycle " + cycleId);
@@ -60,13 +63,13 @@ public class HestiaImport {
 			mapDates(cycle, process);
 
 			for (var product : cycle.products()) {
-				exchangeOf(product, site, process);
+				exchangeOf(product, site, process, FlowType.PRODUCT_FLOW);
 			}
 			for (var input : cycle.inputs()) {
-				exchangeOf(input, site, process);
+				exchangeOf(input, site, process, FlowType.PRODUCT_FLOW);
 			}
 			for (var emission : cycle.emissions()) {
-				exchangeOf(emission, site, process);
+				exchangeOf(emission, site, process, FlowType.ELEMENTARY_FLOW);
 			}
 
 			db.insert(process);
@@ -86,17 +89,16 @@ public class HestiaImport {
 		return site;
 	}
 
-	private void exchangeOf(HestiaExchange e, Site site, Process process) {
+	private void exchangeOf(
+			HestiaExchange e, Site site, Process process, FlowType defaultType
+	) {
 		double amount = e.value();
 		if (amount == 0)
 			return;
-		var res = flows.get(e.term(), site);
-		if (res.hasError()) {
-			log.warn("could not map/create flow {}", res.error());
+		var f = flows.get(e.term(), site, defaultType);
+		if (f.isEmpty())
 			return;
-		}
 
-		var f = res.value();
 		var ex = process.output(f.flow(), amount);
 		ex.unit = f.unit();
 
