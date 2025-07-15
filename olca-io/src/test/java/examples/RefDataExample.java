@@ -1,4 +1,4 @@
-package org.openlca.io;
+package examples;
 
 import java.io.File;
 
