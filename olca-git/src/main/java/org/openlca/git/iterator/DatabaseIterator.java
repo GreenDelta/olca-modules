@@ -98,7 +98,7 @@ public class DatabaseIterator extends EntryIterator {
 	private static boolean matchesDataPackage(ClientRepository repo, Category category) {
 		if (repo.dataPackage == null)
 			return !repo.descriptors.isOnlyInDataPackages(category);
-		return repo.descriptors.isInDataPackage(category, repo.dataPackage.name());
+		return repo.descriptors.isInDataPackageOrNoDataPackage(category, repo.dataPackage.name());
 	}
 
 	private static List<TreeEntry> collect(ClientRepository repo, Set<RootDescriptor> descriptors) {
@@ -118,9 +118,8 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static boolean matchesDataPackage(ClientRepository repo, RootDescriptor descriptor) {
-		if (repo.dataPackage == null)
-			return Strings.nullOrEmpty(descriptor.dataPackage);
-		return repo.dataPackage.name().equals(descriptor.dataPackage);
+		var repoDataPackage = repo.dataPackage != null ? repo.dataPackage.name() : null;
+		return Strings.nullOrEmpty(descriptor.dataPackage) || descriptor.dataPackage.equals(repoDataPackage);
 	}
 
 	private static boolean hasBinaries(ClientRepository repo, RootDescriptor d) {
