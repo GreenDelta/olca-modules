@@ -94,15 +94,14 @@ public class Descriptors {
 		return isOnlyInDataPackages;
 	}
 
-	public boolean isInDataPackageOrNoDataPackage(Category category, String dataPackage) {
+	public boolean isInDataPackage(Category category, String dataPackage) {
 		if (category == null)
 			return false;
-		for (var model : get(category)) {
-			if (Strings.nullOrEmpty(model.dataPackage) || model.dataPackage.equals(dataPackage))
+		for (var model : get(category))
+			if (!Strings.nullOrEmpty(model.dataPackage) && model.dataPackage.equals(dataPackage))
 				return true;
-		}
 		for (var child : category.childCategories)
-			if (isInDataPackageOrNoDataPackage(child, dataPackage))
+			if (isInDataPackage(child, dataPackage))
 				return true;
 		return false;
 	}

@@ -13,10 +13,6 @@ public interface DependencyResolver {
 		DataPackage dataPackage();
 
 		T dependency();
-		
-		default boolean isResolved() {
-			return dependency() != null;
-		}
 
 		public static IResolvedDependency<Library> library(DataPackage dataPackage, Library library) {
 			return new IResolvedDependency<Library>() {

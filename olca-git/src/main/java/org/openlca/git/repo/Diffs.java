@@ -93,13 +93,13 @@ public class Diffs {
 		}
 
 		public List<Diff> withDatabase() {
-			if (!(repo instanceof ClientRepository))
+			if (!(repo instanceof ClientRepository c))
 				throw new UnsupportedOperationException("Can only execute diff with database on ClientRepository");
 			this.leftCommit = getRevCommit(commit, true);
 			var diffs = diffOfDatabase(path);
-			if (repo instanceof ClientRepository c) {
-				diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(leftCommit), c.database.getDataPackages().getAll()));
-			}
+			diffs.addAll(getDataPackagesDiffs(
+					repo.getDataPackages(leftCommit),
+					c.database.getDataPackages().getAll()));
 			return sort(diffs);
 		}
 
@@ -119,7 +119,9 @@ public class Diffs {
 			this.leftCommit = getRevCommit(previousCommit, false);
 			this.rightCommit = getRevCommit(commit, false);
 			var diffs = diffOfCommits(path);
-			diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(this.leftCommit), repo.getDataPackages(rightCommit)));
+			diffs.addAll(getDataPackagesDiffs(
+					repo.getDataPackages(this.leftCommit),
+					repo.getDataPackages(rightCommit)));
 			return sort(diffs);
 		}
 
@@ -127,7 +129,8 @@ public class Diffs {
 			this.leftCommit = getRevCommit(commit, false);
 			this.rightCommit = getRevCommit(other, false);
 			var diffs = diffOfCommits(path);
-			diffs.addAll(getDataPackagesDiffs(repo.getDataPackages(this.leftCommit), repo.getDataPackages(rightCommit)));
+			diffs.addAll(
+					getDataPackagesDiffs(repo.getDataPackages(this.leftCommit), repo.getDataPackages(rightCommit)));
 			return sort(diffs);
 		}
 
@@ -230,6 +233,17 @@ public class Diffs {
 					.filter(Predicate.not(left::contains))
 					.map(library -> new Diff(DiffType.ADDED, null, dataPackageReference(library, rightCommit)))
 					.forEach(diffs::add);
+			for (var l : left) {
+				var r = right.stream()
+						.filter(o -> Strings.nullOrEqual(o.name(), l.name())
+								&& !Strings.nullOrEqual(o.version(), l.version()))
+						.findFirst().orElse(null);
+				if (r != null) {
+					diffs.add(new Diff(DiffType.MODIFIED,
+							dataPackageReference(l, leftCommit),
+							dataPackageReference(r, rightCommit)));
+				}
+			}
 			return diffs;
 		}
 

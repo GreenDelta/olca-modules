@@ -12,6 +12,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.git.RepositoryInfo;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.Path;
@@ -40,14 +41,21 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(ClientRepository repo) {
-		return Arrays.stream(ModelType.values()).filter(type -> {
+		var entries = Arrays.stream(ModelType.values()).filter(type -> {
 			if (type == ModelType.CATEGORY)
 				return false;
-			if (!repo.descriptors.getCategories(type).isEmpty())
+			if (repo.descriptors.getCategories(type).stream()
+					.filter(c -> matchesDataPackage(repo, c))
+					.count() > 0)
 				return true;
-			return !repo.descriptors.get(type).isEmpty();
+			return repo.descriptors.get(type).stream()
+					.filter(d -> matchesDataPackage(repo, d))
+					.count() > 0;
 		}).map(TreeEntry::new)
-				.toList();
+				.collect(Collectors.toList());
+		entries.add(new TreeEntry(RepositoryInfo.FILE_NAME, FileMode.REGULAR_FILE,
+				repo.database.getDataPackages().getAll()));
+		return entries;
 	}
 
 	private static List<TreeEntry> init(ClientRepository repo, String path) {
@@ -90,14 +98,13 @@ public class DatabaseIterator extends EntryIterator {
 	private static boolean matchesDataPackage(ClientRepository repo, Category category) {
 		if (repo.dataPackage == null)
 			return !repo.descriptors.isOnlyInDataPackages(category);
-		return repo.descriptors.isInDataPackageOrNoDataPackage(category, repo.dataPackage.name());
+		return repo.descriptors.isInDataPackage(category, repo.dataPackage.name());
 	}
 
 	private static List<TreeEntry> collect(ClientRepository repo, Set<RootDescriptor> descriptors) {
 		var entries = new ArrayList<TreeEntry>();
-		var dataPackage = repo.dataPackage != null ? repo.dataPackage.name() : null;
 		for (var d : descriptors) {
-			if (!Strings.nullOrEmpty(d.dataPackage) && !d.dataPackage.equals(dataPackage))
+			if (!matchesDataPackage(repo, d))
 				continue;
 			entries.add(new TreeEntry(d));
 			if (hasBinaries(repo, d)) {
@@ -108,6 +115,12 @@ public class DatabaseIterator extends EntryIterator {
 			}
 		}
 		return entries;
+	}
+
+	private static boolean matchesDataPackage(ClientRepository repo, RootDescriptor descriptor) {
+		if (repo.dataPackage == null)
+			return Strings.nullOrEmpty(descriptor.dataPackage);
+		return repo.dataPackage.name().equals(descriptor.dataPackage);
 	}
 
 	private static boolean hasBinaries(ClientRepository repo, RootDescriptor d) {
@@ -123,6 +136,8 @@ public class DatabaseIterator extends EntryIterator {
 		var path = getPath();
 		if (path == null)
 			return false;
+		if (path.equals(RepositoryInfo.FILE_NAME))
+			return equalDataPackages();
 		if (getEntryData() instanceof RootDescriptor d) {
 			if (!repo.index.contains(path))
 				return false;
@@ -131,11 +146,28 @@ public class DatabaseIterator extends EntryIterator {
 		return repo.index.contains(path);
 	}
 
+	private boolean equalDataPackages() {
+		var info = repo.getInfo();
+		var current = repo.database.getDataPackages();
+		var previous = info.dataPackages();
+		for (var dataPackage : previous) {
+			var fromDb = current.get(dataPackage.name());
+			if (fromDb == null || !Strings.nullOrEqual(fromDb.version(), dataPackage.version()))
+				return false;
+		}
+		for (var fromDb : current.getAll())
+			if (!previous.contains(fromDb))
+				return false;
+		return true;
+	}
+
 	@Override
 	public byte[] idBuffer() {
 		var path = getPath();
 		if (path == null)
 			return GitUtil.getBytes(ObjectId.zeroId());
+		if (path.equals(RepositoryInfo.FILE_NAME) && equalDataPackages())
+			return GitUtil.getBytes(repo.references.get(RepositoryInfo.FILE_NAME, repo.commits.head().id).objectId);
 		if (!repo.index.contains(path))
 			return GitUtil.getBytes(ObjectId.zeroId());
 		if (!(getEntryData() instanceof RootDescriptor d) || repo.index.isSameVersion(path, d))
@@ -153,6 +185,8 @@ public class DatabaseIterator extends EntryIterator {
 			return Path.of(c);
 		if (data instanceof RootDescriptor d)
 			return Path.of(repo.descriptors.categoryPaths, d);
+		if (data instanceof Set) // set of data packages
+			return RepositoryInfo.FILE_NAME;
 		return null;
 	}
 

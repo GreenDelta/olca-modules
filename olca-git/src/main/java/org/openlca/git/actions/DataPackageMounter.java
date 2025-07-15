@@ -21,6 +21,7 @@ import org.openlca.git.actions.GitMerge.MergeResultType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
+import org.openlca.util.Strings;
 
 class DataPackageMounter {
 
@@ -60,8 +61,8 @@ class DataPackageMounter {
 		return this;
 	}
 
-	MergeResult mountNew() throws IOException, GitAPIException {
-		var newPackages = resolveNew();
+	MergeResult mountNewOrUpdated() throws IOException, GitAPIException {
+		var newPackages = resolveNewOrUpdated();
 		if (newPackages.size() == 0)
 			return new MergeResult(MergeResultType.NO_CHANGES);
 		progressMonitor.beginTask("Mounting data packages");
@@ -124,20 +125,32 @@ class DataPackageMounter {
 				.run();
 		if (result.type() == MergeResultType.MOUNT_ERROR || result.type() == MergeResultType.ABORTED)
 			return result;
-		repo.database.addRepository(dataPackage.name(), dataPackage.version(), dataPackage.url());
+		if (dbPackages.contains(dataPackage)) {
+			repo.database.updateRepository(dataPackage.name(), dataPackage.version());
+			dbPackages.remove(dataPackage);
+			dbPackages.add(dataPackage);
+		} else {
+			repo.database.addRepository(dataPackage.name(), dataPackage.version(), dataPackage.url());
+			dbPackages.add(dataPackage);
+		}
 		return result;
 	}
 
-	private List<IResolvedDependency<?>> resolveNew() {
+	private List<IResolvedDependency<?>> resolveNewOrUpdated() {
 		var dependencies = new ArrayList<IResolvedDependency<?>>();
 		for (var remote : remotePackages) {
-			if (dbPackages.contains(remote))
+			var fromDb = dbPackages.stream()
+					.filter(p -> p.name().equals(remote.name()))
+					.findFirst().orElse(null);
+			if (fromDb != null && Strings.nullOrEqual(remote.version(), fromDb.version()))
 				continue;
 			if (dependencyResolver == null)
 				throw new IllegalStateException("Could not mount data packages because no dependency resolver was set");
 			var resolved = dependencyResolver.resolve(remote);
-			if (resolved == null || resolved.dependency() == null)
+			if (resolved == null)
 				return null;
+			if (resolved.dependency() == null)
+				continue;
 			dependencies.add(resolved);
 		}
 		return dependencies;

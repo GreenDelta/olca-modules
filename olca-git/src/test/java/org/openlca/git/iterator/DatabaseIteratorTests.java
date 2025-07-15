@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.openlca.git.AbstractRepositoryTests;
+import org.openlca.git.RepositoryInfo;
 
 public class DatabaseIteratorTests extends AbstractRepositoryTests {
 
@@ -24,7 +25,8 @@ public class DatabaseIteratorTests extends AbstractRepositoryTests {
 		repo.assertEqual(new DatabaseIterator(repo), 
 				"ACTOR", 
 				"FLOW", 
-				"SOURCE");
+				"SOURCE",
+				RepositoryInfo.FILE_NAME);
 		repo.assertEqual(new DatabaseIterator(repo, "ACTOR"),
 				"0.json",
 				"caa39f5b-5021-4b6b-9330-739f082dfae0.json",
@@ -59,7 +61,8 @@ public class DatabaseIteratorTests extends AbstractRepositoryTests {
 		repo.move("ACTOR/category/0.json", "category2");
 		repo.move("ACTOR/category2/1aa39f5b-5021-4b6b-9330-739f082dfae0.json", "category");
 		repo.assertEqual(new DatabaseIterator(repo), 
-				"ACTOR");
+				"ACTOR",
+				RepositoryInfo.FILE_NAME);
 		repo.assertEqual(new DatabaseIterator(repo, "ACTOR"), 
 				"category", 
 				"category2");

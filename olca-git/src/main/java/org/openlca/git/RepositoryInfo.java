@@ -51,7 +51,8 @@ public record RepositoryInfo(JsonObject json) {
 		var mergedPackages = new HashSet<>(this.dataPackages());
 		mergedPackages.addAll(with.dataPackages());
 		var merged = RepositoryInfo.create().withDataPackages(mergedPackages);
-		merged.withSchemaVersion(SchemaVersion.current());
+		merged.withSchemaVersion(new SchemaVersion(
+				Math.max(this.schemaVersion().value(), with.schemaVersion().value())));
 		merged.withRepositoryClientVersion(
 				Math.max(this.repositoryClientVersion(), with.repositoryClientVersion()));
 		merged.withRepositoryServerVersion(

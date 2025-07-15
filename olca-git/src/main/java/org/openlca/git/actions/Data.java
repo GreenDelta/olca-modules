@@ -71,7 +71,7 @@ class Data {
 				.with(dependencyResolver)
 				.with(conflictResolver)
 				.with(progressMonitor);
-		var mountResult = dataPackages.mountNew();
+		var mountResult = dataPackages.mountNewOrUpdated();
 		if (mountResult.type() == MergeResultType.ABORTED || mountResult.type() == MergeResultType.MOUNT_ERROR)
 			return new UpdateResult(mountResult);
 		var changes = separateChanges();
@@ -79,6 +79,9 @@ class Data {
 		doDelete(changes.toDelete).forEach(mergedData::delete);
 		dataPackages.unmountObsolete();
 		progressMonitor.beginTask("Reloading descriptors");
+		if (dataPackage != null) {
+			repo.database.updateRepository(dataPackage.name(), remoteCommit.id);
+		}
 		repo.descriptors.reload();
 		return new UpdateResult(mountResult, mergedData);
 	}
