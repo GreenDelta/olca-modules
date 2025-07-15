@@ -55,6 +55,13 @@ public class HestiaClient implements AutoCloseable {
 			: Res.of(new Site(json.value()));
 	}
 
+	public Res<HestiaSource> getSource(String id) {
+		var json = getJsonObject("/sources/" + id);
+		return json.hasError()
+				? json.wrapError("requesting source " + id + " failed")
+				: Res.of(new HestiaSource(json.value()));
+	}
+
 	public Res<User> getCurrentUser() {
 		var json = getJsonObject("/users/me");
 		return json.hasError()
