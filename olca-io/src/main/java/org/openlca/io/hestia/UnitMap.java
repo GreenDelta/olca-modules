@@ -28,7 +28,7 @@ class UnitMap {
 
 		return switch (s) {
 			case "kg/functional unit/Cycle" -> units.getEntry("kg");
-			case "number/Cycle" -> units.getEntry("Item(s)");
+			case "number/Cycle", "number" -> units.getEntry("Item(s)");
 			case "% area" -> units.getEntry("are");
 			default -> null;
 		};
