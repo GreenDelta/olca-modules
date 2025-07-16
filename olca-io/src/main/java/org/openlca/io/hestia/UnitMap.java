@@ -25,6 +25,12 @@ class UnitMap {
 			return e;
 		if (s.startsWith("kg "))
 			return units.getEntry("kg");
-		return null;
+
+		return switch (s) {
+			case "kg/functional unit/Cycle" -> units.getEntry("kg");
+			case "number/Cycle" -> units.getEntry("Item(s)");
+			case "% area" -> units.getEntry("are");
+			default -> null;
+		};
 	}
 }
