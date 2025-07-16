@@ -12,6 +12,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.hestia.HestiaExchange.Emission;
 import org.openlca.io.hestia.HestiaExchange.Input;
+import org.openlca.io.hestia.HestiaExchange.Practice;
 import org.openlca.io.hestia.HestiaExchange.Product;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Res;
@@ -149,6 +150,7 @@ public class HestiaImport {
 			}
 			case Emission emission ->
 					ex.description = emission.methodModelDescription();
+			case Practice ignored -> {}
 		}
 	}
 
