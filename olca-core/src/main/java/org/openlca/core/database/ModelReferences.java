@@ -1,5 +1,6 @@
 package org.openlca.core.database;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -8,26 +9,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.TypedRefId;
 import org.openlca.util.Strings;
 import org.openlca.util.TypedRefIdMap;
 
-// TODO should this be merged with TransDeps class?
 /**
- * Scans all database tables and collects model references and usages (non
- * transitive)
+ * Scans all database tables and collects model references and usages
+ * (non-transitively)
  */
 public class ModelReferences {
 
-	private IDatabase database;
-	private TypedRefIdMap<IdAndLibrary> refIdToId = new TypedRefIdMap<>();
-	private EnumMap<ModelType, Map<Long, String>> idToRefId = new EnumMap<>(ModelType.class);
-	private ReferenceMap references = new ReferenceMap();
-	private ReferenceMap usages = new ReferenceMap();
-	private Map<String, Long> nameToParameter = new HashMap<>();
+	private final IDatabase database;
+	private final TypedRefIdMap<IdAndLibrary> refIdToId = new TypedRefIdMap<>();
+	private final EnumMap<ModelType, Map<Long, String>> idToRefId = new EnumMap<>(ModelType.class);
+	private final ReferenceMap references = new ReferenceMap();
+	private final ReferenceMap usages = new ReferenceMap();
+	private final Map<String, Long> nameToParameter = new HashMap<>();
 
 	private ModelReferences(IDatabase database) {
 		this.database = database;
@@ -69,16 +68,16 @@ public class ModelReferences {
 		return idAndLib.library;
 	}
 
-	private boolean iterate(ReferenceMap map, TypedRefId pair, Function<ModelReference, Boolean> consumer) {
+	private void iterate(ReferenceMap map, TypedRefId pair, Function<ModelReference, Boolean> consumer) {
 		var typeMap = map.get(pair.type);
 		if (typeMap == null)
-			return true;
+			return;
 		var idAndLib = refIdToId.get(pair);
 		if (idAndLib == null)
-			return true;
+			return;
 		var idMap = typeMap.get(idAndLib.id);
 		if (idMap == null)
-			return true;
+			return;
 		for (var type : idMap.keySet()) {
 			for (var id : idMap.get(type)) {
 				var refId = idToRefId.get(type).get(id);
@@ -86,10 +85,9 @@ public class ModelReferences {
 					continue;
 				var library = refIdToId.get(type, refId).library;
 				if (!consumer.apply(new ModelReference(type, id, refId, library)))
-					return false;
+					return;
 			}
 		}
-		return true;
 	}
 
 	private void init() {
@@ -342,7 +340,7 @@ public class ModelReferences {
 				return;
 			for (var target : targets) {
 				var targetId = (long) values[col++];
-				if (targetId == 0l)
+				if (targetId == 0L)
 					continue;
 				if (target.idMapper != null) {
 					targetId = target.idMapper.apply(targetId);
@@ -377,7 +375,7 @@ public class ModelReferences {
 				}
 			}
 		}
-		var query = "SELECT " + fields.stream().collect(Collectors.joining(","))
+		var query = "SELECT " + String.join(",", fields)
 				+ (isRootEntity ? ",ref_id,library " : "")
 				+ " FROM " + table;
 		NativeSql.on(database).query(query, rs -> {
@@ -416,7 +414,7 @@ public class ModelReferences {
 		idToRefId.computeIfAbsent(type, t -> new HashMap<>()).put(id, refId);
 	}
 
-	private class ModelField {
+	private static class ModelField {
 
 		private final ModelType type;
 		private final String field;
@@ -441,24 +439,17 @@ public class ModelReferences {
 			this.type = type;
 			this.field = field;
 			this.condition = null;
-			this.idMapper = null;
+			this.idMapper = idMapper;
 		}
 
 	}
 
-	private class Condition {
-
-		private final String field;
-		private final Function<Object, ModelType> typeMapper;
-
-		private Condition(String field, Function<Object, ModelType> typeMapper) {
-			this.field = field;
-			this.typeMapper = typeMapper;
-		}
-
+	private record Condition(
+			String field, Function<Object, ModelType> typeMapper
+	) {
 	}
 
-	public class ModelReference extends TypedRefId {
+	public static class ModelReference extends TypedRefId {
 
 		public final long id;
 		public final String library;
@@ -471,8 +462,9 @@ public class ModelReferences {
 
 	}
 
-	private class ReferenceMap extends EnumMap<ModelType, Map<Long, EnumMap<ModelType, Set<Long>>>> {
+	private static class ReferenceMap extends EnumMap<ModelType, Map<Long, EnumMap<ModelType, Set<Long>>>> {
 
+		@Serial
 		private static final long serialVersionUID = 8651176950184800797L;
 
 		public ReferenceMap() {
