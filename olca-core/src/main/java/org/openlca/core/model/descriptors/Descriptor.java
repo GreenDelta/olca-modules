@@ -268,57 +268,38 @@ public class Descriptor implements Copyable<Descriptor> {
 	}
 
 	public static RootDescriptor of(RootEntity entity) {
-		if (entity == null)
-			return null;
-		if (entity instanceof Project project)
-			return of(project);
-		if (entity instanceof ImpactCategory impact)
-			return of(impact);
-		if (entity instanceof ImpactMethod method)
-			return of(method);
-		if (entity instanceof ProductSystem system)
-			return of(system);
-		if (entity instanceof Process process)
-			return of(process);
-		if (entity instanceof Flow flow)
-			return of(flow);
-		if (entity instanceof FlowProperty property)
-			return of(property);
-		if (entity instanceof UnitGroup group)
-			return of(group);
-		if (entity instanceof Actor actor)
-			return of(actor);
-		if (entity instanceof Source source)
-			return of(source);
-		if (entity instanceof SocialIndicator indicator)
-			return of(indicator);
-		if (entity instanceof Currency currency)
-			return of(currency);
-		if (entity instanceof Location location)
-			return of(location);
-		if (entity instanceof Parameter parameter)
-			return of(parameter);
-		if (entity instanceof Category category)
-			return of(category);
-		if (entity instanceof DQSystem dqs)
-			return of(dqs);
-		if (entity instanceof Result result)
-			return of(result);
-		if (entity instanceof Epd epd)
-			return of(epd);
-		return createUnknownDescriptor(entity);
+		return switch (entity) {
+			case null -> null;
+			case Project project -> of(project);
+			case ImpactCategory impact -> of(impact);
+			case ImpactMethod method -> of(method);
+			case ProductSystem system -> of(system);
+			case Process process -> of(process);
+			case Flow flow -> of(flow);
+			case FlowProperty property -> of(property);
+			case UnitGroup group -> of(group);
+			case Actor actor -> of(actor);
+			case Source source -> of(source);
+			case SocialIndicator indicator -> of(indicator);
+			case Currency currency -> of(currency);
+			case Location location -> of(location);
+			case Parameter parameter -> of(parameter);
+			case Category category -> of(category);
+			case DQSystem dqs -> of(dqs);
+			case Result result -> of(result);
+			case Epd epd -> of(epd);
+			default -> createUnknownDescriptor(entity);
+		};
 	}
 
 	public static Descriptor of(RefEntity entity) {
-		if (entity == null)
-			return null;
-		if (entity instanceof RootEntity)
-			return of((RootEntity) entity);
-		if (entity instanceof NwSet)
-			return of((NwSet) entity);
-		if (entity instanceof Unit)
-			return of((Unit) entity);
-		return createUnknownDescriptor(entity);
+		return switch (entity) {
+			case null -> null;
+			case RootEntity root -> of(root);
+			case NwSet nwSet -> of(nwSet);
+			case Unit unit -> of(unit);
+			default -> createUnknownDescriptor(entity);
+		};
 	}
 
 	// endregion
