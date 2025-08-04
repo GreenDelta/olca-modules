@@ -107,58 +107,52 @@ public class SystemCalculator {
 		return result;
 	}
 
-	/**
-	 * Calculates (recursively) the sub-systems of the product system of the
-	 * given setup. It returns an empty map when there are no subsystems. For
-	 * the sub-results, the same calculation type is performed as defined in
-	 * the original calculation setup.
-	 */
+	/// Calculates (recursively) the sub-systems of the given setup. It returns an
+	/// empty map when there are no subsystems. For the sub-results, the same
+	/// calculation type is performed as defined in the original calculation setup.
 	private Map<TechFlow, LcaResult> solveSubSystems(
-			CalculationSetup setup, TechIndex techIndex) {
-		if (setup == null || !setup.hasProductSystem())
+			CalculationSetup setup, TechIndex techIndex
+	) {
+		if (techIndex == null)
 			return Collections.emptyMap();
 
 		var subResults = new HashMap<TechFlow, LcaResult>();
-
 		var subSystems = new HashSet<TechFlow>();
-		for (var link : setup.productSystem().processLinks) {
-			if (link.hasProcessProvider())
+		for (var p : techIndex) {
+			if (p.isProcess())
 				continue;
-			var provider = techIndex.getProvider(link.providerId, link.flowId);
-			if (provider == null || provider.isProcess())
-				continue;
-			if (provider.isProductSystem()) {
-				subSystems.add(provider);
+			if (p.isProductSystem()) {
+				subSystems.add(p);
 				continue;
 			}
-
-			// add a result
-			if (provider.isResult()) {
-				var result = db.get(Result.class, provider.providerId());
+			if (p.isResult()) {
+				var result = db.get(Result.class, p.providerId());
 				if (result != null) {
-					subResults.put(provider, new LcaResult(ResultModelProvider.of(result)));
+					subResults.put(p, new LcaResult(ResultModelProvider.of(result)));
 				}
 			}
 		}
+
+
 		if (subSystems.isEmpty())
 			return subResults;
 
 		// calculate the LCI results of the sub-systems
 
-		for (var pp : subSystems) {
-			var subSystem = db.get(ProductSystem.class, pp.providerId());
-			if (subSystem == null)
+		for (var p : subSystems) {
+			var sub = db.get(ProductSystem.class, p.providerId());
+			if (sub == null)
 				continue;
 
-			var subSetup = CalculationSetup.of(subSystem)
-					.withParameters(ParameterRedefs.join(setup, subSystem))
+			var subSetup = CalculationSetup.of(sub)
+					.withParameters(ParameterRedefs.join(setup, sub))
 					.withCosts(setup.hasCosts())
 					.withRegionalization(setup.hasRegionalization())
 					.withAllocation(setup.allocation())
 					.withImpactMethod(setup.impactMethod())
 					.withNwSet(setup.nwSet());
 			var subResult = calculate(subSetup);
-			subResults.put(pp, subResult);
+			subResults.put(p, subResult);
 		}
 		return subResults;
 	}
