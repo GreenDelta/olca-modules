@@ -10,11 +10,13 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
+import org.openlca.core.database.ResultDao;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.core.model.descriptors.ResultDescriptor;
 
 public abstract class ProviderIndex {
 
@@ -22,6 +24,7 @@ public abstract class ProviderIndex {
 	protected final TLongObjectHashMap<ProcessDescriptor> processes;
 	protected final TLongObjectHashMap<ProductSystemDescriptor> systems;
 	protected final TLongObjectHashMap<FlowDescriptor> flows;
+	protected final TLongObjectHashMap<ResultDescriptor> results;
 	protected final TLongObjectHashMap<List<TechFlow>> providers;
 
 	private ProviderIndex(
@@ -29,6 +32,7 @@ public abstract class ProviderIndex {
 		this.db = db;
 		this.processes = processes;
 		systems = new ProductSystemDao(db).descriptorMap();
+		results = new ResultDao(db).descriptorMap();
 		var flowDescriptors = new FlowDao(db).getDescriptors(
 			FlowType.PRODUCT_FLOW, FlowType.WASTE_FLOW);
 		flows = new TLongObjectHashMap<>(flowDescriptors.size());
@@ -60,7 +64,7 @@ public abstract class ProviderIndex {
 	/**
 	 * Get the TechFlow for the given provider and flow IDs.
 	 *
-	 * @param providerId the ID of the process or product system
+	 * @param providerId the ID of the process, product system, or result
 	 * @param flowId     the ID of the product or waste flow
 	 * @return the corresponding TechFlow or {@code null} if there is
 	 * no such provider in the database.
@@ -73,8 +77,11 @@ public abstract class ProviderIndex {
 		if (process != null)
 			return TechFlow.of(process, flow);
 		var system = systems.get(providerId);
-		return system != null
-			? TechFlow.of(system, flow)
+		if (system != null)
+			return TechFlow.of(system, flow);
+		var result = results.get(providerId);
+		return result != null
+			? TechFlow.of(result, flow)
 			: null;
 	}
 
@@ -125,6 +132,17 @@ public abstract class ProviderIndex {
 				return true;
 			});
 
+			// select from results
+			var resultQuery = "select f_result from tbl_flow_results where "
+				+ " f_flow = " + flowId + " and is_input = " + forInputs;
+			sql.query(resultQuery, r -> {
+				var result = results.get(r.getLong(1));
+				if (result != null) {
+					flowProviders.add(TechFlow.of(result, flow));
+				}
+				return true;
+			});
+
 			providers.put(flowId, flowProviders);
 			return flowProviders;
 		}
@@ -169,6 +187,23 @@ public abstract class ProviderIndex {
 				if (system != null) {
 					ps.add(TechFlow.of(system, flow));
 				}
+				return true;
+			});
+
+			// select from results
+			var resultQuery = "select f_result, f_flow, is_input from tbl_flow_results";
+			sql.query(resultQuery, r -> {
+				var flowId = r.getLong(2);
+				var flow = providerFlow(flowId, r.getBoolean(3));
+				var result = results.get(r.getLong(1));
+				if (result == null || flow == null)
+					return true;
+				var ps = providers.get(flowId);
+				if (ps == null) {
+					ps = new ArrayList<>();
+					providers.put(flowId, ps);
+				}
+				ps.add(TechFlow.of(result, flow));
 				return true;
 			});
 		}
