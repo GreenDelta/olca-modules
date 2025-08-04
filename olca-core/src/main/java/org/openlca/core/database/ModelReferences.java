@@ -340,7 +340,7 @@ public class ModelReferences {
 			if (targets == null)
 				return;
 			for (var target : targets) {
-				var targetId = (long) values[col++];
+				var targetId = longOf( values[col++]);
 				if (targetId == 0L)
 					continue;
 				if (target.idMapper != null) {
@@ -355,6 +355,12 @@ public class ModelReferences {
 			}
 		});
 		return map;
+	}
+
+	private long longOf(Object obj) {
+		return obj instanceof Number num
+				? num.longValue()
+				: 0;
 	}
 
 	private void query(String table, boolean isRootEntity, ModelField sourceField, String idField,
