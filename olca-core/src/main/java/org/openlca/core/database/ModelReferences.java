@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.TypedRefId;
 import org.openlca.util.Strings;
 import org.openlca.util.TypedRefIdMap;
@@ -220,7 +221,9 @@ public class ModelReferences {
 				new ModelField(ModelType.SOURCE, "f_source"));
 		scanTable("tbl_exchanges", false,
 				new ModelField(ModelType.PROCESS, "f_owner"),
-				new ModelField(ModelType.PROCESS, "f_default_provider"),
+				new ModelField(
+						new Condition("default_provider_type", this::getProviderType),
+						"f_default_provider"),
 				new ModelField(ModelType.FLOW, "f_flow"),
 				new ModelField(ModelType.FLOW, "f_location"),
 				new ModelField(ModelType.FLOW, "f_currency"));
@@ -251,11 +254,9 @@ public class ModelReferences {
 	}
 
 	private ModelType getProviderType(Object type) {
-		if (type.equals(0))
-			return ModelType.PROCESS;
-		if (type.equals(1))
-			return ModelType.PRODUCT_SYSTEM;
-		return ModelType.RESULT;
+		return type instanceof Number num
+				? ProviderType.toModelType(num.byteValue())
+				: ModelType.PROCESS;
 	}
 
 	private void scanProjects() {

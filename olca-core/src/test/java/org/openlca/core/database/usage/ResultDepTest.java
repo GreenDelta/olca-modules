@@ -67,7 +67,7 @@ public class ResultDepTest {
 
 		// process Q depends on the result
 		var qDeps = TransDeps.of(Q, db);
-		assertDeps(qDeps, q, result, product, mass, units);
+		assertDeps(qDeps, Q, q, result, product, mass, units);
 
 		// system depends on Q which depends on the result
 		var sysDeps = TransDeps.of(sys, db);
