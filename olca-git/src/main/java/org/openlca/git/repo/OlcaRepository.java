@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -112,6 +114,25 @@ public class OlcaRepository extends FileRepository {
 			return commit;
 		} catch (IOException e) {
 			log.error("Error getting head commit", e);
+			return null;
+		}
+	}
+	
+	public String getServerUrl() {
+		try (var git = new Git(this)) {
+			var configs = git.remoteList().call();
+			var config = configs.stream()
+					.filter(c -> c.getName().equals(Constants.DEFAULT_REMOTE))
+					.findFirst()
+					.orElse(null);
+			if (config == null || config.getURIs().isEmpty())
+				return null;
+			var uri = config.getURIs().get(0);
+			var url = uri.toString();
+			var groupIndex = url.lastIndexOf('/', url.lastIndexOf('/') - 1);
+			return url.substring(0, groupIndex);
+		} catch (GitAPIException e) {
+			log.error("Error parsing server url", e);
 			return null;
 		}
 	}
