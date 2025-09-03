@@ -141,7 +141,7 @@ public class ProcessImport {
 		var gen = Processes.getDataGenerator(ds);
 		if (gen == null || gen.getContacts().isEmpty())
 			return;
-		doc.dataGenerator = fetchActor(gen.getContacts().get(0));
+		doc.dataGenerator = fetchActor(gen.getContacts().getFirst());
 	}
 
 	private void mapGoal(ProcessDoc doc) {
@@ -172,7 +172,7 @@ public class ProcessImport {
 		var approaches = m.getApproaches();
 		if (approaches.isEmpty())
 			return null;
-		var first = approaches.get(0);
+		var first = approaches.getFirst();
 		return switch (first) {
 			case ALLOCATION_OTHER_EXPLICIT_ASSIGNMENT,
 					 ALLOCATION_MARGINAL_CAUSALITY,

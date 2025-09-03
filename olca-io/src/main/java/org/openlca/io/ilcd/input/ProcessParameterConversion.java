@@ -1,16 +1,15 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.UUID;
+
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.ilcd.util.Processes;
+import org.openlca.io.ilcd.Ext;
 import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * Adds the parameters of an ILCD process data set to an openLCA process data
@@ -19,7 +18,6 @@ import java.util.List;
  */
 class ProcessParameterConversion {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final Process olcaProcess;
 	private final ParameterDao dao;
 	private final Import imp;
@@ -41,10 +39,11 @@ class ProcessParameterConversion {
 
 	private Parameter convertParameter(
 			org.openlca.ilcd.processes.Parameter iParameter) {
-		ParameterScope scope = ParameterScope.PROCESS;
-		if (isGlobal(iParameter))
-			scope = ParameterScope.GLOBAL;
-		Parameter param = new Parameter();
+		var scope = isGlobal(iParameter)
+				? ParameterScope.GLOBAL
+				: ParameterScope.PROCESS;
+		var param = new Parameter();
+		param.refId = Ext.getUUID(iParameter).orElse(UUID.randomUUID().toString());
 		param.scope = scope;
 		param.name = iParameter.getName();
 		param.description = imp.str(iParameter.getComment());
@@ -78,10 +77,8 @@ class ProcessParameterConversion {
 	}
 
 	private boolean isGlobal(org.openlca.ilcd.processes.Parameter iParameter) {
-		ParameterExtension ext = new ParameterExtension(iParameter);
-		String scope = ext.getScope();
-		if (scope == null)
-			return false;
+		var ext = new ParameterExtension(iParameter);
+		var scope = ext.getScope();
 		return "global".equals(scope);
 	}
 
@@ -90,20 +87,11 @@ class ProcessParameterConversion {
 			olcaProcess.parameters.add(param);
 			return;
 		}
-		try {
-			List<Parameter> params = dao.getGlobalParameters();
-			boolean contains = false;
-			for (Parameter dbParam : params) {
-				if (Strings.nullOrEqual(param.name, dbParam.name)) {
-					contains = true;
-					break;
-				}
-			}
-			if (!contains)
-				dao.insert(param);
-		} catch (Exception e) {
-			log.error("Failed to store parameter in database", e);
+		var globals = dao.getGlobalParameters();
+		for (var global : globals) {
+			if (Strings.nullOrEqual(param.name, global.name))
+				return;
 		}
+		dao.insert(param);
 	}
-
 }
