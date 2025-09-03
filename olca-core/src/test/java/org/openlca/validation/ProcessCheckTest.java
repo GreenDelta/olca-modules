@@ -35,11 +35,11 @@ public class ProcessCheckTest {
 		process.output(p2, 1.0);
 		var co2Output = process.output(co2, 5.0);
 		process.allocationFactors.add(
-			AllocationFactor.causal(p1, co2Output, 0.7));
+				AllocationFactor.causal(p1, co2Output, 0.7));
 		db.insert(process);
 
 		NativeSql.on(db).runUpdate(
-			"update tbl_allocation_factors set f_exchange = 1");
+				"update tbl_allocation_factors set f_exchange = 1");
 		var validation = Validation.on(db);
 		validation.run();
 		var found = false;
@@ -77,6 +77,6 @@ public class ProcessCheckTest {
 			}
 		}
 		assertTrue(found);
-}
+	}
 
 }
