@@ -5,7 +5,10 @@ import org.openlca.core.Tests;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 class UsageTests {
 
@@ -25,6 +28,21 @@ class UsageTests {
 		for (var deps : List.of(deps1, deps2)) {
 			Assert.assertEquals(1, deps.size());
 			Assert.assertEquals(Descriptor.of(dependent), deps.iterator().next());
+		}
+	}
+
+	static void expectEach(RootEntity entity, RootEntity... dependents) {
+		var deps1 = UsageSearch.find(Tests.getDb(), entity);
+		var deps2 = UsageSearch.find(Tests.getDb(), Descriptor.of(entity));
+
+		var expected = Arrays.stream(dependents)
+				.map(Descriptor::of)
+				.collect(Collectors.toSet());
+		for (var deps : List.of(deps1, deps2)) {
+			Assert.assertEquals(expected.size(), deps.size());
+			for (var dep : deps) {
+				Assert.assertTrue(expected.contains(dep));
+			}
 		}
 	}
 

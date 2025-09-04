@@ -95,7 +95,6 @@ public class EpdImport {
 			result.name = Strings.cut(
 					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
-			imp.log().info("import EPD result: " + result.name);
 			result.category = resultCategory == null
 					? (resultCategory = resultCategoryOf(ds, oEpd.name))
 					: resultCategory;

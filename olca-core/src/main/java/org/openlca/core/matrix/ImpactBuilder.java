@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import java.sql.ResultSet;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.TreeSet;
 
 import org.openlca.core.database.IDatabase;
@@ -20,8 +19,6 @@ import org.openlca.core.model.UncertaintyType;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.expressions.FormulaInterpreter;
-
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Builds the matrices with characterization factors for a given set of flows
@@ -180,16 +177,9 @@ public final class ImpactBuilder {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void fillRegionalized() {
 
-		// the default characterization factors are used for flow-location
-		// pairs for which no specific characterization factor could be found
-		TLongObjectHashMap<CalcImpactFactor>[] defaults = new TLongObjectHashMap[impactIndex.size()];
-		for (int i = 0; i < impactIndex.size(); i++) {
-			defaults[i] = new TLongObjectHashMap<>();
-		}
-		HashSet<LongPair> added = new HashSet<>();
+		var defaults = new ImpactDefaultsMap(impactIndex, flowIndex);
 
 		try {
 			NativeSql.on(db).query(query(), r -> {
@@ -233,7 +223,7 @@ public final class ImpactBuilder {
 
 				int row = impactIndex.of(impactId);
 				if (isDefault) {
-					defaults[row].put(flowId, f);
+					defaults.put(row, f);
 				}
 				if (addIt) {
 					int col = flowIndex.of(flowId, locationId);
@@ -241,7 +231,7 @@ public final class ImpactBuilder {
 					if (uncertainties != null) {
 						uncertainties.add(row, col, f);
 					}
-					added.add(LongPair.of(flowId, locationId));
+					defaults.markAdded(impactId, LongPair.of(flowId, locationId));
 				}
 				return true;
 			});
@@ -251,28 +241,10 @@ public final class ImpactBuilder {
 		}
 
 		// set default factors where necessary
-		if (added.size() == flowIndex.size())
-			return;
-		flowIndex.each((col, idxFlow) -> {
-			long flowId = idxFlow.flow().id;
-			long locationId = idxFlow.location() != null
-					? idxFlow.location().id
-					: 0L;
-			if (added.contains(LongPair.of(flowId, locationId)))
-				return;
-			for (int row = 0; row < defaults.length; row++) {
-				var factor = defaults[row].get(flowId);
-				if (factor == null)
-					continue;
-				var impact = impactIndex.at(row);
-				factor.isInput = impact.direction != null
-						? impact.direction == Direction.INPUT
-						: idxFlow.isInput();
-
-				matrix.set(row, col, factor.matrixValue(interpreter));
-				if (uncertainties != null) {
-					uncertainties.add(row, col, factor);
-				}
+		defaults.apply((row, col, factor) -> {
+			matrix.set(row, col, factor.matrixValue(interpreter));
+			if (uncertainties != null) {
+				uncertainties.add(row, col, factor);
 			}
 		});
 	}

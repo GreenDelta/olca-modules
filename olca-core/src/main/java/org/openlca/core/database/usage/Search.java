@@ -25,10 +25,12 @@ class Search {
 	private final IDatabase database;
 
 	static {
-		for (ModelType type : ModelType.values()) {
-			Class<?> mClass = type.getModelClass();
-			Table table = mClass.getDeclaredAnnotation(Table.class);
-			tableNames.put(type, table.name());
+		for (var type : ModelType.values()) {
+			var c = type.getModelClass();
+			var table = c.getDeclaredAnnotation(Table.class);
+			if (table != null) {
+				tableNames.put(type, table.name());
+			}
 		}
 	}
 

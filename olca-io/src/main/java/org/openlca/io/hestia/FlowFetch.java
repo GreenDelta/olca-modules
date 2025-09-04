@@ -67,6 +67,8 @@ class FlowFetch {
 
 		flow = Flow.of(term.name(), defaultType, u.flowProperty);
 		flow.refId = refId;
+		flow.description = "A HESTIA flow: " +
+				"https://www.hestia.earth/term/" + termId;
 		var cat = term.getCategoryName();
 		if (Strings.notEmpty(cat)) {
 			flow.category = CategoryDao.sync(db, ModelType.FLOW, cat);

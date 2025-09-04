@@ -390,13 +390,24 @@ public class TransDeps {
 				  f_location,
 				  f_currency,
 				  resulting_amount_formula,
-				  cost_formula
+				  cost_formula,
+				  default_provider_type
 				from tbl_exchanges
 				""", r -> {
 			var processId = r.getLong(1);
 			if (has(PROCESS, processId)) {
 				put(FLOW, r, 2);
-				put(PROCESS, r, 3);
+
+				var providerId = r.getLong(3);
+				if (providerId != 0) {
+					var providerType = r.getInt(8);
+					if (providerType == 2) {
+						put(RESULT, providerId);
+					} else {
+						put(PROCESS, providerId);
+					}
+				}
+
 				put(LOCATION, r, 4);
 				put(CURRENCY, r, 5);
 				scanFormula(processId, r.getString(6));

@@ -34,17 +34,17 @@ public class AvoidedWasteTest {
 		var e = Flow.elementary("e", mass);
 		var r = Flow.elementary("r", mass);
 
-		var pP = Process.of("P", p);
-		pP.output(w, 0.5).isAvoided = true;
-		pP.input(r, 1);
-		var wW = Process.of("W", w);
-		wW.input(r, 0.5);
-		wW.output(e, 2.0);
+		var P = Process.of("P", p);
+		P.output(w, 0.5).isAvoided = true;
+		P.input(r, 1);
+		var W = Process.of("W", w);
+		W.input(r, 0.5);
+		W.output(e, 2.0);
 
-		db.insert(units, mass, p, w, e, r, pP, wW);
-		entities = List.of(units, mass, p, w, e, r, pP, wW);
+		db.insert(units, mass, p, w, e, r, P, W);
+		entities = List.of(units, mass, p, w, e, r, P, W);
 
-		var setup = CalculationSetup.of(pP);
+		var setup = CalculationSetup.of(P);
 		result = new SystemCalculator(db).calculate(setup);
 	}
 

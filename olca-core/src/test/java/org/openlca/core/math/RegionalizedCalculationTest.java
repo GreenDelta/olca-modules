@@ -506,7 +506,7 @@ public class RegionalizedCalculationTest {
 		FlowDao dao = new FlowDao(db);
 		List<Flow> flows = dao.getForName(name);
 		if (!flows.isEmpty())
-			return flows.get(0);
+			return flows.getFirst();
 		var property = property(unit);
 		Flow flow = Flow.of(name, type, property);
 		return dao.insert(flow);
@@ -516,7 +516,7 @@ public class RegionalizedCalculationTest {
 		FlowPropertyDao dao = new FlowPropertyDao(db);
 		List<FlowProperty> props = dao.getForName(unit);
 		if (!props.isEmpty())
-			return props.get(0);
+			return props.getFirst();
 		FlowProperty prop = new FlowProperty();
 		prop.name = unit;
 		prop.unitGroup = unitGroup(unit);
@@ -527,7 +527,7 @@ public class RegionalizedCalculationTest {
 		var dao = new UnitGroupDao(db);
 		var groups = dao.getForName(unit);
 		if (!groups.isEmpty())
-			return groups.get(0);
+			return groups.getFirst();
 		var group = UnitGroup.of(unit, Unit.of(unit));
 		return dao.insert(group);
 	}

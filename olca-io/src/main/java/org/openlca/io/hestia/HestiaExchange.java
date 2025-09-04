@@ -39,4 +39,7 @@ public sealed interface HestiaExchange {
 			return Json.getString(json, "variety");
 		}
 	}
+
+	record Practice(JsonObject json) implements HestiaExchange {
+	}
 }

@@ -13,6 +13,7 @@ import org.openlca.core.model.Process;
 import org.openlca.formula.Formulas;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.util.ParameterExtension;
+import org.openlca.io.ilcd.Ext;
 import org.openlca.util.Strings;
 
 class ProcessParameters {
@@ -96,6 +97,7 @@ class ProcessParameters {
 				.withName(o.name)
 				.withFormula(o.formula)
 				.withMean(o.value);
+		Ext.setUUID(i, o.refId);
 		new UncertaintyConverter().map(o, i);
 		exp.add(i::withComment, o.description);
 		new ParameterExtension(i).setScope(scope);

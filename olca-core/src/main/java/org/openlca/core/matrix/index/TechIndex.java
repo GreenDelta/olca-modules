@@ -8,11 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ResultDao;
@@ -21,14 +19,12 @@ import org.openlca.core.matrix.TechLinker;
 import org.openlca.core.matrix.linking.DefaultProcessLinker;
 import org.openlca.core.matrix.linking.LinkingInfo;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
- *
  * The index of the technology matrix of a product system. It maps the
  * product-outputs and waste-inputs of the respective processes, sub-systems,
  * or results in the system as technosphere-flows to the respective rows and
@@ -117,7 +113,9 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 
 		// include all providers from the database
 		var index = new TechIndex(refFlow);
-		eachProviderOf(db, index::add);
+		TechFlowScan.of(db)
+				.withLinkedResults(true)
+				.collectInto(index);
 		return index;
 	}
 
@@ -156,44 +154,13 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * database in some arbitrary order.
 	 */
 	public static TechIndex of(IDatabase db) {
-		var list = new ArrayList<TechFlow>();
-		eachProviderOf(db, list::add);
 		var index = new TechIndex();
-		for (var techFlow : list) {
-			index.add(techFlow);
-		}
+		TechFlowScan.of(db)
+				.withLinkedResults(false)
+				.collectInto(index);
 		return index;
 	}
 
-	private static void eachProviderOf(IDatabase db, Consumer<TechFlow> fn) {
-		var processes = new ProcessDao(db).descriptorMap();
-		var flows = new FlowDao(db).descriptorMap();
-		String sql = "select f_owner, f_flow, is_input from tbl_exchanges";
-		NativeSql.on(db).query(sql, r -> {
-			long flowID = r.getLong(2);
-			var flow = flows.get(flowID);
-			if (flow == null
-				|| flow.flowType == null
-				|| flow.flowType == FlowType.ELEMENTARY_FLOW)
-				return true;
-			var type = flow.flowType;
-			boolean isInput = r.getBoolean(3);
-			if (isInput && type == FlowType.PRODUCT_FLOW)
-				return true;
-			if (!isInput && type == FlowType.WASTE_FLOW)
-				return true;
-			long procID = r.getLong(1);
-			var process = processes.get(procID);
-			if (process == null) {
-				// note that product system results could be
-				// stored in the exchanges table; in this
-				// case the process would be null.
-				return true;
-			}
-			fn.accept(TechFlow.of(process, flow));
-			return true;
-		});
-	}
 
 	/**
 	 * Returns the size of this index which is equal to the number of rows and
@@ -276,8 +243,8 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 */
 	public List<TechFlow> getProviders(RootDescriptor d) {
 		return d == null
-			? Collections.emptyList()
-			: getProviders(d.id);
+				? Collections.emptyList()
+				: getProviders(d.id);
 	}
 
 	/**
@@ -287,8 +254,8 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	public List<TechFlow> getProviders(long processId) {
 		var providers = processProviders.get(processId);
 		return providers == null
-			? Collections.emptyList()
-			: providers;
+				? Collections.emptyList()
+				: providers;
 	}
 
 	/**
@@ -323,7 +290,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 	 * Returns true if this index also contains the links between processes.
 	 */
 	public boolean hasLinks() {
-		return links.size() != 0;
+		return !links.isEmpty();
 	}
 
 	/**

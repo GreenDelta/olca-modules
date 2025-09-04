@@ -2,6 +2,7 @@ package org.openlca.validation;
 
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProviderType;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 
@@ -156,9 +157,10 @@ class ProcessCheck implements Runnable {
 				/* 3 */ "f_unit, " +
 				/* 4 */ "f_flow_property_factor, " +
 				/* 5 */ "f_default_provider, " +
-				/* 6 */ "f_location, " +
-				/* 7 */ "f_currency, " +
-				/* 8 */ "internal_id from tbl_exchanges";
+				/* 6 */ "default_provider_type, " +
+				/* 7 */ "f_location, " +
+				/* 8 */ "f_currency, " +
+				/* 9 */ "internal_id from tbl_exchanges";
 
 		sql.query(q, r -> {
 			var id = r.getLong(1);
@@ -167,7 +169,7 @@ class ProcessCheck implements Runnable {
 				return true;
 
 			var lastInternalId = lastInternalIds.get(id);
-			var internalId = r.getLong(8);
+			var internalId = r.getLong(9);
 			if (internalId == 0) {
 				v.error(id, ModelType.PROCESS, "no internal exchange ID");
 				foundErrors = true;
@@ -195,20 +197,24 @@ class ProcessCheck implements Runnable {
 			}
 
 			var providerID = r.getLong(5);
-			if (providerID != 0 && !processIDs.contains(providerID)) {
-				v.error(id, ModelType.PROCESS,
-						"invalid exchange provider @" + providerID);
-				foundErrors = true;
+			if (providerID != 0) {
+				var providerType = ProviderType.toModelType(r.getByte(6));
+				if (!v.ids.contains(providerType, providerID)) {
+					v.error(id, ModelType.PROCESS,
+							"invalid exchange provider @" + providerID +
+									" of type " + providerType);
+					foundErrors = true;
+				}
 			}
 
-			var locID = r.getLong(6);
+			var locID = r.getLong(7);
 			if (locID != 0 && !v.ids.contains(ModelType.LOCATION, locID)) {
 				v.error(id, ModelType.PROCESS,
 						"invalid exchange location @" + locID);
 				foundErrors = true;
 			}
 
-			var currencyID = r.getLong(7);
+			var currencyID = r.getLong(8);
 			if (currencyID != 0 && !v.ids.contains(ModelType.CURRENCY, currencyID)) {
 				v.error(id, ModelType.PROCESS,
 						"invalid exchange currency @" + currencyID);

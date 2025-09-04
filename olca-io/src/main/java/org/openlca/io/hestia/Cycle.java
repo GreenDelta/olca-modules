@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.openlca.io.hestia.HestiaExchange.Emission;
 import org.openlca.io.hestia.HestiaExchange.Input;
+import org.openlca.io.hestia.HestiaExchange.Practice;
 import org.openlca.io.hestia.HestiaExchange.Product;
 import org.openlca.jsonld.Json;
 
