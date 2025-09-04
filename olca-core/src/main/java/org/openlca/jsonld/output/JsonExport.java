@@ -29,6 +29,7 @@ import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.MemStore;
 
@@ -166,6 +167,8 @@ public class JsonExport {
 		if (exportReferences) {
 			writeNext(e, null);
 		}
+		if (dbRefs == null)
+			return Json.asRef(e);
 		return dbRefs.asRef(Descriptor.of(e));
 	}
 
