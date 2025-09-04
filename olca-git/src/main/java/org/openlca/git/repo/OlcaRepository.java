@@ -117,8 +117,14 @@ public class OlcaRepository extends FileRepository {
 			return null;
 		}
 	}
-	
+
 	public String getServerUrl() {
+		var url = getRepositoryUrl();
+		var groupIndex = url.lastIndexOf('/', url.lastIndexOf('/') - 1);
+		return url.substring(0, groupIndex);
+	}
+
+	public String getRepositoryUrl() {
 		try (var git = new Git(this)) {
 			var configs = git.remoteList().call();
 			var config = configs.stream()
@@ -128,9 +134,7 @@ public class OlcaRepository extends FileRepository {
 			if (config == null || config.getURIs().isEmpty())
 				return null;
 			var uri = config.getURIs().get(0);
-			var url = uri.toString();
-			var groupIndex = url.lastIndexOf('/', url.lastIndexOf('/') - 1);
-			return url.substring(0, groupIndex);
+			return uri.toString();
 		} catch (GitAPIException e) {
 			log.error("Error parsing server url", e);
 			return null;
