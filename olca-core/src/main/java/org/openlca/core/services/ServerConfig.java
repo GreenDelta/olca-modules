@@ -89,6 +89,8 @@ public record ServerConfig(
 		Map<String, String> args
 ) {
 
+	private static final Logger log = LoggerFactory.getLogger(ServerConfig.class);
+
 	public static Builder defaultOf(IDatabase db) {
 		return new Builder(db);
 	}
@@ -98,9 +100,23 @@ public record ServerConfig(
 		return parser.parseArgs();
 	}
 
+	private static void loadNativeLibs(File nativeDir) {
+		if (MKL.isLoaded() || NativeLib.isLoaded())
+			return;
+		log.info("try to load native libraries from: {}", nativeDir);
+		if (MKL.isLibraryDir(nativeDir) && MKL.loadFrom(nativeDir)) {
+			log.info("loaded MKL libraries");
+			return;
+		}
+		NativeLib.loadFrom(nativeDir);
+		if (!NativeLib.isLoaded()) {
+			log.warn("no native libraries could be loaded;" +
+					" calculations could be very slow");
+		}
+	}
+
 	private static class Parser {
 
-		private final Logger log = LoggerFactory.getLogger(getClass());
 		private final Map<String, String> args;
 		private final DataDir dataDir;
 
@@ -205,16 +221,7 @@ public record ServerConfig(
 			var nativeDir = nativePath != null
 					? new File(nativePath)
 					: dataDir.root();
-			log.info("try to load native libraries from: {}", nativeDir);
-			if (MKL.isLibraryDir(nativeDir) && MKL.loadFrom(nativeDir)) {
-				log.info("loaded MKL libraries");
-				return;
-			}
-			NativeLib.loadFrom(nativeDir);
-			if (!NativeLib.isLoaded()) {
-				log.warn("no native libraries could be loaded;" +
-						" calculations could be very slow");
-			}
+			ServerConfig.loadNativeLibs(nativeDir);
 		}
 
 		private static Map<String, String> mapArgs(String[] args) {
@@ -300,9 +307,7 @@ public record ServerConfig(
 			var dataDir = this.dataDir == null
 					? DataDir.get()
 					: this.dataDir;
-			if (!NativeLib.isLoaded()) {
-				NativeLib.loadFrom(dataDir.root());
-			}
+			ServerConfig.loadNativeLibs(dataDir.root());
 			Map<String, String> args = this.args == null
 					? java.util.Map.of()
 					: this.args;
