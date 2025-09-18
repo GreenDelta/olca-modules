@@ -1,5 +1,8 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.DataEntry;
 import org.openlca.ilcd.processes.InventoryMethod;
@@ -10,21 +13,18 @@ import org.openlca.ilcd.processes.Review;
 import org.openlca.ilcd.processes.Technology;
 import org.openlca.ilcd.util.Processes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class ProcessSources {
 
 	static List<Ref> allOf(Process p) {
-		List<Ref> refs = new ArrayList<>();
-		refs.addAll(getFrom(Processes.getRepresentativeness(p)));
-		refs.addAll(getFrom(Processes.getDataEntry(p)));
-		refs.addAll(getFrom(Processes.getInventoryMethod((p))));
-		refs.addAll(getFrom(Processes.getPublication(p)));
-		refs.addAll(getFrom(Processes.getTechnology(p)));
+		var refs = new ArrayList<Ref>();
+		getFrom(Processes.getRepresentativeness(p), refs);
+		getFrom(Processes.getDataEntry(p), refs);
+		getFrom(Processes.getInventoryMethod(p), refs);
+		getFrom(Processes.getPublication(p), refs);
+		getFrom(Processes.getTechnology(p), refs);
 		complianceSystems(p, refs);
 		for (var review : Processes.getReviews(p)) {
-			refs.addAll(getFrom(review));
+			getFrom(review, refs);
 		}
 		return refs;
 	}
@@ -38,58 +38,44 @@ class ProcessSources {
 		}
 	}
 
-	private static List<Ref> getFrom(Representativeness repr) {
-		List<Ref> refs = new ArrayList<>();
+	private static void getFrom(Representativeness repr, List<Ref> refs) {
 		if (repr == null)
-			return refs;
+			return;
 		refs.addAll(repr.getSources());
-		return refs;
 	}
 
-	private static List<Ref> getFrom(DataEntry entry) {
-		List<Ref> refs = new ArrayList<>();
+	private static void getFrom(DataEntry entry, List<Ref> refs) {
 		if (entry == null)
-			return refs;
+			return;
 		if (entry.getOriginalDataSet() != null) {
 			refs.add(entry.getOriginalDataSet());
 		}
-		refs.addAll(entry.getFormats());
-		return refs;
 	}
 
-	private static List<Ref> getFrom(InventoryMethod method) {
-		List<Ref> refs = new ArrayList<>();
+	private static void getFrom(InventoryMethod method, List<Ref> refs) {
 		if (method == null)
-			return refs;
+			return;
 		refs.addAll(method.getSources());
-		return refs;
 	}
 
-	private static List<Ref> getFrom(Publication pub) {
-		List<Ref> refs = new ArrayList<>();
+	private static void getFrom(Publication pub, List<Ref> refs) {
 		if (pub == null || pub.getRepublication() == null)
-			return refs;
+			return;
 		refs.add(pub.getRepublication());
-		return refs;
 	}
 
-	private static List<Ref> getFrom(Technology tec) {
-		List<Ref> refs = new ArrayList<>();
+	private static void getFrom(Technology tec, List<Ref> refs) {
 		if (tec == null)
-			return refs;
+			return;
 		if (tec.getPictogram() != null) {
 			refs.add(tec.getPictogram());
 		}
 		refs.addAll(tec.getPictures());
-		return refs;
 	}
 
-	private static List<Ref> getFrom(Review rev) {
-		List<Ref> refs = new ArrayList<>();
+	private static void getFrom(Review rev, List<Ref> refs) {
 		if (rev == null || rev.getReport() == null)
-			return refs;
+			return;
 		refs.add(rev.getReport());
-		return refs;
 	}
-
 }

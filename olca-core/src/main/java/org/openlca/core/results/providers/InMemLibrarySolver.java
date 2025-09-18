@@ -1,16 +1,22 @@
 package org.openlca.core.results.providers;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.library.LibMatrix;
+import org.openlca.core.matrix.ImpactBuilder;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.ParameterTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.MatrixIndex;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +47,13 @@ public class InMemLibrarySolver {
 		private final Logger log = LoggerFactory.getLogger(getClass());
 
 		private final SolverContext ctx;
+		private final DataPackages dataPackages;
 		private final MatrixData origin;
 		private final MatrixData full;
 
 		Builder(SolverContext ctx) {
 			this.ctx = ctx;
+			this.dataPackages = ctx.db().getDataPackages();
 			this.origin = ctx.data();
 			full = new MatrixData();
 			full.demand = origin.demand;
@@ -91,8 +99,30 @@ public class InMemLibrarySolver {
 			var enviIdx = full.enviIndex;
 			var impBuffer = new MatrixBuilder();
 			impBuffer.minSize(impIdx.size(), enviIdx.size());
-			mapImpactMatrix(impIdx, origin.enviIndex, origin.impactMatrix, impBuffer);
 
+			// first, load impact factors for non-library impact categories
+			// into the matrix
+			var nonLibIndicators = new ArrayList<ImpactDescriptor>();
+			for (var imp : impIdx) {
+				if (!dataPackages.isFromLibrary(imp)) {
+					nonLibIndicators.add(imp);
+				}
+			}
+
+			if (!nonLibIndicators.isEmpty()) {
+				var nonLibIdx = ImpactIndex.of(nonLibIndicators);
+				var contexts = new HashSet<Long>();
+				nonLibIdx.each((_idx, impact) -> contexts.add(impact.id));
+				var interpreter = ParameterTable.interpreter(
+						ctx.db(), contexts, Collections.emptyList());
+				var nonLibMatrix = ImpactBuilder.of(ctx.db(), enviIdx)
+						.withImpacts(nonLibIdx)
+						.withInterpreter(interpreter)
+						.build().impactMatrix;
+				mapImpactMatrix(nonLibIdx,enviIdx, nonLibMatrix, impBuffer);
+			}
+
+			// collect impact factors for library impact categories
 			var libs = new HashSet<String>();
 			for (var imp : impIdx) {
 				if (!ctx.libraries().dataPackages.isFromLibrary(imp) || libs.contains(imp.dataPackage))

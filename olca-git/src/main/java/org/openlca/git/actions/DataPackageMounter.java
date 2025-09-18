@@ -22,9 +22,12 @@ import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class DataPackageMounter {
 
+	private static final Logger log = LoggerFactory.getLogger(DataPackageMounter.class);
 	private final ClientRepository repo;
 	private final Set<DataPackage> localPackages;
 	private final Set<DataPackage> remotePackages;
@@ -136,7 +139,7 @@ class DataPackageMounter {
 		return result;
 	}
 
-	private List<IResolvedDependency<?>> resolveNewOrUpdated() {
+	private List<IResolvedDependency<?>> resolveNewOrUpdated() throws MountException {
 		var dependencies = new ArrayList<IResolvedDependency<?>>();
 		for (var remote : remotePackages) {
 			var fromDb = dbPackages.stream()
@@ -144,11 +147,15 @@ class DataPackageMounter {
 					.findFirst().orElse(null);
 			if (fromDb != null && Strings.nullOrEqual(remote.version(), fromDb.version()))
 				continue;
-			if (dependencyResolver == null)
-				throw new IllegalStateException("Could not mount data packages because no dependency resolver was set");
+			if (dependencyResolver == null) {
+				log.error("Could not resolve data package {}, no data package resolver was set", remote);
+				throw new MountException();
+			}
 			var resolved = dependencyResolver.resolve(remote);
-			if (resolved == null)
-				return null;
+			if (resolved == null) {
+				log.error("Could not resolve library {}, resolver returned null", remote);
+				throw new MountException();
+			}
 			if (resolved.dependency() == null)
 				continue;
 			dependencies.add(resolved);
