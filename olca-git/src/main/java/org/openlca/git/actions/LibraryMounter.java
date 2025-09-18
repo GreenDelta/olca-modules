@@ -17,9 +17,13 @@ import org.openlca.git.actions.GitMerge.MergeResult;
 import org.openlca.git.model.Commit;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.ProgressMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class LibraryMounter {
 
+
+	private static final Logger log = LoggerFactory.getLogger(LibraryMounter.class);
 	private final ClientRepository repo;
 	private final Set<String> localLibs;
 	private final Set<String> remoteLibs;
@@ -66,8 +70,10 @@ class LibraryMounter {
 				continue;
 			handled.add(next);
 			var checkResult = PreMountCheck.check(repo.database, next);
-			if (checkResult.isError())
+			if (checkResult.isError()) {
+				log.error("Error checking pre mount state: {}", checkResult.error());
 				throw new MountException();
+			}
 			checkResult.getStates().forEach(p -> handled.add(p.first));
 			Mounter.of(repo.database, next)
 					.applyDefaultsOf(checkResult)
@@ -76,16 +82,20 @@ class LibraryMounter {
 		return MergeResult.SUCCESS;
 	}
 
-	private List<Library> resolveNewLibraries() {
+	private List<Library> resolveNewLibraries() throws MountException {
 		var libs = new ArrayList<Library>();
 		for (var remoteLib : remoteLibs) {
 			if (dbLibs.contains(remoteLib))
 				continue;
-			if (libraryResolver == null)
-				throw new IllegalStateException("Could not mount libraries because no library resolver was set");
+			if (libraryResolver == null) {
+				log.error("Could not resolve library {}, no library resolver was set", remoteLib);
+				throw new MountException();
+			}
 			var lib = libraryResolver.resolve(remoteLib);
-			if (lib == null)
-				return null;
+			if (lib == null) {
+				log.error("Could not resolve library {}, resolver returned null", remoteLib);
+				throw new MountException();
+			}
 			libs.add(lib);
 		}
 		return libs;
@@ -101,11 +111,11 @@ class LibraryMounter {
 			Unmounter.keepNone(repo.database, lib);
 		}
 	}
-	
+
 	class MountException extends IOException {
 
 		private static final long serialVersionUID = 7656323523482743101L;
-		
+
 	}
 
 }
