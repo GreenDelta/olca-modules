@@ -33,6 +33,7 @@ public class FlowReplacer {
 	private final IDatabase db;
 	private final DataPackages dataPackages;
 	private final Set<ModelType> ownerTypes;
+	private boolean excludeDataPackageDatasets;
 
 	private FlowReplacer(IDatabase db) {
 		this.db = Objects.requireNonNull(db);
@@ -42,6 +43,11 @@ public class FlowReplacer {
 
 	public static FlowReplacer of(IDatabase db) {
 		return new FlowReplacer(db);
+	}
+
+	public FlowReplacer excludeDataPackageDatasets() {
+		this.excludeDataPackageDatasets = true;
+		return this;
 	}
 
 	// region utils
@@ -175,13 +181,12 @@ public class FlowReplacer {
 
 		// collect library processes, they are not changed
 		var sql = NativeSql.on(db);
-		var libQ = "select id, data_package from tbl_processes " +
+		var skipQ = "select id, data_package from tbl_processes " +
 				"where data_package is not null";
-		var libProcs = new TLongHashSet();
-		sql.query(libQ, r -> {
-			var dataPackage = r.getString(2);
-			if (dataPackages.isLibrary(dataPackage)) {
-				libProcs.add(r.getLong(1));
+		var skip = new TLongHashSet();
+		sql.query(skipQ, r -> {
+			if (excludeDataPackageDatasets || dataPackages.isLibrary(r.getString(2))) {
+				skip.add(r.getLong(1));
 			}
 			return true;
 		});
@@ -197,7 +202,7 @@ public class FlowReplacer {
 				from tbl_exchanges where f_flow =\s""" + def.origin;
 		NativeSql.on(db).updateRows(q, r -> {
 			long procId = r.getLong(1);
-			if (libProcs.contains(procId))
+			if (skip.contains(procId))
 				return true;
 			changed.add(procId);
 
@@ -261,11 +266,11 @@ public class FlowReplacer {
 
 			if (state == 1) {
 				log.error("could not update process link; " +
-								"provider {} changed but process {} did not",
+						"provider {} changed but process {} did not",
 						provider, process);
 			} else if (state == 2) {
 				log.error("could not update process link; " +
-								"process {} changed but provider {} did not",
+						"process {} changed but provider {} did not",
 						process, provider);
 			} else if (state == 3) {
 				changedSystems.add(r.getLong(1));
@@ -280,10 +285,18 @@ public class FlowReplacer {
 	}
 
 	private void replaceInImpactFactors(RepDef def) {
+		var sql = NativeSql.on(db);
 
-		// LCIA categories from libraries do not contain
-		// characterization factors in the database, so
-		// there is no need to filter them explicitly
+		var skipQ = "select id, data_package from tbl_impact_categories " +
+				"where data_package is not null";
+		var skip = new TLongHashSet();
+		sql.query(skipQ, r -> {
+			if (excludeDataPackageDatasets || dataPackages.isLibrary(r.getString(2))) {
+				skip.add(r.getLong(1));
+			}
+			return true;
+		});
+		
 		var changed = new TLongHashSet();
 		var q = """
 				select
@@ -291,8 +304,11 @@ public class FlowReplacer {
 				  f_flow,
 				  f_flow_property_factor
 				from tbl_impact_factors where f_flow = \s""" + def.origin;
-		NativeSql.on(db).updateRows(q, r -> {
-			changed.add(r.getLong(1));
+		sql.updateRows(q, r -> {
+			var id = r.getLong(1);
+			if (skip.contains(id))
+				return true;
+			changed.add(id);
 			r.updateLong(2, def.target);
 			r.updateLong(3, def.propFacs.get(r.getLong(3)));
 			r.updateRow();

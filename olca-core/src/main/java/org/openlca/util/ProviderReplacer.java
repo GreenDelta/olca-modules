@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.core.database.DataPackages;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.index.TechIndex;
@@ -19,14 +20,22 @@ public class ProviderReplacer {
 
 	private final IDatabase db;
 	private final TechIndex idx;
+	private final DataPackages dataPackages;
+	private boolean excludeDataPackageDatasets;
 
 	private ProviderReplacer(IDatabase db) {
 		this.db = db;
 		this.idx = TechIndex.of(db);
+		this.dataPackages = db.getDataPackages();
 	}
 
 	public static ProviderReplacer of(IDatabase db) {
 		return new ProviderReplacer(db);
+	}
+
+	public ProviderReplacer excludeDataPackageDatasets() {
+		this.excludeDataPackageDatasets = true;
+		return this;
 	}
 
 	/// Returns the list of processes that are used as default providers
@@ -88,10 +97,20 @@ public class ProviderReplacer {
 	}
 
 	public void replace(
-			ProcessDescriptor source, ProcessDescriptor target, FlowDescriptor flow
-	) {
+			ProcessDescriptor source, ProcessDescriptor target, FlowDescriptor flow) {
 		if (source == null || target == null || flow == null)
 			return;
+		var sql = NativeSql.on(db);
+
+		var skip = new TLongHashSet();
+		var skipQ = "select id, data_package from tbl_processes " +
+				"where data_package is not null";
+		sql.query(skipQ, r -> {
+			if (excludeDataPackageDatasets || dataPackages.isLibrary(r.getString(2))) {
+				skip.add(r.getLong(1));
+			}
+			return true;
+		});
 
 		var changed = new TLongHashSet();
 		var q = """
@@ -100,8 +119,11 @@ public class ProviderReplacer {
 					f_default_provider
 				from tbl_exchanges where f_default_provider =\s"""
 				+ source.id + " and f_flow = " + flow.id;
-		NativeSql.on(db).updateRows(q, r -> {
-			changed.add(r.getLong(1));
+		sql.updateRows(q, r -> {
+			var ownerId = r.getLong(1);
+			if (skip.contains(ownerId))
+				return true;
+			changed.add(ownerId);
 			r.updateLong(2, target.id);
 			r.updateRow();
 			return true;
