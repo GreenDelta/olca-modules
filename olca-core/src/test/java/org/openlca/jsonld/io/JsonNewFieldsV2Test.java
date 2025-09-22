@@ -51,10 +51,10 @@ public class JsonNewFieldsV2Test {
 	}
 
 	@Test
-	public void testLibraryAndTags() {
-		var lib = "some-lib";
-		db.addLibrary(lib);
-		process.dataPackage = lib;
+	public void testDataPackageAndTags() {
+		var dataPackage = "some-lib";
+		db.addRepository(dataPackage, "v1", "http://someurl");
+		process.dataPackage = dataPackage;
 		process.tags = "some,tags";
 		process = db.update(process);
 		var store = withExport(export -> export.write(process));
@@ -306,8 +306,7 @@ public class JsonNewFieldsV2Test {
 	private MemStore withExport(Consumer<JsonExport> fn) {
 		var store = new MemStore();
 		var export = new JsonExport(db, store)
-			.withReferences(true)
-			.skipLibraryData(false);
+			.withReferences(true);
 		fn.accept(export);
 		return store;
 	}

@@ -45,8 +45,7 @@ public class JsonDiffZip {
 
 			var export = new JsonExport(db, zip)
 					.withReferences(false)
-					.withDefaultProviders(false)
-					.skipLibraryData(true);
+					.withDefaultProviders(false);
 
 			int count = 0;
 			for (var type : ModelType.values()) {

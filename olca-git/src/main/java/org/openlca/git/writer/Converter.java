@@ -63,8 +63,6 @@ class Converter implements JsonStoreWriter {
 		this.usedFeatures = usedFeatures;
 		this.export = new JsonExport(database, this)
 				.withReferences(false)
-				.withDataPackageFields(true)
-				.skipLibraryData(true)
 				.skipExternalFiles(true);
 		var processors = 1;
 		try {

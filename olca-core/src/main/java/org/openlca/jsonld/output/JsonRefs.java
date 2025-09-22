@@ -79,7 +79,6 @@ public class JsonRefs {
 		if (writeDataPackageFields) {
 			var dataPackage = dataPackages.get(d.dataPackage);
 			if (dataPackage != null) {
-				// TODO is support of legacy field name required?
 				if (dataPackage.isLibrary()) {
 					Json.put(ref, "library", dataPackage.name());
 				} else {

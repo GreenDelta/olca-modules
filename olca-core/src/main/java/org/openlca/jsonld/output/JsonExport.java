@@ -48,14 +48,12 @@ public class JsonExport {
 	final DataPackages dataPackages;
 	final JsonStoreWriter writer;
 	boolean exportReferences = true;
-	boolean skipLibraryData = true;
 	boolean exportProviders = false;
 	boolean skipExternalFiles = false;
-	boolean writeDataPackageFields = false;
 
 	final JsonRefs dbRefs;
 	private final Map<ModelType, Set<String>> visited = new EnumMap<>(ModelType.class);
-	private final Set<DataPackage> referencedLibraries = new HashSet<>();
+	private final Set<DataPackage> referencedDataPackages = new HashSet<>();
 
 	/// Exporting providers can lead to a stack overflow when calling write
 	/// recursively. Thus, we need to queue them.
@@ -97,32 +95,25 @@ public class JsonExport {
 		return this;
 	}
 
-	public JsonExport skipLibraryData(boolean b) {
-		skipLibraryData = b;
-		return this;
-	}
-
 	public JsonExport skipExternalFiles(boolean b) {
 		skipExternalFiles = b;
 		return this;
 	}
 
-	/// If set to `true`, created datasets and references will contain the
-	/// `dataPackage` field when the respective dataset belongs to a data
-	/// package.
+	/// If set to `true`, created references will contain the `dataPackage`
+	/// field when the respective dataset belongs to a data package.
 	/// Typically, this should be only done when datasets are exported to a
 	/// service API and not in the standard JSON exports.
 	public JsonExport withDataPackageFields(boolean b) {
-		writeDataPackageFields = b;
 		if (dbRefs != null) {
 			dbRefs.withDataPackageFields(b);
 		}
 		return this;
 	}
 
-	// Returns the data libraries that are referenced by the exported data sets.
-	public Set<DataPackage> getReferencedLibraries() {
-		return referencedLibraries;
+	// Returns the data packages that are referenced by the exported data sets.
+	public Set<DataPackage> getReferencedDataPackages() {
+		return referencedDataPackages;
 	}
 
 	boolean hasVisited(ModelType type, String refId) {
@@ -248,10 +239,9 @@ public class JsonExport {
 
 		if (entity.dataPackage != null) {
 			var dataPackage = dataPackages.get(entity.dataPackage);
-			if (dataPackage != null && dataPackage.isLibrary()) {
-				referencedLibraries.add(dataPackage);
-				// TODO should data package link be exported?
-				if (skipLibraryData)
+			if (dataPackage != null) {
+				referencedDataPackages.add(dataPackage);
+				if (dataPackage.isLibrary())
 					return;
 			}
 		}

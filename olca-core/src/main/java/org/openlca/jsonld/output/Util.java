@@ -63,7 +63,6 @@ class Util {
 		mapBasicAttributes(entity, obj);
 		if (exp != null
 				&& entity != null
-				&& exp.writeDataPackageFields
 				&& !Strings.nullOrEmpty(entity.dataPackage)) {
 			if (exp.dataPackages.isFromLibrary(entity)) {
 				Json.put(obj, "library", entity.dataPackage);

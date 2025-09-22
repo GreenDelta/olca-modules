@@ -31,8 +31,7 @@ class JsonWriter implements Runnable {
 	public void run() {
 		try (var zip = ZipStore.open(new File(export.folder, "meta.zip"))) {
 			var exp = new JsonExport(db, zip)
-					.withDefaultProviders(false)
-					.skipLibraryData(true);
+					.withDefaultProviders(false);
 			var types = List.of(
 					Actor.class,
 					Source.class,
