@@ -120,6 +120,8 @@ public class OlcaRepository extends FileRepository {
 
 	public String getServerUrl() {
 		var url = getRepositoryUrl();
+		if (Strings.nullOrEmpty(url))
+			return null;
 		var groupIndex = url.lastIndexOf('/', url.lastIndexOf('/') - 1);
 		return url.substring(0, groupIndex);
 	}
