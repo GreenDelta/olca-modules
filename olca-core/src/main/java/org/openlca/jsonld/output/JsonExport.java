@@ -161,7 +161,9 @@ public class JsonExport {
 		if (exportReferences) {
 			writeNext(e, null);
 		}
-		return Json.asRef(e);
+		if (dbRefs == null)
+			return Json.asRef(e);
+		return dbRefs.asRef(Descriptor.of(e));
 	}
 
 	JsonObject handleProvider(long pid, byte type) {
