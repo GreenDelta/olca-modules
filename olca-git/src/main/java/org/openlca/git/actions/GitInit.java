@@ -26,7 +26,7 @@ public class GitInit {
 		return this;
 	}
 
-	public void run() throws GitAPIException, URISyntaxException {
+	public void run() throws GitAPIException {
 		if (gitDir == null)
 			throw new IllegalStateException("Git directory must be set");
 		try (var git = Git.init()
