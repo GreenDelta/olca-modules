@@ -75,7 +75,6 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Diff> changes) throws IOException {
 		try {
-			var t = System.currentTimeMillis();
 			libraries = getLibraries(changes);
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			var parentCommitIds = getParentCommitIds();
@@ -86,7 +85,6 @@ public class DbCommitWriter extends CommitWriter {
 				progressMonitor.beginTask("Updating local index");
 				repo.index.reload();
 			}
-			System.out.println((t - System.currentTimeMillis()) + "ms");
 			return commitId;
 		} finally {
 			cleanUp();
