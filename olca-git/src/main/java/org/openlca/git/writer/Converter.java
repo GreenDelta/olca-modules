@@ -1,5 +1,6 @@
 package org.openlca.git.writer;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.openlca.core.model.Callback;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
+import org.openlca.git.model.ModelRef;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.Json;
@@ -19,6 +21,7 @@ import org.openlca.jsonld.output.JsonExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 class Converter implements JsonStoreWriter {
@@ -30,6 +33,7 @@ class Converter implements JsonStoreWriter {
 	private final JsonExport export;
 	private final UsedFeatures usedFeatures;
 	private final ProgressMonitor progressMonitor;
+	private final Gson gson = new Gson();
 	private boolean closed = false;
 
 	Converter(IDatabase database, ProgressMonitor progressMonitor, UsedFeatures usedFeatures, List<Diff> changes) {
@@ -52,7 +56,10 @@ class Converter implements JsonStoreWriter {
 				&& !change.isLibrary
 				&& !change.isCategory
 				&& change.type != null
-				&& change.refId != null;
+				&& change.refId != null
+				&& change.type != ModelType.PRODUCT_SYSTEM;
+		// product systems need to be converted on the fly, because keeping them
+		// in memory can lead to OutOfMemory exceptions
 	}
 
 	void start() {
@@ -79,9 +86,9 @@ class Converter implements JsonStoreWriter {
 
 	private void handleError(Diff change, Throwable e) {
 		log.error("failed to convert data set " + change, e);
-		put(change.path, (byte[]) null);		
+		put(change.path, (byte[]) null);
 	}
-	
+
 	@Override
 	public void put(ModelType type, JsonObject object) {
 		usedFeatures.checkSchemaVersion(object);
@@ -103,7 +110,19 @@ class Converter implements JsonStoreWriter {
 	byte[] take(String path) throws InterruptedException {
 		if (progressMonitor.isCanceled() || closed)
 			return null;
+		var ref = new ModelRef(path);
+		if (ref.type == ModelType.PRODUCT_SYSTEM)
+			return convert(ref);
 		return queue.take();
+	}
+
+	private byte[] convert(ModelRef ref) {
+		if (progressMonitor.isCanceled())
+			return null;
+		var model = database.get(ref.type.getModelClass(), ref.refId);
+		var object = export.getWriter(model).write(model);
+		var json = gson.toJson(object);
+		return json.getBytes(StandardCharsets.UTF_8);
 	}
 
 	void close() {
