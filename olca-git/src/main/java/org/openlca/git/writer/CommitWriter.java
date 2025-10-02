@@ -241,6 +241,8 @@ public abstract class CommitWriter {
 		var data = change.isCategory
 				? new byte[0]
 				: getData(change);
+		if (progressMonitor.isCanceled())
+			return null;
 		if (data == null)
 			throw new ConversionException("Could not convert data for " + path);
 		var blobId = insertBlob(data);

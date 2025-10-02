@@ -1,16 +1,13 @@
 package org.openlca.git.writer;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Callback;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.DiffType;
@@ -21,109 +18,70 @@ import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.output.JsonExport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.thavam.util.concurrent.blockingMap.BlockingHashMap;
-import org.thavam.util.concurrent.blockingMap.BlockingMap;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-/**
- * Multithreaded data conversion. Starts {config.converterThreads} simultaneous
- * threads to convert data sets to JSON and afterwards starts the next thread.
- * To avoid memory issues when conversion is faster than consummation
- * "startNext" checks if the queueSize is reached and returns otherwise.
- * queueSize considers elements that are still in conversion as already part of
- * the queue. When elements are taken from the queue "startNext" is called again
- * to ensure continuation of threads
- * 
- * Expects all entries that are converted also to be taken in the same order,
- * otherwise runs into deadlock.
- * 
- * Product systems are not queued, but converted on demand, because the
- * JsonObjects during conversion take to much memory
- */
 class Converter implements JsonStoreWriter {
 
 	private static final Logger log = LoggerFactory.getLogger(Converter.class);
-	private final BlockingMap<String, byte[]> queue = new BlockingHashMap<>();
-	private final IDatabase database;
-	private final ExecutorService threads;
+	private final BlockingQueue<byte[]> queue = new ArrayBlockingQueue<byte[]>(1);
 	private final Deque<Diff> changes = new LinkedList<>();
-	private final Map<String, Diff> systems = new HashMap<>();
-	private final AtomicInteger queueSize = new AtomicInteger();
+	private final IDatabase database;
 	private final JsonExport export;
-	private final int converterThreads;
 	private final UsedFeatures usedFeatures;
 	private final ProgressMonitor progressMonitor;
+	private boolean closed = false;
 
-	Converter(IDatabase database, ExecutorService threads, ProgressMonitor progressMonitor, UsedFeatures usedFeatures) {
+	Converter(IDatabase database, ProgressMonitor progressMonitor, UsedFeatures usedFeatures, List<Diff> changes) {
 		this.database = database;
-		this.threads = threads;
 		this.progressMonitor = progressMonitor;
 		this.usedFeatures = usedFeatures;
+		this.changes.addAll(changes.stream()
+				.filter(this::needsConversion)
+				.sorted()
+				.toList());
 		this.export = new JsonExport(database, this)
 				.withReferences(false)
 				.skipLibraryData(true)
 				.skipExternalFiles(true);
-		var processors = 1;
-		try {
-			processors = Runtime.getRuntime().availableProcessors();
-		} catch (Throwable e) {
-			processors = 1;
-		}
-		this.converterThreads = processors;
 	}
 
-	void start(List<Diff> changes) {
-		if (changes.isEmpty())
-			return;
-		this.changes.clear();
-		this.systems.clear();
-		for (var change : changes) {
-			if (change.isCategory)
-				continue;
-			if (change.type == ModelType.PRODUCT_SYSTEM) {
-				this.systems.put(change.path, change);
-			} else {
-				this.changes.add(change);
-			}
-		}
-		for (var i = 0; i < converterThreads; i++) {
-			startNext();
-		}
+	private boolean needsConversion(Diff change) {
+		return change.diffType != DiffType.DELETED
+				&& !change.isRepositoryInfo
+				&& !change.isLibrary
+				&& !change.isCategory
+				&& change.type != null
+				&& change.refId != null;
 	}
 
-	private void startNext() {
-		if (progressMonitor.isCanceled())
-			return;
-		// forgoing synchronizing get + incrementAndGet for better performance.
-		// might lead to temporarily slightly higher queueSize than specified
-		if (queueSize.get() >= converterThreads)
-			return;
-		queueSize.incrementAndGet();
-		synchronized (changes) {
-			if (changes.isEmpty())
-				return;
-			var entry = changes.pop();
-			threads.submit(() -> {
+	void start() {
+		Thread.startVirtualThread(() -> {
+			while (!changes.isEmpty() && !progressMonitor.isCanceled() && !closed) {
+				var entry = changes.pop();
 				convert(entry);
-				startNext();
-			});
-		}
+			}
+		});
 	}
 
 	private void convert(Diff change) {
-		if (change.diffType == DiffType.DELETED || change.type == null || change.refId == null)
-			return;
 		try {
 			var model = database.get(change.type.getModelClass(), change.refId);
-			export.write(model);
+			export.write(model, (message, data) -> {
+				if (message.type == Callback.Message.ERROR) {
+					handleError(change, message.error);
+				}
+			});
 		} catch (Exception e) {
-			log.error("failed to convert data set " + change, e);
-			put(change.path, (byte[]) null);
+			handleError(change, e);
 		}
 	}
 
+	private void handleError(Diff change, Throwable e) {
+		log.error("failed to convert data set " + change, e);
+		put(change.path, (byte[]) null);		
+	}
+	
 	@Override
 	public void put(ModelType type, JsonObject object) {
 		usedFeatures.checkSchemaVersion(object);
@@ -136,40 +94,23 @@ class Converter implements JsonStoreWriter {
 	@Override
 	public void put(String path, byte[] data) {
 		try {
-			queue.offer(path, data);
+			queue.put(data);
 		} catch (InterruptedException e) {
 			log.error("failed to add element to data queue", e);
 		}
 	}
 
 	byte[] take(String path) throws InterruptedException {
-		if (systems.containsKey(path))
-			return convertProductSystem(systems.get(path));
-		byte[] data = doTake(path);
-		queueSize.decrementAndGet();
-		startNext();
-		return data;
-	}
-
-	private byte[] doTake(String path) throws InterruptedException {
-		if (progressMonitor.isCanceled())
+		if (progressMonitor.isCanceled() || closed)
 			return null;
-		var data = queue.take(path, 1, TimeUnit.SECONDS);
-		if (data != null)
-			return data;
-		return doTake(path);
+		return queue.take();
 	}
 
-	private byte[] convertProductSystem(Diff change) {
-		if (progressMonitor.isCanceled())
-			return null;
-		var model = database.get(change.type.getModelClass(), change.refId);
-		var object = export.getWriter(model).write(model);
-		var json = new Gson().toJson(object);
-		return json.getBytes(StandardCharsets.UTF_8);
-	}
-
-	void clear() {
+	void close() {
+		// if the converter is still trying to put an element it will be able to
+		// after queue.clear() is called. Since we set closed=true before, no
+		// conversion will be started afterwards, making sure the thread ends
+		closed = true;
 		queue.clear();
 	}
 

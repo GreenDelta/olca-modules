@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.Constants;
@@ -32,7 +30,6 @@ public class DbCommitWriter extends CommitWriter {
 	private String remoteCommitId;
 	private Converter converter;
 	private RevCommit parent;
-	private ExecutorService threads;
 	private IDatabase database;
 	private ClientRepository repo;
 	private Set<String> libraries = new HashSet<>();
@@ -78,6 +75,7 @@ public class DbCommitWriter extends CommitWriter {
 
 	public String write(String message, List<Diff> changes) throws IOException {
 		try {
+			var t = System.currentTimeMillis();
 			libraries = getLibraries(changes);
 			progressMonitor.beginTask("Writing data to repository: " + message, changes.size());
 			var parentCommitIds = getParentCommitIds();
@@ -88,6 +86,7 @@ public class DbCommitWriter extends CommitWriter {
 				progressMonitor.beginTask("Updating local index");
 				repo.index.reload();
 			}
+			System.out.println((t - System.currentTimeMillis()) + "ms");
 			return commitId;
 		} finally {
 			cleanUp();
@@ -98,12 +97,8 @@ public class DbCommitWriter extends CommitWriter {
 		changes = filterInvalid(changes);
 		if (changes.isEmpty() && (localCommitId == null || remoteCommitId == null))
 			throw new IllegalStateException("No changes found and not a merge commit");
-		threads = Executors.newCachedThreadPool();
-		converter = new Converter(database, threads, progressMonitor, usedFeatures);
-		converter.start(changes.stream()
-				.filter(d -> d.diffType != DiffType.DELETED && !d.isRepositoryInfo && !d.isLibrary)
-				.sorted()
-				.toList());
+		converter = new Converter(database, progressMonitor, usedFeatures, changes);
+		converter.start();
 		return ChangeIterator.of(repo, remoteCommitId, binaryResolver, changes);
 	}
 
@@ -170,11 +165,8 @@ public class DbCommitWriter extends CommitWriter {
 	protected void cleanUp() throws IOException {
 		super.cleanUp();
 		if (converter != null) {
-			converter.clear();
+			converter.close();
 			converter = null;
-		}
-		if (threads != null) {
-			threads.shutdown();
 		}
 	}
 

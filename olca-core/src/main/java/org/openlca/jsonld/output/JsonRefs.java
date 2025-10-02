@@ -69,7 +69,11 @@ public class JsonRefs {
 
 		Json.put(ref, "@id", d.refId);
 		Json.put(ref, "name", d.name);
+		try {
 		Json.put(ref, "category", categories.pathOf(d.category));
+		} catch (Exception e) {
+			System.out.println(db.get(d.type.getModelClass(), d.id).category.toPath());
+		}
 
 		if (writeLibraryFields && d.isFromLibrary()) {
 			Json.put(ref, "library", d.library);
