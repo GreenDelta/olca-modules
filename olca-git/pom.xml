@@ -18,7 +18,7 @@
 			<artifactId>olca-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
@@ -32,13 +32,5 @@
 		</dependency>
 
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>jenkins</id>
-			<name>Jenkins Public Repository</name>
-			<url>https://repo.jenkins-ci.org/public/</url>
-		</repository>
-	</repositories>
 
 </project>
