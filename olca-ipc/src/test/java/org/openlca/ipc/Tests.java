@@ -65,4 +65,20 @@ class Tests {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * Test that the data/search method is available and working
+	 */
+	static void testDataSearch() {
+		var req = new RpcRequest();
+		req.method = "data/search";
+		var params = new com.google.gson.JsonObject();
+		params.addProperty("query", "test");
+		req.params = params;
+		
+		var resp = post(req);
+		Assert.assertNotNull("Response should not be null", resp);
+		Assert.assertNotNull("Result should not be null", resp.result);
+		System.out.println("✅ data/search method is working correctly");
+	}
 }
