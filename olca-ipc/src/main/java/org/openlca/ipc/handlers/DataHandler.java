@@ -196,9 +196,9 @@ public class DataHandler {
 		}
 
 		var obj = req.params.getAsJsonObject();
-		var systemId = Json.getLong(obj, "systemId", 0L);
-		if (systemId <= 0) {
-			return Responses.invalidParams("systemId must be a positive number", req);
+		var systemIdParam = Json.getString(obj, "systemId");
+		if (Strings.nullOrEmpty(systemIdParam)) {
+			return Responses.invalidParams("systemId parameter is required", req);
 		}
 
 		try {
@@ -207,11 +207,41 @@ public class DataHandler {
 			var preferredType = parseProcessType(Json.getString(obj, "preferredType"));
 			var keepExisting = parseBoolean(Json.getString(obj, "keepExisting"), true);
 
-			// Load the product system
+			// Load the product system - support both numeric ID and UUID
 			var dao = new ProductSystemDao(db);
-			var system = dao.getForId(systemId);
+			ProductSystem system = null;
+			
+			// Try to parse as numeric ID first
+			try {
+				var numericId = Long.parseLong(systemIdParam);
+				if (numericId > 0) {
+					system = dao.getForId(numericId);
+				}
+			} catch (NumberFormatException e) {
+				// Not a numeric ID, try as UUID/refId
+				// First try direct lookup
+				system = dao.getForRefId(systemIdParam);
+				if (system == null) {
+					// If that fails, try case-insensitive search like the search method
+					var descriptor = dao.getDescriptorForRefId(systemIdParam);
+					if (descriptor != null) {
+						system = dao.getForId(descriptor.id);
+					}
+					if (system == null) {
+						// Last resort: search through all descriptors like the search method does
+						var allDescriptors = dao.getDescriptors();
+						for (var desc : allDescriptors) {
+							if (desc.refId != null && desc.refId.equalsIgnoreCase(systemIdParam)) {
+								system = dao.getForId(desc.id);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
 			if (system == null) {
-				return Responses.badRequest("Product system with ID " + systemId + " not found", req);
+				return Responses.badRequest("Product system with ID " + systemIdParam + " not found", req);
 			}
 
 			// Create linking configuration
@@ -234,8 +264,8 @@ public class DataHandler {
 			// Save the updated system
 			ProductSystemBuilder.update(db, system);
 
-			// Get the updated system as JSON
-			var response = service.get(ProductSystem.class, String.valueOf(systemId));
+			// Get the updated system as JSON using the actual system ID
+			var response = service.get(ProductSystem.class, String.valueOf(system.id));
 			return Responses.of(response, req);
 
 		} catch (Exception e) {
