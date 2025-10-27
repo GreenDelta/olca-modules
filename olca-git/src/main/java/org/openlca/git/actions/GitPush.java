@@ -38,7 +38,6 @@ public class GitPush extends GitRemoteAction<PushResponse> {
 		var newCommits = repo.localHistory.getAheadOf(Constants.REMOTE_REF);
 		if (newCommits.isEmpty())
 			return new PushResponse(newCommits, Status.NOT_ATTEMPTED);
-		Git.wrap(repo).gc().call();
 		var result = Git.wrap(repo).push()
 				.setCredentialsProvider(credentialsProvider)
 				.setProgressMonitor(monitor)
