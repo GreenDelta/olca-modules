@@ -36,7 +36,7 @@ public class SmartEpdWriter {
 	public SmartEpd write() {
 		var smartEpd = new SmartEpd();
 		smartEpd.productName(epd.name)
-				.productDescription(Strings.cut(epd.description, 2000));
+				.productDescription(Strings.cutEnd(epd.description, 2000));
 
 		// declared unit
 		var unit = getDeclaredUnit();

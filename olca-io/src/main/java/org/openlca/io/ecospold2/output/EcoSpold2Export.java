@@ -132,7 +132,7 @@ public class EcoSpold2Export implements Runnable {
 		activityName.id = nameId;
 		String name = config.uncutNames
 				? process.name
-				: Strings.cut(process.name, 120);
+				: Strings.cutEnd(process.name, 120);
 		activity.name = name;
 		activityName.name = name;
 		activity.id = process.refId;
@@ -266,7 +266,7 @@ public class EcoSpold2Export implements Runnable {
 			spold2.Exchange e2Exchange) {
 		e2Exchange.name = config.uncutNames
 				? exchange.flow.name
-				: Strings.cut(exchange.flow.name, 120);
+				: Strings.cutEnd(exchange.flow.name, 120);
 		e2Exchange.id = new UUID(exchange.id, 0L).toString();
 		e2Exchange.amount = exchange.amount;
 		e2Exchange.mathematicalRelation = exchange.formula;

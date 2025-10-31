@@ -25,7 +25,7 @@ public class DbOpenBench {
 			var pcount = db.getDescriptors(Process.class).size();
 			db.close();
 			var time = ((double) (System.nanoTime() - start)) / 1e9;
-			var name = Strings.cut(dir.getName(), 25);
+			var name = Strings.cutEnd(dir.getName(), 25);
 			text.append(String.format(
 					"| %s | %d | %d | %.2f |%n", name, v, pcount, time));
 		}

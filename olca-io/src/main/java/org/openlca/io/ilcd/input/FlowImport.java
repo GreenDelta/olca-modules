@@ -47,7 +47,7 @@ public class FlowImport {
 
 	private void createAndMapContent() {
 		flow.refId = Flows.getUUID(ds);
-		flow.name = Strings.cut(
+		flow.name = Strings.cutEnd(
 				Flows.getFullName(ds, imp.lang()), 2048);
 		Import.mapVersionInfo(ds, flow);
 		flow.flowType = flowType();

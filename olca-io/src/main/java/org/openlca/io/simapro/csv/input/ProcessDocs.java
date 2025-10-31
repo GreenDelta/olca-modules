@@ -84,7 +84,7 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 		@Override
 		public String value() {
 			return value != null
-				? Strings.cut(value, 64 * 1024)
+				? Strings.cutEnd(value, 64 * 1024)
 				: null;
 		}
 	}

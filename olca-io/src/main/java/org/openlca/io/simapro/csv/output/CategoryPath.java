@@ -44,7 +44,7 @@ record CategoryPath(ProcessCategory type, String path) {
 				}
 			}
 
-			var segment = Strings.cut(c.name, 40);
+			var segment = Strings.cutEnd(c.name, 40);
 			c = c.category;
 			if (Strings.nullOrEmpty(segment))
 				continue;

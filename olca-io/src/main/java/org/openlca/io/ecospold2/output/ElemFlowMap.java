@@ -83,7 +83,7 @@ class ElemFlowMap {
 		exchange.flowId = target.flow.refId;
 		exchange.name = config.uncutNames
 				? target.flow.name
-				: Strings.cut(target.flow.name, 120);
+				: Strings.cutEnd(target.flow.name, 120);
 		exchange.compartment = createCompartment(target.flowCategory);
 		exchange.unit = target.unit.name;
 		exchange.unitId = target.unit.refId;

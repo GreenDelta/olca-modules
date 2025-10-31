@@ -262,7 +262,7 @@ public class EcoSpold01Import implements Import {
 
 		if (ds.getTechnology() != null
 				&& ds.getTechnology().getText() != null) {
-			doc.technology = Strings.cut(
+			doc.technology = Strings.cutEnd(
 					(ds.getTechnology().getText()), 65500);
 		}
 

@@ -24,7 +24,7 @@ public class CategoryPath {
 			return category.name;
 		String shortPath = category.category.name + "/"
 				+ category.name;
-		return Strings.cut(shortPath, 75);
+		return Strings.cutEnd(shortPath, 75);
 	}
 
 }

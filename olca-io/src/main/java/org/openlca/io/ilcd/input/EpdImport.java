@@ -53,7 +53,7 @@ public class EpdImport {
 
 		oEpd = new Epd();
 		oEpd.refId = id;
-		oEpd.name = Strings.cut(
+		oEpd.name = Strings.cutEnd(
 				Processes.getFullName(ds, imp.lang()), 2048);
 		oEpd.category = imp.syncCategory(ds, ModelType.EPD);
 		oEpd.tags = tags();
@@ -92,7 +92,7 @@ public class EpdImport {
 			result.lastChange = oEpd.lastChange;
 
 			// result meta-data
-			result.name = Strings.cut(
+			result.name = Strings.cutEnd(
 					Processes.getFullName(ds, imp.lang()),
 					2044 - suffix.length()) + " - " + suffix;
 			result.category = resultCategory == null

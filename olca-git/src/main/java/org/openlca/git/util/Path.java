@@ -5,7 +5,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
-import org.openlca.util.Strings;
 
 public class Path {
 
@@ -16,7 +15,7 @@ public class Path {
 	public static String of(Category c) {
 		var paths = Categories.path(c);
 		paths.add(0, c.modelType.name());
-		return Strings.join(paths, '/');
+		return String.join("/", paths);
 	}
 
 	public static String of(PathBuilder categoryPaths, RootDescriptor d) {

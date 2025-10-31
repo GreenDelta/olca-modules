@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.util.Strings;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 import jakarta.persistence.Table;
@@ -39,7 +38,7 @@ public class RefEntityDao<T extends RefEntity, V extends Descriptor> extends Bas
 			return Collections.emptyList();
 		if (ids.size() > MAX_LIST_SIZE)
 			return executeChunked(ids, this::getDescriptors);
-		var list = "(" + Strings.join(ids, ',') + ")";
+		var list = NativeSql.asList(ids);
 		return queryDescriptors("where d.id in " + list, List.of());
 	}
 

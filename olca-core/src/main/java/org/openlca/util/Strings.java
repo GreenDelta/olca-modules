@@ -1,29 +1,18 @@
 package org.openlca.util;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
-/**
- * Contains helper methods for string operations.
- */
+/// Utility class for common string operations.
 public class Strings {
 
 	private Strings() {
 	}
 
-	/**
-	 * Cut a string to the given length. Appends "..." if the string was
-	 * truncated.
-	 */
-	public static String cut(String string, int length) {
+	/// Truncates a string to the specified length, appending "..." at the end if
+  /// truncation occurs. The string is trimmed before truncation.
+	public static String cutEnd(String string, int length) {
 
 		if (string == null || length <= 0)
 			return "";
@@ -39,7 +28,9 @@ public class Strings {
 		};
 	}
 
-	public static String cutLeft(String s, int len) {
+	/// Truncates a string to the specified length, prepending "..." at the
+  /// beginning if truncation occurs. The string is trimmed before truncation.
+	public static String cutStart(String s, int len) {
 		if (s == null || len <= 0)
 			return "";
 
@@ -54,39 +45,27 @@ public class Strings {
 		};
 	}
 
-	public static String cutMid(String s, int maxLen) {
-		if (s == null || maxLen <= 0)
+	/// Truncates a string in the middle to fit within the specified maximum
+  /// length, replacing the removed portion with "...". The prefix and suffix
+  /// portions are preserved to give context from both ends of the string.
+	/// The string is trimmed before truncation.
+	public static String cutMid(String s, int len) {
+		if (s == null || len <= 0)
 			return "";
-		if (s.length() < maxLen)
-			return s;
-		if (maxLen < 4)
-			return "...";
+		var trimmed = s.strip();
+		if (trimmed.length() <= len)
+			return trimmed;
+		if (len <= 3)
+			return "...".substring(0, len);
 
-		double half = (maxLen - 3.0) / 2.0;
+		double half = (len - 3.0) / 2.0;
 		int prefixLen = (int) Math.ceil(half);
-		int suffixLen = maxLen - prefixLen - 3;
+		var prefix = trimmed.substring(0, prefixLen) + "...";
 
-		var r = prefixLen > 0
-				? s.substring(0, prefixLen) + "..."
-				: "...";
-		return suffixLen > 0 && suffixLen < s.length()
-				? r + s.substring(s.length() - suffixLen)
-				: r;
-	}
-
-	public static String[] readLines(InputStream is) throws IOException {
-		if (is == null)
-			return new String[0];
-
-		List<String> list = new ArrayList<>();
-		InputStreamReader reader = new InputStreamReader(is);
-		try (BufferedReader buffer = new BufferedReader(reader)) {
-			String line;
-			while ((line = buffer.readLine()) != null) {
-				list.add(line);
-			}
-		}
-		return list.toArray(new String[0]);
+		int suffixLen = len - prefixLen - 3;
+		return suffixLen > 0
+			? prefix + trimmed.substring(trimmed.length() - suffixLen)
+			: prefix;
 	}
 
 	/**
@@ -125,54 +104,6 @@ public class Strings {
 		if (str1 == null)
 			return -1;
 		return str1.compareToIgnoreCase(str2);
-	}
-
-	public static <T> String join(Collection<T> values, char delimiter) {
-		String[] stringValues = new String[values.size()];
-		int i = 0;
-		for (T value : values)
-			if (value != null)
-				stringValues[i++] = value.toString();
-		return join(stringValues, delimiter);
-	}
-
-	public static String join(String[] values, char delimiter) {
-		int length = 0;
-		for (String v : values)
-			if (v != null)
-				length += v.length();
-		StringBuilder b = new StringBuilder(length + values.length - 1);
-		for (int i = 0; i < values.length; i++) {
-			if (i != 0)
-				b.append(delimiter);
-			if (values[i] != null)
-				b.append(values[i]);
-		}
-		return b.toString();
-	}
-
-	public static String[] append(String[] array, String value) {
-		return put(array, value, array == null ? 0 : array.length);
-	}
-
-	public static String[] prepend(String[] array, String value) {
-		return put(array, value, 0);
-	}
-
-	private static String[] put(String[] array, String value, int index) {
-		if (array == null || array.length == 0)
-			return new String[]{value};
-		String[] copy = new String[array.length + 1];
-		for (int i = 0; i < copy.length; i++) {
-			if (i == index) {
-				copy[i] = value;
-			} else if (i < index) {
-				copy[i] = array[i];
-			} else {
-				copy[i] = array[i - 1];
-			}
-		}
-		return copy;
 	}
 
 	/**
