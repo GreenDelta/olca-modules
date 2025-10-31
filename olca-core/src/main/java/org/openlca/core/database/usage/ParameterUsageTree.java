@@ -53,7 +53,7 @@ public class ParameterUsageTree {
 	 * multiple parameters with the same name defined in the database.
 	 */
 	public static ParameterUsageTree of(String param, IDatabase db) {
-		if (Strings.nullOrEmpty(param) || db == null)
+		if (Strings.isBlank(param) || db == null)
 			return empty();
 		return new Search(param.trim(), db).doIt();
 	}
@@ -68,7 +68,7 @@ public class ParameterUsageTree {
 	public static ParameterUsageTree of(
 		Parameter param, RootDescriptor owner, IDatabase db) {
 		if (param == null
-				|| Strings.nullOrEmpty(param.name)
+				|| Strings.isBlank(param.name)
 				|| db == null)
 			return empty();
 		return new Search(param, owner, db).doIt();
@@ -145,13 +145,13 @@ public class ParameterUsageTree {
 			if (other == null)
 				return 1;
 			if (this.model == null && other.model == null)
-				return Strings.compare(this.name, other.name);
+				return Strings.compareIgnoreCase(this.name, other.name);
 			if (this.model == null || other.model == null)
 				return this.model == null ? 1 : -1;
 			int o1 = typeOrder(this.model.type);
 			int o2 = typeOrder(other.model.type);
 			if (o1 == o2)
-				return Strings.compare(
+				return Strings.compareIgnoreCase(
 						this.name, other.name);
 			return o1 - o2;
 		}

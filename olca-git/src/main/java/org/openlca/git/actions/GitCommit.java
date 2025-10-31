@@ -42,7 +42,7 @@ public class GitCommit extends GitProgressAction<String> {
 
 	@Override
 	public String run() throws IOException {
-		if (repo == null || repo.database == null || Strings.nullOrEmpty(message))
+		if (repo == null || repo.database == null || Strings.isBlank(message))
 			throw new IllegalStateException("Git repository, database and message must be set");
 		if (changes == null) {
 			changes = repo.diffs.find().withDatabase();

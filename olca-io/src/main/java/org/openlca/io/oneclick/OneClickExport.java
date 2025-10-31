@@ -129,7 +129,7 @@ public class OneClickExport implements Runnable {
 		if (e == null)
 			return null;
 		var mappedId = e.targetFlowId();
-		return Strings.notEmpty(mappedId)
+		return Strings.isNotBlank(mappedId)
 			? mappedId
 			: null;
 	}

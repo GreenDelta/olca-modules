@@ -43,7 +43,7 @@ public class ImpactCategoryExport {
 		exp.add(info::withComment, impact.description);
 		Categories.toClassification(impact.category, info::withClassifications);
 
-		if (Strings.notEmpty(impact.referenceUnit)) {
+		if (Strings.isNotBlank(impact.referenceUnit)) {
 			var qRef = m.withMethodInfo()
 					.withQuantitativeReference()
 					.withQuantity();

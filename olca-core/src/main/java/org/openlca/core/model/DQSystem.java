@@ -188,7 +188,7 @@ public class DQSystem extends RootEntity {
 	 * serialized form of a data quality entry.
 	 */
 	public String applyScoreLabels(String entry) {
-		if (Strings.nullOrEmpty(entry))
+		if (Strings.isBlank(entry))
 			return "";
 		int[] values = toValues(entry);
 		if (values == null || values.length == 0)

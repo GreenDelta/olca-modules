@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.Objects;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.util.ExchangeExtension;
@@ -52,7 +54,7 @@ record MappedExchange(
 				? syncFlow.mapFactor() * amount
 				: amount;
 
-			if (Strings.notEmpty(origin.getVariable())) {
+			if (Strings.isNotBlank(origin.getVariable())) {
 				var formula = origin.getVariable() + " * " + origin.getMeanAmount();
 				exchange.formula = syncFlow.isMapped() && syncFlow.mapFactor() != 1
 					? syncFlow.mapFactor() + " * " + formula
@@ -75,7 +77,7 @@ record MappedExchange(
 		// set the unit and flow property from the extension attributes
 		var factor = flow.flowPropertyFactors.stream()
 			.filter(f -> f.flowProperty != null
-				&& Strings.nullOrEqual(f.flowProperty.refId, ext.getPropertyId()))
+				&& Objects.equals(f.flowProperty.refId, ext.getPropertyId()))
 			.findAny()
 			.orElse(null);
 		if (factor == null)
@@ -86,7 +88,7 @@ record MappedExchange(
 			return false;
 
 		var unit = group.units.stream()
-			.filter(u -> Strings.nullOrEqual(u.refId, ext.getUnitId()))
+			.filter(u -> Objects.equals(u.refId, ext.getUnitId()))
 			.findAny()
 			.orElse(null);
 		if (unit == null)

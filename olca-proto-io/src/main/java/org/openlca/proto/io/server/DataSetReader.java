@@ -114,7 +114,7 @@ record DataSetReader(ProtoDataSet dataSet) implements ProtoStoreReader {
 		if (type != thisType)
 			return Collections.emptySet();
 		var id = getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? Set.of(id)
 			: Collections.emptySet();
 	}

@@ -19,7 +19,7 @@ public record FileStoreReader(File root) implements JsonStoreReader {
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return null;
 		try {
 			var file = new File(root, path);

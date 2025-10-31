@@ -100,9 +100,9 @@ public final class Out {
 
 				case "tags":
 					if (e instanceof RootEntity ce) {
-						if (Strings.notEmpty(ce.tags)) {
+						if (Strings.isNotBlank(ce.tags)) {
 							var tags = Arrays.stream(ce.tags.split(","))
-								.filter(Strings::notEmpty)
+								.filter(Strings::isNotBlank)
 								.collect(Collectors.toList());
 							setRepeated(proto, field, tags);
 						}
@@ -121,7 +121,7 @@ public final class Out {
 
 	static void set(
 		Message.Builder proto, Descriptors.FieldDescriptor field, String value) {
-		if (Strings.nullOrEmpty(value))
+		if (Strings.isBlank(value))
 			return;
 		if (field.getJavaType() != Descriptors.FieldDescriptor.JavaType.STRING)
 			return;

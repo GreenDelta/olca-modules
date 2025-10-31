@@ -182,7 +182,7 @@ public class GeoJsonImport implements Runnable {
 		if (loc == null)
 			return;
 		BiConsumer<String, Map<String, Location>> idx = (rawKey, map) -> {
-			if (Strings.nullOrEmpty(rawKey))
+			if (Strings.isBlank(rawKey))
 				return;
 			var key = rawKey.strip().toLowerCase();
 			map.put(key, loc);
@@ -199,7 +199,7 @@ public class GeoJsonImport implements Runnable {
 		// then by location code, and finally by name
 		for (var field : mappingFields) {
 			var prop = f.properties.get(field);
-			if (!(prop instanceof String s) || Strings.nullOrEmpty(s))
+			if (!(prop instanceof String s) || Strings.isBlank(s))
 				continue;
 			var key = s.strip().toLowerCase();
 			for (var map : maps) {
@@ -236,7 +236,7 @@ public class GeoJsonImport implements Runnable {
 		if (feature == null || feature.properties == null)
 			return null;
 		var obj = feature.properties.get(property);
-		return obj instanceof String s && Strings.notEmpty(s)
+		return obj instanceof String s && Strings.isNotBlank(s)
 				? s.strip()
 				: null;
 	}

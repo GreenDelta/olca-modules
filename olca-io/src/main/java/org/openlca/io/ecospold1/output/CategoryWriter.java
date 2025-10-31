@@ -136,7 +136,7 @@ class CategoryWriter implements Closeable {
 				if (o1.getType() != o2.getType())
 					return o1.getType() - o2.getType();
 				else
-					return Strings.compare(o1.getName(), o2.getName());
+					return Strings.compareIgnoreCase(o1.getName(), o2.getName());
 			}
 		});
 		JAXB.marshal(doc, file);

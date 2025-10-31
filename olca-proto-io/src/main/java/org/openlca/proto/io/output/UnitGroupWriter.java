@@ -38,7 +38,7 @@ public class UnitGroupWriter {
       if (unit.synonyms != null) {
         Arrays.stream(unit.synonyms.split(";"))
           .map(String::trim)
-          .filter(Strings::notEmpty)
+          .filter(Strings::isNotBlank)
           .forEach(protoUnit::addSynonyms);
       }
       protoUnit.setIsRefUnit(Objects.equals(unit, group.referenceUnit));

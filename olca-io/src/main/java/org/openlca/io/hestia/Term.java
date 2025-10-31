@@ -25,7 +25,7 @@ public record Term(JsonObject json) implements HestiaObject {
 	/// when this is not possible.
 	public String getCategoryName() {
 		var type = termType();
-		if (Strings.nullOrEmpty(type))
+		if (Strings.isBlank(type))
 			return null;
 		var b = new StringBuilder();
 		for (int i = 0; i < type.length(); i++) {

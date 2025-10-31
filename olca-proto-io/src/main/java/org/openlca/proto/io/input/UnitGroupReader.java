@@ -38,7 +38,7 @@ public record UnitGroupReader(EntityResolver resolver)
 
 		for (int i = 0; i < proto.getUnitsCount(); i++) {
 			var protoUnit = proto.getUnits(i);
-			if (Strings.nullOrEmpty(protoUnit.getName()))
+			if (Strings.isBlank(protoUnit.getName()))
 				continue;
 			var unit = oldUnits.computeIfAbsent(
 				protoUnit.getName(), n -> new Unit());

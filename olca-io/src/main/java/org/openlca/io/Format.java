@@ -12,11 +12,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.openlca.util.Strings;
 import org.openlca.util.ZipFiles;
 
 /**
@@ -173,7 +173,7 @@ public enum Format {
 			var entryName = entry.getName();
 
 			// library package
-			if (Strings.nullOrEqual(entryName, "library.json")) {
+			if (Objects.equals(entryName, "library.json")) {
 				formatRef.set(LIBRARY_PACKAGE);
 				return true;
 			}

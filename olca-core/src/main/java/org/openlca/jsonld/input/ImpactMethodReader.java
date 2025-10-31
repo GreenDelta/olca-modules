@@ -71,7 +71,7 @@ public record ImpactMethodReader(EntityResolver resolver)
 				continue;
 			var nwObj = e.getAsJsonObject();
 			var refId = Json.getString(nwObj, "@id");
-			if (Strings.nullOrEmpty(refId))
+			if (Strings.isBlank(refId))
 				continue;
 			var nwSet = nwSets.computeIfAbsent(refId, rid -> new NwSet());
 			method.nwSets.add(nwSet);

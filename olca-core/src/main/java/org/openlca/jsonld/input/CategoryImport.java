@@ -20,7 +20,7 @@ public class CategoryImport {
 			if (!category.isJsonPrimitive())
 				continue;
 			var value = category.getAsString();
-			if (Strings.nullOrEmpty(value))
+			if (Strings.isBlank(value))
 				continue;
 			if (value.startsWith("/")) {
 				value = value.substring(1);

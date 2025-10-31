@@ -1,7 +1,8 @@
 package org.openlca.core.io.maps;
 
+import java.util.Objects;
+
 import org.openlca.core.model.Copyable;
-import org.openlca.util.Strings;
 
 /**
  * Status describes the state a mapping entry or flow reference can have when
@@ -78,7 +79,7 @@ public record MappingStatus(int type, String message)
 			return false;
 		if (this.type != other.type)
 			return false;
-		return Strings.nullOrEqual(this.message, other.message);
+		return Objects.equals(this.message, other.message);
 	}
 
 	/**

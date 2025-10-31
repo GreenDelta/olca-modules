@@ -1,7 +1,8 @@
 package org.openlca.io.simapro.csv.output;
 
 
-import gnu.trove.set.hash.TLongHashSet;
+import java.util.Objects;
+
 import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -11,6 +12,8 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 class ProductLabeler {
 
@@ -35,7 +38,7 @@ class ProductLabeler {
 		if (product == null || product.name == null)
 			return "?";
 		if (process == null
-				|| Strings.nullOrEmpty(process.name)
+				|| Strings.isBlank(process.name)
 				|| process.name.startsWith("Dummy: "))
 			return labelOf(product);
 
@@ -53,7 +56,7 @@ class ProductLabeler {
 		}
 
 		if (config.withProcessSuffixes
-				&& !Strings.nullOrEqual(product.name, process.name)) {
+			&& !Objects.equals(product.name, process.name)) {
 			label += " | " + process.name;
 		}
 
@@ -66,7 +69,7 @@ class ProductLabeler {
 	}
 
 	String labelOf(Flow product) {
-		if (product == null || Strings.nullOrEmpty(product.name))
+		if (product == null || Strings.isBlank(product.name))
 			return "?";
 		if (config.withLocationSuffixes) {
 			var locSuffix = suffixOf(product.location);
@@ -128,7 +131,7 @@ class ProductLabeler {
 	}
 
 	private String suffixOf(Location loc) {
-		return loc != null && Strings.notEmpty(loc.code)
+		return loc != null && Strings.isNotBlank(loc.code)
 				? " {" + loc.code + "}"
 				: null;
 	}

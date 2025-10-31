@@ -49,14 +49,14 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 
 			// LCIA method
 			var methodId = Json.getRefId(json, "impactMethod");
-			if (Strings.notEmpty(methodId)) {
+			if (Strings.isNotBlank(methodId)) {
 				var method = resolver.get(ImpactMethod.class, methodId);
 				setup.withImpactMethod(method);
 			}
 
 			// nw-set
 			var nwSetId = Json.getRefId(json, "nwSet");
-			if (Strings.notEmpty(nwSetId) && setup.impactMethod() != null) {
+			if (Strings.isNotBlank(nwSetId) && setup.impactMethod() != null) {
 				var nwSet = setup.impactMethod().nwSets.stream()
 						.filter(nws -> nwSetId.equals(nws.refId))
 						.findAny()
@@ -91,7 +91,7 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 			var ref = Json.getObject(json, "target");
 			if (ref != null) {
 				var refId = Json.getString(ref, "@id");
-				if (Strings.nullOrEmpty(refId)) {
+				if (Strings.isBlank(refId)) {
 					return null;
 				}
 				var type = Json.getString(ref, "@type");
@@ -103,10 +103,10 @@ public record JsonCalculationSetup(CalculationSetup setup, String error) {
 				return resolver.get(ProductSystem.class, refId);
 			}
 			var systemId = Json.getRefId(json, "productSystem");
-			if (Strings.notEmpty(systemId))
+			if (Strings.isNotBlank(systemId))
 				return resolver.get(ProductSystem.class, systemId);
 			var processId = Json.getRefId(json, "process");
-			return Strings.notEmpty(processId)
+			return Strings.isNotBlank(processId)
 					? resolver.get(Process.class, processId)
 					: null;
 		}

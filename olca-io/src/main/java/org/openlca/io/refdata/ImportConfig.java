@@ -99,7 +99,7 @@ class ImportConfig {
 			for (var entity : entities) {
 				em.persist(entity);
 				map.put(entity.refId, entity);
-				if (refByName && Strings.notEmpty(entity.name)) {
+				if (refByName && Strings.isNotBlank(entity.name)) {
 					map.put(entity.name, entity);
 				}
 			}
@@ -125,7 +125,7 @@ class ImportConfig {
 			return;
 		var type = e.getClass();
 		var map = cache.computeIfAbsent(type, t -> new HashMap<>());
-		if (supportRefByName(type) && Strings.notEmpty(e.name)) {
+		if (supportRefByName(type) && Strings.isNotBlank(e.name)) {
 			map.put(e.name, e);
 		}
 	}

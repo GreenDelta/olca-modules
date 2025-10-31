@@ -190,7 +190,7 @@ class GitStoreReader implements JsonStoreReader {
 	}
 
 	private JsonObject parse(String data) {
-		if (Strings.nullOrEmpty(data))
+		if (Strings.isBlank(data))
 			return null;
 		return gson.fromJson(data, JsonObject.class);
 	}

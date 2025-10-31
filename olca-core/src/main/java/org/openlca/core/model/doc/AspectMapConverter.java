@@ -26,7 +26,7 @@ public class AspectMapConverter implements AttributeConverter<AspectMap, String>
 
 	@Override
 	public AspectMap convertToEntityAttribute(String dbData) {
-		if (Strings.nullOrEmpty(dbData))
+		if (Strings.isBlank(dbData))
 			return new AspectMap();
 		try {
 			var array = new Gson().fromJson(dbData, JsonArray.class);

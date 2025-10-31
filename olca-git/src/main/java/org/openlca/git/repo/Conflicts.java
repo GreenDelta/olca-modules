@@ -2,12 +2,12 @@ package org.openlca.git.repo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
 import org.openlca.git.model.TriDiff;
 import org.openlca.git.util.Constants;
-import org.openlca.util.Strings;
 
 import com.google.common.base.Predicates;
 
@@ -72,11 +72,11 @@ public class Conflicts {
 
 	private TriDiff findConflict(Diff element, List<Diff> others) {
 		return others.stream()
-				.filter(e -> e.path.equals(element.path)
-						|| (e.type == element.type && Strings.nullOrEqual(e.refId, element.refId)))
-				.findFirst()
-				.map(e -> new TriDiff(element, e))
-				.orElse(null);
+			.filter(e -> e.path.equals(element.path)
+				|| (e.type == element.type && Objects.equals(e.refId, element.refId)))
+			.findFirst()
+			.map(e -> new TriDiff(element, e))
+			.orElse(null);
 	}
 
 }

@@ -278,12 +278,12 @@ public class Import implements org.openlca.io.Import {
 			return str(first);
 		var buf = new StringBuilder();
 		var s = str(first);
-		if (Strings.notEmpty(s)) {
+		if (Strings.isNotBlank(s)) {
 			buf.append(s.strip());
 		}
 		for (var i : more) {
 			var next = str(i);
-			if (Strings.nullOrEmpty(next))
+			if (Strings.isBlank(next))
 				continue;
 			if (!buf.isEmpty()) {
 				buf.append("\n\n");
@@ -326,7 +326,7 @@ public class Import implements org.openlca.io.Import {
 			return null;
 		for (int i = 0; i < path.length; i++) {
 			var seg = path[i];
-			if (Strings.nullOrEmpty(seg)) {
+			if (Strings.isBlank(seg)) {
 				path[i] = "_";
 				continue;
 			}

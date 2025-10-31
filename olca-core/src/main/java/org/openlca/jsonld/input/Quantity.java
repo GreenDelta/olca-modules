@@ -35,7 +35,7 @@ public record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 	private static FlowPropertyFactor propertyOf(
 		Flow flow, JsonObject obj, String field) {
 		var propId = Json.getRefId(obj, field);
-		if (Strings.nullOrEmpty(propId))
+		if (Strings.isBlank(propId))
 			return flow.getReferenceFactor();
 		for (var factor : flow.flowPropertyFactors) {
 			var prop = factor.flowProperty;
@@ -53,7 +53,7 @@ public record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 		if (property == null || property.unitGroup == null)
 			return null;
 		var unitId = Json.getRefId(obj, field);
-		if (Strings.nullOrEmpty(unitId))
+		if (Strings.isBlank(unitId))
 			return property.getReferenceUnit();
 		for (var unit : property.unitGroup.units) {
 			if (unitId.equals(unit.refId))

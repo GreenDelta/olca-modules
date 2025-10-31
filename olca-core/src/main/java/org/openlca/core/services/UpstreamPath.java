@@ -25,7 +25,7 @@ class UpstreamPath {
 	}
 
 	static UpstreamPath parse(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return new UpstreamPath(Collections.emptyList());
 		var ids = new ArrayList<TechFlowId>();
 		for (var node : path.split("/")) {

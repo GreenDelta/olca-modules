@@ -194,7 +194,7 @@ public class GitUtil {
 
 	public static String toDatasetPath(ModelType type, String category, String refId) {
 		var path = type.name();
-		if (!Strings.nullOrEmpty(category)) {
+		if (Strings.isNotBlank(category)) {
 			path += "/" + category;
 		}
 		return path + "/" + refId + DATASET_SUFFIX;
@@ -212,7 +212,7 @@ public class GitUtil {
 		if (type == null || refId == null)
 			return null;
 		var path = type.name();
-		if (!Strings.nullOrEmpty(category)) {
+		if (Strings.isNotBlank(category)) {
 			path += "/" + category;
 		}
 		return path + "/" + refId + BIN_DIR_SUFFIX;

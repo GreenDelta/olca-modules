@@ -87,7 +87,7 @@ public class HeadIndex {
 				continue;
 			var obj = e.getAsJsonObject();
 			var path = Json.getString(obj, "p");
-			if (Strings.nullOrEmpty(path))
+			if (Strings.isBlank(path))
 				continue;
 			var version = Json.getLong(obj, "v", 0);
 			var lastChange = Json.getLong(obj, "l", 0);

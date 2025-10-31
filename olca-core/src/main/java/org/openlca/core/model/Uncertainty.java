@@ -214,7 +214,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	}
 
 	public static Uncertainty fromString(String s) {
-		if (Strings.nullOrEmpty(s)) {
+		if (Strings.isBlank(s)) {
 			Uncertainty u = new Uncertainty();
 			u.distributionType = UncertaintyType.NONE;
 			return u;
@@ -254,7 +254,7 @@ public class Uncertainty implements Copyable<Uncertainty> {
 	}
 
 	private static double d(String s) {
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return 0;
 		try {
 			return Double.parseDouble(s);

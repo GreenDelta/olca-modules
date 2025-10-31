@@ -35,7 +35,7 @@ public class ParameterRedefReader {
     if (!proto.hasContext())
       return redef;
     var context = proto.getContext().getId();
-    if (Strings.nullOrEmpty(context))
+    if (Strings.isBlank(context))
       return redef;
 
     // we could check the context type but do we know that

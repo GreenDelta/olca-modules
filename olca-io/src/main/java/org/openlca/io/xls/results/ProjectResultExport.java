@@ -40,7 +40,7 @@ public class ProjectResultExport {
 		this.cache = EntityCache.create(db);
 		this.variants = project.variants.stream()
 			.filter(variant -> !variant.isDisabled)
-			.sorted((o1, o2) -> Strings.compare(o1.name, o2.name))
+			.sorted((o1, o2) -> Strings.compareIgnoreCase(o1.name, o2.name))
 			.toArray(ProjectVariant[]::new);
 	}
 
@@ -154,7 +154,7 @@ public class ProjectResultExport {
 					parameters.add(redef);
 			}
 		}
-		parameters.sort((o1, o2) -> Strings.compare(o1.name, o2.name));
+		parameters.sort((o1, o2) -> Strings.compareIgnoreCase(o1.name, o2.name));
 		return parameters;
 	}
 

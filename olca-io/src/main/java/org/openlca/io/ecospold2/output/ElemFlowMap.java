@@ -98,7 +98,7 @@ class ElemFlowMap {
 
 	private Compartment createCompartment(String path) {
 		var comp = new Compartment();
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return comp;
 		comp.id = compartmentIdOf(path);
 		var parts = path.split("/");
@@ -112,7 +112,7 @@ class ElemFlowMap {
 	}
 
 	private String compartmentIdOf(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return null;
 		// note this was generated from some old mappings and probably
 		// is not up-to-date or does not contain every option

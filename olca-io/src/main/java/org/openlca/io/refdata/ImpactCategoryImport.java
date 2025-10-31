@@ -69,7 +69,7 @@ class ImpactCategoryImport implements Runnable {
 	}
 
 	private void mapValue(ImpactFactor factor, String val) {
-		if (Strings.nullOrEmpty(val)) {
+		if (Strings.isBlank(val)) {
 			factor.value = 0;
 			return;
 		}
@@ -81,7 +81,7 @@ class ImpactCategoryImport implements Runnable {
 	}
 
 	private void mapLocation(ImpactFactor factor, String ref) {
-		if (Strings.nullOrEmpty(ref))
+		if (Strings.isBlank(ref))
 			return;
 		var location = config.get(Location.class, ref);
 		if (location == null) {

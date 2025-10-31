@@ -39,7 +39,7 @@ public class CalcImpactFactor {
 	public double matrixValue(FormulaInterpreter interpreter) {
 
 		double a = amount;
-		if (Strings.notEmpty(formula) && interpreter != null) {
+		if (Strings.isNotBlank(formula) && interpreter != null) {
 			try {
 				var scope = interpreter.getScopeOrGlobal(imactCategoryId);
 				a = scope.eval(formula);

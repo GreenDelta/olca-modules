@@ -119,7 +119,7 @@ public class JsonDatabaseStore implements JsonStoreReader, JsonStoreWriter {
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return null;
 
 		// 1. read a possible file
@@ -162,7 +162,7 @@ public class JsonDatabaseStore implements JsonStoreReader, JsonStoreWriter {
 		}
 
 		var id = Json.getString(json, "@id");
-		T entity = Strings.notEmpty(id)
+		T entity = Strings.isNotBlank(id)
 				? db.get(type, id)
 				: null;
 
@@ -171,7 +171,7 @@ public class JsonDatabaseStore implements JsonStoreReader, JsonStoreWriter {
 			db.update(entity);
 		} else {
 			// add an ID, if not provided
-			if (Strings.nullOrEmpty(id)) {
+			if (Strings.isBlank(id)) {
 				Json.put(json, "@id", UUID.randomUUID().toString());
 			}
 			entity = reader.read(json);
@@ -246,7 +246,7 @@ public class JsonDatabaseStore implements JsonStoreReader, JsonStoreWriter {
 	private record ModelInfo(ModelType type, String refId) {
 
 		static Optional<ModelInfo> parseFrom(String path) {
-			if (Strings.nullOrEmpty(path) || !path.endsWith(".json"))
+			if (Strings.isBlank(path) || !path.endsWith(".json"))
 				return Optional.empty();
 			var parts = path.substring(0, path.length() - 5).split("/");
 			if (parts.length != 2)

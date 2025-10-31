@@ -22,7 +22,7 @@ class ImportCache {
 	}
 
 	Location locationOf(String code) {
-		if (Strings.nullOrEmpty(code))
+		if (Strings.isBlank(code))
 			return null;
 		if (locations == null) {
 			locations = new HashMap<>();
@@ -51,7 +51,7 @@ class ImportCache {
 	 * then (also if there is a method with the same name already in openLCA).
 	 */
 	ImpactMethodDescriptor impactMethodOf(String name) {
-		if (Strings.nullOrEmpty(name))
+		if (Strings.isBlank(name))
 			return null;
 		if (methods == null) {
 			methods = new HashMap<>();

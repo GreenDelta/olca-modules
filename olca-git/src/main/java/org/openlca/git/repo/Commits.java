@@ -203,10 +203,10 @@ public class Commits {
 				walk.markUninteresting(walk.parseCommit(startId));
 			}
 			TreeFilter filter = null;
-			if (!Strings.nullOrEmpty(path)) {
+			if (Strings.isNotBlank(path)) {
 				filter = addFilter(filter, PathFilter.create(GitUtil.encode(path)));
 			}
-			if (type != null && !Strings.nullOrEmpty(refId)) {
+			if (type != null && Strings.isNotBlank(refId)) {
 				filter = addFilter(filter, new ModelFilter(type, refId));
 			}
 			if (filter != null) {

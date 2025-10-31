@@ -204,7 +204,7 @@ public class ProcessReader implements EntityReader<Process> {
 			}
 			factor.value = Json.getDouble(obj, "value", 1);
 			var formula = Json.getString(obj, "formula");
-			if (Strings.notEmpty(formula)) {
+			if (Strings.isNotBlank(formula)) {
 				factor.formula = formula;
 			}
 			factor.method = Json.getEnum(

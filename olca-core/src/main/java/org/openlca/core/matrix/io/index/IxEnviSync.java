@@ -38,7 +38,7 @@ class IxEnviSync {
 		for (var item : items) {
 			flowIds.add(item.flow().id());
 			if (item.location() != null
-					&& Strings.notEmpty(item.location().id())) {
+					&& Strings.isNotBlank(item.location().id())) {
 				locIds.add(item.location().id());
 			}
 		}
@@ -63,7 +63,7 @@ class IxEnviSync {
 			if (flow == null)
 				return Optional.empty();
 			if (item.location() != null
-					&& Strings.notEmpty(item.location().id())) {
+					&& Strings.isNotBlank(item.location().id())) {
 				// with location
 				var loc = locs.get(item.location().id());
 				if (loc == null)

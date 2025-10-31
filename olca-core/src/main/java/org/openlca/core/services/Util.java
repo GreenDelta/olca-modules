@@ -82,7 +82,7 @@ final class Util {
 			return Response.error("no result available");
 		if (!result.hasImpacts())
 			return Response.error("result has no LCIA results");
-		if (Strings.nullOrEmpty(impactId))
+		if (Strings.isBlank(impactId))
 			return Response.error("no LCIA category ID provided");
 		for (var impact : result.impactIndex()) {
 			if (Objects.equals(impactId, impact.refId))

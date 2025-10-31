@@ -52,7 +52,7 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 				.join("Comment", block.systemDescription().comment())
 				.value();
 		}
-		if (Strings.notEmpty(block.verification())) {
+		if (Strings.isNotBlank(block.verification())) {
 			var r = new Review();
 			r.details = block.verification();
 			doc.reviews.add(r);
@@ -62,19 +62,19 @@ record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 	private record Text(String value) {
 
 		static Text of(String value) {
-			return Strings.nullOrEmpty(value)
+			return Strings.isBlank(value)
 				? new Text(null)
 				: new Text(value.trim() + "\n");
 		}
 
 		static Text of(String header, String value) {
-			if (Strings.nullOrEmpty(value))
+			if (Strings.isBlank(value))
 				return new Text(null);
 			return new Text(header + ": " + value + "\n");
 		}
 
 		Text join(String header, String value) {
-			if (Strings.nullOrEmpty(value))
+			if (Strings.isBlank(value))
 				return this;
 			if (this.value == null)
 				return of(header, value);

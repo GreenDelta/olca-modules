@@ -54,7 +54,7 @@ class EpdIndicatorResolver {
 		// try the import of an impact category
 		impact = ImpactImport.get(imp, r.indicator().getUUID());
 		if (impact != null) {
-			if (unit != null && Strings.nullOrEmpty(impact.referenceUnit)) {
+			if (unit != null && Strings.isBlank(impact.referenceUnit)) {
 				// indicator units are sometimes missing in
 				// LCIA data sets of ILCD packages
 				impact.referenceUnit = unit;
@@ -82,7 +82,7 @@ class EpdIndicatorResolver {
 		checkedIds.add(id);
 		for (var alt : EpdProfiles.getIndicatorsForCode(i.getCode())) {
 			var altId = alt.getUUID();
-			if (Strings.nullOrEmpty(altId) || checkedIds.contains(altId))
+			if (Strings.isBlank(altId) || checkedIds.contains(altId))
 				continue;
 			checkedIds.add(altId);
 			var impact = db.get(ImpactCategory.class, altId);
@@ -98,7 +98,7 @@ class EpdIndicatorResolver {
 		// yes, in ILCD+EPD the unit is typically written
 		// into a unit-group reference; don't ask why
 		var unit = LangString.getDefault(r.unitGroup().getName());
-		return Strings.notEmpty(unit) ? unit : null;
+		return Strings.isNotBlank(unit) ? unit : null;
 	}
 
 	private ImpactCategory cache(String id, ImpactCategory impact) {

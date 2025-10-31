@@ -79,7 +79,7 @@ class Util {
 		var sections = new ArrayList<String>();
 		var texts = new ArrayList<String>();
 		BiConsumer<String, String> fn = (title, text) -> {
-			if (Strings.nullOrEmpty(text))
+			if (Strings.isBlank(text))
 				return;
 			sections.add(title);
 			texts.add(text);
@@ -128,7 +128,7 @@ class Util {
 		if (p == null || p.documentation == null)
 			return null;
 		for (var rev : p.documentation.reviews) {
-			if (Strings.notEmpty(rev.details))
+			if (Strings.isNotBlank(rev.details))
 				return rev.details;
 		}
 		return null;
@@ -167,7 +167,7 @@ class Util {
 			return clone;
 		}
 		var factor = clone.amount / e.amount;
-		if (Strings.notEmpty(clone.formula)) {
+		if (Strings.isNotBlank(clone.formula)) {
 			clone.formula = factor + " * (" + clone.formula + ")";
 		}
 		if (clone.uncertainty != null) {

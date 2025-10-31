@@ -119,7 +119,7 @@ public class GeoProperty {
 					: 1;
 			params.add(param);
 		}
-		params.sort((p1, p2) -> Strings.compare(p1.name, p2.name));
+		params.sort((p1, p2) -> Strings.compareIgnoreCase(p1.name, p2.name));
 		return params;
 	}
 }

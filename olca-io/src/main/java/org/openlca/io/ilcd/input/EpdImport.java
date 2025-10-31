@@ -115,9 +115,9 @@ public class EpdImport {
 
 	private Category resultCategoryOf(IDataSet ds, String epdName) {
 		var base = imp.categoryPathOf(ds);
-		if (base == null && Strings.nullOrEmpty(epdName))
+		if (base == null && Strings.isBlank(epdName))
 			return null;
-		if (Strings.nullOrEmpty(epdName))
+		if (Strings.isBlank(epdName))
 			return CategoryDao.sync(imp.db(), ModelType.RESULT, base);
 		var last = epdName.replace('/', '|');
 		if (base == null)
@@ -303,7 +303,7 @@ public class EpdImport {
 			if (decl.getSystem() == null)
 				continue;
 			var sys = imp.str(decl.getSystem().getName());
-			if (Strings.nullOrEmpty(sys))
+			if (Strings.isBlank(sys))
 				continue;
 			if (!tags.isEmpty()) {
 				tags.append(',');
@@ -319,7 +319,7 @@ public class EpdImport {
 			var scopes = new HashSet<Scope>();
 			for (var result : results) {
 				for (var v : result.values()) {
-					if (Strings.nullOrEmpty(v.getModule()))
+					if (Strings.isBlank(v.getModule()))
 						continue;
 					scopes.add(new Scope(v.getModule(), v.getScenario()));
 				}

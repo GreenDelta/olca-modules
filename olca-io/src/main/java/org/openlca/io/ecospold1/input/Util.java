@@ -65,7 +65,7 @@ class Util {
 			var text = Joiner.on(" ")
 					.skipNulls()
 					.join(v.getProofReadingDetails(), v.getOtherDetails());
-			if (Strings.notEmpty(text)) {
+			if (Strings.isNotBlank(text)) {
 				reviewOf(doc).details = text;
 			}
 		}

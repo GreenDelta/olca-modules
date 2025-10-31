@@ -34,10 +34,10 @@ public class DataHandler {
 	public RpcResponse get(RpcRequest req) {
 		return withTypedParam(req, (json, type) -> {
 			var id = JsonRef.idOf(json);
-			if (Strings.notEmpty(id))
+			if (Strings.isNotBlank(id))
 				return Responses.of(service.get(type.getModelClass(), id), req);
 			var name = Json.getString(json, "name");
-			if (Strings.notEmpty(name))
+			if (Strings.isNotBlank(name))
 				return Responses.of(service.getForName(type.getModelClass(), name), req);
 			return Responses.badRequest("no id or name provided", req);
 		});
@@ -48,12 +48,12 @@ public class DataHandler {
 		return withTypedParam(req, (json, type) -> {
 			var clazz = type.getModelClass();
 			var id = JsonRef.idOf(json);
-			if (Strings.notEmpty(id)) {
+			if (Strings.isNotBlank(id)) {
 				var resp = service.getDescriptor(clazz, id);
 				return Responses.of(resp, req);
 			}
 			var name = Json.getString(json, "name");
-			if (Strings.notEmpty(name)) {
+			if (Strings.isNotBlank(name)) {
 				var resp = service.getDescriptorForName(clazz, name);
 				return Responses.of(resp, req);
 			}
@@ -90,7 +90,7 @@ public class DataHandler {
 		var flowId = req.params != null && req.params.isJsonObject()
 				? JsonRef.idOf(req.params.getAsJsonObject())
 				: null;
-		if (Strings.nullOrEmpty(flowId)) {
+		if (Strings.isBlank(flowId)) {
 			var resp = service.getProviders();
 			return Responses.of(resp, req);
 		} else {

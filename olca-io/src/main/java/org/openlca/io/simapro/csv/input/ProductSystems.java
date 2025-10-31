@@ -68,7 +68,7 @@ record ProductSystems(ImportContext context) {
 
 			var redef = ParameterRedef.of(global);
 			redef.isProtected = true;
-			redef.value = Strings.nullOrEqual(param, redef.name)
+			redef.value = Strings.equalsIgnoreCase(param, redef.name)
 				? 1.0
 				: 0.0;
 			paramSet.parameters.add(redef);

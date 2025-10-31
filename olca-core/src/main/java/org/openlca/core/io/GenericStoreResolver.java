@@ -1,9 +1,10 @@
 package org.openlca.core.io;
 
+import java.util.Objects;
+
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Process;
 import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -24,15 +25,14 @@ record GenericStoreResolver(EntityStore store) implements EntityResolver {
 
 	@Override
 	public Category getCategory(ModelType type, String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return null;
 		var parts = path.split("/");
 		var root = store.getAll(Category.class)
-				.stream()
-				.filter(c -> c.modelType == type
-						&& Strings.nullOrEqual(c.name, parts[0]))
-				.findAny()
-				.orElse(null);
+			.stream()
+			.filter(c -> c.modelType == type && Objects.equals(c.name, parts[0]))
+			.findAny()
+			.orElse(null);
 		if (root == null)
 			return null;
 
@@ -40,9 +40,9 @@ record GenericStoreResolver(EntityStore store) implements EntityResolver {
 		for (int i = 1; i < parts.length; i++) {
 			var name = parts[i];
 			var next = category.childCategories.stream()
-					.filter(c -> Strings.nullOrEqual(c.name, name))
-					.findAny()
-					.orElse(null);
+				.filter(c -> Objects.equals(c.name, name))
+				.findAny()
+				.orElse(null);
 			if (next == null)
 				return null;
 			category = next;

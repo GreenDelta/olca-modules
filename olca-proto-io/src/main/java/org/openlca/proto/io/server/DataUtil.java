@@ -201,7 +201,7 @@ class DataUtil {
 
     Optional<T> get() {
 
-      if (Strings.notEmpty(id)) {
+      if (Strings.isNotBlank(id)) {
         var e = db.get(type, id);
         if (e == null && errorResponse != null) {
           Response.notFound(errorResponse,
@@ -210,7 +210,7 @@ class DataUtil {
         return Optional.ofNullable(e);
       }
 
-      if (Strings.nullOrEmpty(name)) {
+      if (Strings.isBlank(name)) {
         if (errorResponse != null) {
           Response.invalidArg(errorResponse, "An id or name is required");
         }

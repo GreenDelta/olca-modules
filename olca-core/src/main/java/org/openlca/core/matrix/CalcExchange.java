@@ -90,7 +90,7 @@ public class CalcExchange {
 		double allocationFactor) {
 
 		double a = amount;
-		if (Strings.notEmpty(formula) && interpreter != null) {
+		if (Strings.isNotBlank(formula) && interpreter != null) {
 			try {
 				var scope = interpreter.getScopeOrGlobal(processId);
 				a = scope.eval(formula);
@@ -115,7 +115,7 @@ public class CalcExchange {
 		double allocationFactor) {
 
 		double c = costValue;
-		if (Strings.notEmpty(costFormula) && interpreter != null) {
+		if (Strings.isNotBlank(costFormula) && interpreter != null) {
 			try {
 				var scope = interpreter.getScopeOrGlobal(processId);
 				c = scope.eval(costFormula);

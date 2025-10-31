@@ -34,7 +34,7 @@ public record ProjectReader(EntityResolver resolver)
 		if (p.impactMethod == null)
 			return;
 		var nwSetId = proto.getNwSet().getId();
-		if (Strings.nullOrEmpty(nwSetId))
+		if (Strings.isBlank(nwSetId))
 			return;
 		p.nwSet = p.impactMethod.nwSets.stream()
 			.filter(nwSet -> nwSetId.equals(nwSet.refId))

@@ -173,7 +173,7 @@ public class Diffs {
 				throws IOException {
 			if (commit == null)
 				return new EmptyTreeIterator();
-			var treeId = Strings.nullOrEmpty(path)
+			var treeId = Strings.isBlank(path)
 					? commit.getTree().getId()
 					: repo.getSubTreeId(commit.getTree().getId(), path);
 			if (ObjectId.zeroId().equals(treeId))
@@ -210,9 +210,9 @@ public class Diffs {
 			var diffs = new ModelRefMap<Diff>();
 			while (walk.next()) {
 				var currentPath = walk.getPathString();
-				if (!Strings.nullOrEmpty(entry) && !entry.equals(currentPath))
+				if (Strings.isNotBlank(entry) && !entry.equals(currentPath))
 					continue;
-				var path = !Strings.nullOrEmpty(prefix)
+				var path = Strings.isNotBlank(prefix)
 						? prefix + "/" + currentPath
 						: currentPath;
 				var oldMode = walk.getFileMode(0);

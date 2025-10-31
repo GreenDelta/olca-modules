@@ -143,7 +143,7 @@ public class CategoryContentTest {
 			NativeSql.on(db).query(sql, r -> {
 				long category = r.getLong(1);
 				String lib = r.getString(2);
-				if (Strings.nullOrEmpty(lib)) {
+				if (Strings.isBlank(lib)) {
 					nonLib.add(category);
 				} else {
 					anyLib.add(category);

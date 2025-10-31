@@ -107,7 +107,7 @@ public record JsonDataService(IDatabase db) {
 	 */
 	public Response<JsonObject> getDescriptor(
 			Class<? extends RootEntity> type, String id) {
-		if (type == null || Strings.nullOrEmpty(id))
+		if (type == null || Strings.isBlank(id))
 			return Response.error("type or ID missing");
 		try {
 			var d = db.getDescriptor(type, id);
@@ -121,7 +121,7 @@ public record JsonDataService(IDatabase db) {
 
 	public Response<JsonObject> getDescriptorForName(
 			Class<? extends RootEntity> type, String name) {
-		if (type == null || Strings.nullOrEmpty(name))
+		if (type == null || Strings.isBlank(name))
 			return Response.error("type or name missing");
 		try {
 			var d = db.getForName(type, name);
@@ -173,7 +173,7 @@ public record JsonDataService(IDatabase db) {
 
 		try {
 			var id = Json.getString(json, "@id");
-			T entity = Strings.notEmpty(id)
+			T entity = Strings.isNotBlank(id)
 					? db.get(type, id)
 					: null;
 
@@ -187,7 +187,7 @@ public record JsonDataService(IDatabase db) {
 			} else {
 
 				// add an ID, if not provided
-				if (Strings.nullOrEmpty(id)) {
+				if (Strings.isBlank(id)) {
 					Json.put(json, "@id", UUID.randomUUID().toString());
 				}
 

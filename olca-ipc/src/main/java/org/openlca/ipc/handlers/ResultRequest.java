@@ -36,7 +36,7 @@ class ResultRequest {
 			return paramQ.error();
 		var param = paramQ.value();
 		var resultId = Json.getString(param, "@id");
-		if (Strings.nullOrEmpty(resultId))
+		if (Strings.isBlank(resultId))
 			return Responses.invalidParams("no result ID @id provided", req);
 		var reqData = new ResultRequest(param, resultId);
 		return Responses.of(handler.apply(reqData), req);

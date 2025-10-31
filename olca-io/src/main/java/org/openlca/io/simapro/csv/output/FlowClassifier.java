@@ -165,9 +165,9 @@ class FlowClassifier {
 			var target = e.targetFlow();
 			if (target == null
 					|| target.flow == null
-					|| Strings.nullOrEmpty(target.flow.name)
+					|| Strings.isBlank(target.flow.name)
 					|| target.unit == null
-					|| Strings.nullOrEmpty(target.unit.name))
+					|| Strings.isBlank(target.unit.name))
 				return Optional.empty();
 			var unit = units.get(target.unit.name);
 			var comp = Compartment.fromPath(target.flowCategory);

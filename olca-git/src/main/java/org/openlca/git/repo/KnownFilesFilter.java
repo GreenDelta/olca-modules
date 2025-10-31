@@ -41,7 +41,7 @@ class KnownFilesFilter extends TreeFilter {
 	}
 
 	private static int getDepth(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return 0;
 		var p = path;
 		var depth = 1;

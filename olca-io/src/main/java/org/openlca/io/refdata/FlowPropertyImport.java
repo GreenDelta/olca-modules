@@ -49,7 +49,7 @@ class FlowPropertyImport implements Runnable {
 	}
 
 	private FlowPropertyType typeOf(String propType) {
-		if (Strings.nullOrEmpty(propType))
+		if (Strings.isBlank(propType))
 			return FlowPropertyType.PHYSICAL;
 		var c = propType.trim().charAt(0);
 		return c == 'e' || c == 'E'

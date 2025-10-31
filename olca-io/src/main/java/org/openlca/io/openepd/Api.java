@@ -89,7 +89,7 @@ public class Api {
 			// "manufacturer,declared_unit,openepd";
 			if (query != null) {
 				var q = query.trim();
-				if (Strings.notEmpty(q)) {
+				if (Strings.isNotBlank(q)) {
 					path += "&q=" + URLEncoder.encode(q, StandardCharsets.UTF_8);
 				}
 			}

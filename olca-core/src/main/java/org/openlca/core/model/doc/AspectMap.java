@@ -43,7 +43,7 @@ public class AspectMap implements Copyable<AspectMap> {
 			var obj = i.getAsJsonObject();
 			var key = Json.getString(obj, "aspect");
 			var val = Json.getString(obj, "value");
-			if (Strings.nullOrEmpty(key) || Strings.nullOrEmpty(val))
+			if (Strings.isBlank(key) || Strings.isBlank(val))
 				continue;
 			aspects.put(key, val);
 		}
@@ -53,8 +53,8 @@ public class AspectMap implements Copyable<AspectMap> {
 	public JsonArray toJson() {
 		var array = new JsonArray(map.size());
 		for (var e : map.entrySet()) {
-			if (Strings.nullOrEmpty(e.getKey())
-					|| Strings.nullOrEmpty(e.getValue()))
+			if (Strings.isBlank(e.getKey())
+					|| Strings.isBlank(e.getValue()))
 				continue;
 			var obj = new JsonObject();
 			Json.put(obj, "aspect", e.getKey());

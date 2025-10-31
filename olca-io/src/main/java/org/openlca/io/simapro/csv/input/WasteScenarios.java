@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -194,7 +195,7 @@ class WasteScenarios {
 
 		// fractions for the specific material
 		var forMaterial = fractions.stream()
-			.filter(f -> Strings.nullOrEqual(material.name(), f.wasteType()))
+			.filter(f -> Objects.equals(material.name(), f.wasteType()))
 			.collect(Collectors.toList());
 		if (!forMaterial.isEmpty())
 			return forMaterial;
@@ -202,7 +203,7 @@ class WasteScenarios {
 		// fractions for a specific waste type
 		if (!matchesAll(material.wasteType())) {
 			var forWasteType = fractions.stream()
-				.filter(f -> Strings.nullOrEqual(material.wasteType(), f.wasteType()))
+				.filter(f -> Objects.equals(material.wasteType(), f.wasteType()))
 				.collect(Collectors.toList());
 			if (!forWasteType.isEmpty())
 				return forWasteType;
@@ -248,7 +249,7 @@ class WasteScenarios {
 	 * specific waste type.
 	 */
 	private boolean matchesAll(String wasteType) {
-		if (Strings.nullOrEmpty(wasteType))
+		if (Strings.isBlank(wasteType))
 			return true;
 		var wt = wasteType.strip().toLowerCase();
 		return wt.isEmpty()
@@ -266,7 +267,7 @@ class WasteScenarios {
 				return Optional.empty();
 
 			var scenarioName = Processes.nameOf(block);
-			if (Strings.nullOrEmpty(scenarioName))
+			if (Strings.isBlank(scenarioName))
 				return Optional.empty();
 			var name = parameterOf(scenarioName);
 			var parameter = new InputParameterRow()

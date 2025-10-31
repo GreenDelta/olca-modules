@@ -111,7 +111,7 @@ public class FlowMap extends Descriptor {
 			// source flow
 			FlowRef sourceFlow = null;
 			String sid = Csv.getString(row, 0);
-			if (Strings.notEmpty(sid)) {
+			if (Strings.isNotBlank(sid)) {
 				sourceFlow = new FlowRef();
 				sourceFlow.flow = FlowDescriptor.create()
 					.refId(sid)
@@ -122,7 +122,7 @@ public class FlowMap extends Descriptor {
 
 				// flow property
 				String sprop = Csv.getString(row, 9);
-				if (Strings.notEmpty(sprop)) {
+				if (Strings.isNotBlank(sprop)) {
 					sourceFlow.property = FlowPropertyDescriptor.create()
 						.refId(sprop)
 						.name(Csv.getString(row, 10))
@@ -132,7 +132,7 @@ public class FlowMap extends Descriptor {
 				// unit
 				String sunitID = Csv.getString(row, 13);
 				String sunitName = Csv.getString(row, 14);
-				if (Strings.notEmpty(sunitID) || Strings.notEmpty(sunitName)) {
+				if (Strings.isNotBlank(sunitID) || Strings.isNotBlank(sunitName)) {
 					sourceFlow.unit = UnitDescriptor.create()
 						.refId(sunitID)
 						.name(sunitName)
@@ -141,7 +141,7 @@ public class FlowMap extends Descriptor {
 
 				// status
 				String sstatus = Csv.getString(row, 21);
-				if (Strings.notEmpty(sstatus)) {
+				if (Strings.isNotBlank(sstatus)) {
 					sourceFlow.status = MappingStatus.fromString(sstatus);
 				}
 			}
@@ -149,7 +149,7 @@ public class FlowMap extends Descriptor {
 			// target flow
 			FlowRef targetFlow = null;
 			String tid = Csv.getString(row, 1);
-			if (Strings.notEmpty(tid)) {
+			if (Strings.isNotBlank(tid)) {
 				targetFlow = new FlowRef();
 				targetFlow.flow = FlowDescriptor.create()
 					.refId(tid)
@@ -160,7 +160,7 @@ public class FlowMap extends Descriptor {
 
 				// flow property
 				String tprop = Csv.getString(row, 11);
-				if (Strings.notEmpty(tprop)) {
+				if (Strings.isNotBlank(tprop)) {
 					targetFlow.property = FlowPropertyDescriptor.create()
 						.refId(tprop)
 						.name(Csv.getString(row, 12))
@@ -170,7 +170,7 @@ public class FlowMap extends Descriptor {
 				// unit
 				String tunitID = Csv.getString(row, 15);
 				String tunitName = Csv.getString(row, 16);
-				if (Strings.notEmpty(tunitID) || Strings.notEmpty(tunitName)) {
+				if (Strings.isNotBlank(tunitID) || Strings.isNotBlank(tunitName)) {
 					targetFlow.unit = UnitDescriptor.create()
 						.refId(tunitID)
 						.name(tunitName)
@@ -179,7 +179,7 @@ public class FlowMap extends Descriptor {
 
 				// provider
 				String prov = Csv.getString(row, 17);
-				if (Strings.notEmpty(prov)) {
+				if (Strings.isNotBlank(prov)) {
 					targetFlow.provider = ProcessDescriptor.create()
 						.refId(prov)
 						.name(Csv.getString(row, 18))
@@ -190,7 +190,7 @@ public class FlowMap extends Descriptor {
 
 				// status
 				String tstatus = Csv.getString(row, 22);
-				if (Strings.notEmpty(tstatus)) {
+				if (Strings.isNotBlank(tstatus)) {
 					targetFlow.status = MappingStatus.fromString(tstatus);
 				}
 			}

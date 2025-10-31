@@ -172,7 +172,7 @@ final class JsonUtil {
 				continue;
 			list.add(new GroupVal(e.getKey(), e.getValue()));
 		}
-		list.sort((va, vb) -> Strings.compare(va.group, vb.group));
+		list.sort((va, vb) -> Strings.compareIgnoreCase(va.group, vb.group));
 		return encodeArray(list, GroupVal::toJson);
 	}
 

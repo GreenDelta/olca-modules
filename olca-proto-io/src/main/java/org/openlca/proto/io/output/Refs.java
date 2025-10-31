@@ -173,10 +173,10 @@ public final class Refs {
 				NativeSql.on(db).query(query, r -> {
 					var locID = r.getLong(1);
 					var code = r.getString(2);
-					if (Strings.nullOrEmpty(code)) {
+					if (Strings.isBlank(code)) {
 						code = r.getString(3);
 					}
-					if (Strings.notEmpty(code)) {
+					if (Strings.isNotBlank(code)) {
 						locationCodes.put(locID, code);
 					}
 					return true;

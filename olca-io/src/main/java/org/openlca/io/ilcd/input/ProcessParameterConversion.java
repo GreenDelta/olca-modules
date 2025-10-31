@@ -89,7 +89,7 @@ class ProcessParameterConversion {
 		}
 		var globals = dao.getGlobalParameters();
 		for (var global : globals) {
-			if (Strings.nullOrEqual(param.name, global.name))
+			if (Strings.equalsIgnoreCase(param.name, global.name))
 				return;
 		}
 		dao.insert(param);

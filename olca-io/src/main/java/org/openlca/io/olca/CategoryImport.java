@@ -56,7 +56,7 @@ class CategoryImport {
 
 	private Category find(Category srcCat, List<Category> destCategories) {
 		for (var destCat : destCategories) {
-			if (Strings.nullOrEqual(srcCat.name, destCat.name)) {
+			if (Strings.equalsIgnoreCase(srcCat.name, destCat.name)) {
 				return destCat;
 			}
 		}

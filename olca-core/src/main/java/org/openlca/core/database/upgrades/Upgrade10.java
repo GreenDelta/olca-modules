@@ -365,7 +365,7 @@ class Upgrade10 implements IUpgrade {
 				""";
 			NativeSql.on(db).query(query, r -> {
 				var name = r.getString(2);
-				if (Strings.nullOrEmpty(name))
+				if (Strings.isBlank(name))
 					return true;
 				groups.add(new ImpactGroup(r.getLong(1), name));
 				return true;

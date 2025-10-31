@@ -29,7 +29,7 @@ public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 		this.name = nameOf(path);
 		this.category = categoryOf(type, path);
 		this.isModelType = type != null && !path.contains("/");
-		this.isCategory = type != null && path.contains("/") && Strings.nullOrEmpty(refId);
+		this.isCategory = type != null && path.contains("/") && Strings.isBlank(refId);
 		this.isDataset = path.contains("/") && refId != null && !path.startsWith(RepositoryInfo.FILE_NAME + "/");
 		this.isRepositoryInfo = RepositoryInfo.FILE_NAME.equals(path);
 		this.isLibrary = path.startsWith(RepositoryInfo.FILE_NAME + "/");

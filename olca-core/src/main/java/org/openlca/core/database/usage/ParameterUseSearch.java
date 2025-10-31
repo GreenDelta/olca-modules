@@ -56,7 +56,7 @@ public record ParameterUseSearch(IDatabase db) implements UsageSearch {
 		var normed = names.stream()
 			.filter(Objects::nonNull)
 			.map(name -> name.trim().toLowerCase())
-			.filter(Strings::notEmpty)
+			.filter(Strings::isNotBlank)
 			.collect(Collectors.toSet());
 		if (normed.isEmpty())
 			return Collections.emptySet();

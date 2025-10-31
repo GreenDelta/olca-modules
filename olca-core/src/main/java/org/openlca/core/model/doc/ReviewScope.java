@@ -38,7 +38,7 @@ public class ReviewScope implements Copyable<ReviewScope> {
 			return Optional.empty();
 		var obj = e.getAsJsonObject();
 		var name = Json.getString(obj, "name");
-		if (Strings.nullOrEmpty(name))
+		if (Strings.isBlank(name))
 			return Optional.empty();
 		var scope = new ReviewScope(name);
 

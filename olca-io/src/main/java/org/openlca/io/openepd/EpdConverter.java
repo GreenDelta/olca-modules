@@ -105,7 +105,7 @@ public final class EpdConverter {
 			var result = mod.result;
 			if (result == null
 				|| result.impactMethod == null
-				|| Strings.nullOrEmpty(result.impactMethod.code))
+				|| Strings.isBlank(result.impactMethod.code))
 				continue;
 			var docResult = map.computeIfAbsent(
 				result.impactMethod.code,
@@ -113,7 +113,7 @@ public final class EpdConverter {
 
 			for (var impact : result.impactResults) {
 				if (impact.indicator == null
-					|| Strings.nullOrEmpty(impact.indicator.code))
+					|| Strings.isBlank(impact.indicator.code))
 					continue;
 				var code = impact.indicator.code;
 				EpdIndicatorResult docImpact = null;

@@ -41,7 +41,7 @@ class SmartModuleInfo {
 
 		// write the scope and scope description
 		epd.scope(scope);
-		if (Strings.nullOrEmpty(epd.scopeDescription())) {
+		if (Strings.isBlank(epd.scopeDescription())) {
 			var d = new StringBuilder();
 			for (var mod : modules) {
 				if (!d.isEmpty()) {

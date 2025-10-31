@@ -79,7 +79,7 @@ public record ParameterReader(EntityResolver resolver)
 			return null;
 		var type = Json.getString(context, "@type");
 		var refId = Json.getString(context, "@id");
-		if (Strings.nullOrEmpty(refId))
+		if (Strings.isBlank(refId))
 			return null;
 		return "ImpactCategory".equals(type)
 				? resolver.getDescriptor(ImpactCategory.class, refId)

@@ -29,10 +29,10 @@ public record EnviFlowId(String flowId, String locationId) {
 		if (json == null)
 			return Optional.empty();
 		var flowId = Json.getRefId(json, "flow");
-		if (Strings.nullOrEmpty(flowId))
+		if (Strings.isBlank(flowId))
 			return Optional.empty();
 		var locationId = Json.getRefId(json, "location");
-		return Strings.nullOrEmpty(locationId)
+		return Strings.isBlank(locationId)
 				? Optional.of(EnviFlowId.of(flowId))
 				: Optional.of(EnviFlowId.of(flowId, locationId));
 	}
@@ -43,7 +43,7 @@ public record EnviFlowId(String flowId, String locationId) {
 	 * from an optional location ID: {@code <provider-id>(::<flow-id>)?}.
 	 */
 	public static EnviFlowId parse(String s) {
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return new EnviFlowId("", "");
 		var parts = s.split("::");
 		return parts.length < 2
@@ -59,7 +59,7 @@ public record EnviFlowId(String flowId, String locationId) {
 			return false;
 		return enviFlow.location() != null
 				? Objects.equals(enviFlow.location().refId, locationId)
-				: Strings.nullOrEmpty(locationId);
+				: Strings.isBlank(locationId);
 	}
 
 	public Optional<EnviFlow> findEnviFlowOf(LcaResult result) {
@@ -74,7 +74,7 @@ public record EnviFlowId(String flowId, String locationId) {
 
 	@Override
 	public String toString() {
-		return Strings.nullOrEmpty(locationId)
+		return Strings.isBlank(locationId)
 				? flowId
 				: flowId + "::" + locationId;
 	}

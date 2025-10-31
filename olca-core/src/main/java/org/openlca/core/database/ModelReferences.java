@@ -82,7 +82,7 @@ public class ModelReferences {
 		for (var type : idMap.keySet()) {
 			for (var id : idMap.get(type)) {
 				var refId = idToRefId.get(type).get(id);
-				if (Strings.nullOrEmpty(refId))
+				if (Strings.isBlank(refId))
 					continue;
 				var library = refIdToId.get(type, refId).library;
 				if (!consumer.apply(new ModelReference(type, id, refId, library)))

@@ -241,7 +241,7 @@ class Upgrade2 extends Upgrade {
 
 	private void renameStr(JsonObject obj, String oldName, String newName) {
 		var newVal = Json.getString(obj, newName);
-		if (Strings.notEmpty(newVal))
+		if (Strings.isNotBlank(newVal))
 			return;
 		var val = Json.getString(obj, oldName);
 		Json.put(obj, newName, val);

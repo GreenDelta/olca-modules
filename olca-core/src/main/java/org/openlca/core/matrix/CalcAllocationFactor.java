@@ -24,7 +24,7 @@ public class CalcAllocationFactor {
 			long processID, String formula, double amount) {
 		var factor = new CalcAllocationFactor(processID);
 		factor.amount = amount;
-		if (Strings.nullOrEmpty(formula)) {
+		if (Strings.isBlank(formula)) {
 			factor.evaluated = true;
 		} else {
 			factor.formula = formula;

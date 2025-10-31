@@ -133,7 +133,7 @@ final class Parameters {
 	}
 
 	private static boolean canCreate(String name, List<Parameter> parameters) {
-		if (Strings.nullOrEmpty(name))
+		if (Strings.isBlank(name))
 			return false;
 		if (contains(name, parameters))
 			return false;
@@ -161,7 +161,7 @@ final class Parameters {
 
 	static boolean contains(String parameterName, List<Parameter> parameters) {
 		for (Parameter param : parameters) {
-			if (Strings.nullOrEqual(parameterName, param.name))
+			if (Strings.equalsIgnoreCase(parameterName, param.name))
 				return true;
 		}
 		return false;

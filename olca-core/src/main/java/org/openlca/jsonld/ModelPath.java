@@ -56,7 +56,7 @@ public final class ModelPath {
 	}
 
 	public static Optional<ModelType> typeOf(String folder) {
-		if (Strings.nullOrEmpty(folder))
+		if (Strings.isBlank(folder))
 			return Optional.empty();
 		return switch (folder.strip().toLowerCase(Locale.US)) {
 			case "actors" -> Optional.of(ModelType.ACTOR);

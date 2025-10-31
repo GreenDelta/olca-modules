@@ -12,7 +12,6 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.util.Strings;
 
 public class TestProcess {
 
@@ -67,7 +66,7 @@ public class TestProcess {
 	public TestProcess addCosts(String flow, double amount, String currency) {
 		for (Exchange e : process.exchanges) {
 			Flow f = e.flow;
-			if (f == null || !Strings.nullOrEqual(f.name, flow))
+			if (f == null || !Objects.equals(f.name, flow))
 				continue;
 			e.currency = TestData.currency(currency);
 			e.costs = amount;

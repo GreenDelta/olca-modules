@@ -244,7 +244,7 @@ public enum SmartIndicator {
 	}
 
 	public static Optional<SmartIndicator> of(String id) {
-		if (Strings.nullOrEmpty(id))
+		if (Strings.isBlank(id))
 			return Optional.empty();
 		var s = id.strip();
 		for (var i : values()) {
@@ -287,7 +287,7 @@ public enum SmartIndicator {
 
 						var obj = e.getAsJsonObject();
 						var methodId = Json.getString(obj, "method");
-						if (Strings.nullOrEmpty(methodId) || methodId.equals("_"))
+						if (Strings.isBlank(methodId) || methodId.equals("_"))
 							continue;
 						var method = SmartMethod.of(methodId).orElse(null);
 						if (method == null)
@@ -300,7 +300,7 @@ public enum SmartIndicator {
 							continue;
 
 						var unit = Json.getString(obj, "unit");
-						if (Strings.nullOrEmpty(unit))
+						if (Strings.isBlank(unit))
 							continue;
 						map.computeIfAbsent(indicator, k -> new ArrayList<>())
 								.add(new Unit(method, unit));

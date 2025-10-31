@@ -1,14 +1,14 @@
 package org.openlca.io.openepd.io;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdImpactResult;
 import org.openlca.io.openepd.EpdIndicatorResult;
 import org.openlca.io.openepd.EpdMeasurement;
 import org.openlca.io.openepd.EpdScopeValue;
-import org.openlca.util.Strings;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public record MappedExportResult(
 	List<EpdImpactResult> impacts,
@@ -50,7 +50,7 @@ public record MappedExportResult(
 			? method
 			: Vocab.Method.UNKNOWN_LCIA;
 		for (var r : impacts) {
-			if (Strings.nullOrEqual(r.method(), m.code()))
+			if (Objects.equals(r.method(), m.code()))
 				return r;
 		}
 		var r = EpdImpactResult.of(m.code());

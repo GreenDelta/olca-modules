@@ -167,7 +167,7 @@ public class WasteFlows {
 
 				// formula
 				String formula = rs.getString(4);
-				if (Strings.notEmpty(formula)) {
+				if (Strings.isNotBlank(formula)) {
 					rs.updateString(4, invertFormula(formula));
 				}
 

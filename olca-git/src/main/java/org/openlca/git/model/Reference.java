@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.openlca.git.util.GitUtil;
-import org.openlca.util.Strings;
 
 public class Reference extends ModelRef {
 
@@ -30,12 +29,11 @@ public class Reference extends ModelRef {
 	public boolean equals(Object obj) {
 		if (obj == this)
 			return true;
-		if (!(obj instanceof Reference))
+		if (!(obj instanceof Reference ref))
 			return false;
-		var ref = (Reference) obj;
 		if (!super.equals(obj))
 			return false;
-		if (!Strings.nullOrEqual(ref.commitId, commitId))
+		if (!Objects.equals(ref.commitId, commitId))
 			return false;
 		return Objects.equals(ref.objectId, objectId);
 	}

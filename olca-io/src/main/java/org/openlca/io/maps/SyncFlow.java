@@ -64,7 +64,7 @@ public record SyncFlow(
 		FlowPropertyFactor property = null;
 		var propRef = ref.property;
 		if (propRef != null && (
-			Strings.notEmpty(propRef.refId) || Strings.notEmpty(propRef.name))) {
+			Strings.isNotBlank(propRef.refId) || Strings.isNotBlank(propRef.name))) {
 
 			// search for a matching name or ID
 			for (var p : flow.flowPropertyFactors) {
@@ -90,7 +90,7 @@ public record SyncFlow(
 		Unit unit = null;
 		var unitRef = ref.unit;
 		if (unitRef != null && (
-			Strings.notEmpty(unitRef.refId) || Strings.notEmpty(unitRef.name))) {
+			Strings.isNotBlank(unitRef.refId) || Strings.isNotBlank(unitRef.name))) {
 
 			// if a unit is defined, a corresponding unit group must exist
 			var prop = property != null

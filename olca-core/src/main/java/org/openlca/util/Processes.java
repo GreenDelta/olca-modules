@@ -2,9 +2,9 @@ package org.openlca.util;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.ProcessDao;
@@ -12,6 +12,8 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+
+import gnu.trove.set.hash.TIntHashSet;
 
 public class Processes {
 
@@ -62,7 +64,7 @@ public class Processes {
 			String locationCode = label.substring(splitIdx + 3).trim();
 			LocationDao dao = new LocationDao(db);
 			for (Location loc : dao.getAll()) {
-				if (Strings.nullOrEqual(loc.code, locationCode)) {
+				if (Objects.equals(loc.code, locationCode)) {
 					location = loc;
 					break;
 				}
@@ -72,8 +74,7 @@ public class Processes {
 		ProcessDescriptor selected = null;
 		ProcessDao pDao = new ProcessDao(db);
 		for (ProcessDescriptor d : pDao.getDescriptors()) {
-			if (!Strings.nullOrEqual(label, d.name)
-					&& !Strings.nullOrEqual(name, d.name))
+			if (!Objects.equals(label, d.name) && !Objects.equals(name, d.name))
 				continue;
 			if (selected == null) {
 				selected = d;

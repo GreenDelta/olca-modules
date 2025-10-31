@@ -14,7 +14,7 @@ public class Gen {
     var protoName = "proto";
 
     Arrays.stream(root.getDeclaredFields())
-      .sorted((f1, f2) -> Strings.compare(f1.getName(), f2.getName()))
+      .sorted((f1, f2) -> Strings.compareIgnoreCase(f1.getName(), f2.getName()))
       .forEach(f -> {
         var field = f.getName();
         var setter = protoName + ".set"

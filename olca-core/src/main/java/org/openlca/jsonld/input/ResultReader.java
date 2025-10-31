@@ -82,7 +82,7 @@ public record ResultReader(EntityResolver resolver)
 
 			// flow and unit
 			var flowId = Json.getRefId(obj, "flow");
-			if (Strings.nullOrEmpty(flowId))
+			if (Strings.isBlank(flowId))
 				continue;
 			r.flow = resolver.get(Flow.class, flowId);
 			var quantity = Quantity.of(r.flow, obj);

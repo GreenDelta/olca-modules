@@ -57,7 +57,7 @@ class SourceSync {
 		var source = new Source();
 		source.refId = refId;
 		source.name = block.name();
-		source.category = Strings.nullOrEmpty(block.category())
+		source.category = Strings.isBlank(block.category())
 			? null
 			: CategoryDao.sync(db, ModelType.SOURCE, block.category());
 		source.description = block.description();

@@ -29,7 +29,7 @@ class Csv {
 
 	static Double getOptionalDouble(CSVRecord row, int i) {
 		var s = get(row, i);
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return null;
 		try {
 			return Double.parseDouble(s);

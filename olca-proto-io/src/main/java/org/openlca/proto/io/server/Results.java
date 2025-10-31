@@ -1,5 +1,7 @@
 package org.openlca.proto.io.server;
 
+import java.util.Objects;
+
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -28,7 +30,7 @@ final class Results {
     var indicatorId = ref.getId();
     for (int i = 0; i < index.size(); i++) {
       var indicator = index.at(i);
-      if (Strings.nullOrEqual(indicatorId, indicator.refId)) {
+			if (Objects.equals(indicatorId, indicator.refId)) {
         return indicator;
       }
     }
@@ -49,13 +51,13 @@ final class Results {
       : Strings.nullIfEmpty(proto.getLocation().getId());
 
     for (var flow : index) {
-      if (!Strings.nullOrEqual(flow.flow().refId, flowId))
+			if (!Objects.equals(flow.flow().refId, flowId))
         continue;
       if (locationId == null && flow.location() == null)
         return flow;
       if (locationId != null
         && flow.location() != null
-        && Strings.nullOrEqual(flow.location().refId, locationId))
+				&& Objects.equals(flow.location().refId, locationId))
         return flow;
     }
     return null;
@@ -71,8 +73,8 @@ final class Results {
     for (var p : result.techIndex()) {
       if (p.provider() == null || p.flow() == null)
         continue;
-      if (Strings.nullOrEqual(p.provider().refId, processId)
-        && Strings.nullOrEqual(p.flow().refId, flowId))
+			if (Objects.equals(p.provider().refId, processId)
+				&& Objects.equals(p.flow().refId, flowId))
         return p;
     }
     return null;

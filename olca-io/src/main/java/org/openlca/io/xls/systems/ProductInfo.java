@@ -75,16 +75,16 @@ class ProductInfo implements Comparable<ProductInfo> {
 			return 1;
 		if (other.ref)
 			return 1;
-		int c = Strings.compare(this.process, other.process);
+		int c = Strings.compareIgnoreCase(this.process, other.process);
 		if (c != 0)
 			return c;
-		c = Strings.compare(this.processCategory, other.processCategory);
+		c = Strings.compareIgnoreCase(this.processCategory, other.processCategory);
 		if (c != 0)
 			return c;
-		c = Strings.compare(this.processSubCategory, other.processSubCategory);
+		c = Strings.compareIgnoreCase(this.processSubCategory, other.processSubCategory);
 		if (c != 0)
 			return c;
-		c = Strings.compare(this.product, other.product);
+		c = Strings.compareIgnoreCase(this.product, other.product);
 		return c;
 	}
 

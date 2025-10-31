@@ -26,7 +26,7 @@ public record TechFlowId(String providerId, String flowId) {
 			return Optional.empty();
 		var providerId = Json.getRefId(json, "provider");
 		var flowId = Json.getRefId(json, "flow");
-		return Strings.nullOrEmpty(providerId) || Strings.nullOrEmpty(flowId)
+		return Strings.isBlank(providerId) || Strings.isBlank(flowId)
 				? Optional.empty()
 				: Optional.of(TechFlowId.of(providerId, flowId));
 	}
@@ -37,7 +37,7 @@ public record TechFlowId(String providerId, String flowId) {
 	 * from the flow ID: {@code <provider-id>::<flow-id>}.
 	 */
 	public static TechFlowId parse(String s) {
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return new TechFlowId("", "");
 		var parts = s.split("::");
 		return parts.length < 2

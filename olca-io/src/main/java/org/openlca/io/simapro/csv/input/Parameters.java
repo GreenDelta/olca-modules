@@ -43,7 +43,7 @@ class Parameters {
 	 * openLCA formula interpreter.
 	 */
 	static String formulaOf(CsvDataSet dataSet, String expression) {
-		if (Strings.nullOrEmpty(expression))
+		if (Strings.isBlank(expression))
 			return null;
 		return FormulaConverter.of(dataSet.header())
 			.decimalSeparator('.')

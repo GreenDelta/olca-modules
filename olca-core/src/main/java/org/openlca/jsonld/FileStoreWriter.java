@@ -26,7 +26,7 @@ public record FileStoreWriter(File root) implements JsonStoreWriter {
 
 	@Override
 	public void put(String path, byte[] data) {
-		if (Strings.nullOrEmpty(path) || data == null)
+		if (Strings.isBlank(path) || data == null)
 			return;
 		try {
 			var file = new File(root, path);

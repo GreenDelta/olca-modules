@@ -47,7 +47,7 @@ public final class ImpactDirections {
 			""";
 		NativeSql.on(db).updateRows(update, r -> {
 			var current = r.getString(3);
-			if (Strings.notEmpty(current))
+			if (Strings.isNotBlank(current))
 				return true;
 			var id = r.getLong(1);
 			var name = r.getString(2);

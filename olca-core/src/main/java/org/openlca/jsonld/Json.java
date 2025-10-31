@@ -120,7 +120,7 @@ public class Json {
 		return Json.stream(array)
 	    	        .filter(JsonElement::isJsonPrimitive)
 	    	        .map(JsonElement::getAsString)
-	    	        .filter(Predicate.not(Strings::nullOrEmpty))
+	    	        .filter(Predicate.not(Strings::isBlank))
 	    	        .toArray(String[]::new);
 	}
 
@@ -234,7 +234,7 @@ public class Json {
 	}
 
 	public static Date parseDate(String str) {
-		if (Strings.nullOrEmpty(str))
+		if (Strings.isBlank(str))
 			return null;
 
 		Supplier<Date> forDate = () -> {

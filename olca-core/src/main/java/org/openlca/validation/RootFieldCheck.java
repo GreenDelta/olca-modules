@@ -87,7 +87,7 @@ class RootFieldCheck implements Runnable {
 		long id = r.getLong(1);
 
 		var refId = r.getString(2);
-		if (Strings.nullOrEmpty(refId)) {
+		if (Strings.isBlank(refId)) {
 			v.error(id, type, "has no reference ID");
 			foundErrors = true;
 		} else if (refIds.contains(refId)) {
@@ -98,7 +98,7 @@ class RootFieldCheck implements Runnable {
 		}
 
 		var name = r.getString(3);
-		if (Strings.nullOrEmpty(name)) {
+		if (Strings.isBlank(name)) {
 			v.warning(id, type, "has an empty name");
 			foundErrors = true;
 		}
@@ -115,7 +115,7 @@ class RootFieldCheck implements Runnable {
 		}
 
 		var library = r.getString(5);
-		if (Strings.notEmpty(library)) {
+		if (Strings.isNotBlank(library)) {
 			if (!libraries().contains(library)) {
 				v.error(id, type, "points to unlinked library @" + library);
 				foundErrors = true;

@@ -178,7 +178,7 @@ public class LibraryExport implements Runnable {
 		// here we filter out LCIA categories from other libraries; this is fine
 		var impacts = new ImpactCategoryDao(db).getDescriptors()
 				.stream()
-				.filter(d -> Strings.nullOrEmpty(d.library))
+				.filter(d -> Strings.isBlank(d.library))
 				.toList();
 		if (impacts.isEmpty())
 			return;

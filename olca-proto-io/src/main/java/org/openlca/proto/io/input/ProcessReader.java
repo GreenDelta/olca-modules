@@ -100,7 +100,7 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 	private void mapReview(ProtoProcessDocumentation proto, ProcessDoc doc) {
 		var details = proto.getReviewDetails();
 		var reviewer = Util.getActor(resolver, proto.getReviewer());
-		if (Strings.nullOrEmpty(details) && reviewer == null)
+		if (Strings.isBlank(details) && reviewer == null)
 			return;
 		var review = new Review();
 		review.details = details;
@@ -183,7 +183,7 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 		if (!protoEx.hasDefaultProvider())
 			return;
 		var providerId = protoEx.getDefaultProvider().getId();
-		if (Strings.nullOrEmpty(providerId))
+		if (Strings.isBlank(providerId))
 			return;
 		e.defaultProviderType = switch (protoEx.getDefaultProvider().getType()) {
 			case ProductSystem -> ProviderType.SUB_SYSTEM;

@@ -177,7 +177,7 @@ public class FlowReplacer {
 		var libProcs = new TLongHashSet();
 		sql.query(libQ, r -> {
 			var lib = r.getString(2);
-			if (Strings.notEmpty(lib)) {
+			if (Strings.isNotBlank(lib)) {
 				libProcs.add(r.getLong(1));
 			}
 			return true;

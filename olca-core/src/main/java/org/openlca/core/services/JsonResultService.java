@@ -677,7 +677,7 @@ public class JsonResultService {
 			LcaResult result, String impactId) {
 		if (!result.hasImpacts())
 			return Response.error("not an LCIA result");
-		if (Strings.nullOrEmpty(impactId))
+		if (Strings.isBlank(impactId))
 			return Response.error("no ID of LCIA category given");
 		ImpactDescriptor impact = null;
 		for (var i : result.impactIndex()) {

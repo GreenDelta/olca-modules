@@ -247,7 +247,7 @@ public abstract class AbstractRepositoryTests {
 			var model = database.get(type.getModelClass(), refId);
 			if (model == null)
 				throw new IllegalArgumentException("Could not find " + path);
-			model.category = !Strings.nullOrEmpty(categoryPath)
+			model.category = Strings.isNotBlank(categoryPath)
 					? CategoryDao.sync(database, type, categoryPath.split("/"))
 					: null;
 			database.update(model);
@@ -272,7 +272,7 @@ public abstract class AbstractRepositoryTests {
 					: getHeadCommit();
 			if (commit == null)
 				return new EmptyTreeIterator();
-			var treeId = Strings.nullOrEmpty(path)
+			var treeId = Strings.isBlank(path)
 					? commit.getTree().getId()
 					: getSubTreeId(commit.getTree().getId(), path);
 			if (ObjectId.zeroId().equals(treeId))

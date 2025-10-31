@@ -20,7 +20,7 @@ public class ReviewScopeConverter
 
 	@Override
 	public ReviewScopeMap convertToEntityAttribute(String dbData) {
-		if (Strings.nullOrEmpty(dbData))
+		if (Strings.isBlank(dbData))
 			return new ReviewScopeMap();
 		try {
 			var array = new Gson().fromJson(dbData, JsonArray.class);

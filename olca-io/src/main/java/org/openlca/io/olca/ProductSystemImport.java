@@ -1,9 +1,10 @@
 package org.openlca.io.olca;
 
+import java.util.Objects;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.util.Strings;
 
 class ProductSystemImport {
 
@@ -52,9 +53,9 @@ class ProductSystemImport {
 		if (e.isInput != copy.isInput)
 			return false;
 		return e.unit != null && copy.unit != null
-				&& e.flow != null && copy.flow != null
-				&& Strings.nullOrEqual(e.unit.refId, copy.unit.refId)
-				&& Strings.nullOrEqual(e.flow.refId, copy.flow.refId);
+			&& e.flow != null && copy.flow != null
+			&& Objects.equals(e.unit.refId, copy.unit.refId)
+			&& Objects.equals(e.flow.refId, copy.flow.refId);
 	}
 
 	private void swapParameters(ProductSystem copy) {

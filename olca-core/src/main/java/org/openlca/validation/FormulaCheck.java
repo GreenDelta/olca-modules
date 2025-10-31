@@ -68,7 +68,7 @@ class FormulaCheck implements Runnable {
 
 			// check formulas of global parameters
 			if (paramScope == ParameterScope.GLOBAL) {
-				if (Strings.nullOrEmpty(formula)) {
+				if (Strings.isBlank(formula)) {
 					v.error(paramId, ModelType.PARAMETER, "empty formula");
 					foundErrors = true;
 					return !v.wasCanceled();
@@ -90,7 +90,7 @@ class FormulaCheck implements Runnable {
 					? ModelType.IMPACT_CATEGORY
 					: ModelType.PROCESS;
 
-			if (Strings.nullOrEmpty(formula)) {
+			if (Strings.isBlank(formula)) {
 				v.error(modelId, modelType, "empty formula of parameter '"
 						+ paramName + "'");
 				foundErrors = true;
@@ -161,7 +161,7 @@ class FormulaCheck implements Runnable {
 
 	private void check(long modelId, ModelType modelType, String formula,
 										 Supplier<String> message) {
-		if (Strings.nullOrEmpty(formula))
+		if (Strings.isBlank(formula))
 			return;
 		try {
 			var scope = interpreter.getScopeOrGlobal(modelId);
@@ -189,7 +189,7 @@ class FormulaCheck implements Runnable {
 			String error = null;
 			var name = r.getString(2);
 			var owner = r.getLong(4);
-			if (Strings.nullOrEmpty(name)) {
+			if (Strings.isBlank(name)) {
 				error = "parameter with empty name";
 				//} else if (!Parameters.isValidName(name)) { // TODO too heavy currently
 				//	error = "invalid parameter name: '" + name + "'";

@@ -30,7 +30,7 @@ public class Ext {
 		if (props == null)
 			return Optional.empty();
 		var uuid = props.get(q("uuid"));
-		return Strings.notEmpty(uuid)
+		return Strings.isNotBlank(uuid)
 				? Optional.of(uuid)
 				: Optional.empty();
 	}

@@ -83,7 +83,7 @@ public class HestiaClient implements AutoCloseable {
 	}
 
 	public Res<List<SearchResult>> search(SearchQuery query) {
-		if (query == null || Strings.nullOrEmpty(query.term()))
+		if (query == null || Strings.isBlank(query.term()))
 			return Res.error("empty search query provided");
 
 		try {

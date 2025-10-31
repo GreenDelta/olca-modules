@@ -46,7 +46,7 @@ public class EIProviderResolver {
 
 			if (!(tf.provider() instanceof ProcessDescriptor p)
 					|| p.location == null
-					|| Strings.nullOrEmpty(p.name)
+					|| Strings.isBlank(p.name)
 					|| tf.flow() == null)
 				continue;
 
@@ -89,7 +89,7 @@ public class EIProviderResolver {
 		for (var d : db.getDescriptors(Result.class)) {
 			var result = db.get(Result.class, d.id);
 			var refFlow = result.referenceFlow;
-			if (Strings.nullOrEmpty(result.name) || refFlow == null)
+			if (Strings.isBlank(result.name) || refFlow == null)
 				continue;
 
 			var name = result.name;

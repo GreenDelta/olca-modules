@@ -172,7 +172,7 @@ public class EpdExport {
 		exp.add(() -> Epds.withTechnology(ds).withApplicability(), epd.productUsage);
 
 		// location
-		if (epd.location != null && Strings.notEmpty(epd.location.code)) {
+		if (epd.location != null && Strings.isNotBlank(epd.location.code)) {
 			Epds.withLocation(ds).withCode(epd.location.code);
 		}
 

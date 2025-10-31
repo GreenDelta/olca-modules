@@ -36,7 +36,7 @@ class Categories {
 			var refId = getRefId(entry.path);
 			refIdToName.put(refId, entry.name);
 			refIdToType.put(refId, entry.type);
-			if (!Strings.nullOrEmpty(entry.category)) {
+			if (Strings.isNotBlank(entry.category)) {
 				refIdToParent.put(refId, getRefId(entry.type.name() + "/" + entry.category));
 			}
 			pathToRefId.put(entry.path, refId);

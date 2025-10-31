@@ -23,7 +23,7 @@ public record CurrencyReader(EntityResolver resolver)
 		currency.code = proto.getCode();
 		currency.conversionFactor = proto.getConversionFactor();
 		var refCurrencyId = proto.getRefCurrency().getId();
-		if (Strings.notEmpty(refCurrencyId)) {
+		if (Strings.isNotBlank(refCurrencyId)) {
 			if (Objects.equals(refCurrencyId, currency.refId)) {
 				currency.referenceCurrency = currency;
 			} else {

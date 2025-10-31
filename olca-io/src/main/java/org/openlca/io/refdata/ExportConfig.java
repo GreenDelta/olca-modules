@@ -33,7 +33,7 @@ record ExportConfig(File dir, IDatabase db) {
 	}
 
 	void sort(List<? extends RefEntity> entities) {
-		entities.sort((e1, e2) -> Strings.compare(e1.name, e2.name));
+		entities.sort((e1, e2) -> Strings.compareIgnoreCase(e1.name, e2.name));
 	}
 
 	String toPath(Category category) {

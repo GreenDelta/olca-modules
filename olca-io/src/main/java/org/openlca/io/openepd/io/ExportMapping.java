@@ -37,12 +37,12 @@ final class ExportMapping {
 
 		// sort & map
 		for (var model : mappings) {
-			model.scopes().sort(Strings::compare);
+			model.scopes().sort(Strings::compareIgnoreCase);
 			model.entries().sort((r1, r2) -> {
 				var i1 = r1.indicator();
 				var i2 = r2.indicator();
 				return i1 != null && i2 != null
-					? Strings.compare(i1.name, i2.name)
+					? Strings.compareIgnoreCase(i1.name, i2.name)
 					: 0;
 			});
 			initMappings(model);
@@ -52,7 +52,7 @@ final class ExportMapping {
 
 	private static MethodMapping of(EpdModule mod, List<MethodMapping> models) {
 		if (mod == null
-			|| Strings.nullOrEmpty(mod.name)
+			|| Strings.isBlank(mod.name)
 			|| mod.result == null
 			|| mod.result.impactResults.isEmpty())
 			return null;

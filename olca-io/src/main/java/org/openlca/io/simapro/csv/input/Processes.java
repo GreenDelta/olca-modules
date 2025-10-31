@@ -69,7 +69,7 @@ class Processes implements ProcessMapper {
 	private void exec() {
 
 		var name = nameOf(block);
-		if (Strings.nullOrEmpty(name)) {
+		if (Strings.isBlank(name)) {
 			log.warn("could not determine name of process; skipped it");
 			return;
 		}
@@ -115,7 +115,7 @@ class Processes implements ProcessMapper {
 			return block.wasteTreatment().name();
 		if (block.wasteScenario() != null)
 			return block.wasteScenario().name();
-		return Strings.notEmpty(block.name())
+		return Strings.isNotBlank(block.name())
 				? block.name()
 				: block.identifier();
 	}

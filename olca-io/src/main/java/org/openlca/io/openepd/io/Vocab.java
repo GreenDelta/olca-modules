@@ -494,7 +494,7 @@ public class Vocab {
 		}
 
 		public Optional<UnitMatch> unitMatchOf(String unit) {
-			if (Strings.nullOrEmpty(unit))
+			if (Strings.isBlank(unit))
 				return Optional.empty();
 			for (var u : units) {
 				if (u.matches(unit))
@@ -521,7 +521,7 @@ public class Vocab {
 		}
 
 		public boolean matches(String unit) {
-			if (Strings.nullOrEmpty(unit))
+			if (Strings.isBlank(unit))
 				return false;
 			var matcher = pattern.matcher(unit);
 			return matcher.matches();
@@ -530,7 +530,7 @@ public class Vocab {
 	}
 
 	private static double scoreOf(Pattern pattern, String s) {
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return 0;
 		var matcher = pattern.matcher(s);
 		if (matcher.matches())
@@ -596,7 +596,7 @@ public class Vocab {
 	}
 
 	public static Optional<Scope> findScope(String name) {
-		if (Strings.nullOrEmpty(name))
+		if (Strings.isBlank(name))
 			return Optional.empty();
 		for (var scope : Scope.values()) {
 			if (scope.pattern.matcher(name).matches())

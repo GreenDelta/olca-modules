@@ -209,7 +209,7 @@ public class References {
 						if (!consumer.apply(lib))
 							return;
 				} else {
-					var treeId = Strings.nullOrEmpty(path)
+					var treeId = Strings.isBlank(path)
 							? commit.getTree().getId()
 							: repo.getSubTreeId(commit.getTree().getId(), path);
 					if (treeId.equals(ObjectId.zeroId()))
@@ -227,7 +227,7 @@ public class References {
 					walk.addTree(commit.getTree());
 					walk.setRecursive(true);
 					TreeFilter filter = KnownFilesFilter.create();
-					if (!Strings.nullOrEmpty(path)) {
+					if (Strings.isNotBlank(path)) {
 						filter = AndTreeFilter.create(filter, PathFilter.create(GitUtil.encode(path)));
 					}
 					if (type != null && refId != null) {
@@ -264,7 +264,7 @@ public class References {
 							continue;
 						var id = walk.getObjectId(0);
 						var fullPath = name;
-						if (!Strings.nullOrEmpty(path)) {
+						if (Strings.isNotBlank(path)) {
 							fullPath = path + "/" + name;
 						}
 						var ref = new Reference(fullPath, commit.name(), id);

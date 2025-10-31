@@ -55,7 +55,7 @@ class IO {
 		var name = new StringBuilder();
 		for (var part : parts) {
 			var s = LangString.getDefault(part);
-			if (Strings.nullOrEmpty(s))
+			if (Strings.isBlank(s))
 				continue;
 			if (!name.isEmpty()) {
 				name.append("; ");

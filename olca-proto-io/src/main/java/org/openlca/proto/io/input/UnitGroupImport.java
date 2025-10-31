@@ -64,7 +64,7 @@ class UnitGroupImport implements EntityResolver {
 
 		// set a possible default flow property
 		var propId = proto.message().getDefaultFlowProperty().getId();
-		if (Strings.notEmpty(propId)) {
+		if (Strings.isNotBlank(propId)) {
 			var prop = imp.get(FlowProperty.class, propId);
 			if (prop != null) {
 				group.defaultFlowProperty = prop;

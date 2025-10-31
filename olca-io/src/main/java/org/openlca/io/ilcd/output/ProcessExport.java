@@ -154,7 +154,7 @@ public class ProcessExport {
 	}
 
 	private void mapTechnology(Process ds) {
-		if (doc != null && Strings.notEmpty(doc.technology)) {
+		if (doc != null && Strings.isNotBlank(doc.technology)) {
 			var tech = ds.withProcessInfo().withTechnology();
 			exp.add(tech::withDescription, doc.technology);
 		}

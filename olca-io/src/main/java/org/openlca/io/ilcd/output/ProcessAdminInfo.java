@@ -69,8 +69,8 @@ class ProcessAdminInfo {
 	}
 
 	private void createCommissionerAndGoal() {
-		if (Strings.nullOrEmpty(doc.intendedApplication)
-				&& Strings.nullOrEmpty(doc.project))
+		if (Strings.isBlank(doc.intendedApplication)
+				&& Strings.isBlank(doc.project))
 			return;
 		var comAndGoal = adminInfo.withCommissionerAndGoal();
 		exp.add(comAndGoal::withIntendedApplications, doc.intendedApplication);

@@ -34,7 +34,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   public void getAll(Empty req, StreamObserver<ProtoFlowMapName> resp) {
     new MappingFileDao(db).getNames()
         .stream()
-        .sorted(Strings::compare)
+        .sorted(Strings::compareIgnoreCase)
         .map(name -> ProtoFlowMapName.newBuilder().setName(name).build())
         .forEach(resp::onNext);
     resp.onCompleted();
@@ -66,7 +66,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   }
 
   private MappingFile forceGet(String name, StreamObserver<?> resp) {
-    if (Strings.nullOrEmpty(name)) {
+    if (Strings.isBlank(name)) {
       Response.invalidArg(resp,
           "No name of the flow map was given.");
       return null;
@@ -94,7 +94,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
   @Override
   public void put(ProtoFlowMap proto, StreamObserver<Empty> resp) {
     var model = toModel(proto);
-    if (Strings.nullOrEmpty(model.name)) {
+    if (Strings.isBlank(model.name)) {
       Response.invalidArg(resp, "A name of the flow map is required");
       return;
     }

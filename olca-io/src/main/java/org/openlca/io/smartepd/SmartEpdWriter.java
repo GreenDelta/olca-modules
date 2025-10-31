@@ -112,7 +112,7 @@ public class SmartEpdWriter {
 
 		// find by code
 		var code = r.indicator.code;
-		if (Strings.notEmpty(code)) {
+		if (Strings.isNotBlank(code)) {
 			var smartIndicator = SmartIndicator.of(code).orElse(null);
 			if (smartIndicator != null)
 				return smartIndicator;
@@ -120,7 +120,7 @@ public class SmartEpdWriter {
 
 		// find by name
 		var name = r.indicator.name;
-		if (Strings.notEmpty(name)) {
+		if (Strings.isNotBlank(name)) {
 			var smartIndicator = SmartIndicator.of(name).orElse(null);
 			if (smartIndicator != null)
 				return smartIndicator;
@@ -128,7 +128,7 @@ public class SmartEpdWriter {
 
 		// find by mapping ID
 		var refId = r.indicator.refId;
-		if (Strings.nullOrEmpty(refId))
+		if (Strings.isBlank(refId))
 			return null;
 		for (var i : indicators) {
 			for (var ref : i.refs()) {
@@ -150,7 +150,7 @@ public class SmartEpdWriter {
 			var method = result.impactMethod;
 
 			// check the code
-			if (Strings.notEmpty(method.code)) {
+			if (Strings.isNotBlank(method.code)) {
 				var smartMethod = SmartMethod.of(method.code).orElse(null);
 				if (smartMethod != null)
 					return smartMethod;

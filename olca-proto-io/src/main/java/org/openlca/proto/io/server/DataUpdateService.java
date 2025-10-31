@@ -30,7 +30,7 @@ public class DataUpdateService extends
     if (modelType == null)
       return;
     var id = req.getId();
-    if (Strings.nullOrEmpty(id)) {
+    if (Strings.isBlank(id)) {
       Response.invalidArg(resp, "A data set ID is required");
       return;
     }
@@ -52,7 +52,7 @@ public class DataUpdateService extends
 		var reader = DataSetReader.of(dataSet);
 		var type = reader.getType();
 		var id = reader.getId();
-		if (type == null || Strings.nullOrEmpty(id)) {
+		if (type == null || Strings.isBlank(id)) {
 			Response.invalidArg(resp, "No valid data set provided");
 			return;
 		}

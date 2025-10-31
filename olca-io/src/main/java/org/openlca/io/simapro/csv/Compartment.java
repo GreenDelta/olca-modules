@@ -26,7 +26,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 		if (type == null)
 			return  Optional.empty();
 
-		if (Strings.nullOrEmpty(subCompartment)
+		if (Strings.isBlank(subCompartment)
 			|| "unspecified".equalsIgnoreCase(subCompartment)
 			|| "(unspecified)".equalsIgnoreCase(subCompartment))
 			return Optional.of(Compartment.of(type, SubCompartment.UNSPECIFIED));

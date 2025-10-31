@@ -289,7 +289,7 @@ class ProcessImport {
 													Exchange exchange, double factor) {
 		String formula = null;
 		String var = original.variableName;
-		if (Strings.notEmpty(var)
+		if (Strings.isNotBlank(var)
 			&& Parameters.contains(var, process.parameters)) {
 			formula = var;
 		} else if (Parameters.isValid(original.mathematicalRelation, config)) {

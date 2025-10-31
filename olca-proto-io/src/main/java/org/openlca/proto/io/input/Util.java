@@ -71,7 +71,7 @@ class Util {
 	}
 
 	static Optional<Date> dateOf(String field) {
-		if (Strings.nullOrEmpty(field))
+		if (Strings.isBlank(field))
 			return Optional.empty();
 		var date = Json.parseDate(field);
 		return Optional.ofNullable(date);
@@ -139,7 +139,7 @@ class Util {
 
 		// category
 		var path = proto.category();
-		if (Strings.notEmpty(path)) {
+		if (Strings.isNotBlank(path)) {
 			var type = ModelType.of(e);
 			e.category = resolver.getCategory(type, path);
 		}
@@ -152,14 +152,14 @@ class Util {
 
 	static long versionOf(ProtoBox<?, ?> proto) {
 		var s = proto.version();
-		return Strings.nullOrEmpty(s)
+		return Strings.isBlank(s)
 			? 0
 			: Version.fromString(s).getValue();
 	}
 
 	static long lastChangeOf(ProtoBox<?, ?> proto) {
 		var s = proto.lastChange();
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return 0;
 		var date = Json.parseDate(s);
 		return date != null
@@ -169,119 +169,119 @@ class Util {
 
 	static Actor getActor(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Actor.class, id)
 			: null;
 	}
 
 	static Currency getCurrency(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Currency.class, id)
 			: null;
 	}
 
 	static DQSystem getDQSystem(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(DQSystem.class, id)
 			: null;
 	}
 
 	static Epd getEpd(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Epd.class, id)
 			: null;
 	}
 
 	static FlowProperty getFlowProperty(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(FlowProperty.class, id)
 			: null;
 	}
 
 	static Flow getFlow(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Flow.class, id)
 			: null;
 	}
 
 	static ImpactCategory getImpactCategory(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(ImpactCategory.class, id)
 			: null;
 	}
 
 	static ImpactMethod getImpactMethod(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(ImpactMethod.class, id)
 			: null;
 	}
 
 	static Location getLocation(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Location.class, id)
 			: null;
 	}
 
 	static Parameter getParameter(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Parameter.class, id)
 			: null;
 	}
 
 	static Process getProcess(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Process.class, id)
 			: null;
 	}
 
 	static ProductSystem getProductSystem(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(ProductSystem.class, id)
 			: null;
 	}
 
 	static Project getProject(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Project.class, id)
 			: null;
 	}
 
 	static Result getResult(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Result.class, id)
 			: null;
 	}
 
 	static SocialIndicator getSocialIndicator(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(SocialIndicator.class, id)
 			: null;
 	}
 
 	static Source getSource(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(Source.class, id)
 			: null;
 	}
 
 	static UnitGroup getUnitGroup(EntityResolver resolver, ProtoRef ref) {
 		var id = ref.getId();
-		return Strings.notEmpty(id)
+		return Strings.isNotBlank(id)
 			? resolver.get(UnitGroup.class, id)
 			: null;
 	}

@@ -69,16 +69,16 @@ public class ImpactImport {
 
 		// we have in principle 3 places where we can find the name
 		var name = imp.str(info.getName());
-		if (Strings.nullOrEmpty(name)) {
+		if (Strings.isBlank(name)) {
 			name = info.getImpactCategories().stream()
-					.filter(Strings::notEmpty)
+					.filter(Strings::isNotBlank)
 					.findAny()
 					.orElse(null);
-			if (Strings.nullOrEmpty(name)) {
+			if (Strings.isBlank(name)) {
 				name = info.getIndicator();
 			}
 		}
-		if (Strings.nullOrEmpty(name))
+		if (Strings.isBlank(name))
 			return "- none -";
 
 		// add the reference year to the name if present

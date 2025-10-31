@@ -76,9 +76,9 @@ public class EpdImport {
 	}
 
 	private Actor getActor(EpdOrg org) {
-		if (org == null || Strings.nullOrEmpty(org.name))
+		if (org == null || Strings.isBlank(org.name))
 			return null;
-		var id = Strings.notEmpty(org.ref)
+		var id = Strings.isNotBlank(org.ref)
 			? KeyGen.get(org.ref)
 			: KeyGen.get(org.name);
 		var actor = db.get(Actor.class, id);
@@ -94,11 +94,11 @@ public class EpdImport {
 	}
 
 	private Source getSource(EpdPcr pcr) {
-		if (pcr == null || Strings.nullOrEmpty(pcr.name))
+		if (pcr == null || Strings.isBlank(pcr.name))
 			return null;
 		var id = pcr.id;
-		if (Strings.nullOrEmpty(id)) {
-			id = Strings.notEmpty(pcr.ref)
+		if (Strings.isBlank(id)) {
+			id = Strings.isNotBlank(pcr.ref)
 				? KeyGen.get(pcr.ref)
 				: KeyGen.get(pcr.name);
 		}
@@ -182,7 +182,7 @@ public class EpdImport {
 				path = c.second;
 			}
 		}
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return Optional.empty();
 
 

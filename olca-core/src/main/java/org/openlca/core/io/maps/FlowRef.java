@@ -1,5 +1,7 @@
 package org.openlca.core.io.maps;
 
+import java.util.Objects;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Flow;
@@ -140,13 +142,12 @@ public class FlowRef implements Copyable<FlowRef> {
 	public FlowPropertyFactor getMatchingProperty(Flow flow) {
 		if (flow == null)
 			return null;
-		if (property == null || Strings.nullOrEmpty(property.refId))
+		if (property == null || Strings.isBlank(property.refId))
 			return flow.getReferenceFactor();
 		for (var f : flow.flowPropertyFactors) {
 			if (f == null || f.flowProperty == null)
 				continue;
-			if (Strings.nullOrEqual(
-					f.flowProperty.refId, property.refId))
+			if (Objects.equals(f.flowProperty.refId, property.refId))
 				return f;
 		}
 		return null;
@@ -165,12 +166,12 @@ public class FlowRef implements Copyable<FlowRef> {
 				|| fac.flowProperty.unitGroup == null)
 			return null;
 		var group = fac.flowProperty.unitGroup;
-		if (unit == null || Strings.nullOrEmpty(unit.refId))
+		if (unit == null || Strings.isBlank(unit.refId))
 			return group.referenceUnit;
 		return group.units.stream()
-				.filter(u -> Strings.nullOrEqual(u.refId, unit.refId))
-				.findAny()
-				.orElse(null);
+			.filter(u -> Objects.equals(u.refId, unit.refId))
+			.findAny()
+			.orElse(null);
 	}
 
 }

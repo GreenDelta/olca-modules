@@ -28,7 +28,7 @@ class JsonSankeyRequest {
 		req.forCosts = Json.getBool(obj, "forCosts", false);
 
 		var impactId = Json.getRefId(obj, "impactCategory");
-		if (Strings.notEmpty(impactId)) {
+		if (Strings.isNotBlank(impactId)) {
 			var r = Util.impactCategoryOf(result, impactId);
 			if (r.isError())
 				return Response.error(r.error());

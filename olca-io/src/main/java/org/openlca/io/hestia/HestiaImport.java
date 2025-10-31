@@ -40,7 +40,7 @@ public class HestiaImport {
 	}
 
 	public Res<Process> importCycle(String cycleId) {
-		if (Strings.nullOrEmpty(cycleId))
+		if (Strings.isBlank(cycleId))
 			return Res.error("cycle ID must not be null or empty");
 
 		var refId = KeyGen.get("cycle", cycleId);
@@ -111,14 +111,14 @@ public class HestiaImport {
 		if (term == null)
 			return;
 		var cat = term.getCategoryName();
-		if (Strings.nullOrEmpty(cat))
+		if (Strings.isBlank(cat))
 			return;
 		process.category = CategoryDao.sync(db, ModelType.PROCESS, cat);
 	}
 
 	private Site siteOf(Cycle cycle) {
 		var ref = cycle.site();
-		if (ref == null || Strings.nullOrEmpty(ref.id()))
+		if (ref == null || Strings.isBlank(ref.id()))
 			return null;
 		var res = client.getSite(ref.id());
 		if (res.hasError()) {

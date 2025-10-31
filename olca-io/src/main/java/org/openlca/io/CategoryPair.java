@@ -52,10 +52,10 @@ public class CategoryPair implements Comparable<CategoryPair> {
 	public int compareTo(CategoryPair other) {
 		if (other == null)
 			return 1;
-		int c = Strings.compare(this.category, other.category);
+		int c = Strings.compareIgnoreCase(this.category, other.category);
 		if (c != 0)
 			return c;
-		return Strings.compare(this.subCategory, other.subCategory);
+		return Strings.compareIgnoreCase(this.subCategory, other.subCategory);
 	}
 
 	public String toPath() {

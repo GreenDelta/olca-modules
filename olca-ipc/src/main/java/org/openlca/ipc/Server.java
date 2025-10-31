@@ -121,7 +121,7 @@ public class Server {
 	}
 
 	private RpcResponse getResponse(RpcRequest req) {
-		if (Strings.nullOrEmpty(req.method))
+		if (Strings.isBlank(req.method))
 			return Responses.unknownMethod(req);
 		Handler handler = handlers.get(req.method);
 		if (handler == null)

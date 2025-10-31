@@ -3,10 +3,11 @@ package org.openlca.validation;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Strings;
+
+import gnu.trove.set.hash.TLongHashSet;
 
 class UnitCheck implements Runnable {
 
@@ -57,14 +58,14 @@ class UnitCheck implements Runnable {
 			}
 
 			var refID = r.getString(2);
-			if (Strings.nullOrEmpty(refID)) {
+			if (Strings.isBlank(refID)) {
 				v.error(groupID, ModelType.UNIT_GROUP,
 					"unit has no reference ID @" + id);
 				foundErrors = true;
 			}
 
 			var name = r.getString(3);
-			if (Strings.nullOrEmpty(name)) {
+			if (Strings.isBlank(name)) {
 				v.error(groupID, ModelType.UNIT_GROUP, "unit without name");
 				foundErrors = true;
 				return !v.wasCanceled();
@@ -86,11 +87,11 @@ class UnitCheck implements Runnable {
 			}
 			names.add(name);
 			var synonyms = r.getString(6);
-			if (!Strings.nullOrEmpty(synonyms)) {
+			if (Strings.isNotBlank(synonyms)) {
 				Arrays.stream(synonyms.split(";"))
 					.forEach(synonym -> {
 						var syn = synonym.trim();
-						if (Strings.notEmpty(syn)) {
+						if (Strings.isNotBlank(syn)) {
 							if (names.contains(syn)) {
 								v.warning(groupID, ModelType.UNIT_GROUP,
 									"duplicate unit name or synonym: " + syn);

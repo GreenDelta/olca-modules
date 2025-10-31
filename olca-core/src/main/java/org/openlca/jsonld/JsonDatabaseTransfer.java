@@ -67,7 +67,7 @@ public class JsonDatabaseTransfer {
 		var existing = new HashSet<String>();
 		NativeSql.on(target).query(query, r -> {
 			var id = r.getString(1);
-			if (Strings.notEmpty(id)) {
+			if (Strings.isNotBlank(id)) {
 				existing.add(id);
 			}
 			return true;
@@ -75,7 +75,7 @@ public class JsonDatabaseTransfer {
 
 		NativeSql.on(source).query(query, r -> {
 			var id = r.getString(1);
-			if (Strings.notEmpty(id) && !existing.contains(id)) {
+			if (Strings.isNotBlank(id) && !existing.contains(id)) {
 				add(type, id);
 			}
 			return true;

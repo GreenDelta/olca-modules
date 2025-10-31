@@ -2,8 +2,6 @@ package org.openlca.core.model;
 
 import java.util.Objects;
 
-import org.openlca.util.Strings;
-
 public class TypedRefId {
 
 	public final ModelType type;
@@ -24,7 +22,7 @@ public class TypedRefId {
 		if (!(obj instanceof TypedRefId))
 			return false;
 		var o = (TypedRefId) obj;
-		return type == o.type && Strings.nullOrEqual(refId, o.refId);
+		return type == o.type && Objects.equals(refId, o.refId);
 	}
 
 	protected String fieldsToString() {

@@ -25,7 +25,7 @@ public record DQSystemReader(EntityResolver resolver)
 		Util.mapBase(system, ProtoBox.of(proto), resolver);
 		system.hasUncertainties = proto.getHasUncertainties();
 		var sourceRefId = proto.getSource().getId();
-		if (Strings.notEmpty(sourceRefId)) {
+		if (Strings.isNotBlank(sourceRefId)) {
 			system.source = resolver.get(Source.class, sourceRefId);
 		}
 		mapIndicators(system, proto);

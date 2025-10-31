@@ -57,7 +57,7 @@ public class DbEntityResolver implements EntityResolver {
 
 	@Override
 	public Category getCategory(ModelType type, String path) {
-		if (type == null || Strings.nullOrEmpty(path))
+		if (type == null || Strings.isBlank(path))
 			return null;
 		var dao = new CategoryDao(db);
 		var c = dao.getForPath(type, path);

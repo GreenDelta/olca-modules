@@ -75,7 +75,7 @@ class UnitMap {
 	}
 
 	private String unmappedOf(String unit) {
-		if (Strings.nullOrEmpty(unit))
+		if (Strings.isBlank(unit))
 			return "?";
 		if (unmapped.contains(unit))
 			return unit;

@@ -258,7 +258,7 @@ public class Parameters {
 
 		// if the parameter has no name or if it is equivalent to the
 		// new name, we do not have to change the formulas or redefinitions
-		if (Strings.nullOrEmpty(param.name) || eq(param.name, name)) {
+		if (Strings.isBlank(param.name) || eq(param.name, name)) {
 			param.name = name;
 			Version.incUpdate(param);
 			param.lastChange = new Date().getTime();
@@ -397,7 +397,7 @@ public class Parameters {
 	private static boolean eq(String name1, String name2) {
 		if (name1 == null || name2 == null)
 			return false;
-		return Strings.nullOrEqual(
+		return Objects.equals(
 				name1.trim().toLowerCase(),
 				name2.trim().toLowerCase());
 	}

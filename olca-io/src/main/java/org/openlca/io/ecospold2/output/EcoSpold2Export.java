@@ -12,15 +12,15 @@ import java.util.UUID;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.ecospold2.UncertaintyConverter;
-import org.openlca.core.io.maps.FlowMap;
 import org.openlca.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,10 +139,10 @@ public class EcoSpold2Export implements Runnable {
 		activity.type = process.processType == ProcessType.LCI_RESULT ? 2 : 1;
 		activity.specialActivityType = 0; // default
 		activity.generalComment = RichText.of(process.description);
-		if (!Strings.nullOrEmpty(process.tags)) {
+		if (Strings.isNotBlank(process.tags)) {
 			Arrays.stream(process.tags.split(","))
-					.filter(tag -> !tag.isBlank())
-					.forEach(activity.tags::add);
+				.filter(Strings::isNotBlank)
+				.forEach(activity.tags::add);
 		}
 	}
 

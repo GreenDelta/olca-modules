@@ -199,11 +199,11 @@ class CsvFlowSync {
 
 			// create the flow category
 			var categoryPath = new ArrayList<String>();
-			if (Strings.notEmpty(topCategory)) {
+			if (Strings.isNotBlank(topCategory)) {
 				categoryPath.add(topCategory);
 			}
 			if (row instanceof RefExchangeRow refRow) {
-				if (Strings.notEmpty(refRow.category())) {
+				if (Strings.isNotBlank(refRow.category())) {
 					var segments = refRow.category().split("\\\\");
 					categoryPath.addAll(Arrays.asList(segments));
 				}
@@ -217,7 +217,7 @@ class CsvFlowSync {
 			if (row instanceof RefExchangeRow) {
 				flow.description = row.comment();
 				if (row instanceof ProductOutputRow productRow) {
-					if (Strings.notEmpty(productRow.wasteType())) {
+					if (Strings.isNotBlank(productRow.wasteType())) {
 						flow.tags = productRow.wasteType();
 					}
 				}

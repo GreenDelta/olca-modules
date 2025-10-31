@@ -3,9 +3,9 @@ package org.openlca.proto.io.input;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationTarget;
-import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
@@ -72,9 +72,9 @@ public final class CalculationSetupReader {
 
     // flow property
     var propId = proto.getFlowProperty().getId();
-    if (Strings.notEmpty(propId) && qref.flow != null) {
+    if (Strings.isNotBlank(propId) && qref.flow != null) {
       qref.flow.flowPropertyFactors.stream()
-        .filter(f -> Strings.nullOrEqual(propId, f.flowProperty.refId))
+				.filter(f -> Objects.equals(propId, f.flowProperty.refId))
         .findAny()
         .ifPresent(setup::withFlowPropertyFactor);
     }
@@ -82,13 +82,13 @@ public final class CalculationSetupReader {
     // unit
     var unitId = proto.getUnit().getId();
     var propFac = setup.flowPropertyFactor();
-    if (Strings.notEmpty(unitId)
+    if (Strings.isNotBlank(unitId)
         && propFac != null
         && propFac.flowProperty != null
         && propFac.flowProperty.unitGroup != null) {
       var group = propFac.flowProperty.unitGroup;
       group.units.stream()
-        .filter(u -> Strings.nullOrEqual(unitId, u.refId))
+				.filter(u -> Objects.equals(unitId, u.refId))
         .findAny()
         .ifPresent(setup::withUnit);
     }
@@ -99,7 +99,7 @@ public final class CalculationSetupReader {
 
     // impact method
     var methodId = proto.getImpactMethod().getId();
-    if (Strings.nullOrEmpty(methodId))
+    if (Strings.isBlank(methodId))
       return;
     var method = resolver.get(ImpactMethod.class, methodId);
     if (method == null)
@@ -108,7 +108,7 @@ public final class CalculationSetupReader {
 
     // nw-set
     var nwId = proto.getNwSet().getId();
-    if (Strings.nullOrEmpty(nwId))
+    if (Strings.isBlank(nwId))
       return;
     for (var nwSet : method.nwSets) {
       if (nwId.equals(nwSet.refId)) {

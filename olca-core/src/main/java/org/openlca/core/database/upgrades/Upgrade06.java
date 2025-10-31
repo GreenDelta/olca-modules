@@ -1,10 +1,11 @@
 package org.openlca.core.database.upgrades;
 
+import java.util.Objects;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.util.Categories;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
 
 class Upgrade06 implements IUpgrade {
 
@@ -71,7 +72,7 @@ class Upgrade06 implements IUpgrade {
 			long id = r.getLong(1);
 			var refID = r.getString(2);
 			var pathKey = KeyGen.get(categories.pathOf(id));
-			if (Strings.nullOrEqual(refID, pathKey))
+			if (Objects.equals(refID, pathKey))
 				return true;
 			r.updateString(2, pathKey);
 			r.updateRow();

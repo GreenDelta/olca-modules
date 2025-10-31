@@ -39,7 +39,7 @@ public record LibraryLink(String id, String url) {
 			return Optional.empty();
 		var obj = json.getAsJsonObject();
 		var id = Json.getString(obj, "id");
-		return Strings.nullOrEmpty(id)
+		return Strings.isBlank(id)
 				? Optional.empty()
 				: Optional.of(new LibraryLink(id, Json.getString(obj, "url")));
 	}
@@ -53,7 +53,7 @@ public record LibraryLink(String id, String url) {
 
 	public static List<LibraryLink> of(Collection<String> libraries) {
 		return libraries.stream()
-				.filter(Strings::notEmpty)
+				.filter(Strings::isNotBlank)
 				.map(id -> new LibraryLink(id, null))
 				.toList();
 	}

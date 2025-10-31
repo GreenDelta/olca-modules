@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class Formula {
 
 	public static Set<String> getVariables(String formula) {
-		if (Strings.nullOrEmpty(formula))
+		if (Strings.isBlank(formula))
 			return Collections.emptySet();
 		Set<String> vars = new HashSet<>();
 		try {

@@ -1,8 +1,9 @@
 package org.openlca.io.olca;
 
+import java.util.Objects;
+
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NwSet;
-import org.openlca.util.Strings;
 
 class ImpactMethodImport {
 
@@ -52,9 +53,9 @@ class ImpactMethodImport {
 	}
 
 	private boolean areEqual(NwSet source, NwSet target) {
-		return Strings.nullOrEqual(source.name, target.name)
-				&& Strings.nullOrEqual(source.description, target.description)
-				&& Strings.nullOrEqual(source.weightedScoreUnit, target.weightedScoreUnit);
+		return Objects.equals(source.name, target.name)
+			&& Objects.equals(source.description, target.description)
+			&& Objects.equals(source.weightedScoreUnit, target.weightedScoreUnit);
 	}
 
 }

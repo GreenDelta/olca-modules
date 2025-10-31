@@ -21,7 +21,7 @@ record GroupMap(String top, Map<Long, String> map) {
 		var names = new HashSet<String>();
 		var map = new HashMap<Long, String>();
 		for (var g : groups) {
-			if (Strings.nullOrEmpty(g.name) || g.processes.isEmpty())
+			if (Strings.isBlank(g.name) || g.processes.isEmpty())
 				continue;
 			var name = g.name;
 			names.add(name);

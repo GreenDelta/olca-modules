@@ -24,7 +24,6 @@ import org.openlca.ilcd.util.Categories;
 import org.openlca.ilcd.util.Models;
 import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.input.ProcessImport;
-import org.openlca.util.Strings;
 
 /**
  * Imports an eILCD model as product system into an openLCA database.
@@ -56,8 +55,7 @@ public class ModelImport {
 		if (system != null)
 			return system;
 		String origin = Models.getOrigin(model);
-		if (Strings.nullOrEqual("openLCA", origin)
-				|| !imp.hasGabiGraphSupport()) {
+		if (Objects.equals("openLCA", origin) || !imp.hasGabiGraphSupport()) {
 			system = new ProductSystem();
 			IO.mapMetaData(model, system);
 			String[] path = Categories.getPath(model);

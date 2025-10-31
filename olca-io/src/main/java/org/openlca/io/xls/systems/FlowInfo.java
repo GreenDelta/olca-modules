@@ -68,13 +68,13 @@ class FlowInfo implements Comparable<FlowInfo> {
 	public int compareTo(FlowInfo other) {
 		if (other == null)
 			return 1;
-		int c = Strings.compare(this.name, other.name);
+		int c = Strings.compareIgnoreCase(this.name, other.name);
 		if (c != 0)
 			return c;
-		c = Strings.compare(this.category, other.category);
+		c = Strings.compareIgnoreCase(this.category, other.category);
 		if (c != 0)
 			return c;
-		c = Strings.compare(this.subCategory, other.subCategory);
+		c = Strings.compareIgnoreCase(this.subCategory, other.subCategory);
 		return c;
 	}
 

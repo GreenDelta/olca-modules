@@ -36,7 +36,7 @@ class CurrencyImport implements Runnable {
 		});
 
 		var refId = ref.get();
-		if (Strings.nullOrEmpty(refId)) {
+		if (Strings.isBlank(refId)) {
 			config.log().error("no reference currency defined");
 			return;
 		}

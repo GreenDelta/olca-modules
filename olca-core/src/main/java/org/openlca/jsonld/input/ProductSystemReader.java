@@ -222,7 +222,7 @@ public class ProductSystemReader implements EntityReader<ProductSystem> {
 		system.analysisGroups.clear();
 		Json.forEachObject(root, "analysisGroups", obj -> {
 			var name = Json.getString(obj, "name");
-			if (Strings.nullOrEmpty(name))
+			if (Strings.isBlank(name))
 				return;
 			var group = new AnalysisGroup();
 			group.name = name;

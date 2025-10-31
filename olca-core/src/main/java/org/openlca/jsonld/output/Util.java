@@ -100,12 +100,12 @@ class Util {
 			}
 
 			// tags
-			if (!Strings.nullOrEmpty(re.tags)) {
+			if (Strings.isNotBlank(re.tags)) {
 				var tags = new JsonArray();
 				Arrays.stream(re.tags.split(","))
-						.map(String::trim)
-						.filter(tag -> !Strings.nullOrEmpty(tag))
-						.forEach(tags::add);
+					.map(String::trim)
+					.filter(Strings::isNotBlank)
+					.forEach(tags::add);
 				if (!tags.isEmpty()) {
 					obj.add("tags", tags);
 				}

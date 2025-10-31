@@ -110,7 +110,7 @@ public class Databases {
 		var dqSQL = "select dq_entry from tbl_exchanges";
 		NativeSql.on(db).query(dqSQL, r -> {
 			var dqe = r.getString(1);
-			if (Strings.nullOrEmpty(dqe))
+			if (Strings.isBlank(dqe))
 				return true;
 			hasDQ.set(true);
 			return false;

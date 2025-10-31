@@ -70,7 +70,7 @@ class FlowFetch {
 		flow.description = "A HESTIA flow: " +
 				"https://www.hestia.earth/term/" + termId;
 		var cat = term.getCategoryName();
-		if (Strings.notEmpty(cat)) {
+		if (Strings.isNotBlank(cat)) {
 			flow.category = CategoryDao.sync(db, ModelType.FLOW, cat);
 		}
 		db.insert(flow);

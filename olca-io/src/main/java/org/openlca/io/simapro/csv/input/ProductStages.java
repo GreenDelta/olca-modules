@@ -92,7 +92,7 @@ class ProductStages implements ProcessMapper {
 		process.refId = refId;
 		process.name = name;
 		process.processType = ProcessType.UNIT_PROCESS;
-		if (Strings.notEmpty(type)) {
+		if (Strings.isNotBlank(type)) {
 			process.tags = type;
 		}
 		formulaScope = createFormulaScope();

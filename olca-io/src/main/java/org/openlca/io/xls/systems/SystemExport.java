@@ -323,7 +323,7 @@ class SystemExport {
 		ExcelHeader header, ImpactIndex impactIndex) {
 		var sortedCategories = impactIndex.content()
 			.stream()
-			.sorted((i1, i2) -> Strings.compare(i1.name, i2.name))
+			.sorted((i1, i2) -> Strings.compareIgnoreCase(i1.name, i2.name))
 			.collect(Collectors.toList());
 		int counter = 0;
 		for (ImpactDescriptor category : sortedCategories) {

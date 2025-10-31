@@ -68,42 +68,36 @@ public class Strings {
 			: prefix;
 	}
 
-	/**
-	 * Returns true if both of the given strings are null or if both of the
-	 * given strings are equal.
-	 */
-	public static boolean nullOrEqual(String string1, String string2) {
-		return (string1 == null && string2 == null)
-				|| (string1 != null && string1.equals(string2));
+	/// Returns `true` if the given string is `null`, empty, or contains only
+	/// whitespace characters.
+	public static boolean isBlank(String s) {
+		return s == null || s.isBlank();
 	}
 
-	/**
-	 * Returns true if the given string value is {@code null} or empty. It also
-	 * returns true if the given string contains only whitespaces.
-	 */
-	public static boolean nullOrEmpty(String val) {
-		return val == null || val.isBlank();
+	/// Returns `true` if the given string is not `null`, not empty, and contains
+	/// at least one non-whitespace character.
+	public static boolean isNotBlank(String s) {
+		return s != null && !s.isBlank();
 	}
 
-	/**
-	 * Returns true if the string is not null or empty, means that it contains
-	 * other characters than white-spaces.
-	 */
-	public static boolean notEmpty(String val) {
-		return val != null && !val.isBlank();
-	}
-
-	/**
-	 * A null-save method for comparing two strings ignoring the case.
-	 */
-	public static int compare(String str1, String str2) {
-		if (str1 == null && str2 == null)
+	/// Compares two strings lexicographically, ignoring case differences. Returns
+	/// `0` if both strings are equal (ignoring case) or both are `null`, a
+	/// negative value if the first string is less than the second, or a positive
+	/// value if the first string is greater than the second.
+	public static int compareIgnoreCase(String a, String b) {
+		if (a == null && b == null)
 			return 0;
-		if (str1 != null && str2 == null)
-			return 1;
-		if (str1 == null)
+		if (a == null)
 			return -1;
-		return str1.compareToIgnoreCase(str2);
+		if (b == null)
+			return 1;
+		return a.compareToIgnoreCase(b);
+	}
+
+	/// Compares two strings for equality, ignoring case differences. Returns
+	/// `true` if both strings are equal (ignoring case), or if both are `null`.
+	public static boolean equalsIgnoreCase(String a, String b) {
+		return a == b || (a != null && a.equalsIgnoreCase(b));
 	}
 
 	/**

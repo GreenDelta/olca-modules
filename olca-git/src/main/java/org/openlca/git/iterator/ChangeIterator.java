@@ -99,7 +99,7 @@ public class ChangeIterator extends EntryIterator {
 				? GitUtil.decode(parent.getEntryPathString())
 				: "";
 		changes.stream().sorted().forEach(change -> {
-			var path = !Strings.nullOrEmpty(prefix)
+			var path = Strings.isNotBlank(prefix)
 					? change.path.substring(prefix.length() + 1)
 					: change.path;
 			var name = path.contains("/") ? path.substring(0, path.indexOf('/')) : path;

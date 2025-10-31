@@ -46,7 +46,7 @@ record CategoryPath(ProcessCategory type, String path) {
 
 			var segment = Strings.cutEnd(c.name, 40);
 			c = c.category;
-			if (Strings.nullOrEmpty(segment))
+			if (Strings.isBlank(segment))
 				continue;
 			if (path == null) {
 				path = new StringBuilder(segment);
@@ -61,7 +61,7 @@ record CategoryPath(ProcessCategory type, String path) {
 	}
 
 	private static ProcessCategory typeOf(Category category) {
-		if (category == null || Strings.nullOrEmpty(category.name))
+		if (category == null || Strings.isBlank(category.name))
 			return null;
 		var s = category.name.trim().toLowerCase(Locale.US);
 		// in the import, we convert waste scenarios to parameterized

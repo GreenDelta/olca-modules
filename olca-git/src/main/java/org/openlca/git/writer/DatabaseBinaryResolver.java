@@ -47,7 +47,7 @@ public class DatabaseBinaryResolver implements BinaryResolver {
 
 	private File getFile(Diff change, String relativePath) {
 		var folder = fileStore.getFolder(change.type, change.refId);
-		if (!Strings.nullOrEmpty(relativePath)) {
+		if (Strings.isNotBlank(relativePath)) {
 			folder = new File(folder, relativePath);
 		}
 		return folder;

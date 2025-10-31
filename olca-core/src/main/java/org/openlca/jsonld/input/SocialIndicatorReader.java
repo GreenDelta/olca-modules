@@ -2,13 +2,13 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+
+import com.google.gson.JsonObject;
 
 public record SocialIndicatorReader(EntityResolver resolver)
 	implements EntityReader<SocialIndicator> {
@@ -47,7 +47,7 @@ public record SocialIndicatorReader(EntityResolver resolver)
 		if (prop == null || prop.unitGroup == null || unitId == null)
 			return null;
 		for (var unit : prop.unitGroup.units) {
-			if (Strings.nullOrEqual(unit.refId, unitId))
+			if (Objects.equals(unit.refId, unitId))
 				return unit;
 		}
 		return null;

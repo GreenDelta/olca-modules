@@ -56,7 +56,7 @@ class DataFetchService extends
       return;
 
     var id = req.getId();
-    if (Strings.nullOrEmpty(id)) {
+    if (Strings.isBlank(id)) {
       Response.invalidArg(resp, "A data set ID is required");
       return;
     }
@@ -88,13 +88,13 @@ class DataFetchService extends
     };
 
     var id = req.getId();
-    if (Strings.notEmpty(id)) {
+    if (Strings.isNotBlank(id)) {
       onSuccess.accept(db.get(type, id));
       return;
     }
 
     var name = req.getName();
-    onSuccess.accept(Strings.notEmpty(name)
+    onSuccess.accept(Strings.isNotBlank(name)
       ? db.getForName(type, name)
       : null);
   }
@@ -164,7 +164,7 @@ class DataFetchService extends
 
     // get by id
     var id = req.getId();
-    if (Strings.notEmpty(id)) {
+    if (Strings.isNotBlank(id)) {
       var d = dao.getDescriptorForRefId(id);
       if (d != null) {
         resp.onNext(Refs.refOf(d, refData).build());
@@ -179,7 +179,7 @@ class DataFetchService extends
     var catId = req.hasAttributes()
       ? req.getAttributes().getCategory()
       : null;
-    if (Strings.notEmpty(catId)) {
+    if (Strings.isNotBlank(catId)) {
       stream = stream.filter(Objects::nonNull);
 
       // "/" identifies the root category or no
@@ -208,7 +208,7 @@ class DataFetchService extends
     var name = req.hasAttributes()
       ? req.getAttributes().getName()
       : null;
-    if (Strings.notEmpty(name)) {
+    if (Strings.isNotBlank(name)) {
       var term = name.trim().toLowerCase();
       stream = stream.filter(d -> {
         if (d.name == null)
@@ -243,7 +243,7 @@ class DataFetchService extends
     // find the category
     Optional<Category> category;
     var catID = req.getCategory();
-    if (Strings.nullOrEmpty(catID) || catID.equals("/")) {
+    if (Strings.isBlank(catID) || catID.equals("/")) {
       category = Optional.empty();
     } else {
       var cat = DataUtil.getCategory(db, modelType, catID);

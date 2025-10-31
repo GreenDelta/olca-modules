@@ -136,8 +136,8 @@ public class Ec3Client {
 	 */
 	public static Optional<Ec3Client> tryToken(Ec3Credentials cred) {
 		if (cred == null
-			|| Strings.nullOrEmpty(cred.ec3Url())
-			|| Strings.nullOrEmpty(cred.token()))
+			|| Strings.isBlank(cred.ec3Url())
+			|| Strings.isBlank(cred.token()))
 			return Optional.empty();
 		try {
 			var client = new Ec3Client(http(), cred);
@@ -160,9 +160,9 @@ public class Ec3Client {
 	 */
 	public static Optional<Ec3Client> tryLogin(Ec3Credentials cred) {
 		if (cred == null
-			|| Strings.nullOrEmpty(cred.ec3Url())
-			|| Strings.nullOrEmpty(cred.user())
-			|| Strings.nullOrEmpty(cred.password()))
+			|| Strings.isBlank(cred.ec3Url())
+			|| Strings.isBlank(cred.user())
+			|| Strings.isBlank(cred.password()))
 			return Optional.empty();
 
 		var log = LoggerFactory.getLogger(Ec3Client.class);
@@ -192,7 +192,7 @@ public class Ec3Client {
 
 			var respObj = resp.json().getAsJsonObject();
 			var token = Json.getString(respObj, "key");
-			if (Strings.nullOrEmpty(token)) {
+			if (Strings.isBlank(token)) {
 				log.error("login ok but  received no token; status = {}", resp.status());
 				return Optional.empty();
 			}

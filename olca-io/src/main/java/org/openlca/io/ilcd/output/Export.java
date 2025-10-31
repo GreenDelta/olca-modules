@@ -45,7 +45,7 @@ public class Export {
 	 * Set the language code for multi-language strings of the export.
 	 */
 	public Export withLang(String lang) {
-		if (Strings.notEmpty(lang)) {
+		if (Strings.isNotBlank(lang)) {
 			this.lang = lang;
 		}
 		return this;

@@ -86,7 +86,7 @@ public class Ec3CategoryTree {
 		if (category == null)
 			return null;
 		var path = pathOf(category.id);
-		return Strings.nullOrEmpty(path)
+		return Strings.isBlank(path)
 			? category.name
 			: path;
 	}

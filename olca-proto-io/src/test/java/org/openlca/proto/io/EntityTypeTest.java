@@ -43,7 +43,7 @@ public class EntityTypeTest {
 	public void testWriteToDescriptors() throws Exception {
 
 		BiConsumer<ModelType, ProtoRef> check = (type, ref) -> {
-			assertTrue(Strings.notEmpty(ref.getId()));
+			assertTrue(Strings.isNotBlank(ref.getId()));
 			assertEquals(
 				type.getModelClass().getSimpleName(),
 				ref.getType().name());

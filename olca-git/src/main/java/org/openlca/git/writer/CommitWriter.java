@@ -156,7 +156,7 @@ public abstract class CommitWriter {
 			log.error("Error walking tree", e);
 			return null;
 		}
-		if (!appended && !Strings.nullOrEmpty(prefix))
+		if (!appended && Strings.isNotBlank(prefix))
 			return null;
 		try {
 			return objectInserter.insert(tree);
@@ -185,7 +185,7 @@ public abstract class CommitWriter {
 			throws MissingObjectException, IncorrectObjectTypeException, CorruptObjectException, IOException {
 		if (treeId == null || treeId.equals(ObjectId.zeroId())) {
 			walk.addTree(new EmptyTreeIterator());
-		} else if (Strings.nullOrEmpty(prefix)) {
+		} else if (Strings.isBlank(prefix)) {
 			walk.addTree(treeId);
 		} else {
 			walk.addTree(new CanonicalTreeParser(GitUtil.encode(prefix).getBytes(), walk.getObjectReader(), treeId));

@@ -240,7 +240,7 @@ public class JsonExport {
 		visited.computeIfAbsent(type, $ -> new HashSet<>())
 				.add(entity.refId);
 
-		if (Strings.notEmpty(entity.library)) {
+		if (Strings.isNotBlank(entity.library)) {
 			referencedLibraries.add(entity.library);
 			if (skipLibraryData) {
 				return;

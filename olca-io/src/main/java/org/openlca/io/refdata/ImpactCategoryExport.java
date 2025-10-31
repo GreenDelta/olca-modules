@@ -110,7 +110,7 @@ class ImpactCategoryExport implements Runnable {
 					: "";
 			buffer.add(location);
 
-			var value = Strings.notEmpty(factor.formula)
+			var value = Strings.isNotBlank(factor.formula)
 					? factor.formula
 					: factor.value;
 

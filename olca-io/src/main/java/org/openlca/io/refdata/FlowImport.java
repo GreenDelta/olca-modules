@@ -68,7 +68,7 @@ class FlowImport implements Runnable {
 	}
 
 	private FlowType typeOf(String s) {
-		if (Strings.nullOrEmpty(s))
+		if (Strings.isBlank(s))
 			return FlowType.ELEMENTARY_FLOW;
 		var c = s.trim().charAt(0);
 		return switch (c) {

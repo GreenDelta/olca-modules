@@ -95,7 +95,7 @@ class GlobalParameterSync {
 	}
 
 	private String keyOf(String name) {
-		return Strings.nullOrEmpty(name)
+		return Strings.isBlank(name)
 			? null
 			: name.trim().toLowerCase();
 	}

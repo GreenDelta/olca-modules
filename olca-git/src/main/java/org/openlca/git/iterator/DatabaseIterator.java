@@ -51,7 +51,7 @@ public class DatabaseIterator extends EntryIterator {
 	}
 
 	private static List<TreeEntry> init(ClientRepository repo, String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return init(repo);
 		if (!path.contains("/")) {
 			var modelType = ModelType.parse(path);

@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.openlca.util.Strings;
@@ -77,13 +78,13 @@ public class DatabaseConfigList {
 	 * Returns true if a database with the given name exists.
 	 */
 	public boolean nameExists(String name) {
-		if (Strings.nullOrEmpty(name))
+		if (Strings.isBlank(name))
 			return false;
 		var newName = name.trim().toLowerCase();
 		Predicate<DatabaseConfig> sameName = config -> {
 			if (config == null || config.name() == null)
 				return false;
-			return Strings.nullOrEqual(config.name().toLowerCase(), newName);
+			return Objects.equals(config.name().toLowerCase(), newName);
 		};
 		for (var config : localDatabases) {
 			if (sameName.test(config))

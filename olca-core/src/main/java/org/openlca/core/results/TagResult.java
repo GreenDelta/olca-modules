@@ -170,7 +170,7 @@ public class TagResult {
 
 	private static Set<String> tagsOf(TechFlow techFlow) {
 		var p = techFlow.provider();
-		if (p == null || Strings.nullOrEmpty(p.tags))
+		if (p == null || Strings.isBlank(p.tags))
 			return Collections.emptySet();
 		var set = new HashSet<String>();
 		for (var t : p.tags.split(",")) {

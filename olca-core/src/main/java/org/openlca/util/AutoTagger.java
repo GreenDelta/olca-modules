@@ -47,7 +47,7 @@ public class AutoTagger implements Runnable {
 
 			// do nothing if there are already tags present
 			var tags = r.getString(2);
-			if (!Strings.nullOrEmpty(tags))
+			if (Strings.isNotBlank(tags))
 				return true;
 
 			var candidates = new HashSet<>(words(d.name));
@@ -81,7 +81,7 @@ public class AutoTagger implements Runnable {
 	}
 
 	private List<String> words(String phrase) {
-		if (Strings.nullOrEmpty(phrase))
+		if (Strings.isBlank(phrase))
 			return Collections.emptyList();
 		var words = new ArrayList<String>();
 		var word = new StringBuilder();

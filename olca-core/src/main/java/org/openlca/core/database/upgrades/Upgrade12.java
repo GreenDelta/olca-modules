@@ -125,7 +125,7 @@ class Upgrade12 implements IUpgrade {
 			NativeSql.on(u.db).query(q, r -> {
 				var details = r.getString(2);
 				long reviewer = r.getLong(3);
-				if (Strings.nullOrEmpty(details) && reviewer == 0)
+				if (Strings.isBlank(details) && reviewer == 0)
 					return true;
 				infos.add(new ReviewInfo(
 						r.getLong(1),

@@ -120,7 +120,7 @@ public class OlcaRepository extends FileRepository {
 
 	public String getServerUrl() {
 		var url = getRepositoryUrl();
-		if (Strings.nullOrEmpty(url))
+		if (Strings.isBlank(url))
 			return null;
 		var groupIndex = url.lastIndexOf('/', url.lastIndexOf('/') - 1);
 		return url.substring(0, groupIndex);
@@ -156,7 +156,7 @@ public class OlcaRepository extends FileRepository {
 	private ObjectId getObjectId(ObjectId treeId, String path, FileMode fileMode) {
 		if (treeId == null)
 			return ObjectId.zeroId();
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return treeId;
 		try (var walk = TreeWalk.forPath(this, GitUtil.encode(path), treeId)) {
 			if (walk == null)

@@ -67,7 +67,7 @@ public final class ProductSystem extends RootEntity
 
 	public static ProductSystem of(Process p) {
 		var name = p.name;
-		if (p.location != null && Strings.notEmpty(p.location.code)) {
+		if (p.location != null && Strings.isNotBlank(p.location.code)) {
 			var suffix = " - " + p.location.code;
 			if (name != null && !name.endsWith(suffix)) {
 				name += suffix;

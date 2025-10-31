@@ -45,7 +45,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 
 	@Override
 	public void put(String path, byte[] data) {
-		if (Strings.nullOrEmpty(path) || data == null)
+		if (Strings.isBlank(path) || data == null)
 			return;
 		try {
 			Path file = zip.getPath(path);
@@ -60,7 +60,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 
 	@Override
 	public byte[] getBytes(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return null;
 		try {
 			Path file = zip.getPath(path);
@@ -74,7 +74,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 	}
 
 	public InputStream getStream(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return null;
 		Path file = zip.getPath(path);
 		if (!Files.exists(file))
@@ -103,7 +103,7 @@ public class ZipStore implements JsonStoreWriter, JsonStoreReader, AutoCloseable
 	}
 
 	public void remove(String path) {
-		if (Strings.nullOrEmpty(path))
+		if (Strings.isBlank(path))
 			return;
 		try {
 			Path file = zip.getPath(path);

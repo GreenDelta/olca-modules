@@ -48,12 +48,12 @@ public record UnitWriter(JsonExport exp) implements JsonWriter<Unit> {
 		Util.mapBasicAttributes(unit, obj);
 		Json.put(obj, "conversionFactor", unit.conversionFactor);
 		var synonyms = unit.synonyms;
-		if (Strings.nullOrEmpty(synonyms))
+		if (Strings.isBlank(synonyms))
 			return;
 		var array = new JsonArray();
 		Arrays.stream(synonyms.split(";"))
 				.map(String::trim)
-				.filter(Strings::notEmpty)
+				.filter(Strings::isNotBlank)
 				.map(JsonPrimitive::new)
 				.forEach(array::add);
 		Json.put(obj, "synonyms", array);

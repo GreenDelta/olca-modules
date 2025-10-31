@@ -42,7 +42,7 @@ record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 				return new Quantity(null, null, null);
 
 			FlowPropertyFactor factor = null;
-			if (Strings.nullOrEmpty(propertyId)) {
+			if (Strings.isBlank(propertyId)) {
 				factor = flow.getReferenceFactor();
 			} else {
 				for (var f : flow.flowPropertyFactors) {
@@ -61,7 +61,7 @@ record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 			if (group == null)
 				return new Quantity(flow, factor, null);
 
-			if (Strings.nullOrEmpty(unitId))
+			if (Strings.isBlank(unitId))
 				return new Quantity(flow, factor, group.referenceUnit);
 			var unit = group.units.stream()
 				.filter(u -> unitId.equals(u.refId))

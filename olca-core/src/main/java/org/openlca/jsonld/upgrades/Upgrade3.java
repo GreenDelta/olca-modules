@@ -30,7 +30,7 @@ class Upgrade3 extends Upgrade {
 			return;
 		var reviewer = Json.getObject(doc, "reviewer");
 		var details = Json.getString(doc, "reviewDetails");
-		if (reviewer == null && Strings.nullOrEmpty(details))
+		if (reviewer == null && Strings.isBlank(details))
 			return;
 
 		var review = new JsonObject();

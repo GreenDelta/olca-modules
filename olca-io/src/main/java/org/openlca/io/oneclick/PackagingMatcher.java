@@ -34,7 +34,7 @@ public class PackagingMatcher {
 	}
 
 	public boolean matches(String label) {
-		if (Strings.nullOrEmpty(label))
+		if (Strings.isBlank(label))
 			return false;
 		var s = label.strip().toLowerCase(Locale.US);
 		return pattern.matcher(s).matches();

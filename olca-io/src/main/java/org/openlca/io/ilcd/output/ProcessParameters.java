@@ -82,7 +82,7 @@ class ProcessParameters {
 	private List<Parameter> processParams(Process process) {
 		var iParams = new ArrayList<Parameter>();
 		for (var oParam : process.parameters) {
-			if (Strings.nullOrEmpty(oParam.name))
+			if (Strings.isBlank(oParam.name))
 				continue;
 			var iParam = convert(oParam, "process");
 			iParams.add(iParam);

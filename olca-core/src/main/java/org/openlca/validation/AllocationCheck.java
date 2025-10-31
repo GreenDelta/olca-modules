@@ -96,7 +96,7 @@ class AllocationCheck implements Runnable {
 	private double valueOf(ResultSet r) {
 		try {
 			var formula = r.getString(3);
-			if (Strings.nullOrEmpty(formula))
+			if (Strings.isBlank(formula))
 				return r.getDouble(2);
 
 			if (interpreter == null) {

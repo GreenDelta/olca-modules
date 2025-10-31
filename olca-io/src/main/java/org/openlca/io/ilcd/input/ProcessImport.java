@@ -76,7 +76,7 @@ public class ProcessImport {
 
 		// set the DQ system for exchanges if needed
 		for (var e : process.exchanges) {
-			if (Strings.notEmpty(e.dqEntry)) {
+			if (Strings.isNotBlank(e.dqEntry)) {
 				process.exchangeDqSystem = DQSystems.ecoinvent(imp.db());
 				break;
 			}

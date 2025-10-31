@@ -54,7 +54,7 @@ class JsonWriter implements Runnable {
 				var descriptors = db.getDescriptors(type);
 				for (var d : descriptors) {
 					// filter out library data
-					if (Strings.notEmpty(d.library)) {
+					if (Strings.isNotBlank(d.library)) {
 						dependencies.add(d.library);
 						continue;
 					}

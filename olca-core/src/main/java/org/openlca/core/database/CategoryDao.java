@@ -197,7 +197,7 @@ public class CategoryDao
 		Category parent = null;
 		List<Category> next = getRootCategories(type);
 		for (var segment : path) {
-			if (Strings.nullOrEmpty(segment))
+			if (Strings.isBlank(segment))
 				continue;
 			segment = segment.trim();
 			if (segment.isEmpty())
