@@ -325,13 +325,13 @@ public class LazyLibrarySolver implements ResultProvider {
 		// recursively add library solutions
 		while (!queue.isEmpty()) {
 			var pair = queue.pop();
-			var p = pair.first;
+			var p = pair.first();
 			var libId = p.library();
 			if (libId == null)
 				continue;
 			double factor = p.isWaste()
-					? -pair.second
-					: pair.second;
+				? -pair.second()
+				: pair.second();
 
 			var lib = libs.get(libId);
 			var libIndex = lib.techIndex();

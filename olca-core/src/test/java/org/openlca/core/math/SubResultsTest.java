@@ -116,11 +116,11 @@ public class SubResultsTest {
 			Pair.of("C", 1.0));
 		for (var expected : expectedTagResults) {
 			var tagResult = tagResults.stream()
-				.filter(r -> r.tag().equals(expected.first))
+				.filter(r -> r.tag().equals(expected.first()))
 				.findFirst()
 				.orElseThrow();
 			assertEquals(
-				expected.second,
+				expected.second(),
 				tagResult.inventoryResultOf(co2Idx).value(), 1e-10);
 		}
 

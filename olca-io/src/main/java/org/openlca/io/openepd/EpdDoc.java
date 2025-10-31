@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Pair;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * An openEPD document.
@@ -123,7 +124,7 @@ public class EpdDoc {
 		if (!productClasses.isEmpty()) {
 			var classes = new JsonObject();
 			for (var productClass : productClasses) {
-				Json.put(classes, productClass.first, productClass.second);
+				Json.put(classes, productClass.first(), productClass.second());
 			}
 			Json.put(obj, "product_classes", classes);
 		}

@@ -74,7 +74,7 @@ class LibraryMounter {
 				log.error("Error checking pre mount state: {}", checkResult.error());
 				throw new MountException();
 			}
-			checkResult.getStates().forEach(p -> handled.add(p.first));
+			checkResult.getStates().forEach(p -> handled.add(p.first()));
 			Mounter.of(repo.database, next)
 					.applyDefaultsOf(checkResult)
 					.run();

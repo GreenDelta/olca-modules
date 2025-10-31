@@ -174,12 +174,12 @@ public class EpdImport {
 			return Optional.empty();
 		String path = null;
 		for (var c : epd.productClasses) {
-			if (Objects.equals(c.first, "io.cqd.ec3")) {
-				path = c.second;
+			if (Objects.equals(c.first(), "io.cqd.ec3")) {
+				path = c.second();
 				break;
 			}
 			if (path == null) {
-				path = c.second;
+				path = c.second();
 			}
 		}
 		if (Strings.isBlank(path))

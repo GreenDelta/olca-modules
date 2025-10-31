@@ -56,12 +56,12 @@ public class AutoTagger implements Runnable {
 			}
 
 			var tagList = candidates.stream()
-					.map(word -> Pair.of(word, stats.getOrDefault(word, 0)))
-					.filter(pair -> pair.second > 0)
-					.sorted((pair1, pair2) -> pair2.second - pair1.second)
-					.limit(maxTagCount)
-					.map(pair -> pair.first)
-					.toArray(String[]::new);
+				.map(word -> Pair.of(word, stats.getOrDefault(word, 0)))
+				.filter(pair -> pair.second() > 0)
+				.sorted((pair1, pair2) -> pair2.second() - pair1.second())
+				.limit(maxTagCount)
+				.map(pair -> pair.first())
+				.toArray(String[]::new);
 			if (tagList.length == 0)
 				return true;
 			tags = String.join(",", tagList);

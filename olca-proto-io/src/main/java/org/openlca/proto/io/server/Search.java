@@ -46,11 +46,11 @@ class Search {
     return terms == null || terms.length == 0
       ? Stream.empty()
       : Arrays.stream(types())
-      .flatMap(type -> allOf(type).stream())
-      .map(d -> Pair.of(d, match(d)))
-      .filter(pair -> pair.second != null)
-      .sorted((p1, p2) -> compare(p1.second, p2.second))
-      .map(p -> p.first);
+				.flatMap(type -> allOf(type).stream())
+				.map(d -> Pair.of(d, match(d)))
+				.filter(pair -> pair.second() != null)
+				.sorted((p1, p2) -> compare(p1.second(), p2.second()))
+				.map(p -> p.first());
   }
 
   private ModelType[] types() {

@@ -88,8 +88,8 @@ public class IntersectionCalculator {
 	 */
 	public List<Pair<Feature, Geometry>> calculate(Geometry g) {
 		return jts(g).map(s -> Pair.of(s.feature, JTS.toGeoJSON(s.geometry)))
-				.filter(p -> p.second != null)
-				.collect(Collectors.toList());
+			.filter(p -> p.second() != null)
+			.collect(Collectors.toList());
 	}
 
 	/**

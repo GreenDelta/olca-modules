@@ -48,8 +48,8 @@ public class Mounter implements Runnable {
 		if (result == null || result.isError())
 			return this;
 		result.getStates().forEach(pair -> {
-			var lib = pair.first;
-			var state = pair.second;
+			var lib = pair.first();
+			var state = pair.second();
 			if (state != null) {
 				actions.put(lib, state.defaultAction());
 			}

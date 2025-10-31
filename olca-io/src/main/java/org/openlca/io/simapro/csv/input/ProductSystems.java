@@ -26,7 +26,7 @@ record ProductSystems(ImportContext context) {
 		if (pairs.isEmpty())
 			return;
 		var entries = pairs.stream()
-			.map(pair -> new Entry(pair.first, pair.second))
+			.map(pair -> new Entry(pair.first(), pair.second()))
 			.collect(Collectors.toList());
 		new ProductSystems(context).map(entries);
 	}

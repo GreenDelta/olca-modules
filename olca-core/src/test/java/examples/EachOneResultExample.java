@@ -14,8 +14,8 @@ public class EachOneResultExample {
 			}
 			int i = 0;
 			for (var pair : EachOneResult.of(db).get()) {
-				var product = pair.first;
-				var result = pair.second;
+				var product = pair.first();
+				var result = pair.second();
 				System.out.printf("Calculated result for %s%n%n", product.provider().refId);
 				result.impactIndex().each((_i, impact) -> {
 					var r = result.getTotalImpactValueOf(impact);

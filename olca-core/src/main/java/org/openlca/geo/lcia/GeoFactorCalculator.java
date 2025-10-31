@@ -1,21 +1,21 @@
 package org.openlca.geo.lcia;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.Location;
-import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.geo.calc.IntersectionShare;
-import org.openlca.geo.calc.IntersectionCalculator;
-import org.openlca.geo.geojson.FeatureCollection;
-import org.openlca.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Location;
+import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.geo.calc.IntersectionCalculator;
+import org.openlca.geo.calc.IntersectionShare;
+import org.openlca.geo.geojson.FeatureCollection;
+import org.openlca.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeoFactorCalculator {
 
@@ -62,9 +62,9 @@ public class GeoFactorCalculator {
 		// calculate intersections
 		var calc = IntersectionCalculator.on(coll);
 		Map<Location, List<IntersectionShare>> intersections = locations
-				.parallelStream()
-				.map(loc -> Pair.of(loc, calc.shares(loc)))
-				.collect(Collectors.toMap(p -> p.first, p -> p.second));
+			.parallelStream()
+			.map(loc -> Pair.of(loc, calc.shares(loc)))
+			.collect(Collectors.toMap(p -> p.first(), p -> p.second()));
 
 		// calculate parameter values based on intersections
 		var params = new HashMap<Location, List<PropVal>>();

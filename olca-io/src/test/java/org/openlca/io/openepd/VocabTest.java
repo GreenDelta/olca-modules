@@ -1,16 +1,17 @@
 package org.openlca.io.openepd;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import org.openlca.io.openepd.io.Vocab;
-import org.openlca.io.openepd.io.Vocab.Indicator;
-import org.openlca.util.Pair;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+
+import org.junit.Test;
+import org.openlca.io.openepd.io.Vocab;
+import org.openlca.io.openepd.io.Vocab.Indicator;
+import org.openlca.util.Pair;
 
 public class VocabTest {
 
@@ -208,9 +209,9 @@ public class VocabTest {
 	private void expectMatch(Indicator indicator, String name) {
 		var match = Arrays.stream(Indicator.values())
 			.map(i -> Pair.of(i, i.matchScoreOf(name)))
-			.filter(p -> p.second > 1e-4)
-			.sorted(Comparator.comparingDouble(p -> -p.second))
-			.map(p -> p.first)
+			.filter(p -> p.second() > 1e-4)
+			.sorted(Comparator.comparingDouble(p -> -p.second()))
+			.map(Pair::first)
 			.findFirst()
 			.orElse(null);
 		assertEquals(

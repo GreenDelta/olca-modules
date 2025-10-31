@@ -6,12 +6,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import gnu.trove.set.hash.TLongHashSet;
-import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Pair;
+
+import gnu.trove.set.hash.TLongHashSet;
+import jakarta.persistence.Table;
 
 class IdSet {
 
@@ -77,7 +78,7 @@ class IdSet {
 		for (var future : futures) {
 			try {
 				var pair = future.get();
-				this.ids.put(pair.first, pair.second);
+				this.ids.put(pair.first(), pair.second());
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to collect IDs", e);
 			}

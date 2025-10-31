@@ -27,7 +27,7 @@ public class IntersectionTest {
 		var intersections = calc.calculate(b);
 
 		Assert.assertEquals(1, intersections.size());
-		var geometry = intersections.get(0).second;
+		var geometry = intersections.getFirst().second();
 		Assert.assertTrue(geometry instanceof Point);
 		var p = (Point) geometry;
 		Assert.assertEquals(5.0, p.x, 1e-16);
