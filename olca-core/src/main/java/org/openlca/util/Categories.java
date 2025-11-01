@@ -109,7 +109,7 @@ public class Categories {
 					break;
 				pid = parent;
 			}
-			var p = Strings.nullIfEmpty(path.toString());
+			var p = Strings.nullIfBlank(path.toString());
 			paths.put(unboxedId, p);
 
 			return p;

@@ -15,7 +15,7 @@ public class LocationWriter {
     proto.setType(ProtoType.Location);
     Out.map(location, proto);
 
-    proto.setCode(Strings.orEmpty(location.code));
+    proto.setCode(Strings.notNull(location.code));
     proto.setLatitude(location.latitude);
     proto.setLongitude(location.longitude);
     if (location.geodata != null) {

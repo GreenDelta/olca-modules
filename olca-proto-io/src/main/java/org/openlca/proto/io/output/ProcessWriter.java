@@ -48,7 +48,7 @@ public class ProcessWriter {
 
     // DQ systems
 		config.dep(process.dqSystem, proto::setDqSystem);
-    proto.setDqEntry(Strings.orEmpty(process.dqEntry));
+    proto.setDqEntry(Strings.notNull(process.dqEntry));
 		config.dep(process.exchangeDqSystem, proto::setExchangeDqSystem);
 		config.dep(process.socialDqSystem, proto::setSocialDqSystem);
 
@@ -70,23 +70,23 @@ public class ProcessWriter {
 		if (d == null)
 			return proto;
 
-		proto.setTimeDescription(Strings.orEmpty(d.time));
-		proto.setTechnologyDescription(Strings.orEmpty(d.technology));
-		proto.setDataCollectionDescription(Strings.orEmpty(d.dataCollectionPeriod));
-		proto.setCompletenessDescription(Strings.orEmpty(d.dataCompleteness));
-		proto.setDataSelectionDescription(Strings.orEmpty(d.dataSelection));
-		proto.setDataTreatmentDescription(Strings.orEmpty(d.dataTreatment));
-		proto.setInventoryMethodDescription(Strings.orEmpty(d.inventoryMethod));
-		proto.setModelingConstantsDescription(Strings.orEmpty(d.modelingConstants));
-		proto.setSamplingDescription(Strings.orEmpty(d.samplingProcedure));
-		proto.setRestrictionsDescription(Strings.orEmpty(d.accessRestrictions));
+		proto.setTimeDescription(Strings.notNull(d.time));
+		proto.setTechnologyDescription(Strings.notNull(d.technology));
+		proto.setDataCollectionDescription(Strings.notNull(d.dataCollectionPeriod));
+		proto.setCompletenessDescription(Strings.notNull(d.dataCompleteness));
+		proto.setDataSelectionDescription(Strings.notNull(d.dataSelection));
+		proto.setDataTreatmentDescription(Strings.notNull(d.dataTreatment));
+		proto.setInventoryMethodDescription(Strings.notNull(d.inventoryMethod));
+		proto.setModelingConstantsDescription(Strings.notNull(d.modelingConstants));
+		proto.setSamplingDescription(Strings.notNull(d.samplingProcedure));
+		proto.setRestrictionsDescription(Strings.notNull(d.accessRestrictions));
 		proto.setIsCopyrightProtected(d.copyright);
-		proto.setIntendedApplication(Strings.orEmpty(d.intendedApplication));
-		proto.setProjectDescription(Strings.orEmpty(d.project));
-		proto.setGeographyDescription(Strings.orEmpty(d.geography));
-		proto.setCreationDate(Strings.orEmpty(Json.asDateTime(d.creationDate)));
-		proto.setValidFrom(Strings.orEmpty(Json.asDate(d.validFrom)));
-		proto.setValidUntil(Strings.orEmpty(Json.asDate(d.validUntil)));
+		proto.setIntendedApplication(Strings.notNull(d.intendedApplication));
+		proto.setProjectDescription(Strings.notNull(d.project));
+		proto.setGeographyDescription(Strings.notNull(d.geography));
+		proto.setCreationDate(Strings.notNull(Json.asDateTime(d.creationDate)));
+		proto.setValidFrom(Strings.notNull(Json.asDate(d.validFrom)));
+		proto.setValidUntil(Strings.notNull(Json.asDate(d.validUntil)));
 
 		config.dep(d.dataDocumentor, proto::setDataDocumentor);
 		config.dep(d.dataGenerator, proto::setDataGenerator);
@@ -96,7 +96,7 @@ public class ProcessWriter {
 
 		if (!d.reviews.isEmpty()) {
 			var rev = d.reviews.get(0);
-			proto.setReviewDetails(Strings.orEmpty(rev.details));
+			proto.setReviewDetails(Strings.notNull(rev.details));
 			if (!rev.reviewers.isEmpty()) {
 				config.dep(rev.reviewers.get(0), proto::setReviewer);
 			}
@@ -114,11 +114,11 @@ public class ProcessWriter {
         pe.setBaseUncertainty(e.baseUncertainty);
       }
       pe.setAmount(e.amount);
-      pe.setAmountFormula(Strings.orEmpty(e.formula));
-      pe.setDqEntry(Strings.orEmpty(e.dqEntry));
-      pe.setDescription(Strings.orEmpty(e.description));
+      pe.setAmountFormula(Strings.notNull(e.formula));
+      pe.setDqEntry(Strings.notNull(e.dqEntry));
+      pe.setDescription(Strings.notNull(e.description));
 
-			pe.setCostFormula(Strings.orEmpty(e.costFormula));
+			pe.setCostFormula(Strings.notNull(e.costFormula));
 			if (e.costs != null) {
         pe.setCostValue(e.costs);
       }
@@ -172,9 +172,9 @@ public class ProcessWriter {
     for (var aspect : p.socialAspects) {
       var protoAspect = ProtoSocialAspect.newBuilder();
 			config.dep(aspect.indicator, protoAspect::setSocialIndicator);
-      protoAspect.setComment(Strings.orEmpty(aspect.comment));
-      protoAspect.setQuality(Strings.orEmpty(aspect.quality));
-      protoAspect.setRawAmount(Strings.orEmpty(aspect.rawAmount));
+      protoAspect.setComment(Strings.notNull(aspect.comment));
+      protoAspect.setQuality(Strings.notNull(aspect.quality));
+      protoAspect.setRawAmount(Strings.notNull(aspect.rawAmount));
       protoAspect.setActivityValue(aspect.activityValue);
       protoAspect.setRiskLevel(riskLevel(aspect));
 			config.dep(aspect.source, protoAspect::setSource);
@@ -215,7 +215,7 @@ public class ProcessWriter {
         pf.setProduct(productRef);
       }
       pf.setValue(f.value);
-      pf.setFormula(Strings.orEmpty(f.formula));
+      pf.setFormula(Strings.notNull(f.formula));
       proto.addAllocationFactors(pf);
     }
   }

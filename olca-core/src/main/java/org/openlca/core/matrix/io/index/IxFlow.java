@@ -61,10 +61,10 @@ public record IxFlow(
 
 	IxProto.Flow toProto() {
 		var proto = IxProto.Flow.newBuilder()
-			.setId(Strings.orEmpty(id))
-			.setName(Strings.orEmpty(name))
-			.setCategory(Strings.orEmpty(category))
-			.setUnit(Strings.orEmpty(unit));
+			.setId(Strings.notNull(id))
+			.setName(Strings.notNull(name))
+			.setCategory(Strings.notNull(category))
+			.setUnit(Strings.notNull(unit));
 		if (type != null) {
 			proto.setType(type.name());
 		}

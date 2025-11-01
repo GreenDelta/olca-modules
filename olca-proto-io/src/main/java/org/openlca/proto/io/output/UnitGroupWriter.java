@@ -31,9 +31,9 @@ public class UnitGroupWriter {
   private void writeUnits(UnitGroup group, ProtoUnitGroup.Builder proto) {
     for (var unit : group.units) {
       var protoUnit = ProtoUnit.newBuilder();
-      protoUnit.setId(Strings.orEmpty(unit.refId));
-      protoUnit.setName(Strings.orEmpty(unit.name));
-      protoUnit.setDescription(Strings.orEmpty(unit.description));
+      protoUnit.setId(Strings.notNull(unit.refId));
+      protoUnit.setName(Strings.notNull(unit.name));
+      protoUnit.setDescription(Strings.notNull(unit.description));
       protoUnit.setConversionFactor(unit.conversionFactor);
       if (unit.synonyms != null) {
         Arrays.stream(unit.synonyms.split(";"))

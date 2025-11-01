@@ -185,12 +185,12 @@ class DataUtil {
     }
 
     ModelQuery<T> forName(String name) {
-      this.name = Strings.nullIfEmpty(name);
+      this.name = Strings.nullIfBlank(name);
       return this;
     }
 
     ModelQuery<T> forId(String id) {
-      this.id = Strings.nullIfEmpty(id);
+      this.id = Strings.nullIfBlank(id);
       return this;
     }
 

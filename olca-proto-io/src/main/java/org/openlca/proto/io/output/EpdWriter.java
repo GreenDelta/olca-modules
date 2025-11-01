@@ -22,7 +22,7 @@ public class EpdWriter {
 		proto.setType(ProtoType.Epd);
 		Out.map(epd, proto);
 
-		proto.setUrn(Strings.orEmpty(epd.urn));
+		proto.setUrn(Strings.notNull(epd.urn));
 		config.dep(epd.manufacturer, proto::setManufacturer);
 		config.dep(epd.verifier, proto::setVerifier);
 		config.dep(epd.programOperator, proto::setProgramOperator);
@@ -39,7 +39,7 @@ public class EpdWriter {
 
 		for (var mod : epd.modules) {
 			var protoMod = ProtoEpdModule.newBuilder()
-				.setName(Strings.orEmpty(mod.name))
+				.setName(Strings.notNull(mod.name))
 				.setMultiplier(mod.multiplier);
 			config.dep(mod.result, protoMod::setResult);
 			proto.addModules(protoMod);

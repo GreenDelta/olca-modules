@@ -34,9 +34,9 @@ public record IxImpact(String id, String name, String unit) {
 
 	Impact toProto() {
 		return IxProto.Impact.newBuilder()
-			.setId(Strings.orEmpty(id))
-			.setName(Strings.orEmpty(name))
-			.setUnit(Strings.orEmpty(unit))
+			.setId(Strings.notNull(id))
+			.setName(Strings.notNull(name))
+			.setUnit(Strings.notNull(unit))
 			.build();
 	}
 

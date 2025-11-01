@@ -61,7 +61,7 @@ class CsvFlowSync {
 			// collect elem. flow infos
 			for (var type : ElementaryFlowType.values()) {
 				for (var row : dataSet.getElementaryFlows(type)) {
-					var name = Strings.orEmpty(row.name())
+					var name = Strings.notNull(row.name())
 							.trim()
 							.toLowerCase();
 					flowInfos.computeIfAbsent(type, t -> new HashMap<>())
@@ -143,7 +143,7 @@ class CsvFlowSync {
 
 			var infos = flowInfos.get(comp.type());
 			if (infos != null) {
-				var infoKey = Strings.orEmpty(name)
+				var infoKey = Strings.notNull(name)
 						.trim()
 						.toLowerCase();
 				var info = infos.get(infoKey);

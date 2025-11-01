@@ -225,7 +225,7 @@ public class ProcessReader implements EntityReader<Process, ProtoProcess> {
 				factor.exchange = exchanges.get(exchangeId);
 			}
 			factor.value = protoFac.getValue();
-			factor.formula = Strings.nullIfEmpty(protoFac.getFormula());
+			factor.formula = Strings.nullIfBlank(protoFac.getFormula());
 			factor.method = Util.allocationMethodOf(protoFac.getAllocationType());
 			p.allocationFactors.add(factor);
 		}

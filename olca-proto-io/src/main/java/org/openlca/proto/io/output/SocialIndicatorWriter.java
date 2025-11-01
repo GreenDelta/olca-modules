@@ -21,9 +21,9 @@ public class SocialIndicatorWriter {
     Out.map(indicator, proto);
 		config.dep(indicator.activityQuantity, proto::setActivityQuantity);
     config.dep(indicator.activityUnit, proto::setActivityUnit);
-    proto.setActivityVariable(Strings.orEmpty(indicator.activityVariable));
-    proto.setEvaluationScheme(Strings.orEmpty(indicator.evaluationScheme));
-    proto.setUnitOfMeasurement(Strings.orEmpty(indicator.unitOfMeasurement));
+    proto.setActivityVariable(Strings.notNull(indicator.activityVariable));
+    proto.setEvaluationScheme(Strings.notNull(indicator.evaluationScheme));
+    proto.setUnitOfMeasurement(Strings.notNull(indicator.unitOfMeasurement));
     return proto.build();
   }
 }

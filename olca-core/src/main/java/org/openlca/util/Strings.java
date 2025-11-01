@@ -1,9 +1,5 @@
 package org.openlca.util;
 
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.function.Function;
-
 /// Utility class for common string operations.
 public class Strings {
 
@@ -11,25 +7,25 @@ public class Strings {
 	}
 
 	/// Truncates a string to the specified length, appending "..." at the end if
-  /// truncation occurs. The string is trimmed before truncation.
-	public static String cutEnd(String string, int length) {
+	/// truncation occurs. The string is trimmed before truncation.
+	public static String cutEnd(String s, int len) {
 
-		if (string == null || length <= 0)
+		if (s == null || len <= 0)
 			return "";
 
-		String str = string.trim();
-		if (str.length() <= length)
+		String str = s.trim();
+		if (str.length() <= len)
 			return str;
 
-		return switch (length) {
+		return switch (len) {
 			case 1 -> ".";
 			case 2 -> "..";
-			default -> str.substring(0, length - 3).concat("...");
+			default -> str.substring(0, len - 3).concat("...");
 		};
 	}
 
 	/// Truncates a string to the specified length, prepending "..." at the
-  /// beginning if truncation occurs. The string is trimmed before truncation.
+	/// beginning if truncation occurs. The string is trimmed before truncation.
 	public static String cutStart(String s, int len) {
 		if (s == null || len <= 0)
 			return "";
@@ -46,25 +42,25 @@ public class Strings {
 	}
 
 	/// Truncates a string in the middle to fit within the specified maximum
-  /// length, replacing the removed portion with "...". The prefix and suffix
-  /// portions are preserved to give context from both ends of the string.
+	/// length, replacing the removed portion with "...". The prefix and suffix
+	/// portions are preserved to give context from both ends of the string.
 	/// The string is trimmed before truncation.
 	public static String cutMid(String s, int len) {
 		if (s == null || len <= 0)
 			return "";
-		var trimmed = s.strip();
-		if (trimmed.length() <= len)
-			return trimmed;
+		var str = s.trim();
+		if (str.length() <= len)
+			return str;
 		if (len <= 3)
 			return "...".substring(0, len);
 
 		double half = (len - 3.0) / 2.0;
 		int prefixLen = (int) Math.ceil(half);
-		var prefix = trimmed.substring(0, prefixLen) + "...";
+		var prefix = str.substring(0, prefixLen) + "...";
 
 		int suffixLen = len - prefixLen - 3;
 		return suffixLen > 0
-			? prefix + trimmed.substring(trimmed.length() - suffixLen)
+			? prefix + str.substring(str.length() - suffixLen)
 			: prefix;
 	}
 
@@ -97,53 +93,22 @@ public class Strings {
 	/// Compares two strings for equality, ignoring case differences. Returns
 	/// `true` if both strings are equal (ignoring case), or if both are `null`.
 	public static boolean equalsIgnoreCase(String a, String b) {
-		return a == b || (a != null && a.equalsIgnoreCase(b));
+		return a == b
+			? true
+			: (a != null && a.equalsIgnoreCase(b));
 	}
 
-	/**
-	 * Returns the empty string if the given string is null. Otherwise the
-	 * given string is returned.
-	 */
-	public static String orEmpty(String s) {
+	/// Returns an empty string if the given string is `null`, otherwise returns
+	/// the original string unchanged. This method provides a null-safe way to
+	/// ensure you always get a non-null string value.
+	public static String notNull(String s) {
 		return s == null ? "" : s;
 	}
 
-	/**
-	 * Returns null if the given string is empty or contains only whitespaces,
-	 * otherwise it returns the unchanged string.
-	 */
-	public static String nullIfEmpty(String s) {
-		return s == null
-				? null
-				: s.isBlank()
-				? null
-				: s;
-	}
-
-	public static <T> String uniqueNameOf(
-			String base, Iterable<T> existing, Function<T, String> fn
-	) {
-		var raw = base == null ? "" : base.trim();
-		if (existing == null)
-			return raw;
-		var s = new HashSet<String>();
-		for (var e : existing) {
-			var en = fn.apply(e);
-			if (en != null) {
-				s.add(en.trim().toLowerCase(Locale.US));
-			}
-		}
-
-		var norm = raw.trim().toLowerCase(Locale.US);
-		if (!s.contains(norm))
-			return raw;
-
-		int i = 1;
-		String nextNorm;
-		do {
-			i++;
-			nextNorm = norm + " (" + i + ")";
-		} while (s.contains(nextNorm));
-		return raw.trim() + " (" + i + ")";
+	/// Returns `null` if the given string is `null`, empty, or contains only
+	/// whitespace characters, otherwise returns the original string unchanged.
+	/// This method provides a way to convert blank strings to `null` values.
+	public static String nullIfBlank(String s) {
+		return isBlank(s) ? null : s;
 	}
 }

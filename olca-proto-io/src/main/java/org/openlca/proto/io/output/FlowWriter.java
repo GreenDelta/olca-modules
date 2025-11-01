@@ -23,10 +23,10 @@ public class FlowWriter {
     proto.setType(ProtoType.Flow);
     Out.map(flow, proto);
 
-    proto.setCas(Strings.orEmpty(flow.casNumber));
-    proto.setFormula(Strings.orEmpty(flow.formula));
+    proto.setCas(Strings.notNull(flow.casNumber));
+    proto.setFormula(Strings.notNull(flow.formula));
     proto.setIsInfrastructureFlow(flow.infrastructureFlow);
-    proto.setSynonyms(Strings.orEmpty(flow.synonyms));
+    proto.setSynonyms(Strings.notNull(flow.synonyms));
     proto.setFlowType(Out.flowTypeOf(flow.flowType));
 		config.dep(flow.location, proto::setLocation);
     writeFlowProperties(flow, proto);

@@ -14,9 +14,9 @@ public class SourceWriter {
     proto.setType(ProtoType.Source);
     Out.map(source, proto);
 
-    proto.setExternalFile(Strings.orEmpty(source.externalFile));
-    proto.setTextReference(Strings.orEmpty(source.textReference));
-    proto.setUrl(Strings.orEmpty(source.url));
+    proto.setExternalFile(Strings.notNull(source.externalFile));
+    proto.setTextReference(Strings.notNull(source.textReference));
+    proto.setUrl(Strings.notNull(source.url));
     if (source.year != null) {
       proto.setYear(source.year);
     }

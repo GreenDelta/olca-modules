@@ -14,14 +14,14 @@ public class ActorWriter {
     proto.setType(ProtoType.Actor);
     Out.map(a, proto);
 
-    proto.setAddress(Strings.orEmpty(a.address));
-    proto.setCity(Strings.orEmpty(a.city));
-    proto.setCountry(Strings.orEmpty(a.country));
-    proto.setEmail(Strings.orEmpty(a.email));
-    proto.setTelefax(Strings.orEmpty(a.telefax));
-    proto.setTelephone(Strings.orEmpty(a.telephone));
-    proto.setWebsite(Strings.orEmpty(a.website));
-    proto.setZipCode(Strings.orEmpty(a.zipCode));
+    proto.setAddress(Strings.notNull(a.address));
+    proto.setCity(Strings.notNull(a.city));
+    proto.setCountry(Strings.notNull(a.country));
+    proto.setEmail(Strings.notNull(a.email));
+    proto.setTelefax(Strings.notNull(a.telefax));
+    proto.setTelephone(Strings.notNull(a.telephone));
+    proto.setWebsite(Strings.notNull(a.website));
+    proto.setZipCode(Strings.notNull(a.zipCode));
     return proto.build();
   }
 }

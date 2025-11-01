@@ -48,7 +48,7 @@ final class Results {
     var flowId = proto.getFlow().getId();
     var locationId = Messages.isEmpty(proto.getLocation())
       ? null
-      : Strings.nullIfEmpty(proto.getLocation().getId());
+      : Strings.nullIfBlank(proto.getLocation().getId());
 
     for (var flow : index) {
 			if (!Objects.equals(flow.flow().refId, flowId))

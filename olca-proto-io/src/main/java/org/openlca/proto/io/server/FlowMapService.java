@@ -154,7 +154,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
 		// TODO: set category path
     // flowRef.flowCategory = categoryPathOf(
     //    protoRef.getFlow().getCategoryPathList());
-    flowRef.flowLocation = Strings.nullIfEmpty(
+    flowRef.flowLocation = Strings.nullIfBlank(
         protoRef.getFlow().getLocation());
 
     // flow property
@@ -175,7 +175,7 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
       flowRef.provider = In.fill(
           new ProcessDescriptor(), provider);
       flowRef.providerCategory = provider.getCategory();
-      flowRef.providerLocation = Strings.nullIfEmpty(
+      flowRef.providerLocation = Strings.nullIfBlank(
           provider.getLocation());
     }
 
@@ -186,9 +186,9 @@ class FlowMapService extends FlowMapServiceGrpc.FlowMapServiceImplBase {
     var proto = ProtoFlowMap.newBuilder();
     if (model == null)
       return proto.build();
-    proto.setId(Strings.orEmpty(model.refId));
-    proto.setName(Strings.orEmpty(model.name));
-    proto.setDescription(Strings.orEmpty(model.name));
+    proto.setId(Strings.notNull(model.refId));
+    proto.setName(Strings.notNull(model.name));
+    proto.setDescription(Strings.notNull(model.name));
 
     for (var entry : model.entries) {
       var protoEntry = ProtoFlowMapEntry.newBuilder();

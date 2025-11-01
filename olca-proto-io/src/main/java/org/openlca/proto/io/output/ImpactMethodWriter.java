@@ -32,11 +32,11 @@ public class ImpactMethodWriter {
     ImpactMethod method, ProtoImpactMethod.Builder proto) {
     for (var nwSet : method.nwSets) {
       var nwProto = ProtoNwSet.newBuilder();
-      nwProto.setId(Strings.orEmpty(nwSet.refId));
-      nwProto.setName(Strings.orEmpty(nwSet.name));
-      nwProto.setDescription(Strings.orEmpty(nwSet.name));
+      nwProto.setId(Strings.notNull(nwSet.refId));
+      nwProto.setName(Strings.notNull(nwSet.name));
+      nwProto.setDescription(Strings.notNull(nwSet.name));
       nwProto.setWeightedScoreUnit(
-        Strings.orEmpty(nwSet.weightedScoreUnit));
+        Strings.notNull(nwSet.weightedScoreUnit));
       for (var nwFactor : nwSet.factors) {
         var protoFactor = ProtoNwFactor.newBuilder();
         config.dep(nwFactor.impactCategory, protoFactor::setImpactCategory);

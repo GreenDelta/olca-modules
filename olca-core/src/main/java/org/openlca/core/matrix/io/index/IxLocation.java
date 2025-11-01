@@ -36,9 +36,9 @@ public record IxLocation(String id, String name, String code) {
 
 	IxProto.Location toProto() {
 		return IxProto.Location.newBuilder()
-			.setId(Strings.orEmpty(id))
-			.setName(Strings.orEmpty(name))
-			.setCode(Strings.orEmpty(code))
+			.setId(Strings.notNull(id))
+			.setName(Strings.notNull(name))
+			.setCode(Strings.notNull(code))
 			.build();
 	}
 

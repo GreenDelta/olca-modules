@@ -82,7 +82,7 @@ public record ProcessWriter(JsonExport exp) implements JsonWriter<Process> {
 			var array = new JsonArray();
 			for (var rev : d.reviews) {
 				var obj = new JsonObject();
-				Json.put(obj, "reviewType", Strings.orEmpty(rev.type));
+				Json.put(obj, "reviewType", Strings.notNull(rev.type));
 				Json.put(obj, "scopes", rev.scopes.toJson());
 				Json.put(obj, "details", rev.details);
 				Json.put(obj, "report", exp.handleRef(rev.report));

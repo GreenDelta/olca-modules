@@ -56,7 +56,7 @@ public class ResultWriter {
 		proto.setIsInput(result.isInput);
 		proto.setIsRefFlow((Objects.equals(result, refFlow)));
 		proto.setAmount(result.amount);
-		proto.setDescription(Strings.orEmpty(result.description));
+		proto.setDescription(Strings.notNull(result.description));
 
 		return proto;
 	}
@@ -65,7 +65,7 @@ public class ResultWriter {
 		var proto = ProtoImpactResult.newBuilder();
 		config.dep(results.indicator, proto::setIndicator);
 		proto.setAmount(results.amount);
-		proto.setDescription(Strings.orEmpty(results.description));
+		proto.setDescription(Strings.notNull(results.description));
 		return proto;
 	}
 

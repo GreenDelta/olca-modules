@@ -128,12 +128,12 @@ public class ProductSystemWriter {
 		ProtoProductSystem.Builder proto) {
 		for (var paramSet : system.parameterSets) {
 			var protoSet = ProtoParameterRedefSet.newBuilder();
-			protoSet.setName(Strings.orEmpty(paramSet.name));
-			protoSet.setDescription(Strings.orEmpty(paramSet.description));
+			protoSet.setName(Strings.notNull(paramSet.name));
+			protoSet.setDescription(Strings.notNull(paramSet.description));
 			protoSet.setIsBaseline(paramSet.isBaseline);
 			for (var redef : paramSet.parameters) {
 				var protoRedef = ProtoParameterRedef.newBuilder();
-				protoRedef.setName(Strings.orEmpty(redef.name));
+				protoRedef.setName(Strings.notNull(redef.name));
 				protoRedef.setValue(redef.value);
 				if (redef.uncertainty != null) {
 					var u = Out.uncertaintyOf(redef.uncertainty);

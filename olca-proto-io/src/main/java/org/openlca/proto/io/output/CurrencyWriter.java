@@ -19,7 +19,7 @@ public class CurrencyWriter {
       return proto.build();
     proto.setType(ProtoType.Currency);
     Out.map(c, proto);
-    proto.setCode(Strings.orEmpty(c.code));
+    proto.setCode(Strings.notNull(c.code));
     proto.setConversionFactor(c.conversionFactor);
 		config.dep(c.referenceCurrency, proto::setRefCurrency);
     return proto.build();

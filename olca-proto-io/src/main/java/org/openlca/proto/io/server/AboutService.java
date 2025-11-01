@@ -24,7 +24,7 @@ public class AboutService extends AboutServiceGrpc.AboutServiceImplBase {
     var about = AboutResponse.newBuilder()
       .setVersion(VERSION)
       .setMinSupportedVersion(MIN_SUPPORTED_VERSION)
-      .setDatabase(Strings.orEmpty(db.getName()))
+      .setDatabase(Strings.notNull(db.getName()))
       .build();
     resp.onNext(about);
     resp.onCompleted();

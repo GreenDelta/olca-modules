@@ -31,12 +31,12 @@ public class DQSystemWriter {
     DQSystem dqSystem, ProtoDQSystem.Builder proto) {
     for (var indicator : dqSystem.indicators) {
       var protoInd = ProtoDQIndicator.newBuilder();
-      protoInd.setName(Strings.orEmpty(indicator.name));
+      protoInd.setName(Strings.notNull(indicator.name));
       protoInd.setPosition(indicator.position);
       for (var score : indicator.scores) {
         var protoScore = ProtoDQScore.newBuilder();
-        protoScore.setDescription(Strings.orEmpty(score.description));
-        protoScore.setLabel(Strings.orEmpty(score.label));
+        protoScore.setDescription(Strings.notNull(score.description));
+        protoScore.setLabel(Strings.notNull(score.label));
         protoScore.setPosition(score.position);
         protoScore.setUncertainty(score.uncertainty);
         protoInd.addScores(protoScore.build());

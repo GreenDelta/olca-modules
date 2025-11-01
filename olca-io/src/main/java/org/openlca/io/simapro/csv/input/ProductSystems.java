@@ -138,7 +138,7 @@ record ProductSystems(ImportContext context) {
 			var products = block.products();
 			return products.isEmpty()
 				? ""
-				: Strings.orEmpty(products.get(0).name());
+				: Strings.notNull(products.get(0).name());
 		}
 
 		List<String> dependencies() {

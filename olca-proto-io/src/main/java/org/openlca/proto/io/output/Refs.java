@@ -40,11 +40,11 @@ public final class Refs {
 				proto.setFlowType(Out.flowTypeOf(flow.flowType));
 			}
 			if (flow.location != null) {
-				proto.setLocation(Strings.orEmpty(flow.location.code));
+				proto.setLocation(Strings.notNull(flow.location.code));
 			}
 			var refUnit = flow.getReferenceUnit();
 			if (refUnit != null) {
-				proto.setRefUnit(Strings.orEmpty(refUnit.name));
+				proto.setRefUnit(Strings.notNull(refUnit.name));
 			}
 
 			// process specific fields
@@ -59,12 +59,12 @@ public final class Refs {
 				}
 			}
 			if (process.location != null) {
-				proto.setLocation(Strings.orEmpty(process.location.code));
+				proto.setLocation(Strings.notNull(process.location.code));
 			}
 
 			// impact specific fields
 		} else if (e instanceof ImpactCategory impact) {
-			proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
+			proto.setRefUnit(Strings.notNull(impact.referenceUnit));
 		}
 		return proto;
 	}
@@ -112,7 +112,7 @@ public final class Refs {
 				proto.setFlowType((Out.flowTypeOf(pd.flowType)));
 			}
 		} else if (d instanceof ImpactDescriptor id) {
-			proto.setRefUnit(Strings.orEmpty(id.referenceUnit));
+			proto.setRefUnit(Strings.notNull(id.referenceUnit));
 		}
 		return proto;
 	}
@@ -161,7 +161,7 @@ public final class Refs {
 			if (categories == null) {
 				categories = Categories.pathsOf(db);
 			}
-			return Strings.orEmpty(categories.pathOf(categoryId));
+			return Strings.notNull(categories.pathOf(categoryId));
 		}
 
 		String locationCodeOf(Long locationId) {
@@ -182,7 +182,7 @@ public final class Refs {
 					return true;
 				});
 			}
-			return Strings.orEmpty(locationCodes.get(locationId));
+			return Strings.notNull(locationCodes.get(locationId));
 		}
 
 		String flowUnitOf(long flowPropertyId) {
@@ -201,7 +201,7 @@ public final class Refs {
 					return true;
 				});
 			}
-			return Strings.orEmpty(flowUnits.get(flowPropertyId));
+			return Strings.notNull(flowUnits.get(flowPropertyId));
 		}
 	}
 }

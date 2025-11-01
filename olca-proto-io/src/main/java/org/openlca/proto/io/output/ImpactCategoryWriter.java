@@ -20,7 +20,7 @@ public class ImpactCategoryWriter {
       return proto.build();
     proto.setType(ProtoType.ImpactCategory);
     Out.map(impact, proto);
-    proto.setRefUnit(Strings.orEmpty(impact.referenceUnit));
+    proto.setRefUnit(Strings.notNull(impact.referenceUnit));
     writeFactors(impact, proto);
     var paramWriter = new ParameterWriter();
     for (var param : impact.parameters) {
@@ -39,7 +39,7 @@ public class ImpactCategoryWriter {
       if (prop != null) {
 				config.dep(prop.flowProperty, protoFac::setFlowProperty);
       }
-      protoFac.setFormula(Strings.orEmpty(factor.formula));
+      protoFac.setFormula(Strings.notNull(factor.formula));
 			config.dep(factor.location, protoFac::setLocation);
       if (factor.uncertainty != null) {
         protoFac.setUncertainty(Out.uncertaintyOf(factor.uncertainty));

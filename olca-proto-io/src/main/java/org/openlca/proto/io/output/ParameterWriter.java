@@ -15,7 +15,7 @@ public class ParameterWriter {
     proto.setType(ProtoType.Parameter);
     Out.map(parameter, proto);
 
-    proto.setFormula(Strings.orEmpty(parameter.formula));
+    proto.setFormula(Strings.notNull(parameter.formula));
     proto.setIsInputParameter(parameter.isInputParameter);
     if (parameter.uncertainty != null) {
       proto.setUncertainty(

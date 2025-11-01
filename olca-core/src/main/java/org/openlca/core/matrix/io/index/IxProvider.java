@@ -62,10 +62,10 @@ public record IxProvider(
 
 	IxProto.Process toProto() {
 		return IxProto.Process.newBuilder()
-			.setId(Strings.orEmpty(id))
-			.setName(Strings.orEmpty(name))
-			.setCategory(Strings.orEmpty(category))
-			.setLocationCode(Strings.orEmpty(locationCode))
+			.setId(Strings.notNull(id))
+			.setName(Strings.notNull(name))
+			.setCategory(Strings.notNull(category))
+			.setLocationCode(Strings.notNull(locationCode))
 			.build();
 	}
 
