@@ -84,7 +84,13 @@ class DeleteData {
 			progressMonitor.worked(1);
 			return;
 		}
-		if (isEmptyCategory(deleted, category)) {
+		if (isEmptyCategory(category)) {
+			var parent = category.category;
+			if (parent != null) {
+				parent.childCategories.remove(category);
+				category.category = null;
+				categoryDao.update(parent);
+			}
 			categoryDao.delete(category);
 			deleted.add(category);
 		} else {
@@ -93,7 +99,7 @@ class DeleteData {
 		progressMonitor.worked(1);
 	}
 
-	private boolean isEmptyCategory(List<Category> deleted, Category category) {
+	private boolean isEmptyCategory(Category category) {
 		// can't use cache, because elements might have been deleted before
 		if (!category.childCategories.isEmpty())
 			for (var child : category.childCategories)
