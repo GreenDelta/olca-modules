@@ -112,13 +112,13 @@ public class EcoSpold01Import implements Import {
 
 	private void importXml(File file) {
 		var type = EcoSpold.typeOf(file);
-		if (type.isEmpty()) {
-			log.warn("could not detect ecoSpold type of: " + file);
+		if (type.isError()) {
+			log.warn("could not detect ecoSpold type of: " + type.error());
 			return;
 		}
 		try (var stream = new FileInputStream(file)) {
 			log.info("import file " + file.getName());
-			run(stream, type.get());
+			run(stream, type.value());
 		} catch (Exception e) {
 			log.error("failed to import XML file " + file, e);
 		}
@@ -159,12 +159,12 @@ public class EcoSpold01Import implements Import {
 		if (is == null || type == null)
 			return;
 		var spold = EcoSpold.read(is, type);
-		if (spold == null || spold.getDataset().isEmpty())
+		if (spold.isError())
 			return;
 		if (type == DataSetType.IMPACT_METHOD) {
-			importImpacts(spold);
+			importImpacts(spold.value());
 		} else {
-			for (var ds : spold.getDataset()) {
+			for (var ds : spold.value().getDataset()) {
 				var wrap = new DataSet(ds, type.getFactory());
 				importProcess(wrap);
 			}

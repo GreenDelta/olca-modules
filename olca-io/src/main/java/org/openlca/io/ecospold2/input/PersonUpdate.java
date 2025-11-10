@@ -1,6 +1,7 @@
 package org.openlca.io.ecospold2.input;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Calendar;
 
 import org.openlca.core.database.ActorDao;
@@ -32,11 +33,11 @@ public class PersonUpdate implements Runnable {
 	@Override
 	public void run() {
 		log.trace("update actors from {}", personFile);
-		try {
-			PersonList personList = spold2.IO.read(personFile, PersonList.class);
-			if (personList == null)
+		try (var stream = new FileInputStream(personFile)) {
+			var list = PersonList.readFrom(stream);
+			if (list == null)
 				return;
-			for (Person person : personList.persons) {
+			for (Person person : list.persons) {
 				Actor actor = dao.getForRefId(person.id);
 				if (actor == null)
 					continue;

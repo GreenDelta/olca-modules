@@ -1,6 +1,7 @@
 package org.openlca.io.ecospold2.input;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Calendar;
 
 import org.openlca.core.database.IDatabase;
@@ -30,13 +31,12 @@ public class SourceUpdate implements Runnable {
 	@Override
 	public void run() {
 		log.trace("update sources from {}", sourceFile);
-		try {
-			SourceList sourceList = spold2.IO.read(sourceFile, SourceList.class);
-			if (sourceList == null)
+		try (var stream = new FileInputStream(sourceFile)) {
+			var list = SourceList.readFrom(stream);
+			if (list == null)
 				return;
-			for (Source source : sourceList.sources) {
-				org.openlca.core.model.Source olcaSource = dao
-						.getForRefId(source.id);
+			for (var source : list.sources) {
+				var olcaSource = dao.getForRefId(source.id);
 				if (olcaSource == null)
 					continue;
 				updateSource(olcaSource, source);
