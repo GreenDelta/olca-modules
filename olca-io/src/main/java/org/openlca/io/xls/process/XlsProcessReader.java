@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -131,8 +132,9 @@ public class XlsProcessReader {
 		var reader = new SheetReader(sheet);
 		var info = reader.read(Section.GENERAL_INFO);
 		var refId = info.str(Field.UUID);
-		if (Strings.isBlank(refId))
-			return null;
+		if (Strings.isBlank(refId)) {
+			refId = UUID.randomUUID().toString();
+		}
 		var d = new ProcessDescriptor();
 		d.refId = refId;
 		d.name = info.str(Field.NAME);
