@@ -23,7 +23,7 @@ import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.geo.Kml2GeoJson;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 class Upgrade10 implements IUpgrade {

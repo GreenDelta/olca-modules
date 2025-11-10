@@ -6,12 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import gnu.trove.set.hash.TLongHashSet;
-import jakarta.persistence.Table;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+
+import gnu.trove.set.hash.TLongHashSet;
+import jakarta.persistence.Table;
 
 /**
  * A utility class for testing if a category has specific contents. It caches
@@ -78,7 +80,7 @@ public class CategoryContentTest {
 		var cache = cacheOf(category);
 		return test(category, cache.nonLib);
 	}
-	
+
 	/**
 	 * Returns {@code true} if the given category or a child category of it
 	 * contain model elements only from a library.

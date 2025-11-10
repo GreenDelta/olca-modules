@@ -13,7 +13,7 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.io.output.Out;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class EntityTypeTest {
 

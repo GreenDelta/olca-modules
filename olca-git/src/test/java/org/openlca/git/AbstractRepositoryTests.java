@@ -42,7 +42,7 @@ import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Dirs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.common.base.Objects;
 

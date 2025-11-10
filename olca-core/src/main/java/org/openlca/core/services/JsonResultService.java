@@ -25,7 +25,7 @@ import org.openlca.jsonld.output.JsonRefs;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class JsonResultService {
 

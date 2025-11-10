@@ -1,10 +1,12 @@
 package org.openlca.util;
 
-import gnu.trove.map.hash.TLongLongHashMap;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Direction;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.TLongLongHashMap;
 
 public final class ImpactDirections {
 

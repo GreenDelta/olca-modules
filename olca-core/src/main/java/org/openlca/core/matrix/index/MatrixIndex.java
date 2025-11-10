@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 
 /**
  * Maps a set of instances of a given type to the corresponding rows or columns

@@ -39,7 +39,7 @@ import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
 import org.openlca.proto.ProtoUncertaintyType;
 import org.openlca.util.Categories;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.Descriptors;

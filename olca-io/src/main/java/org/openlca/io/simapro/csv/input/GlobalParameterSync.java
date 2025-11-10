@@ -13,7 +13,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.simapro.csv.CsvDataSet;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * Imports the project and database parameters from SimaPro as openLCA database

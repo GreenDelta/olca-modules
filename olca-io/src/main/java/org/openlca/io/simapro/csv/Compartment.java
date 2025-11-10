@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.openlca.core.model.Category;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.SubCompartment;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 

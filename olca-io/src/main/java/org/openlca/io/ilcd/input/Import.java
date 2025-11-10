@@ -35,7 +35,7 @@ import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowSync;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class Import implements org.openlca.io.Import {
 

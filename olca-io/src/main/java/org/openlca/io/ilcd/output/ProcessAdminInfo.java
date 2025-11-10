@@ -7,7 +7,7 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Date;
 

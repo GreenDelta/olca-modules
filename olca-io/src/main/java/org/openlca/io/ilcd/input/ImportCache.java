@@ -5,7 +5,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.HashMap;
 import java.util.Map;

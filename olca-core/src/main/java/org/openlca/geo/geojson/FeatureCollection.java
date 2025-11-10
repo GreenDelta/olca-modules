@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 
 public final class FeatureCollection implements Copyable<FeatureCollection> {
 

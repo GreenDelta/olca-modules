@@ -9,7 +9,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record SyncFlow(
 	Flow flow,

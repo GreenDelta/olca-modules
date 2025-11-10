@@ -8,7 +8,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

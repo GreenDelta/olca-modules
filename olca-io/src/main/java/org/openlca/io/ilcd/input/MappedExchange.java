@@ -6,7 +6,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.io.maps.SyncFlow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 record MappedExchange(
 	SyncFlow syncFlow,

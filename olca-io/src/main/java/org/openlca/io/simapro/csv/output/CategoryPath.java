@@ -4,7 +4,7 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.simapro.csv.enums.ProcessCategory;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Locale;
 

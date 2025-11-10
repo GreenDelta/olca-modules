@@ -18,7 +18,7 @@ import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ModelRefMap;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

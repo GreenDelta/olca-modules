@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import org.openlca.commons.Res;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Source;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Res;
 
 class SourceFetch {
 
@@ -39,7 +39,7 @@ class SourceFetch {
 					.toList();
 			for (var f : futures) {
 				var res = f.get();
-				if (res.hasError()) {
+				if (res.isError()) {
 					log.error("failed to fetch source");
 					continue;
 				}
@@ -66,13 +66,13 @@ class SourceFetch {
 
 	private Res<Source> fetchAndMap(HestiaRef ref) {
 		var res = client.getSource(ref.id());
-		if (res.hasError())
+		if (res.isError())
 			return res.castError();
 		var s = res.value();
 		var refId = KeyGen.get("hestia-source", s.id());
 		var source = db.get(Source.class, refId);
 		if (source != null)
-			return Res.of(source);
+			return Res.ok(source);
 
 		source = Source.of(s.name());
 		source.refId = refId;
@@ -87,6 +87,6 @@ class SourceFetch {
 			source.description = bib.outlet();
 		}
 		db.insert(source);
-		return Res.of(source);
+		return Res.ok(source);
 	}
 }

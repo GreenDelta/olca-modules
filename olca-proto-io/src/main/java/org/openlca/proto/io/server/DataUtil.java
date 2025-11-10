@@ -48,7 +48,7 @@ import org.openlca.proto.io.output.SocialIndicatorWriter;
 import org.openlca.proto.io.output.SourceWriter;
 import org.openlca.proto.io.output.UnitGroupWriter;
 import org.openlca.proto.io.output.WriterConfig;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import io.grpc.stub.StreamObserver;
 

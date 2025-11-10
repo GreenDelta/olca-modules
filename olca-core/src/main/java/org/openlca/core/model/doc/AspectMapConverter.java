@@ -8,7 +8,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import org.checkerframework.checker.units.qual.A;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;

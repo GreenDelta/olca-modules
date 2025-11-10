@@ -5,7 +5,7 @@ import org.openlca.proto.ProtoImpactMethod;
 import org.openlca.proto.ProtoNwFactor;
 import org.openlca.proto.ProtoNwSet;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ImpactMethodWriter {
 

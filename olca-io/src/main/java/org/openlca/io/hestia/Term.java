@@ -3,7 +3,7 @@ package org.openlca.io.hestia;
 import java.util.Locale;
 
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.JsonObject;
 

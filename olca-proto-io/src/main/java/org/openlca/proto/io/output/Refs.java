@@ -16,7 +16,7 @@ import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.ProtoRef;
 import org.openlca.util.Categories;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A utility class for creating data set references.

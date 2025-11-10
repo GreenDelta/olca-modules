@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Objects;
 
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record FileStoreWriter(File root) implements JsonStoreWriter {
 

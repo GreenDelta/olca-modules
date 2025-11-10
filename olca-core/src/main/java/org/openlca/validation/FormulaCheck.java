@@ -4,7 +4,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.HashSet;
 import java.util.Locale;

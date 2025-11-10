@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openlca.commons.Strings;
 import org.openlca.expressions.FormulaParser;
 import org.openlca.expressions.ParseException;
 import org.openlca.expressions.VariableFunction;

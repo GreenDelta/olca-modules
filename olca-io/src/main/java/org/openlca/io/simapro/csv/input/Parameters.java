@@ -8,7 +8,7 @@ import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.FormulaConverter;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class Parameters {
 

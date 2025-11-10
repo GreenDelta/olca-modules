@@ -6,7 +6,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.util.Exchanges;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.ArrayList;
 import java.util.Objects;

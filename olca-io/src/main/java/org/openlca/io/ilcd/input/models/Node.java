@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.models.Group;

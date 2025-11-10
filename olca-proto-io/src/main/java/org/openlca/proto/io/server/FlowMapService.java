@@ -16,7 +16,7 @@ import org.openlca.proto.grpc.ProtoFlowMapName;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.protobuf.Empty;
 

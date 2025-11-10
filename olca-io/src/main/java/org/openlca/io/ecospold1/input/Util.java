@@ -16,7 +16,7 @@ import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 
 import com.google.common.base.Joiner;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class Util {
 

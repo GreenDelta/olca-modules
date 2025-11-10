@@ -1,7 +1,8 @@
 package org.openlca.ipc.handlers;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.function.Function;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.services.EnviFlowId;
 import org.openlca.core.services.Response;
 import org.openlca.core.services.TechFlowId;
@@ -9,9 +10,9 @@ import org.openlca.ipc.Responses;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
 
-import java.util.function.Function;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 class ResultRequest {
 

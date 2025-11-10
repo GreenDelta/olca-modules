@@ -18,7 +18,7 @@ import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

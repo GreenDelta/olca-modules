@@ -19,7 +19,7 @@ import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.JsonObject;
 

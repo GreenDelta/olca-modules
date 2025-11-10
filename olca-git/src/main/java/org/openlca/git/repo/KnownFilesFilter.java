@@ -10,7 +10,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class KnownFilesFilter extends TreeFilter {
 

@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 
 /**

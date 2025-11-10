@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.SocialIndicator;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class Gen {
 

@@ -11,7 +11,7 @@ import org.openlca.proto.ProtoParameterRedefSet;
 import org.openlca.proto.ProtoProcessLink;
 import org.openlca.proto.ProtoProductSystem;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ProductSystemWriter {
 

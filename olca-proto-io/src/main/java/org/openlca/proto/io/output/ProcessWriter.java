@@ -19,7 +19,7 @@ import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoRiskLevel;
 import org.openlca.proto.ProtoSocialAspect;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 
 public class ProcessWriter {

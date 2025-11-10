@@ -27,7 +27,7 @@ import org.openlca.ilcd.util.Epds;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class EpdImport {
 

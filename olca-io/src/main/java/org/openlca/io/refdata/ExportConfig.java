@@ -5,7 +5,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.RefEntity;
 import org.openlca.util.Dirs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;

@@ -1,5 +1,7 @@
 package org.openlca.core.model;
 
+import org.openlca.commons.Copyable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

@@ -8,7 +8,7 @@ import org.openlca.proto.grpc.DeleteRequest;
 import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.input.ProtoImport;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.protobuf.Empty;
 

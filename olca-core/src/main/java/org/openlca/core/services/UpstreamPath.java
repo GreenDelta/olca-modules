@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A utility class for identifying nodes in an upstream tree. The path to a

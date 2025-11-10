@@ -13,7 +13,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A class for showing the essential information of a flow to the user.

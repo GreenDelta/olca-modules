@@ -20,7 +20,7 @@ import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.process.WasteFractionRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * Unrolls waste scenarios as parameters and formulas.

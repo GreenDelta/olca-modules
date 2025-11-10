@@ -27,7 +27,7 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.npy.Npy;
 import org.openlca.npy.NpyDoubleArray;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

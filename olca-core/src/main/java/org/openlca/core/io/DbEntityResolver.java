@@ -12,7 +12,7 @@ import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * An entity resolver that directly queries the database for each request.

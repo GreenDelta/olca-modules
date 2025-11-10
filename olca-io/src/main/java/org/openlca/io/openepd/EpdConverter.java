@@ -17,7 +17,7 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.util.Categories;
 import org.openlca.util.Pair;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A utility class for converting openLCA EPDs into the openEPD format.

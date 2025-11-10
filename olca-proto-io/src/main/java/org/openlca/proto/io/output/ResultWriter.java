@@ -7,7 +7,7 @@ import org.openlca.proto.ProtoFlowResult;
 import org.openlca.proto.ProtoImpactResult;
 import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Objects;
 

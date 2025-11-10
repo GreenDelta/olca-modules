@@ -13,7 +13,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record ResultReader(EntityResolver resolver)
 	implements EntityReader<Result> {

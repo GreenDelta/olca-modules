@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.results.LcaResult;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 record GroupMap(String top, Map<Long, String> map) {
 

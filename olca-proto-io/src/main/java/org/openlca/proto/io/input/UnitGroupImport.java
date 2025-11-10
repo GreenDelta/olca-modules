@@ -11,7 +11,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class UnitGroupImport implements EntityResolver {
 

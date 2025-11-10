@@ -36,7 +36,7 @@ import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;

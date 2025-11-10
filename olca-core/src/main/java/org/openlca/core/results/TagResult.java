@@ -10,7 +10,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class TagResult {
 

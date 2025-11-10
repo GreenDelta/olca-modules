@@ -1,7 +1,7 @@
 package org.openlca.jsonld;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Locale;
 import java.util.Optional;

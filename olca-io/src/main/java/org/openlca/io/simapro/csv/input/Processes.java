@@ -16,7 +16,7 @@ import org.openlca.simapro.csv.process.WasteTreatmentRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class Processes implements ProcessMapper {
 

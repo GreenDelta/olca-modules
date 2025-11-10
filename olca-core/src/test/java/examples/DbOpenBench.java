@@ -3,7 +3,7 @@ package examples;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
 import org.openlca.core.model.Process;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class DbOpenBench {
 

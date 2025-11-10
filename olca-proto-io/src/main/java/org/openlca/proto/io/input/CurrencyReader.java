@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Currency;
 import org.openlca.proto.ProtoCurrency;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record CurrencyReader(EntityResolver resolver)
 	implements EntityReader<Currency, ProtoCurrency> {

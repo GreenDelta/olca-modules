@@ -5,8 +5,9 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openlca.commons.Copyable;
+import org.openlca.commons.Strings;
 import org.openlca.core.math.rand.NumberGenerator;
-import org.openlca.util.Strings;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

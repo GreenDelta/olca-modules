@@ -8,7 +8,7 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class FlowImport {
 

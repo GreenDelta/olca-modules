@@ -15,7 +15,7 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record ParameterReader(EntityResolver resolver)
 		implements EntityReader<Parameter> {

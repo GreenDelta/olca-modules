@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;

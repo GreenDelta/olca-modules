@@ -17,7 +17,7 @@ import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 class FlowClassifier {

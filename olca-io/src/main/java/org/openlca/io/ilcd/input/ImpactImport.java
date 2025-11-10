@@ -7,7 +7,7 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.util.ImpactMethods;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ImpactImport {
 

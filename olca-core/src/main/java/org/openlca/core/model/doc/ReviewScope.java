@@ -3,9 +3,9 @@ package org.openlca.core.model.doc;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.HashSet;
 import java.util.Objects;

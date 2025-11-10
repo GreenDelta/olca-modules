@@ -2,6 +2,8 @@ package org.openlca.io.hestia;
 
 import java.util.Objects;
 
+import org.openlca.commons.Res;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
@@ -15,8 +17,6 @@ import org.openlca.io.hestia.HestiaExchange.Input;
 import org.openlca.io.hestia.HestiaExchange.Practice;
 import org.openlca.io.hestia.HestiaExchange.Product;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Res;
-import org.openlca.util.Strings;
 
 public class HestiaImport {
 
@@ -50,7 +50,7 @@ public class HestiaImport {
 
 		// fetch the cycle
 		var res = client.getCycle(cycleId);
-		if (res.hasError())
+		if (res.isError())
 			return res.wrapError("failed to fetch cycle " + cycleId);
 		var cycle = res.value();
 
@@ -77,7 +77,7 @@ public class HestiaImport {
 			db.insert(process);
 			log.imported(process);
 
-			return Res.of(process);
+			return Res.ok(process);
 		} catch (Exception e) {
 			return Res.error("mapping process data failed", e);
 		}
@@ -121,7 +121,7 @@ public class HestiaImport {
 		if (ref == null || Strings.isBlank(ref.id()))
 			return null;
 		var res = client.getSite(ref.id());
-		if (res.hasError()) {
+		if (res.isError()) {
 			log.error(res.error());
 			return null;
 		}

@@ -5,7 +5,7 @@ import org.openlca.proto.ProtoDQIndicator;
 import org.openlca.proto.ProtoDQScore;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class DQSystemWriter {
 

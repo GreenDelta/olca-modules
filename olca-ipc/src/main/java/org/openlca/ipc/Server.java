@@ -1,19 +1,5 @@
 package org.openlca.ipc;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
-import org.openlca.core.services.JsonResultService;
-import org.openlca.core.services.ServerConfig;
-import org.openlca.ipc.handlers.DataHandler;
-import org.openlca.ipc.handlers.ExportHandler;
-import org.openlca.ipc.handlers.HandlerContext;
-import org.openlca.ipc.handlers.ResultHandler;
-import org.openlca.ipc.handlers.RuntimeHandler;
-import org.openlca.util.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +7,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+
+import org.openlca.commons.Strings;
+import org.openlca.core.services.JsonResultService;
+import org.openlca.core.services.ServerConfig;
+import org.openlca.ipc.handlers.DataHandler;
+import org.openlca.ipc.handlers.ExportHandler;
+import org.openlca.ipc.handlers.HandlerContext;
+import org.openlca.ipc.handlers.ResultHandler;
+import org.openlca.ipc.handlers.RuntimeHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 
 public class Server {
 

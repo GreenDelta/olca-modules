@@ -11,7 +11,7 @@ import org.openlca.core.model.Source;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.refdata.LiteratureReferenceBlock;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class SourceSync {
 

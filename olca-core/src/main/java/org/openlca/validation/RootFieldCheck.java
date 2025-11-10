@@ -9,7 +9,7 @@ import jakarta.persistence.Table;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class RootFieldCheck implements Runnable {
 

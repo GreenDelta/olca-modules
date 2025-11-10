@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.uncertainties;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
 

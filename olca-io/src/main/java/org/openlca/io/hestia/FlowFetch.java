@@ -11,7 +11,7 @@ import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowSync;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class FlowFetch {
 

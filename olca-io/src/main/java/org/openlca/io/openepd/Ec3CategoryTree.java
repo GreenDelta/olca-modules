@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 public class Ec3CategoryTree {

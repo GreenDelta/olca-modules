@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class CurrencyImport implements Runnable {
 

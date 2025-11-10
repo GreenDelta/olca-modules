@@ -7,7 +7,7 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.io.Xml;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.ArrayList;
 import java.util.List;

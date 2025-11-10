@@ -12,7 +12,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.CategoryPair;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A class for showing the essential information of a flow to the user.

@@ -9,7 +9,7 @@ import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.store.EntityStore;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 record GenericStoreResolver(EntityStore store) implements EntityResolver {
 

@@ -7,7 +7,7 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUnit;
 import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class UnitGroupWriter {
 

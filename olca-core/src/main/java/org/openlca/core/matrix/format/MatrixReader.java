@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 
 public interface MatrixReader extends Copyable<MatrixReader> {
 

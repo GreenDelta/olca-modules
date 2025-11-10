@@ -14,7 +14,7 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ProcessImport {
 

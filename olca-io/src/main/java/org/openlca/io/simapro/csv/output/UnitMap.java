@@ -11,7 +11,7 @@ import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.refdata.QuantityRow;
 import org.openlca.simapro.csv.refdata.UnitRow;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 class UnitMap {

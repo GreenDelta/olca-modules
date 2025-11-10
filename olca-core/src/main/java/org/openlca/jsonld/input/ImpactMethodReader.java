@@ -12,7 +12,7 @@ import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record ImpactMethodReader(EntityResolver resolver)
 	implements EntityReader<ImpactMethod> {

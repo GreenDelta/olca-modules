@@ -12,7 +12,7 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.jsonld.input.EntityReader;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Dirs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;

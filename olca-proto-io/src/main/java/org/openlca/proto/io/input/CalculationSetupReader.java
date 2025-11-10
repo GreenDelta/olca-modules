@@ -11,7 +11,7 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.proto.grpc.ProtoCalculationSetup;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public final class CalculationSetupReader {
 

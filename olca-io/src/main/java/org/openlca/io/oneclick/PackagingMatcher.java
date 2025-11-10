@@ -1,7 +1,7 @@
 package org.openlca.io.oneclick;
 
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Locale;
 import java.util.regex.Pattern;

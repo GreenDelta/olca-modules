@@ -10,7 +10,7 @@ import org.openlca.core.model.*;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Exchanges;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * Writes the meta-data (JSON-LD) package in a library export.

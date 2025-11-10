@@ -1,6 +1,6 @@
 package org.openlca.io.openepd.io;
 
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Optional;
 import java.util.regex.Pattern;

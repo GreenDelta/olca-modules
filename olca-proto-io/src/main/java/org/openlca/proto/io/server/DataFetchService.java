@@ -35,7 +35,7 @@ import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.grpc.SearchRequest;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import io.grpc.stub.StreamObserver;
 

@@ -24,7 +24,7 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.io.xls.Excel;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

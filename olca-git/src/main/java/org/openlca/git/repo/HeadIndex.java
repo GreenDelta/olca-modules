@@ -12,7 +12,7 @@ import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.model.Reference;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.openlca.util.TypedRefIdMap;
 
 import com.google.gson.JsonArray;

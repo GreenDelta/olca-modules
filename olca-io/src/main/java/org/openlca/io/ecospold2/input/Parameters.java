@@ -6,7 +6,7 @@ import java.util.List;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.io.ecospold2.UncertaintyConverter;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import spold2.DataSet;
 import spold2.Exchange;

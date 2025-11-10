@@ -18,7 +18,7 @@ import org.openlca.jsonld.input.EntityReader;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonWriter;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

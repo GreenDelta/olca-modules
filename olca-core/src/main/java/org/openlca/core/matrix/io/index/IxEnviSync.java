@@ -7,7 +7,7 @@ import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.HashMap;
 import java.util.HashSet;

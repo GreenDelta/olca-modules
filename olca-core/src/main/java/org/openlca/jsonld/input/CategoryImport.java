@@ -1,7 +1,7 @@
 package org.openlca.jsonld.input;
 
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class CategoryImport {
 

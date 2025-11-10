@@ -17,7 +17,7 @@ import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Categories;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class CategoryDao
 		extends RootEntityDao<Category, CategoryDescriptor> {

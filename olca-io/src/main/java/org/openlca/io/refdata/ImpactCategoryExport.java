@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class ImpactCategoryExport implements Runnable {
 

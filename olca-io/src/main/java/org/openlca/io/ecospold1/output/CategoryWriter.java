@@ -15,7 +15,7 @@ import org.openlca.core.model.Process;
 import org.openlca.ecospold.Category;
 import org.openlca.ecospold.CategoryDocument;
 import org.openlca.ecospold.SubCategory;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import jakarta.xml.bind.JAXB;
 

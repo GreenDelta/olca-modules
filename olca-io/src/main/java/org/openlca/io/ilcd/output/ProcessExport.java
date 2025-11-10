@@ -32,7 +32,7 @@ import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.util.Sources;
 import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.io.Xml;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

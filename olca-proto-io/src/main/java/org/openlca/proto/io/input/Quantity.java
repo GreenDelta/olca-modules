@@ -5,7 +5,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.proto.ProtoRef;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 

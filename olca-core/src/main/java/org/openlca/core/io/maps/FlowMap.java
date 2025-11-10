@@ -22,7 +22,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.util.BinUtils;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

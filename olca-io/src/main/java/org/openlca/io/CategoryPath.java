@@ -1,7 +1,7 @@
 package org.openlca.io;
 
 import org.openlca.core.model.Category;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class CategoryPath {
 

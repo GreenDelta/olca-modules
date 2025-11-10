@@ -38,7 +38,7 @@ import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.openlca.util.ZipFiles;
 
 /**

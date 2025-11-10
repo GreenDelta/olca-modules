@@ -16,7 +16,7 @@ import org.openlca.core.model.Process;
 import org.openlca.simapro.csv.process.ProductStageBlock;
 import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.util.Pair;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.openlca.util.TopoSort;
 
 record ProductSystems(ImportContext context) {

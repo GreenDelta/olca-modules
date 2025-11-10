@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Version;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class Upgrade12 implements IUpgrade {
 

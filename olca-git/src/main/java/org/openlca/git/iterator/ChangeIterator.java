@@ -15,7 +15,7 @@ import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ChangeIterator extends EntryIterator {
 

@@ -3,7 +3,7 @@ package org.openlca.proto.io.output;
 import org.openlca.core.model.Source;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class SourceWriter {
 

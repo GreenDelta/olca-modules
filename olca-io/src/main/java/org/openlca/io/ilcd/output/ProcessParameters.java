@@ -14,7 +14,7 @@ import org.openlca.formula.Formulas;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.io.ilcd.Ext;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class ProcessParameters {
 

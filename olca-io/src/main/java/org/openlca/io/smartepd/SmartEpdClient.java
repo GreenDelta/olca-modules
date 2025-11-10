@@ -7,7 +7,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.List;
 import java.util.Objects;
 
-import org.openlca.util.Res;
+import org.openlca.commons.Res;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -41,26 +41,26 @@ public class SmartEpdClient {
 
 	public Res<List<SmartProject>> getProjects() {
 		var res = new Req("public/projects")
-				.sendReadJsonArray();
-		return res.hasError()
-				? res.wrapError("failed to get projects")
-				: Res.of(SmartProject.allOf(res.value()));
+			.sendReadJsonArray();
+		return res.isError()
+			? res.wrapError("failed to get projects")
+			: Res.ok(SmartProject.allOf(res.value()));
 	}
 
 	public Res<SmartProject> getProject(String id) {
 		var res = new Req("public/projects/" + id)
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to get project: " + id)
-				: Res.of(new SmartProject(res.value()));
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to get project: " + id)
+			: Res.ok(new SmartProject(res.value()));
 	}
 
 	public Res<SmartProjectSettings> getProjectSettings(String id) {
 		var res = new Req("public/projects/" + id + "/settings")
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to get settings for project: " + id)
-				: Res.of(new SmartProjectSettings(res.value()));
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to get settings for project: " + id)
+			: Res.ok(new SmartProjectSettings(res.value()));
 	}
 
 	/// Creates a new project.
@@ -68,11 +68,11 @@ public class SmartEpdClient {
 		if (project == null)
 			return Res.error("project is null");
 		var res = new Req("public/projects")
-				.post(project.json())
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to create project")
-				: Res.of(new SmartProject(res.value()));
+			.post(project.json())
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to create project")
+			: Res.ok(new SmartProject(res.value()));
 	}
 
 	/// Updates an existing project.
@@ -80,20 +80,20 @@ public class SmartEpdClient {
 		if (project == null)
 			return Res.error("project is null");
 		var res = new Req("public/projects/" + project.id())
-				.put(project.json())
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to update project")
-				: Res.of(new SmartProject(res.value()));
+			.put(project.json())
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to update project")
+			: Res.ok(new SmartProject(res.value()));
 	}
 
 	public Res<Void> deleteProject(String id) {
 		var res = new Req("public/projects/" + id)
-				.delete()
-				.send();
-		return res.hasError()
-				? res.wrapError("failed to delete project: " + id)
-				: Res.VOID;
+			.delete()
+			.send();
+		return res.isError()
+			? res.wrapError("failed to delete project: " + id)
+			: Res.ok();
 	}
 
 	// endregion
@@ -102,18 +102,18 @@ public class SmartEpdClient {
 
 	public Res<List<SmartEpd>> getEpds(String projectId) {
 		var res = new Req("public/projects/" + projectId + "/epds")
-				.sendReadJsonArray();
-		return res.hasError()
-				? res.wrapError("failed to get EPDs of project: " + projectId)
-				: Res.of(SmartEpd.allOf(res.value()));
+			.sendReadJsonArray();
+		return res.isError()
+			? res.wrapError("failed to get EPDs of project: " + projectId)
+			: Res.ok(SmartEpd.allOf(res.value()));
 	}
 
 	public Res<SmartEpd> getEpd(String id) {
 		var res = new Req("public/epds/" + id)
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to get EPD: " + id)
-				: Res.of(new SmartEpd(res.value()));
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to get EPD: " + id)
+			: Res.ok(new SmartEpd(res.value()));
 	}
 
 	/// Creates a new EPD.
@@ -121,11 +121,11 @@ public class SmartEpdClient {
 		if (epd == null)
 			return Res.error("EPD is null");
 		var res = new Req("public/epds")
-				.post(epd.json())
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to create EPD")
-				: Res.of(new SmartEpd(res.value()));
+			.post(epd.json())
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to create EPD")
+			: Res.ok(new SmartEpd(res.value()));
 	}
 
 	/// Updates an existing EPD.
@@ -133,20 +133,20 @@ public class SmartEpdClient {
 		if (epd == null)
 			return Res.error("EPD is null");
 		var res = new Req("public/epds/" + epd.id())
-				.patch(epd.json())
-				.sendReadJsonObject();
-		return res.hasError()
-				? res.wrapError("failed to update EPD")
-				: Res.of(new SmartEpd(res.value()));
+			.patch(epd.json())
+			.sendReadJsonObject();
+		return res.isError()
+			? res.wrapError("failed to update EPD")
+			: Res.ok(new SmartEpd(res.value()));
 	}
 
 	public Res<Void> deleteEpd(String id) {
 		var res = new Req("public/epds/" + id)
-				.delete()
-				.send();
-		return res.hasError()
-				? res.wrapError("failed to delete EPD: " + id)
-				: Res.VOID;
+			.delete()
+			.send();
+		return res.isError()
+			? res.wrapError("failed to delete EPD: " + id)
+			: Res.ok();
 	}
 
 	// endregion
@@ -157,7 +157,7 @@ public class SmartEpdClient {
 
 		Req(String path) {
 			r = HttpRequest.newBuilder(URI.create(url + path))
-					.header("apiKey", apiKey);
+				.header("apiKey", apiKey);
 		}
 
 		Req delete() {
@@ -168,51 +168,51 @@ public class SmartEpdClient {
 		Req post(JsonObject obj) {
 			var json = new Gson().toJson(obj);
 			r = r.POST(HttpRequest.BodyPublishers.ofString(json))
-					.header("Content-Type", "application/json");
+				.header("Content-Type", "application/json");
 			return this;
 		}
 
 		Req put(JsonObject obj) {
 			var json = new Gson().toJson(obj);
 			r = r.PUT(HttpRequest.BodyPublishers.ofString(json))
-					.header("Content-Type", "application/json");
+				.header("Content-Type", "application/json");
 			return this;
 		}
 
 		Req patch(JsonObject obj) {
 			var json = new Gson().toJson(obj);
 			r = r.method("PATCH", HttpRequest.BodyPublishers.ofString(json))
-					.header("Content-Type", "application/json");
+				.header("Content-Type", "application/json");
 			return this;
 		}
 
 		Res<JsonObject> sendReadJsonObject() {
 			var res = sendReadJson();
-			if (res.hasError())
+			if (res.isError())
 				return res.castError();
 			var json = res.value();
 			return json.isJsonObject()
-					? Res.of(json.getAsJsonObject())
-					: Res.error("returned JSON is not an object");
+				? Res.ok(json.getAsJsonObject())
+				: Res.error("returned JSON is not an object");
 		}
 
 		Res<JsonArray> sendReadJsonArray() {
 			var res = sendReadJson();
-			if (res.hasError())
+			if (res.isError())
 				return res.castError();
 			var json = res.value();
 			return json.isJsonArray()
-					? Res.of(json.getAsJsonArray())
-					: Res.error("returned JSON is not an array");
+				? Res.ok(json.getAsJsonArray())
+				: Res.error("returned JSON is not an array");
 		}
 
 		private Res<JsonElement> sendReadJson() {
 			var res = send();
-			if (res.hasError())
+			if (res.isError())
 				return res.castError();
 			try {
 				var json = new Gson().fromJson(res.value(), JsonElement.class);
-				return Res.of(json);
+				return Res.ok(json);
 			} catch (Exception e) {
 				return Res.error("failed to parse JSON from response", e);
 			}
@@ -224,9 +224,9 @@ public class SmartEpdClient {
 				var resp = client.send(req, BodyHandlers.ofString());
 				if (resp.statusCode() >= 300) {
 					return Res.error("request failed with status " + resp.statusCode()
-							+ ": " + resp.body());
+						+ ": " + resp.body());
 				}
-				return Res.of(resp.body());
+				return Res.ok(resp.body());
 			} catch (Exception e) {
 				return Res.error("request failed", e);
 			}

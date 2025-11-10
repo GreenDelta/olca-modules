@@ -2,7 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 public class CalcImpactFactor {

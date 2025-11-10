@@ -20,7 +20,7 @@ import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.ProtoStoreReader;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.Collections;
 import java.util.Objects;

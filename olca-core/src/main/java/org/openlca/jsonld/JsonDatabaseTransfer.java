@@ -8,7 +8,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.util.ProductSystems;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.EnumMap;
 import java.util.HashSet;

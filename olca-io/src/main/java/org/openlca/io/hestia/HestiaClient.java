@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.commons.Res;
+import org.openlca.commons.Strings;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Res;
-import org.openlca.util.Strings;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -43,30 +43,30 @@ public class HestiaClient implements AutoCloseable {
 
 	public Res<Cycle> getCycle(String id) {
 		var json = getJsonObject("/cycles/" + id);
-		return json.hasError()
+		return json.isError()
 			? json.wrapError("requesting cycle " + id + " failed")
-			: Res.of(new Cycle(json.value()));
+			: Res.ok(new Cycle(json.value()));
 	}
 
 	public Res<Site> getSite(String id) {
 		var json = getJsonObject("/sites/" + id);
-		return json.hasError()
+		return json.isError()
 			? json.wrapError("requesting site " + id + " failed")
-			: Res.of(new Site(json.value()));
+			: Res.ok(new Site(json.value()));
 	}
 
 	public Res<HestiaSource> getSource(String id) {
 		var json = getJsonObject("/sources/" + id);
-		return json.hasError()
-				? json.wrapError("requesting source " + id + " failed")
-				: Res.of(new HestiaSource(json.value()));
+		return json.isError()
+			? json.wrapError("requesting source " + id + " failed")
+			: Res.ok(new HestiaSource(json.value()));
 	}
 
 	public Res<User> getCurrentUser() {
 		var json = getJsonObject("/users/me");
-		return json.hasError()
+		return json.isError()
 			? json.wrapError("failed to get the current user")
-			: Res.of(new User(json.value()));
+			: Res.ok(new User(json.value()));
 	}
 
 	private Res<JsonObject> getJsonObject(String path) {
@@ -98,7 +98,7 @@ public class HestiaClient implements AutoCloseable {
 				.build();
 
 			var json = fetchJsonObject(req);
-			if (json.hasError())
+			if (json.isError())
 				return json.wrapError("search failed");
 			var array = Json.getArray(json.value(), "results");
 			if (array == null)
@@ -110,7 +110,7 @@ public class HestiaClient implements AutoCloseable {
 					results.add(new SearchResult(e.getAsJsonObject()));
 				}
 			}
-			return Res.of(results);
+			return Res.ok(results);
 		} catch (Exception e) {
 			return Res.error("search request failed", e);
 		}
@@ -125,7 +125,7 @@ public class HestiaClient implements AutoCloseable {
 			}
 			var json = JsonParser.parseString(resp.body());
 			return json.isJsonObject()
-				? Res.of(json.getAsJsonObject())
+				? Res.ok(json.getAsJsonObject())
 				: Res.error("response is not a JSON object");
 		} catch (Exception e) {
 			return Res.error("request failed", e);

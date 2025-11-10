@@ -1,9 +1,8 @@
 package org.openlca.core.model.descriptors;
 
+import org.openlca.commons.Copyable;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Copyable;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Epd;
@@ -18,8 +17,9 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.Result;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;

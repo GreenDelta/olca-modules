@@ -2,6 +2,8 @@ package org.openlca.core.model;
 
 import java.util.Objects;
 
+import org.openlca.commons.Copyable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 

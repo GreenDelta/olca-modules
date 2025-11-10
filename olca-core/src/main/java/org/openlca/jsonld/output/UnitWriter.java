@@ -8,7 +8,7 @@ import com.google.gson.JsonPrimitive;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 public record UnitWriter(JsonExport exp) implements JsonWriter<Unit> {

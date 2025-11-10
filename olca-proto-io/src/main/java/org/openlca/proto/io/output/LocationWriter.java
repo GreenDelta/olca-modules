@@ -4,7 +4,7 @@ import com.google.protobuf.ByteString;
 import org.openlca.core.model.Location;
 import org.openlca.proto.ProtoLocation;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class LocationWriter {
 

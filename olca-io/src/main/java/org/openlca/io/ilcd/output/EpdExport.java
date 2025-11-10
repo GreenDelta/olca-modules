@@ -19,7 +19,7 @@ import org.openlca.ilcd.processes.epd.EpdSubType;
 import org.openlca.ilcd.processes.epd.EpdValue;
 import org.openlca.ilcd.util.Epds;
 import org.openlca.io.Xml;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class EpdExport {
 

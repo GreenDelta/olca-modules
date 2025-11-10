@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.OptionalInt;
 
+import org.openlca.commons.Copyable;
 import org.openlca.core.math.ReferenceAmount;
 
 /**

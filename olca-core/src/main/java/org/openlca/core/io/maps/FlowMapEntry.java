@@ -1,6 +1,6 @@
 package org.openlca.core.io.maps;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 
 /**
  * Describes a single mapping between two flows.

@@ -9,7 +9,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import org.eclipse.persistence.annotations.Mutable;
 import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 import org.openlca.core.model.Source;
 
 @Entity

@@ -3,6 +3,8 @@ package org.openlca.core.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openlca.commons.Copyable;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

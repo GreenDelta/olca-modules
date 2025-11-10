@@ -20,7 +20,7 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class ImportConfig {
 

@@ -6,7 +6,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * Contains the meta-data of a flow stored in an index.

@@ -10,7 +10,7 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.util.Models;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A utility class for mapping data between eILCD models and product systems.

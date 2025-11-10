@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import gnu.trove.set.hash.TLongHashSet;
 

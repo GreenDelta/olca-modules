@@ -4,7 +4,7 @@ import org.openlca.core.model.Parameter;
 import org.openlca.proto.ProtoParameter;
 import org.openlca.proto.ProtoParameterScope;
 import org.openlca.proto.ProtoType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ParameterWriter {
 

@@ -29,7 +29,7 @@ import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.simapro.csv.process.RefExchangeRow;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class CsvFlowSync {
 

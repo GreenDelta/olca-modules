@@ -20,7 +20,7 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.Excel;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ProjectResultExport {
 

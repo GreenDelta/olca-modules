@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -7,7 +7,7 @@ import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record UnitGroupReader(EntityResolver resolver)
 	implements EntityReader<UnitGroup, ProtoUnitGroup> {

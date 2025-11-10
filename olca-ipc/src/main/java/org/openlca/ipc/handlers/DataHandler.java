@@ -2,6 +2,7 @@ package org.openlca.ipc.handlers;
 
 import java.util.function.BiFunction;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.services.JsonDataService;
 import org.openlca.core.services.JsonRef;
@@ -10,7 +11,6 @@ import org.openlca.ipc.Rpc;
 import org.openlca.ipc.RpcRequest;
 import org.openlca.ipc.RpcResponse;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
 
 import com.google.gson.JsonObject;
 

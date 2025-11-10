@@ -3,7 +3,7 @@ package org.openlca.io.openepd.io;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.EpdModule;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

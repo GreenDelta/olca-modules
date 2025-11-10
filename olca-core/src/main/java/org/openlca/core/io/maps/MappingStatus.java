@@ -2,7 +2,7 @@ package org.openlca.core.io.maps;
 
 import java.util.Objects;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 
 /**
  * Status describes the state a mapping entry or flow reference can have when

@@ -1,6 +1,6 @@
 package org.openlca.util;
 
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 
 public final class Copy {
 

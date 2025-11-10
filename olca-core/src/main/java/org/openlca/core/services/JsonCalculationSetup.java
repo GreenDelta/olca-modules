@@ -13,7 +13,7 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.input.ParameterReader;
 import org.openlca.jsonld.input.Quantity;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record JsonCalculationSetup(CalculationSetup setup, String error) {
 

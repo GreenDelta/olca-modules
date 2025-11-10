@@ -8,7 +8,7 @@ import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Source;
 import org.openlca.proto.ProtoDQIndicator;
 import org.openlca.proto.ProtoDQSystem;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public record DQSystemReader(EntityResolver resolver)
 	implements EntityReader<DQSystem, ProtoDQSystem> {

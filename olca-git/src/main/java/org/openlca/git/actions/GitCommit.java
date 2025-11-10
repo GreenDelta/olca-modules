@@ -8,7 +8,7 @@ import org.openlca.git.Compatibility;
 import org.openlca.git.model.Diff;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.writer.DbCommitWriter;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class GitCommit extends GitProgressAction<String> {
 

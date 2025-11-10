@@ -6,7 +6,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.proto.ProtoParameterRedef;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class ParameterRedefReader {
 

@@ -22,7 +22,7 @@ import org.openlca.io.openepd.EpdDoc;
 import org.openlca.io.openepd.EpdOrg;
 import org.openlca.io.openepd.EpdPcr;
 import org.openlca.util.KeyGen;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class EpdImport {
 

@@ -14,7 +14,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.io.xls.Excel;
 import org.openlca.util.Dirs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.io.File;
 import java.io.FileOutputStream;

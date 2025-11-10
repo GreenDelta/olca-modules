@@ -6,7 +6,7 @@ import org.openlca.core.matrix.CalcAllocationFactor;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.CalcImpactFactor;
 import org.openlca.core.matrix.format.Matrix;
-import org.openlca.core.model.Copyable;
+import org.openlca.commons.Copyable;
 import org.openlca.expressions.FormulaInterpreter;
 
 import gnu.trove.impl.Constants;

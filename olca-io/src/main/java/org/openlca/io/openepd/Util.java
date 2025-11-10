@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 class Util {
 

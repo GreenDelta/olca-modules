@@ -12,7 +12,7 @@ import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.grpc.ResultValue;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 final class Results {
 

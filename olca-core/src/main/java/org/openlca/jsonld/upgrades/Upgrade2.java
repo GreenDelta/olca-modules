@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import java.util.HashMap;
 import java.util.List;

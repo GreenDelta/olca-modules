@@ -15,7 +15,7 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.Path;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 public class DatabaseIterator extends EntryIterator {
 

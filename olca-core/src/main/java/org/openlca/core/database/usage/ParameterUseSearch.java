@@ -24,7 +24,7 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.formula.Formulas;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * Searches for the usage of global parameters in other entities. Note that in

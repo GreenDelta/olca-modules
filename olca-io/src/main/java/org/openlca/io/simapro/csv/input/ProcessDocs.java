@@ -5,7 +5,7 @@ import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.Review;
 import org.openlca.simapro.csv.process.ProcessBlock;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 

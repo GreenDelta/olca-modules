@@ -16,7 +16,7 @@ import org.openlca.proto.ProtoExchange;
 import org.openlca.proto.ProtoProcess;
 import org.openlca.proto.ProtoProcessDocumentation;
 import org.openlca.proto.ProtoProcessType;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 

@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import org.openlca.util.Strings;
+import org.openlca.commons.Strings;
 
 /**
  * A data quality system (DQS) in openLCA describes a pedigree matrix of $m$
