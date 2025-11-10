@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.openlca.core.services.ServerConfig;
+import org.openlca.proto.io.Tests;
+
 import io.grpc.ManagedChannel;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import org.openlca.core.services.ServerConfig;
-import org.openlca.proto.io.Tests;
 
 class ServiceTests {
 
