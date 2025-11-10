@@ -85,6 +85,8 @@ class Data {
 				.filter(diff -> diff.diffType != (undo ? DiffType.ADDED : DiffType.DELETED))
 				.map(diff -> undo ? diff.oldRef : diff.newRef)
 				.collect(Collectors.toList());
+		if (toImport.isEmpty())
+			return new ArrayList<>();
 		var gitStore = new GitStoreReader(repo, localCommit, remoteCommit, toImport, conflictResolver);
 		return ImportData.from(gitStore)
 				.with(progressMonitor)
