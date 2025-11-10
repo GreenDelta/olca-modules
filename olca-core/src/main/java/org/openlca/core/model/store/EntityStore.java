@@ -1,12 +1,13 @@
 package org.openlca.core.model.store;
 
-import gnu.trove.set.TLongSet;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.RootDescriptor;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.set.TLongSet;
 
 public interface EntityStore {
 

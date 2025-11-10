@@ -1,24 +1,26 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonObject;
-import gnu.trove.map.hash.TLongObjectHashMap;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.FlowPropertyDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.util.Categories;
 import org.openlca.util.Categories.PathBuilder;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.JsonObject;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * JsonRefs helps to create data set references when no full-entities are

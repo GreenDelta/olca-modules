@@ -2,13 +2,14 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQScore;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record DQSystemReader(EntityResolver resolver)
 	implements EntityReader<DQSystem> {

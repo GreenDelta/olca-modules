@@ -1,10 +1,11 @@
 package org.openlca.core.library.reader;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
+import java.util.EnumMap;
+
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.matrix.format.MatrixReader;
 
-import java.util.EnumMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 class MatrixCache {
 

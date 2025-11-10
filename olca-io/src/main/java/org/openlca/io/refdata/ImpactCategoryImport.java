@@ -1,5 +1,13 @@
 package org.openlca.io.refdata;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -7,14 +15,6 @@ import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
-import org.openlca.commons.Strings;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 class ImpactCategoryImport implements Runnable {
 

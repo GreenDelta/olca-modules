@@ -7,23 +7,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Formula;
-import org.openlca.commons.Strings;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 import gnu.trove.set.hash.TLongHashSet;

@@ -1,9 +1,9 @@
 package org.openlca.core.matrix.solvers.mkl;
 
-import org.openlca.core.matrix.solvers.Factorization;
-
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.openlca.core.matrix.solvers.Factorization;
 
 class DenseFactorization implements Factorization {
 

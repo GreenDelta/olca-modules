@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import gnu.trove.set.TLongSet;
-import jakarta.persistence.Table;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -18,6 +16,9 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.TLongSets;
+
+import gnu.trove.set.TLongSet;
+import jakarta.persistence.Table;
 
 class Search {
 

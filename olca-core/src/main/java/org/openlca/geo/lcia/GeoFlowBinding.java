@@ -1,11 +1,12 @@
 package org.openlca.geo.lcia;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 /**
  * Describes a binding of numeric properties of geometric features to the

@@ -1,6 +1,7 @@
 package org.openlca.io.smartepd;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.EnumSet;
 import java.util.List;

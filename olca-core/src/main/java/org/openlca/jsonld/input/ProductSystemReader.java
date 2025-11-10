@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AnalysisGroup;
@@ -19,7 +20,6 @@ import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonObject;
 

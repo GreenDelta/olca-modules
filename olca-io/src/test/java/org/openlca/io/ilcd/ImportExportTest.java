@@ -1,6 +1,12 @@
 package org.openlca.io.ilcd;
 
-import jakarta.xml.bind.JAXB;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.nio.file.Files;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -32,10 +38,7 @@ import org.openlca.io.ilcd.output.ProcessExport;
 import org.openlca.io.ilcd.output.SourceExport;
 import org.openlca.io.ilcd.output.UnitGroupExport;
 
-import java.io.File;
-import java.nio.file.Files;
-
-import static org.junit.Assert.*;
+import jakarta.xml.bind.JAXB;
 
 /**
  * In order to run the tests the reference data must be contained in the

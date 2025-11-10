@@ -1,18 +1,13 @@
 package org.openlca.core.model.doc;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import org.checkerframework.checker.units.qual.A;
-import org.openlca.jsonld.Json;
 import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class AspectMapConverter implements AttributeConverter<AspectMap, String> {

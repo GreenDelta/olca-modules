@@ -3,11 +3,12 @@ package org.openlca.geo.geojson;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.commons.Copyable;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.openlca.commons.Copyable;
 
 public final class Feature implements Copyable<Feature> {
 

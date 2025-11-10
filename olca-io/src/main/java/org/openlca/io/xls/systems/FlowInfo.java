@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.io.CategoryPair;
 import org.openlca.io.DisplayValues;
-import org.openlca.commons.Strings;
 
 /**
  * A class for showing the essential information of a flow to the user.

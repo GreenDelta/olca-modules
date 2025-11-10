@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
@@ -24,7 +25,6 @@ import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.io.xls.Excel;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

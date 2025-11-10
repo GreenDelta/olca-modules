@@ -1,12 +1,13 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-
-import static org.junit.Assert.*;
 
 public class FactorizationTest {
 

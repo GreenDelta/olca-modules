@@ -2,17 +2,15 @@ package org.openlca.core.io;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProviderType;
-import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.commons.Strings;
 
 /**
  * An entity resolver that directly queries the database for each request.

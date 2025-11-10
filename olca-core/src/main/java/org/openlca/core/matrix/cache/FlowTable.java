@@ -1,7 +1,5 @@
 package org.openlca.core.matrix.cache;
 
-import gnu.trove.map.hash.TLongIntHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -9,7 +7,9 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.util.Categories;
 
+import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * A simple data structure that holds the flow types of the flows in a database.

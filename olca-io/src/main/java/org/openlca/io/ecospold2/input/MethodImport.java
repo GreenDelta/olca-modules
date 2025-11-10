@@ -1,5 +1,10 @@
 package org.openlca.io.ecospold2.input;
 
+import java.io.File;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Objects;
+
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
@@ -18,12 +23,8 @@ import org.openlca.io.UnitMappingEntry;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spold2.ImpactIndicator;
 
-import java.io.File;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Objects;
+import spold2.ImpactIndicator;
 
 public class MethodImport implements Runnable {
 

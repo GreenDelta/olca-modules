@@ -3,8 +3,7 @@ package org.openlca.jsonld.input;
 import java.util.HashMap;
 import java.util.Objects;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
@@ -12,7 +11,9 @@ import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public record ImpactMethodReader(EntityResolver resolver)
 	implements EntityReader<ImpactMethod> {

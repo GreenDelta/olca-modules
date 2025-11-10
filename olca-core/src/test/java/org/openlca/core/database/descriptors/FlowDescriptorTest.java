@@ -1,5 +1,9 @@
 package org.openlca.core.database.descriptors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -12,10 +16,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class FlowDescriptorTest {
 

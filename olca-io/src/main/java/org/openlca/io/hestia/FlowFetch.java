@@ -1,5 +1,6 @@
 package org.openlca.io.hestia;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
@@ -11,7 +12,6 @@ import org.openlca.io.UnitMappingEntry;
 import org.openlca.io.maps.FlowSync;
 import org.openlca.io.maps.SyncFlow;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 class FlowFetch {
 

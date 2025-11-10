@@ -1,12 +1,12 @@
 package org.openlca.core.matrix.io.index;
 
+import java.util.List;
+
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.io.index.IxProto.Impact;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.commons.Strings;
-
-import java.util.List;
 
 public record IxImpact(String id, String name, String unit) {
 

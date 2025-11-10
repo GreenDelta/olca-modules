@@ -1,10 +1,10 @@
 package org.openlca.proto.io.output;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Parameter;
 import org.openlca.proto.ProtoParameter;
 import org.openlca.proto.ProtoParameterScope;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class ParameterWriter {
 

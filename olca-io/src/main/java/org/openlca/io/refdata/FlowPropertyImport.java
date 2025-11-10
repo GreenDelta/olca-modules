@@ -2,11 +2,11 @@ package org.openlca.io.refdata;
 
 import java.util.ArrayList;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.commons.Strings;
 
 class FlowPropertyImport implements Runnable {
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ImpactCategory;
@@ -19,6 +18,8 @@ import org.openlca.simapro.csv.method.DamageCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactMethodBlock;
 import org.openlca.util.KeyGen;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 class ImpactMethods {
 

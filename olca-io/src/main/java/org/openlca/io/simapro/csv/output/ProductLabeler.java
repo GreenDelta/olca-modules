@@ -3,13 +3,13 @@ package org.openlca.io.simapro.csv.output;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

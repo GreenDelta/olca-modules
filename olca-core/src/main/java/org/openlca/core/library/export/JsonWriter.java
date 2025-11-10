@@ -4,13 +4,25 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Currency;
+import org.openlca.core.model.DQSystem;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.*;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.Source;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.ZipStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.util.Exchanges;
-import org.openlca.commons.Strings;
 
 /**
  * Writes the meta-data (JSON-LD) package in a library export.

@@ -1,5 +1,6 @@
 package org.openlca.proto.io.server;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.proto.ProtoRef;
@@ -8,7 +9,6 @@ import org.openlca.proto.grpc.DeleteRequest;
 import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.input.ProtoImport;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.commons.Strings;
 
 import com.google.protobuf.Empty;
 

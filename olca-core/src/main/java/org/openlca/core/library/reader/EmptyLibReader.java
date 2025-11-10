@@ -1,14 +1,14 @@
 package org.openlca.core.library.reader;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
-
-import java.io.IOException;
-import java.nio.file.Files;
 
 class EmptyLibReader implements LibReader {
 

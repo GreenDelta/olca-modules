@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -21,7 +22,6 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.ecospold2.UncertaintyConverter;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,15 +2,15 @@ package org.openlca.core.io.maps;
 
 import java.util.Objects;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.commons.Copyable;
+import org.openlca.commons.Strings;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.commons.Strings;
 
 /**
  * A FlowRef contains the associated reference data of a source or target flow

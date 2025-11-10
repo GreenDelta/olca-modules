@@ -1,9 +1,9 @@
 package org.openlca.io.openepd.io;
 
-import org.openlca.core.model.ImpactCategory;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openlca.core.model.ImpactCategory;
 
 /**
  * A mapping between an openEPD and openLCA indicator. It also contains values

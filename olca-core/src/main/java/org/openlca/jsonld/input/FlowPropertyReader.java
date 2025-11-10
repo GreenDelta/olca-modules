@@ -2,12 +2,13 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record FlowPropertyReader(EntityResolver resolver)
 	implements EntityReader<FlowProperty> {

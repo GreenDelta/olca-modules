@@ -2,11 +2,11 @@ package org.openlca.proto.io.output;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.proto.ProtoFlow;
 import org.openlca.proto.ProtoFlowPropertyFactor;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class FlowWriter {
 

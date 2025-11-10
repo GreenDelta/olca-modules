@@ -1,12 +1,14 @@
 package org.openlca.core.database;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import com.google.gson.JsonObject;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public class AdditionalPropertiesTest {
 

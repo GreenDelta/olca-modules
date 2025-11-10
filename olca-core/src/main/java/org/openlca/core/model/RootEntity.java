@@ -4,14 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import org.openlca.util.BinUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToOne;
-import org.openlca.util.BinUtils;
 
 /**
  * A categorized entity is a root entity with a category.

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.openlca.jsonld.Json;
 import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;

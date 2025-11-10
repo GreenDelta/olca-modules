@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.output;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.Version;
@@ -19,7 +20,6 @@ import org.openlca.ilcd.processes.epd.EpdSubType;
 import org.openlca.ilcd.processes.epd.EpdValue;
 import org.openlca.ilcd.util.Epds;
 import org.openlca.io.Xml;
-import org.openlca.commons.Strings;
 
 public class EpdExport {
 

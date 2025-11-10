@@ -3,11 +3,11 @@ package org.openlca.proto.io.output;
 import java.util.Arrays;
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUnit;
 import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.commons.Strings;
 
 public class UnitGroupWriter {
 

@@ -3,16 +3,16 @@ package org.openlca.io.xls.systems;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.io.CategoryPair;
-import org.openlca.commons.Strings;
 
 /**
  * A class for showing the essential information of a flow to the user.

@@ -2,13 +2,13 @@ package org.openlca.io.simapro.csv.input;
 
 import java.util.UUID;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.FormulaConverter;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
-import org.openlca.commons.Strings;
 
 class Parameters {
 

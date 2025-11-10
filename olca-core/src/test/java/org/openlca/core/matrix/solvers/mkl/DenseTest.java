@@ -1,10 +1,12 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class DenseTest {
 

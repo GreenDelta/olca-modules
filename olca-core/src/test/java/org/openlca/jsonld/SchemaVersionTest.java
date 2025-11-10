@@ -1,14 +1,16 @@
 package org.openlca.jsonld;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
 import org.openlca.util.Dirs;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import com.google.gson.JsonObject;
 
 public class SchemaVersionTest {
 

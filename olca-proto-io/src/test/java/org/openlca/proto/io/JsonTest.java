@@ -1,13 +1,14 @@
 package org.openlca.proto.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import com.google.protobuf.util.JsonFormat;
+import java.util.UUID;
+
 import org.junit.Test;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoType;
 
-import java.util.UUID;
+import com.google.protobuf.util.JsonFormat;
 
 public class JsonTest {
 

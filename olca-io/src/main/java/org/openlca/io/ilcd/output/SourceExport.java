@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.output;
 
+import java.io.File;
+
 import org.openlca.core.database.FileStore;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
@@ -11,8 +13,6 @@ import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 public class SourceExport {
 

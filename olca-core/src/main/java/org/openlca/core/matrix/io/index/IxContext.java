@@ -1,13 +1,13 @@
 package org.openlca.core.matrix.io.index;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.FlowPropertyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.util.Categories;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Provides a reusable database context that caches elements for faster index

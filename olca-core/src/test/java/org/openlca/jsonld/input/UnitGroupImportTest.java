@@ -1,5 +1,7 @@
 package org.openlca.jsonld.input;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -9,8 +11,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.output.JsonExport;
-
-import static org.junit.Assert.assertEquals;
 
 
 public class UnitGroupImportTest {

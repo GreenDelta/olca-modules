@@ -2,10 +2,11 @@ package org.openlca.validation;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 class ProductSystemCheck implements Runnable {
 

@@ -17,9 +17,10 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import jakarta.persistence.Embeddable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.RefEntity;
+
+import jakarta.persistence.Embeddable;
 
 /**
  * Calculates and prints a dependency graph of the openLCA core model. The graph

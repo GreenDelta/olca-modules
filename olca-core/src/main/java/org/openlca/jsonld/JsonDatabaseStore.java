@@ -1,20 +1,5 @@
 package org.openlca.jsonld;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import jakarta.persistence.Table;
-import org.openlca.core.database.FileStore;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.io.DbEntityResolver;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
-import org.openlca.jsonld.input.EntityReader;
-import org.openlca.jsonld.output.JsonExport;
-import org.openlca.util.Dirs;
-import org.openlca.commons.Strings;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -25,6 +10,23 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.openlca.commons.Strings;
+import org.openlca.core.database.FileStore;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.io.DbEntityResolver;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
+import org.openlca.jsonld.input.EntityReader;
+import org.openlca.jsonld.output.JsonExport;
+import org.openlca.util.Dirs;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import jakarta.persistence.Table;
 
 
 /**

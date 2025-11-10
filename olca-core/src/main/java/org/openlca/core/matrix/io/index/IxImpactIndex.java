@@ -1,9 +1,5 @@
 package org.openlca.core.matrix.io.index;
 
-import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.index.ImpactIndex;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,6 +12,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.apache.commons.csv.CSVPrinter;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.index.ImpactIndex;
 
 public record IxImpactIndex(List<IxImpactItem> items) {
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig;
@@ -18,7 +19,6 @@ import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

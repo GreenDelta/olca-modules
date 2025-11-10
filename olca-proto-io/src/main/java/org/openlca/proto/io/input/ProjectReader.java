@@ -1,11 +1,11 @@
 
 package org.openlca.proto.io.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.proto.ProtoProject;
-import org.openlca.commons.Strings;
 
 public record ProjectReader(EntityResolver resolver)
 	implements EntityReader<Project, ProtoProject> {

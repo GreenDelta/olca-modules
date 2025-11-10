@@ -7,11 +7,12 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import gnu.trove.set.TLongSet;
-import jakarta.persistence.Table;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.set.TLongSet;
+import jakarta.persistence.Table;
 
 public class CategoryUseSearch implements UsageSearch {
 

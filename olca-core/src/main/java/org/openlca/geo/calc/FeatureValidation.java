@@ -1,13 +1,13 @@
 package org.openlca.geo.calc;
 
-import org.openlca.geo.Shape;
-import org.openlca.geo.geojson.FeatureCollection;
-
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntConsumer;
+
+import org.openlca.geo.Shape;
+import org.openlca.geo.geojson.FeatureCollection;
 
 /**
  * Validates the geometries of a feature collection.

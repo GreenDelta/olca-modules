@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Result;
@@ -32,7 +33,6 @@ import org.openlca.ilcd.sources.Source;
 import org.openlca.ilcd.util.Sources;
 import org.openlca.ilcd.util.TimeExtension;
 import org.openlca.io.Xml;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

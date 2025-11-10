@@ -1,7 +1,8 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -9,8 +10,8 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.MemStore;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class CategoryPathTest {
 

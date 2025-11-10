@@ -1,8 +1,9 @@
 package org.openlca.validation;
 
-import gnu.trove.map.hash.TLongLongHashMap;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
+
+import gnu.trove.map.hash.TLongLongHashMap;
 
 class FlowCheck implements Runnable {
 

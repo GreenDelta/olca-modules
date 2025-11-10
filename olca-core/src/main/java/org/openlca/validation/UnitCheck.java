@@ -3,9 +3,9 @@ package org.openlca.validation;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
-import org.openlca.commons.Strings;
 
 import gnu.trove.set.hash.TLongHashSet;
 

@@ -2,12 +2,13 @@ package org.openlca.io.ecospold1.input;
 
 import java.util.Date;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.ecospold.IDataSetInformation;
 import org.openlca.ecospold.IExchange;
@@ -16,7 +17,6 @@ import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
 
 import com.google.common.base.Joiner;
-import org.openlca.commons.Strings;
 
 class Util {
 

@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Process;
 import org.openlca.formula.Formulas;
 import org.openlca.ilcd.processes.Parameter;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.io.ilcd.Ext;
-import org.openlca.commons.Strings;
 
 class ProcessParameters {
 

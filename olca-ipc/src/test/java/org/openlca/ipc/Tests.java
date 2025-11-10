@@ -6,12 +6,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import com.google.gson.Gson;
 import org.junit.Assert;
 import org.openlca.core.DataDir;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.services.ServerConfig;
+
+import com.google.gson.Gson;
 
 class Tests {
 

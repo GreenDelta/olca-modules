@@ -1,11 +1,13 @@
 package org.openlca.core.model.doc;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
 import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter
 public class ReviewScopeConverter

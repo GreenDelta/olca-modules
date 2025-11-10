@@ -1,11 +1,12 @@
 package org.openlca.jsonld.upgrades;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.commons.Strings;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 class Upgrade3 extends Upgrade {
 

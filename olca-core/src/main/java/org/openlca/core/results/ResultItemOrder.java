@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * Stores the index elements of one or more results in a specific order. A

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
@@ -13,6 +12,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
 import org.openlca.ilcd.models.Model;
 import org.openlca.io.ilcd.input.Import;
 

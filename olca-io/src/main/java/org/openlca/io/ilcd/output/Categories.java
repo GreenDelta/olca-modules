@@ -1,13 +1,13 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.List;
+import java.util.Stack;
+import java.util.function.Supplier;
+
 import org.openlca.core.model.Category;
 import org.openlca.ilcd.commons.Classification;
 import org.openlca.ilcd.flows.Compartment;
 import org.openlca.ilcd.flows.CompartmentList;
-
-import java.util.List;
-import java.util.Stack;
-import java.util.function.Supplier;
 
 class Categories {
 

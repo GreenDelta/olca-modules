@@ -6,9 +6,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.UUID;
 
+import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.Derby;
 
 class Upgrade03 implements IUpgrade {
 

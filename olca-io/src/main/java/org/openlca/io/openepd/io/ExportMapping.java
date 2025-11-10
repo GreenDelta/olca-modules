@@ -1,15 +1,15 @@
 package org.openlca.io.openepd.io;
 
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.commons.Strings;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import org.openlca.commons.Strings;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
+import org.openlca.core.model.ImpactCategory;
 
 final class ExportMapping {
 

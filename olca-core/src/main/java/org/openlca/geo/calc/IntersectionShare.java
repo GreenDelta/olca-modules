@@ -1,11 +1,11 @@
 package org.openlca.geo.calc;
 
-import org.locationtech.jts.geom.Geometry;
-import org.openlca.geo.geojson.Feature;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.locationtech.jts.geom.Geometry;
+import org.openlca.geo.geojson.Feature;
 
 /**
  * Contains the resulting value of an intersection calculation with a

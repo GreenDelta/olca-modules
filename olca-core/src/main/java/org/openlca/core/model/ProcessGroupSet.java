@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.util.BinUtils;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-
-import org.openlca.util.BinUtils;
 
 /**
  * A set of process groups that can be stored in the database. The groups are

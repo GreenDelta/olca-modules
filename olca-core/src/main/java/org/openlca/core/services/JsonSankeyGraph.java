@@ -1,13 +1,15 @@
 package org.openlca.core.services;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import gnu.trove.impl.Constants;
-import gnu.trove.set.hash.TIntHashSet;
 import org.openlca.core.results.Sankey;
 import org.openlca.core.results.Sankey.Node;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.set.hash.TIntHashSet;
 
 class JsonSankeyGraph {
 

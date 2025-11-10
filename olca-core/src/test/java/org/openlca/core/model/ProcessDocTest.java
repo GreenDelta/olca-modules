@@ -1,7 +1,11 @@
 package org.openlca.core.model;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -13,9 +17,8 @@ import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.core.model.doc.ReviewScopeMap;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.junit.Assert.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 public class ProcessDocTest {
 

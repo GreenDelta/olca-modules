@@ -1,5 +1,14 @@
 package org.openlca.core.database.usage;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,15 +17,17 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.usage.ParameterUsageTree.Node;
 import org.openlca.core.database.usage.ParameterUsageTree.UsageType;
+import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Parameter;
+import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.*;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
 
 public class ParameterUsageTreeTest {
 

@@ -1,6 +1,6 @@
 package org.openlca.core.matrix;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openlca.core.Tests;

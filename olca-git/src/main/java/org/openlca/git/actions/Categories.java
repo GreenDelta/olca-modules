@@ -4,11 +4,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Version;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

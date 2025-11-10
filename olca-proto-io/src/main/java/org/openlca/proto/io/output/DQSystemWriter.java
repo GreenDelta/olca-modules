@@ -1,11 +1,11 @@
 package org.openlca.proto.io.output;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.DQSystem;
 import org.openlca.proto.ProtoDQIndicator;
 import org.openlca.proto.ProtoDQScore;
 import org.openlca.proto.ProtoDQSystem;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class DQSystemWriter {
 

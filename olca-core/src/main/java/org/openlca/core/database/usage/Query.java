@@ -1,10 +1,5 @@
 package org.openlca.core.database.usage;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.RootDescriptor;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,6 +8,11 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 record Query<T extends RootEntity>(
 	IDatabase db, Class<T> type, String query)

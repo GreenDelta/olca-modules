@@ -1,13 +1,13 @@
 package org.openlca.core.matrix.format;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ColumnIteratorTest {
 

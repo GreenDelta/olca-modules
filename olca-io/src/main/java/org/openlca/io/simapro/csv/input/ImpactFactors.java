@@ -1,12 +1,12 @@
 package org.openlca.io.simapro.csv.input;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.SubCompartment;
 import org.openlca.simapro.csv.method.ImpactCategoryBlock;
 import org.openlca.simapro.csv.method.ImpactFactorRow;
-
-import java.util.EnumMap;
-import java.util.HashMap;
 
 class ImpactFactors {
 

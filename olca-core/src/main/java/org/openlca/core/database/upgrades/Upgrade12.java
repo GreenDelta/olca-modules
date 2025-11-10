@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Version;
-import org.openlca.commons.Strings;
 
 class Upgrade12 implements IUpgrade {
 

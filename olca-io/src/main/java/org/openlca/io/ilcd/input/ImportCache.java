@@ -1,14 +1,14 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactMethodDescriptor;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
-
-import java.util.HashMap;
-import java.util.Map;
 
 class ImportCache {
 

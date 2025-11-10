@@ -1,11 +1,11 @@
 package org.openlca.core.database.descriptors;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class FlowDescriptors
 		implements DescriptorReader<FlowDescriptor> {

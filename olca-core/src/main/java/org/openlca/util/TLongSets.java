@@ -1,17 +1,18 @@
 package org.openlca.util;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.openlca.core.model.AbstractEntity;
+import org.openlca.core.model.descriptors.Descriptor;
+
 import gnu.trove.TLongCollection;
 import gnu.trove.iterator.TLongIterator;
 import gnu.trove.procedure.TLongProcedure;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
-import org.openlca.core.model.AbstractEntity;
-import org.openlca.core.model.descriptors.Descriptor;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public final class TLongSets {
 

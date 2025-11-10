@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.git.model.Diff;
 import org.openlca.git.util.BinaryResolver;
-import org.openlca.commons.Strings;
 
 public class DatabaseBinaryResolver implements BinaryResolver {
 

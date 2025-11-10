@@ -1,8 +1,8 @@
 package org.openlca.core.database.descriptors;
 
-import org.openlca.core.model.descriptors.RootDescriptor;
-
 import java.sql.ResultSet;
+
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 final class Util {
 

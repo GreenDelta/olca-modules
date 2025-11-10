@@ -3,11 +3,11 @@ package org.openlca.core.matrix.io.index;
 import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.commons.Strings;
 
 /**
  * Contains the meta-data of a provider stored in an index. A provider is

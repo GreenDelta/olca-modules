@@ -1,10 +1,8 @@
 package org.openlca.proto.io.output;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

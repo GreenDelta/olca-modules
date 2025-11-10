@@ -1,13 +1,13 @@
 package org.openlca.core.results.providers.libblocks;
 
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.results.providers.SolverContext;
-import org.openlca.core.results.providers.libblocks.BlockTechIndex.Block;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.results.providers.SolverContext;
+import org.openlca.core.results.providers.libblocks.BlockTechIndex.Block;
 
 /**
  * The combined envi-index of a library block model. When there are libraries

@@ -1,8 +1,10 @@
 package org.openlca.proto.io.examples;
 
-import com.google.protobuf.Empty;
-import io.grpc.ManagedChannelBuilder;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
+
+import com.google.protobuf.Empty;
+
+import io.grpc.ManagedChannelBuilder;
 
 public class ProvidersExample {
 

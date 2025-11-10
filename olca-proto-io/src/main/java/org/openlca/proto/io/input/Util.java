@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
@@ -37,7 +38,6 @@ import org.openlca.proto.ProtoRef;
 import org.openlca.proto.ProtoRiskLevel;
 import org.openlca.proto.ProtoType;
 import org.openlca.proto.ProtoUncertainty;
-import org.openlca.commons.Strings;
 
 class Util {
 

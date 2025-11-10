@@ -1,5 +1,14 @@
 package org.openlca.io.olca;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,12 +22,6 @@ import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.io.Tests;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
-import static org.junit.Assert.*;
 
 public class ProcessDocTest {
 

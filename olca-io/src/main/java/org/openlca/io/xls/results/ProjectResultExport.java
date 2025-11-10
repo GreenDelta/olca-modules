@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ParameterRedef;
@@ -20,7 +21,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.io.xls.Excel;
-import org.openlca.commons.Strings;
 
 public class ProjectResultExport {
 

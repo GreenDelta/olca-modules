@@ -1,9 +1,13 @@
 package org.openlca.ipc;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -18,12 +22,10 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
-import static org.junit.Assert.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 @Ignore
 public class UpstreamTreeTest {

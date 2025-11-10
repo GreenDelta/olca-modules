@@ -3,6 +3,7 @@ package org.openlca.io.simapro.csv.input;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -16,7 +17,6 @@ import org.openlca.simapro.csv.process.WasteTreatmentRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 class Processes implements ProcessMapper {
 

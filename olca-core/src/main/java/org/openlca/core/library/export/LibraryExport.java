@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.library.Library;
@@ -27,7 +28,6 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.npy.Npy;
 import org.openlca.npy.NpyDoubleArray;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

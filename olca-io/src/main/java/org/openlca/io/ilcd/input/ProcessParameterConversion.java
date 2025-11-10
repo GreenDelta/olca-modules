@@ -2,6 +2,7 @@ package org.openlca.io.ilcd.input;
 
 import java.util.UUID;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
@@ -9,7 +10,6 @@ import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.ParameterExtension;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.io.ilcd.Ext;
-import org.openlca.commons.Strings;
 
 /**
  * Adds the parameters of an ILCD process data set to an openLCA process data

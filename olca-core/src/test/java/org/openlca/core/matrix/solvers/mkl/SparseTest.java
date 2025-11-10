@@ -1,10 +1,10 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import static org.junit.Assert.assertArrayEquals;
+
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
 
 public class SparseTest {
 

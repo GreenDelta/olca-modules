@@ -1,16 +1,17 @@
 package org.openlca.geo.lcia;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.openlca.geo.geojson.Feature;
-import org.openlca.geo.geojson.FeatureCollection;
-import org.openlca.commons.Strings;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.openlca.commons.Strings;
+import org.openlca.geo.geojson.Feature;
+import org.openlca.geo.geojson.FeatureCollection;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Describes a numeric property of a set of geometric features. Such properties

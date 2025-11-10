@@ -1,14 +1,15 @@
 package org.openlca.core.matrix.format;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public record ValueRangeTest(Matrix matrix) {

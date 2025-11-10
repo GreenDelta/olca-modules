@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -36,7 +37,6 @@ import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;

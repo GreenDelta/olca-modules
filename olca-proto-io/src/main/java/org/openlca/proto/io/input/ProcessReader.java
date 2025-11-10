@@ -1,6 +1,7 @@
 
 package org.openlca.proto.io.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.Exchange;
@@ -16,7 +17,6 @@ import org.openlca.proto.ProtoExchange;
 import org.openlca.proto.ProtoProcess;
 import org.openlca.proto.ProtoProcessDocumentation;
 import org.openlca.proto.ProtoProcessType;
-import org.openlca.commons.Strings;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 

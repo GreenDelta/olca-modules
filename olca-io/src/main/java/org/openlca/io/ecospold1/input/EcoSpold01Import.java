@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
@@ -24,8 +25,8 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ecospold.IAllocation;
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.IExchange;
@@ -38,7 +39,6 @@ import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 import org.openlca.util.ZipFiles;
 
 /**

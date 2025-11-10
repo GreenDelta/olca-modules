@@ -1,7 +1,5 @@
 package org.openlca.io.olca;
 
-import gnu.trove.map.hash.TLongDoubleHashMap;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +11,8 @@ import org.openlca.core.model.Unit;
 import org.openlca.util.RefIdMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.TLongDoubleHashMap;
 
 /**
  * Maps the process IDs and IDs of the product system links.

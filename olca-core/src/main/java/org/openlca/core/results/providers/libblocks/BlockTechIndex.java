@@ -1,12 +1,12 @@
 package org.openlca.core.results.providers.libblocks;
 
-import org.openlca.core.library.reader.LibReader;
-import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.results.providers.SolverContext;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openlca.core.library.reader.LibReader;
+import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.results.providers.SolverContext;
 
 /**
  * This class only works with a foreground system that is connected to one or

@@ -1,14 +1,5 @@
 package org.openlca.io.openepd.io;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.io.openepd.EpdDoc;
-import org.openlca.io.openepd.EpdIndicatorResult;
-import org.openlca.io.openepd.io.Vocab.Indicator;
-import org.openlca.io.openepd.io.Vocab.Method;
-import org.openlca.io.openepd.io.Vocab.UnitMatch;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +8,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.stream.Stream;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.io.openepd.EpdDoc;
+import org.openlca.io.openepd.EpdIndicatorResult;
+import org.openlca.io.openepd.io.Vocab.Indicator;
+import org.openlca.io.openepd.io.Vocab.Method;
+import org.openlca.io.openepd.io.Vocab.UnitMatch;
 
 final class ImportMapping {
 

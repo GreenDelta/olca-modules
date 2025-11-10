@@ -14,17 +14,17 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.InflaterInputStream;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
+import org.openlca.geo.Kml2GeoJson;
+import org.openlca.geo.geojson.GeoJSON;
+import org.openlca.util.KeyGen;
+import org.slf4j.LoggerFactory;
 
 import gnu.trove.iterator.TLongLongIterator;
 import gnu.trove.map.hash.TLongLongHashMap;
 import gnu.trove.set.hash.TLongHashSet;
-import org.openlca.geo.Kml2GeoJson;
-import org.openlca.geo.geojson.GeoJSON;
-import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
-import org.slf4j.LoggerFactory;
 
 class Upgrade10 implements IUpgrade {
 

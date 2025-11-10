@@ -1,13 +1,14 @@
 package org.openlca.validation;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-
-import static org.junit.Assert.*;
 
 public class UnitCheckTest {
 

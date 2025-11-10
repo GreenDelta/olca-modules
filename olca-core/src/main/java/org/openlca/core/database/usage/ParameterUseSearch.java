@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ImpactCategory;
@@ -24,7 +23,9 @@ import org.openlca.core.model.Project;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.formula.Formulas;
-import org.openlca.commons.Strings;
+
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 
 /**
  * Searches for the usage of global parameters in other entities. Note that in

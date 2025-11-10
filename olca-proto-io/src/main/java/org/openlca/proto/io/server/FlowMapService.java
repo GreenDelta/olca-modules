@@ -1,13 +1,14 @@
 package org.openlca.proto.io.server;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
-import org.openlca.core.model.MappingFile;
-import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.io.maps.FlowRef;
+import org.openlca.core.model.MappingFile;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.proto.ProtoFlowMap;
 import org.openlca.proto.ProtoFlowMapEntry;
 import org.openlca.proto.ProtoFlowMapRef;
@@ -16,7 +17,6 @@ import org.openlca.proto.grpc.ProtoFlowMapName;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.input.In;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.commons.Strings;
 
 import com.google.protobuf.Empty;
 

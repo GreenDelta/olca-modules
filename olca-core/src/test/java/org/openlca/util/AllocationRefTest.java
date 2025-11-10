@@ -1,8 +1,9 @@
 package org.openlca.util;
 
-import java.util.stream.Collectors;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;

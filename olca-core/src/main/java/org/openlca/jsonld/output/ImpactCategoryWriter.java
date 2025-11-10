@@ -3,10 +3,10 @@ package org.openlca.jsonld.output;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record ImpactCategoryWriter(JsonExport exp)
 		implements JsonWriter<ImpactCategory> {

@@ -1,13 +1,10 @@
 package org.openlca.io.openepd;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
+
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
 
 class Util {
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.io.ImportLog;
@@ -13,7 +14,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.simapro.csv.CsvDataSet;
-import org.openlca.commons.Strings;
 
 /**
  * Imports the project and database parameters from SimaPro as openLCA database

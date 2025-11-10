@@ -7,10 +7,10 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
-import org.openlca.commons.Strings;
 
 class KnownFilesFilter extends TreeFilter {
 

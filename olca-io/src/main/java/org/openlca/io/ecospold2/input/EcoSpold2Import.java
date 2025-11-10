@@ -1,10 +1,10 @@
 package org.openlca.io.ecospold2.input;
 
+import java.io.File;
+
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.ModelType;
 import org.openlca.io.Import;
-
-import java.io.File;
 
 /**
  * The import of data sets in the EcoSpold v2 format. The import expects a set

@@ -5,8 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
@@ -15,7 +14,9 @@ import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public record ParameterReader(EntityResolver resolver)
 		implements EntityReader<Parameter> {

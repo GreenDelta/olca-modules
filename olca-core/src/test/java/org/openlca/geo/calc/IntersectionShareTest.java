@@ -1,12 +1,12 @@
 package org.openlca.geo.calc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.Point;
-
-import java.util.List;
 
 public class IntersectionShareTest {
 

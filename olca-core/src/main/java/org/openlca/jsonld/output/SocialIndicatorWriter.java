@@ -1,9 +1,9 @@
 package org.openlca.jsonld.output;
 
 import org.openlca.core.model.SocialIndicator;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record SocialIndicatorWriter(JsonExport exp)
 		implements JsonWriter<SocialIndicator> {

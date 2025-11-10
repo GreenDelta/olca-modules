@@ -1,6 +1,13 @@
 package org.openlca.jsonld.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,10 +24,6 @@ import org.openlca.core.model.doc.ReviewScope;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 public class ProcessDocTest {
 

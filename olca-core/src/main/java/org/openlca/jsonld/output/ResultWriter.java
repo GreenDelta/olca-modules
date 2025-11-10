@@ -1,11 +1,12 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.util.Objects;
+
 import org.openlca.core.model.Result;
 import org.openlca.jsonld.Json;
 
-import java.util.Objects;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public record ResultWriter(JsonExport exp) implements JsonWriter<Result> {
 

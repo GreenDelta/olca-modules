@@ -1,5 +1,8 @@
 package org.openlca.core.database;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,8 +12,6 @@ import org.junit.Test;
 import org.openlca.core.ListUtils;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Flow;
@@ -18,19 +19,18 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class RefEntityDaoTest {
 

@@ -1,8 +1,9 @@
 package org.openlca.ipc;
 
+import org.openlca.core.services.Response;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import org.openlca.core.services.Response;
 
 /**
  * Utility methods for creating RPC responses.

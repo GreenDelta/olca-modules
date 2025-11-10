@@ -3,6 +3,7 @@ package org.openlca.proto.io.server;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
@@ -48,7 +49,6 @@ import org.openlca.proto.io.output.SocialIndicatorWriter;
 import org.openlca.proto.io.output.SourceWriter;
 import org.openlca.proto.io.output.UnitGroupWriter;
 import org.openlca.proto.io.output.WriterConfig;
-import org.openlca.commons.Strings;
 
 import io.grpc.stub.StreamObserver;
 

@@ -3,6 +3,7 @@ package org.openlca.jsonld.output;
 import java.time.Instant;
 import java.util.Arrays;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -25,7 +26,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

@@ -1,5 +1,9 @@
 package org.openlca.io.simapro.csv.output;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -16,10 +20,6 @@ import org.openlca.simapro.csv.method.NwSetBlock;
 import org.openlca.simapro.csv.method.NwSetFactorRow;
 import org.openlca.simapro.csv.method.VersionRow;
 import org.openlca.util.KeyGen;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
 
 public class MethodWriter {
 

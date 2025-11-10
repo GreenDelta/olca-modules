@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
@@ -17,6 +16,8 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.core.model.descriptors.ResultDescriptor;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 public abstract class ProviderIndex {
 

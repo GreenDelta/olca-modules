@@ -2,12 +2,12 @@ package org.openlca.jsonld.output;
 
 import java.util.List;
 
-import com.google.gson.JsonArray;
 import org.openlca.core.model.Parameter;
-
-import com.google.gson.JsonObject;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public record ParameterWriter(JsonExport exp) implements JsonWriter<Parameter> {
 

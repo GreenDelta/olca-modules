@@ -10,10 +10,10 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.TypedRefId;
-import org.openlca.commons.Strings;
 import org.openlca.util.TypedRefIdMap;
 
 /**

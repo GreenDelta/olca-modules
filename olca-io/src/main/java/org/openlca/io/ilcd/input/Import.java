@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ExchangeProviderQueue;
@@ -35,7 +36,6 @@ import org.openlca.ilcd.util.Flows;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.io.ilcd.input.models.ModelImport;
 import org.openlca.io.maps.FlowSync;
-import org.openlca.commons.Strings;
 
 public class Import implements org.openlca.io.Import {
 

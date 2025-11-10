@@ -1,11 +1,11 @@
 package org.openlca.io.oneclick;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-
-import java.util.HashSet;
-import java.util.Set;
 
 class UnitMatcher {
 

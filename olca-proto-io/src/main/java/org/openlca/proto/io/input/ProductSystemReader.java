@@ -6,10 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntLongHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Flow;
@@ -22,6 +18,11 @@ import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.ProtoProductSystem;
 import org.openlca.proto.ProtoRef;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntLongHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 public class ProductSystemReader
 	implements EntityReader<ProductSystem, ProtoProductSystem> {

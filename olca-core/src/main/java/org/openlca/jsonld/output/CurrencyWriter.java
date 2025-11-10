@@ -1,9 +1,9 @@
 package org.openlca.jsonld.output;
 
 import org.openlca.core.model.Currency;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record CurrencyWriter(JsonExport exp) implements JsonWriter<Currency> {
 

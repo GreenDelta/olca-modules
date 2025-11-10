@@ -2,14 +2,15 @@ package org.openlca.jsonld.output;
 
 import java.util.Arrays;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 public record UnitWriter(JsonExport exp) implements JsonWriter<Unit> {
 

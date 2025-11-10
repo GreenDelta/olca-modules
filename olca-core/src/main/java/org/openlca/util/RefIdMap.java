@@ -3,13 +3,14 @@ package org.openlca.util;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
-import jakarta.persistence.Table;
 import org.apache.commons.math3.util.Pair;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.RefEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.Table;
 
 /**
  * In the imports and exports we often need a mapping of reference IDs to

@@ -6,11 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
-import org.slf4j.LoggerFactory;
 
 public class Api {
 

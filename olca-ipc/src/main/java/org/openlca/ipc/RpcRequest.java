@@ -1,9 +1,10 @@
 package org.openlca.ipc;
 
+import org.openlca.core.services.Response;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.openlca.core.services.Response;
 
 /**
  * A rpc call is represented by sending a Request object to a Server.

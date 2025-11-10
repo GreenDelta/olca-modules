@@ -1,6 +1,7 @@
 package org.openlca.core.database;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 import org.openlca.core.Tests;

@@ -2,7 +2,6 @@ package org.openlca.core.math.data_quality;
 
 import java.util.List;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.format.DenseByteMatrix;
@@ -10,6 +9,8 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.DQSystem;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Contains the data quality data of a system. In general a data quality system

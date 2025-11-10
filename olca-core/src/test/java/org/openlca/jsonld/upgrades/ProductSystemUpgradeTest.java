@@ -1,9 +1,9 @@
 package org.openlca.jsonld.upgrades;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
@@ -13,6 +13,9 @@ import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 import org.openlca.jsonld.input.JsonImport;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class ProductSystemUpgradeTest {
 

@@ -1,10 +1,10 @@
 package org.openlca.git.model;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.TypedRefId;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.util.GitUtil;
-import org.openlca.commons.Strings;
 
 public class ModelRef extends TypedRefId implements Comparable<ModelRef> {
 

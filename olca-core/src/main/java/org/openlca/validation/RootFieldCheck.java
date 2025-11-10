@@ -5,11 +5,12 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Table;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.ModelType;
 import org.openlca.commons.Strings;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
+
+import jakarta.persistence.Table;
 
 class RootFieldCheck implements Runnable {
 

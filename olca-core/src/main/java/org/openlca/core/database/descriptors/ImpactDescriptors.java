@@ -1,11 +1,11 @@
 package org.openlca.core.database.descriptors;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class ImpactDescriptors
 		implements DescriptorReader<ImpactDescriptor> {

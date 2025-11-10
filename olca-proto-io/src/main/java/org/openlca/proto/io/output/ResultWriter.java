@@ -1,5 +1,8 @@
 package org.openlca.proto.io.output;
 
+import java.util.Objects;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Result;
@@ -7,9 +10,6 @@ import org.openlca.proto.ProtoFlowResult;
 import org.openlca.proto.ProtoImpactResult;
 import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
-
-import java.util.Objects;
 
 public class ResultWriter {
 

@@ -1,10 +1,10 @@
 package org.openlca.core.results;
 
+import java.util.List;
+
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-
-import java.util.List;
 
 /**
  * Describes a node in an upstream tree.

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -22,7 +23,6 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.util.BinUtils;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

@@ -1,15 +1,16 @@
 package org.openlca.core.library.reader;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import java.nio.charset.StandardCharsets;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class EncryptionTest {
 

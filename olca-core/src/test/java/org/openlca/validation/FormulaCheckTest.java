@@ -1,20 +1,20 @@
 package org.openlca.validation;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.AllocationFactor;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests that we can find all possible formula errors in a database. A

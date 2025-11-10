@@ -1,8 +1,9 @@
 package org.openlca.io.simapro.csv.input;
 
-import java.io.File;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
+import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;

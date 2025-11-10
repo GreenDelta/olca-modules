@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.HashMap;
+
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowProperty;
@@ -12,8 +14,6 @@ import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.ilcd.util.Processes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
 
 class ExchangeConversion {
 

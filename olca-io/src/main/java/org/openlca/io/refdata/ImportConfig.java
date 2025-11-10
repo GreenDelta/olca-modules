@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.apache.commons.csv.CSVParser;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.CategorySync;
 import org.openlca.core.io.ImportLog;
@@ -20,7 +21,6 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.commons.Strings;
 
 class ImportConfig {
 

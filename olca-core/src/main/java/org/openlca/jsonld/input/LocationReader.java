@@ -2,13 +2,14 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Location;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 public record LocationReader(EntityResolver resolver)
 	implements EntityReader<Location> {

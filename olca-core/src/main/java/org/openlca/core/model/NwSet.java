@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openlca.core.model.descriptors.ImpactDescriptor;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 /**
  * Normalization and weighting set.

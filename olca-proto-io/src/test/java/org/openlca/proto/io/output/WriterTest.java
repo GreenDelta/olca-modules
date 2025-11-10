@@ -1,6 +1,11 @@
 package org.openlca.proto.io.output;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.stream.IntStream;
 
 import org.junit.Test;
 import org.openlca.core.model.Actor;
@@ -12,18 +17,14 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.store.InMemoryStore;
 import org.openlca.proto.ProtoFlowType;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.stream.IntStream;
 
 public class WriterTest {
 

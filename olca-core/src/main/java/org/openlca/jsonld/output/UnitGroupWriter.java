@@ -3,10 +3,10 @@ package org.openlca.jsonld.output;
 import java.util.Objects;
 
 import org.openlca.core.model.UnitGroup;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record UnitGroupWriter(JsonExport exp) implements JsonWriter<UnitGroup> {
 

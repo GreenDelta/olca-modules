@@ -1,12 +1,13 @@
 package org.openlca.io.ecospold2.input;
 
+import java.io.File;
+import java.util.function.Consumer;
+
 import org.openlca.util.ZipFiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spold2.EcoSpold2;
 
-import java.io.File;
-import java.util.function.Consumer;
+import spold2.EcoSpold2;
 
 public final class Spold2Files {
 

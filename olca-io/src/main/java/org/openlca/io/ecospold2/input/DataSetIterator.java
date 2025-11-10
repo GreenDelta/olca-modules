@@ -1,17 +1,18 @@
 package org.openlca.io.ecospold2.input;
 
-import org.openlca.util.ZipFiles;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import spold2.DataSet;
-import spold2.EcoSpold2;
-
 import java.io.Closeable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import org.openlca.util.ZipFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import spold2.DataSet;
+import spold2.EcoSpold2;
 
 class DataSetIterator implements Iterator<DataSet>, Closeable {
 

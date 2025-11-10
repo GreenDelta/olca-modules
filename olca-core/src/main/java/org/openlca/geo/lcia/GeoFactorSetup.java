@@ -1,16 +1,17 @@
 package org.openlca.geo.lcia;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.openlca.core.database.IDatabase;
-import org.openlca.geo.geojson.FeatureCollection;
-import org.openlca.jsonld.Json;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.geo.geojson.FeatureCollection;
+import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class GeoFactorSetup {
 

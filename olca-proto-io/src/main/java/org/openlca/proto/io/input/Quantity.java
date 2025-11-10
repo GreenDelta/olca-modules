@@ -1,11 +1,11 @@
 package org.openlca.proto.io.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.proto.ProtoRef;
-import org.openlca.commons.Strings;
 
 record Quantity(Flow flow, FlowPropertyFactor factor, Unit unit) {
 

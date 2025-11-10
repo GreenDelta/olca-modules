@@ -1,9 +1,10 @@
 package org.openlca.jsonld.output;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public record ImpactMethodWriter(JsonExport exp)
 		implements JsonWriter<ImpactMethod> {

@@ -2,10 +2,10 @@ package org.openlca.proto.io;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.protobuf.util.JsonFormat;
 import org.openlca.proto.ProtoFlow;
 import org.openlca.proto.ProtoFlowType;
+
+import com.google.protobuf.util.JsonFormat;
 
 public class EnumTest {
 

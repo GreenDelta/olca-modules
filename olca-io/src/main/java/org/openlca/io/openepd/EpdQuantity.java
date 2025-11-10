@@ -2,9 +2,10 @@ package org.openlca.io.openepd;
 
 import java.util.Optional;
 
+import org.openlca.jsonld.Json;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record EpdQuantity(double amount, String unit) implements Jsonable {
 

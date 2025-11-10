@@ -1,6 +1,5 @@
 package org.openlca.core.services;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessType;
@@ -24,6 +23,8 @@ import org.openlca.core.model.descriptors.SocialIndicatorDescriptor;
 import org.openlca.core.model.descriptors.SourceDescriptor;
 import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 /**
  * A utility class for reading information from a data set reference.

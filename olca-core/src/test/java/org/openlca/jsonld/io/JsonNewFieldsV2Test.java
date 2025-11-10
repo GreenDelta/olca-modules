@@ -1,6 +1,14 @@
 package org.openlca.jsonld.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,9 +35,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.output.JsonExport;
-
-import java.util.Objects;
-import java.util.function.Consumer;
 
 public class JsonNewFieldsV2Test {
 

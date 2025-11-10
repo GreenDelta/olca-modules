@@ -3,13 +3,14 @@ package org.openlca.jsonld.input;
 import java.util.HashMap;
 import java.util.Objects;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public record UnitGroupReader(EntityResolver resolver)
 	implements EntityReader<UnitGroup> {

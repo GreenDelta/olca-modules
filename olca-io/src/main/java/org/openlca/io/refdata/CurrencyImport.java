@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.ModelType;
-import org.openlca.commons.Strings;
 
 class CurrencyImport implements Runnable {
 

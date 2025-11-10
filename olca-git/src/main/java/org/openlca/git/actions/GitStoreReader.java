@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.actions.ConflictResolver.ConflictResolution;
@@ -18,7 +19,6 @@ import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ModelRefMap;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.commons.Strings;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

@@ -1,13 +1,13 @@
 package org.openlca.jsonld;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public record PackageInfo(JsonObject json) {
 

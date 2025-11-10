@@ -1,15 +1,15 @@
 package org.openlca.geo.lcia;
 
-import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.RootEntity;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.RootEntity;
 
 public class GeoFactorMerge {
 

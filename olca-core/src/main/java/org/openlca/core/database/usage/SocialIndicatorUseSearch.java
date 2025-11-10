@@ -3,10 +3,11 @@ package org.openlca.core.database.usage;
 import java.util.Collections;
 import java.util.Set;
 
-import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.set.TLongSet;
 
 public record SocialIndicatorUseSearch(IDatabase db) implements UsageSearch {
 

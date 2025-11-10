@@ -1,14 +1,14 @@
 package org.openlca.core.math;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntIntHashMap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.solvers.MatrixSolver;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 /**
  * Sorts a *quadratic* matrix (the technology matrix in openLCA) so that rows

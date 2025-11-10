@@ -12,12 +12,12 @@ import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**

@@ -1,8 +1,8 @@
 package org.openlca.proto.io.output;
 
-import gnu.trove.map.hash.TLongIntHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
+import java.util.EnumMap;
+import java.util.function.Consumer;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
@@ -14,8 +14,9 @@ import org.openlca.core.model.store.EntityStore;
 import org.openlca.proto.ProtoRef;
 import org.openlca.util.TLongSets;
 
-import java.util.EnumMap;
-import java.util.function.Consumer;
+import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 public class WriterConfig {
 

@@ -1,11 +1,11 @@
 package org.openlca.core.database.descriptors;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.descriptors.LocationDescriptor;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 
 public class LocationDescriptors
 		implements DescriptorReader<LocationDescriptor> {

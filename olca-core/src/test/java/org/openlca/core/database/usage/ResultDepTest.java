@@ -1,5 +1,10 @@
 package org.openlca.core.database.usage;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +24,6 @@ import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
-
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class ResultDepTest {
 

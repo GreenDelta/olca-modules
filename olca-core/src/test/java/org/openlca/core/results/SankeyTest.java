@@ -5,13 +5,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.Tests;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 

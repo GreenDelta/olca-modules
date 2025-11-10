@@ -1,5 +1,9 @@
 package org.openlca.geo.calc;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntConsumer;
+
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
@@ -8,10 +12,6 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.operation.polygonize.Polygonizer;
 import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
-
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.IntConsumer;
 
 /**
  * Tries to fix invalid geometries of the features in the collection in place.

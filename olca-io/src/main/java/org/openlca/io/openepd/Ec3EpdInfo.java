@@ -2,8 +2,9 @@ package org.openlca.io.openepd;
 
 import java.util.Optional;
 
-import com.google.gson.JsonElement;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonElement;
 
 /**
  * Contains some meta-data of an EPD on EC3.

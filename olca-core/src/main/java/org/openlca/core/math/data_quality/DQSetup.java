@@ -1,15 +1,15 @@
 package org.openlca.core.math.data_quality;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DQSetup {
 

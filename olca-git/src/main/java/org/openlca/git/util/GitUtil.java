@@ -8,9 +8,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.RepositoryInfo;
-import org.openlca.commons.Strings;
 
 public class GitUtil {
 

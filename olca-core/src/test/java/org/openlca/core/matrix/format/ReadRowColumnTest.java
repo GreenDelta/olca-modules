@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Collection;
 import java.util.List;

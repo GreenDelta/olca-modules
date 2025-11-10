@@ -1,12 +1,12 @@
 package org.openlca.io.ilcd.input;
 
+import java.util.List;
+import java.util.Map;
+
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.util.Processes;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Maps the reference flow of an ILCD process to an openLCA process. An ILCD

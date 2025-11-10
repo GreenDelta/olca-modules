@@ -1,6 +1,22 @@
 package org.openlca.core.database;
 
-import static org.openlca.core.model.ModelType.*;
+import static org.openlca.core.model.ModelType.ACTOR;
+import static org.openlca.core.model.ModelType.CURRENCY;
+import static org.openlca.core.model.ModelType.DQ_SYSTEM;
+import static org.openlca.core.model.ModelType.EPD;
+import static org.openlca.core.model.ModelType.FLOW;
+import static org.openlca.core.model.ModelType.FLOW_PROPERTY;
+import static org.openlca.core.model.ModelType.IMPACT_CATEGORY;
+import static org.openlca.core.model.ModelType.IMPACT_METHOD;
+import static org.openlca.core.model.ModelType.LOCATION;
+import static org.openlca.core.model.ModelType.PARAMETER;
+import static org.openlca.core.model.ModelType.PROCESS;
+import static org.openlca.core.model.ModelType.PRODUCT_SYSTEM;
+import static org.openlca.core.model.ModelType.PROJECT;
+import static org.openlca.core.model.ModelType.RESULT;
+import static org.openlca.core.model.ModelType.SOCIAL_INDICATOR;
+import static org.openlca.core.model.ModelType.SOURCE;
+import static org.openlca.core.model.ModelType.UNIT_GROUP;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

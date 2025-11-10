@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-
 import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 /**
  * A helper class for common queries.

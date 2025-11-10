@@ -2,12 +2,12 @@ package org.openlca.jsonld.output;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

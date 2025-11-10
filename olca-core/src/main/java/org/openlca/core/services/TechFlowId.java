@@ -3,11 +3,12 @@ package org.openlca.core.services;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.google.gson.JsonObject;
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
+
+import com.google.gson.JsonObject;
 
 public record TechFlowId(String providerId, String flowId) {
 

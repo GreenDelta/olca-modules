@@ -1,5 +1,8 @@
 package org.openlca.core.matrix.io.npy;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.nio.file.Files;
 
@@ -11,9 +14,6 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.npy.Array2d;
 import org.openlca.util.Dirs;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 public class NpyTest {
 

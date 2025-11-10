@@ -1,5 +1,7 @@
 package org.openlca.core.library.reader;
 
+import java.util.Objects;
+
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -8,8 +10,6 @@ import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
-
-import java.util.Objects;
 
 public class SolvingLibReader implements LibReader {
 

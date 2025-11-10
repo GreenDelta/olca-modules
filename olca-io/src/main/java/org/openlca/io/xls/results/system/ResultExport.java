@@ -3,13 +3,12 @@ package org.openlca.io.xls.results.system;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openlca.core.database.EntityCache;
-import org.openlca.core.math.data_quality.DQSetup;
 import org.openlca.core.math.data_quality.DQResult;
+import org.openlca.core.math.data_quality.DQSetup;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.ResultItemOrder;

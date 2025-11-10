@@ -1,5 +1,7 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.List;
+
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.FlowType;
 import org.openlca.ilcd.flows.AdminInfo;
@@ -9,8 +11,6 @@ import org.openlca.ilcd.flows.FlowPropertyRef;
 import org.openlca.ilcd.flows.Modelling;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
-
-import java.util.List;
 
 public class FlowExport {
 

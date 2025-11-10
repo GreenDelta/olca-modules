@@ -7,9 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.nio.file.Files;
 
 import org.junit.Test;
-import org.openlca.core.io.maps.FlowMap;
-import org.openlca.core.io.maps.FlowMapEntry;
-import org.openlca.core.io.maps.FlowRef;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.UnitDescriptor;
 

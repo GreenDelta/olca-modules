@@ -1,11 +1,14 @@
 package org.openlca.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
-
-import static org.junit.Assert.*;
 
 /**
  * The test graphs here are written in DOT format, you can easily visualize

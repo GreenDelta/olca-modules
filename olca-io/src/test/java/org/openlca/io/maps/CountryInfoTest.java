@@ -1,6 +1,7 @@
 package org.openlca.io.maps;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 public class CountryInfoTest {

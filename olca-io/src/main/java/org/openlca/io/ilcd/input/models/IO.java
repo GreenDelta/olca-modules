@@ -3,6 +3,7 @@ package org.openlca.io.ilcd.input.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ProductSystem;
@@ -10,7 +11,6 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.util.Models;
-import org.openlca.commons.Strings;
 
 /**
  * A utility class for mapping data between eILCD models and product systems.

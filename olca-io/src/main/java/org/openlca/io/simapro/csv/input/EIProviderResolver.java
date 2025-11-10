@@ -6,13 +6,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 /**

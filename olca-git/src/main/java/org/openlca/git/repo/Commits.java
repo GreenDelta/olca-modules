@@ -15,11 +15,11 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.git.model.Commit;
 import org.openlca.git.util.Constants;
 import org.openlca.git.util.GitUtil;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

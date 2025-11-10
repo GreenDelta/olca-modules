@@ -1,10 +1,10 @@
 package org.openlca.proto.io.output;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.proto.ProtoImpactCategory;
 import org.openlca.proto.ProtoImpactFactor;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class ImpactCategoryWriter {
 

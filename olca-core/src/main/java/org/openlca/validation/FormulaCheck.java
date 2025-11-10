@@ -1,14 +1,14 @@
 package org.openlca.validation;
 
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.function.Supplier;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.commons.Strings;
-
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.function.Supplier;
 
 class FormulaCheck implements Runnable {
 

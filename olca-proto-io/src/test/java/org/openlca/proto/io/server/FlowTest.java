@@ -1,6 +1,6 @@
 package org.openlca.proto.io.server;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 

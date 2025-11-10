@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
-import org.openlca.commons.Strings;
 
 class FlowImport implements Runnable {
 

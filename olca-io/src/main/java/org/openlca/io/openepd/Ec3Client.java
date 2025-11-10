@@ -8,12 +8,13 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
-import org.slf4j.LoggerFactory;
 
 public class Ec3Client {
 

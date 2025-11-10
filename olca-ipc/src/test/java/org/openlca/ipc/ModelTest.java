@@ -1,16 +1,16 @@
 package org.openlca.ipc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.openlca.jsonld.Json;
 
 public class ModelTest {
 

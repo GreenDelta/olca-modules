@@ -1,18 +1,18 @@
 package org.openlca.io.refdata;
 
-import org.apache.commons.csv.CSVPrinter;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.RefEntity;
-import org.openlca.util.Dirs;
-import org.openlca.commons.Strings;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import org.apache.commons.csv.CSVPrinter;
+import org.openlca.commons.Strings;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.RefEntity;
+import org.openlca.util.Dirs;
+import org.slf4j.LoggerFactory;
 
 record ExportConfig(File dir, IDatabase db) {
 

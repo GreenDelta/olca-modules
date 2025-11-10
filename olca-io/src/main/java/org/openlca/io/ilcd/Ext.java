@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
-import org.openlca.ilcd.processes.Parameter;
 import org.openlca.commons.Strings;
+import org.openlca.ilcd.processes.Parameter;
 
 /// It would be better to move openLCA specific extensions of the ILCD format
 /// into the olca-io module. This utility class contains extension handling

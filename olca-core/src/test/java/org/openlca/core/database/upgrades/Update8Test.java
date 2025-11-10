@@ -13,13 +13,13 @@ import org.openlca.core.database.ProductSystemDao;
 import org.openlca.core.database.ProjectDao;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProviderType;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.ProcessDoc;
 
 /**
  * Test the updates for the database schema v8.

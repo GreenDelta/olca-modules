@@ -1,13 +1,15 @@
 package org.openlca.core.database.descriptors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-
-import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.openlca.core.Tests;

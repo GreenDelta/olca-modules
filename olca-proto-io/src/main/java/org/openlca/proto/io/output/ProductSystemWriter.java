@@ -1,7 +1,6 @@
 package org.openlca.proto.io.output;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -11,7 +10,9 @@ import org.openlca.proto.ProtoParameterRedefSet;
 import org.openlca.proto.ProtoProcessLink;
 import org.openlca.proto.ProtoProductSystem;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 public class ProductSystemWriter {
 

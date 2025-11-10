@@ -1,9 +1,9 @@
 package org.openlca.io.openepd.io;
 
-import org.openlca.commons.Strings;
-
 import java.util.Optional;
 import java.util.regex.Pattern;
+
+import org.openlca.commons.Strings;
 
 /**
  * Contains openEPD vocabulary constants and matching rules for mapping these

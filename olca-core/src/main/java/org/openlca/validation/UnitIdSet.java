@@ -1,10 +1,11 @@
 package org.openlca.validation;
 
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+
 import gnu.trove.map.hash.TLongLongHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.hash.TLongHashSet;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
 
 class UnitIdSet {
 

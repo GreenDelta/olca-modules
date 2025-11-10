@@ -1,5 +1,8 @@
 package org.openlca.io.ilcd;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
@@ -13,8 +16,6 @@ import org.openlca.ilcd.io.MemDataStore;
 import org.openlca.io.Tests;
 import org.openlca.io.ilcd.input.Import;
 import org.openlca.io.ilcd.output.Export;
-
-import static org.junit.Assert.*;
 
 public class CompletenessTest {
 

@@ -6,14 +6,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.TLongHashSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 
 public final class ProductSystems {
 

@@ -3,9 +3,10 @@ package org.openlca.io.openepd;
 import java.io.File;
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 public class Ec3Credentials {
 

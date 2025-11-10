@@ -1,17 +1,18 @@
 package org.openlca.jsonld.upgrades;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.openlca.core.model.ModelType;
-import org.openlca.jsonld.Json;
-import org.openlca.jsonld.JsonStoreReader;
-import org.openlca.commons.Strings;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.openlca.commons.Strings;
+import org.openlca.core.model.ModelType;
+import org.openlca.jsonld.Json;
+import org.openlca.jsonld.JsonStoreReader;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 class Upgrade2 extends Upgrade {
 

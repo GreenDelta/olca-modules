@@ -1,10 +1,11 @@
 package org.openlca.proto.io.output;
 
-import com.google.protobuf.ByteString;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Location;
 import org.openlca.proto.ProtoLocation;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
+
+import com.google.protobuf.ByteString;
 
 public class LocationWriter {
 

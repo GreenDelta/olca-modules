@@ -3,7 +3,6 @@ package org.openlca.jsonld.input;
 import java.util.HashMap;
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -11,6 +10,8 @@ import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record FlowReader(EntityResolver resolver)
 		implements EntityReader<Flow> {

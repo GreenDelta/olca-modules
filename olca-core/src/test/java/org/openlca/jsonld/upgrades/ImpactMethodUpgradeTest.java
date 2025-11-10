@@ -1,11 +1,11 @@
 package org.openlca.jsonld.upgrades;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +19,9 @@ import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
 import org.openlca.jsonld.input.JsonImport;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class ImpactMethodUpgradeTest {
 

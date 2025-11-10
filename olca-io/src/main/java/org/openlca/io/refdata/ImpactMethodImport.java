@@ -1,14 +1,14 @@
 package org.openlca.io.refdata;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
+
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
 
 class ImpactMethodImport implements Runnable {
 

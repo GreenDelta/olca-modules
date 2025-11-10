@@ -2,12 +2,14 @@ package org.openlca.proto.io.server;
 
 import java.util.Objects;
 
-import com.google.protobuf.Empty;
-import io.grpc.stub.StreamObserver;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.proto.grpc.AboutResponse;
 import org.openlca.proto.grpc.AboutServiceGrpc;
-import org.openlca.commons.Strings;
+
+import com.google.protobuf.Empty;
+
+import io.grpc.stub.StreamObserver;
 
 public class AboutService extends AboutServiceGrpc.AboutServiceImplBase {
 

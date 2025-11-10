@@ -1,9 +1,9 @@
 package org.openlca.proto.io.output;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class ActorWriter {
 

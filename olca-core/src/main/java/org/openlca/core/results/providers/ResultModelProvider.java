@@ -1,6 +1,5 @@
 package org.openlca.core.results.providers;
 
-import gnu.trove.list.array.TDoubleArrayList;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -8,10 +7,12 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.model.FlowType;
 import org.openlca.core.model.FlowResult;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.Descriptor;
+
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * Provides a result provider view on a stored result model.

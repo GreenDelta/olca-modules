@@ -1,7 +1,7 @@
 package org.openlca.proto.io;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 
 public class Tests {
 

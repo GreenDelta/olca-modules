@@ -3,7 +3,16 @@ package org.openlca.jsonld.input;
 import java.util.Objects;
 
 import org.openlca.core.io.EntityResolver;
-import org.openlca.core.model.*;
+import org.openlca.core.model.Actor;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.EpdModule;
+import org.openlca.core.model.EpdProduct;
+import org.openlca.core.model.EpdType;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.Location;
+import org.openlca.core.model.Result;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;

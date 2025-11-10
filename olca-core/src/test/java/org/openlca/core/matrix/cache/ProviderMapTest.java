@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.cache;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 

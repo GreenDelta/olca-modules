@@ -2,10 +2,11 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record SourceReader(EntityResolver resolver)
 	implements EntityReader<Source> {

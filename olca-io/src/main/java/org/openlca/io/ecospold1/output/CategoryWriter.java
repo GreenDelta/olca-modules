@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.TreeSet;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
@@ -15,7 +16,6 @@ import org.openlca.core.model.Process;
 import org.openlca.ecospold.Category;
 import org.openlca.ecospold.CategoryDocument;
 import org.openlca.ecospold.SubCategory;
-import org.openlca.commons.Strings;
 
 import jakarta.xml.bind.JAXB;
 

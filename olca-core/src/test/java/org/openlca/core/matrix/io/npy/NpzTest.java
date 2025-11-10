@@ -1,14 +1,14 @@
 package org.openlca.core.matrix.io.npy;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.function.Consumer;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.util.Dirs;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.function.Consumer;
 
 public class NpzTest {
 

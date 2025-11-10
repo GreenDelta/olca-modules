@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.results.UpstreamNode;
 import org.openlca.core.results.UpstreamTree;
-import org.openlca.commons.Strings;
 
 /**
  * A utility class for identifying nodes in an upstream tree. The path to a

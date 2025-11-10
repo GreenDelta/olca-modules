@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import java.util.Optional;
+
 import org.apache.commons.math3.linear.NonSquareMatrixException;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -9,8 +11,6 @@ import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
-
-import java.util.Optional;
 
 public class MKLSolver implements MatrixSolver {
 

@@ -1,5 +1,6 @@
 package org.openlca.io.maps;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.io.maps.FlowMapEntry;
@@ -9,7 +10,6 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.commons.Strings;
 
 public record SyncFlow(
 	Flow flow,

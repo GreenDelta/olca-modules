@@ -7,13 +7,13 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import org.junit.Test;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.io.output.Out;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.commons.Strings;
 
 public class EntityTypeTest {
 

@@ -6,12 +6,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Unit;
 import org.openlca.io.simapro.csv.SimaProUnit;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.refdata.QuantityRow;
 import org.openlca.simapro.csv.refdata.UnitRow;
-import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 class UnitMap {

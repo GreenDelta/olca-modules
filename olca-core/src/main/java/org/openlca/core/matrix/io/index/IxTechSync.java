@@ -1,5 +1,10 @@
 package org.openlca.core.matrix.io.index;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.descriptors.FlowDescriptors;
 import org.openlca.core.database.descriptors.ProcessDescriptors;
@@ -7,11 +12,6 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 
 class IxTechSync {
 

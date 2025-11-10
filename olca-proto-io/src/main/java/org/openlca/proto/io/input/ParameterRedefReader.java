@@ -1,12 +1,12 @@
 package org.openlca.proto.io.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.proto.ProtoParameterRedef;
-import org.openlca.commons.Strings;
 
 public class ParameterRedefReader {
 

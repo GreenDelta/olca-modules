@@ -1,12 +1,12 @@
 package org.openlca.core.database.descriptors;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class ProcessDescriptors
 		implements DescriptorReader<ProcessDescriptor> {

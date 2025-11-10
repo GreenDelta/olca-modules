@@ -2,7 +2,6 @@ package org.openlca.jsonld.input;
 
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ImpactMethod;
@@ -10,6 +9,8 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public record ProjectReader(EntityResolver resolver)
 	implements EntityReader<Project> {

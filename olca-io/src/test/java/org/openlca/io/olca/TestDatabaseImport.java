@@ -1,17 +1,17 @@
 package org.openlca.io.olca;
 
-import java.util.EnumMap;
-import java.util.UUID;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.EnumMap;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;

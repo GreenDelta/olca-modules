@@ -1,5 +1,9 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -7,10 +11,6 @@ import org.openlca.core.model.Version;
 import org.openlca.ilcd.methods.Factor;
 import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.io.Xml;
-import org.openlca.commons.Strings;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ImpactCategoryExport {
 

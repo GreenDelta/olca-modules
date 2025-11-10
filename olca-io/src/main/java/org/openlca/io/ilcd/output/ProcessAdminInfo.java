@@ -1,5 +1,8 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.Date;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ProcessDoc;
@@ -7,9 +10,6 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.AdminInfo;
 import org.openlca.ilcd.util.Refs;
 import org.openlca.io.Xml;
-import org.openlca.commons.Strings;
-
-import java.util.Date;
 
 class ProcessAdminInfo {
 

@@ -16,12 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.Message;
-import com.google.protobuf.Parser;
-import com.google.protobuf.util.JsonFormat;
 import org.openlca.core.model.ModelType;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.jsonld.Json;
@@ -43,6 +37,13 @@ import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Message;
+import com.google.protobuf.Parser;
+import com.google.protobuf.util.JsonFormat;
 
 public class ZipStore implements ProtoStoreReader, AutoCloseable {
 

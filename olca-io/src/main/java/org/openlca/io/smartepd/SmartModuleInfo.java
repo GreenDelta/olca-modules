@@ -4,8 +4,8 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.openlca.jsonld.Json;
 import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 

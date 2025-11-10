@@ -1,17 +1,17 @@
 package org.openlca.io.simapro.csv.output;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.junit.Test;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.io.Tests;
 import org.openlca.simapro.csv.enums.ProcessCategory;
-
-import java.util.List;
 
 public class CategoryPathTest {
 

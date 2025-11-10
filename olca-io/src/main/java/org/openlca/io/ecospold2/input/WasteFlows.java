@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.UncertaintyType;
-import org.openlca.commons.Strings;
 
 /**
  * In ecoinvent 3.x, a waste flow is an intermediate exchange with a negative

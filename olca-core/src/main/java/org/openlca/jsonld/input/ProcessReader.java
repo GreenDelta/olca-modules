@@ -1,5 +1,6 @@
 package org.openlca.jsonld.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
@@ -18,7 +19,6 @@ import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonObject;
 

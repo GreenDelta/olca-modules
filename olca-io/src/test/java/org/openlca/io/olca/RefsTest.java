@@ -1,9 +1,11 @@
 package org.openlca.io.olca;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 import java.util.function.Consumer;
-
-import static org.junit.Assert.*;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -30,7 +32,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
@@ -41,6 +42,7 @@ import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 
 /**

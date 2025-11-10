@@ -1,8 +1,8 @@
 package org.openlca.validation;
 
-import org.openlca.core.database.NativeSql;
-
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.openlca.core.database.NativeSql;
 
 class SeqIdCheck implements Runnable {
 

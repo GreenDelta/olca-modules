@@ -1,17 +1,13 @@
 package org.openlca.io.xls;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 
-import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openlca.io.xls.Excel;
 
 public class ExcelLimitsTest {
 

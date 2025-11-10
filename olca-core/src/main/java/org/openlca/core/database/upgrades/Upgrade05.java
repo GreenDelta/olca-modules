@@ -7,8 +7,8 @@ import java.sql.Statement;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.cache.FlowTable;
+import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.model.FlowType;
 
 import gnu.trove.impl.Constants;

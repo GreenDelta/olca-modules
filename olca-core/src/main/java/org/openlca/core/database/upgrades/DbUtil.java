@@ -5,10 +5,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.Derby;
+import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MySQL;
+import org.openlca.core.database.NativeSql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

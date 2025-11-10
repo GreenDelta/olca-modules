@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -17,7 +18,6 @@ import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
-import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

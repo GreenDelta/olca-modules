@@ -3,12 +3,13 @@ package org.openlca.core.database.usage;
 import java.util.Collections;
 import java.util.Set;
 
-import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.set.TLongSet;
 
 public record FlowPropertyUseSearch(IDatabase db) implements UsageSearch {
 

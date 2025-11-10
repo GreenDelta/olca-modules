@@ -1,5 +1,6 @@
 package org.openlca.io.ilcd.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
@@ -14,7 +15,6 @@ import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.processes.InventoryMethod;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.DQSystems;
-import org.openlca.commons.Strings;
 
 public class ProcessImport {
 

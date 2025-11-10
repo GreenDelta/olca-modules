@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.protobuf.AbstractMessage;
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCurrency;
@@ -25,6 +24,8 @@ import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
+
+import com.google.protobuf.AbstractMessage;
 
 public class InMemoryProtoStore implements ProtoStoreReader, ProtoStoreWriter {
 

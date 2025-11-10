@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.openlca.commons.Strings;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.Numeric;
 import org.openlca.simapro.csv.enums.ProcessCategory;
@@ -20,7 +21,6 @@ import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.process.WasteFractionRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
-import org.openlca.commons.Strings;
 
 /**
  * Unrolls waste scenarios as parameters and formulas.

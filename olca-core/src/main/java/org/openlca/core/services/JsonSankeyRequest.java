@@ -1,11 +1,12 @@
 package org.openlca.core.services;
 
-import com.google.gson.JsonObject;
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
+
+import com.google.gson.JsonObject;
 
 class JsonSankeyRequest {
 

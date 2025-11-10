@@ -1,6 +1,8 @@
 package org.openlca.core.math;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.util.function.Consumer;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,8 +18,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
-
-import java.util.function.Consumer;
 
 public class ImpactDirectionTest {
 

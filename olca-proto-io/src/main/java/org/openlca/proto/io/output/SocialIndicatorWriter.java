@@ -1,9 +1,9 @@
 package org.openlca.proto.io.output;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class SocialIndicatorWriter {
 

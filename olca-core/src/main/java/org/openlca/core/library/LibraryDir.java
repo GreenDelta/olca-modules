@@ -1,7 +1,5 @@
 package org.openlca.core.library;
 
-import org.openlca.util.Dirs;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.openlca.util.Dirs;
 
 /**
  * A library directory is a specific folder where each sub-folder is a library.

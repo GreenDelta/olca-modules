@@ -1,12 +1,12 @@
 package org.openlca.io.simapro.csv.output;
 
+import java.util.Locale;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Process;
 import org.openlca.simapro.csv.enums.ProcessCategory;
-import org.openlca.commons.Strings;
-
-import java.util.Locale;
 
 record CategoryPath(ProcessCategory type, String path) {
 

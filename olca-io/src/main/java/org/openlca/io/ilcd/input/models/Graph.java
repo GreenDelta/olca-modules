@@ -1,5 +1,12 @@
 package org.openlca.io.ilcd.input.models;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -8,13 +15,6 @@ import org.openlca.ilcd.models.Model;
 import org.openlca.ilcd.util.Models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 class Graph {
 

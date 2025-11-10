@@ -1,16 +1,16 @@
 package org.openlca.io.simapro.csv.output;
 
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.util.Exchanges;
-import org.openlca.commons.Strings;
-
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.function.BiConsumer;
 
 class Util {
 	private Util() {

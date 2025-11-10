@@ -1,17 +1,17 @@
 package org.openlca.core.model.store;
 
-import org.openlca.core.model.Category;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.Descriptor;
-import org.openlca.core.model.descriptors.RootDescriptor;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public class InMemoryStore implements EntityStore {
 

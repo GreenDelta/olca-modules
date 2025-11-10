@@ -1,19 +1,20 @@
 package org.openlca.core.results;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.set.hash.TIntHashSet;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.providers.ResultProvider;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.function.Consumer;
+
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.ResultProvider;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 
 /**
  * An instance of this class contains the underlying graph data structure of

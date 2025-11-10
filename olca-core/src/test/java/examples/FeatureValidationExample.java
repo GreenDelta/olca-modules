@@ -1,10 +1,10 @@
 package examples;
 
+import java.io.File;
+
 import org.openlca.core.DataDir;
 import org.openlca.geo.calc.FeatureValidation;
 import org.openlca.geo.lcia.GeoFactorSetup;
-
-import java.io.File;
 
 public class FeatureValidationExample {
 

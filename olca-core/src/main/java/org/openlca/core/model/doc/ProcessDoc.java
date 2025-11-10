@@ -5,12 +5,23 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.persistence.annotations.Mutable;
+import org.openlca.commons.Copyable;
 import org.openlca.core.model.AbstractEntity;
 import org.openlca.core.model.Actor;
-import org.openlca.commons.Copyable;
 import org.openlca.core.model.Source;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 /**
  * Contains the general documentation fields of a process that are not used for

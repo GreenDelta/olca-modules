@@ -1,5 +1,8 @@
 package org.openlca.io.simapro.csv.input;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.junit.After;
@@ -8,9 +11,6 @@ import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.io.Tests;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class MethodImportTest {
 

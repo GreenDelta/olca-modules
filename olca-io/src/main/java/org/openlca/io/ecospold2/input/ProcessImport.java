@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.ExchangeDao;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
@@ -25,7 +26,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.io.ecospold2.UncertaintyConverter;
 import org.openlca.util.DQSystems;
-import org.openlca.commons.Strings;
 
 import spold2.Activity;
 import spold2.Classification;

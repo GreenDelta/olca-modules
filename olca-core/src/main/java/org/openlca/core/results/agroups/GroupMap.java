@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.results.LcaResult;
-import org.openlca.commons.Strings;
 
 record GroupMap(String top, Map<Long, String> map) {
 

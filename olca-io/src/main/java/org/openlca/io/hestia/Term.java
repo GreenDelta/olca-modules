@@ -2,8 +2,8 @@ package org.openlca.io.hestia;
 
 import java.util.Locale;
 
-import org.openlca.jsonld.Json;
 import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 

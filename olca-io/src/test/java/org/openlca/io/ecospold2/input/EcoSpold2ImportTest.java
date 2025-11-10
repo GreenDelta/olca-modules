@@ -1,5 +1,11 @@
 package org.openlca.io.ecospold2.input;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.UUID;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,12 +23,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.io.Tests;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.UUID;
 
 public class EcoSpold2ImportTest {
 

@@ -1,6 +1,9 @@
 package org.openlca.core.services;
 
-import com.google.gson.JsonArray;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterizedEntity;
@@ -10,9 +13,7 @@ import org.openlca.jsonld.output.JsonExport;
 import org.openlca.jsonld.output.ParameterWriter;
 import org.openlca.util.ParameterRedefSets;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.stream.Collectors;
+import com.google.gson.JsonArray;
 
 class JsonParameters {
 

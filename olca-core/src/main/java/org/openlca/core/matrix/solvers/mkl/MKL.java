@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.openlca.core.DataDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class MKL {
 

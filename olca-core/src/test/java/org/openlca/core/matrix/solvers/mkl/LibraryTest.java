@@ -1,9 +1,9 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assume;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class LibraryTest {
 

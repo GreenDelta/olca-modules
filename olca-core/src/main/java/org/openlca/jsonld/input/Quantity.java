@@ -1,12 +1,13 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonObject;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.Unit;
 import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
+
+import com.google.gson.JsonObject;
 
 /**
  * There are multiple places where the flow property and unit of a quantity

@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
-import com.google.protobuf.Empty;
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
@@ -25,6 +24,8 @@ import org.openlca.proto.grpc.GetAllResponse;
 import org.openlca.proto.grpc.GetDescriptorsRequest;
 import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.io.Tests;
+
+import com.google.protobuf.Empty;
 
 public class DataFetchTest {
 

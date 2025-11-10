@@ -2,6 +2,7 @@ package org.openlca.proto.io.input;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Category;
@@ -11,7 +12,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.proto.ProtoUnitGroup;
-import org.openlca.commons.Strings;
 
 class UnitGroupImport implements EntityResolver {
 

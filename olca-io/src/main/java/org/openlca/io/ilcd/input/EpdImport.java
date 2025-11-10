@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Category;
@@ -27,7 +28,6 @@ import org.openlca.ilcd.util.Epds;
 import org.openlca.ilcd.util.Processes;
 import org.openlca.util.KeyGen;
 import org.openlca.util.Lists;
-import org.openlca.commons.Strings;
 
 public class EpdImport {
 

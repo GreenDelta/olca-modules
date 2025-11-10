@@ -1,5 +1,11 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.openlca.core.database.FlowDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
@@ -20,12 +26,6 @@ import org.openlca.ilcd.processes.Process;
 import org.openlca.ilcd.util.Models;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SystemExport {
 

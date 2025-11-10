@@ -3,6 +3,7 @@ package org.openlca.proto.io.input;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.CalculationTarget;
@@ -11,7 +12,6 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.proto.grpc.ProtoCalculationSetup;
-import org.openlca.commons.Strings;
 
 public final class CalculationSetupReader {
 

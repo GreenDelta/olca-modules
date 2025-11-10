@@ -1,10 +1,10 @@
 package examples;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.openlca.core.DataDir;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.util.ProviderChainRemoval;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 public class ProviderChainRemovalBenchmark {
 

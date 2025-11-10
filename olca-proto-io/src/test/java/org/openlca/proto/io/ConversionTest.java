@@ -1,6 +1,6 @@
 package org.openlca.proto.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.experimental.theories.DataPoint;
 import org.junit.experimental.theories.Theories;

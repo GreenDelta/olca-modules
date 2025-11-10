@@ -21,6 +21,7 @@ import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.commons.Strings;
 import org.openlca.git.Compatibility;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.ChangeIterator;
@@ -32,7 +33,6 @@ import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ProgressMonitor;
 import org.openlca.jsonld.LibraryLink;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

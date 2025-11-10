@@ -1,5 +1,10 @@
 package org.openlca.proto.io.server;
 
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ModelType;
 import org.openlca.proto.ProtoActor;
 import org.openlca.proto.ProtoCurrency;
@@ -20,11 +25,6 @@ import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
 import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.io.ProtoStoreReader;
-import org.openlca.commons.Strings;
-
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
 
 record DataSetReader(ProtoDataSet dataSet) implements ProtoStoreReader {
 

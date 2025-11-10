@@ -8,8 +8,8 @@ import java.util.UUID;
 
 import org.junit.Test;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.ModelType;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Version;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
 import org.openlca.proto.grpc.DataUpdateServiceGrpc;

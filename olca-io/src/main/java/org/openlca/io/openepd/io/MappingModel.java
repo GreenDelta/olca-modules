@@ -1,11 +1,11 @@
 package org.openlca.io.openepd.io;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Epd;
 import org.openlca.io.openepd.EpdDoc;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public record MappingModel(List<MethodMapping> mappings) {
 

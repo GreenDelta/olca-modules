@@ -1,10 +1,10 @@
 package org.openlca.core.database.descriptors;
 
+import java.sql.ResultSet;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.descriptors.ParameterDescriptor;
-
-import java.sql.ResultSet;
 
 public class ParameterDescriptors
 		implements DescriptorReader<ParameterDescriptor> {

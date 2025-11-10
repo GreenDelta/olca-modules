@@ -1,5 +1,14 @@
 package org.openlca.core.library.reader;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Objects;
+import java.util.function.Supplier;
+
+import javax.crypto.Cipher;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
@@ -10,14 +19,6 @@ import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.io.index.IxEnviIndex;
 import org.openlca.core.matrix.io.index.IxImpactIndex;
 import org.openlca.core.matrix.io.index.IxTechIndex;
-
-import javax.crypto.Cipher;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Objects;
-import java.util.function.Supplier;
 
 public class DecryptingLibReader implements LibReader {
 

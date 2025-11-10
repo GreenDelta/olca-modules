@@ -2,7 +2,6 @@ package org.openlca.core.matrix.linking;
 
 import java.util.List;
 
-import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.cache.ExchangeTable.Linkable;
 import org.openlca.core.matrix.index.TechFlow;
 

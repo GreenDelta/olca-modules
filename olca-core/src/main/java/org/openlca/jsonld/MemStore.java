@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openlca.core.model.ModelType;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.core.model.ModelType;
 
 /**
  * A simple implementation of the {@link JsonStoreReader} and

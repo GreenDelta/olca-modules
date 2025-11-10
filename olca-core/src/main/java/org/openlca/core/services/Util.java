@@ -3,12 +3,12 @@ package org.openlca.core.services;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.agroups.AnalysisGroupResult;
-import org.openlca.commons.Strings;
 
 final class Util {
 

@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.google.protobuf.Empty;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -18,9 +18,9 @@ import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.RefEntity;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.proto.ProtoRef;
 import org.openlca.proto.grpc.CategoryTree;
 import org.openlca.proto.grpc.DataFetchServiceGrpc;
@@ -35,7 +35,8 @@ import org.openlca.proto.grpc.ProtoDataSet;
 import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.grpc.SearchRequest;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.commons.Strings;
+
+import com.google.protobuf.Empty;
 
 import io.grpc.stub.StreamObserver;
 

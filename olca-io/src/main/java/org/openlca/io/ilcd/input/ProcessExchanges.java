@@ -1,16 +1,16 @@
 package org.openlca.io.ilcd.input;
 
-import org.openlca.core.model.AllocationFactor;
-import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Process;
-import org.openlca.ilcd.util.Processes;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.openlca.core.model.AllocationFactor;
+import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Process;
+import org.openlca.ilcd.util.Processes;
 
 /**
  * Maps the inputs and outputs of an ILCD process to an openLCA process.

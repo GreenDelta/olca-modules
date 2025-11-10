@@ -2,6 +2,7 @@ package org.openlca.proto.io.server;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -12,7 +13,6 @@ import org.openlca.proto.grpc.ProtoTechFlow;
 import org.openlca.proto.grpc.ResultValue;
 import org.openlca.proto.io.Messages;
 import org.openlca.proto.io.output.Refs;
-import org.openlca.commons.Strings;
 
 final class Results {
 

@@ -3,9 +3,10 @@ package org.openlca.io.openepd;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.openlca.jsonld.Json;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 /**
  * A description of a PCR (product category rule) in the openEPD format.

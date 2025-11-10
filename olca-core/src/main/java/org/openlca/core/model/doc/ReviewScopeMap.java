@@ -1,11 +1,11 @@
 package org.openlca.core.model.doc;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 public class ReviewScopeMap {
 

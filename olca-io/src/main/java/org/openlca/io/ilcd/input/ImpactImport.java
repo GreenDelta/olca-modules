@@ -2,12 +2,12 @@ package org.openlca.io.ilcd.input;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.methods.ImpactMethod;
 import org.openlca.ilcd.util.ImpactMethods;
-import org.openlca.commons.Strings;
 
 public class ImpactImport {
 

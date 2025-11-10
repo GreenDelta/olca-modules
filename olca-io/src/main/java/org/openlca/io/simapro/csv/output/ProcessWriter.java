@@ -1,21 +1,6 @@
 package org.openlca.io.simapro.csv.output;
 
-import org.openlca.core.database.ParameterDao;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowType;
-import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.core.model.ProcessType;
-import org.openlca.io.simapro.csv.SimaProUnit;
-import org.openlca.simapro.csv.enums.ElementaryFlowType;
-import org.openlca.simapro.csv.enums.ProcessCategory;
-import org.openlca.util.Exchanges;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.openlca.io.simapro.csv.output.Util.uncertainty;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,7 +9,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.openlca.io.simapro.csv.output.Util.uncertainty;
+import org.openlca.core.database.ParameterDao;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.Exchange;
+import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
+import org.openlca.core.model.doc.ProcessDoc;
+import org.openlca.io.simapro.csv.SimaProUnit;
+import org.openlca.simapro.csv.enums.ElementaryFlowType;
+import org.openlca.simapro.csv.enums.ProcessCategory;
+import org.openlca.util.Exchanges;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Writes a set of processes to a SimaPro CSV file. It is not an official export

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -15,7 +16,6 @@ import org.openlca.simapro.csv.process.TechExchangeRow;
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow;
 import org.openlca.simapro.csv.refdata.InputParameterRow;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 class ProductStages implements ProcessMapper {
 

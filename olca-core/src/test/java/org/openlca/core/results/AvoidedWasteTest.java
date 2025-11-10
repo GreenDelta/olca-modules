@@ -1,5 +1,9 @@
 package org.openlca.core.results;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,10 +18,6 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class AvoidedWasteTest {
 

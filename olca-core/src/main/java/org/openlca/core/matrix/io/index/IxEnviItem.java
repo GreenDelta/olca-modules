@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.io.index;
 
-import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.matrix.io.index.IxProto.ElemFlowEntry;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.Flow;
-
 import java.util.List;
+
+import org.apache.commons.csv.CSVRecord;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.io.index.IxProto.ElemFlowEntry;
+import org.openlca.core.model.Flow;
 
 /**
  * An item of an intervention index.

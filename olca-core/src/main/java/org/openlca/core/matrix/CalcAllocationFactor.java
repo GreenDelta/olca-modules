@@ -1,7 +1,7 @@
 package org.openlca.core.matrix;
 
-import org.openlca.expressions.FormulaInterpreter;
 import org.openlca.commons.Strings;
+import org.openlca.expressions.FormulaInterpreter;
 import org.slf4j.LoggerFactory;
 
 public class CalcAllocationFactor {

@@ -3,8 +3,8 @@ package org.openlca.core.math;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.JavaMatrix;
+import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;

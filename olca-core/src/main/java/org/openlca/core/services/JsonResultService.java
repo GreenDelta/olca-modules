@@ -1,14 +1,30 @@
 package org.openlca.core.services;
 
-import static org.openlca.core.services.JsonUtil.*;
-import static org.openlca.core.services.Util.*;
+import static org.openlca.core.services.JsonUtil.encodeArray;
+import static org.openlca.core.services.JsonUtil.encodeCostValue;
+import static org.openlca.core.services.JsonUtil.encodeEnviFlow;
+import static org.openlca.core.services.JsonUtil.encodeEnviValue;
+import static org.openlca.core.services.JsonUtil.encodeEnviValues;
+import static org.openlca.core.services.JsonUtil.encodeGroupValues;
+import static org.openlca.core.services.JsonUtil.encodeImpact;
+import static org.openlca.core.services.JsonUtil.encodeImpactValues;
+import static org.openlca.core.services.JsonUtil.encodeState;
+import static org.openlca.core.services.JsonUtil.encodeTechFlow;
+import static org.openlca.core.services.JsonUtil.encodeTechValue;
+import static org.openlca.core.services.JsonUtil.encodeTechValues;
+import static org.openlca.core.services.JsonUtil.encodeUpstreamNode;
+import static org.openlca.core.services.Util.enviFlowOf;
+import static org.openlca.core.services.Util.groupResultOf;
+import static org.openlca.core.services.Util.impactCategoryOf;
+import static org.openlca.core.services.Util.join;
+import static org.openlca.core.services.Util.resultOf;
+import static org.openlca.core.services.Util.techFlowOf;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.google.gson.JsonPrimitive;
-
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
@@ -24,8 +40,7 @@ import org.openlca.jsonld.output.JsonRefs;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import org.openlca.commons.Strings;
+import com.google.gson.JsonPrimitive;
 
 public class JsonResultService {
 

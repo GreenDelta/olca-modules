@@ -1,6 +1,6 @@
 package org.openlca.geo.calc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Assert;
 import org.junit.Test;

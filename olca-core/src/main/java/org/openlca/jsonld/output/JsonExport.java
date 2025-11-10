@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
@@ -30,7 +31,6 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.JsonStoreWriter;
 import org.openlca.jsonld.MemStore;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

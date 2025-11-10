@@ -3,10 +3,10 @@ package org.openlca.core.matrix.io.index;
 import java.util.List;
 
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.commons.Strings;
 
 /**
  * Contains the meta-data of a flow stored in an index.

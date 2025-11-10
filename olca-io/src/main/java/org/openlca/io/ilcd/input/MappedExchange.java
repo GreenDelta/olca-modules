@@ -2,11 +2,11 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Exchange;
 import org.openlca.ilcd.commons.ExchangeDirection;
 import org.openlca.ilcd.util.ExchangeExtension;
 import org.openlca.io.maps.SyncFlow;
-import org.openlca.commons.Strings;
 
 record MappedExchange(
 	SyncFlow syncFlow,

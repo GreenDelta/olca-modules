@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.ImpactResult;
 import org.openlca.core.model.Result;
 import org.openlca.io.openepd.EpdConverter;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,9 +1,9 @@
 package org.openlca.io;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.EntityCache;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.descriptors.FlowDescriptor;
-import org.openlca.commons.Strings;
 
 /**
  * A simple pair of a parent category and a sub-category. Often this is

@@ -1,11 +1,12 @@
 package org.openlca.jsonld.upgrades;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.List;
+
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.JsonStoreReader;
 
-import java.util.List;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * An upgrade updates the objects in a JSON store of on or more versions to a

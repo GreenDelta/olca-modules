@@ -1,6 +1,5 @@
 package org.openlca.core.results.providers;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.format.ColumnIterator;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -9,6 +8,8 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
+
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 /**
  * This class is used to calculate results for the raw-value version of PSILCA

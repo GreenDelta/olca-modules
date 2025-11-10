@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
@@ -17,6 +16,8 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
+
+import com.google.gson.JsonObject;
 
 class ImportCache {
 

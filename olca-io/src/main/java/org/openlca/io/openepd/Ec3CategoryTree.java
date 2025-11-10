@@ -6,8 +6,8 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.jsonld.Json;
 import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
 import org.slf4j.LoggerFactory;
 
 public class Ec3CategoryTree {

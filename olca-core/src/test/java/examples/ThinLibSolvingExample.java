@@ -7,8 +7,6 @@ import org.openlca.core.matrix.solvers.mkl.MKL;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.NativeLib;
 
-import java.io.File;
-
 public class ThinLibSolvingExample {
 
 	public static void main(String[] args) {

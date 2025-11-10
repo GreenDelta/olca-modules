@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
-import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.set.TLongSet;
 
 /**
  * Searches for the use of actors in other entities.

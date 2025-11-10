@@ -1,14 +1,13 @@
 package org.openlca.core.database.usage;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.openlca.core.Tests;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 class UsageTests {
 

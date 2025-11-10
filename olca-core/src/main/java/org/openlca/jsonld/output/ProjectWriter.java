@@ -2,10 +2,10 @@ package org.openlca.jsonld.output;
 
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record ProjectWriter(JsonExport exp) implements JsonWriter<Project> {
 

@@ -1,12 +1,12 @@
 package org.openlca.core.results;
 
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-import org.openlca.core.results.providers.ResultProvider;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
+
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
+import org.openlca.core.results.providers.ResultProvider;
 
 /**
  * Maps the upstream results of the product system graph to a tree where the

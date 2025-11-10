@@ -15,6 +15,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.openlca.commons.Strings;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.iterator.DatabaseIterator;
 import org.openlca.git.model.Commit;
@@ -23,7 +24,6 @@ import org.openlca.git.model.DiffType;
 import org.openlca.git.model.Reference;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.ModelRefMap;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

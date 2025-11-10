@@ -1,6 +1,6 @@
 package org.openlca.core.database.descriptors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openlca.core.Tests;

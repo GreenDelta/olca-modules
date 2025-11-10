@@ -3,11 +3,12 @@ package org.openlca.core.database.usage;
 import java.util.Collections;
 import java.util.Set;
 
-import gnu.trove.set.TLongSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.set.TLongSet;
 
 public record ProductSystemUseSearch(IDatabase db) implements UsageSearch {
 

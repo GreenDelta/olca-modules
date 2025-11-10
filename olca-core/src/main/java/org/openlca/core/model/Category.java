@@ -3,6 +3,8 @@ package org.openlca.core.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openlca.util.Categories;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +13,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import org.openlca.util.Categories;
 
 @Entity
 @Table(name = "tbl_categories")

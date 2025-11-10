@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.io.npy;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.nio.file.Files;
 import java.util.concurrent.ThreadLocalRandom;

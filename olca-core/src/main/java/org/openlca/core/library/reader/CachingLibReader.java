@@ -1,13 +1,13 @@
 package org.openlca.core.library.reader;
 
+import java.util.Objects;
+
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechIndex;
-
-import java.util.Objects;
 
 public class CachingLibReader implements LibReader {
 

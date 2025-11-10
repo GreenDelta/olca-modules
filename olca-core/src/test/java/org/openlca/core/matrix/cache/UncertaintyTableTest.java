@@ -1,7 +1,7 @@
 package org.openlca.core.matrix.cache;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openlca.core.Tests;

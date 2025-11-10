@@ -13,6 +13,7 @@ import org.openlca.core.database.LocationDao;
 import org.openlca.core.database.UnitDao;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -25,7 +26,6 @@ import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.Version;
 import org.openlca.io.Categories;
-import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.util.KeyGen;
 
 import spold2.Classification;

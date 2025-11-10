@@ -1,6 +1,7 @@
 package org.openlca.proto.io.server;
 
 import com.google.protobuf.Empty;
+
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 

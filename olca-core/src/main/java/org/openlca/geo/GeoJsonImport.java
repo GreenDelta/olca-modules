@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Location;
@@ -14,7 +15,6 @@ import org.openlca.geo.geojson.Feature;
 import org.openlca.geo.geojson.FeatureCollection;
 import org.openlca.geo.geojson.GeoJSON;
 import org.openlca.geo.geojson.Point;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

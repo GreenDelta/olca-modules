@@ -5,12 +5,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-import jakarta.persistence.EntityManagerFactory;
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.util.Exceptions;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+import jakarta.persistence.EntityManagerFactory;
 
 public class MySQL implements IDatabase {
 

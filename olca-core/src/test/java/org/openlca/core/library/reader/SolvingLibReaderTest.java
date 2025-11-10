@@ -1,5 +1,11 @@
 package org.openlca.core.library.reader;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.nio.file.Files;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,10 +16,6 @@ import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.core.matrix.solvers.JavaSolver;
 import org.openlca.util.Dirs;
-
-import java.nio.file.Files;
-
-import static org.junit.Assert.*;
 
 public class SolvingLibReaderTest {
 

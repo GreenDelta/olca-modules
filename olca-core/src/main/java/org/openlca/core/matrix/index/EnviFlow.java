@@ -4,10 +4,10 @@ import java.util.Objects;
 
 import org.openlca.core.model.AbstractExchange;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /**
  * Describes the mapping of flow information to a matrix index.

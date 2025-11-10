@@ -2,10 +2,10 @@ package org.openlca.io.olca;
 
 import java.util.List;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.commons.Strings;
 
 class CategoryImport {
 

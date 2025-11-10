@@ -2,14 +2,15 @@ package org.openlca.validation;
 
 import java.sql.ResultSet;
 
-import gnu.trove.map.hash.TLongDoubleHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import gnu.trove.set.hash.TLongHashSet;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.ModelType;
 import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.commons.Strings;
+
+import gnu.trove.map.hash.TLongDoubleHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 class AllocationCheck implements Runnable {
 

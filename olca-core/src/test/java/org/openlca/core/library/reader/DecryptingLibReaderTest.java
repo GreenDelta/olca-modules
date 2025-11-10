@@ -1,6 +1,16 @@
 package org.openlca.core.library.reader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.After;
 import org.junit.Before;
@@ -9,23 +19,14 @@ import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
-import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.library.Mounter;
+import org.openlca.core.library.export.LibraryExport;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.util.Dirs;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.nio.file.Files;
-import java.util.List;
 
 public class DecryptingLibReaderTest {
 

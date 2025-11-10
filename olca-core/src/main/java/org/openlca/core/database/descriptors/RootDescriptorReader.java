@@ -1,12 +1,12 @@
 package org.openlca.core.database.descriptors;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.RootEntityDao;
-import org.openlca.core.model.descriptors.RootDescriptor;
-
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.util.Objects;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.RootEntityDao;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 class RootDescriptorReader<T extends RootDescriptor>
 		implements DescriptorReader<T> {

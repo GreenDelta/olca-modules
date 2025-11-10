@@ -9,13 +9,13 @@ import java.util.stream.Collectors;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.git.repo.ClientRepository;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.util.Path;
-import org.openlca.commons.Strings;
 
 public class DatabaseIterator extends EntryIterator {
 

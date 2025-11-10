@@ -1,5 +1,7 @@
 package org.openlca.core.results;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +17,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.UnitGroup;
-
-import static org.junit.Assert.*;
 
 public class SimulationSubResultTest {
 

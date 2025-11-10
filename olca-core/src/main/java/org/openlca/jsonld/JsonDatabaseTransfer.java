@@ -1,6 +1,13 @@
 package org.openlca.jsonld;
 
-import jakarta.persistence.Table;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
@@ -8,14 +15,8 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.jsonld.input.JsonImport;
 import org.openlca.jsonld.input.UpdateMode;
 import org.openlca.util.ProductSystems;
-import org.openlca.commons.Strings;
 
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import jakarta.persistence.Table;
 
 /**
  * Transfers data sets from one database to another using JSON serialization.

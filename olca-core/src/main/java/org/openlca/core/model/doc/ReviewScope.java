@@ -1,16 +1,17 @@
 package org.openlca.core.model.doc;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.openlca.commons.Copyable;
-import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
-
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+
+import org.openlca.commons.Copyable;
+import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class ReviewScope implements Copyable<ReviewScope> {
 

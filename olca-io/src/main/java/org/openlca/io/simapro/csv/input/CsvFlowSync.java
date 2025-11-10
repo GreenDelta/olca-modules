@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
@@ -29,7 +30,6 @@ import org.openlca.simapro.csv.process.ProductOutputRow;
 import org.openlca.simapro.csv.process.RefExchangeRow;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 class CsvFlowSync {
 

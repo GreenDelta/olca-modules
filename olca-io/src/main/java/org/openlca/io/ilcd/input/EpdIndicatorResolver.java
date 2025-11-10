@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Version;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.epd.EpdIndicatorResult;
 import org.openlca.ilcd.epd.EpdProfiles;
-import org.openlca.commons.Strings;
 
 class EpdIndicatorResolver {
 

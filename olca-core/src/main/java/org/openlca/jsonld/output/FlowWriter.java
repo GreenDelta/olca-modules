@@ -4,10 +4,10 @@ import java.util.Objects;
 
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.openlca.jsonld.Json;
 
 public record FlowWriter(JsonExport exp) implements JsonWriter<Flow> {
 

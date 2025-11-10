@@ -3,6 +3,7 @@ package org.openlca.io.simapro.csv.input;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
@@ -11,7 +12,6 @@ import org.openlca.core.model.Source;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.refdata.LiteratureReferenceBlock;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 class SourceSync {
 

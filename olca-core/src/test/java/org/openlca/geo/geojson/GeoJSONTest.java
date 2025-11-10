@@ -12,9 +12,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.gson.JsonObject;
 
 public class GeoJSONTest {
 

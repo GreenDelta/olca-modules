@@ -1,17 +1,18 @@
 package org.openlca.core.model.doc;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.openlca.commons.Copyable;
-import org.openlca.jsonld.Json;
-import org.openlca.commons.Strings;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import org.openlca.commons.Copyable;
+import org.openlca.commons.Strings;
+import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Contains key-value pairs for documentation aspects. It basically

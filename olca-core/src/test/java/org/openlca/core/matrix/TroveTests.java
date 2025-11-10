@@ -1,12 +1,12 @@
 package org.openlca.core.matrix;
 
-import gnu.trove.impl.Constants;
-import gnu.trove.map.hash.TLongIntHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.openlca.core.model.AllocationMethod;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class TroveTests {
 

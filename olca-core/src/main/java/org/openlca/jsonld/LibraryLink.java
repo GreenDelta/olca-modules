@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.commons.Strings;
+import org.openlca.core.database.IDatabase;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

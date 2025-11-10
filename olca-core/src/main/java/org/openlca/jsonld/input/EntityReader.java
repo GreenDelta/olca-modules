@@ -1,6 +1,7 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonObject;
+import java.util.Objects;
+
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Currency;
@@ -21,7 +22,7 @@ import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.UnitGroup;
 
-import java.util.Objects;
+import com.google.gson.JsonObject;
 
 public interface EntityReader<T extends RootEntity> {
 

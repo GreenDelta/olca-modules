@@ -1,9 +1,7 @@
 package org.openlca.jsonld.upgrades;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.model.ModelType;
@@ -11,6 +9,9 @@ import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.PackageInfo;
 import org.openlca.jsonld.SchemaVersion;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class Upgrade2Test {
 

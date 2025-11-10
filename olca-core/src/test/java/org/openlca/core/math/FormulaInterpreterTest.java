@@ -1,7 +1,8 @@
 package org.openlca.core.math;
 
-import static org.junit.Assert.*;
 import static java.util.Collections.emptySet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 

@@ -8,6 +8,7 @@ import java.util.OptionalDouble;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.EpdProduct;
@@ -17,7 +18,6 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 import org.openlca.util.Categories;
 import org.openlca.util.Pair;
-import org.openlca.commons.Strings;
 
 /**
  * A utility class for converting openLCA EPDs into the openEPD format.

@@ -1,12 +1,12 @@
 package org.openlca.io.ilcd.output;
 
+import java.util.Map;
+
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.ilcd.processes.Exchange;
-
-import java.util.Map;
 
 class AllocationFactors {
 

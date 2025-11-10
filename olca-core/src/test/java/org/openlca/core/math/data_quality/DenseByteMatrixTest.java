@@ -1,6 +1,7 @@
 package org.openlca.core.math.data_quality;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -1,6 +1,7 @@
 package org.openlca.jsonld.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,9 +18,9 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.jsonld.AbstractZipTest;
 import org.openlca.jsonld.MemStore;

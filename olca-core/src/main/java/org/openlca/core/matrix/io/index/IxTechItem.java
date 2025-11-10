@@ -1,12 +1,12 @@
 package org.openlca.core.matrix.io.index;
 
+import java.util.List;
+
 import org.apache.commons.csv.CSVRecord;
-import org.openlca.core.matrix.io.index.IxProto.ProductEntry;
 import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.io.index.IxProto.ProductEntry;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RootEntity;
-
-import java.util.List;
 
 /**
  * An item of a library's technosphere index.

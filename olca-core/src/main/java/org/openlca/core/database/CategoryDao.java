@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RefEntity;
@@ -17,7 +18,6 @@ import org.openlca.core.model.descriptors.CategoryDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.Categories;
 import org.openlca.util.KeyGen;
-import org.openlca.commons.Strings;
 
 public class CategoryDao
 		extends RootEntityDao<Category, CategoryDescriptor> {

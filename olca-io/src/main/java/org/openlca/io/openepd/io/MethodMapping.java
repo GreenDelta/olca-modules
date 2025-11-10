@@ -1,9 +1,9 @@
 package org.openlca.io.openepd.io;
 
-import org.openlca.core.model.ImpactMethod;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openlca.core.model.ImpactMethod;
 
 public class MethodMapping {
 

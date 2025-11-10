@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.io.index;
 
+import java.util.List;
+
 import org.apache.commons.csv.CSVRecord;
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.LocationDescriptor;
-import org.openlca.commons.Strings;
-
-import java.util.List;
 
 /**
  * Contains the meta-data of a location stored in an index.

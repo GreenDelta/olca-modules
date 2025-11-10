@@ -1,10 +1,6 @@
 package org.openlca.core.database.descriptors;
 
-import org.openlca.core.database.Daos;
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.NativeSql;
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import static org.openlca.core.database.descriptors.Util.ex;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.openlca.core.database.descriptors.Util.ex;
+import org.openlca.core.database.Daos;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public interface DescriptorReader<T extends RootDescriptor> {
 

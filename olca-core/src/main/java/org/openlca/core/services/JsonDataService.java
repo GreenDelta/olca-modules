@@ -3,6 +3,7 @@ package org.openlca.core.services;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
@@ -18,7 +19,6 @@ import org.openlca.jsonld.input.EntityReader;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.jsonld.output.JsonRefs;
 import org.openlca.jsonld.output.JsonWriter;
-import org.openlca.commons.Strings;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

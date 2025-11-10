@@ -1,13 +1,14 @@
 package org.openlca.core.matrix.io.index;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import org.openlca.core.model.FlowType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+
+import org.junit.Test;
+import org.openlca.core.model.FlowType;
 
 public class IxTest {
 

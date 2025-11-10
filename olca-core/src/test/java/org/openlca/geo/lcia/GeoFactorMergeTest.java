@@ -1,6 +1,11 @@
 package org.openlca.geo.lcia;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,10 +15,6 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.UnitGroup;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class GeoFactorMergeTest {
 

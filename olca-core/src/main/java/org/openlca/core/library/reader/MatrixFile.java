@@ -1,11 +1,11 @@
 package org.openlca.core.library.reader;
 
+import java.io.File;
+
 import org.openlca.core.library.LibMatrix;
 import org.openlca.core.library.Library;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.io.NpyMatrix;
-
-import java.io.File;
 
 /**
  * Contains the file of a matrix, the full matrix, both, or nothing.

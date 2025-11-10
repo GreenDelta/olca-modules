@@ -9,13 +9,14 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.UncertaintyType;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class ExchangeTable {
 

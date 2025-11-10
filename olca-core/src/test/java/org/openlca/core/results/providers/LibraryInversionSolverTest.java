@@ -1,20 +1,20 @@
 package org.openlca.core.results.providers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+
+import java.nio.file.Files;
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.library.reader.LibReaderRegistry;
-import org.openlca.core.matrix.io.index.IxEnviIndex;
-import org.openlca.core.matrix.io.index.IxEnviItem;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.matrix.io.index.IxTechIndex;
-import org.openlca.core.matrix.io.index.IxTechItem;
 import org.openlca.core.library.Library;
 import org.openlca.core.library.LibraryDir;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.format.DenseMatrix;
@@ -23,6 +23,10 @@ import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.io.index.IxEnviIndex;
+import org.openlca.core.matrix.io.index.IxEnviItem;
+import org.openlca.core.matrix.io.index.IxTechIndex;
+import org.openlca.core.matrix.io.index.IxTechItem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
@@ -32,10 +36,6 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.results.providers.libblocks.LibraryInversionSolver;
 import org.openlca.util.Dirs;
-
-import java.nio.file.Files;
-import java.util.List;
-import java.util.UUID;
 
 
 public class LibraryInversionSolverTest {

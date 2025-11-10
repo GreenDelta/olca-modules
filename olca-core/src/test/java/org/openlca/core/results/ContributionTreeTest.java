@@ -1,14 +1,14 @@
 package org.openlca.core.results;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.matrix.Demand;
-import org.openlca.core.matrix.index.EnviIndex;
-import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.EnviIndex;
+import org.openlca.core.matrix.index.LongPair;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.descriptors.FlowDescriptor;

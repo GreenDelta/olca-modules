@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
@@ -22,7 +23,6 @@ import org.openlca.ilcd.commons.DataSetType;
 import org.openlca.ilcd.commons.LangString;
 import org.openlca.ilcd.commons.Ref;
 import org.openlca.ilcd.io.DataStore;
-import org.openlca.commons.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

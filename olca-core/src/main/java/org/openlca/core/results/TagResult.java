@@ -6,11 +6,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.providers.ResultProvider;
-import org.openlca.commons.Strings;
 
 public class TagResult {
 

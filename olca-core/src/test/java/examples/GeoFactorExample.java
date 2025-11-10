@@ -1,12 +1,12 @@
 package examples;
 
+import java.io.File;
+import java.util.List;
+
 import org.openlca.core.DataDir;
 import org.openlca.core.model.Location;
 import org.openlca.geo.lcia.GeoFactorCalculator;
 import org.openlca.geo.lcia.GeoFactorSetup;
-
-import java.io.File;
-import java.util.List;
 
 public class GeoFactorExample {
 

@@ -1,7 +1,8 @@
 package org.openlca.jsonld.input;
 
-import com.google.gson.JsonObject;
 import org.openlca.core.model.RootEntity;
+
+import com.google.gson.JsonObject;
 
 record ImportItem<T extends RootEntity>(
 	JsonObject json, T entity, State state) {

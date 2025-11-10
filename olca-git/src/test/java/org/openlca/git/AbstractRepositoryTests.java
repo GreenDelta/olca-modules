@@ -24,6 +24,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.model.Category;
@@ -42,7 +43,6 @@ import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
 import org.openlca.git.writer.DbCommitWriter;
 import org.openlca.util.Dirs;
-import org.openlca.commons.Strings;
 
 import com.google.common.base.Objects;
 

@@ -1,8 +1,8 @@
 package org.openlca.io.ecospold1.input;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.io.UnitMapping;
 import org.openlca.core.io.maps.FlowMap;
+import org.openlca.io.UnitMapping;
 
 public class ImportConfig {
 

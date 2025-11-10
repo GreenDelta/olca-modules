@@ -1,11 +1,11 @@
 package org.openlca.proto.io.output;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.proto.ProtoImpactMethod;
 import org.openlca.proto.ProtoNwFactor;
 import org.openlca.proto.ProtoNwSet;
 import org.openlca.proto.ProtoType;
-import org.openlca.commons.Strings;
 
 public class ImpactMethodWriter {
 

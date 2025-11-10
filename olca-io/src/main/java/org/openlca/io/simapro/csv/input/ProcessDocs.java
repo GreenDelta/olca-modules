@@ -1,11 +1,11 @@
 package org.openlca.io.simapro.csv.input;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.simapro.csv.process.ProcessBlock;
-import org.openlca.commons.Strings;
 
 record ProcessDocs(RefData refData, ProcessBlock block, Process process) {
 

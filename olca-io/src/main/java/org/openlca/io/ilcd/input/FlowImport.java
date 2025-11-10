@@ -2,13 +2,13 @@ package org.openlca.io.ilcd.input;
 
 import java.util.Objects;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.ilcd.util.Flows;
 import org.openlca.io.maps.SyncFlow;
-import org.openlca.commons.Strings;
 
 public class FlowImport {
 

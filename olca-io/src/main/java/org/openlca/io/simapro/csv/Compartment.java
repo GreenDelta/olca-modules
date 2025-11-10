@@ -2,10 +2,10 @@ package org.openlca.io.simapro.csv;
 
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Category;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.SubCompartment;
-import org.openlca.commons.Strings;
 
 public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 

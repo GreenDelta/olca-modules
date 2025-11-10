@@ -8,11 +8,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * Contains log messages of a data import.

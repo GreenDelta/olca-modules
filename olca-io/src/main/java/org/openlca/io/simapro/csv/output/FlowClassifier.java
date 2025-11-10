@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Category;
@@ -17,7 +18,6 @@ import org.openlca.io.simapro.csv.Compartment;
 import org.openlca.simapro.csv.CsvDataSet;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow;
-import org.openlca.commons.Strings;
 import org.slf4j.LoggerFactory;
 
 class FlowClassifier {

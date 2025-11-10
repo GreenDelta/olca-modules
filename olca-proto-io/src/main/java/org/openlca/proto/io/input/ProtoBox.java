@@ -1,7 +1,5 @@
 package org.openlca.proto.io.input;
 
-import com.google.protobuf.Message;
-import com.google.protobuf.ProtocolStringList;
 import org.openlca.core.io.EntityResolver;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Currency;
@@ -38,6 +36,9 @@ import org.openlca.proto.ProtoResult;
 import org.openlca.proto.ProtoSocialIndicator;
 import org.openlca.proto.ProtoSource;
 import org.openlca.proto.ProtoUnitGroup;
+
+import com.google.protobuf.Message;
+import com.google.protobuf.ProtocolStringList;
 
 abstract class ProtoBox<M extends Message, E extends RootEntity> {
 

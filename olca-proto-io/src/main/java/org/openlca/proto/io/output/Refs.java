@@ -1,7 +1,6 @@
 package org.openlca.proto.io.output;
 
-import com.google.protobuf.Message;
-import gnu.trove.map.hash.TLongObjectHashMap;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.Flow;
@@ -9,14 +8,17 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Version;
-import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.proto.ProtoRef;
 import org.openlca.util.Categories;
-import org.openlca.commons.Strings;
+
+import com.google.protobuf.Message;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 /**
  * A utility class for creating data set references.

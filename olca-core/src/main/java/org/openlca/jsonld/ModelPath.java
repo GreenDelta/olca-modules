@@ -1,10 +1,10 @@
 package org.openlca.jsonld;
 
-import org.openlca.core.model.ModelType;
-import org.openlca.commons.Strings;
-
 import java.util.Locale;
 import java.util.Optional;
+
+import org.openlca.commons.Strings;
+import org.openlca.core.model.ModelType;
 
 public final class ModelPath {
 

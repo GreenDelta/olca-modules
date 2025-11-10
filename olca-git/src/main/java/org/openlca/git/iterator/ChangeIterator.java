@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.openlca.commons.Strings;
 import org.openlca.git.RepositoryInfo;
 import org.openlca.git.model.Commit;
 import org.openlca.git.model.Diff;
@@ -15,7 +16,6 @@ import org.openlca.git.model.Reference;
 import org.openlca.git.repo.OlcaRepository;
 import org.openlca.git.util.BinaryResolver;
 import org.openlca.git.util.GitUtil;
-import org.openlca.commons.Strings;
 
 public class ChangeIterator extends EntryIterator {
 

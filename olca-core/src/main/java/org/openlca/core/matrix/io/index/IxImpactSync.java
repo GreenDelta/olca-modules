@@ -1,14 +1,14 @@
 package org.openlca.core.matrix.io.index;
 
-import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.descriptors.ImpactDescriptors;
-import org.openlca.core.matrix.index.ImpactIndex;
-import org.openlca.core.model.descriptors.ImpactDescriptor;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.descriptors.ImpactDescriptors;
+import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 class IxImpactSync {
 

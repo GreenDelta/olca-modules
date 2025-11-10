@@ -1,8 +1,8 @@
 package org.openlca.core.matrix.index;
 
-import java.util.List;
+import static org.junit.Assert.assertNotEquals;
 
-import static org.junit.Assert.*;
+import java.util.List;
 
 import org.junit.Test;
 import org.openlca.core.model.descriptors.FlowDescriptor;

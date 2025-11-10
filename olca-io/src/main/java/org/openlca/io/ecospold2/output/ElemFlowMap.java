@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.openlca.core.model.Exchange;
+import org.openlca.commons.Strings;
 import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.io.maps.FlowMapEntry;
-import org.openlca.commons.Strings;
+import org.openlca.core.model.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

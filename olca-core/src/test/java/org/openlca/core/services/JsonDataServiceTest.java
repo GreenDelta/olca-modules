@@ -1,15 +1,17 @@
 package org.openlca.core.services;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
-import com.google.gson.JsonObject;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ModelType;
 import org.openlca.jsonld.Json;
+
+import com.google.gson.JsonObject;
 
 public class JsonDataServiceTest {
 

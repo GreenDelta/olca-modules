@@ -3,9 +3,7 @@ package org.openlca.core.database;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterScope;
