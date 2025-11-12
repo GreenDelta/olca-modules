@@ -27,6 +27,13 @@ public sealed interface HestiaExchange {
 		public String methodModelDescription() {
 			return Json.getString(json, "methodModelDescription");
 		}
+
+		public MethodTier methodTier() {
+			var s = Json.getString(json, "methodTier");
+			return s != null
+				? MethodTier.fromString(s)
+				: null;
+		}
 	}
 
 	record Product(JsonObject json) implements HestiaExchange {
