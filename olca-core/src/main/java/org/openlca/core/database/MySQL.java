@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.openlca.util.Exceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -15,6 +17,7 @@ import jakarta.persistence.EntityManagerFactory;
 
 public class MySQL implements IDatabase {
 
+	private static final Logger log = LoggerFactory.getLogger(MySQL.class);
 	private final String name;
 	private final EntityManagerFactory entityFactory;
 	private final HikariDataSource connectionPool;
@@ -22,21 +25,18 @@ public class MySQL implements IDatabase {
 
 	private MySQL(Config config) {
 		this.name = config.database;
-		var url = config.url != null
-			? config.url
-			: "jdbc:mysql://" + config.host + ":"
-			+ config.port + "/" + config.database;
+		var url = config.jdbcUrl();
 
 		// create the JPA persistence manager
 		var jpaConfig = new HashMap<>();
 		jpaConfig.put("jakarta.persistence.jdbc.url", url);
 		jpaConfig.put("jakarta.persistence.jdbc.user", config.user);
 		jpaConfig.put("jakarta.persistence.jdbc.password", config.password);
-		jpaConfig.put("jakarta.persistence.jdbc.driver", "org.mariadb.jdbc.Driver");
+		jpaConfig.put("jakarta.persistence.jdbc.driver", getDriver());
 		jpaConfig.put("eclipselink.classloader", getClass().getClassLoader());
 		jpaConfig.put("eclipselink.target-database", "MySQL");
 		entityFactory = new PersistenceProvider()
-			.createEntityManagerFactory(config.persistenceUnit, jpaConfig);
+				.createEntityManagerFactory(config.persistenceUnit, jpaConfig);
 
 		// create the connection pool
 		var poolConfig = new HikariConfig();
@@ -95,6 +95,25 @@ public class MySQL implements IDatabase {
 		return DbUtils.getVersion(this);
 	}
 
+	public static boolean containsLibrary(Config config, String name) {
+		try (var connectionPool = new HikariDataSource()) {
+			connectionPool.setDriverClassName(getDriver());
+			connectionPool.setJdbcUrl(config.jdbcUrl());
+			connectionPool.setAutoCommit(false);
+			try (var con = connectionPool.getConnection(config.user, config.password)) {
+				return IDatabase.getLibraries(con).contains(name);
+			} catch (SQLException e) {
+				log.error("Getting connection from connection pool failed", e);
+				// fallback, don't accidently assume library is not present
+				return true;
+			}
+		}
+	}
+
+	private static String getDriver() {
+		return "org.mariadb.jdbc.Driver";
+	}
+
 	public static Config database(String db) {
 		return new Config(db);
 	}
@@ -139,17 +158,25 @@ public class MySQL implements IDatabase {
 		}
 
 		/**
-		 * Optionally set the name of the JPA persistence unit that should be used.
-		 * Defaults to {@code openLCA} which is shipped with the openLCA core
-		 * modules. You should only set this option when you are sure that a
-		 * persistence unit with the given name exists in the classpath.
+		 * Optionally set the name of the JPA persistence unit that should be
+		 * used. Defaults to {@code openLCA} which is shipped with the openLCA
+		 * core modules. You should only set this option when you are sure that
+		 * a persistence unit with the given name exists in the classpath.
 		 *
-		 * @param persistenceUnit the name of the JPA persistence unit to be used
+		 * @param persistenceUnit
+		 *            the name of the JPA persistence unit to be used
 		 * @return this configuration
 		 */
 		public Config persistenceUnit(String persistenceUnit) {
 			this.persistenceUnit = persistenceUnit;
 			return this;
+		}
+		
+		private String jdbcUrl() {
+			return url != null
+					? url
+					: "jdbc:mysql://" + host + ":"
+							+ port + "/" + database;
 		}
 
 		public MySQL connect() {

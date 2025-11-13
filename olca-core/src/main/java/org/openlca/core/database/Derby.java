@@ -34,9 +34,10 @@ import jakarta.persistence.EntityManagerFactory;
 
 public class Derby implements IDatabase {
 
+	private static final String DRIVER = "org.apache.derby.iapi.jdbc.AutoloadedDriver";
 	private static final AtomicInteger memInstances = new AtomicInteger(0);
+	private static final Logger log = LoggerFactory.getLogger(Derby.class);
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
 	private EntityManagerFactory entityFactory;
 
 	private final String name;
@@ -64,7 +65,7 @@ public class Derby implements IDatabase {
 		if (path == null) {
 			var log = LoggerFactory.getLogger(Derby.class);
 			log.error("Could not find a database dump under {};"
-				+ " will create an empty DB", folder);
+					+ " will create an empty DB", folder);
 			return createInMemory();
 		}
 		int i = memInstances.incrementAndGet();
@@ -150,7 +151,7 @@ public class Derby implements IDatabase {
 		try {
 			DriverManager.getConnection(url).close();
 			new ScriptRunner(this).run(
-				Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
+					Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
 		} catch (Exception e) {
 			log.error("failed to create database", e);
 			throw new DatabaseException("Failed to create database", e);
@@ -201,17 +202,15 @@ public class Derby implements IDatabase {
 		log.trace("connect to database: {}", url);
 		Map<Object, Object> map = new HashMap<>();
 		map.put("jakarta.persistence.jdbc.url", url);
-		map.put("jakarta.persistence.jdbc.driver",
-			"org.apache.derby.iapi.jdbc.AutoloadedDriver");
+		map.put("jakarta.persistence.jdbc.driver", DRIVER);
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
 		log.trace("Create entity factory");
 		entityFactory = new PersistenceProvider()
-			.createEntityManagerFactory("openLCA", map);
+				.createEntityManagerFactory("openLCA", map);
 		log.trace("Init connection pool");
 		connectionPool = new HikariDataSource();
-		connectionPool.setDriverClassName(
-			"org.apache.derby.iapi.jdbc.AutoloadedDriver");
+		connectionPool.setDriverClassName(DRIVER);
 		connectionPool.setJdbcUrl(url);
 		connectionPool.setAutoCommit(false);
 	}
@@ -286,16 +285,16 @@ public class Derby implements IDatabase {
 
 	public void compress() {
 		var querySql = """
-			SELECT SCHEMANAME, TABLENAME FROM sys.sysschemas s, sys.systables t
-				WHERE s.schemaid = t.schemaid and t.tabletype = 'T'
-			""";
+				SELECT SCHEMANAME, TABLENAME FROM sys.sysschemas s, sys.systables t
+					WHERE s.schemaid = t.schemaid and t.tabletype = 'T'
+				""";
 		var callSql = """
-			CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)
-			""";
+				CALL SYSCS_UTIL.SYSCS_COMPRESS_TABLE(?, ?, ?)
+				""";
 		try (var con = createConnection();
-				 var stmt = con.createStatement();
-				 var tables = stmt.executeQuery(querySql);
-				 var call = con.prepareCall(callSql)) {
+				var stmt = con.createStatement();
+				var tables = stmt.executeQuery(querySql);
+				var call = con.prepareCall(callSql)) {
 			while (tables.next()) {
 				var schema = tables.getString(1);
 				var name = tables.getString(2);
@@ -342,7 +341,7 @@ public class Derby implements IDatabase {
 			}
 			var command = "CALL SYSCS_UTIL.SYSCS_BACKUP_DATABASE(?)";
 			try (Connection con = createConnection();
-					 CallableStatement cs = con.prepareCall(command)) {
+					CallableStatement cs = con.prepareCall(command)) {
 				cs.setString(1, path.replace('\\', '/'));
 				cs.execute();
 			}
@@ -351,11 +350,28 @@ public class Derby implements IDatabase {
 		}
 	}
 
+	public static boolean containsLibrary(File dbDir, String name) {
+		try (var pool = new HikariDataSource()) {
+			pool.setDriverClassName(DRIVER);
+			pool.setJdbcUrl("jdbc:derby:" + dbDir.getAbsolutePath().replace('\\', '/'));
+			pool.setAutoCommit(false);
+			try (var con = pool.getConnection()) {
+				return IDatabase.getLibraries(con).contains(name);
+			} catch (SQLException e) {
+				log.error("Getting connection from connection pool failed", e);
+				// fallback, don't accidently assume library is not present
+				return true;
+			}
+		}
+	}
+
 	/**
 	 * Extracts the given database backup file into the given folder.
 	 *
-	 * @param dbDir  The database folder where the backup should be extracted to.
-	 * @param backup The backup file of the database (a {@code *.zolca} file).
+	 * @param dbDir
+	 *            The database folder where the backup should be extracted to.
+	 * @param backup
+	 *            The backup file of the database (a {@code *.zolca} file).
 	 */
 	public static void unzip(File dbDir, File backup) {
 		try (var zip = new ZipFile(backup)) {
@@ -378,20 +394,22 @@ public class Derby implements IDatabase {
 				}
 				try (var stream = zip.getInputStream(entry)) {
 					Files.copy(stream, target.toPath(),
-						StandardCopyOption.REPLACE_EXISTING);
+							StandardCopyOption.REPLACE_EXISTING);
 				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to restore database from '"
-				+ backup + "' in '" + dbDir + "'", e);
+					+ backup + "' in '" + dbDir + "'", e);
 		}
 	}
 
 	/**
 	 * Creates a backup file for the given database folder.
 	 *
-	 * @param dbDir  The database folder from which the backup should be created.
-	 * @param backup The backup file for the database (a {@code *.zolca} file).
+	 * @param dbDir
+	 *            The database folder from which the backup should be created.
+	 * @param backup
+	 *            The backup file for the database (a {@code *.zolca} file).
 	 */
 	public static void zip(File dbDir, File backup) {
 
@@ -411,7 +429,7 @@ public class Derby implements IDatabase {
 		};
 
 		try (var out = new FileOutputStream(backup);
-				 var zip = new ZipOutputStream(out)) {
+				var zip = new ZipOutputStream(out)) {
 
 			// a function that adds a file to the zip
 			Consumer<File> add = file -> {
@@ -423,7 +441,7 @@ public class Derby implements IDatabase {
 					zip.closeEntry();
 				} catch (IOException e) {
 					throw new RuntimeException(
-						"Failed to write zip entry: " + file, e);
+							"Failed to write zip entry: " + file, e);
 				}
 			};
 
@@ -447,7 +465,7 @@ public class Derby implements IDatabase {
 
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to export database '"
-				+ dbDir + "' to '" + backup + "'", e);
+					+ dbDir + "' to '" + backup + "'", e);
 		}
 	}
 
