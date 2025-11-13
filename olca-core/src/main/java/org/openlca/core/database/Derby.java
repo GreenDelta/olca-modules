@@ -34,6 +34,7 @@ import jakarta.persistence.EntityManagerFactory;
 
 public class Derby implements IDatabase {
 
+	private static final String DRIVER = "org.apache.derby.iapi.jdbc.AutoloadedDriver";
 	private static final AtomicInteger memInstances = new AtomicInteger(0);
 	private static final Logger log = LoggerFactory.getLogger(Derby.class);
 
@@ -201,7 +202,7 @@ public class Derby implements IDatabase {
 		log.trace("connect to database: {}", url);
 		Map<Object, Object> map = new HashMap<>();
 		map.put("jakarta.persistence.jdbc.url", url);
-		map.put("jakarta.persistence.jdbc.driver", getDriver());
+		map.put("jakarta.persistence.jdbc.driver", DRIVER);
 		map.put("eclipselink.classloader", getClass().getClassLoader());
 		map.put("eclipselink.target-database", "Derby");
 		log.trace("Create entity factory");
@@ -209,13 +210,9 @@ public class Derby implements IDatabase {
 				.createEntityManagerFactory("openLCA", map);
 		log.trace("Init connection pool");
 		connectionPool = new HikariDataSource();
-		connectionPool.setDriverClassName(getDriver());
+		connectionPool.setDriverClassName(DRIVER);
 		connectionPool.setJdbcUrl(url);
 		connectionPool.setAutoCommit(false);
-	}
-
-	private static String getDriver() {
-		return "org.apache.derby.iapi.jdbc.AutoloadedDriver";
 	}
 
 	@Override
@@ -354,11 +351,11 @@ public class Derby implements IDatabase {
 	}
 
 	public static boolean containsLibrary(File dbDir, String name) {
-		try (var connectionPool = new HikariDataSource()) {
-			connectionPool.setDriverClassName(getDriver());
-			connectionPool.setJdbcUrl("jdbc:derby:" + dbDir.getAbsolutePath().replace('\\', '/'));
-			connectionPool.setAutoCommit(false);
-			try (var con = connectionPool.getConnection()) {
+		try (var pool = new HikariDataSource()) {
+			pool.setDriverClassName(DRIVER);
+			pool.setJdbcUrl("jdbc:derby:" + dbDir.getAbsolutePath().replace('\\', '/'));
+			pool.setAutoCommit(false);
+			try (var con = pool.getConnection()) {
 				return IDatabase.getLibraries(con).contains(name);
 			} catch (SQLException e) {
 				log.error("Getting connection from connection pool failed", e);
