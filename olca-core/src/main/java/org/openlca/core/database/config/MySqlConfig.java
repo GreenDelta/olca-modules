@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MySQL;
+import org.openlca.core.database.MySQL.Config;
 
 /**
  * Stores the connection configuration of a MySQL database.
@@ -20,13 +21,21 @@ public final class MySqlConfig implements DatabaseConfig {
 	@Override
 	public IDatabase connect(File databasesDir) {
 		var db = MySQL.database(name)
-			.host(host)
-			.port(port)
-			.user(user)
-			.password(password)
-			.connect();
+				.host(host)
+				.port(port)
+				.user(user)
+				.password(password)
+				.connect();
 		db.setFileStorageLocation(new File(databasesDir, name));
 		return db;
+	}
+
+	public Config config() {
+		return MySQL.database(name)
+				.host(host)
+				.port(port)
+				.user(user)
+				.password(password);
 	}
 
 	@Override

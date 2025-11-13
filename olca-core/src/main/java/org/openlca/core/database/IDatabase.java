@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.io.Closeable;
 import java.io.File;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,8 +33,8 @@ public interface IDatabase extends EntityStore, Closeable {
 	int CURRENT_VERSION = 15;
 
 	/**
-	 * Creates a native SQL connection to the underlying database. The connection
-	 * should be closed from the respective client.
+	 * Creates a native SQL connection to the underlying database. The
+	 * connection should be closed from the respective client.
 	 */
 	Connection createConnection();
 
@@ -59,15 +60,16 @@ public interface IDatabase extends EntityStore, Closeable {
 
 	/**
 	 * Get a location where external files that belongs this database are stored
-	 * (e.g. PDF or Word documents, shapefiles etc). If there is no such location
-	 * for such files for this database, an implementation can just return null.
+	 * (e.g. PDF or Word documents, shapefiles etc). If there is no such
+	 * location for such files for this database, an implementation can just
+	 * return null.
 	 */
 	File getFileStorageLocation();
 
 	/**
-	 * Clears the cache of the entity manager of this database. You should always
-	 * call this method when you modified the database (via native SQL queries)
-	 * outside the entity manager.
+	 * Clears the cache of the entity manager of this database. You should
+	 * always call this method when you modified the database (via native SQL
+	 * queries) outside the entity manager.
 	 */
 	default void clearCache() {
 		var emf = getEntityFactory();
@@ -83,12 +85,35 @@ public interface IDatabase extends EntityStore, Closeable {
 	 * Get the IDs of libraries that are linked to this database.
 	 */
 	default Set<String> getLibraries() {
-		var sql = "select id from tbl_libraries";
+		try (var con = createConnection()) {
+			return getLibraries(con);
+		} catch (SQLException e) {
+			throw new RuntimeException("creating connection failed", e);
+		}
+	}
+
+	static Set<String> getLibraries(Connection con) {
+		var sql = "select version from openlca_version";
+		try (var s = con.createStatement();
+				var rs = s.executeQuery(sql)) {
+			if (!rs.next())
+				return new HashSet<>();
+			var version = rs.getInt("version");
+			if (version < 10)
+				return new HashSet<>();
+		} catch (SQLException e) {
+			throw new RuntimeException("query failed: " + sql, e);
+		}
+		sql = "select id from tbl_libraries";
 		var ids = new HashSet<String>();
-		NativeSql.on(this).query(sql, r -> {
-			ids.add(r.getString(1));
-			return true;
-		});
+		try (var s = con.createStatement();
+				var rs = s.executeQuery(sql)) {
+			while (rs.next()) {
+				ids.add(rs.getString("id"));
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("query failed: " + sql, e);
+		}
 		return ids;
 	}
 
@@ -100,10 +125,10 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	/**
-	 * Registers the library with the given ID to this database. It is the task of
-	 * the application layer to resolve the location of the corresponding library in
-	 * the file system. Nothing is done if a library with this ID is already
-	 * registered.
+	 * Registers the library with the given ID to this database. It is the task
+	 * of the application layer to resolve the location of the corresponding
+	 * library in the file system. Nothing is done if a library with this ID is
+	 * already registered.
 	 */
 	default void addLibrary(String id) {
 		var libs = getLibraries();
@@ -156,7 +181,7 @@ public interface IDatabase extends EntityStore, Closeable {
 	default <T extends RootEntity> List<T> getAll(Class<T> type, TLongSet ids) {
 		var list = new ArrayList<T>();
 		var em = newEntityManager();
-		for (var it = ids.iterator(); it.hasNext(); ) {
+		for (var it = ids.iterator(); it.hasNext();) {
 			var entity = em.find(type, it.next());
 			if (entity != null) {
 				list.add(entity);
@@ -246,7 +271,8 @@ public interface IDatabase extends EntityStore, Closeable {
 		var modelType = ModelType.of(type);
 		var dao = Daos.root(this, modelType);
 		return dao != null
-				? dao.getDescriptors(TLongSets.box(ids))  // TODO: not very efficient
+				? dao.getDescriptors(TLongSets.box(ids)) // TODO: not very
+															// efficient
 				: Collections.emptyList();
 	}
 
@@ -284,11 +310,12 @@ public interface IDatabase extends EntityStore, Closeable {
 	}
 
 	/**
-	 * Executes the given function in a transaction. It closes the provided entity
-	 * manager when the function is done. When the function fails with an
+	 * Executes the given function in a transaction. It closes the provided
+	 * entity manager when the function is done. When the function fails with an
 	 * exception the transaction is rolled back.
 	 *
-	 * @param fn the function that should be executed within a transaction
+	 * @param fn
+	 *            the function that should be executed within a transaction
 	 */
 	default void transaction(Consumer<EntityManager> fn) {
 		var em = newEntityManager();
