@@ -38,47 +38,77 @@ public class Derby implements IDatabase {
 	private static final AtomicInteger memInstances = new AtomicInteger(0);
 	private static final Logger log = LoggerFactory.getLogger(Derby.class);
 
-	private EntityManagerFactory entityFactory;
-
 	private final String name;
-	private File folder;
+	private final String url;
+	private final File folder;
+
+	private EntityManagerFactory entityFactory;
 	private File fileStorageLocation;
-	private String url;
 
 	private boolean closed = false;
-	private HikariDataSource connectionPool;
+	private HikariDataSource pool;
+
+	public Derby(File folder) {
+		this.folder = folder;
+		this.name = folder.getName();
+		this.url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
+
+		if (!isDerbyFolder(folder)) {
+			log.info("create database folder {}", folder);
+			Dirs.delete(folder.toPath());
+			createNew();
+		}
+		connect();
+	}
+
+	private Derby (String name, String url, boolean create) {
+		this.name = name;
+		this.url = url;
+		this.folder = null;
+		if (create) {
+			createNew();
+		}
+		connect();
+	}
+
+	private void createNew() {
+		log.info("create new database {}", name);
+		try {
+			DriverManager.getConnection(url + ";create=true").close();
+			initConnectionPool();
+			new ScriptRunner(this).run(
+					Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
+		} catch (Exception e) {
+			log.error("failed to create database", e);
+			throw new DatabaseException("Failed to create database", e);
+		}
+	}
 
 	public static Derby createInMemory() {
 		int i = memInstances.incrementAndGet();
-		Derby db = new Derby("olca_mem_db" + i);
-		db.url = "jdbc:derby:memory:" + db.name;
-		db.createNew(db.url + ";create=true");
-		db.connect();
-		return db;
+		var name = "olca_mem_db" + i;
+		var url = "jdbc:derby:memory:" + name;
+		return new Derby(name, url, true);
 	}
 
-	/**
-	 * Restores an in-memory database from a backup folder.
-	 */
+	/// Restores an in-memory database from a backup folder.
 	public static Derby restoreInMemory(String folder) {
 		var path = searchDump(folder);
 		if (path == null) {
 			var log = LoggerFactory.getLogger(Derby.class);
-			log.error("Could not find a database dump under {};"
-					+ " will create an empty DB", folder);
+			log.error("Could not find a database dump under {};" +
+					" will create an empty DB", folder);
 			return createInMemory();
 		}
-		int i = memInstances.incrementAndGet();
-		var db = new Derby("olca_mem_db" + i);
-		var url = "jdbc:derby:memory:" + db.name + ";restoreFrom=" + path;
+
+		var name = "olca_mem_db" + memInstances.incrementAndGet();
+		var url = "jdbc:derby:memory:" + name + ";restoreFrom=" + path;
 		try {
 			DriverManager.getConnection(url).close();
 		} catch (SQLException e) {
 			Exceptions.unchecked("failed to restore in-memory", e);
 		}
-		db.url = "jdbc:derby:memory:" + db.name;
-		db.connect();
-		return db;
+		return new Derby(name, "jdbc:derby:memory:" + name, false);
 	}
 
 	private static String searchDump(String path) {
@@ -107,32 +137,11 @@ public class Derby implements IDatabase {
 		return null;
 	}
 
-	private Derby(String name) {
-		this.name = name;
-	}
 
-	public Derby(File folder) {
-		this.folder = folder;
-		this.name = folder.getName();
-		boolean create = !isDerbyFolder(folder);
-		if (create) {
-			Dirs.delete(folder.toPath());
-		}
-		log.info("initialize database folder {}, create={}", folder, create);
-		url = "jdbc:derby:" + folder.getAbsolutePath().replace('\\', '/');
-		log.trace("database url: {}", url);
-		if (create) {
-			createNew(url + ";create=true");
-		}
-		connect();
-	}
-
-	/**
-	 * Returns true if the given folder is (most likely) a Derby database by
-	 * checking if Derby specific files and folders are present; see the Derby
-	 * folder specification:
-	 * http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html
-	 */
+	/// Returns true if the given folder is (most likely) a Derby database by
+	/// checking if Derby specific files and folders are present; see the [Derby
+	/// folder specification](
+	/// http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html).
 	public static boolean isDerbyFolder(File folder) {
 		if (folder == null || !folder.exists() || !folder.isDirectory())
 			return false;
@@ -146,31 +155,15 @@ public class Derby implements IDatabase {
 		return props.exists() && props.isFile();
 	}
 
-	private void createNew(String url) {
-		log.info("create new database {}", url);
-		try {
-			DriverManager.getConnection(url).close();
-			new ScriptRunner(this).run(
-					Resource.CURRENT_SCHEMA_DERBY.getStream(), "utf-8");
-		} catch (Exception e) {
-			log.error("failed to create database", e);
-			throw new DatabaseException("Failed to create database", e);
-		}
-	}
-
-	/**
-	 * Returns the Derby database directory (see
-	 * http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html). The
-	 * name of the directory is equal to the database name.
-	 */
+	/// Returns the [Derby database directory](
+	/// http://db.apache.org/derby/docs/10.0/manuals/develop/develop13.html). The
+	/// name of the directory is equal to the database name.
 	public File getDatabaseDirectory() {
 		return folder;
 	}
 
-	/**
-	 * Returns the folder '_olca_' within the database directory. If this folder
-	 * does not exist is created when this method is called.
-	 */
+	/// Returns the folder '_olca_' within the database directory. If this folder
+	/// does not exist is created when this method is called.
 	@Override
 	public File getFileStorageLocation() {
 		if (fileStorageLocation != null)
@@ -186,19 +179,18 @@ public class Derby implements IDatabase {
 		return fileStorageLocation;
 	}
 
-	/**
-	 * Set the location where files of data that are not stored directly in the
-	 * database should be saved (e.g. external files of sources).
-	 * <p>
-	 * Typically, this is only set by in-memory databases as for file based
-	 * databases it defaults to the `_olca_` folder within the database
-	 * directory.
-	 */
+	/// Set the location where files of data that are not stored directly in the
+	/// database should be saved (e.g. external files of sources).
+	///
+	/// Typically, this is only set by in-memory databases as for file based
+	/// databases it defaults to the `_olca_` folder within the database
+	/// directory.
 	public void setFileStorageLocation(File fileStorageLocation) {
 		this.fileStorageLocation = fileStorageLocation;
 	}
 
 	private void connect() {
+
 		log.trace("connect to database: {}", url);
 		Map<Object, Object> map = new HashMap<>();
 		map.put("jakarta.persistence.jdbc.url", url);
@@ -208,11 +200,18 @@ public class Derby implements IDatabase {
 		log.trace("Create entity factory");
 		entityFactory = new PersistenceProvider()
 				.createEntityManagerFactory("openLCA", map);
+
+		initConnectionPool();
+	}
+
+	private void initConnectionPool() {
+		if (pool != null)
+			return;
 		log.trace("Init connection pool");
-		connectionPool = new HikariDataSource();
-		connectionPool.setDriverClassName(DRIVER);
-		connectionPool.setJdbcUrl(url);
-		connectionPool.setAutoCommit(false);
+		pool = new HikariDataSource();
+		pool.setDriverClassName(DRIVER);
+		pool.setJdbcUrl(url);
+		pool.setAutoCommit(false);
 	}
 
 	@Override
@@ -222,8 +221,8 @@ public class Derby implements IDatabase {
 		log.trace("close database: {}", url);
 		if (entityFactory != null && entityFactory.isOpen())
 			entityFactory.close();
-		if (connectionPool != null)
-			connectionPool.close();
+		if (pool != null)
+			pool.close();
 		try {
 			boolean isMemDB = folder == null;
 			if (isMemDB) {
@@ -254,8 +253,8 @@ public class Derby implements IDatabase {
 	public Connection createConnection() {
 		log.trace("create connection: {}", url);
 		try {
-			if (connectionPool != null) {
-				var con = connectionPool.getConnection();
+			if (pool != null) {
+				var con = pool.getConnection();
 				con.setAutoCommit(false);
 				return con;
 			} else {
@@ -309,9 +308,7 @@ public class Derby implements IDatabase {
 		}
 	}
 
-	/**
-	 * Closes the database and deletes the underlying folder.
-	 */
+	/// Closes the database and deletes the underlying folder.
 	public void delete() throws Exception {
 		if (!closed)
 			close();
@@ -320,14 +317,13 @@ public class Derby implements IDatabase {
 		}
 	}
 
-	/**
-	 * Creates a backup of the database in the given folder. This is
-	 * specifically useful for creating a dump of an in-memory database. See
-	 * https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html
-	 * <p>
-	 * Note that the content of the folder will be overwritten if it already
-	 * exists.
-	 */
+	/// Creates a backup of the database in the given folder. This is
+	/// specifically useful for creating a [dump](
+	/// https://db.apache.org/derby/docs/10.0/manuals/admin/hubprnt43.html)
+	/// of an in-memory database.
+	///
+	/// Note that the content of the folder will be overwritten if it already
+	/// exists.
 	public void dump(String path) {
 		try {
 			File dir = new File(path);
@@ -365,14 +361,10 @@ public class Derby implements IDatabase {
 		}
 	}
 
-	/**
-	 * Extracts the given database backup file into the given folder.
-	 *
-	 * @param dbDir
-	 *            The database folder where the backup should be extracted to.
-	 * @param backup
-	 *            The backup file of the database (a {@code *.zolca} file).
-	 */
+	/// Extracts the given database backup file into the given folder.
+	///
+	/// @param dbDir The database folder where the backup should be extracted to.
+	/// @param backup The backup file of the database (a {@code *.zolca} file).
 	public static void unzip(File dbDir, File backup) {
 		try (var zip = new ZipFile(backup)) {
 			if (!dbDir.exists()) {
@@ -403,14 +395,9 @@ public class Derby implements IDatabase {
 		}
 	}
 
-	/**
-	 * Creates a backup file for the given database folder.
-	 *
-	 * @param dbDir
-	 *            The database folder from which the backup should be created.
-	 * @param backup
-	 *            The backup file for the database (a {@code *.zolca} file).
-	 */
+	/// Creates a backup file for the given database folder.
+	/// @param dbDir The database folder from which the backup should be created.
+	/// @param backup The backup file for the database (a `*.zolca` file).
 	public static void zip(File dbDir, File backup) {
 
 		var root = dbDir.toPath();

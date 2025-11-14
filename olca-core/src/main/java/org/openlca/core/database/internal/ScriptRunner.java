@@ -15,18 +15,17 @@ import org.openlca.core.database.NativeSql;
 public class ScriptRunner implements ScriptHandler {
 
 	private final int MAX_BATCH_SIZE = 1000;
-	private IDatabase database;
-	private List<String> statements = new ArrayList<>();
+	private final IDatabase db;
+	private final List<String> statements = new ArrayList<>();
 
-	public ScriptRunner(IDatabase database) {
-		this.database = database;
+	public ScriptRunner(IDatabase db) {
+		this.db = db;
 	}
 
 	public void run(InputStream scriptStream, String encoding) throws Exception {
 		try {
-			InputStreamReader reader = new InputStreamReader(scriptStream,
-					encoding);
-			ScriptParser parser = new ScriptParser(this);
+			var reader = new InputStreamReader(scriptStream, encoding);
+			var parser = new ScriptParser(this);
 			parser.parse(reader);
 			execBatch();
 		} catch (Exception e) {
@@ -44,7 +43,7 @@ public class ScriptRunner implements ScriptHandler {
 	private void execBatch() throws Exception {
 		if (statements.isEmpty())
 			return;
-		NativeSql.on(database).batchUpdate(statements);
+		NativeSql.on(db).batchUpdate(statements);
 		statements.clear();
 	}
 }
