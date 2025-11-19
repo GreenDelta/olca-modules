@@ -33,7 +33,9 @@ public class HestiaGlossaryFetch implements AutoCloseable {
 	private HestiaGlossaryFetch(HestiaClient client, File folder) {
 		this.client = client;
 		this.folder = folder;
-		this.http = HttpClient.newHttpClient();
+		this.http = HttpClient.newBuilder()
+			.followRedirects(HttpClient.Redirect.NORMAL)
+			.build();
 		this.pool = Executors.newFixedThreadPool(4);
 	}
 
@@ -127,9 +129,9 @@ public class HestiaGlossaryFetch implements AutoCloseable {
 					.GET()
 					.build();
 				var resp = http.send(req, HttpResponse.BodyHandlers.ofInputStream());
-				if (resp.statusCode() != 200) {
+				if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
 					return Res.error("Failed to download file from " + url +
-						": HTTP " + resp.statusCode());
+						": " + resp.statusCode());
 				}
 
 				var target = new File(folder, info.filename());
