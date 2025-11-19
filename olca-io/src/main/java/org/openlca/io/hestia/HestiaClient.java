@@ -69,6 +69,22 @@ public class HestiaClient implements AutoCloseable {
 			: Res.ok(new User(json.value()));
 	}
 
+	public Res<List<GlossaryFileInfo>> getGlossaryFileInfos() {
+		var json = getJsonObject("/glossary/lookups");
+		if (json.isError())
+			return json.wrapError("Failed to get glossary lookup information");
+		var array = Json.getArray(json.value(), "results");
+		if (array == null)
+			return Res.error("No glossary lookup information found in response");
+		var infos = new ArrayList<GlossaryFileInfo>(array.size());
+		for (var e : array) {
+			if (e.isJsonObject()) {
+				infos.add(new GlossaryFileInfo(e.getAsJsonObject()));
+			}
+		}
+		return Res.ok(infos);
+	}
+
 	private Res<JsonObject> getJsonObject(String path) {
 		try {
 			var req = HttpRequest.newBuilder()
