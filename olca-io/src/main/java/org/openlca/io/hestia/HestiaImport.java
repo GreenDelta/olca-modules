@@ -8,9 +8,11 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.matrix.cache.ProviderMap;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
+import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.hestia.HestiaExchange.Emission;
 import org.openlca.io.hestia.HestiaExchange.Input;
@@ -27,12 +29,28 @@ public class HestiaImport {
 	private final LocationMap locations;
 	private final SourceFetch sources;
 
+	private ProcessType processType = ProcessType.UNIT_PROCESS;
+	private boolean resolveProviders = true;
+	private ProviderMap providers;
+
 	public HestiaImport(HestiaClient client, IDatabase db, FlowMap flowMap) {
 		this.client = Objects.requireNonNull(client);
 		this.db = Objects.requireNonNull(db);
 		this.flows = FlowFetch.of(log, db, flowMap);
 		this.locations = LocationMap.of(db);
 		this.sources = SourceFetch.of(log, client, db);
+	}
+
+	public HestiaImport withProcessType(ProcessType type) {
+		if (type != null) {
+			this.processType = type;
+		}
+		return this;
+	}
+
+	public HestiaImport withProviderLinks(boolean b) {
+		resolveProviders = b;
+		return this;
 	}
 
 	public ImportLog log() {
@@ -43,10 +61,10 @@ public class HestiaImport {
 		if (Strings.isBlank(cycleId))
 			return Res.error("cycle ID must not be null or empty");
 
-		var refId = KeyGen.get("cycle", cycleId);
+		var refId = KeyGen.get("cycle", cycleId, processType.name());
 		if (db.get(Process.class, refId) != null)
 			return Res.error("a mapped process for cycle ID " + cycleId
-					+ " already exists: " + refId);
+				+ " already exists: " + refId);
 
 		// fetch the cycle
 		var res = client.getCycle(cycleId);
@@ -88,8 +106,8 @@ public class HestiaImport {
 		for (var product : cycle.products()) {
 			var prim = product.isPrimary();
 			var type = prim
-					? FlowType.PRODUCT_FLOW
-					: FlowType.WASTE_FLOW;
+				? FlowType.PRODUCT_FLOW
+				: FlowType.WASTE_FLOW;
 			exchangeOf(product, site, process, type);
 
 			// we take the "category" of the primary product also as category
@@ -99,10 +117,15 @@ public class HestiaImport {
 			}
 		}
 
-		for (var input : cycle.inputs()) {
-			exchangeOf(input, site, process, FlowType.PRODUCT_FLOW);
+		if (processType == ProcessType.UNIT_PROCESS) {
+			for (var input : cycle.inputs()) {
+				exchangeOf(input, site, process, FlowType.PRODUCT_FLOW);
+			}
 		}
+
 		for (var emission : cycle.emissions()) {
+			if (exclude(emission))
+				return;
 			exchangeOf(emission, site, process, FlowType.ELEMENTARY_FLOW);
 		}
 	}
@@ -129,7 +152,7 @@ public class HestiaImport {
 	}
 
 	private void exchangeOf(
-			HestiaExchange e, Site site, Process process, FlowType defaultType
+		HestiaExchange e, Site site, Process process, FlowType defaultType
 	) {
 		double amount = e.value();
 		if (amount == 0)
@@ -140,6 +163,11 @@ public class HestiaImport {
 
 		var ex = process.output(f.flow(), amount);
 		ex.unit = f.unit();
+		if (f.isMapped()) {
+			ex.description = "mapped flow; original flow: "
+				+ e.term().name()
+				+ " (https://www.hestia.earth/term/" + e.term().id() + ")";
+		}
 
 		switch (e) {
 			case Input ignored -> ex.isInput = true;
@@ -148,9 +176,10 @@ public class HestiaImport {
 					process.quantitativeReference = ex;
 				}
 			}
-			case Emission emission ->
-					ex.description = emission.methodModelDescription();
-			case Practice ignored -> {}
+			case Emission emission -> ex.description = concat(
+				ex.description, emission.methodModelDescription());
+			case Practice ignored -> {
+			}
 		}
 	}
 
@@ -171,5 +200,24 @@ public class HestiaImport {
 		if (end != null) {
 			process.documentation.validUntil = end;
 		}
+	}
+
+	private boolean exclude(Emission emission) {
+		if (emission == null)
+			return true;
+		if (processType == ProcessType.LCI_RESULT)
+			return false;
+		return switch (emission.methodTier()) {
+			case MEASURED -> true;
+			case null, default -> false;
+		};
+	}
+
+	private String concat(String a, String b) {
+		if (a == null)
+			return b;
+		if (b == null)
+			return a;
+		return a + "\n" + b;
 	}
 }
