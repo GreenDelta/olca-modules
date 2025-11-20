@@ -22,7 +22,7 @@ import org.openlca.util.Dirs;
 
 /// Downloads glossary files from the Hestia API into a local folder.
 /// Only downloads files that don't already exist in the target folder.
-public class HestiaGlossaryFetch implements AutoCloseable {
+public class GlossaryFetch implements AutoCloseable {
 
 	private final String BASE_URL = "http://hestia.earth";
 	private final HestiaClient client;
@@ -30,7 +30,7 @@ public class HestiaGlossaryFetch implements AutoCloseable {
 	private final File folder;
 	private final ExecutorService pool;
 
-	private HestiaGlossaryFetch(HestiaClient client, File folder) {
+	private GlossaryFetch(HestiaClient client, File folder) {
 		this.client = client;
 		this.folder = folder;
 		this.http = HttpClient.newBuilder()
@@ -42,7 +42,7 @@ public class HestiaGlossaryFetch implements AutoCloseable {
 	public static Res<List<File>> run(HestiaClient client, File folder) {
 		try {
 			Dirs.createIfAbsent(folder);
-			try (var fetch = new HestiaGlossaryFetch(client, folder)) {
+			try (var fetch = new GlossaryFetch(client, folder)) {
 				return fetch.exec();
 			}
 		} catch (Exception e) {

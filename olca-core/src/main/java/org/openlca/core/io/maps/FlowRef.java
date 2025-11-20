@@ -12,66 +12,63 @@ import org.openlca.core.model.descriptors.Descriptor;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 
-/**
- * A FlowRef contains the associated reference data of a source or target flow
- * in a flow mapping.
- */
+/// A FlowRef contains the associated reference data of a source or target flow
+/// in a flow mapping.
 public class FlowRef implements Copyable<FlowRef> {
 
-	/**
-	 * The reference information of a flow data set. This information is
-	 * required and at least the field `flow.refId` must be present.
-	 */
+	/// The reference information of a flow data set. This information is
+	/// required and at least the field `flow.refId` must be present.
 	public FlowDescriptor flow;
 
-	/**
-	 * An optional category path of the flow.
-	 */
+	/// An optional category path of the flow.
 	public String flowCategory;
 
-	/**
-	 * An optional location code. of the flow.
-	 */
+	/// An optional location code of the flow.
 	public String flowLocation;
 
-	/**
-	 * An optional reference to a property (= quantity) of the flow. When this
-	 * is missing, the reference flow property of the flow is taken by default.
-	 */
+	/// An optional reference to a property (= quantity type) of the flow. When
+	/// this is missing, the reference flow property of the flow is taken by
+	/// default.
 	public Descriptor property;
 
-	/**
-	 * Also, the unit reference is optional; the reference unit of the unit
-	 * group of the flow property is taken by default.
-	 */
+	/// Also, the unit reference is optional; the reference unit of the unit
+	/// group of the flow property is taken by default.
 	public Descriptor unit;
 
-	/**
-	 * An optional reference to a provider process in case this reference
-	 * describes a (target) product or waste flow.
-	 */
+	/// An optional reference to a provider process in case this reference
+	/// describes a product or waste flow as mapping target.
 	public ProcessDescriptor provider;
 
-	/**
-	 * An location code of the provider process.
-	 */
+	/// A location code of the provider process.
 	public String providerLocation;
 
-	/**
-	 * An optional category path of the provider process.
-	 */
+	/// An optional category path of the provider process.
 	public String providerCategory;
 
-	/**
-	 * Describes a synchronization result of this flow mapping with a data
-	 * source.
-	 */
+	/// Describes a synchronization result of this flow mapping with a data
+	/// source.
 	public MappingStatus status;
 
-	/**
-	 * Creates an unique identifier of this flow reference which is a
-	 * concatenation of the UUIDs of the referenced entities.
-	 */
+	public static FlowRef of(Flow flow) {
+		var ref = new FlowRef();
+		if (flow == null)
+			return ref;
+
+		ref.flow = Descriptor.of(flow);
+		ref.property = Descriptor.of(flow.referenceFlowProperty);
+		ref.unit = Descriptor.of(flow.getReferenceUnit());
+
+		if (flow.category != null) {
+			ref.flowCategory = flow.category.toPath();
+		}
+		if (flow.location != null) {
+			ref.flowLocation = flow.location.code;
+		}
+		return ref;
+	}
+
+	/// Creates a unique identifier of this flow reference which is a
+	/// concatenation of the UUIDs of the referenced entities.
 	public String key() {
 		var ids = new String[4];
 		if (flow != null) {
@@ -114,11 +111,9 @@ public class FlowRef implements Copyable<FlowRef> {
 		return clone;
 	}
 
-	/**
-	 * Tries to find a matching flow from the given database. It checks
-	 * the reference ID of the flows and also of the flow property and
-	 * unit if these are present.
-	 */
+	/// Tries to find a matching flow from the given database. It checks the
+	/// reference ID of the flow and also the flow property and unit if these
+	/// are present.
 	public Flow getMatchingFlow(IDatabase db) {
 		if (db == null
 				|| flow == null
@@ -133,12 +128,10 @@ public class FlowRef implements Copyable<FlowRef> {
 				: null;
 	}
 
-	/**
-	 * Get the matching flow property from the given flow, which is
-	 * the reference flow property of that flow if not specified
-	 * otherwise. Note that this can be null, if there is no
-	 * matching flow property defined in the given flow.
-	 */
+	/// Get the matching flow property from the given flow, which is the reference
+	/// flow property of that flow if not specified otherwise. Note that this can
+	/// be `null``, if there is no matching flow property defined in the given
+	/// flow.
 	public FlowPropertyFactor getMatchingProperty(Flow flow) {
 		if (flow == null)
 			return null;
@@ -153,12 +146,9 @@ public class FlowRef implements Copyable<FlowRef> {
 		return null;
 	}
 
-	/**
-	 * Get the matching unit from the given flow, which is the
-	 * reference unit of that flow if not specified otherwise.
-	 * Note that this can be null, if there is no matching
-	 * unit defined in the given flow.
-	 */
+	/// Get the matching unit from the given flow, which is the reference unit of
+	/// that flow if not specified otherwise. Note that this can be `null``, if
+	/// there is no matching unit defined in the given flow.
 	public Unit getMatchingUnit(Flow flow) {
 		var fac = getMatchingProperty(flow);
 		if (fac == null
