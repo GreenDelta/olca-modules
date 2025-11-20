@@ -4,31 +4,27 @@ import java.io.File;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.io.maps.FlowMap;
+import org.openlca.io.hestia.EcoinventFlowMap;
 import org.openlca.io.hestia.HestiaClient;
-import org.openlca.io.hestia.HestiaImport;
 import org.openlca.jsonld.Json;
 
-public class HestiaImportExample {
+public class HestiaEcoinventFlowMapExampleTemp {
 
 	public static void main(String[] args) {
-		var cycleId = "bananaFruit-brazil-2010-2025-20250430";
-
 		var dataDir = DataDir.get();
 		var apiKey = Json.readObject(new File(dataDir.root(), ".hestia.json"))
 			.orElseThrow()
 			.get("apiKey")
 			.getAsString();
 
-		// see the HestiaEcoinventFlowMapExample for building flow maps
-		var flowMap = FlowMap.fromCsv(new File("target/HESTIA_EI.csv"));
-
 		var dbName = "ecoinvent 3.11 Cutoff Unit-Processes 2025-01-31";
-		try (var db = DataDir.get().openDatabase(dbName);
+		try (var db = dataDir.openDatabase(dbName);
 				 var client = HestiaClient.of(apiKey)) {
-
-			var imp = new HestiaImport(client, db, flowMap);
-			var process = imp.importCycle(cycleId).orElseThrow();
-			System.out.println("Imported process: " + process.name);
+			var dir = new File("target/hestia-glossary");
+			var flowMap = EcoinventFlowMap
+				.buildFrom(db, client, dir)
+				.orElseThrow();
+			FlowMap.toCsv(flowMap, new File("target/HESTIA_EI.csv"));
 		}
 	}
 }

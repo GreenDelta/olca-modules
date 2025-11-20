@@ -8,7 +8,7 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.io.maps.FlowMap;
-import org.openlca.core.matrix.cache.ProviderMap;
+import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
@@ -28,10 +28,10 @@ public class HestiaImport {
 	private final FlowFetch flows;
 	private final LocationMap locations;
 	private final SourceFetch sources;
+	private final ProviderResolver providers;
 
 	private ProcessType processType = ProcessType.UNIT_PROCESS;
 	private boolean resolveProviders = true;
-	private ProviderMap providers;
 
 	public HestiaImport(HestiaClient client, IDatabase db, FlowMap flowMap) {
 		this.client = Objects.requireNonNull(client);
@@ -39,6 +39,7 @@ public class HestiaImport {
 		this.flows = FlowFetch.of(log, db, flowMap);
 		this.locations = LocationMap.of(db);
 		this.sources = SourceFetch.of(log, client, db);
+		this.providers = ProviderResolver.of(db);
 	}
 
 	public HestiaImport withProcessType(ProcessType type) {
@@ -170,10 +171,16 @@ public class HestiaImport {
 		}
 
 		switch (e) {
-			case Input ignored -> ex.isInput = true;
+			case Input ignored -> {
+				ex.isInput = true;
+				linkProvider(process, ex);
+			}
 			case Product product -> {
 				if (product.isPrimary()) {
 					process.quantitativeReference = ex;
+				} else {
+					// link possible waste outputs
+					linkProvider(process, ex);
 				}
 			}
 			case Emission emission -> ex.description = concat(
@@ -219,5 +226,11 @@ public class HestiaImport {
 		if (b == null)
 			return a;
 		return a + "\n" + b;
+	}
+
+	private void linkProvider(Process process, Exchange exchange) {
+		if (!resolveProviders)
+			return;
+		providers.resolve(process, exchange);
 	}
 }
