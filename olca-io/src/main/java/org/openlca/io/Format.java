@@ -17,87 +17,61 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
+import org.openlca.io.maps.GladFlowMap;
 import org.openlca.util.ZipFiles;
 
-/**
- * A set of import formats that openLCA understands and that can be determined
- * from a file.
- */
+/// A set of import formats that openLCA understands and that can be determined
+/// from a file.
 public enum Format {
 
-	/**
-	 * An EcoSpold1 XML data set.
-	 */
+	/// An EcoSpold1 XML data set.
 	ES1_XML,
 
-	/**
-	 * A zip file with EcoSpold 1 XML data sets.
-	 */
+	/// A zip file with EcoSpold 1 XML data sets.
 	ES1_ZIP,
 
-	/**
-	 * An EcoSpold 2 XML data set. These can have an *.xml or *.spold extension.
-	 */
+	/// An EcoSpold 2 XML data set. These can have an *.xml or *.spold extension.
 	ES2_XML,
 
-	/**
-	 * A zip file with EcoSpold 2 XML data sets.
-	 */
+	/// A zip file with EcoSpold 2 XML data sets.
 	ES2_ZIP,
 
-	/**
-	 * An Excel file with openLCA data sets.
-	 */
+	/// An Excel file with openLCA data sets.
 	EXCEL,
 
-	/**
-	 * A GeoJSON file.
-	 */
+	/// A GLAD flow mapping file in CSV format.
+	GLAD_FLOW_MAP,
+
+	/// A GeoJSON file.
 	GEO_JSON,
 
-	/**
-	 * A zip file with ILCD files.
-	 */
+	/// A zip file with ILCD files.
 	ILCD_ZIP,
 
-	/**
-	 * A zip file with JSON(-LD) files in the openLCA Schema format.
-	 */
+	/// A zip file with JSON(-LD) files in the openLCA Schema format.
 	JSON_LD_ZIP,
 
-	/**
-	 * A KML file.
-	 */
+	/// A KML file.
 	KML,
 
-	/**
-	 * A zip file that contains an openLCA libraries with its dependencies.
-	 */
+	/// A zip file that contains an openLCA libraries with its dependencies.
 	LIBRARY_PACKAGE,
 
-	/**
-	 * An openLCA flow mapping file in CSV format:
-	 * - columns separated by semicolons
-	 * - at minimum 3 columns
-	 * - the third column contains numbers
-	 */
+	/// An openLCA flow mapping file in CSV format:
+	/// - columns separated by semicolons
+	/// - at minimum 3 columns
+	/// - the third column contains numbers
 	MAPPING_CSV,
 
-	/**
-	 * A SimaPro CSV file.
-	 */
+	/// A SimaPro CSV file.
 	SIMAPRO_CSV,
 
-	/**
-	 * A *.zolca file is a zip file that contains a Derby database.
-	 */
+	/// A *.zolca file is a zip file that contains a Derby database.
 	ZOLCA;
 
 
-	/**
-	 * Tries to detect the format from the given file. Returns `Optional.empty`
-	 * if the format cannot be detected or if an error occurred.
-	 */
+	/// Tries to detect the format from the given file. Returns `Optional.empty`
+	/// if the format cannot be detected or if an error occurred.
 	public static Optional<Format> detect(File file) {
 		if (file == null)
 			return Optional.empty();
@@ -134,8 +108,12 @@ public enum Format {
 			}
 		}
 
-		// *.csv => check if it is SimaPro CSV or a mapping file
+		// *.csv => check if it is SimaPro CSV, GLAD flow map, or a mapping file
 		if (hasExtension(fileName, ".csv")) {
+			// check if it is a GLAD flow map
+			if (GladFlowMap.isMappingFile(file))
+				return Optional.of(GLAD_FLOW_MAP);
+
 			try (var stream = new FileInputStream(file);
 				 var reader = new InputStreamReader(stream);
 				 var buffer = new BufferedReader(reader)) {
@@ -302,10 +280,8 @@ public enum Format {
 		return null;
 	}
 
-	/**
-	 * Scans each entry in the given zip file until the given function returns
-	 * true.
-	 */
+	/// Scans each entry in the given zip file until the given function returns
+	/// true.
 	private static void scanZip(File zipFile, BiPredicate<ZipFile, ZipEntry> fn) {
 		try (var zip = ZipFiles.open(zipFile)) {
 			var entries = zip.entries();

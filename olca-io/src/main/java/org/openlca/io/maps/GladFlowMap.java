@@ -37,6 +37,43 @@ public class GladFlowMap {
 		}
 	}
 
+	/// Returns `true` when the given file is probably a GLAD flow mapping file.
+	/// We assume that this is true, if it can be read as a CSV file and has at
+	/// least these two column headers: `SourceFlowName` and `TargetFlowName`
+	public static boolean isMappingFile(File file) {
+		if (file == null || !file.exists() || !file.isFile())
+			return false;
+		try (var stream = new FileInputStream(file);
+				 var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+				 var csv = CSVFormat.DEFAULT.parse(reader)) {
+
+			var iter = csv.iterator();
+			if (!iter.hasNext())
+				return false;
+
+			var header = iter.next();
+			boolean hasSource = false;
+			boolean hasTarget = false;
+			for (int i = 0; i < header.size(); i++) {
+				var v = header.get(i);
+				if (v == null)
+					continue;
+				var field = v.trim().toLowerCase();
+				if (field.equals("sourceflowname")) {
+					hasSource = true;
+				} else if (field.equals("targetflowname")) {
+					hasTarget = true;
+				}
+				if (hasSource && hasTarget) {
+					return true;
+				}
+			}
+			return false;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	public static Res<GladFlowMap> readFrom(InputStream stream) {
 		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
 				 var csv = CSVFormat.DEFAULT.parse(reader)) {
