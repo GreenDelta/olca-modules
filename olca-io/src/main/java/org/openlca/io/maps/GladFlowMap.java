@@ -6,14 +6,21 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.commons.Res;
 import org.openlca.commons.Strings;
+import org.openlca.core.io.maps.FlowMap;
+import org.openlca.core.io.maps.FlowMapEntry;
+import org.openlca.core.io.maps.FlowRef;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.UnitDescriptor;
 import org.openlca.util.KeyGen;
 
 
@@ -50,6 +57,72 @@ public class GladFlowMap {
 
 	public List<Entry> entries() {
 		return entries;
+	}
+
+	/// Converts this GLAD flow map to an openLCA flow map.
+	public FlowMap asFlowMap() {
+		var flowMap = new FlowMap();
+		var from = new ListInfo();
+		var to = new ListInfo();
+
+		for (var e : entries) {
+
+			if (e.sourceFlow == null || e.targetFlow == null)
+				continue;
+
+			// source flow
+			var source = new FlowRef();
+			var sourceInfo = e.sourceFlow();
+			source.flow = FlowDescriptor.create()
+				.refId(sourceInfo.flowId())
+				.name(sourceInfo.flowName())
+				.get();
+			source.flowCategory = sourceInfo.flowContext();
+			if (Strings.isNotBlank(sourceInfo.flowUnit)) {
+				source.unit = UnitDescriptor.create()
+					.name(sourceInfo.flowUnit)
+					.get();
+			}
+			from.add(sourceInfo.flowList);
+
+			// target flow
+			var target = new FlowRef();
+			var targetInfo = e.targetFlow();
+			target.flow = FlowDescriptor.create()
+				.refId(targetInfo.flowId())
+				.name(targetInfo.flowName())
+				.get();
+			target.flowCategory = targetInfo.flowContext();
+			to.add(targetInfo.flowList);
+
+			flowMap.entries.add(new FlowMapEntry(
+				source, target, e.conversionFactor()
+			));
+		}
+
+		flowMap.name = from + " -> " + to;
+		flowMap.refId = KeyGen.get(flowMap.name);
+		return flowMap;
+	}
+
+	private static class ListInfo {
+
+		private final Set<String> names = new HashSet<>();
+
+		void add(String s) {
+			if (Strings.isNotBlank(s)) {
+				names.add(s.trim());
+			}
+		}
+
+		@Override
+		public String toString() {
+			if (names.isEmpty())
+				return "Unknown";
+			return names.size() == 1
+				? names.iterator().next()
+				: "(" + String.join(", ", names) + ")";
+		}
 	}
 
 	private static class Parser {
