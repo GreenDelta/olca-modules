@@ -170,4 +170,59 @@ public class GladFlowMap {
 		String flowUnit
 	) {
 	}
+
+	private static class ColumnLayout {
+
+		int sourceListName = 0;
+		int sourceFlowName = 1;
+		int sourceFlowUUID = 2;
+		int sourceFlowContext = 3;
+		int sourceUnit = 4;
+		int matchCondition = 5;
+		int conversionFactor = 6;
+		int targetListName = 7;
+		int targetFlowName = 8;
+		int targetFlowUUID = 9;
+		int targetFlowContext = 10;
+		int targetUnit = 11;
+		int mapper = 12;
+		int verifier = 13;
+		int lastUpdated = 14;
+		int memoMapper = 15;
+		int memoVerifier = 16;
+		int memoSource = 17;
+		int memoTarget = 18;
+
+		static ColumnLayout parse(CSVRecord header) {
+			var layout = new ColumnLayout();
+			for (int i = 0; i < header.size(); i++) {
+				var v = header.get(i);
+				if (v == null)
+					continue;
+				switch (v.trim().toLowerCase()) {
+					case "sourcelistname" -> layout.sourceListName = i;
+					case "sourceflowname" -> layout.sourceFlowName = i;
+					case "sourceflowuuid" -> layout.sourceFlowUUID = i;
+					case "sourceflowcontext" -> layout.sourceFlowContext = i;
+					case "sourceunit" -> layout.sourceUnit = i;
+					case "matchcondition" -> layout.matchCondition = i;
+					case "conversionfactor" -> layout.conversionFactor = i;
+					case "targetlistname" -> layout.targetListName = i;
+					case "targetflowname" -> layout.targetFlowName = i;
+					case "targetflowuuid" -> layout.targetFlowUUID = i;
+					case "targetflowcontext" -> layout.targetFlowContext = i;
+					case "targetunit" -> layout.targetUnit = i;
+					case "mapper" -> layout.mapper = i;
+					case "verifier" -> layout.verifier = i;
+					case "lastupdated" -> layout.lastUpdated = i;
+					case "memomapper" -> layout.memoMapper = i;
+					case "memoverifier" -> layout.memoVerifier = i;
+					case "memosource" -> layout.memoSource = i;
+					case "memotarget" -> layout.memoTarget = i;
+				}
+			}
+			return layout;
+		}
+
+	}
 }
