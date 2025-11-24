@@ -6,12 +6,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.openlca.commons.Res;
 import org.openlca.commons.Strings;
+import org.openlca.util.KeyGen;
 
 
 /// Implements the [EPA/GLAD flow mapping format](https://github.com/UNEP-Economy-Division/GLAD-ElementaryFlowResources).
@@ -29,86 +32,12 @@ public class GladFlowMap {
 
 	public static Res<GladFlowMap> readFrom(InputStream stream) {
 		try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-				 var parser = CSVFormat.DEFAULT.parse(reader)) {
-			var map = new GladFlowMap();
-			var first = true;
-			for (var row : parser) {
-				if (first || row.size() < 2) {
-					first = false;
-					continue;
-				}
-				var entryRes = parseEntry(row);
-				if (entryRes.isError())
-					return entryRes.wrapError(
-						"Failed to parse row " + row.getRecordNumber());
-				map.entries.add(entryRes.value());
-			}
-			return Res.ok(map);
+				 var csv = CSVFormat.DEFAULT.parse(reader)) {
+			var parser = new Parser(csv);
+			return parser.parse();
 		} catch (Exception e) {
 			return Res.error("Failed to read GLAD flow map from stream", e);
 		}
-	}
-
-	private static Res<Entry> parseEntry(CSVRecord row) {
-		// source & target flow IDs are required
-		var sourceFlowId = get(row, 2);
-		if (Strings.isBlank(sourceFlowId))
-			return Res.error("Source flow UUID is missing");
-		var targetFlowId = get(row, 9);
-		if (Strings.isBlank(targetFlowId))
-			return Res.error("Target flow UUID is missing");
-
-		// source flow info
-		var sourceFlow = new FlowInfo(
-				get(row, 0), // SourceListName
-				get(row, 1), // SourceFlowName
-				sourceFlowId,
-				get(row, 3), // SourceFlowContext
-				get(row, 4)  // SourceUnit
-		);
-
-		// target flow info
-		var targetFlow = new FlowInfo(
-				get(row, 7),  // TargetListName
-				get(row, 8),  // TargetFlowName
-				targetFlowId,
-				get(row, 10), // TargetFlowContext
-				get(row, 11)  // TargetUnit
-		);
-
-		// conversion factor
-		var factor = get(row, 6);
-		if (Strings.isBlank(factor))
-			return Res.error("Conversion factor is missing");
-		double conversionFactor;
-		try {
-			conversionFactor = Double.parseDouble(factor);
-			if (conversionFactor <= 0)
-				return Res.error("Invalid conversion factor: " + conversionFactor);
-		} catch (NumberFormatException e) {
-			return Res.error("Invalid conversion factor: " + factor);
-		}
-
-		return Res.ok(new Entry(
-				sourceFlow,
-				targetFlow,
-				conversionFactor,
-				MatchCondition.fromString(get(row, 5)),
-				get(row, 12), // Mapper
-				get(row, 13), // Verifier
-				get(row, 14), // LastUpdated
-				get(row, 15), // MemoMapper
-				get(row, 16), // MemoVerifier
-				get(row, 17), // MemoSource
-				get(row, 18)  // MemoTarget
-		));
-	}
-
-	private static String get(CSVRecord row, int col) {
-		if(row == null || col >= row.size())
-			return null;
-		var v = row.get(col);
-		return v != null ? v.trim() : null;
 	}
 
 	public int size() {
@@ -121,6 +50,87 @@ public class GladFlowMap {
 
 	public List<Entry> entries() {
 		return entries;
+	}
+
+	private static class Parser {
+
+		private final Iterator<CSVRecord> csv;
+		private final ColumnLayout layout;
+
+		Parser(CSVParser parser) {
+			this.csv = parser.iterator();
+			this.layout = this.csv.hasNext()
+				? ColumnLayout.parse(csv.next())
+				: new ColumnLayout();
+		}
+
+		Res<GladFlowMap> parse() {
+			var map = new GladFlowMap();
+			while (csv.hasNext()) {
+				var row = csv.next();
+				if (row.size() < 2)
+					continue;
+				var entry = parseEntry(row);
+				if (entry.isError())
+					return entry.wrapError(
+						"Failed to parse row " + row.getRecordNumber());
+				map.entries.add(entry.value());
+			}
+			return Res.ok(map);
+		}
+
+		private Res<Entry> parseEntry(CSVRecord row) {
+
+			// source flow info
+			var sourceFlow = new FlowInfo(
+				get(row, layout.sourceListName),
+				get(row, layout.sourceFlowName),
+				get(row, layout.sourceFlowUUID),
+				get(row, layout.sourceFlowContext),
+				get(row, layout.sourceUnit)
+			);
+
+			// target flow info
+			var targetFlow = new FlowInfo(
+				get(row, layout.targetListName),
+				get(row, layout.targetFlowName),
+				get(row, layout.targetFlowUUID),
+				get(row, layout.targetFlowContext),
+				get(row, layout.targetUnit)
+			);
+
+			// conversion factor
+			double conversionFactor = 1.0;
+			var factor = get(row, layout.conversionFactor);
+			if (Strings.isNotBlank(factor)) {
+				try {
+					conversionFactor = Double.parseDouble(factor);
+				} catch (NumberFormatException e) {
+					return Res.error("Invalid conversion factor: " + factor);
+				}
+			}
+
+			return Res.ok(new Entry(
+				sourceFlow,
+				targetFlow,
+				conversionFactor,
+				MatchCondition.fromString(get(row, layout.matchCondition)),
+				get(row, layout.mapper),
+				get(row, layout.verifier),
+				get(row, layout.lastUpdated),
+				get(row, layout.memoMapper),
+				get(row, layout.memoVerifier),
+				get(row, layout.memoSource),
+				get(row, layout.memoTarget)
+			));
+		}
+
+		private static String get(CSVRecord row, int col) {
+			if (row == null || col >= row.size())
+				return null;
+			var v = row.get(col);
+			return v != null ? v.trim() : null;
+		}
 	}
 
 	public enum MatchCondition {
@@ -138,7 +148,7 @@ public class GladFlowMap {
 		public static MatchCondition fromString(String s) {
 			if (Strings.isBlank(s))
 				return SAME;
-			return switch(s.trim()) {
+			return switch (s.trim()) {
 				case ">" -> BROADER;
 				case "<" -> NARROWER;
 				case "~" -> PROXY;
@@ -169,6 +179,13 @@ public class GladFlowMap {
 		String flowContext,
 		String flowUnit
 	) {
+
+		@Override
+		public String flowId() {
+			return Strings.isBlank(flowId)
+				? KeyGen.get(flowName, flowContext, flowUnit)
+				: flowId;
+		}
 	}
 
 	private static class ColumnLayout {
