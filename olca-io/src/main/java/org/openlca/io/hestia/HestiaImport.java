@@ -79,11 +79,12 @@ public class HestiaImport {
 		// create and map the process
 		try {
 			var process = new Process();
-			process.documentation = new ProcessDoc();
 			process.refId = refId;
 			process.name = cycle.name();
 			process.description = cycle.description();
 			process.location = locations.get(site);
+			process.processType = processType;
+			process.documentation = new ProcessDoc();
 			mapDates(cycle, process);
 
 			var sources = this.sources.get(cycle);

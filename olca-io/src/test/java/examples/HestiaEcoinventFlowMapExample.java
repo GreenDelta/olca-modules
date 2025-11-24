@@ -8,7 +8,7 @@ import org.openlca.io.hestia.EcoinventFlowMap;
 import org.openlca.io.hestia.HestiaClient;
 import org.openlca.jsonld.Json;
 
-public class HestiaEcoinventFlowMapExampleTemp {
+public class HestiaEcoinventFlowMapExample {
 
 	public static void main(String[] args) {
 		var dataDir = DataDir.get();
