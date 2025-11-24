@@ -32,6 +32,7 @@ public class HestiaImport {
 
 	private ProcessType processType = ProcessType.UNIT_PROCESS;
 	private boolean resolveProviders = true;
+	private final String dataInfo;
 
 	public HestiaImport(HestiaClient client, IDatabase db, FlowMap flowMap) {
 		this.client = Objects.requireNonNull(client);
@@ -40,6 +41,12 @@ public class HestiaImport {
 		this.locations = LocationMap.of(db);
 		this.sources = SourceFetch.of(log, client, db);
 		this.providers = ProviderResolver.of(db);
+
+		var info = "Imported from the HESTIA API (https://www.hestia.earth)";
+		if (flowMap != null && Strings.isNotBlank(flowMap.name)) {
+			info += "\nFlow mapping used: " + flowMap.name;
+		}
+		dataInfo = info;
 	}
 
 	public HestiaImport withProcessType(ProcessType type) {
@@ -85,6 +92,7 @@ public class HestiaImport {
 			process.location = locations.get(site);
 			process.processType = processType;
 			process.documentation = new ProcessDoc();
+ 			process.documentation.dataTreatment = dataInfo;
 			mapDates(cycle, process);
 
 			var sources = this.sources.get(cycle);
