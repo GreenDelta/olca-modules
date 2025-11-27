@@ -346,21 +346,6 @@ public class Derby implements IDatabase {
 		}
 	}
 
-	public static boolean containsLibrary(File dbDir, String name) {
-		try (var pool = new HikariDataSource()) {
-			pool.setDriverClassName(DRIVER);
-			pool.setJdbcUrl("jdbc:derby:" + dbDir.getAbsolutePath().replace('\\', '/'));
-			pool.setAutoCommit(false);
-			try (var con = pool.getConnection()) {
-				return IDatabase.getLibraries(con).contains(name);
-			} catch (SQLException e) {
-				log.error("Getting connection from connection pool failed", e);
-				// fallback, don't accidently assume library is not present
-				return true;
-			}
-		}
-	}
-
 	/// Extracts the given database backup file into the given folder.
 	///
 	/// @param dbDir The database folder where the backup should be extracted to.

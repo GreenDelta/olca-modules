@@ -97,13 +97,14 @@ public interface IDatabase extends EntityStore, Closeable {
 		try (var s = con.createStatement();
 				var rs = s.executeQuery(sql)) {
 			if (!rs.next())
-				return new HashSet<>();
+				return Set.of();
 			var version = rs.getInt("version");
 			if (version < 10)
-				return new HashSet<>();
+				return Set.of();
 		} catch (SQLException e) {
 			throw new RuntimeException("query failed: " + sql, e);
 		}
+
 		sql = "select id from tbl_libraries";
 		var ids = new HashSet<String>();
 		try (var s = con.createStatement();
