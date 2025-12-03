@@ -4,7 +4,7 @@
 	xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
 
-	<persistence-unit name="openLCA" transaction-type="RESOURCE_LOCAL" exclude-unlisted-classes="true">
+	<persistence-unit name="openLCA" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>org.openlca.core.model.Actor</class>
 		<class>org.openlca.core.model.AllocationFactor</class>
@@ -54,7 +54,8 @@
 		<shared-cache-mode>ALL</shared-cache-mode>
 
 		<properties>
-			<property name="eclipselink.logging.level" value="WARNING" />
+			<property name="eclipselink.logging.level" value="FINE" />
+			<property name="eclipselink.logging.level.metamodel" value="FINE" />
 			<!-- enable SQL logging etc.
 			<property name="eclipselink.logging.level" value="ALL"/>
 			<property name="eclipselink.logging.level.sql" value="FINE"/>

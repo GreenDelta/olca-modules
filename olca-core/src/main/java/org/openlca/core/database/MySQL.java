@@ -27,6 +27,9 @@ public class MySQL implements IDatabase {
 		this.name = config.database;
 		var url = config.jdbcUrl();
 
+		// Pre-initialize (cache persistence.xml and preload entity classes) to reduce startup time
+		DbUtils.preInitialize();
+		
 		// create the JPA persistence manager
 		var jpaConfig = new HashMap<>();
 		jpaConfig.put("jakarta.persistence.jdbc.url", url);

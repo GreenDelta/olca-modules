@@ -192,6 +192,8 @@ public class Derby implements IDatabase {
 	private void connect() {
 
 		log.trace("connect to database: {}", url);
+		// Pre-initialize (cache persistence.xml and preload entity classes) to reduce startup time
+		DbUtils.preInitialize();
 		Map<Object, Object> map = new HashMap<>();
 		map.put("jakarta.persistence.jdbc.url", url);
 		map.put("jakarta.persistence.jdbc.driver", DRIVER);
