@@ -155,6 +155,33 @@ public class AnalysisGroupResultTest {
 	}
 
 	/// ```
+	///       +- #A1 (x2)
+	/// Root -+
+	///       +- #A2
+	///```
+	/// Here, Root has two inputs of the same product from #A1 (double link).
+	@Test
+	public void testDoubleLink() {
+		var root = processOf("Root");
+		var a1 = processOf("#A1");
+		var a2 = processOf("#A2");
+
+		link(root, a1, 1);
+		link(root, a1, 1);  // double link: same provider, same flow
+		link(root, a2, 1);
+
+		var system = systemOf(root);
+		var result = resultOf(system);
+		delete(system);
+
+		check(result, Map.of(
+			"A1", 2.0,
+			"A2", 1.0,
+			"Top", 1.0
+		));
+	}
+
+	/// ```
 	///                +-----------+
 	/// Root -- #B1 -- P -- #A1 -- S
 	///

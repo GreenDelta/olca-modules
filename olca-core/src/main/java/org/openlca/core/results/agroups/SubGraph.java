@@ -12,26 +12,23 @@ import org.openlca.core.model.ProductSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/// The sub-graph of the product system which, when expanded to a tree, would
-/// have the reference process as root and the grouped nodes as leafs of that
-/// tree. Multiple nodes with different groups could occur along a path in such
-/// a tree, but the final node would be also a grouped node. It can be very
-/// memory intensive when such a tree is really constructed, and thus it is
-/// better to collect the results in a traversal of that sub-graph.
+/// A sub-graph of a product system containing all paths from the reference
+/// process to providers that are assigned to analysis groups. The sub-graph
+/// includes:
+///
+/// - all grouped providers (as leaf nodes when viewed as a tree)
+/// - all intermediate processes along paths to grouped providers
+/// - links connecting these nodes where both endpoints are in the sub-graph
+///
+/// Duplicate links (same process, flow, and provider) are filtered out during
+/// construction. Instead of expanding the full tree (which can be very memory
+/// intensive), results should be collected by traversing this sub-graph.
 record SubGraph(
 		HashSet<Long> nodes, HashMap<Long, List<ProcessLink>> links, int linkCount
 ) {
 
 	static SubGraph of(ProductSystem system, GroupMap groups) {
 		return new Builder(system, groups).build();
-	}
-
-	boolean isEmpty() {
-		return nodes.isEmpty() || links.isEmpty();
-	}
-
-	int nodeCount() {
-		return nodes.size();
 	}
 
 	List<ProcessLink> linksOf(long pid) {
@@ -63,7 +60,12 @@ record SubGraph(
 			log.info("build sub-graph for analysis groups");
 			log.trace("build link index");
 			var linkIdx = new HashMap<Long, List<ProcessLink>>();
+			var handled = new HashSet<LinkId>();
 			for (var link : system.processLinks) {
+				// remove double links
+				var id = new LinkId(link.processId, link.flowId, link.providerId);
+				if (!handled.add(id))
+					continue;
 				var list = linkIdx.computeIfAbsent(
 					link.processId, $ -> new ArrayList<>());
 				list.add(link);
@@ -84,9 +86,12 @@ record SubGraph(
 				for (var link : links) {
 					long nextId = link.providerId;
 					if (groups.isGrouped(nextId)) {
+						// if it is a grouped node, add the node and
+						// the path to the node to the collected nodes
 						nodes.add(nextId);
 						parent.addPathTo(this);
 					}
+					// nodes can be visited via different paths
 					if (visited.contains(nextId))
 						continue;
 					visited.add(nextId);
@@ -94,6 +99,8 @@ record SubGraph(
 				}
 			}
 
+			// we only add links to the sub-graph where the process
+			// and provider are nodes of that sub-graph
 			log.trace("filter links");
 			int linkCount = 0;
 			for (var n : nodes) {
@@ -116,14 +123,15 @@ record SubGraph(
 		private record Node(long id, Node prev) {
 
 			/// With this node as the leaf of a path, this method adds
-			/// all nodes along the path to the collected nodes of the
-			/// builder.
+			/// all nodes along the path to the collected nodes.
 			void addPathTo(Builder b) {
-				b.nodes.add(id);
-				if (prev != null) {
-					prev.addPathTo(b);
+				for (var n = this; n != null; n = n.prev) {
+					b.nodes.add(n.id);
 				}
 			}
+		}
+
+		private record LinkId(long processId, long flowId, long providerId) {
 		}
 	}
 }
