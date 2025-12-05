@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-public class Ec3Client {
+public class Ec3Client implements AutoCloseable {
 
 	private final String url;
 	private final String epdUrl;
@@ -36,6 +36,11 @@ public class Ec3Client {
 		return !url.endsWith("/")
 			? url + "/"
 			: url;
+	}
+
+	@Override
+	public void close() {
+		http.close();
 	}
 
 	/**
@@ -148,7 +153,7 @@ public class Ec3Client {
 				: Optional.empty();
 		} catch (Exception e) {
 			var log = LoggerFactory.getLogger(Ec3Client.class);
-			log.error("failed to connect to EC3 API @" + cred.epdUrl(), e);
+			log.error("failed to connect to EC3 API @{}", cred.epdUrl(), e);
 			return Optional.empty();
 		}
 	}
@@ -202,7 +207,7 @@ public class Ec3Client {
 			return Optional.of(new Ec3Client(http, cred));
 
 		} catch (Exception e) {
-			log.error("failed to connect to EC3 API @" + cred.ec3Url(), e);
+			log.error("failed to connect to EC3 API @{}", cred.ec3Url(), e);
 			return Optional.empty();
 		}
 	}

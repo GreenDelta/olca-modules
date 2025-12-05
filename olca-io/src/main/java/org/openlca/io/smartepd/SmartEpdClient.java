@@ -14,7 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class SmartEpdClient {
+public class SmartEpdClient implements AutoCloseable {
 
 	private final String url;
 	private final String apiKey;
@@ -35,6 +35,11 @@ public class SmartEpdClient {
 			base += "api/";
 		}
 		return new SmartEpdClient(base, apiKey);
+	}
+
+	@Override
+	public void close() {
+		client.close();
 	}
 
 	// region: projects
