@@ -33,7 +33,6 @@ import spold2.DataSet;
 import spold2.ElementaryExchange;
 import spold2.IntermediateExchange;
 import spold2.PedigreeMatrix;
-import spold2.Representativeness;
 import spold2.RichText;
 import spold2.Spold2;
 
@@ -240,7 +239,7 @@ class ProcessImport {
 
 
 	private Exchange createExchange(
-			spold2.Exchange es2, String flowRefId, Flow flow, Process process) {
+		spold2.Exchange es2, String flowRefId, Flow flow, Process process) {
 		if (flow == null || flow.referenceFlowProperty == null)
 			return null;
 		Unit unit = getFlowUnit(es2, flowRefId, flow);
@@ -273,7 +272,7 @@ class ProcessImport {
 	}
 
 	private Unit getFlowUnit(
-			spold2.Exchange original, String flowRefId, Flow flow) {
+		spold2.Exchange original, String flowRefId, Flow flow) {
 		if (!index.isMappedFlow(flowRefId))
 			return index.getUnit(original.unitId);
 		FlowProperty refProp = flow.referenceFlowProperty;
@@ -312,12 +311,9 @@ class ProcessImport {
 			exchange.defaultProviderId = processId;
 			return;
 		}
-		List<Exchange> exchanges = linkQueue.get(refId);
-		if (exchanges == null) {
-			exchanges = new ArrayList<>();
-			linkQueue.put(refId, exchanges);
-		}
-		exchanges.add(exchange);
+		linkQueue
+			.computeIfAbsent(refId, k -> new ArrayList<>())
+			.add(exchange);
 	}
 
 	/**
@@ -338,27 +334,7 @@ class ProcessImport {
 			name += " | " + qRef.name;
 		}
 
-		// we try to infer a short name for the system model here
-		// because the short name is part of the master data which
-		// is not always available (or can be found) when importing
-		// a data set
-		String model = null;
-		Representativeness repri = Spold2.getRepresentativeness(ds);
-		if (repri.systemModelName != null) {
-			String sys = repri.systemModelName.toLowerCase();
-			if (sys.contains("consequential")) {
-				model = "Consequential";
-			} else if (sys.contains("apos") ||
-				sys.contains("allocation at the point of substitution")) {
-				model = "APOS";
-			} else if (sys.contains("cut-off") || sys.contains("cutoff")) {
-				model = "Cutoff";
-			} else if (sys.contains("legacy")) {
-				model = "Legacy";
-			} else {
-				model = repri.systemModelName;
-			}
-		}
+		var model = modelNameOf(ds);
 		if (model != null) {
 			name += " | " + model;
 		}
@@ -370,4 +346,24 @@ class ProcessImport {
 		return name;
 	}
 
+	// We try to infer a short name for the system model here
+	// because the short name is part of the master data which
+	// is not always available (or can be found) when importing
+	// a data set
+	private String modelNameOf(DataSet ds) {
+		var repri = Spold2.getRepresentativeness(ds);
+		if (repri == null || repri.systemModelName == null)
+			return null;
+		var sys = repri.systemModelName.toLowerCase();
+		if (sys.contains("consequential"))
+			return "Consequential";
+		if (sys.contains("apos")
+			|| sys.contains("allocation at the point of substitution"))
+			return "APOS";
+		if (sys.contains("cut-off") || sys.contains("cutoff"))
+			return "Cutoff";
+		if (sys.contains("legacy"))
+			return "Legacy";
+		return repri.systemModelName;
+	}
 }
