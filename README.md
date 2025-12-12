@@ -18,12 +18,12 @@ so you can just add them as a dependency to your project:
 </dependency>
 ```
 
-A Java version >= 17 is required.
+A Java version >= 21 is required.
 
 
 ## Installation from source
 
-In order to build the modules from source, you need to have a [JDK >=17](https://adoptium.net)
+In order to build the modules from source, you need to have a [JDK >=21](https://adoptium.net)
 and [Maven 3](https://maven.apache.org/install.html) installed. Then, building
 the modules can be done like this:
 
