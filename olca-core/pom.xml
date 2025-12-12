@@ -9,6 +9,7 @@
 	</parent>
 	<artifactId>olca-core</artifactId>
 	<packaging>jar</packaging>
+	<name>${project.groupId}:${project.artifactId}</name>
 
 	<properties>
 		<protobuf.version>4.33.0</protobuf.version>
