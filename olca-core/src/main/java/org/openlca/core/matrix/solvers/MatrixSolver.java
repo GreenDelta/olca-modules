@@ -2,6 +2,9 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.solvers.accelerate.AccelerateJulia;
+import org.openlca.core.matrix.solvers.accelerate.AcceleratePlatform;
+import org.openlca.core.matrix.solvers.accelerate.AccelerateSolver;
 import org.openlca.core.matrix.solvers.mkl.MKL;
 import org.openlca.core.matrix.solvers.mkl.MKLSolver;
 import org.openlca.nativelib.NativeLib;
@@ -22,6 +25,9 @@ public interface MatrixSolver {
 	 * function.
 	 */
 	static MatrixSolver get() {
+		// Check for Accelerate on ARM64 macOS first (no library loading needed)
+		if (AcceleratePlatform.isArm64MacOS() && AccelerateJulia.isAvailable())
+			return new AccelerateSolver();
 		if (MKL.isLoaded())
 			return new MKLSolver();
 		if (NativeLib.isLoaded())
@@ -104,7 +110,9 @@ public interface MatrixSolver {
 	 * platform native high-performance math-library.
 	 */
 	default boolean isNative() {
-		return this instanceof NativeSolver || this instanceof MKLSolver;
+		return this instanceof AccelerateSolver 
+			|| this instanceof NativeSolver 
+			|| this instanceof MKLSolver;
 	}
 
 	default double dot(double[] a, double[] b) {
