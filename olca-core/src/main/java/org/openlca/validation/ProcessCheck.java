@@ -182,8 +182,11 @@ class ProcessCheck implements Runnable {
 		sql.query(q, r -> {
 			var id = r.getLong(1);
 
-			if (!processIDs.contains(id))
-				return true;
+			if (!processIDs.contains(id)) {
+				v.error("exchange with invalid process owner @" + id);
+				foundErrors = true;
+				return !v.wasCanceled();
+			}
 
 			var lastInternalId = lastInternalIds.get(id);
 			var internalId = r.getLong(9);
