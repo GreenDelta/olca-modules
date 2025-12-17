@@ -330,21 +330,29 @@ public class ModelReferences {
 		var map = new HashMap<Long, Long>();
 		query(table, isRootEntity, source, idField, targets, values -> {
 			var col = 0;
-			var sourceId = (long) values[col++];
+
+			long sourceId = longOf(values[col++]);
 			if (idField != null) {
-				map.put((long) values[col++], sourceId);
+				map.put(longOf(values[col++]), sourceId);
 			}
 			if (source.idMapper != null) {
-				sourceId = source.idMapper.apply(sourceId);
+				Long mapped = source.idMapper.apply(sourceId);
+				if (mapped == null)
+					return;
+				sourceId = mapped;
 			}
+
 			if (targets == null)
 				return;
 			for (var target : targets) {
-				var targetId = longOf( values[col++]);
+				long targetId = longOf(values[col++]);
 				if (targetId == 0L)
 					continue;
 				if (target.idMapper != null) {
-					targetId = target.idMapper.apply(targetId);
+					Long mapped = target.idMapper.apply(targetId);
+					if (mapped == null)
+						continue;
+					targetId = mapped;
 				}
 				var targetType = target.type;
 				if (target.condition != null) {
