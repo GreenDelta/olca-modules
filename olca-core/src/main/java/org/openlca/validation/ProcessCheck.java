@@ -24,6 +24,7 @@ class ProcessCheck implements Runnable {
 			checkExchanges(lastInternalIds);
 			checkQuantitativeRefs();
 			checkProcessDocs();
+			checkOrphanedProcessDocs();
 			checkAllocationFactors();
 			checkSocialAspects();
 			if (!foundErrors && !v.wasCanceled()) {
@@ -105,6 +106,22 @@ class ProcessCheck implements Runnable {
 					foundErrors = true;
 				}
 			}
+			return !v.wasCanceled();
+		});
+	}
+
+	private void checkOrphanedProcessDocs() {
+		if (v.wasCanceled())
+			return;
+		var q = """
+				select doc.id from tbl_process_docs doc
+				  left join tbl_processes p on p.f_process_doc = doc.id
+				where p.id is null
+				""";
+		sql.query(q, r -> {
+			long docId = r.getLong(1);
+			v.error("orphaned process documentation @" + docId);
+			foundErrors = true;
 			return !v.wasCanceled();
 		});
 	}

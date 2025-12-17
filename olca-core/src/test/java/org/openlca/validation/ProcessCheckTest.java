@@ -54,6 +54,9 @@ public class ProcessCheckTest {
 		if (!found) {
 			fail("expected an error because of invalid exchange ID");
 		}
+
+		// Clean up
+		db.delete(process, p2, p1, co2, mass, units);
 	}
 
 	@Test
@@ -78,6 +81,36 @@ public class ProcessCheckTest {
 			}
 		}
 		assertTrue(found);
+		db.delete(process, p, mass, units);
+	}
+
+	@Test
+	public void testOrphanedProcessDoc() {
+		var units = UnitGroup.of("Mass units", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		var p = Flow.product("p", mass);
+		var process = Process.of("P", p);
+		db.insert(units, mass, p, process);
+
+		// insert an orphaned ProcessDoc
+		NativeSql.on(db).runUpdate(
+				"insert into tbl_process_docs (id) values (999999)");
+
+		var v = Validation.on(db);
+		v.run();
+
+		var found = false;
+		for (var item : v.items()) {
+			if (item.type == Type.ERROR
+					&& item.message != null
+					&& item.message.contains("orphaned process documentation")) {
+				found = true;
+				break;
+			}
+		}
+		assertTrue("expected an error for orphaned process documentation", found);
+		db.delete(process, p, mass, units);
+		NativeSql.on(db).runUpdate("delete from tbl_process_docs where id = 999999");
 	}
 
 }
