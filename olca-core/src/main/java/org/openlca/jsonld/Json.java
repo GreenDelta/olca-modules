@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -43,6 +44,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 /**
  * Utility functions for reading and writing Json data.
@@ -165,15 +167,26 @@ public class Json {
 	}
 
 	public static long getLong(JsonObject obj, String property, long defaultVal) {
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isNumber()
+			? prim.getAsLong()
+			: defaultVal;
+	}
+
+	public static OptionalLong getLong(JsonObject obj, String property) {
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isNumber()
+			? OptionalLong.of(prim.getAsLong())
+			: OptionalLong.empty();
+	}
+
+	private static JsonPrimitive getPrimitive(JsonObject obj, String property) {
 		if (obj == null || property == null)
-			return defaultVal;
+			return null;
 		var elem = obj.get(property);
-		if (elem == null || !elem.isJsonPrimitive())
-			return defaultVal;
-		var prim = elem.getAsJsonPrimitive();
-		return prim.isNumber()
-				? prim.getAsLong()
-				: defaultVal;
+		return elem != null && elem.isJsonPrimitive()
+			? elem.getAsJsonPrimitive()
+			: null;
 	}
 
 	/**

@@ -9,9 +9,13 @@ import com.google.gson.JsonObject;
 
 public record Compound(JsonObject json) {
 
-	public CompoundId id() {
-		var idObj = Json.getObject(json, "id");
-		return idObj != null ? new CompoundId(idObj) : null;
+	public Long id() {
+		var top = Json.getObject(json, "id");
+		var sub = Json.getObject(top, "id");
+		var id =  Json.getLong(sub, "cid");
+		return id.isPresent()
+			? id.getAsLong()
+			: null;
 	}
 
 	public int charge() {
