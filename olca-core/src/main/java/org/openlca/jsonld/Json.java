@@ -89,7 +89,7 @@ public class Json {
 	/// Try to get the array for the given property from the object and iterate
 	/// over each Json object in that array if it exists.
 	public static void forEachObject(
-			JsonObject obj, String property, Consumer<JsonObject> fn) {
+		JsonObject obj, String property, Consumer<JsonObject> fn) {
 		var array = getArray(obj, property);
 		if (array == null)
 			return;
@@ -104,66 +104,51 @@ public class Json {
 	 * Return the string value of the given property.
 	 */
 	public static String getString(JsonObject obj, String property) {
-		if (obj == null || property == null)
-			return null;
-		JsonElement elem = obj.get(property);
-		if (elem == null || !elem.isJsonPrimitive())
-			return null;
-		else
-			return elem.getAsString();
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isString()
+			? prim.getAsString()
+			: null;
 	}
 
 	/**
 	 * Return an array of strings from the given array, never returns null
 	 */
 	public static String[] getStrings(JsonArray array) {
-	    if (array == null)
-	    	return new String[0];
+		if (array == null)
+			return new String[0];
 		return Json.stream(array)
-	    	        .filter(JsonElement::isJsonPrimitive)
-	    	        .map(JsonElement::getAsString)
-	    	        .filter(Predicate.not(Strings::isBlank))
-	    	        .toArray(String[]::new);
+			.filter(JsonElement::isJsonPrimitive)
+			.map(JsonElement::getAsString)
+			.filter(Predicate.not(Strings::isBlank))
+			.toArray(String[]::new);
 	}
 
 	/**
 	 * Return the double value of the given property.
 	 */
 	public static double getDouble(JsonObject obj,
-			String property, double defaultVal) {
-		if (obj == null || property == null)
-			return defaultVal;
-		JsonElement elem = obj.get(property);
-		if (elem == null || !elem.isJsonPrimitive())
-			return defaultVal;
-		else
-			return elem.getAsDouble();
+																 String property, double defaultVal) {
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isNumber()
+			? prim.getAsDouble()
+			: defaultVal;
 	}
 
 	/**
 	 * Return the int value of the given property.
 	 */
 	public static int getInt(JsonObject obj, String property, int defaultVal) {
-		if (obj == null || property == null)
-			return defaultVal;
-		JsonElement elem = obj.get(property);
-		if (elem == null || !elem.isJsonPrimitive())
-			return defaultVal;
-		else
-			return elem.getAsInt();
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isNumber()
+			? prim.getAsInt()
+			: defaultVal;
 	}
 
 	public static OptionalInt getInt(JsonObject obj, String property) {
-		if (obj == null || property == null)
-			return OptionalInt.empty();
-		var elem = obj.get(property);
-		try {
-			return elem == null || !elem.isJsonPrimitive()
-					? OptionalInt.empty()
-					: OptionalInt.of(elem.getAsInt());
-		} catch (Exception e) {
-			return OptionalInt.empty();
-		}
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isNumber()
+			? OptionalInt.of(prim.getAsInt())
+			: OptionalInt.empty();
 	}
 
 	public static long getLong(JsonObject obj, String property, long defaultVal) {
@@ -216,30 +201,25 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> void put(
-			JsonObject json, String property, Enum<T> value) {
+		JsonObject json, String property, Enum<T> value) {
 		if (value == null)
 			return;
 		put(json, property, Enums.getLabel(value));
 	}
 
 	public static OptionalDouble getDouble(JsonObject obj, String property) {
-		if (obj == null || property == null)
-			return OptionalDouble.empty();
-		var elem = obj.get(property);
-		return elem == null || !elem.isJsonPrimitive()
-				? OptionalDouble.empty()
-				: OptionalDouble.of(elem.getAsDouble());
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isNumber()
+			? OptionalDouble.of(prim.getAsDouble())
+			: OptionalDouble.empty();
 	}
 
 	public static boolean getBool(
-			JsonObject obj, String property, boolean defaultVal) {
-		if (obj == null || property == null)
-			return defaultVal;
-		JsonElement elem = obj.get(property);
-		if (elem == null || !elem.isJsonPrimitive())
-			return defaultVal;
-		else
-			return elem.getAsBoolean();
+		JsonObject obj, String property, boolean defaultVal) {
+		var prim = getPrimitive(obj, property);
+		return prim != null && prim.isBoolean()
+			? prim.getAsBoolean()
+			: defaultVal;
 	}
 
 	public static Date getDate(JsonObject obj, String property) {
@@ -254,8 +234,8 @@ public class Json {
 			try {
 				var parsed = DateTimeFormatter.ISO_DATE.parse(str);
 				var time = LocalDate.from(parsed)
-						.atStartOfDay(ZoneId.systemDefault())
-						.toInstant();
+					.atStartOfDay(ZoneId.systemDefault())
+					.toInstant();
 				return Date.from(time);
 			} catch (Exception e) {
 				return null;
@@ -282,8 +262,8 @@ public class Json {
 		Supplier<Date> forLocal = () -> {
 			try {
 				var time = LocalDateTime.parse(str)
-						.atZone(ZoneId.systemDefault())
-						.toInstant();
+					.atZone(ZoneId.systemDefault())
+					.toInstant();
 				return Date.from(time);
 			} catch (Exception e) {
 				return null;
@@ -318,7 +298,7 @@ public class Json {
 
 		// try all other options, again
 		var opts = List.of(
-				forDate, forInstant, forLocal, forZoned);
+			forDate, forInstant, forLocal, forZoned);
 		for (var opt : opts) {
 			var d = opt.get();
 			if (d != null)
@@ -332,8 +312,8 @@ public class Json {
 
 	public static String asDateTime(Date date) {
 		return date != null
-				? date.toInstant().toString()
-				: null;
+			? date.toInstant().toString()
+			: null;
 	}
 
 	public static String asDate(Date date) {
@@ -345,7 +325,7 @@ public class Json {
 	}
 
 	public static <T extends Enum<T>> T getEnum(
-			JsonObject obj, String property, Class<T> enumClass) {
+		JsonObject obj, String property, Class<T> enumClass) {
 		String value = getString(obj, property);
 		return Enums.getValue(value, enumClass);
 	}
@@ -378,7 +358,7 @@ public class Json {
 		put(obj, "name", e.name);
 
 		if (e instanceof RootEntity ce
-				&& ce.category != null) {
+			&& ce.category != null) {
 			put(obj, "category", ce.category.toPath());
 		}
 
@@ -453,9 +433,9 @@ public class Json {
 		if (json == null)
 			return "null";
 		return new Gson().newBuilder()
-				.setPrettyPrinting()
-				.create()
-				.toJson(json);
+			.setPrettyPrinting()
+			.create()
+			.toJson(json);
 	}
 
 	/**
