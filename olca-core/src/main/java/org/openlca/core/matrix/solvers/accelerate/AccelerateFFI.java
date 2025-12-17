@@ -13,11 +13,9 @@ import static java.lang.foreign.ValueLayout.*;
  * 
  * Requires Java 21+ with --enable-preview and --enable-native-access flags.
  */
-public final class AccelerateJulia {
+public final class AccelerateFFI {
 	
 	private static final boolean IS_AVAILABLE;
-	private static final Linker LINKER;
-	private static final SymbolLookup ACCELERATE_LOOKUP;
 	
 	// BLAS function handles
 	private static final MethodHandle dgemv;
@@ -28,13 +26,6 @@ public final class AccelerateJulia {
 	private static final MethodHandle dgetrf;
 	private static final MethodHandle dgetri;
 	private static final MethodHandle dgetrs;
-	
-	// Sparse matrix function handles (may be null if not available)
-	private static final MethodHandle sparse_matrix_create;
-	private static final MethodHandle sparse_matrix_destroy;
-	private static final MethodHandle sparse_factorize;
-	private static final MethodHandle sparse_solve;
-	private static final MethodHandle sparse_factorization_destroy;
 	
 	// Track active factorizations: id -> [arena, matrix segment, ipiv segment, n]
 	private static final ConcurrentHashMap<Long, FactorizationData> FACTORIZATION_DATA = new ConcurrentHashMap<>();
@@ -62,9 +53,6 @@ public final class AccelerateJulia {
 		MethodHandle dgemvHandle = null, dgemmHandle = null;
 		MethodHandle dgesvHandle = null, dgetrfHandle = null;
 		MethodHandle dgetriHandle = null, dgetrsHandle = null;
-		MethodHandle sparseCreateHandle = null, sparseDestroyHandle = null;
-		MethodHandle sparseFactorizeHandle = null, sparseSolveHandle = null;
-		MethodHandle sparseFactorDestroyHandle = null;
 		
 		try {
 			// Check if we're on macOS ARM64
@@ -90,77 +78,79 @@ public final class AccelerateJulia {
 					lookup = SymbolLookup.loaderLookup();
 			
 			// BLAS function descriptors
+			// Note: Fortran BLAS/LAPACK pass all integer parameters by reference (as pointers)
 			FunctionDescriptor dgemvDesc = FunctionDescriptor.ofVoid(
 				ADDRESS,  // TRANS (char*)
-				JAVA_INT, // M
-				JAVA_INT, // N
+				ADDRESS,  // M (int*)
+				ADDRESS,  // N (int*)
 				ADDRESS,  // ALPHA (double*)
 				ADDRESS,  // A (double*)
-				JAVA_INT, // LDA
+				ADDRESS,  // LDA (int*)
 				ADDRESS,  // X (double*)
-				JAVA_INT, // INCX
+				ADDRESS,  // INCX (int*)
 				ADDRESS,  // BETA (double*)
 				ADDRESS,  // Y (double*)
-				JAVA_INT  // INCY
+				ADDRESS   // INCY (int*)
 			);
 			
 			FunctionDescriptor dgemmDesc = FunctionDescriptor.ofVoid(
 				ADDRESS,  // TRANSA (char*)
 				ADDRESS,  // TRANSB (char*)
-				JAVA_INT, // M
-				JAVA_INT, // N
-				JAVA_INT, // K
+				ADDRESS,  // M (int*)
+				ADDRESS,  // N (int*)
+				ADDRESS,  // K (int*)
 				ADDRESS,  // ALPHA (double*)
 				ADDRESS,  // A (double*)
-				JAVA_INT, // LDA
+				ADDRESS,  // LDA (int*)
 				ADDRESS,  // B (double*)
-				JAVA_INT, // LDB
+				ADDRESS,  // LDB (int*)
 				ADDRESS,  // BETA (double*)
 				ADDRESS,  // C (double*)
-				JAVA_INT  // LDC
+				ADDRESS   // LDC (int*)
 			);
 			
 			// LAPACK function descriptors
 			// Note: dgesv_ doesn't return a value - INFO is an output parameter
+			// All integer parameters are passed by reference (as pointers) in Fortran calling convention
 			FunctionDescriptor dgesvDesc = FunctionDescriptor.ofVoid(
-				JAVA_INT, // N
-				JAVA_INT, // NRHS
+				ADDRESS,  // N (int*)
+				ADDRESS,  // NRHS (int*)
 				ADDRESS,  // A (double*)
-				JAVA_INT, // LDA
+				ADDRESS,  // LDA (int*)
 				ADDRESS,  // IPIV (int*)
 				ADDRESS,  // B (double*)
-				JAVA_INT, // LDB
+				ADDRESS,  // LDB (int*)
 				ADDRESS   // INFO (int*)
 			);
 			
 			FunctionDescriptor dgetrfDesc = FunctionDescriptor.ofVoid(
-				JAVA_INT, // M
-				JAVA_INT, // N
+				ADDRESS,  // M (int*)
+				ADDRESS,  // N (int*)
 				ADDRESS,  // A (double*)
-				JAVA_INT, // LDA
+				ADDRESS,  // LDA (int*)
 				ADDRESS,  // IPIV (int*)
-				ADDRESS  // INFO (int*)
+				ADDRESS   // INFO (int*)
 			);
 			
 			FunctionDescriptor dgetriDesc = FunctionDescriptor.ofVoid(
-				JAVA_INT, // N
+				ADDRESS,  // N (int*)
 				ADDRESS,  // A (double*)
-				JAVA_INT, // LDA
+				ADDRESS,  // LDA (int*)
 				ADDRESS,  // IPIV (int*)
 				ADDRESS,  // WORK (double*)
-				JAVA_INT, // LWORK
+				ADDRESS,  // LWORK (int*)
 				ADDRESS   // INFO (int*)
 			);
 			
 			FunctionDescriptor dgetrsDesc = FunctionDescriptor.ofVoid(
 				ADDRESS,  // TRANS (char*)
-				JAVA_INT, // N
-				JAVA_INT, // NRHS
+				ADDRESS,  // N (int*)
+				ADDRESS,  // NRHS (int*)
 				ADDRESS,  // A (double*)
-				JAVA_INT, // LDA
+				ADDRESS,  // LDA (int*)
 				ADDRESS,  // IPIV (int*)
 				ADDRESS,  // B (double*)
-				JAVA_INT, // LDB
+				ADDRESS,  // LDB (int*)
 				ADDRESS   // INFO (int*)
 			);
 			
@@ -185,62 +175,6 @@ public final class AccelerateJulia {
 				
 				available = true;
 			}
-			
-			// Try to find sparse functions (may not be available in all Accelerate versions)
-			// Note: Actual Accelerate sparse API may differ - these are placeholders
-			try {
-				var sparseCreateSymbol = lookup.find("SparseMatrix_Double_Create");
-				var sparseDestroySymbol = lookup.find("SparseMatrix_Double_Destroy");
-				var sparseFactorizeSymbol = lookup.find("SparseFactorize");
-				var sparseSolveSymbol = lookup.find("SparseSolve");
-				var sparseFactorDestroySymbol = lookup.find("SparseOpaqueFactorization_Destroy");
-				
-				// Sparse API function descriptors (simplified - actual API may differ)
-				if (sparseCreateSymbol.isPresent()) {
-					FunctionDescriptor sparseCreateDesc = FunctionDescriptor.of(
-						ADDRESS,  // return SparseMatrix_Double*
-						JAVA_INT, // rows
-						JAVA_INT, // cols
-						JAVA_INT, // blockSize
-						ADDRESS,  // attributes
-						ADDRESS   // control
-					);
-					sparseCreateHandle = linker.downcallHandle(sparseCreateSymbol.get(), sparseCreateDesc);
-				}
-				
-				if (sparseDestroySymbol.isPresent()) {
-					FunctionDescriptor sparseDestroyDesc = FunctionDescriptor.ofVoid(ADDRESS);
-					sparseDestroyHandle = linker.downcallHandle(sparseDestroySymbol.get(), sparseDestroyDesc);
-				}
-				
-				if (sparseFactorizeSymbol.isPresent()) {
-					FunctionDescriptor sparseFactorizeDesc = FunctionDescriptor.of(
-						JAVA_INT, // return status
-						ADDRESS,  // matrix
-						ADDRESS,  // factorization
-						ADDRESS   // control
-					);
-					sparseFactorizeHandle = linker.downcallHandle(sparseFactorizeSymbol.get(), sparseFactorizeDesc);
-				}
-				
-				if (sparseSolveSymbol.isPresent()) {
-					FunctionDescriptor sparseSolveDesc = FunctionDescriptor.of(
-						JAVA_INT, // return status
-						ADDRESS,  // factorization
-						ADDRESS,  // rhs
-						ADDRESS   // solution
-					);
-					sparseSolveHandle = linker.downcallHandle(sparseSolveSymbol.get(), sparseSolveDesc);
-				}
-				
-				if (sparseFactorDestroySymbol.isPresent()) {
-					FunctionDescriptor sparseFactorDestroyDesc = FunctionDescriptor.ofVoid(ADDRESS);
-					sparseFactorDestroyHandle = linker.downcallHandle(sparseFactorDestroySymbol.get(), sparseFactorDestroyDesc);
-				}
-			} catch (Exception e) {
-				// Sparse functions may not be available - that's okay
-				System.err.println("Sparse matrix functions not available: " + e.getMessage());
-			}
 				} // end if (linker != null)
 			} // end if (AcceleratePlatform.isArm64MacOS())
 			
@@ -250,19 +184,12 @@ public final class AccelerateJulia {
 		}
 		
 		IS_AVAILABLE = available;
-		LINKER = linker;
-		ACCELERATE_LOOKUP = lookup;
 		dgemv = dgemvHandle;
 		dgemm = dgemmHandle;
 		dgesv = dgesvHandle;
 		dgetrf = dgetrfHandle;
 		dgetri = dgetriHandle;
 		dgetrs = dgetrsHandle;
-		sparse_matrix_create = sparseCreateHandle;
-		sparse_matrix_destroy = sparseDestroyHandle;
-		sparse_factorize = sparseFactorizeHandle;
-		sparse_solve = sparseSolveHandle;
-		sparse_factorization_destroy = sparseFactorDestroyHandle;
 	}
 	
 	public static boolean isAvailable() {
@@ -280,8 +207,22 @@ public final class AccelerateJulia {
 		
 		try (Arena arena = Arena.ofConfined()) {
 			MemorySegment trans = arena.allocateUtf8String("N");
-			MemorySegment alpha = arena.allocate(JAVA_DOUBLE, 1.0);
-			MemorySegment beta = arena.allocate(JAVA_DOUBLE, 0.0);
+			MemorySegment alpha = arena.allocate(JAVA_DOUBLE);
+			alpha.set(JAVA_DOUBLE, 0, 1.0);
+			MemorySegment beta = arena.allocate(JAVA_DOUBLE);
+			beta.set(JAVA_DOUBLE, 0, 0.0);
+			
+			// Allocate integer parameters (Fortran passes by reference)
+			MemorySegment mSeg = arena.allocate(JAVA_INT);
+			mSeg.set(JAVA_INT, 0, rowsA);
+			MemorySegment nSeg = arena.allocate(JAVA_INT);
+			nSeg.set(JAVA_INT, 0, colsA);
+			MemorySegment ldaSeg = arena.allocate(JAVA_INT);
+			ldaSeg.set(JAVA_INT, 0, rowsA);
+			MemorySegment incxSeg = arena.allocate(JAVA_INT);
+			incxSeg.set(JAVA_INT, 0, 1);
+			MemorySegment incySeg = arena.allocate(JAVA_INT);
+			incySeg.set(JAVA_INT, 0, 1);
 			
 			// Allocate and copy arrays
 			MemorySegment aSeg = arena.allocateArray(JAVA_DOUBLE, a);
@@ -289,8 +230,8 @@ public final class AccelerateJulia {
 			MemorySegment ySeg = arena.allocateArray(JAVA_DOUBLE, y);
 			
 			dgemv.invokeExact(
-				trans, rowsA, colsA, alpha, aSeg, rowsA,
-				xSeg, 1, beta, ySeg, 1
+				trans, mSeg, nSeg, alpha, aSeg, ldaSeg,
+				xSeg, incxSeg, beta, ySeg, incySeg
 			);
 			
 			// Copy result back
@@ -311,8 +252,24 @@ public final class AccelerateJulia {
 		
 		try (Arena arena = Arena.ofConfined()) {
 			MemorySegment trans = arena.allocateUtf8String("N");
-			MemorySegment alpha = arena.allocate(JAVA_DOUBLE, 1.0);
-			MemorySegment beta = arena.allocate(JAVA_DOUBLE, 0.0);
+			MemorySegment alpha = arena.allocate(JAVA_DOUBLE);
+			alpha.set(JAVA_DOUBLE, 0, 1.0);
+			MemorySegment beta = arena.allocate(JAVA_DOUBLE);
+			beta.set(JAVA_DOUBLE, 0, 0.0);
+			
+			// Allocate integer parameters (Fortran passes by reference)
+			MemorySegment mSeg = arena.allocate(JAVA_INT);
+			mSeg.set(JAVA_INT, 0, rowsA);
+			MemorySegment nSeg = arena.allocate(JAVA_INT);
+			nSeg.set(JAVA_INT, 0, colsB);
+			MemorySegment kSeg = arena.allocate(JAVA_INT);
+			kSeg.set(JAVA_INT, 0, k);
+			MemorySegment ldaSeg = arena.allocate(JAVA_INT);
+			ldaSeg.set(JAVA_INT, 0, rowsA);
+			MemorySegment ldbSeg = arena.allocate(JAVA_INT);
+			ldbSeg.set(JAVA_INT, 0, k);
+			MemorySegment ldcSeg = arena.allocate(JAVA_INT);
+			ldcSeg.set(JAVA_INT, 0, rowsA);
 			
 			// Allocate and copy arrays
 			MemorySegment aSeg = arena.allocateArray(JAVA_DOUBLE, a);
@@ -320,8 +277,8 @@ public final class AccelerateJulia {
 			MemorySegment cSeg = arena.allocateArray(JAVA_DOUBLE, c);
 			
 			dgemm.invokeExact(
-				trans, trans, rowsA, colsB, k, alpha,
-				aSeg, rowsA, bSeg, k, beta, cSeg, rowsA
+				trans, trans, mSeg, nSeg, kSeg, alpha,
+				aSeg, ldaSeg, bSeg, ldbSeg, beta, cSeg, ldcSeg
 			);
 			
 			// Copy result back
@@ -343,13 +300,23 @@ public final class AccelerateJulia {
 		if (!IS_AVAILABLE) throw new UnsupportedOperationException("Accelerate not available");
 		
 		try (Arena arena = Arena.ofConfined()) {
+			// Allocate integer parameters (Fortran passes by reference)
+			MemorySegment nSeg = arena.allocate(JAVA_INT);
+			nSeg.set(JAVA_INT, 0, n);
+			MemorySegment nrhsSeg = arena.allocate(JAVA_INT);
+			nrhsSeg.set(JAVA_INT, 0, nrhs);
+			MemorySegment ldaSeg = arena.allocate(JAVA_INT);
+			ldaSeg.set(JAVA_INT, 0, n);
+			MemorySegment ldbSeg = arena.allocate(JAVA_INT);
+			ldbSeg.set(JAVA_INT, 0, n);
+			
 			// Allocate and copy arrays
 			MemorySegment aSeg = arena.allocateArray(JAVA_DOUBLE, a);
 			MemorySegment bSeg = arena.allocateArray(JAVA_DOUBLE, b);
-			MemorySegment ipivSeg = arena.allocate(JAVA_INT, n);
-			MemorySegment infoSeg = arena.allocate(JAVA_INT, 0);
+			MemorySegment ipivSeg = arena.allocateArray(JAVA_INT, new int[n]);
+			MemorySegment infoSeg = arena.allocate(JAVA_INT);
 			
-			dgesv.invokeExact(n, nrhs, aSeg, n, ipivSeg, bSeg, n, infoSeg);
+			dgesv.invokeExact(nSeg, nrhsSeg, aSeg, ldaSeg, ipivSeg, bSeg, ldbSeg, infoSeg);
 			
 			int info = infoSeg.get(JAVA_INT, 0);
 			
@@ -375,27 +342,37 @@ public final class AccelerateJulia {
 		if (!IS_AVAILABLE) throw new UnsupportedOperationException("Accelerate not available");
 		
 		try (Arena arena = Arena.ofConfined()) {
+			// Allocate integer parameters (Fortran passes by reference)
+			MemorySegment nSeg = arena.allocate(JAVA_INT);
+			nSeg.set(JAVA_INT, 0, n);
+			MemorySegment ldaSeg = arena.allocate(JAVA_INT);
+			ldaSeg.set(JAVA_INT, 0, n);
+			MemorySegment lworkSeg = arena.allocate(JAVA_INT);
+			
 			// Allocate and copy array
 			MemorySegment aSeg = arena.allocateArray(JAVA_DOUBLE, a);
-			MemorySegment ipivSeg = arena.allocate(JAVA_INT, n);
-			MemorySegment infoSeg = arena.allocate(JAVA_INT, 0);
+			MemorySegment ipivSeg = arena.allocateArray(JAVA_INT, new int[n]);
+			MemorySegment infoSeg = arena.allocate(JAVA_INT);
 			
 			// Factorize first
-			dgetrf.invokeExact(n, n, aSeg, n, ipivSeg, infoSeg);
+			dgetrf.invokeExact(nSeg, nSeg, aSeg, ldaSeg, ipivSeg, infoSeg);
 			int info = infoSeg.get(JAVA_INT, 0);
 			if (info != 0) {
 				for (int i = 0; i < a.length; i++) {
+					// Keep the a array in sync with its native variable before returning info
 					a[i] = aSeg.getAtIndex(JAVA_DOUBLE, i);
 				}
 				return info;
 			}
 			
-			// Query workspace size (use heuristic: 64*n)
-			int lwork = 64 * n;
-			MemorySegment workSeg = arena.allocate(JAVA_DOUBLE, lwork);
+			// Query workspace size (use heuristic: 64*2*n) to match the rust implementation
+			int lwork = 64 * 2 * n;
+			lworkSeg.set(JAVA_INT, 0, lwork);
+			// JAVA_DOUBLE is 8 bytes, so we allocate 8 * lwork double bytes to match the rust implementation
+			MemorySegment workSeg = arena.allocateArray(JAVA_DOUBLE, new double[lwork]);
 			
 			// Invert
-			dgetri.invokeExact(n, aSeg, n, ipivSeg, workSeg, lwork, infoSeg);
+			dgetri.invokeExact(nSeg, aSeg, ldaSeg, ipivSeg, workSeg, lworkSeg, infoSeg);
 			info = infoSeg.get(JAVA_INT, 0);
 			
 			// Copy result back
@@ -417,16 +394,27 @@ public final class AccelerateJulia {
 		if (!IS_AVAILABLE) throw new UnsupportedOperationException("Accelerate not available");
 		
 		// Allocate persistent memory for factorization
+		// Arena.ofShared() has automatic cleanup of the memory when the arena is closed,
+		// so we don't need to manually free the memory like in the rust implementation
 		Arena arena = Arena.ofShared();
 		
 		try {
+			// Allocate integer parameters (Fortran passes by reference)
+			MemorySegment mSeg = arena.allocate(JAVA_INT);
+			mSeg.set(JAVA_INT, 0, n);
+			MemorySegment nSeg = arena.allocate(JAVA_INT);
+			nSeg.set(JAVA_INT, 0, n);
+			MemorySegment ldaSeg = arena.allocate(JAVA_INT);
+			ldaSeg.set(JAVA_INT, 0, n);
+			
 			// Allocate matrix copy and pivot indices
 			MemorySegment matrixSeg = arena.allocateArray(JAVA_DOUBLE, matrix);
-			MemorySegment ipivSeg = arena.allocate(JAVA_INT, n);
-			MemorySegment infoSeg = arena.allocate(JAVA_INT, 0);
+			// Allocate 32-bit int compared to rust 64 bit implementation
+			MemorySegment ipivSeg = arena.allocateArray(JAVA_INT, new int[n]);
+			MemorySegment infoSeg = arena.allocate(JAVA_INT);
 			
 			// Factorize
-			dgetrf.invokeExact(n, n, matrixSeg, n, ipivSeg, infoSeg);
+			dgetrf.invokeExact(mSeg, nSeg, matrixSeg, ldaSeg, ipivSeg, infoSeg);
 			int info = infoSeg.get(JAVA_INT, 0);
 			if (info != 0) {
 				arena.close();
@@ -461,13 +449,24 @@ public final class AccelerateJulia {
 		
 		try (Arena arena = Arena.ofConfined()) {
 			MemorySegment trans = arena.allocateUtf8String("N");
+			
+			// Allocate integer parameters (Fortran passes by reference)
+			MemorySegment nSeg = arena.allocate(JAVA_INT);
+			nSeg.set(JAVA_INT, 0, data.n);
+			MemorySegment nrhsSeg = arena.allocate(JAVA_INT);
+			nrhsSeg.set(JAVA_INT, 0, columns);
+			MemorySegment ldaSeg = arena.allocate(JAVA_INT);
+			ldaSeg.set(JAVA_INT, 0, data.n);
+			MemorySegment ldbSeg = arena.allocate(JAVA_INT);
+			ldbSeg.set(JAVA_INT, 0, data.n);
+			
 			// Allocate and copy array
 			MemorySegment bSeg = arena.allocateArray(JAVA_DOUBLE, b);
 			
 			// Solve using stored factorization
-			MemorySegment infoSeg = arena.allocate(JAVA_INT, 0);
+			MemorySegment infoSeg = arena.allocate(JAVA_INT);
 			dgetrs.invokeExact(
-				trans, data.n, columns, data.matrix, data.n, data.ipiv, bSeg, data.n, infoSeg
+				trans, nSeg, nrhsSeg, data.matrix, ldaSeg, data.ipiv, bSeg, ldbSeg, infoSeg
 			);
 			
 			int info = infoSeg.get(JAVA_INT, 0);
@@ -492,68 +491,5 @@ public final class AccelerateJulia {
 		if (data != null) {
 			data.arena.close();
 		}
-	}
-	
-	// Sparse matrix operations (using Accelerate sparse API)
-	// Note: These are placeholders - actual Accelerate sparse API implementation
-	// requires detailed knowledge of SparseMatrix_Double structure
-	
-	/**
-	 * Solves sparse system A * x = b using direct method
-	 */
-	public static void solveSparse(int n, int[] columnPointers, int[] rowIndices, 
-	                               double[] values, double[] b, double[] x) {
-		if (!IS_AVAILABLE || sparse_solve == null) {
-			throw new UnsupportedOperationException("Sparse solve not available");
-		}
-		
-		// Convert CSC to Accelerate sparse format and solve
-		// This requires proper SparseMatrix_Double structure definition
-		// Placeholder implementation
-		throw new UnsupportedOperationException(
-			"Sparse solve needs Accelerate sparse API implementation - " +
-			"requires SparseMatrix_Double structure definition");
-	}
-	
-	/**
-	 * Creates a sparse factorization
-	 */
-	public static long createSparseFactorization(int n, int[] columnPointers, 
-	                                             int[] rowIndices, double[] values) {
-		if (!IS_AVAILABLE || sparse_factorize == null) {
-			throw new UnsupportedOperationException("Sparse factorization not available");
-		}
-		
-		// Placeholder - needs Accelerate sparse API implementation
-		throw new UnsupportedOperationException(
-			"Sparse factorization needs Accelerate sparse API implementation");
-	}
-	
-	/**
-	 * Solves using sparse factorization
-	 */
-	public static void solveSparseFactorization(long factorization, double[] b, double[] x) {
-		if (!IS_AVAILABLE || sparse_solve == null) {
-			throw new UnsupportedOperationException("Sparse solve not available");
-		}
-		
-		// Placeholder
-		throw new UnsupportedOperationException("Sparse solve needs implementation");
-	}
-	
-	/**
-	 * Destroys sparse factorization
-	 */
-	public static void destroySparseFactorization(long factorization) {
-		if (sparse_factorization_destroy != null) {
-			// Placeholder - needs proper cleanup
-		}
-	}
-	
-	/**
-	 * Internal method to get factorization data (for testing/debugging)
-	 */
-	static FactorizationData getFactorizationData(long factorization) {
-		return FACTORIZATION_DATA.get(factorization);
 	}
 }

@@ -25,7 +25,7 @@ public class AccelerateDenseFactorization implements Factorization {
 	public static AccelerateDenseFactorization of(MatrixReader matrix) {
 		var dense = MatrixConverter.dense(matrix);
 		var n = dense.rows;
-		var pointer = AccelerateJulia.createDenseFactorization(dense.rows, dense.data);
+		var pointer = AccelerateFFI.createDenseFactorization(dense.rows, dense.data);
 		return new AccelerateDenseFactorization(n, pointer);
 	}
 
@@ -38,14 +38,14 @@ public class AccelerateDenseFactorization implements Factorization {
 	public double[] solve(int idx, double d) {
 		double[] b = new double[n];
 		b[idx] = d;
-		AccelerateJulia.solveDenseFactorization(pointer, 1, b);
+		AccelerateFFI.solveDenseFactorization(pointer, 1, b);
 		return b;
 	}
 
 	@Override
 	public double[] solve(double[] b) {
 		var x = Arrays.copyOf(b, b.length);
-		AccelerateJulia.solveDenseFactorization(pointer, 1, x);
+		AccelerateFFI.solveDenseFactorization(pointer, 1, x);
 		return x;
 	}
 
@@ -58,7 +58,7 @@ public class AccelerateDenseFactorization implements Factorization {
 		} else {
 			x = MatrixConverter.dense(b).data;
 		}
-		AccelerateJulia.solveDenseFactorization(pointer, b.columns(), x);
+		AccelerateFFI.solveDenseFactorization(pointer, b.columns(), x);
 		return new DenseMatrix(n, b.columns(), x);
 	}
 
@@ -71,7 +71,7 @@ public class AccelerateDenseFactorization implements Factorization {
 	public void dispose() {
 		if (isDisposed)
 			return;
-		AccelerateJulia.destroyDenseFactorization(pointer);
+		AccelerateFFI.destroyDenseFactorization(pointer);
 		isDisposed = true;
 	}
 }

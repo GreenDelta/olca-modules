@@ -2,7 +2,7 @@ package org.openlca.core.matrix.solvers;
 
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
-import org.openlca.core.matrix.solvers.accelerate.AccelerateJulia;
+import org.openlca.core.matrix.solvers.accelerate.AccelerateFFI;
 import org.openlca.core.matrix.solvers.accelerate.AcceleratePlatform;
 import org.openlca.core.matrix.solvers.accelerate.AccelerateSolver;
 import org.openlca.core.matrix.solvers.mkl.MKL;
@@ -26,7 +26,7 @@ public interface MatrixSolver {
 	 */
 	static MatrixSolver get() {
 		// Check for Accelerate on ARM64 macOS first (no library loading needed)
-		if (AcceleratePlatform.isArm64MacOS() && AccelerateJulia.isAvailable())
+		if (AcceleratePlatform.isArm64MacOS() && AccelerateFFI.isAvailable())
 			return new AccelerateSolver();
 		if (MKL.isLoaded())
 			return new MKLSolver();

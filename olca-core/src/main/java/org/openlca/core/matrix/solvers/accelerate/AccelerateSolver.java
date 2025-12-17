@@ -14,22 +14,18 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 
 /**
  * Matrix solver implementation using Apple Accelerate framework via Java 21 FFI.
- * This solver is available on ARM64 macOS and provides both dense and sparse
- * matrix operations without requiring external native libraries.
  */
 public class AccelerateSolver implements MatrixSolver {
 
 	public AccelerateSolver() {
-		if (!AccelerateJulia.isAvailable()) {
+		if (!AccelerateFFI.isAvailable()) {
 			throw new IllegalStateException("Accelerate framework not available on this platform");
 		}
 	}
 
 	@Override
 	public boolean hasSparseSupport() {
-		// Sparse support is available when Accelerate is available
-		// Note: Actual sparse implementation may need additional checks
-		return AccelerateJulia.isAvailable();
+		return false; // Sparse support not yet implemented
 	}
 
 	@Override
@@ -42,19 +38,13 @@ public class AccelerateSolver implements MatrixSolver {
 		if (!a.isSquare())
 			throw new NonSquareMatrixException(a.rows(), a.columns());
 
-		// For now, use dense solver for all matrices
-		// Sparse solver will be implemented when Accelerate sparse API is fully integrated
-		// TODO: Implement sparse solve when Accelerate sparse API is ready
-		// if (hasSparseSupport() && (a instanceof HashPointMatrix || a instanceof CSCMatrix)) {
-		//     // Use sparse solver
-		// }
-		
+		// Use dense solver for all matrices		
 		var A = MatrixConverter.dense(a);
 		var lu = A == a ? A.copy() : A;
 		double[] b = new double[A.rows()];
 		b[idx] = d;
 
-		int info = AccelerateJulia.solve(A.columns(), 1, lu.data, b);
+		int info = AccelerateFFI.solve(A.columns(), 1, lu.data, b);
 		if (info > 0)
 			throw new SingularMatrixException();
 		if (info < 0)
@@ -69,7 +59,7 @@ public class AccelerateSolver implements MatrixSolver {
 		}
 		var a = MatrixConverter.dense(m);
 		double[] y = new double[m.rows()];
-		AccelerateJulia.mvmult(m.rows(), m.columns(), a.data, x, y);
+		AccelerateFFI.mvmult(m.rows(), m.columns(), a.data, x, y);
 		return y;
 	}
 
@@ -79,7 +69,7 @@ public class AccelerateSolver implements MatrixSolver {
 			throw new NonSquareMatrixException(a.rows(), a.columns());
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix i = _a == a ? _a.copy() : _a;
-		int info = AccelerateJulia.invert(_a.columns(), i.data);
+		int info = AccelerateFFI.invert(_a.columns(), i.data);
 		if (info > 0)
 			throw new SingularMatrixException();
 		if (info < 0)
@@ -96,9 +86,9 @@ public class AccelerateSolver implements MatrixSolver {
 		int k = _a.columns();
 		DenseMatrix c = new DenseMatrix(rowsA, colsB);
 		if (colsB == 1) {
-			AccelerateJulia.mvmult(rowsA, k, _a.data, _b.data, c.data);
+			AccelerateFFI.mvmult(rowsA, k, _a.data, _b.data, c.data);
 		} else {
-			AccelerateJulia.mmult(rowsA, colsB, k, _a.data, _b.data, c.data);
+			AccelerateFFI.mmult(rowsA, colsB, k, _a.data, _b.data, c.data);
 		}
 		return c;
 	}
@@ -108,17 +98,7 @@ public class AccelerateSolver implements MatrixSolver {
 		if (!matrix.isSquare())
 			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
 		
-		// For now, use dense factorization for all matrices
-		// Sparse factorization will be implemented when Accelerate sparse API is ready
-		// TODO: Implement sparse factorization when Accelerate sparse API is ready
-		// if (hasSparseSupport()) {
-		//     if (matrix instanceof HashPointMatrix hpm) {
-		//         return AccelerateSparseFactorization.of(hpm.compress());
-		//     }
-		//     if (matrix instanceof CSCMatrix csc) {
-		//         return AccelerateSparseFactorization.of(csc);
-		//     }
-		// }
+		// Use dense factorization for all matrices
 		return AccelerateDenseFactorization.of(matrix);
 	}
 }

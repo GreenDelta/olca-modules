@@ -75,6 +75,7 @@ public class SystemCalculator {
 
 	private LcaResult solve(CalculationSetup setup, int type) {
 		log.info("calculate result for {}", setup.target());
+		long start = System.currentTimeMillis();
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
 		log.trace("solved {} sub-systems", subs.size());
@@ -91,7 +92,8 @@ public class SystemCalculator {
 			case EAGER -> ResultProviders.solveEager(context);
 			default -> ResultProviders.solve(context);
 		};
-		log.info("selected provider {}", provider);
+		long duration = System.currentTimeMillis() - start;
+		log.info("selected provider {} (calculation took {} ms)", provider, duration);
 
 		var result = new LcaResult(provider);
 
