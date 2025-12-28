@@ -25,7 +25,7 @@ public class AccelerateSolver implements MatrixSolver {
 
 	@Override
 	public boolean hasSparseSupport() {
-		return false; // Sparse support not yet implemented
+		return AccelerateFFI.isSparseFactorizationAvailable();
 	}
 
 	@Override
@@ -98,7 +98,12 @@ public class AccelerateSolver implements MatrixSolver {
 		if (!matrix.isSquare())
 			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
 		
-		// Use dense factorization for all matrices
+		if (hasSparseSupport()) {
+			if (matrix instanceof HashPointMatrix hpm)
+				return AccelerateSparseFactorization.of(hpm.compress());
+			if (matrix instanceof CSCMatrix csc)
+				return AccelerateSparseFactorization.of(csc);
+		}
 		return AccelerateDenseFactorization.of(matrix);
 	}
 }

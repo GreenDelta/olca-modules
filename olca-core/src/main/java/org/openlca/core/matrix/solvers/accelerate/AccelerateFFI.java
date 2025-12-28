@@ -27,6 +27,11 @@ public final class AccelerateFFI {
 	private static final MethodHandle dgetri;
 	private static final MethodHandle dgetrs;
 	
+	// Sparse factorization function handles
+	private static final MethodHandle sparseFactorCreateHandle;
+	private static final MethodHandle sparseFactorSolveHandle;
+	private static final MethodHandle sparseFactorDestroyHandle;
+	
 	// Track active factorizations: id -> [arena, matrix segment, ipiv segment, n]
 	private static final ConcurrentHashMap<Long, FactorizationData> FACTORIZATION_DATA = new ConcurrentHashMap<>();
 	private static final AtomicLong FACTORIZATION_COUNTER = new AtomicLong(1);
@@ -46,6 +51,22 @@ public final class AccelerateFFI {
 		}
 	}
 	
+	// Internal structure to store sparse factorization data
+	private static class SparseFactorizationData {
+		final Arena arena;
+		final long factorPtr;  // Opaque pointer from C
+		final int n;
+		
+		SparseFactorizationData(Arena arena, long factorPtr, int n) {
+			this.arena = arena;
+			this.factorPtr = factorPtr;
+			this.n = n;
+		}
+	}
+	
+	// Separate map for sparse factorizations
+	private static final ConcurrentHashMap<Long, SparseFactorizationData> SPARSE_FACTORIZATION_DATA = new ConcurrentHashMap<>();
+	
 	static {
 		boolean available = false;
 		Linker linker = null;
@@ -53,6 +74,9 @@ public final class AccelerateFFI {
 		MethodHandle dgemvHandle = null, dgemmHandle = null;
 		MethodHandle dgesvHandle = null, dgetrfHandle = null;
 		MethodHandle dgetriHandle = null, dgetrsHandle = null;
+		MethodHandle sparseCreateHandle = null;
+		MethodHandle sparseSolveHandle = null;
+		MethodHandle sparseDestroyHandle = null;
 		
 		try {
 			// Check if we're on macOS ARM64
@@ -175,6 +199,95 @@ public final class AccelerateFFI {
 				
 				available = true;
 			}
+			
+			// Try to load sparse wrapper library
+			try {
+				// Load from resources (Maven will place it there)
+				String osArch = System.getProperty("os.arch");
+				String osName = System.getProperty("os.name").toLowerCase();
+				
+				if (osName.contains("mac") && (osArch.equals("aarch64") || osArch.equals("arm64"))) {
+					// Try loading from classpath resources first
+					java.net.URL libUrl = AccelerateFFI.class.getResource(
+						"/native/darwin-aarch64/libaccelerate_sparse_wrapper.dylib"
+					);
+					
+					if (libUrl != null) {
+						// Extract from JAR if needed, or load directly
+						String libPath = libUrl.getPath();
+						if (libPath.startsWith("file:")) {
+							libPath = libPath.substring(5);
+						}
+						// Handle JAR-internal resources (would need extraction)
+						if (libPath.startsWith("jar:")) {
+							// For JAR resources, we'd need to extract to temp file
+							// For now, try system library path as fallback
+							try {
+								System.loadLibrary("accelerate_sparse_wrapper");
+							} catch (UnsatisfiedLinkError e) {
+								// Library not found - sparse support will be unavailable
+								System.err.println("Sparse wrapper library not found in JAR, sparse factorization disabled");
+							}
+						} else {
+							System.load(libPath);
+						}
+					} else {
+						// Fallback: try system library path
+						try {
+							System.loadLibrary("accelerate_sparse_wrapper");
+						} catch (UnsatisfiedLinkError e) {
+							// Library not found - sparse support will be unavailable
+							System.err.println("Sparse wrapper library not found, sparse factorization disabled");
+						}
+					}
+				}
+			} catch (Exception e) {
+				System.err.println("Failed to load sparse wrapper library: " + e.getMessage());
+				// Continue without sparse support
+			}
+			
+			// Sparse factorization function descriptors
+			FunctionDescriptor sparseFactorCreateDesc = FunctionDescriptor.of(
+				ADDRESS,        // return: void* (opaque factorization pointer)
+				JAVA_INT,       // param: int n
+				ADDRESS,        // param: int64_t* colPtr
+				ADDRESS,        // param: int64_t* rowInd
+				ADDRESS         // param: double* values
+			);
+			
+			FunctionDescriptor sparseFactorSolveDesc = FunctionDescriptor.of(
+				JAVA_INT,       // return: int (error code, 0 = success)
+				ADDRESS,        // param: void* factor
+				ADDRESS,        // param: double* b (input)
+				ADDRESS         // param: double* x (output)
+			);
+			
+			FunctionDescriptor sparseFactorDestroyDesc = FunctionDescriptor.ofVoid(
+				ADDRESS         // param: void* factor
+			);
+			
+			// Find sparse wrapper symbols
+			var sparseCreateSymbol = lookup.find("accelerate_sparse_factor_create");
+			var sparseSolveSymbol = lookup.find("accelerate_sparse_factor_solve");
+			var sparseDestroySymbol = lookup.find("accelerate_sparse_factor_destroy");
+			
+			if (sparseCreateSymbol.isPresent() && 
+				sparseSolveSymbol.isPresent() && 
+				sparseDestroySymbol.isPresent()) {
+				
+				sparseCreateHandle = linker.downcallHandle(
+					sparseCreateSymbol.get(), 
+					sparseFactorCreateDesc
+				);
+				sparseSolveHandle = linker.downcallHandle(
+					sparseSolveSymbol.get(), 
+					sparseFactorSolveDesc
+				);
+				sparseDestroyHandle = linker.downcallHandle(
+					sparseDestroySymbol.get(), 
+					sparseFactorDestroyDesc
+				);
+			}
 				} // end if (linker != null)
 			} // end if (AcceleratePlatform.isArm64MacOS())
 			
@@ -190,10 +303,20 @@ public final class AccelerateFFI {
 		dgetrf = dgetrfHandle;
 		dgetri = dgetriHandle;
 		dgetrs = dgetrsHandle;
+		sparseFactorCreateHandle = sparseCreateHandle;
+		sparseFactorSolveHandle = sparseSolveHandle;
+		sparseFactorDestroyHandle = sparseDestroyHandle;
 	}
 	
 	public static boolean isAvailable() {
 		return IS_AVAILABLE;
+	}
+	
+	/**
+	 * Checks if sparse factorization is available
+	 */
+	public static boolean isSparseFactorizationAvailable() {
+		return IS_AVAILABLE && sparseFactorCreateHandle != null;
 	}
 	
 	// BLAS operations
@@ -490,6 +613,114 @@ public final class AccelerateFFI {
 		FactorizationData data = FACTORIZATION_DATA.remove(factorization);
 		if (data != null) {
 			data.arena.close();
+		}
+	}
+
+	/* Sparse factorization */
+
+	/**
+	 * Creates a sparse factorization from CSC format
+	 * @return factorization ID (long) - must be disposed with destroySparseFactorization
+	 */
+	public static long createSparseFactorization(
+		int n,
+		int[] columnPointers,
+		int[] rowIndices,
+		double[] values) {
+		if (!IS_AVAILABLE || sparseFactorCreateHandle == null) {
+			throw new UnsupportedOperationException("Sparse factorization not available");
+		}
+		
+		Arena arena = Arena.ofShared();
+		
+		try {
+			// Convert int[] to int64_t* for C
+			// Note: C expects int64_t, but Java int[] is int32_t
+			// We need to convert or the C code needs to handle both
+			MemorySegment colPtrSeg = arena.allocateArray(JAVA_LONG, 
+				java.util.Arrays.stream(columnPointers).mapToLong(i -> i).toArray());
+			MemorySegment rowIndSeg = arena.allocateArray(JAVA_LONG,
+				java.util.Arrays.stream(rowIndices).mapToLong(i -> i).toArray());
+			MemorySegment valuesSeg = arena.allocateArray(JAVA_DOUBLE, values);
+			
+			// Call C function - n is passed by value as int
+			MemorySegment factorPtr = (MemorySegment) sparseFactorCreateHandle.invokeExact(
+				n,
+				colPtrSeg,
+				rowIndSeg,
+				valuesSeg
+			);
+			
+			if (factorPtr == null || factorPtr.address() == 0) {
+				arena.close();
+				throw new RuntimeException("Sparse factorization creation failed");
+			}
+			
+			long id = FACTORIZATION_COUNTER.getAndIncrement();
+			SPARSE_FACTORIZATION_DATA.put(id, new SparseFactorizationData(arena, factorPtr.address(), n));
+			
+			return id;
+		} catch (Throwable e) {
+			arena.close();
+			throw new RuntimeException("createSparseFactorization failed", e);
+		}
+	}
+
+	/**
+	 * Solves using a sparse factorization
+	 */
+	public static void solveSparseFactorization(long factorization, double[] b, double[] x) {
+		if (!IS_AVAILABLE || sparseFactorSolveHandle == null) {
+			throw new UnsupportedOperationException("Sparse factorization not available");
+		}
+		
+		SparseFactorizationData data = SPARSE_FACTORIZATION_DATA.get(factorization);
+		if (data == null) {
+			throw new IllegalArgumentException("Invalid sparse factorization: " + factorization);
+		}
+		
+		try (Arena arena = Arena.ofConfined()) {
+			MemorySegment factorPtr = MemorySegment.ofAddress(data.factorPtr);
+			MemorySegment bSeg = arena.allocateArray(JAVA_DOUBLE, b);
+			MemorySegment xSeg = arena.allocateArray(JAVA_DOUBLE, x);
+			
+			int result = (int) sparseFactorSolveHandle.invokeExact(
+				factorPtr,
+				bSeg,
+				xSeg
+			);
+			
+			if (result != 0) {
+				throw new RuntimeException("Sparse solve failed with code: " + result);
+			}
+			
+			// Copy result back
+			for (int i = 0; i < x.length; i++) {
+				x[i] = xSeg.getAtIndex(JAVA_DOUBLE, i);
+			}
+		} catch (Throwable e) {
+			throw new RuntimeException("solveSparseFactorization failed", e);
+		}
+	}
+
+	/**
+	 * Destroys a sparse factorization and frees its memory
+	 */
+	public static void destroySparseFactorization(long factorization) {
+		if (sparseFactorDestroyHandle == null) {
+			return;
+		}
+		
+		SparseFactorizationData data = SPARSE_FACTORIZATION_DATA.remove(factorization);
+		if (data != null) {
+			try (Arena arena = Arena.ofConfined()) {
+				MemorySegment factorPtr = MemorySegment.ofAddress(data.factorPtr);
+				sparseFactorDestroyHandle.invokeExact(factorPtr);
+			} catch (Throwable e) {
+				System.err.println("Error destroying sparse factorization: " + e.getMessage());
+			} finally {
+				data.arena.close();
+			}
 		}
 	}
 }
