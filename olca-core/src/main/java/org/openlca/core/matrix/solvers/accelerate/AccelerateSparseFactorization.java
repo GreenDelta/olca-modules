@@ -2,6 +2,7 @@ package org.openlca.core.matrix.solvers.accelerate;
 
 import java.util.Arrays;
 
+import org.openlca.core.matrix.format.AccelerateSparseMatrix;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.Matrix;
@@ -22,6 +23,21 @@ public class AccelerateSparseFactorization implements Factorization {
 		this.pointer = pointer;
 	}
 
+	/**
+	 * Creates factorization from an AccelerateSparseMatrix (zero conversion overhead).
+	 */
+	public static AccelerateSparseFactorization of(AccelerateSparseMatrix matrix) {
+		var pointer = AccelerateFFI.createSparseFactorization(
+				matrix.rows,
+				matrix.columnStarts,
+				matrix.rowIndices,
+				matrix.values);
+		return new AccelerateSparseFactorization(matrix.rows, pointer);
+	}
+
+	/**
+	 * Creates factorization from a CSCMatrix.
+	 */
 	public static AccelerateSparseFactorization of(CSCMatrix matrix) {
 		var pointer = AccelerateFFI.createSparseFactorization(
 				matrix.rows,

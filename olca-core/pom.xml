@@ -164,8 +164,15 @@
 								<exec executable="gcc" failonerror="true">
 									<arg value="-shared"/>
 									<arg value="-fPIC"/>
+									<arg value="-arch"/>
+									<arg value="arm64"/>
 									<arg value="-std=c11"/>
 									<arg value="-O2"/>
+									<arg value="-fvisibility=default"/>
+									<arg value="-Wl,-flat_namespace"/>
+									<arg value="-Wl,-undefined,dynamic_lookup"/>
+									<arg value="-install_name"/>
+									<arg value="@rpath/libaccelerate_sparse_wrapper.dylib"/>
 									<arg value="-o"/>
 									<arg value="${outputFile}"/>
 									<arg value="${srcFile}"/>
@@ -180,7 +187,7 @@
 				</executions>
 			</plugin>
 
-			<!-- Copy native library to resources - with existence check -->
+			<!-- Copy native library to resources - ensure osx-aarch64 is always available on macOS -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -188,12 +195,13 @@
 				<executions>
 					<execution>
 						<id>copy-native-lib</id>
-						<phase>process-resources</phase>
+						<phase>compile</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
 						<configuration>
 							<target>
+								<!-- Copy from detected classifier directory -->
 								<property name="srcLib" 
 								          value="${project.build.directory}/native/${os.detected.classifier}/libaccelerate_sparse_wrapper.dylib"/>
 								<property name="destDir" 
@@ -203,6 +211,15 @@
 								
 								<!-- Copy library using fileset (only copies if file exists) -->
 								<copy todir="${destDir}" failonerror="false" verbose="false" quiet="true">
+									<fileset file="${srcLib}" erroronmissingdir="false"/>
+								</copy>
+								
+								<!-- On macOS, also always copy to osx-aarch64 if the library exists -->
+								<!-- This ensures the library is available even if os.detected.classifier is wrong -->
+								<property name="aarch64DestDir" 
+								          value="${project.build.directory}/classes/native/osx-aarch64"/>
+								<mkdir dir="${aarch64DestDir}"/>
+								<copy todir="${aarch64DestDir}" failonerror="false" verbose="false" quiet="true">
 									<fileset file="${srcLib}" erroronmissingdir="false"/>
 								</copy>
 								

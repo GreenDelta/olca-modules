@@ -28,9 +28,10 @@ public final class AccelerateFFI {
 	private static final MethodHandle dgetrs;
 	
 	// Sparse factorization function handles
-	private static final MethodHandle sparseFactorCreateHandle;
-	private static final MethodHandle sparseFactorSolveHandle;
-	private static final MethodHandle sparseFactorDestroyHandle;
+	// Note: Not final because they may be set later via loadSparseWrapperFrom()
+	private static volatile MethodHandle sparseFactorCreateHandle;
+	private static volatile MethodHandle sparseFactorSolveHandle;
+	private static volatile MethodHandle sparseFactorDestroyHandle;
 	
 	// Track active factorizations: id -> [arena, matrix segment, ipiv segment, n]
 	private static final ConcurrentHashMap<Long, FactorizationData> FACTORIZATION_DATA = new ConcurrentHashMap<>();
@@ -67,10 +68,19 @@ public final class AccelerateFFI {
 	// Separate map for sparse factorizations
 	private static final ConcurrentHashMap<Long, SparseFactorizationData> SPARSE_FACTORIZATION_DATA = new ConcurrentHashMap<>();
 	
+	// Linker and lookup for FFI operations
+	private static Linker linker;
+	private static SymbolLookup lookup;
+	
+	// Sparse factorization function descriptors (needed for loadSparseWrapperFrom)
+	private static FunctionDescriptor sparseFactorCreateDesc;
+	private static FunctionDescriptor sparseFactorSolveDesc;
+	private static FunctionDescriptor sparseFactorDestroyDesc;
+	
 	static {
 		boolean available = false;
-		Linker linker = null;
-		SymbolLookup lookup = null;
+		Linker staticLinker = null;
+		SymbolLookup staticLookup = null;
 		MethodHandle dgemvHandle = null, dgemmHandle = null;
 		MethodHandle dgesvHandle = null, dgetrfHandle = null;
 		MethodHandle dgetriHandle = null, dgetrsHandle = null;
@@ -81,7 +91,7 @@ public final class AccelerateFFI {
 		try {
 			// Check if we're on macOS ARM64
 			if (AcceleratePlatform.isArm64MacOS()) {
-				linker = Linker.nativeLinker();
+				staticLinker = Linker.nativeLinker();
 				
 				// Load Accelerate framework
 				// On macOS, frameworks can be loaded via System.loadLibrary
@@ -94,12 +104,12 @@ public final class AccelerateFFI {
 					} catch (UnsatisfiedLinkError e2) {
 						System.err.println("Failed to load Accelerate framework: " + e2.getMessage());
 						// Leave everything as null/default - will skip initialization
-						linker = null;
+						staticLinker = null;
 					}
 				}
 				
-				if (linker != null) {
-					lookup = SymbolLookup.loaderLookup();
+				if (staticLinker != null) {
+					staticLookup = SymbolLookup.loaderLookup();
 			
 			// BLAS function descriptors
 			// Note: Fortran BLAS/LAPACK pass all integer parameters by reference (as pointers)
@@ -179,75 +189,31 @@ public final class AccelerateFFI {
 			);
 			
 			// Find BLAS/LAPACK symbols (Accelerate uses standard BLAS/LAPACK naming with underscore)
-			var dgemvSymbol = lookup.find("dgemv_");
-			var dgemmSymbol = lookup.find("dgemm_");
-			var dgesvSymbol = lookup.find("dgesv_");
-			var dgetrfSymbol = lookup.find("dgetrf_");
-			var dgetriSymbol = lookup.find("dgetri_");
-			var dgetrsSymbol = lookup.find("dgetrs_");
+			var dgemvSymbol = staticLookup.find("dgemv_");
+			var dgemmSymbol = staticLookup.find("dgemm_");
+			var dgesvSymbol = staticLookup.find("dgesv_");
+			var dgetrfSymbol = staticLookup.find("dgetrf_");
+			var dgetriSymbol = staticLookup.find("dgetri_");
+			var dgetrsSymbol = staticLookup.find("dgetrs_");
 			
 			if (dgemvSymbol.isPresent() && dgemmSymbol.isPresent() && 
 			    dgesvSymbol.isPresent() && dgetrfSymbol.isPresent()) {
-				dgemvHandle = linker.downcallHandle(dgemvSymbol.get(), dgemvDesc);
-				dgemmHandle = linker.downcallHandle(dgemmSymbol.get(), dgemmDesc);
-				dgesvHandle = linker.downcallHandle(dgesvSymbol.get(), dgesvDesc);
-				dgetrfHandle = linker.downcallHandle(dgetrfSymbol.get(), dgetrfDesc);
+				dgemvHandle = staticLinker.downcallHandle(dgemvSymbol.get(), dgemvDesc);
+				dgemmHandle = staticLinker.downcallHandle(dgemmSymbol.get(), dgemmDesc);
+				dgesvHandle = staticLinker.downcallHandle(dgesvSymbol.get(), dgesvDesc);
+				dgetrfHandle = staticLinker.downcallHandle(dgetrfSymbol.get(), dgetrfDesc);
 				dgetriHandle = dgetriSymbol.isPresent() 
-					? linker.downcallHandle(dgetriSymbol.get(), dgetriDesc) : null;
+					? staticLinker.downcallHandle(dgetriSymbol.get(), dgetriDesc) : null;
 				dgetrsHandle = dgetrsSymbol.isPresent()
-					? linker.downcallHandle(dgetrsSymbol.get(), dgetrsDesc) : null;
+					? staticLinker.downcallHandle(dgetrsSymbol.get(), dgetrsDesc) : null;
 				
 				available = true;
 			}
 			
-			// Try to load sparse wrapper library
-			try {
-				// Load from resources (Maven will place it there)
-				String osArch = System.getProperty("os.arch");
-				String osName = System.getProperty("os.name").toLowerCase();
-				
-				if (osName.contains("mac") && (osArch.equals("aarch64") || osArch.equals("arm64"))) {
-					// Try loading from classpath resources first
-					java.net.URL libUrl = AccelerateFFI.class.getResource(
-						"/native/darwin-aarch64/libaccelerate_sparse_wrapper.dylib"
-					);
-					
-					if (libUrl != null) {
-						// Extract from JAR if needed, or load directly
-						String libPath = libUrl.getPath();
-						if (libPath.startsWith("file:")) {
-							libPath = libPath.substring(5);
-						}
-						// Handle JAR-internal resources (would need extraction)
-						if (libPath.startsWith("jar:")) {
-							// For JAR resources, we'd need to extract to temp file
-							// For now, try system library path as fallback
-							try {
-								System.loadLibrary("accelerate_sparse_wrapper");
-							} catch (UnsatisfiedLinkError e) {
-								// Library not found - sparse support will be unavailable
-								System.err.println("Sparse wrapper library not found in JAR, sparse factorization disabled");
-							}
-						} else {
-							System.load(libPath);
-						}
-					} else {
-						// Fallback: try system library path
-						try {
-							System.loadLibrary("accelerate_sparse_wrapper");
-						} catch (UnsatisfiedLinkError e) {
-							// Library not found - sparse support will be unavailable
-							System.err.println("Sparse wrapper library not found, sparse factorization disabled");
-						}
-					}
-				}
-			} catch (Exception e) {
-				System.err.println("Failed to load sparse wrapper library: " + e.getMessage());
-				// Continue without sparse support
-			}
+			// Sparse wrapper library will be loaded separately via loadSparseWrapperFrom()
 			
 			// Sparse factorization function descriptors
-			FunctionDescriptor sparseFactorCreateDesc = FunctionDescriptor.of(
+			sparseFactorCreateDesc = FunctionDescriptor.of(
 				ADDRESS,        // return: void* (opaque factorization pointer)
 				JAVA_INT,       // param: int n
 				ADDRESS,        // param: int64_t* colPtr
@@ -255,40 +221,19 @@ public final class AccelerateFFI {
 				ADDRESS         // param: double* values
 			);
 			
-			FunctionDescriptor sparseFactorSolveDesc = FunctionDescriptor.of(
+			sparseFactorSolveDesc = FunctionDescriptor.of(
 				JAVA_INT,       // return: int (error code, 0 = success)
 				ADDRESS,        // param: void* factor
 				ADDRESS,        // param: double* b (input)
 				ADDRESS         // param: double* x (output)
 			);
 			
-			FunctionDescriptor sparseFactorDestroyDesc = FunctionDescriptor.ofVoid(
+			sparseFactorDestroyDesc = FunctionDescriptor.ofVoid(
 				ADDRESS         // param: void* factor
 			);
 			
-			// Find sparse wrapper symbols
-			var sparseCreateSymbol = lookup.find("accelerate_sparse_factor_create");
-			var sparseSolveSymbol = lookup.find("accelerate_sparse_factor_solve");
-			var sparseDestroySymbol = lookup.find("accelerate_sparse_factor_destroy");
-			
-			if (sparseCreateSymbol.isPresent() && 
-				sparseSolveSymbol.isPresent() && 
-				sparseDestroySymbol.isPresent()) {
-				
-				sparseCreateHandle = linker.downcallHandle(
-					sparseCreateSymbol.get(), 
-					sparseFactorCreateDesc
-				);
-				sparseSolveHandle = linker.downcallHandle(
-					sparseSolveSymbol.get(), 
-					sparseFactorSolveDesc
-				);
-				sparseDestroyHandle = linker.downcallHandle(
-					sparseDestroySymbol.get(), 
-					sparseFactorDestroyDesc
-				);
-			}
-				} // end if (linker != null)
+			// Sparse symbols will be looked up when library is loaded via loadSparseWrapperFrom()
+				} // end if (staticLinker != null)
 			} // end if (AcceleratePlatform.isArm64MacOS())
 			
 		} catch (Exception e) {
@@ -297,6 +242,8 @@ public final class AccelerateFFI {
 		}
 		
 		IS_AVAILABLE = available;
+		linker = staticLinker;
+		lookup = staticLookup;
 		dgemv = dgemvHandle;
 		dgemm = dgemmHandle;
 		dgesv = dgesvHandle;
@@ -317,6 +264,260 @@ public final class AccelerateFFI {
 	 */
 	public static boolean isSparseFactorizationAvailable() {
 		return IS_AVAILABLE && sparseFactorCreateHandle != null;
+	}
+	
+	/**
+	 * Loads the sparse wrapper library from the given directory.
+	 * Similar to NativeLib.loadFrom(), extracts from JAR if needed and loads the library.
+	 * 
+	 * @param root the root directory (workspace or install location)
+	 * @return true if the library was successfully loaded
+	 */
+	public static boolean loadSparseWrapperFrom(java.io.File root) {
+		// If already loaded, return true
+		if (sparseFactorCreateHandle != null) {
+			return true;
+		}
+		
+		synchronized (AccelerateFFI.class) {
+			// Double-check after acquiring lock
+			if (sparseFactorCreateHandle != null) {
+				return true;
+			}
+			
+			if (root == null || !root.exists()) {
+				System.err.println("AccelerateFFI.loadSparseWrapperFrom: root directory is null or does not exist: " + root);
+				return false;
+			}
+			
+			String osName = System.getProperty("os.name");
+			String osArch = System.getProperty("os.arch");
+			if (!osName.toLowerCase().contains("mac")) {
+				return false;
+			}
+			
+			// Determine the Maven classifier path based on architecture
+			String classifier = (osArch.equals("aarch64") || osArch.equals("arm64")) 
+				? "osx-aarch64" : "osx-x86_64";
+			
+			// Target directory: root/native/osx-aarch64/
+			java.io.File libDir = new java.io.File(root, "native/" + classifier);
+			java.io.File libFile = new java.io.File(libDir, "libaccelerate_sparse_wrapper.dylib");
+			
+			System.err.println("AccelerateFFI.loadSparseWrapperFrom: Target library path: " + libFile.getAbsolutePath());
+			
+			// If library doesn't exist, try to extract from JAR
+			if (!libFile.exists()) {
+				String resourcePath = "/native/" + classifier + "/libaccelerate_sparse_wrapper.dylib";
+				
+				// Debug: Check where the class is loaded from
+				java.net.URL classUrl = AccelerateFFI.class.getResource("/" + AccelerateFFI.class.getName().replace('.', '/') + ".class");
+				System.err.println("AccelerateFFI.loadSparseWrapperFrom: AccelerateFFI class loaded from: " + classUrl);
+				
+				// Try multiple ways to find the resource
+				java.net.URL libUrl = AccelerateFFI.class.getResource(resourcePath);
+				if (libUrl == null) {
+					// Try using class loader directly
+					java.lang.ClassLoader cl = AccelerateFFI.class.getClassLoader();
+					if (cl != null) {
+						libUrl = cl.getResource(resourcePath);
+						System.err.println("AccelerateFFI.loadSparseWrapperFrom: Tried ClassLoader.getResource: " + libUrl);
+					}
+				}
+				if (libUrl == null) {
+					// Try with Thread context class loader
+					java.lang.ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+					if (tcl != null) {
+						libUrl = tcl.getResource(resourcePath);
+						System.err.println("AccelerateFFI.loadSparseWrapperFrom: Tried Thread context ClassLoader.getResource: " + libUrl);
+					}
+				}
+				
+				if (libUrl == null) {
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Resource not found in JAR: " + resourcePath);
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Tried AccelerateFFI.class.getResource(), ClassLoader.getResource(), and Thread context ClassLoader.getResource()");
+					return false;
+				}
+				
+				System.err.println("AccelerateFFI.loadSparseWrapperFrom: Found resource URL: " + libUrl);
+				
+				try {
+					if (!libDir.exists()) {
+						libDir.mkdirs();
+					}
+					
+					// Extract library from JAR
+					try (java.io.InputStream in = libUrl.openStream();
+						 java.io.FileOutputStream out = new java.io.FileOutputStream(libFile)) {
+						byte[] buffer = new byte[8192];
+						int bytesRead;
+						while ((bytesRead = in.read(buffer)) != -1) {
+							out.write(buffer, 0, bytesRead);
+						}
+					}
+					
+					// Make file executable (required for dylib on macOS)
+					libFile.setExecutable(true, false);
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Extracted library to " + libFile);
+					
+				} catch (java.io.IOException e) {
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Failed to extract library: " + e.getMessage());
+					return false;
+				}
+			}
+			
+			if (!libFile.exists() || linker == null) {
+				return false;
+			}
+			
+			try {
+				// Use dlopen to get a handle to the library, then use dlsym with that handle
+				// This is more reliable than RTLD_DEFAULT on macOS with two-level namespace
+				SymbolLookup systemLookup = SymbolLookup.loaderLookup();
+				var dlopenSymbol = systemLookup.find("dlopen");
+				var dlsymSymbol = systemLookup.find("dlsym");
+				var dlcloseSymbol = systemLookup.find("dlclose");
+				
+				if (!dlopenSymbol.isPresent() || !dlsymSymbol.isPresent()) {
+					SymbolLookup defaultLookup = linker.defaultLookup();
+					if (!dlopenSymbol.isPresent()) dlopenSymbol = defaultLookup.find("dlopen");
+					if (!dlsymSymbol.isPresent()) dlsymSymbol = defaultLookup.find("dlsym");
+					if (!dlcloseSymbol.isPresent()) dlcloseSymbol = defaultLookup.find("dlclose");
+				}
+				
+				if (dlopenSymbol.isPresent() && dlsymSymbol.isPresent()) {
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Found dlopen/dlsym, using them to get symbol addresses");
+					
+					// dlopen signature: void* dlopen(const char* path, int mode)
+					// RTLD_LAZY = 1, RTLD_NOW = 2, RTLD_GLOBAL = 0x8
+					FunctionDescriptor dlopenDesc = FunctionDescriptor.of(
+						ADDRESS,  // return: void* handle
+						ADDRESS,  // param: const char* path
+						JAVA_INT  // param: int mode
+					);
+					
+					// dlsym signature: void* dlsym(void* handle, const char* symbol)
+					FunctionDescriptor dlsymDesc = FunctionDescriptor.of(
+						ADDRESS,  // return: void*
+						ADDRESS,  // param: void* handle
+						ADDRESS   // param: const char* symbol name
+					);
+					
+					MethodHandle dlopenHandle = linker.downcallHandle(dlopenSymbol.get(), dlopenDesc);
+					MethodHandle dlsymHandle = linker.downcallHandle(dlsymSymbol.get(), dlsymDesc);
+					
+					try (Arena arena = Arena.ofConfined()) {
+						// Open the library with RTLD_NOW | RTLD_GLOBAL (0xA = 2 | 8)
+						// RTLD_NOW = 2, RTLD_GLOBAL = 8
+						MemorySegment libPath = arena.allocateUtf8String(libFile.getAbsolutePath());
+						MemorySegment libHandle = (MemorySegment) dlopenHandle.invokeExact(libPath, 0xA);
+						
+						if (libHandle.address() == 0) {
+							System.err.println("AccelerateFFI.loadSparseWrapperFrom: dlopen failed");
+						} else {
+							System.err.println("AccelerateFFI.loadSparseWrapperFrom: dlopen succeeded, handle: 0x" + Long.toHexString(libHandle.address()));
+							
+							// Try both with and without underscore prefix
+							// macOS sometimes strips the underscore in dlsym lookups
+							MemorySegment createNameUnderscore = arena.allocateUtf8String("_accelerate_sparse_factor_create");
+							MemorySegment solveNameUnderscore = arena.allocateUtf8String("_accelerate_sparse_factor_solve");
+							MemorySegment destroyNameUnderscore = arena.allocateUtf8String("_accelerate_sparse_factor_destroy");
+							
+							MemorySegment createNameNoUnderscore = arena.allocateUtf8String("accelerate_sparse_factor_create");
+							MemorySegment solveNameNoUnderscore = arena.allocateUtf8String("accelerate_sparse_factor_solve");
+							MemorySegment destroyNameNoUnderscore = arena.allocateUtf8String("accelerate_sparse_factor_destroy");
+							
+							// Try with underscore first
+							MemorySegment createAddr = (MemorySegment) dlsymHandle.invokeExact(libHandle, createNameUnderscore);
+							MemorySegment solveAddr = (MemorySegment) dlsymHandle.invokeExact(libHandle, solveNameUnderscore);
+							MemorySegment destroyAddr = (MemorySegment) dlsymHandle.invokeExact(libHandle, destroyNameUnderscore);
+							
+							// If not found, try without underscore
+							if (createAddr.address() == 0) {
+								createAddr = (MemorySegment) dlsymHandle.invokeExact(libHandle, createNameNoUnderscore);
+							}
+							if (solveAddr.address() == 0) {
+								solveAddr = (MemorySegment) dlsymHandle.invokeExact(libHandle, solveNameNoUnderscore);
+							}
+							if (destroyAddr.address() == 0) {
+								destroyAddr = (MemorySegment) dlsymHandle.invokeExact(libHandle, destroyNameNoUnderscore);
+							}
+							
+							System.err.println("AccelerateFFI.loadSparseWrapperFrom: dlsym results:");
+							System.err.println("  _accelerate_sparse_factor_create: " + (createAddr.address() != 0 ? "found at 0x" + Long.toHexString(createAddr.address()) : "not found"));
+							System.err.println("  _accelerate_sparse_factor_solve: " + (solveAddr.address() != 0 ? "found at 0x" + Long.toHexString(solveAddr.address()) : "not found"));
+							System.err.println("  _accelerate_sparse_factor_destroy: " + (destroyAddr.address() != 0 ? "found at 0x" + Long.toHexString(destroyAddr.address()) : "not found"));
+							
+							if (createAddr.address() != 0 && solveAddr.address() != 0 && destroyAddr.address() != 0) {
+								// Create method handles from the addresses
+								sparseFactorCreateHandle = linker.downcallHandle(createAddr, sparseFactorCreateDesc);
+								sparseFactorSolveHandle = linker.downcallHandle(solveAddr, sparseFactorSolveDesc);
+								sparseFactorDestroyHandle = linker.downcallHandle(destroyAddr, sparseFactorDestroyDesc);
+								
+								System.err.println("AccelerateFFI.loadSparseWrapperFrom: Successfully created method handles via dlopen/dlsym");
+								// Note: We don't close the library handle - it needs to stay loaded
+								return true;
+							} else {
+								System.err.println("AccelerateFFI.loadSparseWrapperFrom: dlsym could not find all symbols");
+							}
+						}
+					} catch (Throwable e) {
+						System.err.println("AccelerateFFI.loadSparseWrapperFrom: Exception calling dlopen/dlsym: " + e.getMessage());
+						e.printStackTrace();
+					}
+				} else {
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: dlopen/dlsym not found, falling back to System.load()");
+					System.load(libFile.getAbsolutePath());
+				}
+				
+				// Fallback: Try SymbolLookup methods
+				SymbolLookup loaderLookup = SymbolLookup.loaderLookup();
+				var sparseCreateSymbol = loaderLookup.find("_accelerate_sparse_factor_create");
+				var sparseSolveSymbol = loaderLookup.find("_accelerate_sparse_factor_solve");
+				var sparseDestroySymbol = loaderLookup.find("_accelerate_sparse_factor_destroy");
+				
+				if (!sparseCreateSymbol.isPresent()) {
+					SymbolLookup libraryLookup = SymbolLookup.libraryLookup(libFile.toPath(), Arena.global());
+					sparseCreateSymbol = libraryLookup.find("_accelerate_sparse_factor_create");
+					sparseSolveSymbol = libraryLookup.find("_accelerate_sparse_factor_solve");
+					sparseDestroySymbol = libraryLookup.find("_accelerate_sparse_factor_destroy");
+				}
+				
+				System.err.println("AccelerateFFI.loadSparseWrapperFrom: SymbolLookup fallback results:");
+				System.err.println("  _accelerate_sparse_factor_create: " + sparseCreateSymbol.isPresent());
+				System.err.println("  _accelerate_sparse_factor_solve: " + sparseSolveSymbol.isPresent());
+				System.err.println("  _accelerate_sparse_factor_destroy: " + sparseDestroySymbol.isPresent());
+				
+				if (sparseCreateSymbol.isPresent() && 
+					sparseSolveSymbol.isPresent() && 
+					sparseDestroySymbol.isPresent()) {
+					
+					sparseFactorCreateHandle = linker.downcallHandle(
+						sparseCreateSymbol.get(), 
+						sparseFactorCreateDesc
+					);
+					sparseFactorSolveHandle = linker.downcallHandle(
+						sparseSolveSymbol.get(), 
+						sparseFactorSolveDesc
+					);
+					sparseFactorDestroyHandle = linker.downcallHandle(
+						sparseDestroySymbol.get(), 
+						sparseFactorDestroyDesc
+					);
+					
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Successfully loaded sparse wrapper library");
+					return true;
+				} else {
+					System.err.println("AccelerateFFI.loadSparseWrapperFrom: Symbols not found in library");
+					return false;
+				}
+				
+			} catch (Exception e) {
+				System.err.println("AccelerateFFI.loadSparseWrapperFrom: Exception: " + e.getMessage());
+				e.printStackTrace();
+				return false;
+			}
+		}
 	}
 	
 	// BLAS operations

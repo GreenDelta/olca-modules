@@ -3,6 +3,7 @@ package org.openlca.core.matrix.solvers.accelerate;
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.linear.NonSquareMatrixException;
 import org.apache.commons.math3.linear.SingularMatrixException;
+import org.openlca.core.matrix.format.AccelerateSparseMatrix;
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
@@ -99,10 +100,18 @@ public class AccelerateSolver implements MatrixSolver {
 			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
 		
 		if (hasSparseSupport()) {
-			if (matrix instanceof HashPointMatrix hpm)
-				return AccelerateSparseFactorization.of(hpm.compress());
-			if (matrix instanceof CSCMatrix csc)
-				return AccelerateSparseFactorization.of(csc);
+			// Prefer AccelerateSparseMatrix for zero conversion overhead
+			if (matrix instanceof AccelerateSparseMatrix asm) {
+				return AccelerateSparseFactorization.of(asm);
+			}
+			if (matrix instanceof HashPointMatrix hpm) {
+				return AccelerateSparseFactorization.of(
+						AccelerateSparseMatrix.of(hpm));
+			}
+			if (matrix instanceof CSCMatrix csc) {
+				return AccelerateSparseFactorization.of(
+						AccelerateSparseMatrix.of(csc));
+			}
 		}
 		return AccelerateDenseFactorization.of(matrix);
 	}
