@@ -159,6 +159,9 @@
 								
 								<mkdir dir="${outputDir}"/>
 								
+								<!-- Delete old library to ensure fresh build -->
+								<delete file="${outputFile}" failonerror="false" quiet="true"/>
+								
 								<echo message="Compiling native library: ${outputFile}"/>
 								
 								<exec executable="gcc" failonerror="true">
@@ -167,7 +170,10 @@
 									<arg value="-arch"/>
 									<arg value="arm64"/>
 									<arg value="-std=c11"/>
-									<arg value="-O2"/>
+									<arg value="-g"/>
+									<arg value="-O0"/>
+									<arg value="-Wall"/>
+									<arg value="-Wextra"/>
 									<arg value="-fvisibility=default"/>
 									<arg value="-Wl,-flat_namespace"/>
 									<arg value="-Wl,-undefined,dynamic_lookup"/>
@@ -225,6 +231,36 @@
 								
 								<!-- Log status -->
 								<echo message="Native library copy step completed"/>
+							</target>
+						</configuration>
+					</execution>
+					
+					<!-- Copy to install/workspace locations for development -->
+					<execution>
+						<id>deploy-native-lib</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<property name="srcLib" 
+								          value="${project.build.directory}/classes/native/osx-aarch64/libaccelerate_sparse_wrapper.dylib"/>
+								
+								<!-- Copy to common install location (creates directory if needed) -->
+								<!-- failonerror="false" means it will silently skip if source doesn't exist -->
+								<property name="installDir" value="${user.home}/openLCA-data-1.4/native/osx-aarch64"/>
+								<mkdir dir="${installDir}"/>
+								<copy file="${srcLib}" tofile="${installDir}/libaccelerate_sparse_wrapper.dylib" 
+								      failonerror="false" verbose="true" quiet="true"/>
+								
+								<!-- Copy to workspace root (for Eclipse development) -->
+								<property name="workspaceRoot" value="${project.basedir}/../../native/osx-aarch64"/>
+								<mkdir dir="${workspaceRoot}"/>
+								<copy file="${srcLib}" tofile="${workspaceRoot}/libaccelerate_sparse_wrapper.dylib" 
+								      failonerror="false" verbose="true" quiet="true"/>
+								
+								<echo message="Native library deployment step completed"/>
 							</target>
 						</configuration>
 					</execution>
