@@ -18,17 +18,20 @@ import com.google.gson.JsonParser;
 public class PubChemClient implements AutoCloseable {
 
 	public static String DEFAULT_API = "https://pubchem.ncbi.nlm.nih.gov/rest/pug";
+	public static String DEFAULT_VIEW_API = "https://pubchem.ncbi.nlm.nih.gov/rest/pug_view";
 
 	private final String api;
+	private final String viewApi;
 	private final HttpClient http;
 
-	private PubChemClient(String api) {
+	private PubChemClient(String api, String viewApi) {
 		this.api = api;
+		this.viewApi = viewApi;
 		this.http = HttpClient.newHttpClient();
 	}
 
 	public static PubChemClient create() {
-		return new PubChemClient(DEFAULT_API);
+		return new PubChemClient(DEFAULT_API, DEFAULT_VIEW_API);
 	}
 
 	public static PubChemClient create(String api) {
@@ -36,7 +39,19 @@ public class PubChemClient implements AutoCloseable {
 		if (url.endsWith("/")) {
 			url = url.substring(0, url.length() - 1);
 		}
-		return new PubChemClient(url);
+		return new PubChemClient(url, DEFAULT_VIEW_API);
+	}
+
+	public static PubChemClient create(String api, String viewApi) {
+		var url = api.strip();
+		if (url.endsWith("/")) {
+			url = url.substring(0, url.length() - 1);
+		}
+		var vUrl = viewApi.strip();
+		if (vUrl.endsWith("/")) {
+			vUrl = vUrl.substring(0, vUrl.length() - 1);
+		}
+		return new PubChemClient(url, vUrl);
 	}
 
 	public Res<List<PugCompound>> getCompoundsByName(String name) {
@@ -68,6 +83,28 @@ public class PubChemClient implements AutoCloseable {
 			return Res.ok(compounds);
 		} catch (Exception e) {
 			return Res.error("request failed for compound: " + name, e);
+		}
+	}
+
+	public Res<PugView> getCompoundView(long compoundId) {
+		try {
+			var path = "/data/compound/" + compoundId + "/JSON";
+			var req = HttpRequest.newBuilder()
+				.uri(URI.create(viewApi + path))
+				.header("accept", "application/json")
+				.build();
+
+			var json = fetchJsonObject(req);
+			if (json.isError())
+				return json.wrapError("failed to get compound view for: " + compoundId);
+
+			var record = Json.getObject(json.value(), "Record");
+			if (record == null)
+				return Res.error("response does not contain Record object");
+
+			return Res.ok(new PugView(record));
+		} catch (Exception e) {
+			return Res.error("request failed for compound view: " + compoundId, e);
 		}
 	}
 

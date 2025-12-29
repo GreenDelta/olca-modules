@@ -1,6 +1,7 @@
 package org.openlca.io.pubchem;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.After;
@@ -34,6 +35,21 @@ public class PubChemClientTest {
 		assertEquals("ethanol", ethanol.iupacNamePreferred());
 		assertEquals("ethanol", ethanol.iupacNameSystematic());
 		assertEquals("ethanol", ethanol.iupacNameTraditional());
+	}
+
+	@Test
+	public void testGetCompoundView() {
+		var view = client
+			.getCompoundView(702)
+			.orElseThrow();
+
+		var refs = view.references();
+		assertFalse(refs.isEmpty());
+
+		var first = refs.getFirst();
+		assertNotNull(first.sourceName());
+		assertNotNull(first.sourceId());
+		assertNotNull(first.name());
 	}
 }
 
