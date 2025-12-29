@@ -39,7 +39,7 @@ public class PubChemClient implements AutoCloseable {
 		return new PubChemClient(url);
 	}
 
-	public Res<List<Compound>> getCompoundsByName(String name) {
+	public Res<List<PugCompound>> getCompoundsByName(String name) {
 		if (Strings.isBlank(name))
 			return Res.error("empty compound name provided");
 
@@ -59,10 +59,10 @@ public class PubChemClient implements AutoCloseable {
 			if (array == null)
 				return Res.error("response does not contain PC_Compounds array");
 
-			var compounds = new ArrayList<Compound>();
+			var compounds = new ArrayList<PugCompound>();
 			for (var e : array) {
 				if (e.isJsonObject()) {
-					compounds.add(new Compound(e.getAsJsonObject()));
+					compounds.add(new PugCompound(e.getAsJsonObject()));
 				}
 			}
 			return Res.ok(compounds);

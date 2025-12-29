@@ -4,7 +4,7 @@ import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
-public record PropertyUrn(JsonObject json) {
+public record PugUrn(JsonObject json) {
 
 	public String label() {
 		return Json.getString(json, "label");

@@ -4,19 +4,19 @@ import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
-public record PropertyValue(JsonObject json) {
+public record PugValue(JsonObject json) {
 
-	public Integer intValue() {
+	public Integer getInt() {
 		var opt = Json.getInt(json, "ival");
 		return opt.isPresent() ? opt.getAsInt() : null;
 	}
 
-	public Double floatValue() {
+	public Double getFloat() {
 		var opt = Json.getDouble(json, "fval");
 		return opt.isPresent() ? opt.getAsDouble() : null;
 	}
 
-	public String stringValue() {
+	public String getString() {
 		return Json.getString(json, "sval");
 	}
 }
