@@ -22,4 +22,13 @@ public record PugView(JsonObject json) {
 		}
 		return refs;
 	}
+
+	public String cas() {
+		for (var ref : references()) {
+			if ("CAS Common Chemistry".equals(ref.sourceName())) {
+				return ref.sourceId();
+			}
+		}
+		return null;
+	}
 }

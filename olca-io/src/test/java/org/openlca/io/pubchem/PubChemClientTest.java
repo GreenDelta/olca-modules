@@ -1,8 +1,6 @@
 package org.openlca.io.pubchem;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +12,7 @@ public class PubChemClientTest {
 
 	@Before
 	public void setup() {
-		client = PubChemClient.create();
+		client = new PubChemClient();
 	}
 
 	@After
@@ -42,14 +40,7 @@ public class PubChemClientTest {
 		var view = client
 			.getCompoundView(702)
 			.orElseThrow();
-
-		var refs = view.references();
-		assertFalse(refs.isEmpty());
-
-		var first = refs.getFirst();
-		assertNotNull(first.sourceName());
-		assertNotNull(first.sourceId());
-		assertNotNull(first.name());
+		assertEquals("64-17-5", view.cas());
 	}
 }
 
