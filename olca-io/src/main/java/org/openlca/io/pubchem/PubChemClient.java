@@ -36,7 +36,8 @@ public class PubChemClient implements AutoCloseable {
 			return Res.error("empty compound name provided");
 
 		try {
-			var encodedName = URLEncoder.encode(name.strip(), StandardCharsets.UTF_8);
+			var encodedName = URLEncoder.encode(name.strip(), StandardCharsets.UTF_8)
+				.replace("+", "%20");
 			var path = "/compound/name/" + encodedName + "/JSON";
 
 			var json = getJsonObject(path);

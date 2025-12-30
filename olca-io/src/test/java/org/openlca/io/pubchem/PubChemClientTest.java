@@ -44,5 +44,15 @@ public class PubChemClientTest {
 			.orElseThrow();
 		assertEquals("64-17-5", view.cas());
 	}
+
+	@Test
+	public void testGetCompoundWithSpace() {
+		var adipicAcid = client
+			.getCompoundsByName("adipic acid")
+			.orElseThrow()
+			.getFirst();
+		assertEquals(196, adipicAcid.id());
+		assertEquals("C6H10O4", adipicAcid.molecularFormula());
+	}
 }
 
