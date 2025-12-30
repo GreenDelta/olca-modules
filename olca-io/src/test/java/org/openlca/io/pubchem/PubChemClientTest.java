@@ -33,6 +33,8 @@ public class PubChemClientTest {
 		assertEquals("ethanol", ethanol.iupacNamePreferred());
 		assertEquals("ethanol", ethanol.iupacNameSystematic());
 		assertEquals("ethanol", ethanol.iupacNameTraditional());
+		assertEquals("InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3", ethanol.inchiString());
+		assertEquals("LFQSCWFLJHTTHZ-UHFFFAOYSA-N", ethanol.inchiKey());
 	}
 
 	@Test

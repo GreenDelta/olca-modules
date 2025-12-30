@@ -79,6 +79,20 @@ public record PugCompound(JsonObject json) {
 			: null;
 	}
 
+	public String inchiString() {
+		var v = getValue("InChI", "Standard");
+		return v != null
+			? v.getString()
+			: null;
+	}
+
+	public String inchiKey() {
+		var v = getValue("InChIKey", "Standard");
+		return v != null
+			? v.getString()
+			: null;
+	}
+
 	private PugValue getValue(String label, String name) {
 		for (var prop : properties()) {
 			var urn = prop.urn();

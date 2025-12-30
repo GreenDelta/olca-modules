@@ -16,6 +16,13 @@ import org.openlca.jsonld.Json;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/// A client for the PubChem PUG REST API.
+///
+/// Example URLs for ethanol (CID 702):
+///
+/// - [Compound by name](https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/ethanol/JSON)
+/// - [Compound view](https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/702/JSON)
+///
 public class PubChemClient implements AutoCloseable {
 
 	private final HttpClient http;
