@@ -164,22 +164,25 @@ public record DQData(
 			// now, scan the exchanges table and collect all
 			// matching data quality entries
 			sql = "select f_owner, f_flow, f_location, dq_entry from tbl_exchanges";
+			boolean isRegionalized = enviIndex.isRegionalized();
 			NativeSql.on(db).query(sql, r -> {
 
-				// check that we have a valid entry
-				var products = providers.get(r.getLong(1));
-				if (products == null)
-					return true;
-				long flowID = r.getLong(2);
-				long locationID = r.getLong(3);
 				var dqEntry = r.getString(4);
 				if (dqEntry == null)
 					return true;
-				int row = enviIndex.of(flowID, locationID);
-				if (row < 0)
+				var products = providers.get(r.getLong(1));
+				if (products == null)
 					return true;
 
-				// store the values
+				// the flow location is just ignored when the
+				// flow index is not regionalized
+				long flowId = r.getLong(2);
+				long flowLoc = r.getLong(3);
+				int row = enviIndex.of(flowId,  flowLoc);
+				if (!isRegionalized && row < 0)
+					return true;
+
+				// put the DQ values into the matrix
 				int[] values = system.toValues(dqEntry);
 				int _n = Math.min(n, values.length);
 				for (int i = 0; i < _n; i++) {
@@ -187,7 +190,17 @@ public record DQData(
 					byte value = (byte) values[i];
 					for (var product : products) {
 						int col = techIndex.of(product);
-						matrix.set(row, col, value);
+
+						if (!isRegionalized || (flowLoc > 0 && row >= 0)) {
+							matrix.set(row, col, value);
+							continue;
+						}
+						var prodLoc = product.locationId();
+						long locId = prodLoc != null ? prodLoc : 0;
+						int regRow = enviIndex.of(flowId, locId);
+						if (regRow >= 0) {
+							matrix.set(regRow, col, value);
+						}
 					}
 				}
 				return true;
