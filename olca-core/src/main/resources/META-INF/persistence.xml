@@ -54,7 +54,8 @@
 		<shared-cache-mode>ALL</shared-cache-mode>
 
 		<properties>
-			<property name="eclipselink.logging.level" value="WARNING" />
+			<property name="eclipselink.logging.level" value="FINE" />
+			<property name="eclipselink.logging.level.metamodel" value="FINE" />
 			<!-- enable SQL logging etc.
 			<property name="eclipselink.logging.level" value="ALL"/>
 			<property name="eclipselink.logging.level.sql" value="FINE"/>
