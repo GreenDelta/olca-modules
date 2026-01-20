@@ -39,15 +39,7 @@ public record ParameterWriter(JsonExport exp) implements JsonWriter<Parameter> {
 		if (exp == null || redefs == null)
 			return array;
 		for (var p : redefs) {
-			var obj = new JsonObject();
-			Json.put(obj, "name", p.name);
-			Json.put(obj, "value", p.value);
-			Json.put(obj, "uncertainty", Uncertainties.map(p.uncertainty));
-			Json.put(obj, "isProtected", p.isProtected);
-			if (p.contextId != null && p.contextType != null) {
-				Json.put(obj, "context", exp.handleRef(p.contextType, p.contextId));
-			}
-			array.add(obj);
+			array.add(mapRedef(exp, p));
 		}
 		return array;
 	}
