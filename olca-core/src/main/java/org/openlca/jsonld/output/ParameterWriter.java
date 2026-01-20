@@ -52,4 +52,23 @@ public record ParameterWriter(JsonExport exp) implements JsonWriter<Parameter> {
 		return array;
 	}
 
+	/**
+	 * Maps the given parameter redefinition to a JSON object. If necessary, it
+	 * exports the respective parameter context (i.e. global parameters or LCIA
+	 * category parameters).
+	 * 
+	 * Also used in onlinelca
+	 */
+	public static JsonObject mapRedef(JsonExport exp, ParameterRedef p) {
+		var obj = new JsonObject();
+		Json.put(obj, "name", p.name);
+		Json.put(obj, "value", p.value);
+		Json.put(obj, "uncertainty", Uncertainties.map(p.uncertainty));
+		Json.put(obj, "isProtected", p.isProtected);
+		if (p.contextId != null && p.contextType != null) {
+			Json.put(obj, "context", exp.handleRef(p.contextType, p.contextId));
+		}
+		return obj;
+	}
+
 }
