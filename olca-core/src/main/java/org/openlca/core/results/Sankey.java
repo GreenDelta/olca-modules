@@ -129,9 +129,9 @@ public class Sankey<T> {
 		var queue = new ArrayDeque<Node>(root.providers.size());
 		queue.add(root);
 		var visited = new TIntHashSet(
-				Constants.DEFAULT_CAPACITY,
-				Constants.DEFAULT_LOAD_FACTOR,
-				-1);
+			Constants.DEFAULT_CAPACITY,
+			Constants.DEFAULT_LOAD_FACTOR,
+			-1);
 		visited.add(root.index);
 		while (!queue.isEmpty()) {
 			var node = queue.poll();
@@ -190,22 +190,22 @@ public class Sankey<T> {
 	public String toDot() {
 		var buf = new StringBuilder();
 		buf.append("digraph g {\n")
-				.append("  rankdir=BT;\n")
-				.append("  node [shape=point];\n")
-				.append("  edge [arrowhead=none];\n")
-				.append("  ").append(root.index).append(";\n");
+			.append("  rankdir=BT;\n")
+			.append("  node [shape=point];\n")
+			.append("  edge [arrowhead=none];\n")
+			.append("  ").append(root.index).append(";\n");
 		traverse(node -> {
 			for (var provider : node.providers) {
 				var penwidth = 0.5 + 3
-						* provider.share
-						* getLinkShare(provider, node);
+					* provider.share
+					* getLinkShare(provider, node);
 				buf.append("  ")
-						.append(provider.index)
-						.append(" -> ")
-						.append(node.index)
-						.append(" [penwidth=")
-						.append(penwidth)
-						.append("];\n");
+					.append(provider.index)
+					.append(" -> ")
+					.append(node.index)
+					.append(" [penwidth=")
+					.append(penwidth)
+					.append("];\n");
 			}
 		});
 		buf.append("}\n");
@@ -233,9 +233,9 @@ public class Sankey<T> {
 			this.sankey = new Sankey<>(ref, result);
 			this.result = result;
 			handled = new TIntObjectHashMap<>(
-					Constants.DEFAULT_CAPACITY,
-					Constants.DEFAULT_LOAD_FACTOR,
-					-1);
+				Constants.DEFAULT_CAPACITY,
+				Constants.DEFAULT_LOAD_FACTOR,
+				-1);
 		}
 
 		/**
@@ -284,7 +284,7 @@ public class Sankey<T> {
 			// the highest contributions
 			if (maxNodes > 0) {
 				candidates = new PriorityQueue<>(
-						(n1, n2) -> Double.compare(n2.share, n1.share));
+					(n1, n2) -> Double.compare(n2.share, n1.share));
 			}
 
 			// expand the graph recursively
@@ -309,8 +309,8 @@ public class Sankey<T> {
 			if (impact != null) {
 				int impactIdx = result.indexOf(impact);
 				return impactIdx < 0
-						? 0
-						: result.totalImpactOf(impactIdx, techIdx);
+					? 0
+					: result.totalImpactOf(impactIdx, techIdx);
 			}
 			return 0;
 		}
@@ -329,17 +329,24 @@ public class Sankey<T> {
 			if (impact != null) {
 				int impactIdx = result.indexOf(impact);
 				return impactIdx < 0
-						? 0
-						: result.directImpactOf(impactIdx, techIdx);
+					? 0
+					: result.directImpactOf(impactIdx, techIdx);
 			}
 			return 0;
 		}
 
-		/**
-		 * Expands recursively the providers of the given node, that was already
-		 * added to the graph, according to the cutoff rules of this builder.
-		 */
-		private void expand(Node node) {
+		/// Expands the providers of the given node, that was already added to the
+		/// graph, according to the cutoff rules of this builder.
+		private void expand(Node root) {
+			var stack = new ArrayDeque<Node>();
+			stack.push(root);
+			while (!stack.isEmpty()) {
+				var node = stack.pop();
+				expand(node, stack);
+			}
+		}
+
+		private void expand(Node node, ArrayDeque<Node> stack) {
 			result.iterateTechColumnOf(node.index).eachNonZero((i, $) -> {
 				if (i == node.index)
 					return;
@@ -373,7 +380,7 @@ public class Sankey<T> {
 					candidates.add(new Candidate(node, provider));
 				} else {
 					add(node, provider);
-					expand(provider);
+					stack.push(provider);
 				}
 			});
 
@@ -384,7 +391,7 @@ public class Sankey<T> {
 			var next = candidates.poll();
 			add(next.handled, next.provider);
 			if (sankey.nodeCount < maxNodes) {
-				expand(next.provider);
+				stack.push(next.provider);
 			}
 		}
 
