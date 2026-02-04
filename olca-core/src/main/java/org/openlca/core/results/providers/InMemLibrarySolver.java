@@ -231,9 +231,7 @@ public class InMemLibrarySolver {
 			if (!enviBuffer.isEmpty()) {
 				full.enviMatrix = enviBuffer.finish();
 			}
-			if (costBuffer != null && !costBuffer.isEmpty()) {
-				full.costVector = costBuffer.toArray();
-			}
+			full.costVector = finishCosts(costBuffer, full.techIndex);
 		}
 
 		private void mapTechMatrix(
@@ -303,6 +301,21 @@ public class InMemLibrarySolver {
 				var targetCol = fullIdx.of(techFlow);
 				buffer.set(targetCol, costs[col]);
 			}
+		}
+
+		/// Converts the cost buffer to an array. The size of the buffer can be
+		/// smaller than the tech-index because not all process may have costs
+		/// assigned, thus we need to make sure that the array has then the same
+		/// size as the tech-index. Returns `null` when there are no cost values.
+		private double[] finishCosts(TDoubleArrayList buffer, TechIndex techIdx) {
+			if (buffer == null || buffer.isEmpty()) return null;
+			var n = techIdx.size();
+			if (buffer.size() == n) {
+				return buffer.toArray();
+			}
+			var array = new double[n];
+			buffer.toArray(array);
+			return array;
 		}
 	}
 }
