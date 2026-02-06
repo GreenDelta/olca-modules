@@ -32,7 +32,6 @@ import spold2.Classification;
 import spold2.DataSet;
 import spold2.ElementaryExchange;
 import spold2.IntermediateExchange;
-import spold2.PedigreeMatrix;
 import spold2.RichText;
 import spold2.Spold2;
 
@@ -256,19 +255,38 @@ class ProcessImport {
 		if (config.withParameters && config.withParameterFormulas) {
 			mapFormula(es2, process, e, f);
 		}
-		e.dqEntry = getPedigreeMatrix(es2);
+		e.dqEntry = dqEntryOf(es2);
+		e.baseUncertainty = baseUncertaintyOf(es2);
 		return e;
 	}
 
-	private String getPedigreeMatrix(spold2.Exchange es2) {
-		if (es2 == null || es2.uncertainty == null)
-			return null;
-		PedigreeMatrix pm = es2.uncertainty.pedigreeMatrix;
-		if (pm == null)
-			return null;
-		return dqSystem.toString(pm.reliability, pm.completeness,
+	private String dqEntryOf(spold2.Exchange e) {
+		if (e == null || e.uncertainty == null)	return null;
+		var pm = e.uncertainty.pedigreeMatrix;
+		if (pm == null)	return null;
+		return dqSystem.toString(
+			pm.reliability,
+			pm.completeness,
 			pm.temporalCorrelation,
-			pm.geographicalCorrelation, pm.technologyCorrelation);
+			pm.geographicalCorrelation,
+			pm.technologyCorrelation);
+	}
+
+	private Double baseUncertaintyOf(spold2.Exchange e) {
+		if (e == null || e.uncertainty == null) return null;
+		if (e.uncertainty.logNormal != null) {
+			double v = e.uncertainty.logNormal.variance;
+			if (v <= 0) return null;
+			// geometric standard deviation
+			return Math.exp(Math.sqrt(v));
+		}
+		if (e.uncertainty.normal != null) {
+			double v = e.uncertainty.normal.variance;
+			if (v <= 0) return null;
+			// standard deviation
+			return Math.sqrt(v);
+		}
+		return null;
 	}
 
 	private Unit getFlowUnit(
