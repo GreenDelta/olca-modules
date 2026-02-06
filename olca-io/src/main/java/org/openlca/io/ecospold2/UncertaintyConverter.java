@@ -52,37 +52,43 @@ public class UncertaintyConverter {
 	/**
 	 * Converts the log-normal distribution from an EcoSpold 02 data set to a
 	 * log-normal distribution in openLCA.
-	 * 
+	 *
 	 * In openLCA the following distribution parameters are stored:
 	 * <ol>
 	 * <li>the geometric mean
 	 * <li>the geometric standard deviation.
 	 * </ol>
-	 * 
+	 *
 	 * According to the EcoSpold 02 specification the log-normal distribution
 	 * has the following attributes (among others):
 	 * <ol>
 	 * <li>meanValue: the geometric mean
 	 * <li>variance: the unbiased variance of the underlying normal distribution
 	 * </ol>
-	 * 
+	 *
 	 * Thus, we convert the variance v of the underlying normal distribution to
 	 * the geometric standard deviation gsd of the log-normal distribution (see
 	 * http://en.wikipedia.org/wiki/Log-normal_distribution, geometric moments).
-	 * 
+	 *
 	 * The standard deviation sigma of the underlying normal distribution is the
 	 * square-root of the variance v and the geometric standard deviation gsd is
 	 * the value of the exponential function for sigma: <code>
-	 * 			sigma = sqrt(v) 
+	 * 			sigma = sqrt(v)
 	 * 			gsd = exp(sigma)
 	 * </code>
-	 * 
+	 *
 	 */
 	private static Uncertainty toOpenLCA(LogNormal logNormal, double factor) {
 		if (logNormal == null)
 			return null;
-		// a variance can be never smaller 0, but better we check this
-		double v = logNormal.variance < 0 ? 0 : logNormal.variance;
+		double v = logNormal.varianceWithPedigreeUncertainty != 0
+			? logNormal.varianceWithPedigreeUncertainty
+			: logNormal.variance;
+		if (v < 0) {
+			// a value smaller 0 is an error, we could also
+			// take the abs then, but maybe better not
+			v = 0;
+		}
 		double sigma = Math.sqrt(v);
 		double gsd = Math.exp(sigma);
 		return Uncertainty.logNormal(logNormal.meanValue * factor, gsd);
@@ -110,9 +116,15 @@ public class UncertaintyConverter {
 	private static Uncertainty toOpenLCA(Normal normal, double factor) {
 		if (normal == null)
 			return null;
+		double v = normal.varianceWithPedigreeUncertainty != 0
+			? normal.varianceWithPedigreeUncertainty
+			: normal.variance;
+		if (v < 0) {
+			// a value smaller 0 is an error, we could also
+			// take the abs then, but maybe better not
+			v = 0;
+		}
 		double mean = normal.meanValue;
-		// a variance can be never smaller 0, but better we check this
-		double v = normal.variance < 0 ? 0 : normal.variance;
 		double sd = Math.sqrt(v);
 		return Uncertainty.normal(mean * factor, sd * factor);
 	}
