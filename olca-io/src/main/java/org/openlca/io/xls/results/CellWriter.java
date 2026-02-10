@@ -16,7 +16,6 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.DQIndicator;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
-import org.openlca.core.model.NwFactor;
 import org.openlca.core.model.NwSet;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
@@ -49,17 +48,18 @@ public class CellWriter {
 	/**
 	 * Writes the process information into the given row, starting in column col
 	 */
-	public void processCol(Sheet sheet, int row, int col,
-			RootDescriptor process) {
+	public void processCol(
+		Sheet sheet, int row, int col, RootDescriptor process
+	) {
 		cell(sheet, row++, col, process.refId, false);
 		cell(sheet, row++, col, process.name, false);
 		if (!(process instanceof ProcessDescriptor p))
 			return;
 		if (p.location == null)
 			return;
-		Location loc = cache.get(Location.class, p.location);
+		var loc = cache.get(Location.class, p.location);
 		String code = loc == null ? "" : loc.code;
-		cell(sheet, row++, col, code, false);
+		cell(sheet, row, col, code, false);
 	}
 
 	/**
@@ -73,18 +73,25 @@ public class CellWriter {
 		return col;
 	}
 
-	public int impactNwRow(Sheet sheet, int row, int col, ImpactDescriptor impact, double value, NwSet nwSet) {
-		NwFactor nwFactor = nwSet.getFactor(impact);
-		if (nwFactor == null) {
-			// Write empty cells to maintain alignment if there is no normalization/single score/weighting factor
-			cell(sheet, row, col++, "");
-			cell(sheet, row, col++, "");
-			cell(sheet, row, col++, "");
-			return col;
-		}
-		double normalizedValue = value * (nwFactor.normalisationFactor == null || nwFactor.normalisationFactor == 0 ? 0
-				: 1 / nwFactor.normalisationFactor);
-		double weightedValue = normalizedValue * (nwFactor.weightingFactor == null ? 0 : nwFactor.weightingFactor);
+	public int impactNwRow(
+		Sheet sheet,
+		int row,
+		int col,
+		ImpactDescriptor impact,
+		double value,
+		NwSet nwSet) {
+
+		var nwf = nwSet.getFactor(impact);
+		if (nwf == null) return col + 3;
+
+		double normalizedValue = value * (
+			nwf.normalisationFactor == null || nwf.normalisationFactor == 0
+				? 0
+				: 1 / nwf.normalisationFactor);
+		double weightedValue = normalizedValue * (
+			nwf.weightingFactor == null
+				? 0
+				: nwf.weightingFactor);
 		cell(sheet, row, col++, normalizedValue, false);
 		cell(sheet, row, col++, weightedValue, false);
 		cell(sheet, row, col++, nwSet.weightedScoreUnit, false);
@@ -141,7 +148,7 @@ public class CellWriter {
 			Color color = DQColors.get(score, n);
 			String label = system.getScoreLabel(score);
 			label = label == null ? "" : label;
-			cell(sheet, row, col + i, label, color, false);
+			cell(sheet, row, col + i, label, color);
 		}
 		return col + result.length;
 	}
@@ -193,13 +200,8 @@ public class CellWriter {
 		}
 	}
 
-	private void cell(Sheet sheet, int row, int col, Object val, Color color,
-			boolean bold) {
-		if (bold) {
-			cell(sheet, row, col, val, styles.bold(color));
-		} else {
-			cell(sheet, row, col, val, styles.normal(color));
-		}
+	private void cell(Sheet sheet, int row, int col, Object val, Color color) {
+		cell(sheet, row, col, val, styles.normal(color));
 	}
 
 	void boldWrapped(Sheet sheet, int row, int col, Object val, Color color) {

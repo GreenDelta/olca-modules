@@ -62,9 +62,8 @@ class ImpactSheet {
 				row++;
 				continue;
 			}
-			writer.dataQuality(sheet, row++, col + 1,
-					dqResult.get(impact),
-					dqResult.setup.exchangeSystem);
+			writer.dataQuality(
+				sheet, row++, col, dqResult.get(impact), dqResult.setup.exchangeSystem);
 		}
 	}
 
