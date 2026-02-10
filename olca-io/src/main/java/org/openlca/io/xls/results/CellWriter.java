@@ -75,8 +75,13 @@ public class CellWriter {
 
 	public int impactNwRow(Sheet sheet, int row, int col, ImpactDescriptor impact, double value, NwSet nwSet) {
 		NwFactor nwFactor = nwSet.getFactor(impact);
-		if (nwFactor == null)
+		if (nwFactor == null) {
+			// Write empty cells to maintain alignment if there is no normalization/single score/weighting factor
+			cell(sheet, row, col++, "");
+			cell(sheet, row, col++, "");
+			cell(sheet, row, col++, "");
 			return col;
+		}
 		double normalizedValue = value * (nwFactor.normalisationFactor == null || nwFactor.normalisationFactor == 0 ? 0
 				: 1 / nwFactor.normalisationFactor);
 		double weightedValue = normalizedValue * (nwFactor.weightingFactor == null ? 0 : nwFactor.weightingFactor);
