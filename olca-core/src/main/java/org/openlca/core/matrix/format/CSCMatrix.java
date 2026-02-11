@@ -126,9 +126,7 @@ public class CSCMatrix implements MatrixReader {
 	@Override
 	public double get(int row, int col) {
 		int idxStart = columnPointers[col];
-		int idxEnd = col == (columns - 1)
-				? rowIndices.length
-				: columnPointers[col + 1];
+		int idxEnd = columnPointers[col + 1];
 		for (int idx = idxStart; idx < idxEnd; idx++) {
 			int r = rowIndices[idx];
 			if (r == row)
@@ -141,9 +139,7 @@ public class CSCMatrix implements MatrixReader {
 	public double[] getColumn(int i) {
 		double[] v = new double[rows];
 		int idxStart = columnPointers[i];
-		int idxEnd = i == (columns - 1)
-				? rowIndices.length
-				: columnPointers[i + 1];
+		int idxEnd = columnPointers[i + 1];
 		for (int idx = idxStart; idx < idxEnd; idx++) {
 			int r = rowIndices[idx];
 			v[r] = values[idx];
@@ -169,9 +165,7 @@ public class CSCMatrix implements MatrixReader {
 	public void iterate(EntryFunction fn) {
 		for (int col = 0; col < columns; col++) {
 			int start = columnPointers[col];
-			int end = col < (columns - 1)
-					? columnPointers[col + 1]
-					: values.length;
+			int end = columnPointers[col + 1];
 			for (int i = start; i < end; i++) {
 				int row = rowIndices[i];
 				double val = values[i];
@@ -190,9 +184,7 @@ public class CSCMatrix implements MatrixReader {
 		for (int col = 0; col < columns; col++) {
 			double factor = v[col];
 			int start = columnPointers[col];
-			int end = col < (columns - 1)
-					? columnPointers[col + 1]
-					: values.length;
+			int end = columnPointers[col + 1];
 			for (int i = start; i < end; i++) {
 				values[i] *= factor;
 			}
