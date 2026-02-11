@@ -4,9 +4,45 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class HashPointMatrixTest {
+
+	@Test
+	public void testAdd() {
+		var m = new HashPointMatrix();
+
+		// basic addition & expansion
+		m.add(1, 2, 3.0);
+		assertEquals(2, m.rows());
+		assertEquals(3, m.columns());
+		assertEquals(3.0, m.get(1, 2), 1e-16);
+		assertEquals(1, m.getNumberOfEntries());
+
+		// add to existing cell
+		m.add(1, 2, 2.0);
+		assertEquals(5.0, m.get(1, 2), 1e-16);
+		assertEquals(1, m.getNumberOfEntries());
+
+		// add zero (should do nothing)
+		m.add(1, 2, 0.0);
+		assertEquals(5.0, m.get(1, 2), 1e-16);
+		assertEquals(1, m.getNumberOfEntries());
+
+		// add resulting in zero (should remove entry)
+		m.add(1, 2, -5.0);
+		assertEquals(0.0, m.get(1, 2), 1e-16);
+		assertEquals(0, m.getNumberOfEntries());
+
+		// add to new far away cell
+		m.add(10, 10, 42.0);
+		assertEquals(11, m.rows());
+		assertEquals(11, m.columns());
+		assertEquals(42.0, m.get(10, 10), 1e-16);
+		assertEquals(1, m.getNumberOfEntries());
+	}
 
 	@Test
 	public void testMultiply() {
@@ -135,5 +171,61 @@ public class HashPointMatrixTest {
 				assertEquals(i * j, csc.get(i, j), 1e-10);
 			}
 		}
+	}
+
+	@Test
+	public void testReadColumn() {
+		var m = new HashPointMatrix();
+		m.set(1, 0, 10.0);
+		m.set(3, 0, 30.0);
+
+		double[] buffer = new double[5];
+		m.readColumn(0, buffer);
+		assertArrayEquals(new double[]{0.0, 10.0, 0.0, 30.0, 0.0}, buffer, 1e-16);
+
+		// column with no data should clear the buffer
+		Arrays.fill(buffer, -1.0);
+		m.readColumn(5, buffer);
+		assertArrayEquals(new double[]{0.0, 0.0, 0.0, 0.0, 0.0}, buffer, 1e-16);
+	}
+
+	@Test
+	public void testGetOutOfBounds() {
+		var m = new HashPointMatrix();
+		assertEquals(0.0, m.get(100, 100), 1e-16);
+		assertEquals(0, m.rows()); // get should not expand
+		assertEquals(0, m.columns());
+	}
+
+	@Test
+	public void testIterate() {
+		var m = new HashPointMatrix();
+		m.set(0, 0, 1.0);
+		m.set(1, 1, 2.0);
+
+		int[] count = {0};
+		double[] sum = {0.0};
+		m.iterate((r, c, v) -> {
+			count[0]++;
+			sum[0] += v;
+		});
+
+		assertEquals(2, count[0]);
+		assertEquals(3.0, sum[0], 1e-16);
+	}
+
+	@Test
+	public void testCompressWithEmptyColumns() {
+		var m = new HashPointMatrix();
+		m.set(0, 0, 1.0); // column 0
+		m.set(0, 2, 3.0); // column 2, column 1 is empty
+
+		var csc = m.compress();
+		assertEquals(3, csc.columns());
+		assertEquals(0, csc.columnPointers[0]); // col 0 start
+		assertEquals(1, csc.columnPointers[1]); // col 1 empty, so same as next
+		assertEquals(1, csc.columnPointers[2]); // col 2 start
+		assertEquals(2, csc.columnPointers[3]); // end
+		assertEquals(2, csc.values.length);
 	}
 }

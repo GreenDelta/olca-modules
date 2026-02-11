@@ -81,20 +81,20 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 
 	@Override
 	public void set(int row, int col, double val) {
-		if (val == 0) {
-			var column = data.get(col);
-			if (column != null) {
-				column.remove(row);
-			}
-			return;
-		}
-
 		// ensure matrix size
 		if (row >= rows) {
 			rows = row + 1;
 		}
 		if (col >= cols) {
 			cols = col + 1;
+		}
+
+		if (val == 0) {
+			var column = data.get(col);
+			if (column != null) {
+				column.remove(row);
+			}
+			return;
 		}
 
 		var column = data.get(col);
@@ -113,9 +113,6 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 	 * Adds the given value to the entry at row, col.
 	 */
 	public void add(int row, int col, double val) {
-		if (val == 0)
-			return;
-
 		// ensure matrix size
 		if (row >= rows) {
 			rows = row + 1;
@@ -123,6 +120,9 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 		if (col >= cols) {
 			cols = col + 1;
 		}
+
+		if (val == 0)
+			return;
 
 		var column = data.get(col);
 		if (column == null) {
