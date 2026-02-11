@@ -1,8 +1,6 @@
 package org.openlca.core.matrix.format;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TIntDoubleHashMap;
@@ -248,31 +246,53 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 	}
 
 	public CSCMatrix compress() {
+
+		// initialize the arrays; note that in `set` and `add` we
+		// make sure that the matrix does not contain zero values
 		int[] columnPointers = new int[cols + 1];
 		int nonZeros = getNumberOfEntries();
 		columnPointers[cols] = nonZeros;
 		int[] rowIndices = new int[nonZeros];
 		double[] values = new double[nonZeros];
 
+		// the current (write) position in the values array
 		int pos = 0;
-		var entries = new ArrayList<CscEntry>();
+
+		// a buffer where we store & sort the indices of the currently
+		// handled column. It is initialzed with a max size of 1024
+		// because the matrix can have thousands of rows but not every
+		// row may have values. It is resized when required.
+		int[] rowBuff = new int[Math.min(rows, 1024)];
+
 		for (int col = 0; col < cols; col++) {
+
+			// we start a new column and this column points to the
+			// current write position in the values.
 			columnPointers[col] = pos;
+
+			// get the column which contains the row->value entries
 			var column = data.get(col);
-			if (column == null)
+			if (column == null || column.isEmpty()) {
 				continue;
-			var iter = column.iterator();
-			entries.clear();
-			while (iter.hasNext()) {
-				iter.advance();
-				entries.add(new CscEntry(
-						iter.key(), iter.value()));
 			}
-			entries.sort(Comparator.comparingInt(e -> e.row));
-			for (var entry : entries) {
-				rowIndices[pos] = entry.row;
-				values[pos] = entry.val;
-				pos++;
+
+			// copy the row indices of the column to the buffer, we
+			// may need to re-allocate it, if it is too small.
+			int size = column.size();
+			if (size > rowBuff.length) {
+				rowBuff = new int[size];
+			}
+			column.keys(rowBuff);  // copies to rowBuff
+
+			// sort the row indices in the buffer
+			Arrays.sort(rowBuff, 0, size);
+
+			// write the sorted row indices and values
+			for (int i = 0; i < size; i++) {
+				int row = rowBuff[i];
+				rowIndices[pos] = row;
+				values[pos] = column.get(row);
+				pos++; // move to the next writing position
 			}
 		}
 
@@ -317,9 +337,6 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 			builder.append("; ...");
 		builder.append("]");
 		return builder.toString();
-	}
-
-	private record CscEntry(int row, double val) {
 	}
 
 }
