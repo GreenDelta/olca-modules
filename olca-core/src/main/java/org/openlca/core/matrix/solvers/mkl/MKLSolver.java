@@ -9,6 +9,7 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.format.SparseMatrixReader;
 import org.openlca.core.matrix.solvers.Factorization;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 
@@ -58,8 +59,9 @@ public class MKLSolver implements MatrixSolver {
 	@Override
 	public double[] multiply(MatrixReader m, double[] x) {
 		// TODO: check/add native support
-		if (m instanceof HashPointMatrix || m instanceof CscMatrix)
+		if (m instanceof SparseMatrixReader) {
 			return m.multiply(x);
+		}
 		var a = MatrixConverter.dense(m);
 		var y = new double[m.rows()];
 		MKL.denseMatrixVectorMul(m.rows(), m.columns(), a.data, x, y);
@@ -80,7 +82,11 @@ public class MKLSolver implements MatrixSolver {
 
 	@Override
 	public Matrix multiply(MatrixReader a, MatrixReader b) {
-		// TODO: add sparse support
+		if (a instanceof SparseMatrixReader sparseA
+			&& b instanceof SparseMatrixReader sparseB) {
+			return sparseA.multiply(sparseB);
+		}
+
 		var denseA = MatrixConverter.dense(a);
 		var denseB = MatrixConverter.dense(b);
 		int m = denseA.rows();
