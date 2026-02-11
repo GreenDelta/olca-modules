@@ -41,15 +41,11 @@ public final class SparseMul {
 			for (int i = start; i < end; i++) {
 				int row = cscA.rowIndices[i];
 				double aVal = cscA.values[i];
-				add(result, row, j, aVal * bVal);
+				result.add(row, j, aVal * bVal);
 			}
 		});
 
 		return result;
 	}
 
-	private static void add(HashPointMatrix m, int row, int col, double val) {
-		double current = m.get(row, col);
-		m.set(row, col, current + val);
-	}
 }

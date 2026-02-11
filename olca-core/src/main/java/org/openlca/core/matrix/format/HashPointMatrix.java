@@ -83,6 +83,14 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 
 	@Override
 	public void set(int row, int col, double val) {
+		if (val == 0) {
+			var column = data.get(col);
+			if (column != null) {
+				column.remove(row);
+			}
+			return;
+		}
+
 		// ensure matrix size
 		if (row >= rows) {
 			rows = row + 1;
@@ -100,10 +108,36 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 					0);
 			data.put(col, column);
 		}
-		if (val == 0) {
+		column.put(row, val);
+	}
+
+	/**
+	 * Adds the given value to the entry at row, col.
+	 */
+	public void add(int row, int col, double val) {
+		if (val == 0)
+			return;
+
+		// ensure matrix size
+		if (row >= rows) {
+			rows = row + 1;
+		}
+		if (col >= cols) {
+			cols = col + 1;
+		}
+
+		var column = data.get(col);
+		if (column == null) {
+			column = new TIntDoubleHashMap(
+					Constants.DEFAULT_CAPACITY,
+					Constants.DEFAULT_LOAD_FACTOR,
+					-1,
+					0);
+			data.put(col, column);
+		}
+		column.adjustOrPutValue(row, val, val);
+		if (column.get(row) == 0) {
 			column.remove(row);
-		} else {
-			column.put(row, val);
 		}
 	}
 
@@ -152,15 +186,18 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 
 	@Override
 	public void readColumn(int column, double[] buffer) {
+		Arrays.fill(buffer, 0);
 		var columnData = data.get(column);
 		if (columnData == null) {
-			Arrays.fill(buffer, 0);
 			return;
 		}
 		int n = Math.min(buffer.length, rows);
-		for (int row = 0; row < n; row++) {
-			buffer[row] = columnData.get(row);
-		}
+		columnData.forEachEntry((row, val) -> {
+			if (row < n) {
+				buffer[row] = val;
+			}
+			return true;
+		});
 	}
 
 	@Override
