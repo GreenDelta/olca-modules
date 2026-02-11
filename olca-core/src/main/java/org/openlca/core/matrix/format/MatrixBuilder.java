@@ -68,18 +68,13 @@ public class MatrixBuilder {
 			dense.set(row, col, val);
 			return;
 		}
+
+		double old = sparse.get(row, col);
 		sparse.set(row, col, val);
-		if (val != 0) {
-			sparseEntries++;
-			if (sparseEntries % checkpoint == 0) {
-				// double casts to avoid integer overflows
-				double n = (double) sparse.rows * (double) sparse.cols
-						- (double) denseRows * (double) denseCols;
-				double fr = sparseEntries / n;
-				if (fr > maxSparseFileRate) {
-					mapDense();
-				}
-			}
+		if (old == 0 && val != 0) {
+			checkFillRate();
+		} else if (old != 0 && val == 0) {
+			sparseEntries--;
 		}
 	}
 
@@ -102,10 +97,34 @@ public class MatrixBuilder {
 	public void add(int row, int col, double w) {
 		if (w == 0 || row < 0 || col < 0)
 			return;
-		double v = row < denseRows && col < denseCols
-				? dense.get(row, col)
-				: sparse.get(row, col);
-		set(row, col, v + w);
+		if (row < denseRows && col < denseCols) {
+			dense.set(row, col, dense.get(row, col) + w);
+			return;
+		}
+
+		double old = sparse.get(row, col);
+		sparse.add(row, col, w);
+		double val = sparse.get(row, col);
+		if (old == 0 && val != 0) {
+			checkFillRate();
+		} else if (old != 0 && val == 0) {
+			sparseEntries--;
+		}
+	}
+
+	private void checkFillRate() {
+		sparseEntries++;
+		if (sparseEntries % checkpoint == 0) {
+			// double casts to avoid integer overflows
+			double n = (double) sparse.rows * (double) sparse.cols
+					- (double) denseRows * (double) denseCols;
+			if (n <= 0)
+				return;
+			double fillRate = sparseEntries / n;
+			if (fillRate > maxSparseFileRate) {
+				mapDense();
+			}
+		}
 	}
 
 	public Matrix finish() {
@@ -117,6 +136,8 @@ public class MatrixBuilder {
 		}
 		// double casts to avoid integer overflows
 		double n = (double) sparse.rows * (double) sparse.cols;
+		if (n <= 0)
+			return sparse;
 		double fr = sparseEntries / n;
 		log.trace("Fill rate = {}", fr);
 		if (fr > maxSparseFileRate) {
@@ -131,6 +152,7 @@ public class MatrixBuilder {
 	}
 
 	private void mapDense() {
+		// check if we need to allocate a new dense block
 		if (dense == null) {
 			dense = new DenseMatrix(sparse.rows, sparse.cols);
 		} else if (dense.rows < sparse.rows || dense.columns < sparse.cols) {
@@ -148,6 +170,9 @@ public class MatrixBuilder {
 			}
 			dense = next;
 		}
+
+		// copy the values from the sparse area to the dense block and
+		// clear the sparse area then
 		denseRows = dense.rows;
 		denseCols = dense.columns;
 		log.trace("Allocated a {}*{} dense matrix; {} new entries",

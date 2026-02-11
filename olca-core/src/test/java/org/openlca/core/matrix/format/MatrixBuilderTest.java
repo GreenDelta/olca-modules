@@ -1,6 +1,8 @@
 package org.openlca.core.matrix.format;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -62,5 +64,40 @@ public class MatrixBuilderTest {
 				assertEquals((double) row * col, val, 1e-16);
 			}
 		}
+	}
+
+	@Test
+	public void testAddAndNnzTracking() {
+		var b = new MatrixBuilder(0.5, 10);
+		// Add to empty
+		b.add(0, 0, 1.0);
+		// Accumulate
+		b.add(0, 0, 1.0);
+
+		var m = b.finish();
+		assertEquals(2.0, m.get(0, 0), 1e-16);
+
+		// Test decrementing NNZ by adding negative
+		b = new MatrixBuilder(0.5, 2);
+		b.set(0, 0, 1.0);
+		b.add(0, 0, -1.0); // Should be 0 now
+		b.set(1, 1, 1.0);
+
+		m = b.finish();
+		assertEquals(0.0, m.get(0, 0), 1e-16);
+		// If NNZ tracking failed, it might have triggered dense switch prematurely
+		assertEquals(HashPointMatrix.class, m.getClass());
+	}
+
+	@Test
+	public void testIsEmptyAndNegativeIndices() {
+		var b = new MatrixBuilder();
+		assertTrue(b.isEmpty());
+
+		b.set(-1, -1, 1.0);
+		assertTrue(b.isEmpty());
+
+		b.add(0, 0, 1.0);
+		assertFalse(b.isEmpty());
 	}
 }
