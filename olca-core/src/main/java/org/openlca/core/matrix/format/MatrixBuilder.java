@@ -15,11 +15,15 @@ public class MatrixBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/// The maximum fill rate after which we switch from sparse to dense blocks.
 	private final double maxSparseFileRate;
+
+	/// The number of updates after which we check the current fill rate.
 	private final int checkpoint;
 
-	private int updateCount = 0;
-	private int sparseEntries = 0;
+	/// The current number of updates that were made.
+	private int updates = 0;
+
 	private final HashPointMatrix sparse = new HashPointMatrix();
 	private DenseMatrix dense;
 	private int denseCols; // we need these because
@@ -59,9 +63,7 @@ public class MatrixBuilder {
 		return Math.max(sparse.cols, denseCols);
 	}
 
-	/**
-	 * Set the cell (row, col) to the given value.
-	 */
+	/// Set the cell (row, col) to the given value.
 	public void set(int row, int col, double val) {
 		if (row < 0 || col < 0)
 			return;
@@ -69,7 +71,6 @@ public class MatrixBuilder {
 			dense.set(row, col, val);
 			return;
 		}
-
 		sparse.set(row, col, val);
 		checkFillRate();
 	}
@@ -82,14 +83,9 @@ public class MatrixBuilder {
 				: sparse.get(row, col);
 	}
 
-	/**
-	 * Let $v$ be the current value at the cell $a_{row, col}. This function
-	 * adds the given value $w$ to $a_{row, col} so that:
-	 * <p>
-	 * $$a_{row, col} = v + w$$
-	 * <p>
-	 * Where $v = 0$ When there is no value at $a_{row, col}.
-	 */
+	/// Adjusts the value of the cell (row, column) so that it contains the sum of
+	/// the given value `v` and the current value (maybe 0) of that cell:
+	/// `cell[row, column] += v`
 	public void add(int row, int col, double w) {
 		if (w == 0 || row < 0 || col < 0)
 			return;
@@ -97,21 +93,20 @@ public class MatrixBuilder {
 			dense.set(row, col, dense.get(row, col) + w);
 			return;
 		}
-
 		sparse.add(row, col, w);
 		checkFillRate();
 	}
 
 	private void checkFillRate() {
-		updateCount++;
-		if (updateCount % checkpoint == 0) {
-			sparseEntries = sparse.getNumberOfEntries();
+		updates++;
+		if (updates % checkpoint == 0) {
+			double nnz = sparse.getNumberOfEntries();
 			// double casts to avoid integer overflows
 			double n = (double) sparse.rows * (double) sparse.cols
 					- (double) denseRows * (double) denseCols;
 			if (n <= 0)
 				return;
-			double fillRate = sparseEntries / n;
+			double fillRate = nnz / n;
 			if (fillRate > maxSparseFileRate) {
 				mapDense();
 			}
@@ -119,25 +114,27 @@ public class MatrixBuilder {
 	}
 
 	public Matrix finish() {
-		sparseEntries = sparse.getNumberOfEntries();
 		if (dense != null) {
 			mapDense();
 			log.trace("Finish matrix builder with "
 					+ "dense {}*{} matrix", denseRows, denseCols);
 			return dense;
 		}
+
+		// calculate the fill-rate
 		// double casts to avoid integer overflows
 		double n = (double) sparse.rows * (double) sparse.cols;
-		if (n <= 0)
-			return sparse;
-		double fr = sparseEntries / n;
+		if (n <= 0)	return sparse;
+		double fillRate = sparse.getNumberOfEntries() / n;
 		log.trace("Fill rate = {}", fr);
-		if (fr > maxSparseFileRate) {
+
+		if (fillRate > maxSparseFileRate) {
 			mapDense();
 			log.trace("Finish matrix builder with "
 					+ "dense {}*{} matrix", denseRows, denseCols);
 			return dense;
 		}
+
 		log.trace("Finish matrix builder with "
 				+ "sparse {}*{} matrix", sparse.rows, sparse.cols);
 		return sparse;
@@ -167,11 +164,10 @@ public class MatrixBuilder {
 		// clear the sparse area then
 		denseRows = dense.rows;
 		denseCols = dense.columns;
-		log.trace("Allocated a {}*{} dense matrix; {} new entries",
-				denseRows, denseCols, sparseEntries);
+		log.trace("Copy sparse values to a {}*{} dense block",
+				denseRows, denseCols);
 		sparse.iterate(
 				(row, col, val) -> dense.set(row, col, val));
 		sparse.clear();
-		sparseEntries = 0;
 	}
 }
