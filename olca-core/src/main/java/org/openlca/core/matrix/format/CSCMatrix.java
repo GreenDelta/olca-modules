@@ -18,20 +18,19 @@ public final class CSCMatrix implements SparseMatrixReader {
 	/// The array with non-zero entries.
 	public final double[] values;
 
-	/// The array with the row indices of the non-zero entries, thus it has
-	/// the exact same length as the `values` array.
+	/// The array with the row indices of the non-zero entries, thus it has the
+	/// exact same length as the `values` array.
 	public final int[] rowIndices;
 
-	/// The array with the column pointers. For each column `j` it contains
-	/// the index where the entries of column `j` start in the `values` and
-	/// `rowIndices` array. It has `columns + 1` components and the last
-	/// component contains the number of non-zero entries (so `values.length`).
-	/// So for each column `j` you get the start-index of the values via
-	/// `columnPointers[j]` and the exclusive end-index via `columnPointers[j + 1]`.
-	/// It is important to exactly follow this definition as we hand over these
-	/// arrays into math libraries that expect it like this.
+	/// The array with the column pointers. For each column `j` it contains the
+	/// index where the entries of column `j` start in the `values` and
+	/// `rowIndices` array. It has `columns + 1` components and the last component
+	/// contains the number of non-zero entries (so `values.length`). So for each
+	/// column `j` you get the start-index of the values via `columnPointers[j]`
+	/// and the exclusive end-index via `columnPointers[j + 1]`. It is important
+	/// to exactly follow this definition as we hand over these arrays into math
+	/// libraries that expect it like this.
 	public final int[] columnPointers;
-
 
 	public CSCMatrix(int rows, int cols, double[] values,
 					 int[] columnPointers, int[] rowIndices) {
@@ -56,56 +55,20 @@ public final class CSCMatrix implements SparseMatrixReader {
 		return HashPointMatrix.of(values).compress();
 	}
 
-	/**
-	 * Creates a compressed sparse column representation of the given matrix.
-	 */
+	/// Creates a CSC representation of the given matrix.
 	public static CSCMatrix of(MatrixReader m) {
 		if (m == null)
 			throw new NullPointerException("the given matrix is null");
 
-		if (m instanceof CSCMatrix csc) {
-			// copy a CCR matrix
-			double[] values = Arrays.copyOf(
-					csc.values, csc.values.length);
-			int[] columnPointers = Arrays.copyOf(
-					csc.columnPointers, csc.columnPointers.length);
-			int[] rowIndices = Arrays.copyOf(
-					csc.rowIndices, csc.rowIndices.length);
-			return new CSCMatrix(csc.rows, csc.columns,
-					values, columnPointers, rowIndices);
-		}
-
-		if (m instanceof HashPointMatrix) {
-			return ((HashPointMatrix) m).compress();
-		}
-
-		// compress another matrix format
-		int[] columnPointers = new int[m.columns() + 1];
-		var values = new TDoubleArrayList(m.rows());
-		var rowIndices = new TIntArrayList(m.rows());
-		int i = 0;
-		for (int col = 0; col < m.columns(); col++) {
-			boolean foundEntry = false;
-			for (int row = 0; row < m.rows(); row++) {
-				double val = m.get(row, col);
-				if (val == 0)
-					continue;
-				values.add(val);
-				rowIndices.add(row);
-				if (!foundEntry) {
-					columnPointers[col] = i;
-					foundEntry = true;
-				}
-				i++;
+		return switch (m) {
+			case CSCMatrix csc -> csc.copy();
+			case SparseMatrixReader sparse -> sparse.pack();
+			default -> {
+				var hpm = new HashPointMatrix(m.rows(), m.columns());
+				m.iterate(hpm::set);
+				yield hpm.pack();
 			}
-			if (!foundEntry) {
-				columnPointers[col] = i;
-			}
-		}
-		columnPointers[m.columns()] = values.size();
-
-		return new CSCMatrix(m.rows(), m.columns(),
-				values.toArray(), columnPointers, rowIndices.toArray());
+		};
 	}
 
 	@Override
@@ -126,15 +89,18 @@ public final class CSCMatrix implements SparseMatrixReader {
 	}
 
 	@Override
-	public MatrixReader copy() {
-		return CSCMatrix.of(this);
+	public CSCMatrix copy() {
+		double[] vals = Arrays.copyOf(values, values.length);
+		int[] colPtr = Arrays.copyOf(columnPointers, columnPointers.length);
+		int[] rowIdx = Arrays.copyOf(rowIndices, rowIndices.length);
+		return new CSCMatrix(rows, columns, vals, colPtr, rowIdx);
 	}
 
 	@Override
 	public double get(int row, int col) {
-		int idxStart = columnPointers[col];
-		int idxEnd = columnPointers[col + 1];
-		for (int idx = idxStart; idx < idxEnd; idx++) {
+		int start = columnPointers[col];
+		int end = columnPointers[col + 1];
+		for (int idx = start; idx < end; idx++) {
 			int r = rowIndices[idx];
 			if (r == row)
 				return values[idx];
@@ -145,9 +111,9 @@ public final class CSCMatrix implements SparseMatrixReader {
 	@Override
 	public double[] getColumn(int i) {
 		double[] v = new double[rows];
-		int idxStart = columnPointers[i];
-		int idxEnd = columnPointers[i + 1];
-		for (int idx = idxStart; idx < idxEnd; idx++) {
+		int start = columnPointers[i];
+		int end = columnPointers[i + 1];
+		for (int idx = start; idx < end; idx++) {
 			int r = rowIndices[idx];
 			v[r] = values[idx];
 		}
@@ -183,10 +149,10 @@ public final class CSCMatrix implements SparseMatrixReader {
 		}
 	}
 
-	/**
-	 * Note that this method changes the data of this matrix in place. This is
-	 * a fast operation of CSC matrices.
-	 */
+	/// This method scales every column `j` of this matrix by `v[j]` _in place_.
+	/// This is a fast operation for CSC matrices. Depending on the given vector,
+	/// the `values` array may contain zero entries then. The `rowIndices` and the
+	/// `columnPointers` are _not_ modified in this case.
 	public void scaleColumns(double[] v) {
 		for (int col = 0; col < columns; col++) {
 			double factor = v[col];
@@ -197,5 +163,4 @@ public final class CSCMatrix implements SparseMatrixReader {
 			}
 		}
 	}
-
 }
