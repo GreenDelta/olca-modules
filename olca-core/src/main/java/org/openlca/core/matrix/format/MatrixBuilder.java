@@ -18,6 +18,7 @@ public class MatrixBuilder {
 	private final double maxSparseFileRate;
 	private final int checkpoint;
 
+	private int updateCount = 0;
 	private int sparseEntries = 0;
 	private final HashPointMatrix sparse = new HashPointMatrix();
 	private DenseMatrix dense;
@@ -69,13 +70,8 @@ public class MatrixBuilder {
 			return;
 		}
 
-		double old = sparse.get(row, col);
 		sparse.set(row, col, val);
-		if (old == 0 && val != 0) {
-			checkFillRate();
-		} else if (old != 0 && val == 0) {
-			sparseEntries--;
-		}
+		checkFillRate();
 	}
 
 	public double get(int row, int col) {
@@ -102,19 +98,14 @@ public class MatrixBuilder {
 			return;
 		}
 
-		double old = sparse.get(row, col);
 		sparse.add(row, col, w);
-		double val = sparse.get(row, col);
-		if (old == 0 && val != 0) {
-			checkFillRate();
-		} else if (old != 0 && val == 0) {
-			sparseEntries--;
-		}
+		checkFillRate();
 	}
 
 	private void checkFillRate() {
-		sparseEntries++;
-		if (sparseEntries % checkpoint == 0) {
+		updateCount++;
+		if (updateCount % checkpoint == 0) {
+			sparseEntries = sparse.getNumberOfEntries();
 			// double casts to avoid integer overflows
 			double n = (double) sparse.rows * (double) sparse.cols
 					- (double) denseRows * (double) denseCols;
@@ -128,6 +119,7 @@ public class MatrixBuilder {
 	}
 
 	public Matrix finish() {
+		sparseEntries = sparse.getNumberOfEntries();
 		if (dense != null) {
 			mapDense();
 			log.trace("Finish matrix builder with "
