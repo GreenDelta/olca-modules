@@ -47,7 +47,7 @@ public class BlasTest {
 			{ 9, 12 }
 		});
 		var solver = new NativeSolver();
-		DenseMatrix m = solver.multiply(a, b);
+		var m = solver.multiply(a, b);
 		assertEquals(m.get(0, 0), 50, 1e-10);
 	}
 

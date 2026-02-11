@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.format.SparseMatrixReader;
 
 public class JavaSolver implements MatrixSolver {
 
@@ -30,10 +31,14 @@ public class JavaSolver implements MatrixSolver {
 	}
 
 	@Override
-	public double[] multiply(MatrixReader m, double[] v) {
+	public double[] multiply(MatrixReader m, double[] x) {
+		if (m instanceof SparseMatrixReader) {
+			return m.multiply(x);
+		}
+
 		var A = unwrap(m);
-		var b = new Array2DRowRealMatrix(v.length, 1);
-		b.setColumn(0, v);
+		var b = new Array2DRowRealMatrix(x.length, 1);
+		b.setColumn(0, x);
 		return A.multiply(b).getColumn(0);
 	}
 
@@ -46,6 +51,11 @@ public class JavaSolver implements MatrixSolver {
 
 	@Override
 	public Matrix multiply(MatrixReader a, MatrixReader b) {
+		if (a instanceof SparseMatrixReader sparseA
+			&& b instanceof SparseMatrixReader sparseB) {
+			return sparseA.multiply(sparseB);
+		}
+
 		RealMatrix _a = unwrap(a);
 		RealMatrix _b = unwrap(b);
 		RealMatrix c = _a.multiply(_b);

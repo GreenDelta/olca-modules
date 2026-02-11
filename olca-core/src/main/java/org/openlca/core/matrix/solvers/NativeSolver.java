@@ -9,6 +9,7 @@ import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixConverter;
 import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.format.SparseMatrixReader;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.Module;
 import org.openlca.nativelib.NativeLib;
@@ -63,8 +64,7 @@ public class NativeSolver implements MatrixSolver {
 
 	@Override
 	public double[] multiply(MatrixReader m, double[] x) {
-		if (m instanceof HashPointMatrix
-				|| m instanceof CscMatrix) {
+		if (m instanceof SparseMatrixReader) {
 			return m.multiply(x);
 		}
 		var a = MatrixConverter.dense(m);
@@ -88,7 +88,12 @@ public class NativeSolver implements MatrixSolver {
 	}
 
 	@Override
-	public DenseMatrix multiply(MatrixReader a, MatrixReader b) {
+	public Matrix multiply(MatrixReader a, MatrixReader b) {
+		if (a instanceof SparseMatrixReader sparseA
+			&& b instanceof SparseMatrixReader sparseB) {
+			return sparseA.multiply(sparseB);
+		}
+
 		DenseMatrix _a = MatrixConverter.dense(a);
 		DenseMatrix _b = MatrixConverter.dense(b);
 		int rowsA = _a.rows();
