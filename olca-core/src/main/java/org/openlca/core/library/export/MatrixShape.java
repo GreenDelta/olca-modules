@@ -1,6 +1,5 @@
 package org.openlca.core.library.export;
 
-import org.openlca.core.matrix.format.CompressedRowMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
@@ -19,7 +18,6 @@ class MatrixShape {
 
 		return switch (r.asMutable()){
 			case DenseMatrix dense -> extendDense(dense, rs, cs);
-			case CompressedRowMatrix crs -> extendCrs(crs, rs, cs);
 			case HashPointMatrix hpm -> extendHashPoints(hpm, rs, cs);
 			case JavaMatrix jm -> extendJavaMatrix(jm, rs, cs);
 		};
@@ -48,14 +46,6 @@ class MatrixShape {
 		}
 
 		return next;
-	}
-
-	private static MatrixReader extendCrs(
-			CompressedRowMatrix crs, int rows, int cols
-	) {
-		var hash = new HashPointMatrix(rows, cols);
-		crs.iterate(hash::set);
-		return hash;
 	}
 
 	private static MatrixReader extendHashPoints(

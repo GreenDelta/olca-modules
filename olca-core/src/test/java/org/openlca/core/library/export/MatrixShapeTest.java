@@ -3,7 +3,6 @@ package org.openlca.core.library.export;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.core.matrix.format.CompressedRowMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.JavaMatrix;
@@ -31,18 +30,6 @@ public class MatrixShapeTest {
 		checkExtendBoth(matrix.copy());
 		checkExtendRows(matrix.copy());
 		checkExtendCols(matrix.copy());
-	}
-
-	@Test
-	public void testExtendCrs() {
-		var crs = new CompressedRowMatrix(2, 2);
-		crs.setValues(new double[][]{
-				{1, 3},
-				{2, 4}
-		});
-		checkExtendBoth(crs.copy());
-		checkExtendRows(crs.copy());
-		checkExtendCols(crs.copy());
 	}
 
 	@Test
