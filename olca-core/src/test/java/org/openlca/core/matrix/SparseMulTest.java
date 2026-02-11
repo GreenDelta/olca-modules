@@ -13,21 +13,19 @@ public class SparseMulTest {
 	@Test
 	public void testHashPointMultiplication() {
 		// A = [[1, 2], [3, 4]]
-		var a = new HashPointMatrix(2, 2);
-		a.set(0, 0, 1);
-		a.set(0, 1, 2);
-		a.set(1, 0, 3);
-		a.set(1, 1, 4);
+		var a = HashPointMatrix.of(new double[][]{
+				{1, 2},
+				{3, 4}
+		});
 
 		// B = [[5, 6], [7, 8]]
-		var b = new HashPointMatrix(2, 2);
-		b.set(0, 0, 5);
-		b.set(0, 1, 6);
-		b.set(1, 0, 7);
-		b.set(1, 1, 8);
+		var b = HashPointMatrix.of(new double[][]{
+				{5, 6},
+				{7, 8}
+		});
 
 		// C = A * B = [[19, 22], [43, 50]]
-		var c = SparseMul.multiply(a, b);
+		var c = a.multiply(b);
 
 		assertEquals(19, c.get(0, 0), EPSILON);
 		assertEquals(22, c.get(0, 1), EPSILON);
@@ -50,7 +48,7 @@ public class SparseMulTest {
 		});
 
 		// C = A * B = [[19, 22], [43, 50]]
-		var c = SparseMul.multiply(a, b);
+		var c = a.multiply(b);
 
 		assertEquals(19, c.get(0, 0), EPSILON);
 		assertEquals(22, c.get(0, 1), EPSILON);
@@ -67,14 +65,13 @@ public class SparseMulTest {
 		});
 
 		// B as HashPoint
-		var b = new HashPointMatrix(2, 2);
-		b.set(0, 0, 5);
-		b.set(0, 1, 6);
-		b.set(1, 0, 7);
-		b.set(1, 1, 8);
+		var b = HashPointMatrix.of(new double[][]{
+				{5, 6},
+				{7, 8}
+		});
 
 		// C = A * B = [[19, 22], [43, 50]]
-		var c = SparseMul.multiply(a, b);
+		var c = a.multiply(b);
 
 		assertEquals(19, c.get(0, 0), EPSILON);
 		assertEquals(22, c.get(0, 1), EPSILON);
@@ -85,11 +82,10 @@ public class SparseMulTest {
 	@Test
 	public void testMixedHashPointCsc() {
 		// A as HashPoint
-		var a = new HashPointMatrix(2, 2);
-		a.set(0, 0, 1);
-		a.set(0, 1, 2);
-		a.set(1, 0, 3);
-		a.set(1, 1, 4);
+		var a = HashPointMatrix.of(new double[][]{
+				{1, 2},
+				{3, 4}
+		});
 
 		// B as CSC
 		var b = CscMatrix.of(new double[][]{
@@ -98,7 +94,7 @@ public class SparseMulTest {
 		});
 
 		// C = A * B = [[19, 22], [43, 50]]
-		var c = SparseMul.multiply(a, b);
+		var c = a.multiply(b);
 
 		assertEquals(19, c.get(0, 0), EPSILON);
 		assertEquals(22, c.get(0, 1), EPSILON);
@@ -109,17 +105,19 @@ public class SparseMulTest {
 	@Test
 	public void testSparseWithZeros() {
 		// Sparse matrix A = [[1, 0], [0, 4]]
-		var a = new HashPointMatrix(2, 2);
-		a.set(0, 0, 1);
-		a.set(1, 1, 4);
+		var a = HashPointMatrix.of(new double[][]{
+				{1, 0},
+				{0, 4}
+		});
 
 		// Sparse matrix B = [[0, 2], [3, 0]]
-		var b = new HashPointMatrix(2, 2);
-		b.set(0, 1, 2);
-		b.set(1, 0, 3);
+		var b = HashPointMatrix.of(new double[][]{
+				{0, 2},
+				{3, 0}
+		});
 
 		// C = A * B = [[0, 2], [12, 0]]
-		var c = SparseMul.multiply(a, b);
+		var c = a.multiply(b);
 
 		assertEquals(0, c.get(0, 0), EPSILON);
 		assertEquals(2, c.get(0, 1), EPSILON);
@@ -130,22 +128,20 @@ public class SparseMulTest {
 	@Test
 	public void testNonSquareMatrices() {
 		// A = [[1, 2, 3], [4, 5, 6]] (2x3)
-		var a = new HashPointMatrix(2, 3);
-		a.set(0, 0, 1);
-		a.set(0, 1, 2);
-		a.set(0, 2, 3);
-		a.set(1, 0, 4);
-		a.set(1, 1, 5);
-		a.set(1, 2, 6);
+		var a = HashPointMatrix.of(new double[][]{
+				{1, 2, 3},
+				{4, 5, 6}
+		});
 
 		// B = [[7], [8], [9]] (3x1)
-		var b = new HashPointMatrix(3, 1);
-		b.set(0, 0, 7);
-		b.set(1, 0, 8);
-		b.set(2, 0, 9);
+		var b = HashPointMatrix.of(new double[][]{
+				{7},
+				{8},
+				{9}
+		});
 
 		// C = A * B = [[50], [122]] (2x1)
-		var c = SparseMul.multiply(a, b);
+		var c = a.multiply(b);
 
 		assertEquals(2, c.rows());
 		assertEquals(1, c.columns());
@@ -158,31 +154,27 @@ public class SparseMulTest {
 		var a = new HashPointMatrix(2, 3);
 		var b = new HashPointMatrix(2, 2); // wrong dimensions
 
-		SparseMul.multiply(a, b);
+		a.multiply(b);
 	}
 
 	@Test
 	public void testIdentityMatrix() {
 		// Identity matrix
-		var identity = new HashPointMatrix(3, 3);
-		identity.set(0, 0, 1);
-		identity.set(1, 1, 1);
-		identity.set(2, 2, 1);
+		var identity = HashPointMatrix.of(new double[][]{
+				{1, 0, 0},
+				{0, 1, 0},
+				{0, 0, 1}
+		});
 
 		// Another matrix
-		var a = new HashPointMatrix(3, 3);
-		a.set(0, 0, 1);
-		a.set(0, 1, 2);
-		a.set(0, 2, 3);
-		a.set(1, 0, 4);
-		a.set(1, 1, 5);
-		a.set(1, 2, 6);
-		a.set(2, 0, 7);
-		a.set(2, 1, 8);
-		a.set(2, 2, 9);
+		var a = HashPointMatrix.of(new double[][]{
+				{1, 2, 3},
+				{4, 5, 6},
+				{7, 8, 9}
+		});
 
 		// A * I = A
-		var c = SparseMul.multiply(a, identity);
+		var c = a.multiply(identity);
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -191,7 +183,7 @@ public class SparseMulTest {
 		}
 
 		// I * A = A
-		var d = SparseMul.multiply(identity, a);
+		var d = identity.multiply(a);
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
