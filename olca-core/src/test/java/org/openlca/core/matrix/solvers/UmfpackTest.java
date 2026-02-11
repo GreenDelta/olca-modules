@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openlca.core.DataDir;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.Module;
 import org.openlca.nativelib.NativeLib;
@@ -40,7 +40,7 @@ public class UmfpackTest {
 
 	@Test
 	public void testSolveMatrix() {
-		var uMatrix = CSCMatrix.of(new double[][]{
+		var uMatrix = CscMatrix.of(new double[][]{
 			{2.0, 3.0, 0.0, 0.0, 0.0},
 			{3.0, 0.0, 4.0, 0.0, 6.0},
 			{0.0, -1.0, -3.0, 2.0, 0.0},
@@ -56,7 +56,7 @@ public class UmfpackTest {
 	@Test
 	@Ignore
 	public void testFactorizeMatrix() {
-		var matrix = CSCMatrix.of(new double[][]{
+		var matrix = CscMatrix.of(new double[][]{
 			{2.0, 3.0, 0.0, 0.0, 0.0},
 			{3.0, 0.0, 4.0, 0.0, 6.0},
 			{0.0, -1.0, -3.0, 2.0, 0.0},

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openlca.core.DataDir;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.nativelib.Module;
 import org.openlca.nativelib.NativeLib;
@@ -31,7 +31,7 @@ public class SparseFactorizationTest {
 		for (int i = 0; i < 5; i++) {
 			hashPoints.set(i, i, 1.0);
 		}
-		var f = SparseFactorization.of(CSCMatrix.of(hashPoints));
+		var f = SparseFactorization.of(CscMatrix.of(hashPoints));
 		f.dispose();
 		assertTrue(f.isDisposed());
 	}
@@ -44,7 +44,7 @@ public class SparseFactorizationTest {
 				{ 0.0, -1.0, -3.0, 2.0, 0.0 },
 				{ 0.0, 0.0, 1.0, 0.0, 0.0 },
 				{ 0.0, 4.0, 2.0, 0.0, 1.0 } });
-		var csc = CSCMatrix.of(m);
+		var csc = CscMatrix.of(m);
 		var f = SparseFactorization.of(csc);
 		double[] b = { 8., 45., -3., 3., 19. };
 		double[] x = f.solve(b);
@@ -60,7 +60,7 @@ public class SparseFactorizationTest {
 		for (int i = 0; i < 100; i++) {
 			hashPoints.set(i, i, 1.0);
 		}
-		var csc = CSCMatrix.of(hashPoints);
+		var csc = CscMatrix.of(hashPoints);
 		var f = SparseFactorization.of(csc);
 		for (int i = 0; i < 100; i++) {
 			var b = new double[100];

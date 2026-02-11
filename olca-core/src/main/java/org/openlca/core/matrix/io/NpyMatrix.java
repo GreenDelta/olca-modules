@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.zip.ZipFile;
 
 import org.openlca.core.matrix.format.ByteMatrixReader;
-import org.openlca.core.matrix.format.CSCByteMatrix;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscByteMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.DenseByteMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
@@ -81,7 +81,7 @@ public class NpyMatrix {
 			int[] rowIndices = Npz.read(npz, "indices.npy")
 				.asIntArray()
 				.data();
-			return new CSCMatrix(
+			return new CscMatrix(
 				shape[0], shape[1], values, columnPointers, rowIndices);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(
@@ -123,11 +123,11 @@ public class NpyMatrix {
 
 		// write sparse matrices into the CSC format
 		var m = matrix instanceof HashPointMatrix
-			? CSCMatrix.of(matrix)
+			? CscMatrix.of(matrix)
 			: matrix;
-		if (m instanceof CSCMatrix) {
+		if (m instanceof CscMatrix) {
 			var file = new File(folder, name + ".npz");
-			writeNpz(file, (CSCMatrix) m);
+			writeNpz(file, (CscMatrix) m);
 			return file;
 		}
 
@@ -141,7 +141,7 @@ public class NpyMatrix {
 		return file;
 	}
 
-	private static void writeNpz(File file, CSCMatrix csc) {
+	private static void writeNpz(File file, CscMatrix csc) {
 		Npz.create(file, npz -> {
 			Npz.write(npz, "format.npy",
 				NpyCharArray.of("csc"));
@@ -163,9 +163,9 @@ public class NpyMatrix {
 		var m = matrix instanceof HashPointByteMatrix
 			? ((HashPointByteMatrix) matrix).compress()
 			: matrix;
-		if (m instanceof CSCByteMatrix) {
+		if (m instanceof CscByteMatrix) {
 			var file = new File(folder, name + ".npz");
-			writeNpzBytes(file, (CSCByteMatrix) m);
+			writeNpzBytes(file, (CscByteMatrix) m);
 			return file;
 		}
 
@@ -179,7 +179,7 @@ public class NpyMatrix {
 		return file;
 	}
 
-	private static void writeNpzBytes(File file, CSCByteMatrix csc) {
+	private static void writeNpzBytes(File file, CscByteMatrix csc) {
 		Npz.create(file, npz -> {
 			Npz.write(npz, "format.npy",
 				NpyCharArray.of("csc"));
@@ -233,7 +233,7 @@ public class NpyMatrix {
 			int[] rowIndices = Npz.read(npz, "indices.npy")
 				.asIntArray()
 				.data();
-			return new CSCByteMatrix(
+			return new CscByteMatrix(
 				shape[0], shape[1], values, columnPointers, rowIndices);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(

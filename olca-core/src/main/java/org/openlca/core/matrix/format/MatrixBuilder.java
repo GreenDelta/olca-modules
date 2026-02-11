@@ -42,7 +42,7 @@ public class MatrixBuilder {
 		this.checkpoint = checkpoint;
 	}
 
-	public void minSize(int rows, int cols) {
+	public void ensureSize(int rows, int cols) {
 		if (sparse.rows < rows) {
 			sparse.rows = rows;
 		}
@@ -126,7 +126,7 @@ public class MatrixBuilder {
 		double n = (double) sparse.rows * (double) sparse.cols;
 		if (n <= 0)	return sparse;
 		double fillRate = sparse.getNumberOfEntries() / n;
-		log.trace("Fill rate = {}", fr);
+		log.trace("Fill rate = {}", fillRate);
 
 		if (fillRate > maxSparseFileRate) {
 			mapDense();

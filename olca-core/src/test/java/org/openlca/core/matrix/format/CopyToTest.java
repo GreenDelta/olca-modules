@@ -24,7 +24,7 @@ public record CopyToTest(MatrixReader source, Matrix target) {
 		var sources = List.of(
 			DenseMatrix.of(data),
 			HashPointMatrix.of(data),
-			CSCMatrix.of(data),
+			CscMatrix.of(data),
 			JavaMatrix.of(data));
 		int n = 10;
 		var targets = List.of(

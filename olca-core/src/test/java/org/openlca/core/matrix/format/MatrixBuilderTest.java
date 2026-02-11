@@ -20,7 +20,7 @@ public class MatrixBuilderTest {
 		assertEquals(size, m.columns());
 		for (int i = 0; i < size; i++) {
 			double val = m.get(i, i);
-			assertEquals((double) i, val, 1e-16);
+			assertEquals(i, val, 1e-16);
 		}
 		assertEquals(HashPointMatrix.class, m.getClass());
 	}
@@ -48,7 +48,7 @@ public class MatrixBuilderTest {
 	@Test
 	public void testFullDenseMinSize() {
 		MatrixBuilder b = new MatrixBuilder(0.1, 500_000);
-		b.minSize(2000, 1000);
+		b.ensureSize(2000, 1000);
 		for (int row = 0; row < 2500; row++) {
 			for (int col = 0; col < 1500; col++) {
 				b.set(row, col, row * col);

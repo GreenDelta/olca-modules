@@ -56,12 +56,7 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 	}
 
 	@Override
-	public CSCMatrix pack() {
-		return compress();
-	}
-
-	@Override
-	public final boolean isSparse() {
+	public boolean isSparse() {
 		return true;
 	}
 
@@ -245,7 +240,8 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 		}
 	}
 
-	public CSCMatrix compress() {
+	@Override
+	public CscMatrix pack() {
 
 		// initialize the arrays; note that in `set` and `add` we
 		// make sure that the matrix does not contain zero values
@@ -296,7 +292,7 @@ public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 			}
 		}
 
-		return new CSCMatrix(
+		return new CscMatrix(
 				rows,
 				cols,
 				values,

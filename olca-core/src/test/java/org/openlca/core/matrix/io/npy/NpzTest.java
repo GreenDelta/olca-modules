@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.util.Dirs;
 
@@ -16,7 +16,7 @@ public class NpzTest {
 	public void testCSC() throws IOException {
 
 		// construct the CSC matrix
-		var m = CSCMatrix.of(new double[][]{
+		var m = CscMatrix.of(new double[][]{
 			{0.0, 0.0, 0.0, 0.0},
 			{0.0, 4.0, 0.0, 0.0},
 			{0.0, 0.0, 0.0, 1.0},
@@ -25,7 +25,7 @@ public class NpzTest {
 		});
 
 		// the check routine
-		Consumer<CSCMatrix> checkCSC = (csc) -> {
+		Consumer<CscMatrix> checkCSC = (csc) -> {
 			Assert.assertEquals(5, csc.rows);
 			Assert.assertEquals(4, csc.columns);
 			Assert.assertArrayEquals(new int[]{0, 0, 1, 1, 2}, csc.columnPointers);
@@ -37,8 +37,8 @@ public class NpzTest {
 		var tmpDir = Files.createTempDirectory("_npy_olca").toFile();
 		var file = NpyMatrix.write(tmpDir, "M", m);
 		var copy = NpyMatrix.read(file);
-		Assert.assertTrue(copy instanceof CSCMatrix);
-		checkCSC.accept((CSCMatrix) copy);
+		Assert.assertTrue(copy instanceof CscMatrix);
+		checkCSC.accept((CscMatrix) copy);
 		Dirs.delete(tmpDir);
 	}
 }

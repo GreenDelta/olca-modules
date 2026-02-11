@@ -100,7 +100,7 @@ public final class ImpactBuilder {
 
 		// allocate and fill the matrices
 		matrix = new MatrixBuilder();
-		matrix.minSize(impactIndex.size(), flowIndex.size());
+		matrix.ensureSize(impactIndex.size(), flowIndex.size());
 		uncertainties = withUncertainties
 				? new UMatrix()
 				: null;

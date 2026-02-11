@@ -5,12 +5,12 @@ package org.openlca.core.matrix.format;
  * a compressed (packed) and a hash-indexed (unpacked) format.
  */
 public sealed interface SparseMatrixReader extends MatrixReader
-		permits CSCMatrix, HashPointMatrix {
+		permits CscMatrix, HashPointMatrix {
 
 	/**
 	 * Returns a compressed representation (CSC) of this matrix.
 	 */
-	CSCMatrix pack();
+	CscMatrix pack();
 
 	/**
 	 * Returns an editable, hash-based representation of this matrix.

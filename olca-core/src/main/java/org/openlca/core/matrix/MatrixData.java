@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixReader;
@@ -121,7 +121,7 @@ public class MatrixData {
 
 	public boolean isSparse() {
 		return techMatrix instanceof HashPointMatrix
-			|| techMatrix instanceof CSCMatrix;
+			|| techMatrix instanceof CscMatrix;
 	}
 
 	public boolean hasLibraryLinks() {
@@ -149,13 +149,13 @@ public class MatrixData {
 
 	public void compress() {
 		if (techMatrix instanceof HashPointMatrix) {
-			techMatrix = CSCMatrix.of(techMatrix);
+			techMatrix = CscMatrix.of(techMatrix);
 		}
 		if (enviMatrix instanceof HashPointMatrix) {
-			enviMatrix = CSCMatrix.of(enviMatrix);
+			enviMatrix = CscMatrix.of(enviMatrix);
 		}
 		if (impactMatrix instanceof HashPointMatrix) {
-			impactMatrix = CSCMatrix.of(impactMatrix);
+			impactMatrix = CscMatrix.of(impactMatrix);
 		}
 	}
 

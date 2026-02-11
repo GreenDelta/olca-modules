@@ -1,12 +1,12 @@
 package org.openlca.core.matrix;
 
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.SparseMatrixReader;
 
 /**
  * Utility class for efficient sparse matrix multiplication.
- * Supports {@link HashPointMatrix} and {@link CSCMatrix} types.
+ * Supports {@link HashPointMatrix} and {@link CscMatrix} types.
  */
 public final class SparseMul {
 

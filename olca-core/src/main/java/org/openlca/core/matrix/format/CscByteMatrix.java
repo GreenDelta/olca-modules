@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.format;
 
-public class CSCByteMatrix implements ByteMatrixReader {
+public class CscByteMatrix implements ByteMatrixReader {
 
 	public final int rows;
 	public final int columns;
@@ -8,7 +8,7 @@ public class CSCByteMatrix implements ByteMatrixReader {
 	public final int[] columnPointers;
 	public final int[] rowIndices;
 
-	public CSCByteMatrix(
+	public CscByteMatrix(
 		int rows,
 		int columns,
 		byte[] values,

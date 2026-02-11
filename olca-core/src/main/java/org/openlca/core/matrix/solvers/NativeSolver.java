@@ -3,7 +3,7 @@ package org.openlca.core.matrix.solvers;
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.linear.NonSquareMatrixException;
 import org.apache.commons.math3.linear.SingularMatrixException;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
@@ -34,8 +34,8 @@ public class NativeSolver implements MatrixSolver {
 			throw new NonSquareMatrixException(a.rows(), a.columns());
 
 		if (hasSparseSupport() &&
-				(a instanceof HashPointMatrix || a instanceof CSCMatrix)) {
-			var csc = CSCMatrix.of(a);
+				(a instanceof HashPointMatrix || a instanceof CscMatrix)) {
+			var csc = CscMatrix.of(a);
 			double[] f = new double[csc.rows];
 			f[idx] = d;
 			double[] b = new double[csc.rows];
@@ -64,7 +64,7 @@ public class NativeSolver implements MatrixSolver {
 	@Override
 	public double[] multiply(MatrixReader m, double[] x) {
 		if (m instanceof HashPointMatrix
-				|| m instanceof CSCMatrix) {
+				|| m instanceof CscMatrix) {
 			return m.multiply(x);
 		}
 		var a = MatrixConverter.dense(m);
@@ -109,8 +109,8 @@ public class NativeSolver implements MatrixSolver {
 			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
 		if (hasSparseSupport()) {
 			if (matrix instanceof HashPointMatrix hpm)
-				return SparseFactorization.of(hpm.compress());
-			if (matrix instanceof CSCMatrix csc)
+				return SparseFactorization.of(hpm.pack());
+			if (matrix instanceof CscMatrix csc)
 				return SparseFactorization.of(csc);
 		}
 		return DenseFactorization.of(matrix);

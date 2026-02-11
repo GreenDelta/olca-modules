@@ -3,7 +3,7 @@ package org.openlca.core.matrix;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 
 public class SparseMulTest {
@@ -38,13 +38,13 @@ public class SparseMulTest {
 	@Test
 	public void testCscMultiplication() {
 		// A = [[1, 2], [3, 4]]
-		var a = CSCMatrix.of(new double[][]{
+		var a = CscMatrix.of(new double[][]{
 				{1, 2},
 				{3, 4}
 		});
 
 		// B = [[5, 6], [7, 8]]
-		var b = CSCMatrix.of(new double[][]{
+		var b = CscMatrix.of(new double[][]{
 				{5, 6},
 				{7, 8}
 		});
@@ -61,7 +61,7 @@ public class SparseMulTest {
 	@Test
 	public void testMixedCscHashPoint() {
 		// A as CSC
-		var a = CSCMatrix.of(new double[][]{
+		var a = CscMatrix.of(new double[][]{
 				{1, 2},
 				{3, 4}
 		});
@@ -92,7 +92,7 @@ public class SparseMulTest {
 		a.set(1, 1, 4);
 
 		// B as CSC
-		var b = CSCMatrix.of(new double[][]{
+		var b = CscMatrix.of(new double[][]{
 				{5, 6},
 				{7, 8}
 		});

@@ -120,7 +120,7 @@ public abstract class MatrixExport {
 			var builder = builders[i];
 			if (builder == null || builder.isEmpty())
 				continue;
-			builder.minSize(host.rows(), host.columns());
+			builder.ensureSize(host.rows(), host.columns());
 			var matrix = builder.finish();
 			write(matrix, prefix + "_u" + i);
 		}

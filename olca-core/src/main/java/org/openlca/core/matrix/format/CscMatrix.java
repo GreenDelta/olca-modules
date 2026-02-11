@@ -2,12 +2,9 @@ package org.openlca.core.matrix.format;
 
 import java.util.Arrays;
 
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
-
 /// Implements the compressed-column format for sparse matrices (CSC =
 /// compressed sparse column).
-public final class CSCMatrix implements SparseMatrixReader {
+public final class CscMatrix implements SparseMatrixReader {
 
 	/// The total number of rows.
 	public final int rows;
@@ -32,7 +29,7 @@ public final class CSCMatrix implements SparseMatrixReader {
 	/// libraries that expect it like this.
 	public final int[] columnPointers;
 
-	public CSCMatrix(int rows, int cols, double[] values,
+	public CscMatrix(int rows, int cols, double[] values,
 					 int[] columnPointers, int[] rowIndices) {
 		this.rows = rows;
 		this.columns = cols;
@@ -51,17 +48,17 @@ public final class CSCMatrix implements SparseMatrixReader {
 	 *
 	 * @param values The matrix values as an array of rows (row-major order).
 	 */
-	public static CSCMatrix of(double[][] values) {
-		return HashPointMatrix.of(values).compress();
+	public static CscMatrix of(double[][] values) {
+		return HashPointMatrix.of(values).pack();
 	}
 
 	/// Creates a CSC representation of the given matrix.
-	public static CSCMatrix of(MatrixReader m) {
+	public static CscMatrix of(MatrixReader m) {
 		if (m == null)
 			throw new NullPointerException("the given matrix is null");
 
 		return switch (m) {
-			case CSCMatrix csc -> csc.copy();
+			case CscMatrix csc -> csc.copy();
 			case SparseMatrixReader sparse -> sparse.pack();
 			default -> {
 				var hpm = new HashPointMatrix(m.rows(), m.columns());
@@ -72,7 +69,7 @@ public final class CSCMatrix implements SparseMatrixReader {
 	}
 
 	@Override
-	public CSCMatrix pack() {
+	public CscMatrix pack() {
 		return this;
 	}
 
@@ -89,11 +86,11 @@ public final class CSCMatrix implements SparseMatrixReader {
 	}
 
 	@Override
-	public CSCMatrix copy() {
+	public CscMatrix copy() {
 		double[] vals = Arrays.copyOf(values, values.length);
 		int[] colPtr = Arrays.copyOf(columnPointers, columnPointers.length);
 		int[] rowIdx = Arrays.copyOf(rowIndices, rowIndices.length);
-		return new CSCMatrix(rows, columns, vals, colPtr, rowIdx);
+		return new CscMatrix(rows, columns, vals, colPtr, rowIdx);
 	}
 
 	@Override

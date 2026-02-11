@@ -1,6 +1,6 @@
 package org.openlca.core.matrix.solvers;
 
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.julia.Julia;
 
 public class SparseFactorization implements Factorization {
@@ -14,7 +14,7 @@ public class SparseFactorization implements Factorization {
 		this.pointer = pointer;
 	}
 
-	public static SparseFactorization of(CSCMatrix matrix) {
+	public static SparseFactorization of(CscMatrix matrix) {
 		var pointer = Julia.createSparseFactorization(
 				matrix.rows,
 				matrix.columnPointers,

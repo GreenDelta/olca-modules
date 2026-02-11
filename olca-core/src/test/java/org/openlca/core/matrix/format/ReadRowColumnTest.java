@@ -21,7 +21,7 @@ public record ReadRowColumnTest(MatrixReader matrix) {
 		return List.of(
 			DenseMatrix.of(data),
 			HashPointMatrix.of(data),
-			CSCMatrix.of(data),
+			CscMatrix.of(data),
 			JavaMatrix.of(data));
 	}
 

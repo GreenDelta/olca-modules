@@ -17,7 +17,7 @@ public final class CompressedRowMatrix implements Matrix {
 	}
 
 	@Override
-	public final boolean isSparse() {
+	public boolean isSparse() {
 		return true;
 	}
 

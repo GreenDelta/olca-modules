@@ -2,7 +2,7 @@ package examples;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.library.LibMatrix;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.solvers.mkl.MKL;
 import org.openlca.julia.Julia;
 import org.openlca.nativelib.NativeLib;
@@ -19,7 +19,7 @@ public class ThinLibSolvingExample {
 			.orElseThrow()
 			.getMatrix(LibMatrix.A)
 			.orElseThrow();
-		var csc = CSCMatrix.of(m);
+		var csc = CscMatrix.of(m);
 
 		System.out.println("\nUMFPACK:");
 		testUmfpack(csc);
@@ -28,7 +28,7 @@ public class ThinLibSolvingExample {
 		testMkl(csc);
 	}
 
-	private static void testUmfpack(CSCMatrix csc) {
+	private static void testUmfpack(CscMatrix csc) {
 		var n = csc.rows();
 		var b = new double[n];
 		b[0] = 1;
@@ -49,7 +49,7 @@ public class ThinLibSolvingExample {
 		}
 	}
 
-	private static void testMkl(CSCMatrix csc) {
+	private static void testMkl(CscMatrix csc) {
 		var n = csc.rows();
 		var b = new double[n];
 		b[0] = 1;

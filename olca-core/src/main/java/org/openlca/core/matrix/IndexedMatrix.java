@@ -52,7 +52,7 @@ public final class IndexedMatrix<R, C> {
 	public IndexedMatrix<R, C> reshape(
 		MatrixIndex<R> newRows, MatrixIndex<C> newColumns) {
 		var builder = new MatrixBuilder();
-		builder.minSize(newRows.size(), newColumns.size());
+		builder.ensureSize(newRows.size(), newColumns.size());
 		data.iterate((row, col, value) -> {
 			if (value == 0)
 				return;
@@ -89,7 +89,7 @@ public final class IndexedMatrix<R, C> {
 			this.rows = Objects.requireNonNull(rows);
 			this.columns = Objects.requireNonNull(columns);
 			buffer = new MatrixBuilder();
-			buffer.minSize(rows.size(), columns.size());
+			buffer.ensureSize(rows.size(), columns.size());
 		}
 
 		public Builder<R, C> put(IndexedMatrix<R, C> matrix) {

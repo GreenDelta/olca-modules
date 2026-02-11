@@ -6,12 +6,12 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-public class CSCMatrixTest {
+public class CscMatrixTest {
 
 	@Test
 	public void testAllZeros() {
 		var hpm = new HashPointMatrix(10, 10);
-		var csc = CSCMatrix.of(hpm);
+		var csc = CscMatrix.of(hpm);
 		assertEquals(10, csc.rows);
 		assertEquals(10, csc.columns);
 		assertEquals(0, csc.rowIndices.length);
@@ -28,7 +28,7 @@ public class CSCMatrixTest {
 		var hpm = new HashPointMatrix();
 		hpm.set(0, 0, 1);
 		hpm.set(1, 2, 2);
-		var csc = CSCMatrix.of(hpm);
+		var csc = CscMatrix.of(hpm);
 		assertEquals(2, csc.rows);
 		assertEquals(3, csc.columns);
 		assertEquals(2, csc.rowIndices.length);
@@ -52,7 +52,7 @@ public class CSCMatrixTest {
 				{1, 2, 3},
 				{4, 5, 6},
 		});
-		var csc = CSCMatrix.of(hpm);
+		var csc = CscMatrix.of(hpm);
 		csc.scaleColumns(v(0.5, 1.0, 1.5));
 
 		var expected = new double[][]{
@@ -69,7 +69,7 @@ public class CSCMatrixTest {
 		hmp.set(0, 0, 1.0);
 		hmp.set(1, 1, 2.0);
 		hmp.set(2, 2, 3.0);
-		var csc = CSCMatrix.of(hmp);
+		var csc = CscMatrix.of(hmp);
 
 		// test fields
 		assertEquals(3, csc.rows);
@@ -129,7 +129,7 @@ public class CSCMatrixTest {
 			{0, 4, 2, 0, 1,},
 		};
 		var hpm = HashPointMatrix.of(data);
-		var csc = CSCMatrix.of(hpm);
+		var csc = CscMatrix.of(hpm);
 
 		// test fields
 		assertEquals(5, csc.rows);

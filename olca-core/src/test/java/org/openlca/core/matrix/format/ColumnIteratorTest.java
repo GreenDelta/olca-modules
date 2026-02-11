@@ -23,7 +23,7 @@ public class ColumnIteratorTest {
 
 		var dense = DenseMatrix.of(data);
 		var points = HashPointMatrix.of(data);
-		var csc = points.compress();
+		var csc = points.pack();
 		var java = JavaMatrix.of(data);
 		var matrices = List.of(
 				dense, points, csc, java);

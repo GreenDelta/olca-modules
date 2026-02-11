@@ -9,7 +9,7 @@ public interface ColumnIterator {
 			return new DenseIterator(dense, col);
 		if (m instanceof HashPointMatrix points)
 			return new HashPointIterator(points, col);
-		if (m instanceof CSCMatrix csc)
+		if (m instanceof CscMatrix csc)
 			return new CscIterator(csc, col);
 		return new DefaultIterator(m, col);
 	}
@@ -72,7 +72,7 @@ public interface ColumnIterator {
 		}
 	}
 
-	record CscIterator(CSCMatrix matrix, int column)
+	record CscIterator(CscMatrix matrix, int column)
 			implements ColumnIterator {
 
 		@Override

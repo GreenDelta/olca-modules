@@ -95,7 +95,7 @@ public class InMemLibrarySolver {
 			var impIdx = full.impactIndex = origin.impactIndex;
 			var enviIdx = full.enviIndex;
 			var impBuffer = new MatrixBuilder();
-			impBuffer.minSize(impIdx.size(), enviIdx.size());
+			impBuffer.ensureSize(impIdx.size(), enviIdx.size());
 
 			// first, load impact factors for non-library impact categories
 			// into the matrix
@@ -244,7 +244,7 @@ public class InMemLibrarySolver {
 			}
 			var fullIdx = full.techIndex;
 			fullIdx.addAll(idx);
-			buffer.minSize(fullIdx.size(), fullIdx.size());
+			buffer.ensureSize(fullIdx.size(), fullIdx.size());
 
 			m.iterate((row, col, val) -> {
 				var rowFlow = idx.at(row);
@@ -271,7 +271,7 @@ public class InMemLibrarySolver {
 			var fullEnviIdx = full.enviIndex;
 			fullEnviIdx.addAll(enviIdx);
 			var fullTechIdx = full.techIndex;
-			buffer.minSize(fullEnviIdx.size(), fullTechIdx.size());
+			buffer.ensureSize(fullEnviIdx.size(), fullTechIdx.size());
 
 			if (m == null || techIndex == null)
 				return;

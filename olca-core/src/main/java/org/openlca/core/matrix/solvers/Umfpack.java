@@ -1,11 +1,11 @@
 package org.openlca.core.matrix.solvers;
 
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.julia.Julia;
 
 public class Umfpack {
 
-	public static double[] solve(CSCMatrix m, double[] demand) {
+	public static double[] solve(CscMatrix m, double[] demand) {
 		double[] result = new double[demand.length];
 		Julia.umfSolve(m.rows,
 				m.columnPointers,
@@ -16,7 +16,7 @@ public class Umfpack {
 		return result;
 	}
 
-	public static UmfFactorizedMatrix factorize(CSCMatrix m) {
+	public static UmfFactorizedMatrix factorize(CscMatrix m) {
 		long pointer = Julia.umfFactorize(
 				m.rows,
 				m.columnPointers,

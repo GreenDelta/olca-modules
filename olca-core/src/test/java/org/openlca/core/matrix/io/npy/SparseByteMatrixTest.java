@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Test;
 import org.openlca.core.matrix.format.ByteMatrixBuffer;
-import org.openlca.core.matrix.format.CSCByteMatrix;
+import org.openlca.core.matrix.format.CscByteMatrix;
 import org.openlca.core.matrix.format.HashPointByteMatrix;
 import org.openlca.core.matrix.io.NpyMatrix;
 import org.openlca.util.Dirs;
@@ -49,7 +49,7 @@ public class SparseByteMatrixTest {
 		// load the data from the CSC matrix and check it
 		var h = new HashPointByteMatrix();
 		NpyMatrix.readBytes(dir, "M")
-			.map(CSCByteMatrix.class::cast)
+			.map(CscByteMatrix.class::cast)
 			.orElseThrow()
 			.iterate(h::set);
 		assertEquals(numberOfEntries, h.getNumberOfEntries());

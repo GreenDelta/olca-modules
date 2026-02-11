@@ -537,7 +537,7 @@ public class LazyLibrarySolver implements ResultProvider {
 		var impactIndex = impactIndex();
 		var flowIndex = enviIndex();
 		var builder = new MatrixBuilder();
-		builder.minSize(impactIndex.size(), flowIndex.size());
+		builder.ensureSize(impactIndex.size(), flowIndex.size());
 
 		// collect factors for indicators from
 		// the foreground database

@@ -112,7 +112,7 @@ public class HashPointByteMatrix implements ByteMatrix {
 		return row;
 	}
 
-	public CSCByteMatrix compress() {
+	public CscByteMatrix compress() {
 		int[] columnPointers = new int[columns + 1];
 		int n = getNumberOfEntries();
 		columnPointers[columns] = n;
@@ -140,7 +140,7 @@ public class HashPointByteMatrix implements ByteMatrix {
 			}
 		}
 
-		return new CSCByteMatrix(
+		return new CscByteMatrix(
 			rows,
 			columns,
 			values,

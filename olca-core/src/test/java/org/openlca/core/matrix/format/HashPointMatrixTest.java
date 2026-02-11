@@ -147,7 +147,7 @@ public class HashPointMatrixTest {
 		for (int i = 0; i < 100; i++) {
 			hashPoints.set(i, i, 1);
 		}
-		var csc = hashPoints.compress();
+		var csc = hashPoints.pack();
 		assertEquals(100, csc.columns());
 		assertEquals(100, csc.rows());
 		for (int i = 0; i < 100; i++) {
@@ -163,7 +163,7 @@ public class HashPointMatrixTest {
 				hashPoints.set(i, j, i * j);
 			}
 		}
-		var csc = hashPoints.compress();
+		var csc = hashPoints.pack();
 		assertEquals(42, csc.rows());
 		assertEquals(24, csc.columns());
 		for (int i = 0; i < 42; i++) {
@@ -220,7 +220,7 @@ public class HashPointMatrixTest {
 		m.set(0, 0, 1.0); // column 0
 		m.set(0, 2, 3.0); // column 2, column 1 is empty
 
-		var csc = m.compress();
+		var csc = m.pack();
 		assertEquals(3, csc.columns());
 		assertEquals(0, csc.columnPointers[0]); // col 0 start
 		assertEquals(1, csc.columnPointers[1]); // col 1 empty, so same as next

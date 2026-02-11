@@ -3,7 +3,7 @@ package org.openlca.core.matrix.solvers.mkl;
 import java.util.Optional;
 
 import org.apache.commons.math3.linear.NonSquareMatrixException;
-import org.openlca.core.matrix.format.CSCMatrix;
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.DenseMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
@@ -58,7 +58,7 @@ public class MKLSolver implements MatrixSolver {
 	@Override
 	public double[] multiply(MatrixReader m, double[] x) {
 		// TODO: check/add native support
-		if (m instanceof HashPointMatrix || m instanceof CSCMatrix)
+		if (m instanceof HashPointMatrix || m instanceof CscMatrix)
 			return m.multiply(x);
 		var a = MatrixConverter.dense(m);
 		var y = new double[m.rows()];
@@ -124,11 +124,11 @@ public class MKLSolver implements MatrixSolver {
 		return true;
 	}
 
-	private Optional<CSCMatrix> asSparse(MatrixReader matrix) {
-		if (matrix instanceof CSCMatrix csc)
+	private Optional<CscMatrix> asSparse(MatrixReader matrix) {
+		if (matrix instanceof CscMatrix csc)
 			return Optional.of(csc);
 		if (matrix instanceof HashPointMatrix hpm)
-			return Optional.of(hpm.compress());
+			return Optional.of(hpm.pack());
 		return Optional.empty();
 	}
 }

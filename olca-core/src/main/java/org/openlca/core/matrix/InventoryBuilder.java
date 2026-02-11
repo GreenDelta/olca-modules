@@ -82,14 +82,14 @@ public class InventoryBuilder {
 
 		// product data
 		data.techIndex = techIndex;
-		techBuilder.minSize(n, n);
+		techBuilder.ensureSize(n, n);
 		data.techMatrix = techBuilder.finish();
 		data.techUncertainties = techUncerts;
 
 		// optional elementary flows
 		if (m > 0) {
 			data.enviIndex = flowIndex;
-			enviBuilder.minSize(m, n);
+			enviBuilder.ensureSize(m, n);
 			data.enviMatrix = enviBuilder.finish();
 			data.enviUncertainties = enviUncerts;
 		}
