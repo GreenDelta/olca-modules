@@ -16,7 +16,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  * Note that you have to make sure to set the respective row and column size
  * when there are empty rows or columns.
  */
-public final class HashPointMatrix implements Matrix {
+public final class HashPointMatrix implements Matrix, SparseMatrixReader {
 
 	public int rows;
 	public int cols;
@@ -50,6 +50,16 @@ public final class HashPointMatrix implements Matrix {
 		var m = new HashPointMatrix(values.length, Util.columnsOf(values));
 		m.setValues(values);
 		return m;
+	}
+
+	@Override
+	public HashPointMatrix unpack() {
+		return this;
+	}
+
+	@Override
+	public CSCMatrix pack() {
+		return compress();
 	}
 
 	@Override

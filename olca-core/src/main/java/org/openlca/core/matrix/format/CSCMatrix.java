@@ -5,38 +5,33 @@ import java.util.Arrays;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
-/**
- * Implements a compressed-column representation of a sparse matrix (CSC =
- * compressed sparse column). Note that this format is not editable. Calling
- * `set(row, col, val)` will throw an exception.
- */
-public class CSCMatrix implements MatrixReader {
+/// Implements the compressed-column format for sparse matrices (CSC =
+/// compressed sparse column).
+public final class CSCMatrix implements SparseMatrixReader {
 
-	/**
-	 * The total number of rows.
-	 */
+	/// The total number of rows.
 	public final int rows;
 
-	/**
-	 * The total number of columns.
-	 */
+	/// The total number of columns.
 	public final int columns;
 
-	/**
-	 * The vector with non-zero entries $A.val$.
-	 */
+	/// The array with non-zero entries.
 	public final double[] values;
 
-	/**
-	 * The column pointers $A.c$ that indicate where each column begins. The
-	 * last component of $A.c$ contains the number of non-zero entries $nz(A)$.
-	 */
+	/// The array with the row indices of the non-zero entries, thus it has
+	/// the exact same length as the `values` array.
+	public final int[] rowIndices;
+
+	/// The array with the column pointers. For each column `j` it contains
+	/// the index where the entries of column `j` start in the `values` and
+	/// `rowIndices` array. It has `columns + 1` components and the last
+	/// component contains the number of non-zero entries (so `values.length`).
+	/// So for each column `j` you get the start-index of the values via
+	/// `columnPointers[j]` and the exclusive end-index via `columnPointers[j + 1]`.
+	/// It is important to exactly follow this definition as we hand over these
+	/// arrays into math libraries that expect it like this.
 	public final int[] columnPointers;
 
-	/**
-	 * The row indices $A.r$ of the non-zero entries $A.val$.
-	 */
-	public final int[] rowIndices;
 
 	public CSCMatrix(int rows, int cols, double[] values,
 					 int[] columnPointers, int[] rowIndices) {
@@ -111,6 +106,18 @@ public class CSCMatrix implements MatrixReader {
 
 		return new CSCMatrix(m.rows(), m.columns(),
 				values.toArray(), columnPointers, rowIndices.toArray());
+	}
+
+	@Override
+	public CSCMatrix pack() {
+		return this;
+	}
+
+	@Override
+	public HashPointMatrix unpack() {
+		var m = new HashPointMatrix(rows, columns);
+		iterate(m::set);
+		return m;
 	}
 
 	@Override

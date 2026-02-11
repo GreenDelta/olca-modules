@@ -2,8 +2,7 @@ package org.openlca.core.matrix;
 
 import org.openlca.core.matrix.format.CSCMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
-import org.openlca.core.matrix.format.Matrix;
-import org.openlca.core.matrix.format.MatrixReader;
+import org.openlca.core.matrix.format.SparseMatrixReader;
 
 /**
  * Utility class for efficient sparse matrix multiplication.
@@ -22,37 +21,27 @@ public final class SparseMul {
 	 * @param b the right matrix
 	 * @return the result matrix C = A * B
 	 */
-	public static Matrix multiply(MatrixReader a, MatrixReader b) {
+	public static HashPointMatrix multiply(SparseMatrixReader a, SparseMatrixReader b) {
 		if (a.columns() != b.rows()) {
 			throw new IllegalArgumentException(
 					"Dimensions mismatch: " + a.columns() + " columns vs " + b.rows() + " rows");
 		}
 
 		var result = new HashPointMatrix(a.rows(), b.columns());
+		var cscA = a.pack();
 
 		// Drive multiplication by the non-zero entries of B
 		b.iterate((k, j, bVal) -> {
 			if (bVal == 0)
 				return;
 
-			if (a instanceof CSCMatrix cscA) {
-				// Efficient path for CSC (Column-compressed)
-				int start = cscA.columnPointers[k];
-				int end = cscA.columnPointers[k + 1];
-				for (int i = start; i < end; i++) {
-					int row = cscA.rowIndices[i];
-					double aVal = cscA.values[i];
-					add(result, row, j, aVal * bVal);
-				}
-			} else {
-				// Fallback for other formats (HashPoint, etc.)
-				double[] colA = a.getColumn(k);
-				for (int i = 0; i < colA.length; i++) {
-					double aVal = colA[i];
-					if (aVal != 0) {
-						add(result, i, j, aVal * bVal);
-					}
-				}
+			// Add bVal * A[:,k] to result[:,j]
+			int start = cscA.columnPointers[k];
+			int end = cscA.columnPointers[k + 1];
+			for (int i = start; i < end; i++) {
+				int row = cscA.rowIndices[i];
+				double aVal = cscA.values[i];
+				add(result, row, j, aVal * bVal);
 			}
 		});
 
