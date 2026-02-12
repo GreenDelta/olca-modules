@@ -5,6 +5,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProviderType;
 
 import gnu.trove.map.hash.TLongLongHashMap;
+import gnu.trove.set.hash.TLongHashSet;
 
 class ProcessCheck implements Runnable {
 
@@ -113,15 +114,25 @@ class ProcessCheck implements Runnable {
 	private void checkOrphanedProcessDocs() {
 		if (v.wasCanceled())
 			return;
-		var q = """
-				select doc.id from tbl_process_docs doc
-				  left join tbl_processes p on p.f_process_doc = doc.id
-				where p.id is null
-				""";
-		sql.query(q, r -> {
+
+		var usedDocs = new TLongHashSet();
+		sql.query("select f_process_doc from tbl_processes", r -> {
+			var docId = r.getLong(1);
+			if (docId != 0) {
+				usedDocs.add(docId);
+			}
+			return !v.wasCanceled();
+		});
+
+		if (v.wasCanceled())
+			return;
+
+		sql.query("select id from tbl_process_docs", r -> {
 			long docId = r.getLong(1);
-			v.error("orphaned process documentation @" + docId);
-			foundErrors = true;
+			if (!usedDocs.contains(docId)) {
+				v.error("orphaned process documentation @" + docId);
+				foundErrors = true;
+			}
 			return !v.wasCanceled();
 		});
 	}
