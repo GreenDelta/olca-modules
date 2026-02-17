@@ -1,13 +1,13 @@
 package org.openlca.core.services;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.ParameterDao;
 import org.openlca.core.model.ParameterRedef;
-import org.openlca.core.model.ParameterizedEntity;
-import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.output.JsonExport;
 import org.openlca.jsonld.output.ParameterWriter;
@@ -17,26 +17,29 @@ import com.google.gson.JsonArray;
 
 class JsonParameters {
 
-	static JsonArray of(JsonExport exp, ParameterizedEntity entity) {
+	static JsonArray of(IDatabase db, RootDescriptor descriptor) {
 		var array = new JsonArray();
-		if (entity == null || entity.parameters.isEmpty())
+		if (descriptor == null)
 			return array;
-		for (var param : entity.parameters) {
+		var exp = new JsonExport(db, new MemStore())
+				.withReferences(false);
+		var parameters = new ParameterDao(db).getParametersOf(descriptor.id);
+		if (parameters == null || parameters.isEmpty())
+			return array;
+		for (var param : parameters) {
 			var json = new ParameterWriter(exp).write(param);
 			array.add(json);
 		}
 		return array;
 	}
-
-	static JsonArray of(IDatabase db, ProductSystem system) {
-
+	
+	static JsonArray of(IDatabase db, ProductSystemDescriptor system) {
 		// get the baseline parameter values
-		var baseline = system.parameterSets.stream()
-				.filter(s -> s.isBaseline)
-				.findAny()
-				.map(s -> s.parameters.stream().collect(
-						Collectors.toMap(JsonParameters::keyOf, p -> p, (p1, p2) -> p1)))
-				.orElse(Collections.emptyMap());
+		var baseline = ParameterRedefSets.baselineOf(db, system)
+				.parameters.stream()
+				.collect(Collectors.toMap(
+						JsonParameters::keyOf, 
+						p -> p, (p1, p2) -> p1));
 
 		// get all possible redefinitions with default values
 		var all = ParameterRedefSets.allOf(db, system).parameters;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.openlca.commons.Strings;
@@ -211,7 +210,7 @@ public class ParameterUsageTree {
 					if (r.wasNull() || ownerID <= 0)
 						return true;
 					var name = r.getString(2);
-					if (matches(name)) {
+					if (Formula.matches(name, this.name)) {
 						hasLocalDef.add(ownerID);
 					}
 					return true;
@@ -248,11 +247,11 @@ public class ParameterUsageTree {
 			NativeSql.on(db).query(sql, r -> {
 				var amountFormula = r.getString(3);
 				var costFormula = r.getString(4);
-				var formula = matches(amountFormula)
+				var formula = Formula.matches(amountFormula, name)
 						? amountFormula
-						: matches(costFormula)
-						? costFormula
-						: null;
+						: Formula.matches(costFormula, name)
+							? costFormula
+							: null;
 				if (formula == null)
 					return true;
 				long ownerID = r.getLong(1);
@@ -272,7 +271,7 @@ public class ParameterUsageTree {
 					"tbl_allocation_factors WHERE formula IS NOT NULL";
 			NativeSql.on(db).query(sql, r -> {
 				var formula = r.getString(3);
-				if (!matches(formula))
+				if (!Formula.matches(formula, name))
 					return true;
 				long ownerID = r.getLong(2);
 				if (skipOwner(ownerID))
@@ -297,7 +296,7 @@ public class ParameterUsageTree {
 					"  WHERE fac.formula IS NOT NULL";
 			NativeSql.on(db).query(sql, r -> {
 				String formula = r.getString(3);
-				if (!matches(formula))
+				if (!Formula.matches(formula, name))
 					return true;
 				long ownerID = r.getLong(1);
 				if (skipOwner(ownerID))
@@ -343,7 +342,7 @@ public class ParameterUsageTree {
 					long ownerID = owners.get(p.id);
 					if (ownerID != owner.id
 							|| p.isInputParameter
-							|| !matches(p.formula))
+							|| !Formula.matches(p.formula, name))
 						continue;
 					roots.computeIfAbsent(owner.id, id -> new Node(owner))
 							.add(new Node(p).of(UsageType.FORMULA, p.formula));
@@ -358,7 +357,7 @@ public class ParameterUsageTree {
 				for (var p : new ParameterDao(db).getAll()) {
 					long ownerID = owners.get(p.id);
 					if (hasLocalDef.contains(ownerID)
-							|| !matches(p.formula))
+							|| !Formula.matches(p.formula, name))
 						continue;
 					var node = new Node(p).of(UsageType.FORMULA, p.formula);
 					var root = parent(p, ownerID);
@@ -373,10 +372,10 @@ public class ParameterUsageTree {
 
 			// search via all text matches
 			for (var p : new ParameterDao(db).getAll()) {
-				var nameMatch = matches(p.name);
+				var nameMatch = Formula.matches(p.name, name);
 				var formulaMatch = !nameMatch
 						&& !p.isInputParameter
-						&& matches(p.formula);
+						&& Formula.matches(p.formula, name);
 				if (!nameMatch && !formulaMatch)
 					continue;
 
@@ -428,26 +427,8 @@ public class ParameterUsageTree {
 			}
 		}
 
-		private boolean matches(String formula) {
-			if (formula == null)
-				return false;
-			String f = formula.trim();
-			if (f.equalsIgnoreCase(name))
-				return true;
-			try {
-				Set<String> vars = Formula.getVariables(f);
-				for (String var : vars) {
-					if (var.equalsIgnoreCase(name))
-						return true;
-				}
-			} catch (Error e) {
-				return false;
-			}
-			return false;
-		}
-
 		private boolean matches(ParameterRedef redef) {
-			if (!matches(redef.name))
+			if (!Formula.matches(redef.name, name))
 				return false;
 			if (owner != null)
 				return redef.contextId != null

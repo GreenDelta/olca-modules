@@ -2,7 +2,6 @@ package org.openlca.core.database;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.openlca.core.model.Category;
@@ -17,9 +16,18 @@ public class ParameterDao extends
 		super(Parameter.class, ParameterDescriptor.class, database);
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Parameter> getParametersOf(long ownerId) {
+		var sql = "select * from tbl_parameters "
+				+ "where f_owner = " + ownerId;
+		return (List<Parameter>) db.newEntityManager()
+				.createNativeQuery(sql, Parameter.class)
+				.getResultList();
+	}
+	
 	public List<Parameter> getGlobalParameters() {
-		String jpql = "select p from Parameter p where p.scope = :scope";
-		Map<String, Object> args = new HashMap<>();
+		var jpql = "select p from Parameter p where p.scope = :scope";
+		var args = new HashMap<String, Object>();
 		args.put("scope", ParameterScope.GLOBAL);
 		return getAll(jpql, args);
 	}
@@ -41,10 +49,10 @@ public class ParameterDao extends
 	public boolean existsGlobal(String name) {
 		if (name == null)
 			return false;
-		String jpql = "SELECT count(param) FROM Parameter param "
+		var jpql = "SELECT count(param) FROM Parameter param "
 				+ "WHERE lower(param.name) = :name "
 				+ "AND param.scope = :scope";
-		Map<String, Object> parameters = new HashMap<>();
+		var parameters = new HashMap<String, Object>();
 		parameters.put("name", name.toLowerCase());
 		parameters.put("scope", ParameterScope.GLOBAL);
 		return getCount(jpql, parameters) > 0;

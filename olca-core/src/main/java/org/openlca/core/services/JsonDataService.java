@@ -13,6 +13,7 @@ import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.MemStore;
 import org.openlca.jsonld.input.EntityReader;
@@ -281,31 +282,28 @@ public record JsonDataService(IDatabase db) {
 		}
 	}
 
+	public static void main(
+			String[] args) {
+		System.out.println(ParameterizedEntity.class.isAssignableFrom(Process.class));
+	}
+	
 	public <T extends RootEntity> Response<JsonArray> getParametersOf(
 			Class<T> type, String id) {
 		if (type == null || id == null)
 			return Response.error("no type or ID provided");
-		var entity = db.get(type, id);
-
-		return switch (entity) {
-
-			case null -> Response.empty();
-
-			case ParameterizedEntity pe -> {
-				var exp = new JsonExport(db, new MemStore())
-						.withReferences(false);
-				var array = JsonParameters.of(exp, pe);
-				yield Response.of(array);
-			}
-
-			case ProductSystem sys -> {
-				var array = JsonParameters.of(db, sys);
-				yield Response.of(array);
-			}
-
-			default -> Response.error(
-					"unsupported parameter container: type=" + type + " id=" + id);
-		};
+		var descriptor = db.getDescriptor(type, id);
+		if (descriptor == null)
+			return Response.empty();
+		if (descriptor instanceof ProductSystemDescriptor psd) {
+			var array = JsonParameters.of(db, psd);
+			return Response.of(array);			
+		}
+		if (ParameterizedEntity.class.isAssignableFrom(type)) {
+			var array = JsonParameters.of(db, descriptor);
+			return Response.of(array);			
+		}
+		return Response.error(
+				"unsupported parameter container: type=" + type + " id=" + id);
 	}
 
 	private JsonRefs refs() {

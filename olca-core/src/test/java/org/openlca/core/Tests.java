@@ -76,11 +76,15 @@ public class Tests {
 
 	public static IDatabase getDb() {
 		if (db == null) {
-			db = USE_FILE_BASED_DB
-					? initFileBasedDb()
-					: Derby.createInMemory();
+			db = getEmptyDb();
 		}
 		return db;
+	}
+	
+	public static IDatabase getEmptyDb() {
+		return USE_FILE_BASED_DB
+			? initFileBasedDb()
+			: Derby.createInMemory();		
 	}
 
 	private static IDatabase initFileBasedDb() {

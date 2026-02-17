@@ -7,7 +7,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ParameterScope;
-import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 
 public class ParameterRedefSets {
 
@@ -19,13 +19,13 @@ public class ParameterRedefSets {
 	 * and process parameters. Only parameters of processes that are part of the
 	 * given product system are included.
 	 */
-	public static ParameterRedefSet allOf(IDatabase db, ProductSystem system) {
+	public static ParameterRedefSet allOf(IDatabase db, ProductSystemDescriptor system) {
 		var set = new ParameterRedefSet();
 		set.name = "Baseline";
 		set.isBaseline = true;
 		if (db == null || system == null)
 			return set;
-
+		var processes = ProductSystems.processesOf(db, system);
 		var sql = "select " +
 			/* 1 */ "name, " +
 			/* 2 */ "description, " +
@@ -50,7 +50,7 @@ public class ParameterRedefSets {
 
 			var owner = r.getLong(3);
 			if (scope == ParameterScope.PROCESS) {
-				if (!system.processes.contains(owner))
+				if (!processes.contains(owner))
 					return true;
 				redef.contextId = r.getLong(3);
 				redef.contextType = ModelType.PROCESS;
@@ -64,14 +64,12 @@ public class ParameterRedefSets {
 	
 	/**
 	 * Loads the baseline parameter redef set of the product system with the given systemId
-	 * 
-	 * used in onlinelca
 	 */
-	public static ParameterRedefSet baselineOf(IDatabase db, long systemId) {
+	public static ParameterRedefSet baselineOf(IDatabase db, ProductSystemDescriptor system) {
 		var set = new ParameterRedefSet();
 		set.name = "Baseline";
 		set.isBaseline = true;
-		if (db == null || systemId  == 0l)
+		if (db == null || system == null)
 			return set;
 		
 		var sql = "select " +
@@ -81,7 +79,7 @@ public class ParameterRedefSets {
 			/* 4 */ "context_type, " +
 			/* 5 */ "f_context from tbl_parameter_redefs where f_owner = " +
 			/* 6 */ "(select id from tbl_parameter_redef_sets where is_baseline = 1 " +
-			/* 7 */	"and f_product_system = " + systemId + ")";
+			/* 7 */	"and f_product_system = " + system.id + ")";
 		
 		NativeSql.on(db).query(sql, r -> {
 			var redef = new ParameterRedef();

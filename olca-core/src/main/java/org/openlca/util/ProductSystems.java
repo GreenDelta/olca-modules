@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.ProductSystemDescriptor;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.impl.Constants;
@@ -144,4 +147,17 @@ public final class ProductSystems {
 		return visited.size() == system.processes.size()
 				&& visited.containsAll(system.processes);
 	}
+	
+	public static Set<Long> processesOf(IDatabase db, ProductSystemDescriptor system) {
+		var sql = "SELECT f_process "
+				+ "FROM tbl_product_system_processes "
+				+ "WHERE f_product_system = " + system.id;
+		var ids = new HashSet<Long>();
+		NativeSql.on(db).query(sql, r -> {
+			ids.add(r.getLong(1));
+			return true;
+		});
+		return ids;
+	}
+	
 }
