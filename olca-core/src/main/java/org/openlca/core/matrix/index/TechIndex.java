@@ -21,6 +21,8 @@ import org.openlca.core.matrix.linking.LinkingInfo;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -31,6 +33,8 @@ import gnu.trove.map.hash.TLongObjectHashMap;
  * columns.
  */
 public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
+
+	private static final Logger log = LoggerFactory.getLogger(TechIndex.class);
 
 	/**
 	 * Maps the product-outputs and waste-inputs as (processId, flowId) pairs to an
@@ -97,6 +101,7 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		var refFlow = TechFlow.of(process, flow);
 
 		if (setup.hasProductSystem()) {
+			log.info("Building TechIndex from product system (id={})", setup.productSystem().id);
 			var index = new TechIndex(refFlow);
 			index.fillFrom(db, setup.productSystem());
 			return index;
@@ -107,11 +112,13 @@ public final class TechIndex implements TechLinker, MatrixIndex<TechFlow> {
 		// required things
 		var linking = LinkingInfo.of(db);
 		if (linking.preferLazy()) {
+			log.info("Preferring lazy linking");
 			var linker = DefaultProcessLinker.of(linking);
 			return linker.build(refFlow);
 		}
 
 		// include all providers from the database
+		log.info("Preferring eager linking");
 		var index = new TechIndex(refFlow);
 		TechFlowScan.of(db)
 				.withLinkedResults(true)

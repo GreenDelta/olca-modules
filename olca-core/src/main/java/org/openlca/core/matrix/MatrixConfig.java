@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
@@ -35,6 +36,11 @@ public class MatrixConfig {
 	public final Map<TechFlow, LcaResult> subResults;
 	public final ImpactIndex impactIndex;
 	public final FormulaInterpreter interpreter;
+
+	/** Optional cached indices/matrix for reuse when only parameters change. */
+	public final EnviIndex cachedEnviIndex;
+	public final ImpactIndex cachedImpactIndex;
+	public final MatrixReader cachedImpactMatrix;
 
 	private MatrixConfig(Builder builder) {
 		this.db = builder.db;
@@ -69,6 +75,9 @@ public class MatrixConfig {
 		subResults = builder.subResults != null
 			? builder.subResults
 			: Collections.emptyMap();
+		cachedEnviIndex = builder.cachedEnviIndex;
+		cachedImpactIndex = builder.cachedImpactIndex;
+		cachedImpactMatrix = builder.cachedImpactMatrix;
 	}
 
 	public static Builder of(IDatabase db, TechIndex techIndex) {
@@ -92,6 +101,9 @@ public class MatrixConfig {
 		private ImpactIndex impacts;
 		private List<ParameterRedef> redefs;
 		private Map<TechFlow, LcaResult> subResults;
+		private EnviIndex cachedEnviIndex;
+		private ImpactIndex cachedImpactIndex;
+		private MatrixReader cachedImpactMatrix;
 
 		private AllocationMethod allocationMethod;
 		private boolean withUncertainties;
@@ -160,15 +172,33 @@ public class MatrixConfig {
 			return this;
 		}
 
+		/** Use a pre-built EnviIndex (e.g. from cache) when only parameters change. */
+		public Builder withCachedEnviIndex(EnviIndex enviIndex) {
+			this.cachedEnviIndex = enviIndex;
+			return this;
+		}
+
+		/** Use a pre-built ImpactIndex (e.g. from cache) when only parameters change. */
+		public Builder withCachedImpactIndex(ImpactIndex impactIndex) {
+			this.cachedImpactIndex = impactIndex;
+			return this;
+		}
+
+		/** Use a pre-built impact matrix (e.g. from cache) when only parameters change. */
+		public Builder withCachedImpactMatrix(MatrixReader impactMatrix) {
+			this.cachedImpactMatrix = impactMatrix;
+			return this;
+		}
+
 		public MatrixData build() {
 			var conf = new MatrixConfig(this);
 			var data = new InventoryBuilder(conf).build();
-			// add the LCIA matrix structures; note that in case
-			// of a library system we may not have elementary
-			// flows in the foreground system but still want to
-			// attach an impact index to the matrix data.
+			// add the LCIA matrix structures; use cache when provided
 			if (conf.hasImpacts()) {
-				if (EnviIndex.isEmpty(data.enviIndex)) {
+				if (conf.cachedImpactIndex != null && conf.cachedImpactMatrix != null) {
+					data.impactIndex = conf.cachedImpactIndex;
+					data.impactMatrix = conf.cachedImpactMatrix;
+				} else if (EnviIndex.isEmpty(data.enviIndex)) {
 					data.impactIndex = conf.impactIndex;
 				} else {
 					ImpactBuilder.of(conf, data.enviIndex)

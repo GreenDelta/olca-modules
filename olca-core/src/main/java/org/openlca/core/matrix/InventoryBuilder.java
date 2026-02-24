@@ -44,15 +44,17 @@ public class InventoryBuilder {
 			? AllocationIndex.create(conf)
 			: null;
 
-		// create the index of elementary flows; when the system has sub-systems
-		// we add the flows of the sub-systems to the index; note that there
-		// can be elementary flows that only occur in a sub-system
-		flowIndex = conf.withRegionalization
-			? EnviIndex.createRegionalized()
-			: EnviIndex.create();
-		if (conf.subResults != null) {
-			for (var subResult : conf.subResults.values()) {
-				flowIndex.addAll(subResult.enviIndex());
+		// create or reuse the index of elementary flows
+		if (conf.cachedEnviIndex != null) {
+			flowIndex = conf.cachedEnviIndex;
+		} else {
+			flowIndex = conf.withRegionalization
+				? EnviIndex.createRegionalized()
+				: EnviIndex.create();
+			if (conf.subResults != null) {
+				for (var subResult : conf.subResults.values()) {
+					flowIndex.addAll(subResult.enviIndex());
+				}
 			}
 		}
 
@@ -186,7 +188,11 @@ public class InventoryBuilder {
 	}
 
 	private void addIntervention(TechFlow provider, CalcExchange e) {
-		int row = flowIndex.register(provider, e, flows, locations);
+		int row = conf.cachedEnviIndex != null
+			? flowIndex.of(e.flowId, e.locationId)
+			: flowIndex.register(provider, e, flows, locations);
+		if (row < 0)
+			return;
 		add(row, provider, enviBuilder, e);
 	}
 
