@@ -71,6 +71,7 @@
 		<module>olca-io</module>
 		<module>olca-ipc</module>
 		<module>olca-proto-io</module>
+		<module>olca-sd</module>
 	</modules>
 
 	<dependencies>

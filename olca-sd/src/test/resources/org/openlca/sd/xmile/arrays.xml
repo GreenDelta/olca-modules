@@ -1,0 +1,90 @@
+<!--
+
+	XML Interchange Language for System Dynamics (XMILE) Version 1.0
+	OASIS Standard
+	14 December 2015
+	Copyright (c) OASIS Open 2015. All rights reserved.
+	Source: http://docs.oasis-open.org/xmile/xmile/v1.0/os/examples/
+-->
+<xmile xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" version="1.0">
+	<header>
+		<options>
+			<uses_arrays max_dimensions="2" invalid_index_value="NaN"/>
+		</options>
+		<product version="1.0" lang="en">Acme Constructor</product>
+		<vendor>Acme Software</vendor>
+		<created>2014-05-10</created>
+		<name>Arrays</name>
+		<caption> This model is used to validate simple array syntax. </caption>
+	</header>
+	<sim_specs>
+		<start>0</start>
+		<stop>10</stop>
+		<dt>1.0</dt>
+	</sim_specs>
+	<dimensions>
+		<dim name="products" size="3"/>
+		<dim name="regions">
+			<elem name="north"/>
+			<elem name="south"/>
+		</dim>
+	</dimensions>
+	<model>
+		<variables>
+			<aux name="single dim var apply to all">
+				<dimensions>
+					<dim name="products"/>
+				</dimensions>
+				<eqn>20</eqn>
+			</aux>
+			<aux name="multi dim var apply to all">
+				<dimensions>
+					<dim name="products"/>
+					<dim name="regions"/>
+				</dimensions>
+				<eqn>20</eqn>
+			</aux>
+			<aux name="single dim var non apply to all">
+				<dimensions>
+					<dim name="products"/>
+				</dimensions>
+				<element subscript="1">
+					<eqn>20</eqn>
+				</element>
+				<element subscript="2">
+					<eqn>20</eqn>
+				</element>
+				<element subscript="3">
+					<eqn>20</eqn>
+				</element>
+			</aux>
+			<aux name="graphical not_apply_to_all">
+				<dimensions>
+					<dim name="products"/>
+				</dimensions>
+				<element subscript="1">
+					<gf>
+						<xscale min="1" max="9"/>
+						<ypts>0,50,25</ypts>
+						<!--  implied y scale from 0-50  -->
+					</gf>
+				</element>
+				<element subscript="2">
+					<gf>
+						<xscale min="1" max="9"/>
+						<yscale min="0" max="100"/>
+						<ypts>90,10,50</ypts>
+					</gf>
+				</element>
+				<element subscript="3">
+					<gf>
+						<xscale min="1" max="9"/>
+						<yscale min="0" max="100"/>
+						<ypts>90,10,50</ypts>
+					</gf>
+				</element>
+				<eqn>TIME</eqn>
+			</aux>
+		</variables>
+	</model>
+</xmile>

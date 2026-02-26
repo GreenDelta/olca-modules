@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" version="1.0">
+	<header></header>
+	<sim_specs>
+		<start>1</start>
+		<stop>10</stop>
+	</sim_specs>
+	<model>
+		<variables>
+			<stock name="sheep">
+				<eqn>10</eqn>
+				<inflow>new_sheep</inflow>
+			</stock>
+			<flow name="new sheep">
+				<eqn>birth_rate * sheep</eqn>
+			</flow>
+			<aux name="birth rate">
+				<eqn>0.2</eqn>
+			</aux>
+		</variables>
+	</model>
+</xmile>

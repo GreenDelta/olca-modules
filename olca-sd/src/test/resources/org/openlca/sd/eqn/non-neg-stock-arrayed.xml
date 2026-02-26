@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0">
+	<header>
+		<name>Non-negative arrayed stock test</name>
+	</header>
+	<sim_specs method="Euler" time_units="Years">
+		<start>1</start>
+		<stop>10</stop>
+		<dt>1</dt>
+	</sim_specs>
+	<dimensions>
+		<dim name="Region">
+			<elem name="North"/>
+			<elem name="South"/>
+		</dim>
+	</dimensions>
+	<model>
+		<variables>
+			<stock name="Stock">
+				<dimensions>
+					<dim name="Region"/>
+				</dimensions>
+				<element subscript="North">
+					<eqn>5</eqn>
+				</element>
+				<element subscript="South">
+					<eqn>10</eqn>
+				</element>
+				<inflow>inflow</inflow>
+				<outflow>outflow</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="inflow">
+				<dimensions>
+					<dim name="Region"/>
+				</dimensions>
+				<element subscript="North">
+					<eqn>1</eqn>
+				</element>
+				<element subscript="South">
+					<eqn>2</eqn>
+				</element>
+			</flow>
+			<flow name="outflow">
+				<dimensions>
+					<dim name="Region"/>
+				</dimensions>
+				<element subscript="North">
+					<eqn>2</eqn>
+				</element>
+				<element subscript="South">
+					<eqn>3</eqn>
+				</element>
+			</flow>
+		</variables>
+	</model>
+</xmile>

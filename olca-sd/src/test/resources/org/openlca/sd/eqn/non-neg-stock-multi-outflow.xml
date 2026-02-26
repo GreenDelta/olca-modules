@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0">
+	<header>
+		<name>Non-negative stock with multiple outflows test</name>
+	</header>
+	<sim_specs method="Euler" time_units="Years">
+		<start>1</start>
+		<stop>10</stop>
+		<dt>1</dt>
+	</sim_specs>
+	<model>
+		<variables>
+			<stock name="Stock">
+				<eqn>5</eqn>
+				<inflow>inflow</inflow>
+				<outflow>outflow1</outflow>
+				<outflow>outflow2</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="inflow">
+				<eqn>1</eqn>
+			</flow>
+			<!-- Both outflows want 2 units each = 4 total -->
+			<flow name="outflow1">
+				<eqn>2</eqn>
+			</flow>
+			<flow name="outflow2">
+				<eqn>2</eqn>
+			</flow>
+		</variables>
+	</model>
+</xmile>
