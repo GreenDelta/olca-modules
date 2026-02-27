@@ -34,7 +34,7 @@ class XmileWriter {
 		if (model == null) return xmile;
 		xmile.setHeader(writeHeader());
 		xmile.setSimSpecs(writeSimSpecs());
-		xmile.setDims(writeDims());
+		writeDimsTo(xmile);
 		var xmiModel = new XmiModel();
 		xmiModel.setVariables(writeVariables());
 		xmiModel.setViews(writeViews());
@@ -48,10 +48,6 @@ class XmileWriter {
 			return Collections.emptyList();
 
 		var view = new XmiView();
-		var stocks = new ArrayList<XmiStockView>();
-		var auxiliaries = new ArrayList<XmiAuxView>();
-		var flows = new ArrayList<XmiFlowView>();
-
 		for (var entry : model.positions().entrySet()) {
 			var id = entry.getKey();
 			var rect = entry.getValue();
@@ -67,33 +63,22 @@ class XmileWriter {
 			switch (v) {
 				case Auxil ignored -> {
 					var av = new XmiAuxView();
-					av.setName(id.label());
-					av.setX(x);
-					av.setY(y);
-					auxiliaries.add(av);
+					writePosition(av, id, x, y, w, h);
+					view.auxiliaries().add(av);
 				}
 				case Rate ignored -> {
 					var fv = new XmiFlowView();
-					fv.setName(id.label());
-					fv.setX(x);
-					fv.setY(y);
-					flows.add(fv);
+					writePosition(fv, id, x, y, w, h);
+					view.flows().add(fv);
 				}
 				case Stock ignored -> {
 					var sv = new XmiStockView();
-					sv.setName(id.label());
-					sv.setX(x);
-					sv.setY(y);
-					sv.setWidth((double) w);
-					sv.setHeight((double) h);
-					stocks.add(sv);
+					writePosition(sv, id, x, y, w, h);
+					view.stocks().add(sv);
 				}
 			}
 		}
 
-		view.setStocks(stocks);
-		view.setAuxiliaries(auxiliaries);
-		view.setFlows(flows);
 		return List.of(view);
 	}
 
@@ -103,6 +88,16 @@ class XmileWriter {
 				return v;
 		}
 		return null;
+	}
+
+	private void writePosition(
+		XmiVariableView v, Id id,
+		double x, double y, int w, int h) {
+		v.setName(id.label());
+		v.setX(x);
+		v.setY(y);
+		v.setWidth((double) w);
+		v.setHeight((double) h);
 	}
 
 	private XmiLca writeExtensions() {
@@ -194,21 +189,17 @@ class XmileWriter {
 		return x;
 	}
 
-	private List<XmiDim> writeDims() {
-		var dims = new ArrayList<XmiDim>();
+	private void writeDimsTo(Xmile xmile) {
 		for (var d : model.dimensions()) {
 			var xd = new XmiDim();
 			xd.setName(d.name().value());
-			var elements = new ArrayList<XmiDim.Elem>();
 			for (var e : d.elements()) {
 				var xe = new XmiDim.Elem();
 				xe.setName(e.value());
-				elements.add(xe);
+				xd.elems().add(xe);
 			}
-			xd.setElems(elements);
-			dims.add(xd);
+			xmile.dims().add(xd);
 		}
-		return dims;
 	}
 
 	private List<XmiVariable> writeVariables() {

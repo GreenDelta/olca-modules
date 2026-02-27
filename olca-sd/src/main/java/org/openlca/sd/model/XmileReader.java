@@ -26,6 +26,7 @@ import org.openlca.sd.xmile.XmiGf;
 import org.openlca.sd.xmile.XmiModel;
 import org.openlca.sd.xmile.XmiStock;
 import org.openlca.sd.xmile.Xmile;
+import org.openlca.sd.xmile.view.XmiVariableView;
 
 class XmileReader {
 
@@ -114,35 +115,27 @@ class XmileReader {
 	private void readViews(XmiModel xmiModel) {
 		for (var view : xmiModel.views()) {
 			for (var aux : view.auxiliaries()) {
-				var id = Id.of(aux.name());
-				if (id.isNil())
-					continue;
-				model.positions().put(id, new Rect(
-					(int) aux.x() - 40,
-					(int) aux.y() - 22,
-					80, 45));
+				readPosition(aux);
 			}
 			for (var stock : view.stocks()) {
-				var id = Id.of(stock.name());
-				if (id.isNil())
-					continue;
-				int w = stock.width() != null ? stock.width().intValue() : 80;
-				int h = stock.height() != null ? stock.height().intValue() : 45;
-				model.positions().put(id, new Rect(
-					(int) stock.x() - w / 2,
-					(int) stock.y() - h / 2,
-					w, h));
+				readPosition(stock);
 			}
 			for (var flow : view.flows()) {
-				var id = Id.of(flow.name());
-				if (id.isNil())
-					continue;
-				model.positions().put(id, new Rect(
-					(int) flow.x() - 40,
-					(int) flow.y() - 22,
-					80, 45));
+				readPosition(flow);
 			}
 		}
+	}
+
+	private void readPosition(XmiVariableView v) {
+		var id = Id.of(v.name());
+		if (id.isNil())
+			return;
+		int w = v.width() != null ? v.width().intValue() : 80;
+		int h = v.height() != null ? v.height().intValue() : 45;
+		model.positions().put(id, new Rect(
+			(int) v.x() - w / 2,
+			(int) v.y() - h / 2,
+			w, h));
 	}
 
 	private void readExtensions() {
