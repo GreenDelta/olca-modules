@@ -51,34 +51,39 @@ class Resolver {
 		for (var b : lca.systemBindings()) {
 			var ref = b.system();
 			if (ref == null) continue;
-
 			var systemRes = get(ref, ProductSystem.class, db);
 			if (systemRes.isError())
 				return systemRes.wrapError("Failed to load product system");
 			systems.put(ref.refId(), systemRes.value());
-
-			// resolve the variable bindings
-			var params = new ArrayList<ParameterRedef>();
-			for (var vb : b.varBindings()) {
-				if (vb.varId() == null || Strings.isBlank(vb.parameter()))
-					continue;
-
-				var param = new ParameterRedef();
-				param.name = vb.parameter();
-				var ctx = vb.context();
-				if (ctx != null && ctx.type() != null) {
-					var d = db.getDescriptor(ctx.type().getModelClass(), ctx.refId());
-					if (d != null) {
-						param.contextType = ctx.type();
-						param.contextId = d.id;
-					}
-				}
-				params.add(param);
-			}
-			paramLists.put(ref.refId(), params);
+			paramLists.put(ref.refId(), paramTemplatesOf(b, db));
 		}
 
 		return Res.ok(new Resolver(method, systems, paramLists));
+	}
+
+	private static List<ParameterRedef> paramTemplatesOf(
+			SystemBinding binding, IDatabase db) {
+		var templates = new ArrayList<ParameterRedef>();
+		for (var vb : binding.varBindings()) {
+			if (vb.varId() == null || Strings.isBlank(vb.parameter()))
+				continue;
+			var param = new ParameterRedef();
+			param.name = vb.parameter();
+			resolveContext(vb.context(), param, db);
+			templates.add(param);
+		}
+		return templates;
+	}
+
+	private static void resolveContext(
+			EntityRef ctx, ParameterRedef param, IDatabase db) {
+		if (ctx == null || ctx.type() == null)
+			return;
+		var d = db.getDescriptor(ctx.type().getModelClass(), ctx.refId());
+		if (d != null) {
+			param.contextType = ctx.type();
+			param.contextId = d.id;
+		}
 	}
 
 	private static <T extends RootEntity> Res<T> get(
