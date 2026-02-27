@@ -10,33 +10,34 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.results.LcaResult;
 import org.openlca.sd.eqn.SimulationState;
 import org.openlca.sd.eqn.Simulator;
+import org.openlca.sd.model.SdModel;
 import org.openlca.sd.model.cells.NumCell;
 import org.openlca.sd.xmile.Xmile;
 
 public class CoupledSimulator {
 
 	private final Simulator simulator;
-	private final SimulationSetup setup;
+	private final SdModel model;
 	private final SystemCalculator calculator;
 	private final CoupledResult result;
 	private Res<?> error;
 
 	private CoupledSimulator(
 		Simulator simulator,
-		SimulationSetup setup,
+		SdModel model,
 		SystemCalculator calculator) {
 		this.simulator = simulator;
-		this.setup = setup;
+		this.model = model;
 		this.calculator = calculator;
 		this.result = new CoupledResult();
 	}
 
 	public static Res<CoupledSimulator> of(
-		Xmile xmile, SimulationSetup setup, SystemCalculator calculator) {
+		Xmile xmile, SdModel model, SystemCalculator calculator) {
 		var simulator = Simulator.of(xmile);
 		if (simulator.isError())
 			return simulator.wrapError("Failed to create simulator");
-		return Res.ok(new CoupledSimulator(simulator.value(), setup, calculator));
+		return Res.ok(new CoupledSimulator(simulator.value(), model, calculator));
 	}
 
 	public Res<CoupledResult> getResult() {
@@ -62,7 +63,7 @@ public class CoupledSimulator {
 
 			var simState = res.value();
 			var rs = new ArrayList<LcaResult>();
-			for (var b : setup.systemBindings()) {
+			for (var b : model.systemBindings()) {
 				if (progress.isCanceled())
 					break;
 
@@ -75,7 +76,7 @@ public class CoupledSimulator {
 				var calcSetup = CalculationSetup.of(b.system())
 						.withParameters(params.value())
 						.withAllocation(b.allocation())
-						.withImpactMethod(setup.method())
+						.withImpactMethod(model.method())
 						.withAmount(b.amount()); // TODO: the amount can be bound to a var
 				try {
 					var lcaResult = calculator.calculate(calcSetup);

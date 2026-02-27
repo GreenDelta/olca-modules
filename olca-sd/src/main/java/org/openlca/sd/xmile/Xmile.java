@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.commons.Res;
+import org.openlca.sd.xmile.extensions.XmiExtensions;
 
 import jakarta.xml.bind.JAXB;
 import jakarta.xml.bind.JAXBContext;
@@ -39,6 +40,9 @@ public class Xmile {
 
 	@XmlElement(name = "model", namespace = NS)
 	XmiModel model;
+
+	@XmlElement(name = "extra", namespace = NS)
+	XmiExtensions extensions;
 
 	public static Res<Xmile> readFrom(File file) {
 		try (var stream = new FileInputStream(file);
@@ -109,5 +113,13 @@ public class Xmile {
 
 	public void setModel(XmiModel model) {
 		this.model = model;
+	}
+
+	public XmiExtensions extensions() {
+		return extensions;
+	}
+
+	public void setExtensions(XmiExtensions extensions) {
+		this.extensions = extensions;
 	}
 }

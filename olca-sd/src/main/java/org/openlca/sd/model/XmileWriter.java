@@ -1,6 +1,7 @@
 package org.openlca.sd.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,8 @@ import org.openlca.sd.model.cells.TensorCell;
 import org.openlca.sd.model.cells.TensorEqnCell;
 import org.openlca.sd.util.Tensors;
 import org.openlca.sd.xmile.*;
+import org.openlca.sd.xmile.view.*;
+import org.openlca.sd.xmile.extensions.*;
 
 class XmileWriter {
 
@@ -34,8 +37,108 @@ class XmileWriter {
 		xmile.setDims(writeDims());
 		var xmiModel = new XmiModel();
 		xmiModel.setVariables(writeVariables());
+		xmiModel.setViews(writeViews());
 		xmile.setModel(xmiModel);
+		xmile.setExtensions(writeExtensions());
 		return xmile;
+	}
+
+	private List<Object> writeViews() {
+		if (model.positions().isEmpty())
+			return Collections.emptyList();
+
+		var view = new XmiView();
+		var stocks = new ArrayList<XmiStockView>();
+		var auxiliaries = new ArrayList<XmiAuxView>();
+		var flows = new ArrayList<XmiFlowView>();
+
+		for (var entry : model.positions().entrySet()) {
+			var id = entry.getKey();
+			var rect = entry.getValue();
+			var v = findVar(id);
+			if (v == null)
+				continue;
+
+			int w = rect.width() > 0 ? rect.width() : 80;
+			int h = rect.height() > 0 ? rect.height() : 45;
+			double x = rect.x() + w / 2.0;
+			double y = rect.y() + h / 2.0;
+
+			switch (v) {
+				case Auxil ignored -> {
+					var av = new XmiAuxView();
+					av.setName(id.label());
+					av.setX(x);
+					av.setY(y);
+					auxiliaries.add(av);
+				}
+				case Rate ignored -> {
+					var fv = new XmiFlowView();
+					fv.setName(id.label());
+					fv.setX(x);
+					fv.setY(y);
+					flows.add(fv);
+				}
+				case Stock ignored -> {
+					var sv = new XmiStockView();
+					sv.setName(id.label());
+					sv.setX(x);
+					sv.setY(y);
+					sv.setWidth((double) w);
+					sv.setHeight((double) h);
+					stocks.add(sv);
+				}
+			}
+		}
+
+		view.setStocks(stocks);
+		view.setAuxiliaries(auxiliaries);
+		view.setFlows(flows);
+		return List.of(view);
+	}
+
+	private Var findVar(Id id) {
+		for (var v : model.vars()) {
+			if (id.equals(v.name()))
+				return v;
+		}
+		return null;
+	}
+
+	private XmiExtensions writeExtensions() {
+		if (model.method() == null && model.systemBindings().isEmpty())
+			return null;
+
+		var ex = new XmiExtensions();
+		if (model.method() != null) {
+			ex.impactMethod = model.method().refId;
+		}
+
+		for (var b : model.systemBindings()) {
+			var xsb = new XmiSystemBinding();
+			if (b.system() != null) {
+				xsb.system = b.system().refId;
+			}
+			xsb.allocation = b.allocation();
+			xsb.amount = b.amount();
+			for (var vb : b.varBindings()) {
+				var xvb = new XmiVarBinding();
+				xvb.var = vb.varId() != null ? vb.varId().label() : null;
+				if (vb.parameter() != null) {
+					var xp = new XmiParameter();
+					var p = vb.parameter();
+					xp.name = p.name;
+					xp.value = p.value;
+					xp.description = p.description;
+					xp.contextId = p.contextId != null ? p.contextId.toString() : null;
+					xp.contextType = p.contextType;
+					xvb.parameter = xp;
+				}
+				xsb.varBindings.add(xvb);
+			}
+			ex.systemBindings.add(xsb);
+		}
+		return ex;
 	}
 
 	private XmiHeader writeHeader() {

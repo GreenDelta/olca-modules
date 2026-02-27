@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openlca.commons.Res;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.sd.interop.SystemBinding;
 import org.openlca.sd.xmile.Xmile;
 
 public class SdModel {
@@ -14,25 +19,40 @@ public class SdModel {
 	private String id;
 	private String name;
 	private SimSpecs time;
+	private ImpactMethod method;
 	private final List<Var> vars = new ArrayList<>();
 	private final List<Dimension> dimensions = new ArrayList<>();
+	private final List<SystemBinding> systemBindings = new ArrayList<>();
+	private final Map<Id, Rect> positions = new HashMap<>();
 
 	public static Res<SdModel> readFrom(Xmile xmile) {
 		return new XmileReader(xmile).read();
 	}
 
+	public static Res<SdModel> readFrom(Xmile xmile, IDatabase db) {
+		return new XmileReader(xmile, db).read();
+	}
+
 	public static Res<SdModel> readFrom(File file) {
+		return readFrom(file, null);
+	}
+
+	public static Res<SdModel> readFrom(File file, IDatabase db) {
 		var res = Xmile.readFrom(file);
 		return res.isError()
 			? res.castError()
-			: readFrom(res.value());
+			: readFrom(res.value(), db);
 	}
 
 	public static Res<SdModel> readFrom(InputStream stream) {
+		return readFrom(stream, null);
+	}
+
+	public static Res<SdModel> readFrom(InputStream stream, IDatabase db) {
 		var res = Xmile.readFrom(stream);
 		return res.isError()
 			? res.castError()
-			: readFrom(res.value());
+			: readFrom(res.value(), db);
 	}
 
 	public static Res<Void> writeTo(SdModel model, File file) {
@@ -85,5 +105,21 @@ public class SdModel {
 
 	public List<Dimension> dimensions() {
 		return dimensions;
+	}
+
+	public ImpactMethod method() {
+		return method;
+	}
+
+	public void setMethod(ImpactMethod method) {
+		this.method = method;
+	}
+
+	public List<SystemBinding> systemBindings() {
+		return systemBindings;
+	}
+
+	public Map<Id, Rect> positions() {
+		return positions;
 	}
 }

@@ -6,6 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.openlca.commons.Res;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ProductSystem;
+import org.openlca.sd.interop.SystemBinding;
+import org.openlca.sd.interop.VarBinding;
 import org.openlca.sd.model.LookupFunc.Type;
 import org.openlca.sd.model.cells.Cell;
 import org.openlca.sd.model.cells.EqnCell;
@@ -19,17 +25,24 @@ import org.openlca.sd.xmile.XmiDim;
 import org.openlca.sd.xmile.XmiEvaluatable;
 import org.openlca.sd.xmile.XmiFlow;
 import org.openlca.sd.xmile.XmiGf;
+import org.openlca.sd.xmile.XmiModel;
 import org.openlca.sd.xmile.XmiStock;
 import org.openlca.sd.xmile.Xmile;
 
 class XmileReader {
 
 	private final Xmile xmile;
+	private final IDatabase db;
 	private final SdModel model;
 	private final HashMap<Id, Dimension> dimensions;
 
 	XmileReader(Xmile xmile) {
+		this(xmile, null);
+	}
+
+	XmileReader(Xmile xmile, IDatabase db) {
 		this.xmile = xmile;
+		this.db = db;
 		this.model = new SdModel();
 		dimensions = new HashMap<>();
 		for (var d : xmile.dims()) {
@@ -93,7 +106,101 @@ class XmileReader {
 				}
 			}
 		}
+
+		readViews(xmiModel);
+		readExtensions();
+
 		return Res.ok(model);
+	}
+
+	private void readViews(XmiModel xmiModel) {
+		for (var view : xmiModel.views()) {
+			for (var aux : view.auxiliaries()) {
+				var id = Id.of(aux.name());
+				if (id.isNil())
+					continue;
+				model.positions().put(id, new Rect(
+					(int) aux.x() - 40,
+					(int) aux.y() - 22,
+					80, 45));
+			}
+			for (var stock : view.stocks()) {
+				var id = Id.of(stock.name());
+				if (id.isNil())
+					continue;
+				int w = stock.width() != null ? stock.width().intValue() : 80;
+				int h = stock.height() != null ? stock.height().intValue() : 45;
+				model.positions().put(id, new Rect(
+					(int) stock.x() - w / 2,
+					(int) stock.y() - h / 2,
+					w, h));
+			}
+			for (var flow : view.flows()) {
+				var id = Id.of(flow.name());
+				if (id.isNil())
+					continue;
+				model.positions().put(id, new Rect(
+					(int) flow.x() - 40,
+					(int) flow.y() - 22,
+					80, 45));
+			}
+		}
+	}
+
+	private void readExtensions() {
+		var extensions = xmile.extensions();
+		if (extensions == null)
+			return;
+
+		if (db != null && extensions.impactMethod != null) {
+			model.setMethod(db.get(ImpactMethod.class, extensions.impactMethod));
+		}
+
+		for (var xsb : extensions.systemBindings) {
+			var b = readSystemBinding(xsb);
+			if (b != null) {
+				model.systemBindings().add(b);
+			}
+		}
+	}
+
+	private SystemBinding readSystemBinding(org.openlca.sd.xmile.extensions.XmiSystemBinding xsb) {
+		if (xsb == null)
+			return null;
+		var b = new SystemBinding();
+		if (db != null && xsb.system != null) {
+			b.system(db.get(ProductSystem.class, xsb.system));
+		}
+		b.allocation(xsb.allocation);
+		b.amount(xsb.amount);
+		for (var xvb : xsb.varBindings) {
+			var vb = readVarBinding(xvb);
+			if (vb != null) {
+				b.varBindings().add(vb);
+			}
+		}
+		return b;
+	}
+
+	private VarBinding readVarBinding(org.openlca.sd.xmile.extensions.XmiVarBinding xvb) {
+		if (xvb == null || xvb.var == null || xvb.parameter == null)
+			return null;
+		var vb = new VarBinding();
+		vb.varId(Id.of(xvb.var));
+		var xp = xvb.parameter;
+		var p = new ParameterRedef();
+		p.name = xp.name;
+		p.value = xp.value;
+		p.description = xp.description;
+		if (db != null && xp.contextId != null && xp.contextType != null) {
+			var d = db.getDescriptor(xp.contextType.getModelClass(), xp.contextId);
+			if (d != null) {
+				p.contextId = d.id;
+				p.contextType = d.type;
+			}
+		}
+		vb.parameter(p);
+		return vb;
 	}
 
 	private Res<SimSpecs> simSpecsOf(Xmile xmile) {
