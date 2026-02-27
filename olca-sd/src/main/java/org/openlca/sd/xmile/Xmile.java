@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openlca.commons.Res;
-import org.openlca.sd.xmile.extensions.XmiExtensions;
+import org.openlca.sd.xmile.extensions.XmiLca;
 
 import jakarta.xml.bind.JAXB;
 import jakarta.xml.bind.JAXBContext;
@@ -41,8 +41,8 @@ public class Xmile {
 	@XmlElement(name = "model", namespace = NS)
 	XmiModel model;
 
-	@XmlElement(name = "extra", namespace = NS)
-	XmiExtensions extensions;
+	@XmlElement(name = "lca", namespace = XmiLca.NS)
+	XmiLca lca;
 
 	public static Res<Xmile> readFrom(File file) {
 		try (var stream = new FileInputStream(file);
@@ -115,11 +115,11 @@ public class Xmile {
 		this.model = model;
 	}
 
-	public XmiExtensions extensions() {
-		return extensions;
+	public XmiLca lca() {
+		return lca;
 	}
 
-	public void setExtensions(XmiExtensions extensions) {
-		this.extensions = extensions;
+	public void setLca(XmiLca lca) {
+		this.lca = lca;
 	}
 }

@@ -39,7 +39,7 @@ class XmileWriter {
 		xmiModel.setVariables(writeVariables());
 		xmiModel.setViews(writeViews());
 		xmile.setModel(xmiModel);
-		xmile.setExtensions(writeExtensions());
+		xmile.setLca(writeExtensions());
 		return xmile;
 	}
 
@@ -105,11 +105,11 @@ class XmileWriter {
 		return null;
 	}
 
-	private XmiExtensions writeExtensions() {
+	private XmiLca writeExtensions() {
 		if (model.method() == null && model.systemBindings().isEmpty())
 			return null;
 
-		var ex = new XmiExtensions();
+		var ex = new XmiLca();
 		if (model.method() != null) {
 			ex.impactMethod = model.method().refId;
 		}

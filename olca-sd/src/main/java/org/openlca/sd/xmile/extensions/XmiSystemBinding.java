@@ -11,19 +11,60 @@ import jakarta.xml.bind.annotation.XmlType;
 import org.openlca.core.model.AllocationMethod;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "SystemBinding", namespace = XmileExtensions.NS)
+@XmlType(name = "SystemBinding", namespace = XmiLca.NS)
 public class XmiSystemBinding {
 
-	@XmlAttribute(name = "system")
-	public String system;
+	@XmlElement(name = "system", namespace = XmiLca.NS)
+	private XmiEntityRef system;
 
 	@XmlAttribute(name = "allocation")
-	public AllocationMethod allocation;
+	private AllocationMethod allocation;
 
 	@XmlAttribute(name = "amount")
-	public Double amount;
+	private double amount = 1.0;
 
-	@XmlElement(name = "varBinding", namespace = XmileExtensions.NS)
-	public final List<XmiVarBinding> varBindings = new ArrayList<>();
+	@XmlAttribute(name = "amountVar")
+	private String amountVar;
 
+	@XmlElement(name = "varBinding", namespace = XmiLca.NS)
+	private List<XmiVarBinding> varBindings;
+
+	public XmiEntityRef system() {
+		return system;
+	}
+
+	public void setSystem(XmiEntityRef system) {
+		this.system = system;
+	}
+
+	public AllocationMethod allocation() {
+		return allocation;
+	}
+
+	public void setAllocation(AllocationMethod allocation) {
+		this.allocation = allocation;
+	}
+
+	public double amount() {
+		return amount;
+	}
+
+	public void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public String amountVar() {
+		return amountVar;
+	}
+
+	public void setAmountVar(String amountVar) {
+		this.amountVar = amountVar;
+	}
+
+	public List<XmiVarBinding> varBindings() {
+		if (varBindings == null) {
+			varBindings = new ArrayList<>();
+		}
+		return varBindings;
+	}
 }

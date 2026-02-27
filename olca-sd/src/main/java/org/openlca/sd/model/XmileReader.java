@@ -146,7 +146,7 @@ class XmileReader {
 	}
 
 	private void readExtensions() {
-		var extensions = xmile.extensions();
+		var extensions = xmile.lca();
 		if (extensions == null)
 			return;
 
