@@ -1,8 +1,5 @@
 package org.openlca.sd.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.openlca.commons.Strings;
@@ -35,51 +32,55 @@ class XmileWriter {
 		xmile.setHeader(writeHeader());
 		xmile.setSimSpecs(writeSimSpecs());
 		writeDimsTo(xmile);
+
 		var xmiModel = new XmiModel();
-		xmiModel.setVariables(writeVariables());
-		xmiModel.setViews(writeViews());
 		xmile.setModel(xmiModel);
-		xmile.setLca(writeExtensions());
+		writeVariablesTo(xmiModel);
+		writeExtensionsTo(xmile);
+		writeViewsTo(xmiModel);
 		return xmile;
 	}
 
-	private List<Object> writeViews() {
-		if (model.positions().isEmpty())
-			return Collections.emptyList();
+	private void writeViewsTo(XmiModel xmiModel) {
+		if (model.positions().isEmpty())	return;
 
 		var view = new XmiView();
 		for (var entry : model.positions().entrySet()) {
 			var id = entry.getKey();
 			var rect = entry.getValue();
 			var v = findVar(id);
-			if (v == null)
-				continue;
+			if (v == null) continue;
+
+			var vv = switch (v) {
+				case Auxil ignored -> {
+					var av = new XmiAuxView();
+					view.auxiliaries().add(av);
+					yield av;
+				}
+				case Rate ignored -> {
+					var fv = new XmiFlowView();
+					view.flows().add(fv);
+					yield fv;
+				}
+				case Stock ignored -> {
+					var sv = new XmiStockView();
+					view.stocks().add(sv);
+					yield sv;
+				}
+			};
 
 			int w = rect.width() > 0 ? rect.width() : 80;
 			int h = rect.height() > 0 ? rect.height() : 45;
 			double x = rect.x() + w / 2.0;
 			double y = rect.y() + h / 2.0;
-
-			switch (v) {
-				case Auxil ignored -> {
-					var av = new XmiAuxView();
-					writePosition(av, id, x, y, w, h);
-					view.auxiliaries().add(av);
-				}
-				case Rate ignored -> {
-					var fv = new XmiFlowView();
-					writePosition(fv, id, x, y, w, h);
-					view.flows().add(fv);
-				}
-				case Stock ignored -> {
-					var sv = new XmiStockView();
-					writePosition(sv, id, x, y, w, h);
-					view.stocks().add(sv);
-				}
-			}
+			vv.setName(id.label());
+			vv.setX(x);
+			vv.setY(y);
+			vv.setWidth((double) w);
+			vv.setHeight((double) h);
 		}
 
-		return List.of(view);
+		xmiModel.viewList().add(view);
 	}
 
 	private Var findVar(Id id) {
@@ -90,50 +91,48 @@ class XmileWriter {
 		return null;
 	}
 
-	private void writePosition(
-		XmiVariableView v, Id id,
-		double x, double y, int w, int h) {
-		v.setName(id.label());
-		v.setX(x);
-		v.setY(y);
-		v.setWidth((double) w);
-		v.setHeight((double) h);
-	}
-
-	private XmiLca writeExtensions() {
-		if (model.method() == null && model.systemBindings().isEmpty())
-			return null;
+	private void writeExtensionsTo(Xmile xmile) {
+		var lca = model.lca();
+		if (lca.impactMethod() == null && lca.systemBindings().isEmpty())
+			return;
 
 		var ex = new XmiLca();
-		if (model.method() != null) {
-			ex.impactMethod = model.method().refId;
+		if (lca.impactMethod() != null) {
+			ex.setImpactMethod(xmiRefOf(lca.impactMethod()));
 		}
 
-		for (var b : model.systemBindings()) {
+		for (var b : lca.systemBindings()) {
 			var xsb = new XmiSystemBinding();
 			if (b.system() != null) {
-				xsb.system = b.system().refId;
+				xsb.setSystem(xmiRefOf(b.system()));
 			}
-			xsb.allocation = b.allocation();
-			xsb.amount = b.amount();
+			xsb.setAllocation(b.allocation());
+			xsb.setAmount(b.amount());
+			if (b.amountVar() != null) {
+				xsb.setAmountVar(b.amountVar().label());
+			}
 			for (var vb : b.varBindings()) {
 				var xvb = new XmiVarBinding();
-				xvb.var = vb.varId() != null ? vb.varId().label() : null;
-				if (vb.parameter() != null) {
-					var xp = new XmiParameter();
-					var p = vb.parameter();
-					xp.name = p.name;
-					xp.value = p.value;
-					xp.description = p.description;
-					xp.contextId = p.contextId != null ? p.contextId.toString() : null;
-					xp.contextType = p.contextType;
-					xvb.parameter = xp;
+				if (vb.varId() != null) {
+					xvb.setVariable(vb.varId().label());
 				}
-				xsb.varBindings.add(xvb);
+				xvb.setParameter(vb.parameter());
+				if (vb.context() != null) {
+					xvb.setContext(xmiRefOf(vb.context()));
+				}
+				xsb.varBindings().add(xvb);
 			}
-			ex.systemBindings.add(xsb);
+			ex.systemBindings().add(xsb);
 		}
-		return ex;
+		xmile.setLca(ex);
+	}
+
+	private XmiEntityRef xmiRefOf(EntityRef ref) {
+		var x = new XmiEntityRef();
+		x.setName(ref.name());
+		x.setId(ref.refId());
+		x.setType(ref.type());
+		return x;
 	}
 
 	private XmiHeader writeHeader() {
@@ -202,17 +201,15 @@ class XmileWriter {
 		}
 	}
 
-	private List<XmiVariable> writeVariables() {
-		var vars = new ArrayList<XmiVariable>();
+	private void writeVariablesTo(XmiModel xmiModel) {
 		for (var v : model.vars()) {
 			XmiVariable xmiVar = switch (v) {
 				case Auxil a -> xmiAuxOf(a);
 				case Rate r -> xmiFlowOf(r);
 				case Stock s -> xmiStockOf(s);
 			};
-			vars.add(xmiVar);
+			xmiModel.variables().add(xmiVar);
 		}
-		return vars;
 	}
 
 	private XmiAux xmiAuxOf(Auxil a) {
@@ -236,8 +233,8 @@ class XmileWriter {
 		x.setName(s.name().label());
 		x.setUnits(s.unit());
 		fillVariable(x, s.def());
-		x.setInflows(s.inFlows().stream().map(Id::value).toList());
-		x.setOutflows(s.outFlows().stream().map(Id::value).toList());
+		s.inFlows().stream().map(Id::value).forEach(x.inflows()::add);
+		s.outFlows().stream().map(Id::value).forEach(x.outflows()::add);
 		return x;
 	}
 
@@ -267,15 +264,12 @@ class XmileWriter {
 	}
 
 	private void fillTensor(XmiEvaluatable x, Tensor t) {
-		var dims = new ArrayList<XmiEvaluatable.Dim>();
 		for (var d : t.dimensions()) {
 			var xmiDim = new XmiEvaluatable.Dim();
 			xmiDim.setName(d.name().value());
-			dims.add(xmiDim);
+			x.dimensions().add(xmiDim);
 		}
-		x.setDimensions(dims);
 
-		var elements = new ArrayList<XmiElement>();
 		for (var a : Tensors.addressesOf(t)) {
 			var cell = t.get(a);
 			if (cell.isEmpty()) continue;
@@ -288,9 +282,8 @@ class XmileWriter {
 				.map(Object::toString)
 				.collect(Collectors.joining(", "));
 			elem.setSubscript(subscript);
-			elements.add(elem);
+			x.elements().add(elem);
 		}
-		x.setElements(elements);
 	}
 
 	private void fillElement(XmiElement x, Cell cell) {
