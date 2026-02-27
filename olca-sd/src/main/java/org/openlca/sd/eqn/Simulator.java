@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.commons.Res;
 import org.openlca.sd.eqn.func.Add;
@@ -29,8 +30,8 @@ public class Simulator implements Iterable<Res<SimulationState>> {
 
 	private final SdModel model;
 
-	private Simulator(SdModel model) {
-		this.model = model;
+	public Simulator(SdModel model) {
+		this.model = Objects.requireNonNull(model);
 	}
 
 	public static Res<Simulator> of(Xmile xmile) {

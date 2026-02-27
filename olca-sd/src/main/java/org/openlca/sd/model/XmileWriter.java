@@ -29,113 +29,19 @@ class XmileWriter {
 	Xmile write() {
 		var xmile = new Xmile();
 		if (model == null) return xmile;
-		xmile.setHeader(writeHeader());
-		xmile.setSimSpecs(writeSimSpecs());
-		writeDimsTo(xmile);
+		putHeader(xmile);
+		putSimSpecs(xmile);
+		putDims(xmile);
 
 		var xmiModel = new XmiModel();
 		xmile.setModel(xmiModel);
-		writeVariablesTo(xmiModel);
-		writeExtensionsTo(xmile);
-		writeViewsTo(xmiModel);
+		putVariables(xmiModel);
+		putExtensions(xmile);
+		putViews(xmiModel);
 		return xmile;
 	}
 
-	private void writeViewsTo(XmiModel xmiModel) {
-		if (model.positions().isEmpty())	return;
-
-		var view = new XmiView();
-		for (var entry : model.positions().entrySet()) {
-			var id = entry.getKey();
-			var rect = entry.getValue();
-			var v = findVar(id);
-			if (v == null) continue;
-
-			var vv = switch (v) {
-				case Auxil ignored -> {
-					var av = new XmiAuxView();
-					view.auxiliaries().add(av);
-					yield av;
-				}
-				case Rate ignored -> {
-					var fv = new XmiFlowView();
-					view.flows().add(fv);
-					yield fv;
-				}
-				case Stock ignored -> {
-					var sv = new XmiStockView();
-					view.stocks().add(sv);
-					yield sv;
-				}
-			};
-
-			int w = rect.width() > 0 ? rect.width() : 80;
-			int h = rect.height() > 0 ? rect.height() : 45;
-			double x = rect.x() + w / 2.0;
-			double y = rect.y() + h / 2.0;
-			vv.setName(id.label());
-			vv.setX(x);
-			vv.setY(y);
-			vv.setWidth((double) w);
-			vv.setHeight((double) h);
-		}
-
-		xmiModel.viewList().add(view);
-	}
-
-	private Var findVar(Id id) {
-		for (var v : model.vars()) {
-			if (id.equals(v.name()))
-				return v;
-		}
-		return null;
-	}
-
-	private void writeExtensionsTo(Xmile xmile) {
-		var lca = model.lca();
-		if (lca.impactMethod() == null && lca.systemBindings().isEmpty())
-			return;
-
-		var ex = new XmiLca();
-		if (lca.impactMethod() != null) {
-			ex.setImpactMethod(xmiRefOf(lca.impactMethod()));
-		}
-
-		for (var b : lca.systemBindings()) {
-			var xsb = new XmiSystemBinding();
-			if (b.system() != null) {
-				xsb.setSystem(xmiRefOf(b.system()));
-			}
-			xsb.setAllocation(b.allocation());
-			xsb.setAmount(b.amount());
-			if (b.amountVar() != null) {
-				xsb.setAmountVar(b.amountVar().label());
-			}
-			for (var vb : b.varBindings()) {
-				var xvb = new XmiVarBinding();
-				if (vb.varId() != null) {
-					xvb.setVariable(vb.varId().label());
-				}
-				xvb.setParameter(vb.parameter());
-				if (vb.context() != null) {
-					xvb.setContext(xmiRefOf(vb.context()));
-				}
-				xsb.varBindings().add(xvb);
-			}
-			ex.systemBindings().add(xsb);
-		}
-		xmile.setLca(ex);
-	}
-
-	private XmiEntityRef xmiRefOf(EntityRef ref) {
-		var x = new XmiEntityRef();
-		x.setName(ref.name());
-		x.setId(ref.refId());
-		x.setType(ref.type());
-		return x;
-	}
-
-	private XmiHeader writeHeader() {
+	private void putHeader(Xmile xmile) {
 		var header = new XmiHeader();
 		header.setVendor("openLCA.org");
 		header.setUuid(model.id());
@@ -151,7 +57,7 @@ class XmileWriter {
 		smile.setUsesArrays(Integer.toString(getMaxArrayDimension()));
 		smile.setNamespace("std, olca");
 		header.setSmile(smile);
-		return header;
+		xmile.setHeader(header);
 	}
 
 	private int getMaxArrayDimension() {
@@ -175,9 +81,9 @@ class XmileWriter {
 		};
 	}
 
-	private XmiSimSpecs writeSimSpecs() {
+	private void putSimSpecs(Xmile xmile) {
 		var specs = model.time();
-		if (specs == null) return null;
+		if (specs == null) return;
 		var x = new XmiSimSpecs();
 		x.setStart(specs.start());
 		x.setStop(specs.end());
@@ -185,10 +91,10 @@ class XmileWriter {
 		var dt = new XmiSimSpecs.DeltaT();
 		dt.setValue(specs.dt());
 		x.setDt(dt);
-		return x;
+		xmile.setSimSpecs(x);
 	}
 
-	private void writeDimsTo(Xmile xmile) {
+	private void putDims(Xmile xmile) {
 		for (var d : model.dimensions()) {
 			var xd = new XmiDim();
 			xd.setName(d.name().value());
@@ -201,7 +107,7 @@ class XmileWriter {
 		}
 	}
 
-	private void writeVariablesTo(XmiModel xmiModel) {
+	private void putVariables(XmiModel xmiModel) {
 		for (var v : model.vars()) {
 			XmiVariable xmiVar = switch (v) {
 				case Auxil a -> xmiAuxOf(a);
@@ -350,4 +256,99 @@ class XmileWriter {
 		points.setValues(sb.toString());
 		return points;
 	}
+
+	private void putExtensions(Xmile xmile) {
+		var lca = model.lca();
+		if (lca.impactMethod() == null && lca.systemBindings().isEmpty())
+			return;
+
+		var ex = new XmiLca();
+		if (lca.impactMethod() != null) {
+			ex.setImpactMethod(xmiRefOf(lca.impactMethod()));
+		}
+
+		for (var b : lca.systemBindings()) {
+			var xsb = new XmiSystemBinding();
+			if (b.system() != null) {
+				xsb.setSystem(xmiRefOf(b.system()));
+			}
+			xsb.setAllocation(b.allocation());
+			xsb.setAmount(b.amount());
+			if (b.amountVar() != null) {
+				xsb.setAmountVar(b.amountVar().label());
+			}
+			for (var vb : b.varBindings()) {
+				var xvb = new XmiVarBinding();
+				if (vb.varId() != null) {
+					xvb.setVariable(vb.varId().label());
+				}
+				xvb.setParameter(vb.parameter());
+				if (vb.context() != null) {
+					xvb.setContext(xmiRefOf(vb.context()));
+				}
+				xsb.varBindings().add(xvb);
+			}
+			ex.systemBindings().add(xsb);
+		}
+		xmile.setLca(ex);
+	}
+
+	private XmiEntityRef xmiRefOf(EntityRef ref) {
+		var x = new XmiEntityRef();
+		x.setName(ref.name());
+		x.setId(ref.refId());
+		x.setType(ref.type());
+		return x;
+	}
+
+	private void putViews(XmiModel xmiModel) {
+		if (model.positions().isEmpty())	return;
+
+		var view = new XmiView();
+		for (var entry : model.positions().entrySet()) {
+			var id = entry.getKey();
+			var rect = entry.getValue();
+			var v = findVar(id);
+			if (v == null) continue;
+
+			var vv = switch (v) {
+				case Auxil ignored -> {
+					var av = new XmiAuxView();
+					view.auxiliaries().add(av);
+					yield av;
+				}
+				case Rate ignored -> {
+					var fv = new XmiFlowView();
+					view.flows().add(fv);
+					yield fv;
+				}
+				case Stock ignored -> {
+					var sv = new XmiStockView();
+					view.stocks().add(sv);
+					yield sv;
+				}
+			};
+
+			int w = rect.width() > 0 ? rect.width() : 80;
+			int h = rect.height() > 0 ? rect.height() : 45;
+			double x = rect.x() + w / 2.0;
+			double y = rect.y() + h / 2.0;
+			vv.setName(id.label());
+			vv.setX(x);
+			vv.setY(y);
+			vv.setWidth((double) w);
+			vv.setHeight((double) h);
+		}
+
+		xmiModel.viewList().add(view);
+	}
+
+	private Var findVar(Id id) {
+		for (var v : model.vars()) {
+			if (id.equals(v.name()))
+				return v;
+		}
+		return null;
+	}
+
 }
