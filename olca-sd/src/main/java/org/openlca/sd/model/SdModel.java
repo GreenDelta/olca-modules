@@ -10,8 +10,6 @@ import java.util.Map;
 
 import org.openlca.commons.Res;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ImpactMethod;
-import org.openlca.sd.interop.SystemBinding;
 import org.openlca.sd.xmile.Xmile;
 
 public class SdModel {
@@ -19,10 +17,9 @@ public class SdModel {
 	private String id;
 	private String name;
 	private SimSpecs time;
-	private ImpactMethod method;
+	private final LcaSetup lca = new LcaSetup();
 	private final List<Var> vars = new ArrayList<>();
 	private final List<Dimension> dimensions = new ArrayList<>();
-	private final List<SystemBinding> systemBindings = new ArrayList<>();
 	private final Map<Id, Rect> positions = new HashMap<>();
 
 	public static Res<SdModel> readFrom(Xmile xmile) {
@@ -107,19 +104,12 @@ public class SdModel {
 		return dimensions;
 	}
 
-	public ImpactMethod method() {
-		return method;
-	}
-
-	public void setMethod(ImpactMethod method) {
-		this.method = method;
-	}
-
-	public List<SystemBinding> systemBindings() {
-		return systemBindings;
+	public LcaSetup lca() {
+		return lca;
 	}
 
 	public Map<Id, Rect> positions() {
 		return positions;
 	}
+
 }

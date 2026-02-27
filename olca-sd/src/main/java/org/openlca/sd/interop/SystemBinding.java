@@ -8,6 +8,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Unit;
+import org.openlca.sd.model.VarBinding;
 
 public class SystemBinding {
 
