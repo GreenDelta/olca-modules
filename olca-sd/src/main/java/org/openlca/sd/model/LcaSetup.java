@@ -1,7 +1,5 @@
 package org.openlca.sd.model;
 
-import org.openlca.sd.interop.SystemBinding;
-
 import java.util.ArrayList;
 import java.util.List;
 

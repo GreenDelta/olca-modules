@@ -10,7 +10,6 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.sd.interop.SystemBinding;
 import org.openlca.sd.model.LookupFunc.Type;
 import org.openlca.sd.model.cells.Cell;
 import org.openlca.sd.model.cells.EqnCell;

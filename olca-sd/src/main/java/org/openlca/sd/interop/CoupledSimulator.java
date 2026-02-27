@@ -11,6 +11,7 @@ import org.openlca.core.results.LcaResult;
 import org.openlca.sd.eqn.SimulationState;
 import org.openlca.sd.eqn.Simulator;
 import org.openlca.sd.model.SdModel;
+import org.openlca.sd.model.SystemBinding;
 import org.openlca.sd.model.cells.NumCell;
 import org.openlca.sd.xmile.Xmile;
 

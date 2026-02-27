@@ -17,9 +17,9 @@ public class SdModel {
 	private String id;
 	private String name;
 	private SimSpecs time;
-	private final LcaSetup lca = new LcaSetup();
 	private final List<Var> vars = new ArrayList<>();
 	private final List<Dimension> dimensions = new ArrayList<>();
+	private final LcaSetup lca = new LcaSetup();
 	private final Map<Id, Rect> positions = new HashMap<>();
 
 	public static Res<SdModel> readFrom(Xmile xmile) {
