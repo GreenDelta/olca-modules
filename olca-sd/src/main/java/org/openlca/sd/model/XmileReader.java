@@ -23,6 +23,9 @@ import org.openlca.sd.xmile.XmiGf;
 import org.openlca.sd.xmile.XmiModel;
 import org.openlca.sd.xmile.XmiStock;
 import org.openlca.sd.xmile.Xmile;
+import org.openlca.sd.xmile.lca.XmiEntityRef;
+import org.openlca.sd.xmile.lca.XmiSystemBinding;
+import org.openlca.sd.xmile.lca.XmiVarBinding;
 import org.openlca.sd.xmile.view.XmiVariableView;
 
 class XmileReader {
@@ -136,29 +139,28 @@ class XmileReader {
 
 		var lca = model.lca();
 		if (extensions.impactMethod() != null) {
-			lca.impactMethod(entityRefOf(extensions.impactMethod()));
+			lca.impactMethod(refOf(extensions.impactMethod()));
 		}
 
 		for (var xsb : extensions.systemBindings()) {
-			var b = readSystemBinding(xsb);
+			var b = systemBindingOf(xsb);
 			if (b != null) {
 				lca.systemBindings().add(b);
 			}
 		}
 	}
 
-	private SystemBinding readSystemBinding(
-			org.openlca.sd.xmile.lca.XmiSystemBinding xsb) {
+	private SystemBinding systemBindingOf(XmiSystemBinding xsb) {
 		if (xsb == null || xsb.system() == null)
 			return null;
-		var b = new SystemBinding(entityRefOf(xsb.system()));
+		var b = new SystemBinding(refOf(xsb.system()));
 		b.setAllocation(xsb.allocation());
 		b.setAmount(xsb.amount());
 		if (xsb.amountVar() != null) {
 			b.setAmountVar(Id.of(xsb.amountVar()));
 		}
 		for (var xvb : xsb.varBindings()) {
-			var vb = readVarBinding(xvb);
+			var vb = varBindingOf(xvb);
 			if (vb != null) {
 				b.varBindings().add(vb);
 			}
@@ -166,23 +168,21 @@ class XmileReader {
 		return b;
 	}
 
-	private VarBinding readVarBinding(
-			org.openlca.sd.xmile.lca.XmiVarBinding xvb) {
+	private VarBinding varBindingOf(XmiVarBinding xvb) {
 		if (xvb == null || xvb.variable() == null || xvb.parameter() == null)
 			return null;
 		var context = xvb.context() != null
-			? entityRefOf(xvb.context())
+			? refOf(xvb.context())
 			: null;
 		return new VarBinding(
 			Id.of(xvb.variable()), xvb.parameter(), context);
 	}
 
-	private EntityRef entityRefOf(
-			org.openlca.sd.xmile.lca.XmiEntityRef xRef) {
-		return new EntityRef(
-			xRef.name(),
-			xRef.id(),
-			xRef.type() != null ? xRef.type() : ModelType.PRODUCT_SYSTEM);
+	private EntityRef refOf(XmiEntityRef xRef) {
+		var type = xRef.type() != null
+			? xRef.type()
+			: ModelType.PRODUCT_SYSTEM;
+		return new EntityRef(xRef.name(), xRef.id(), type);
 	}
 
 	private Res<SimSpecs> simSpecsOf(Xmile xmile) {
@@ -200,8 +200,8 @@ class XmileReader {
 
 		double dt = specs.dt().value();
 		var seq = specs.dt().isReciprocal()
-				? new SimSpecs(specs.start(), specs.stop(), 1 / dt, unit)
-				: new SimSpecs(specs.start(), specs.stop(), dt, unit);
+			? new SimSpecs(specs.start(), specs.stop(), 1 / dt, unit)
+			: new SimSpecs(specs.start(), specs.stop(), dt, unit);
 		return Res.ok(seq);
 	}
 

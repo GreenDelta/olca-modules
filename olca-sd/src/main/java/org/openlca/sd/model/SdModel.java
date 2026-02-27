@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.commons.Res;
-import org.openlca.core.database.IDatabase;
 import org.openlca.sd.xmile.Xmile;
 
 public class SdModel {
@@ -26,30 +25,18 @@ public class SdModel {
 		return new XmileReader(xmile).read();
 	}
 
-	public static Res<SdModel> readFrom(Xmile xmile, IDatabase db) {
-		return new XmileReader(xmile, db).read();
-	}
-
 	public static Res<SdModel> readFrom(File file) {
-		return readFrom(file, null);
-	}
-
-	public static Res<SdModel> readFrom(File file, IDatabase db) {
 		var res = Xmile.readFrom(file);
 		return res.isError()
 			? res.castError()
-			: readFrom(res.value(), db);
+			: readFrom(res.value());
 	}
 
 	public static Res<SdModel> readFrom(InputStream stream) {
-		return readFrom(stream, null);
-	}
-
-	public static Res<SdModel> readFrom(InputStream stream, IDatabase db) {
 		var res = Xmile.readFrom(stream);
 		return res.isError()
 			? res.castError()
-			: readFrom(res.value(), db);
+			: readFrom(res.value());
 	}
 
 	public static Res<Void> writeTo(SdModel model, File file) {

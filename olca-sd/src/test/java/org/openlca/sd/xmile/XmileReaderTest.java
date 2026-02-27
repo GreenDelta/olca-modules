@@ -56,7 +56,7 @@ public class XmileReaderTest {
 			.filter(s -> s.name().equals("Population"))
 			.findFirst()
 			.orElseThrow();
-		assertEquals("100", pop.eqn);
+		assertEquals("100", pop.eqn());
 		assertTrue(pop.isNonNegative());
 		assertEquals("being_born", pop.inflows().getFirst());
 		assertEquals("dying", pop.outflows().getFirst());
@@ -71,7 +71,7 @@ public class XmileReaderTest {
 			.filter(f -> f.name().equals("regenerating"))
 			.findFirst()
 			.orElseThrow();
-		assertEquals("(1+0.5)*Natural_Resources*regeneration_rate", birth.eqn);
+		assertEquals("(1+0.5)*Natural_Resources*regeneration_rate", birth.eqn());
 	}
 
 	@Test
@@ -85,6 +85,6 @@ public class XmileReaderTest {
 			.orElseThrow();
 		assertEquals(
 			"\"resources\\\\_person\"/INIT(\"resources\\\\_person\")",
-			birthRate.eqn);
+			birthRate.eqn());
 	}
 }

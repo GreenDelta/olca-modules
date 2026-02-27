@@ -64,10 +64,10 @@ public class XmileArraysTest {
 			.orElseThrow();
 		assertEquals(1, aux.dimensions().size());
 		assertEquals("products", aux.dimensions().getFirst().name());
-		assertNull(aux.eqn);
+		assertNull(aux.eqn());
 		assertEquals(3, aux.elements().size());
 		for (var e : aux.elements()) {
-			assertEquals("20", e.eqn);
+			assertEquals("20", e.eqn());
 		}
 	}
 
@@ -79,13 +79,13 @@ public class XmileArraysTest {
 			.orElseThrow();
 		assertEquals(1, aux.dimensions().size());
 		assertEquals("products", aux.dimensions().getFirst().name());
-		assertEquals("TIME", aux.eqn);
+		assertEquals("TIME", aux.eqn());
 		assertEquals(3, aux.elements().size());
 		for (var e : aux.elements()) {
-			assertNull(e.eqn);
+			assertNull(e.eqn());
 			var gf = e.gf();
-			assertEquals(1, gf.xscale.min, 1e-16);
-			assertEquals(9, gf.xscale.max, 1e-16);
+			assertEquals(1, gf.xscale().min(), 1e-16);
+			assertEquals(9, gf.xscale().max(), 1e-16);
 		}
 	}
 

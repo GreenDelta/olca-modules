@@ -30,7 +30,7 @@ public class Simulator implements Iterable<Res<SimulationState>> {
 
 	private final SdModel model;
 
-	public Simulator(SdModel model) {
+	private Simulator(SdModel model) {
 		this.model = Objects.requireNonNull(model);
 	}
 
@@ -39,7 +39,10 @@ public class Simulator implements Iterable<Res<SimulationState>> {
 		if (res.isError()) {
 			return res.wrapError("failed to parse model from xmile");
 		}
-		var model = res.value();
+		return of(res.value());
+	}
+
+	public static Res<Simulator> of(SdModel model) {
 		var order = EvaluationOrder.of(model.vars());
 		if (order.isError()) {
 			return order.wrapError("failed to determine evaluation order");
