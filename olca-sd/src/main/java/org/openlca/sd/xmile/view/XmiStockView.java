@@ -8,13 +8,13 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class XmiStockView extends XmiVariableView {
 
 	@XmlAttribute(name = "label_side")
-	String labelSide;
+	private String labelSide;
 
 	@XmlAttribute(name = "width")
-	Double width;
+	private Double width;
 
 	@XmlAttribute(name = "height")
-	Double height;
+	private Double height;
 
 	public String labelSide() {
 		return labelSide;

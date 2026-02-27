@@ -1,5 +1,6 @@
 package org.openlca.sd.xmile.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.sd.xmile.Xmile;
@@ -13,70 +14,65 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiView {
 
 	@XmlAttribute(name = "page_width")
-	Integer pageWidth;
+	private Integer pageWidth;
 
 	@XmlAttribute(name = "page_height")
-	Integer pageHeight;
+	private Integer pageHeight;
 
 	@XmlAttribute(name = "zoom")
-	Integer zoom;
+	private Integer zoom;
 
 	@XmlElement(name = "stock", namespace = Xmile.NS)
-	List<XmiStockView> stocks;
+	private List<XmiStockView> stocks;
 
 	@XmlElement(name = "aux", namespace = Xmile.NS)
-	List<XmiAuxView> auxiliaries;
+	private List<XmiAuxView> auxiliaries;
 
 	@XmlElement(name = "text_box", namespace = Xmile.NS)
-	List<XmiTextBoxView> textBoxes;
+	private List<XmiTextBoxView> textBoxes;
 
 	@XmlElement(name = "flow", namespace = Xmile.NS)
-	List<XmiFlowView> flows;
+	private List<XmiFlowView> flows;
 
 	@XmlElement(name = "connector", namespace = Xmile.NS)
-	List<XmiConnectorView> connectors;
+	private List<XmiConnectorView> connectors;
 
 	@XmlElement(name = "style", namespace = Xmile.NS)
-	XmiViewStyle style;
+	private XmiViewStyle style;
 
 	public List<XmiStockView> stocks() {
-		return stocks == null ? List.of() : stocks;
-	}
-
-	public void setStocks(List<XmiStockView> stocks) {
-		this.stocks = stocks;
+		if (stocks == null) {
+			stocks = new ArrayList<>();
+		}
+		return stocks;
 	}
 
 	public List<XmiAuxView> auxiliaries() {
-		return auxiliaries == null ? List.of() : auxiliaries;
-	}
-
-	public void setAuxiliaries(List<XmiAuxView> auxiliaries) {
-		this.auxiliaries = auxiliaries;
+		if (auxiliaries == null) {
+			auxiliaries = new ArrayList<>();
+		}
+		return auxiliaries;
 	}
 
 	public List<XmiTextBoxView> textBoxes() {
-		return textBoxes == null ? List.of() : textBoxes;
-	}
-
-	public void setTextBoxes(List<XmiTextBoxView> textBoxes) {
-		this.textBoxes = textBoxes;
+		if (textBoxes == null) {
+			textBoxes = new ArrayList<>();
+		}
+		return textBoxes;
 	}
 
 	public List<XmiFlowView> flows() {
-		return flows == null ? List.of() : flows;
-	}
-
-	public void setFlows(List<XmiFlowView> flows) {
-		this.flows = flows;
+		if (flows == null) {
+			flows = new ArrayList<>();
+		}
+		return flows;
 	}
 
 	public List<XmiConnectorView> connectors() {
-		return connectors == null ? List.of() : connectors;
-	}
-
-	public void setConnectors(List<XmiConnectorView> connectors) {
-		this.connectors = connectors;
+		if (connectors == null) {
+			connectors = new ArrayList<>();
+		}
+		return connectors;
 	}
 
 	public Integer pageWidth() {

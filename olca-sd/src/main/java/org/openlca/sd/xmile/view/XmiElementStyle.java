@@ -10,7 +10,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiElementStyle extends XmiStyleInfo {
 
 	@XmlElement(name = "shape", namespace = Xmile.NS)
-	XmiViewShape shape;
+	private XmiViewShape shape;
 
 	public XmiViewShape shape() {
 		return shape;

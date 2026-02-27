@@ -162,7 +162,7 @@ class XmileReader {
 		}
 	}
 
-	private SystemBinding readSystemBinding(org.openlca.sd.xmile.extensions.XmiSystemBinding xsb) {
+	private SystemBinding readSystemBinding(org.openlca.sd.xmile.lca.XmiSystemBinding xsb) {
 		if (xsb == null)
 			return null;
 		var b = new SystemBinding();
@@ -180,7 +180,7 @@ class XmileReader {
 		return b;
 	}
 
-	private VarBinding readVarBinding(org.openlca.sd.xmile.extensions.XmiVarBinding xvb) {
+	private VarBinding readVarBinding(org.openlca.sd.xmile.lca.XmiVarBinding xvb) {
 		if (xvb == null || xvb.var == null || xvb.parameter == null)
 			return null;
 		var vb = new VarBinding();

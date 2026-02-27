@@ -9,16 +9,16 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiElement {
 
 	@XmlAttribute(name = "subscript")
-	String subscript;
+	private String subscript;
 
 	@XmlElement(name = "eqn", namespace = Xmile.NS)
-	String eqn;
+	private String eqn;
 
 	@XmlElement(name ="gf", namespace = Xmile.NS)
-	XmiGf gf;
+	private XmiGf gf;
 
 	@XmlElement(name="non_negative", namespace = Xmile.NS)
-	XmiNonNegative nonNegative;
+	private XmiNonNegative nonNegative;
 
 	public String subscript() {
 		return subscript;

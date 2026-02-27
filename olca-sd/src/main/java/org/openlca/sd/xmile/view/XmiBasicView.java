@@ -5,10 +5,10 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 abstract class XmiBasicView extends XmiStyleInfo implements XmiViewPoint {
 
 	@XmlAttribute(name = "x")
-	double x;
+	private double x;
 
 	@XmlAttribute(name = "y")
-	double y;
+	private double y;
 
 	public double x() {
 		return x;

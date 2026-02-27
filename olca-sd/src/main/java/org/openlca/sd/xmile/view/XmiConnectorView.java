@@ -11,46 +11,30 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiConnectorView {
 
 	@XmlAttribute(name = "uid")
-	String uid;
+	private String uid;
 
 	@XmlAttribute(name = "angle")
-	double angle;
+	private double angle;
 
 	@XmlElement(name = "from", namespace = Xmile.NS)
-	String from;
+	private String from;
 
 	@XmlElement(name = "to", namespace = Xmile.NS)
-	String to;
+	private String to;
 
 	public String uid() {
 		return uid;
-	}
-
-	public void setUid(String uid) {
-		this.uid = uid;
 	}
 
 	public double angle() {
 		return angle;
 	}
 
-	public void setAngle(double angle) {
-		this.angle = angle;
-	}
-
 	public String from() {
 		return from;
 	}
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
-
 	public String to() {
 		return to;
-	}
-
-	public void setTo(String to) {
-		this.to = to;
 	}
 }

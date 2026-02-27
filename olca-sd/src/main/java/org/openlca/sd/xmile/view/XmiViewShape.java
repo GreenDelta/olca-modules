@@ -8,16 +8,16 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class XmiViewShape {
 
 	@XmlAttribute(name = "type")
-	String type;
+	private String type;
 
 	@XmlAttribute(name = "width")
-	Double width;
+	private Double width;
 
 	@XmlAttribute(name = "height")
-	Double height;
+	private Double height;
 
 	@XmlAttribute(name = "radius")
-	Double radius;
+	private Double radius;
 
 	public String type() {
 		return type;

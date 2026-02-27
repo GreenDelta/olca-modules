@@ -8,19 +8,19 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiHeader {
 
 	@XmlElement(name = "smile", namespace = Xmile.NS)
-	XmiSmile smile;
+	private XmiSmile smile;
 
 	@XmlElement(name = "name", namespace = Xmile.NS)
-	String name;
+	private String name;
 
 	@XmlElement(name = "uuid", namespace = Xmile.NS)
-	String uuid;
+	private String uuid;
 
 	@XmlElement(name = "vendor", namespace = Xmile.NS)
-	String vendor;
+	private String vendor;
 
 	@XmlElement(name = "product", namespace = Xmile.NS)
-	XmiProduct product;
+	private XmiProduct product;
 
 	public XmiSmile smile() {
 		return smile;

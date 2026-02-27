@@ -1,9 +1,8 @@
-package org.openlca.sd.xmile.extensions;
+package org.openlca.sd.xmile.lca;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlType;
 import org.openlca.core.model.ModelType;
 
 @XmlAccessorType(XmlAccessType.FIELD)

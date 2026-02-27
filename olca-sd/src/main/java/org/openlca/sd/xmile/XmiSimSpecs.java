@@ -10,19 +10,19 @@ import jakarta.xml.bind.annotation.XmlValue;
 public class XmiSimSpecs {
 
 	@XmlAttribute(name = "method")
-	String method;
+	private String method;
 
 	@XmlAttribute(name = "time_units")
-	String timeUnits;
+	private String timeUnits;
 
 	@XmlElement(name = "start", namespace = Xmile.NS)
-	Double start;
+	private Double start;
 
 	@XmlElement(name = "stop", namespace = Xmile.NS)
-	Double stop;
+	private Double stop;
 
 	@XmlElement(name = "dt", namespace = Xmile.NS)
-	DeltaT dt;
+	private DeltaT dt;
 
 	public String method() {
 		return method;
@@ -68,10 +68,10 @@ public class XmiSimSpecs {
 	public static class DeltaT {
 
 		@XmlAttribute(name = "reciprocal")
-		Boolean reciprocal;
+		private Boolean reciprocal;
 
 		@XmlValue
-		Double value;
+		private Double value;
 
 		public Boolean reciprocal() {
 			return reciprocal;

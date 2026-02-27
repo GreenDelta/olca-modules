@@ -1,6 +1,6 @@
 package org.openlca.sd.xmile.view;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openlca.sd.xmile.Xmile;
@@ -16,24 +16,23 @@ public class XmiFlowView extends XmiVariableView {
 
 	@XmlElementWrapper(name = "pts", namespace = Xmile.NS)
 	@XmlElement(name = "pt", namespace = Xmile.NS)
-	List<Pt> pts;
+	private List<Pt> pts;
 
 	public List<Pt> pts() {
-		return pts != null ? pts : Collections.emptyList();
-	}
-
-	public void setPts(List<Pt> pts) {
-		this.pts = pts;
+		if (pts == null) {
+			pts = new ArrayList<>();
+		}
+		return pts;
 	}
 
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Pt implements XmiViewPoint {
 
 		@XmlAttribute(name = "x")
-		double x;
+		private double x;
 
 		@XmlAttribute(name = "y")
-		double y;
+		private double y;
 
 		public double x() {
 			return x;

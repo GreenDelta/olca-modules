@@ -5,25 +5,25 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public abstract class XmiStyleInfo {
 
 	@XmlAttribute(name = "color")
-	String color;
+	private String color;
 
 	@XmlAttribute(name = "background")
-	String background;
+	private String background;
 
 	@XmlAttribute(name = "font_family")
-	String fontFamily;
+	private String fontFamily;
 
 	@XmlAttribute(name = "font_size")
-	String fontSize;
+	private String fontSize;
 
 	@XmlAttribute(name = "font_color")
-	String fontColor;
+	private String fontColor;
 
 	@XmlAttribute(name = "padding")
-	Integer padding;
+	private Integer padding;
 
 	@XmlAttribute(name = "label_side")
-	String labelSide;
+	private String labelSide;
 
 	public String color() {
 		return color;

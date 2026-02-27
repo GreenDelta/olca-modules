@@ -9,19 +9,19 @@ import jakarta.xml.bind.annotation.XmlElement;
 public final class XmiGf extends XmiVariable {
 
 	@XmlAttribute(name = "type")
-	XmiGfType type;
+	private XmiGfType type;
 
 	@XmlElement(name = "xscale", namespace = Xmile.NS)
-	XmiMinMax xscale;
+	private XmiMinMax xscale;
 
 	@XmlElement(name = "xpts", namespace = Xmile.NS)
-	XmiPoints xpts;
+	private XmiPoints xpts;
 
 	@XmlElement(name = "yscale", namespace = Xmile.NS)
-	XmiMinMax yscale;
+	private XmiMinMax yscale;
 
 	@XmlElement(name = "ypts", namespace = Xmile.NS)
-	XmiPoints ypts;
+	private XmiPoints ypts;
 
 	public XmiGfType type() {
 		return type != null ? type : XmiGfType.CONTINUOUS;

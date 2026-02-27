@@ -23,21 +23,20 @@ public class XmiModel {
 		@XmlElement(name = "gf", namespace = Xmile.NS, type = XmiGf.class),
 		@XmlElement(name = "aux", namespace = Xmile.NS, type = XmiAux.class)
 	})
-	List<XmiVariable> variables;
+	private List<XmiVariable> variables;
 
 	@XmlElementWrapper(name = "views", namespace = Xmile.NS)
 	@XmlElements({
 		@XmlElement(name = "view", namespace = Xmile.NS, type = XmiView.class),
 		@XmlElement(name = "style", namespace = Xmile.NS, type = XmiViewStyle.class)
 	})
-	List<Object> views;
+	private List<Object> views;
 
 	public List<XmiVariable> variables() {
-		return variables == null ? Collections.emptyList() : variables;
-	}
-
-	public void setVariables(List<XmiVariable> variables) {
-		this.variables = variables;
+		if (variables == null) {
+			variables = new ArrayList<>();
+		}
+		return variables;
 	}
 
 	public List<XmiStock> stocks() {
@@ -64,8 +63,11 @@ public class XmiModel {
 			.toList();
 	}
 
-	public void setViews(List<Object> views) {
-		this.views = views;
+	public List<Object> viewList() {
+		if (views == null) {
+			views = new ArrayList<>();
+		}
+		return views;
 	}
 
 	public XmiViewStyle style() {

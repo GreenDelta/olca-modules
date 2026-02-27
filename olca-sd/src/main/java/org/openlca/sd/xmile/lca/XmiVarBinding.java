@@ -1,4 +1,4 @@
-package org.openlca.sd.xmile.extensions;
+package org.openlca.sd.xmile.lca;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;

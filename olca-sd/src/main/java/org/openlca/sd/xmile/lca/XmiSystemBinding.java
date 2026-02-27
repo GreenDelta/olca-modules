@@ -1,4 +1,4 @@
-package org.openlca.sd.xmile.extensions;
+package org.openlca.sd.xmile.lca;
 
 import java.util.ArrayList;
 import java.util.List;

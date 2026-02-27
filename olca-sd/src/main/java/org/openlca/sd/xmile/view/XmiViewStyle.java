@@ -10,19 +10,19 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiViewStyle extends XmiStyleInfo {
 
 	@XmlElement(name = "flow", namespace = Xmile.NS)
-	XmiElementStyle flowStyle;
+	private XmiElementStyle flowStyle;
 
 	@XmlElement(name = "stock", namespace = Xmile.NS)
-	XmiElementStyle stockStyle;
+	private XmiElementStyle stockStyle;
 
 	@XmlElement(name = "aux", namespace = Xmile.NS)
-	XmiElementStyle auxStyle;
+	private XmiElementStyle auxStyle;
 
 	@XmlElement(name = "text_box", namespace = Xmile.NS)
-	XmiElementStyle textBoxStyle;
+	private XmiElementStyle textBoxStyle;
 
 	@XmlElement(name = "connector", namespace = Xmile.NS)
-	XmiElementStyle connectorStyle;
+	private XmiElementStyle connectorStyle;
 
 	public XmiElementStyle flowStyle() {
 		return flowStyle;

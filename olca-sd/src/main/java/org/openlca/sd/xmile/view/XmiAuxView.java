@@ -8,24 +8,16 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class XmiAuxView extends XmiVariableView {
 
 	@XmlAttribute(name = "width")
-	double width;
+	private double width;
 
 	@XmlAttribute(name = "height")
-	double height;
+	private double height;
 
 	public double width() {
 		return width;
 	}
 
-	public void setWidth(double width) {
-		this.width = width;
-	}
-
 	public double height() {
 		return height;
-	}
-
-	public void setHeight(double height) {
-		this.height = height;
 	}
 }

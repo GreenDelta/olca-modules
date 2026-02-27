@@ -1,5 +1,6 @@
 package org.openlca.sd.xmile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -13,26 +14,26 @@ public sealed abstract class XmiEvaluatable
 	permits XmiAux, XmiFlow, XmiStock {
 
 	@XmlElement(name = "eqn", namespace = Xmile.NS)
-	String eqn;
+	private String eqn;
 
 	@XmlElement(name = "units", namespace = Xmile.NS)
-	String units;
+	private String units;
 
 	@XmlElement(name = "doc", namespace = Xmile.NS)
-	String doc;
+	private String doc;
 
 	@XmlElement(name ="gf", namespace = Xmile.NS)
-	XmiGf gf;
+	private XmiGf gf;
 
 	@XmlElementWrapper(name = "dimensions", namespace = Xmile.NS)
 	@XmlElement(name="dim", namespace = Xmile.NS)
-	List<Dim> dimensions;
+	private List<Dim> dimensions;
 
 	@XmlElement(name = "element", namespace = Xmile.NS)
-	List<XmiElement> elements;
+	private List<XmiElement> elements;
 
 	@XmlElement(name = "non_negative", namespace = Xmile.NS)
-	XmiNonNegative nonNegative;
+	private XmiNonNegative nonNegative;
 
 	public String eqn() {
 		return eqn;
@@ -67,19 +68,17 @@ public sealed abstract class XmiEvaluatable
 	}
 
 	public List<Dim> dimensions() {
-		return dimensions == null ? List.of() : dimensions;
-	}
-
-	public void setDimensions(List<Dim> dimensions) {
-		this.dimensions = dimensions;
+		if (dimensions == null) {
+			dimensions = new ArrayList<>();
+		}
+		return dimensions;
 	}
 
 	public List<XmiElement> elements() {
-		return elements != null ? elements : List.of();
-	}
-
-	public void setElements(List<XmiElement> elements) {
-		this.elements = elements;
+		if (elements == null) {
+			elements = new ArrayList<>();
+		}
+		return elements;
 	}
 
 	public boolean isNonNegative() {
@@ -98,7 +97,7 @@ public sealed abstract class XmiEvaluatable
 	public static class Dim {
 
 		@XmlAttribute(name = "name")
-		String name;
+		private String name;
 
 		public String name() {
 			return name;

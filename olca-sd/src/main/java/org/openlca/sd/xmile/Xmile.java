@@ -7,11 +7,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.openlca.commons.Res;
-import org.openlca.sd.xmile.extensions.XmiLca;
+import org.openlca.sd.xmile.lca.XmiLca;
 
 import jakarta.xml.bind.JAXB;
 import jakarta.xml.bind.JAXBContext;
@@ -29,20 +30,20 @@ public class Xmile {
 	public static final String NS = "http://docs.oasis-open.org/xmile/ns/XMILE/v1.0";
 
 	@XmlElement(name = "header", namespace = NS)
-	XmiHeader header;
+	private XmiHeader header;
 
 	@XmlElement(name = "sim_specs", namespace = NS)
-	XmiSimSpecs simSpecs;
+	private XmiSimSpecs simSpecs;
 
 	@XmlElementWrapper(name = "dimensions", namespace = NS)
 	@XmlElement(name = "dim", namespace = Xmile.NS)
-	List<XmiDim> dims;
+	private List<XmiDim> dims;
 
 	@XmlElement(name = "model", namespace = NS)
-	XmiModel model;
+	private XmiModel model;
 
 	@XmlElement(name = "lca", namespace = XmiLca.NS)
-	XmiLca lca;
+	private XmiLca lca;
 
 	public static Res<Xmile> readFrom(File file) {
 		try (var stream = new FileInputStream(file);
@@ -100,11 +101,10 @@ public class Xmile {
 	}
 
 	public List<XmiDim> dims() {
-		return dims != null ? dims : Collections.emptyList();
-	}
-
-	public void setDims(List<XmiDim> dims) {
-		this.dims = dims;
+		if (dims == null) {
+			dims = new ArrayList<>();
+		}
+		return dims;
 	}
 
 	public XmiModel model() {

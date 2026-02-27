@@ -1,6 +1,6 @@
 package org.openlca.sd.xmile;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -12,13 +12,13 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class XmiDim {
 
 	@XmlAttribute(name = "name")
-	String name;
+	private String name;
 
 	@XmlAttribute(name = "size")
-	Integer size;
+	private Integer size;
 
 	@XmlElement(name = "elem", namespace = Xmile.NS)
-	List<Elem> elems;
+	private List<Elem> elems;
 
 	public String name() {
 		return name;
@@ -37,17 +37,16 @@ public class XmiDim {
 	}
 
 	public List<Elem> elems() {
-		return elems != null ? elems : Collections.emptyList();
-	}
-
-	public void setElems(List<Elem> elems) {
-		this.elems = elems;
+		if (elems == null) {
+			elems = new ArrayList<>();
+		}
+		return elems;
 	}
 
 	@XmlAccessorType(XmlAccessType.FIELD)
 	public static class Elem {
 		@XmlAttribute(name = "name")
-		String name;
+		private String name;
 
 		public String name() {
 			return name;

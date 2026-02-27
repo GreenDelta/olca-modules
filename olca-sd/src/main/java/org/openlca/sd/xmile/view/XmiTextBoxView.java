@@ -9,22 +9,22 @@ import jakarta.xml.bind.annotation.XmlValue;
 public class XmiTextBoxView implements XmiViewPoint {
 
 	@XmlAttribute(name = "uid")
-	String uid;
+	private String uid;
 
 	@XmlAttribute(name = "x")
-	double x;
+	private double x;
 
 	@XmlAttribute(name = "y")
-	double y;
+	private double y;
 
 	@XmlAttribute(name = "width")
-	double width;
+	private double width;
 
 	@XmlAttribute(name = "height")
-	double height;
+	private double height;
 
 	@XmlValue
-	String text;
+	private String text;
 
 	public String uid() {
 		return uid;

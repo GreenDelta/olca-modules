@@ -1,5 +1,6 @@
 package org.openlca.sd.xmile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -10,24 +11,22 @@ import jakarta.xml.bind.annotation.XmlElement;
 public final class XmiStock extends XmiEvaluatable {
 
 	@XmlElement(name = "inflow", namespace = Xmile.NS)
-	List<String> inflows;
+	private List<String> inflows;
 
 	@XmlElement(name = "outflow", namespace = Xmile.NS)
-	List<String> outflows;
+	private List<String> outflows;
 
 	public List<String> inflows() {
-		return inflows != null ? inflows : List.of();
-	}
-
-	public void setInflows(List<String> inflows) {
-		this.inflows = inflows;
+		if (inflows == null) {
+			inflows = new ArrayList<>();
+		}
+		return inflows;
 	}
 
 	public List<String> outflows() {
-		return outflows != null ? outflows : List.of();
-	}
-
-	public void setOutflows(List<String> outflows) {
-		this.outflows = outflows;
+		if (outflows == null) {
+			outflows = new ArrayList<>();
+		}
+		return outflows;
 	}
 }

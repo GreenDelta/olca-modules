@@ -8,13 +8,13 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class XmiSmile {
 
 	@XmlAttribute(name = "version")
-	String version;
+	private String version;
 
 	@XmlAttribute(name = "namespace")
-	String namespace;
+	private String namespace;
 
 	@XmlAttribute(name = "uses_arrays")
-	String usesArrays;
+	private String usesArrays;
 
 	public String version() {
 		return version;

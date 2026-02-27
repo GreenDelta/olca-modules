@@ -19,7 +19,7 @@ import org.openlca.sd.model.cells.TensorEqnCell;
 import org.openlca.sd.util.Tensors;
 import org.openlca.sd.xmile.*;
 import org.openlca.sd.xmile.view.*;
-import org.openlca.sd.xmile.extensions.*;
+import org.openlca.sd.xmile.lca.*;
 
 class XmileWriter {
 

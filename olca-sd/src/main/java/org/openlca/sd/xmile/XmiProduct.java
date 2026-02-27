@@ -9,13 +9,13 @@ import jakarta.xml.bind.annotation.XmlValue;
 public class XmiProduct {
 
 	@XmlAttribute(name = "version")
-	String version;
+	private String version;
 
 	@XmlAttribute(name = "lang")
-	String lang;
+	private String lang;
 
 	@XmlValue
-	String value;
+	private String value;
 
 	public String version() {
 		return version;

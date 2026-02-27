@@ -8,10 +8,10 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 public class XmiMinMax {
 
 	@XmlAttribute(name = "min")
-	double min;
+	private double min;
 
 	@XmlAttribute(name = "max")
-	double max;
+	private double max;
 
 	public double min() {
 		return min;

@@ -9,17 +9,13 @@ import jakarta.xml.bind.annotation.XmlValue;
 public class XmiPoints {
 
 	@XmlAttribute(name = "sep")
-	String sep;
+	private String sep;
 
 	@XmlValue
-	String values;
+	private String values;
 
 	public String sep() {
 		return sep;
-	}
-
-	public void setSep(String sep) {
-		this.sep = sep;
 	}
 
 	public String values() {
