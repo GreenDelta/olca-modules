@@ -13,6 +13,7 @@ import org.openlca.sd.eqn.SimulationState;
 import org.openlca.sd.eqn.Simulator;
 import org.openlca.sd.model.SdModel;
 import org.openlca.sd.model.SystemBinding;
+import org.openlca.sd.model.VarBinding;
 import org.openlca.sd.model.cells.NumCell;
 
 public class CoupledSimulator {
@@ -60,78 +61,91 @@ public class CoupledSimulator {
 	}
 
 	public void run(Progress progress) {
-		for (var res : simulator) {
+		for (var simState : simulator) {
 			if (progress.isCanceled())
 				break;
-
-			if (res.isError()) {
-				error = res.wrapError("Simulation error");
+			if (simState.isError()) {
+				error = simState.wrapError("Simulation error");
 				break;
 			}
-
-			var simState = res.value();
-			var rs = new ArrayList<LcaResult>();
-			for (var b : model.lca().systemBindings()) {
-				if (progress.isCanceled())
-					break;
-
-				var params = paramsOf(simState, b);
-				if (params.isError()) {
-					error = params.wrapError("Variable binding error");
-					break;
-				}
-
-				var calcSetup = CalculationSetup.of(resolver.systemOf(b))
-						.withParameters(params.value())
-						.withAllocation(b.allocation());
-				var method = resolver.impactMethod();
-				if (method != null) {
-					calcSetup = calcSetup.withImpactMethod(method);
-				}
-				calcSetup = calcSetup.withAmount(b.amount());
-
-				try {
-					var lcaResult = calculator.calculate(calcSetup);
-					rs.add(lcaResult);
-				} catch (Exception e) {
-					error = Res.error(
-							"Calculation of system failed: "
-									+ b.system().name(), e);
-					break;
-				}
-			}
-
-			if (error != null)
+			var lcaResults = calculateSystems(simState.value(), progress);
+			if (error != null || progress.isCanceled())
 				break;
-
-			result.append(simState, rs);
+			result.append(simState.value(), lcaResults);
 			progress.worked(1);
 		}
 	}
 
-	private Res<List<ParameterRedef>> paramsOf(
-			SimulationState simState, SystemBinding binding) {
+	private List<LcaResult> calculateSystems(
+			SimulationState state, Progress progress) {
+		var results = new ArrayList<LcaResult>();
+		for (var binding : model.lca().systemBindings()) {
+			if (progress.isCanceled())
+				break;
+			var lcaResult = calculateSystem(state, binding);
+			if (error != null)
+				break;
+			results.add(lcaResult);
+		}
+		return results;
+	}
 
+	private LcaResult calculateSystem(
+			SimulationState state, SystemBinding binding) {
+		var params = bindParameterValues(state, binding);
+		if (params.isError()) {
+			error = params.wrapError("Variable binding error");
+			return null;
+		}
+		var setup = setupOf(binding, params.value());
+		try {
+			return calculator.calculate(setup);
+		} catch (Exception e) {
+			error = Res.error(
+					"Calculation failed: " + binding.system().name(), e);
+			return null;
+		}
+	}
+
+	private CalculationSetup setupOf(
+			SystemBinding binding, List<ParameterRedef> params) {
+		var setup = CalculationSetup.of(resolver.systemOf(binding))
+				.withParameters(params)
+				.withAllocation(binding.allocation())
+				.withAmount(binding.amount());
+		var method = resolver.impactMethod();
+		if (method != null) {
+			setup = setup.withImpactMethod(method);
+		}
+		return setup;
+	}
+
+	private Res<List<ParameterRedef>> bindParameterValues(
+			SimulationState state, SystemBinding binding) {
 		var templates = resolver.paramsOf(binding);
 		var params = new ArrayList<ParameterRedef>(templates.size());
-
 		int i = 0;
 		for (var vb : binding.varBindings()) {
 			if (vb.varId() == null || vb.parameter() == null)
 				continue;
-			var cell = simState.valueOf(vb.varId()).orElse(null);
-			if (cell == null)
-				return Res.error("Variable not found: " + vb.varId());
-			if (!(cell instanceof NumCell(double num))) {
-				return Res.error(
-						"Variable does not evaluate to a number: " + vb.varId());
-			}
-
+			var value = resolveVarValue(state, vb);
+			if (value.isError())
+				return value.castError();
 			var param = templates.get(i).copy();
-			param.value = num;
+			param.value = value.value();
 			params.add(param);
 			i++;
 		}
 		return Res.ok(params);
+	}
+
+	private Res<Double> resolveVarValue(
+			SimulationState state, VarBinding vb) {
+		var cell = state.valueOf(vb.varId()).orElse(null);
+		if (cell == null)
+			return Res.error("Variable not found: " + vb.varId());
+		if (!(cell instanceof NumCell(double num)))
+			return Res.error("Variable is not a number: " + vb.varId());
+		return Res.ok(num);
 	}
 }
