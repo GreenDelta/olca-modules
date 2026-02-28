@@ -90,18 +90,18 @@ public class CoupledResult {
 		return array;
 	}
 
-	void append(SimulationState state, List<LcaResult> rs) {
+	void appendDispose(SimulationState state, List<LcaResult> rs) {
 		if (state == null)
 			return;
 		time.add(state.time());
-		appendResults(rs);
+		appendDispose(rs);
 		for (var v : state.vars().values()) {
 			vars.putIfAbsent(v.name(), v);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void appendResults(List<LcaResult> rs) {
+	private void appendDispose(List<LcaResult> rs) {
 		if (rs == null || rs.isEmpty())
 			return;
 
@@ -125,6 +125,7 @@ public class CoupledResult {
 				var value = r.getTotalImpactValueOf(indicator);
 				results[i] += value;
 			}
+			r.dispose();
 		}
 
 		if (impactResults == null) {

@@ -11,9 +11,9 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.results.LcaResult;
 import org.openlca.sd.eqn.SimulationState;
 import org.openlca.sd.eqn.Simulator;
+import org.openlca.sd.model.Id;
 import org.openlca.sd.model.SdModel;
 import org.openlca.sd.model.SystemBinding;
-import org.openlca.sd.model.VarBinding;
 import org.openlca.sd.model.cells.NumCell;
 
 public class CoupledSimulator {
@@ -26,10 +26,10 @@ public class CoupledSimulator {
 	private Res<?> error;
 
 	private CoupledSimulator(
-			Simulator simulator,
-			SdModel model,
-			Resolver resolver,
-			SystemCalculator calculator) {
+		Simulator simulator,
+		SdModel model,
+		Resolver resolver,
+		SystemCalculator calculator) {
 		this.simulator = simulator;
 		this.model = model;
 		this.resolver = resolver;
@@ -38,7 +38,7 @@ public class CoupledSimulator {
 	}
 
 	public static Res<CoupledSimulator> of(
-			SdModel model, IDatabase db, SystemCalculator calculator) {
+		SdModel model, IDatabase db, SystemCalculator calculator) {
 		var sim = Simulator.of(model);
 		if (sim.isError())
 			return sim.wrapError("failed to create simulator");
@@ -46,106 +46,114 @@ public class CoupledSimulator {
 		if (resolver.isError())
 			return resolver.wrapError("failed to resolve model references");
 		return Res.ok(new CoupledSimulator(
-				sim.value(), model, resolver.value(), calculator));
+			sim.value(), model, resolver.value(), calculator));
 	}
 
 	public Res<CoupledResult> getResult() {
 		return error != null
-				? error.castError()
-				: Res.ok(result);
-	}
-
-	public interface Progress {
-		void worked(int work);
-		boolean isCanceled();
+			? error.castError()
+			: Res.ok(result);
 	}
 
 	public void run(Progress progress) {
 		for (var simState : simulator) {
-			if (progress.isCanceled())
-				break;
+			if (progress.isCanceled()) break;
 			if (simState.isError()) {
 				error = simState.wrapError("Simulation error");
 				break;
 			}
-			var lcaResults = calculateSystems(simState.value(), progress);
-			if (error != null || progress.isCanceled())
+			var state = simState.value();
+			var lcaResults = calculateSystems(state, progress);
+			if (lcaResults.isError()) {
+				error = lcaResults.wrapError(
+					"Calculation failed in iteration: " + state.iteration());
 				break;
-			result.append(simState.value(), lcaResults);
+			}
+			result.appendDispose(state, lcaResults.value());
 			progress.worked(1);
 		}
 	}
 
-	private List<LcaResult> calculateSystems(
-			SimulationState state, Progress progress) {
+	private Res<List<LcaResult>> calculateSystems(
+		SimulationState state, Progress progress
+	) {
 		var results = new ArrayList<LcaResult>();
-		for (var binding : model.lca().systemBindings()) {
+		for (var sysLink : model.lca().systemBindings()) {
 			if (progress.isCanceled())
 				break;
-			var lcaResult = calculateSystem(state, binding);
-			if (error != null)
-				break;
-			results.add(lcaResult);
+			var res = calculateSystem(state, sysLink);
+			if (res.isError()) {
+				return res.wrapError("Calculation of system failed: " + sysLink);
+			}
+			results.add(res.value());
 		}
-		return results;
+		return Res.ok(results);
 	}
 
-	private LcaResult calculateSystem(
-			SimulationState state, SystemBinding binding) {
-		var params = bindParameterValues(state, binding);
-		if (params.isError()) {
-			error = params.wrapError("Variable binding error");
-			return null;
-		}
-		var setup = setupOf(binding, params.value());
-		try {
-			return calculator.calculate(setup);
-		} catch (Exception e) {
-			error = Res.error(
-					"Calculation failed: " + binding.system().name(), e);
-			return null;
-		}
-	}
-
-	private CalculationSetup setupOf(
-			SystemBinding binding, List<ParameterRedef> params) {
-		var setup = CalculationSetup.of(resolver.systemOf(binding))
-				.withParameters(params)
-				.withAllocation(binding.allocation())
-				.withAmount(binding.amount());
-		var method = resolver.impactMethod();
-		if (method != null) {
-			setup = setup.withImpactMethod(method);
-		}
-		return setup;
-	}
-
-	private Res<List<ParameterRedef>> bindParameterValues(
-			SimulationState state, SystemBinding binding) {
-		var templates = resolver.paramsOf(binding);
-		var params = new ArrayList<ParameterRedef>(templates.size());
-		int i = 0;
-		for (var vb : binding.varBindings()) {
-			if (vb.varId() == null || vb.parameter() == null)
-				continue;
-			var value = resolveVarValue(state, vb);
-			if (value.isError())
-				return value.castError();
-			var param = templates.get(i).copy();
-			param.value = value.value();
+	private Res<LcaResult> calculateSystem(
+		SimulationState state, SystemBinding sysLink
+	) {
+		var params = new ArrayList<ParameterRedef>();
+		for (var varLink : sysLink.varBindings()) {
+			var param = resolver.paramOf(sysLink, varLink);
+			if (param == null) {
+				return Res.error("Failed to resolve variable binding: " + varLink);
+			}
+			var amount = amountOf(varLink.varId(), state);
+			if (amount.isError()) {
+				return amount.wrapError(
+					"Failed to resolve variable binding in: " + sysLink);
+			}
+			param.value = amount.value();
 			params.add(param);
-			i++;
 		}
-		return Res.ok(params);
+
+		var setup = setupOf(state, sysLink, params);
+		if (setup.isError()) {
+			return setup.wrapError(
+				"Failed to create calculation setup for: " + sysLink);
+		}
+		try {
+			var result = calculator.calculate(setup.value());
+			return Res.ok(result);
+		} catch (Exception e) {
+			return Res.error("Calculation failed: " + sysLink, e);
+		}
 	}
 
-	private Res<Double> resolveVarValue(
-			SimulationState state, VarBinding vb) {
-		var cell = state.valueOf(vb.varId()).orElse(null);
-		if (cell == null)
-			return Res.error("Variable not found: " + vb.varId());
-		if (!(cell instanceof NumCell(double num)))
-			return Res.error("Variable is not a number: " + vb.varId());
-		return Res.ok(num);
+	private Res<CalculationSetup> setupOf(
+		SimulationState state, SystemBinding sysLink, List<ParameterRedef> params
+	) {
+		double amount = sysLink.amount();
+		if (sysLink.amountVar() != null) {
+			var amountRes = amountOf(sysLink.amountVar(), state);
+			if (amountRes.isError()) {
+				return amountRes.wrapError(
+					"Failed to resolve reference amount of: " + sysLink);
+			}
+			amount = amountRes.value();
+		}
+
+		var system = resolver.systemOf(sysLink);
+		if (system == null) {
+			return Res.error("Failed to resolve system: " + sysLink);
+		}
+
+		var setup = CalculationSetup.of(resolver.systemOf(sysLink))
+			.withParameters(params)
+			.withAllocation(sysLink.allocation())
+			.withAmount(amount)
+			.withImpactMethod(resolver.impactMethod());
+		return Res.ok(setup);
+	}
+
+	private Res<Double> amountOf(Id variable, SimulationState state) {
+		var cell = state.valueOf(variable).orElse(null);
+		if (cell == null) {
+			return Res.error("Variable not found: " + variable);
+		}
+		return cell instanceof NumCell(double num)
+			? Res.ok(num)
+			: Res.error("Variable does not evaluate to a number: " + variable);
 	}
 }
