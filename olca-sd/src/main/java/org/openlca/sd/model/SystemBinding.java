@@ -50,4 +50,13 @@ public class SystemBinding {
 	public List<VarBinding> varBindings() {
 		return varBindings;
 	}
+
+	@Override
+	public String toString() {
+		if (system == null) return super.toString();
+		var id = system.refId() != null && system.refId().length() >= 5
+			? system.refId().substring(0, 5)
+			: system.refId();
+		return system.name() + "@" + id;
+	}
 }

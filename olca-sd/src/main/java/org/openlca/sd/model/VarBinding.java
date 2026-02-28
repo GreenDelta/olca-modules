@@ -28,4 +28,16 @@ public record VarBinding(Id varId, String parameter, EntityRef context) {
 	public boolean isGlobal() {
 		return context == null;
 	}
+
+	@Override
+	public String toString() {
+		var s = varId + " :: " + parameter;
+		if (context != null) {
+			var id = context.refId() != null && context.refId().length() >= 5
+				? context.refId().substring(0, 5)
+				: context.refId();
+			s += " :: " + context.type() + "@" + id;
+		}
+		return s;
+	}
 }

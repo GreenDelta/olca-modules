@@ -70,7 +70,7 @@ public class CoupledSimulator {
 				break;
 			}
 			result.appendDispose(state, lcaResults.value());
-			progress.worked(1);
+			progress.tick();
 		}
 	}
 
@@ -139,7 +139,7 @@ public class CoupledSimulator {
 			return Res.error("Failed to resolve system: " + sysLink);
 		}
 
-		var setup = CalculationSetup.of(resolver.systemOf(sysLink))
+		var setup = CalculationSetup.of(system)
 			.withParameters(params)
 			.withAllocation(sysLink.allocation())
 			.withAmount(amount)
