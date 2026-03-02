@@ -58,7 +58,7 @@ public class Simulator implements Iterable<Res<SimulationState>> {
 		for (var v : model.vars()) {
 			freshVars.add(v.freshCopy());
 		}
-		return new Simulation(model.time(), freshVars);
+		return new Simulation(model.simSpecs(), freshVars);
 	}
 
 	public static class Simulation implements Iterator<Res<SimulationState>> {

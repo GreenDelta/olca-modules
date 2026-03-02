@@ -70,7 +70,7 @@ class XmileReader {
 		var time = simSpecsOf(xmile);
 		if (time.isError())
 			return time.castError();
-		model.setTime(time.value());
+		model.setSimSpecs(time.value());
 
 		for (var v : xmiModel.variables()) {
 			if (!(v instanceof XmiEvaluatable eva))

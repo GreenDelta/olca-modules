@@ -14,9 +14,31 @@ import org.openlca.sd.model.cells.NumCell;
 import org.openlca.sd.model.cells.TensorCell;
 import org.openlca.sd.model.cells.TensorEqnCell;
 import org.openlca.sd.util.Tensors;
-import org.openlca.sd.xmile.*;
-import org.openlca.sd.xmile.view.*;
-import org.openlca.sd.xmile.lca.*;
+import org.openlca.sd.xmile.XmiAux;
+import org.openlca.sd.xmile.XmiDim;
+import org.openlca.sd.xmile.XmiElement;
+import org.openlca.sd.xmile.XmiEvaluatable;
+import org.openlca.sd.xmile.XmiFlow;
+import org.openlca.sd.xmile.XmiGf;
+import org.openlca.sd.xmile.XmiGfType;
+import org.openlca.sd.xmile.XmiHeader;
+import org.openlca.sd.xmile.XmiMinMax;
+import org.openlca.sd.xmile.XmiModel;
+import org.openlca.sd.xmile.XmiPoints;
+import org.openlca.sd.xmile.XmiProduct;
+import org.openlca.sd.xmile.XmiSimSpecs;
+import org.openlca.sd.xmile.XmiSmile;
+import org.openlca.sd.xmile.XmiStock;
+import org.openlca.sd.xmile.XmiVariable;
+import org.openlca.sd.xmile.Xmile;
+import org.openlca.sd.xmile.lca.XmiEntityRef;
+import org.openlca.sd.xmile.lca.XmiLca;
+import org.openlca.sd.xmile.lca.XmiSystemBinding;
+import org.openlca.sd.xmile.lca.XmiVarBinding;
+import org.openlca.sd.xmile.view.XmiAuxView;
+import org.openlca.sd.xmile.view.XmiFlowView;
+import org.openlca.sd.xmile.view.XmiStockView;
+import org.openlca.sd.xmile.view.XmiView;
 
 class XmileWriter {
 
@@ -82,7 +104,7 @@ class XmileWriter {
 	}
 
 	private void putSimSpecs(Xmile xmile) {
-		var specs = model.time();
+		var specs = model.simSpecs();
 		if (specs == null) return;
 		var x = new XmiSimSpecs();
 		x.setStart(specs.start());

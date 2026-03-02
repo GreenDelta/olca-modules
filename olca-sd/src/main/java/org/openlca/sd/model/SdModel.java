@@ -15,7 +15,7 @@ public class SdModel {
 
 	private String id;
 	private String name;
-	private SimSpecs time;
+	private SimSpecs simSpecs;
 	private final List<Var> vars = new ArrayList<>();
 	private final List<Dimension> dimensions = new ArrayList<>();
 	private final LcaSetup lca = new LcaSetup();
@@ -75,12 +75,13 @@ public class SdModel {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public SimSpecs time() {
-		return time;
+
+	public SimSpecs simSpecs() {
+		return simSpecs;
 	}
 
-	public void setTime(SimSpecs time) {
-		this.time = time;
+	public void setSimSpecs(SimSpecs simSpecs) {
+		this.simSpecs = simSpecs;
 	}
 
 	public List<Var> vars() {
