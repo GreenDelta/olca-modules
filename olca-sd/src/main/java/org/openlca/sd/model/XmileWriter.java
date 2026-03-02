@@ -329,7 +329,6 @@ class XmileWriter {
 		var view = new XmiView();
 		for (var entry : model.positions().entrySet()) {
 			var id = entry.getKey();
-			var rect = entry.getValue();
 			var v = findVar(id);
 			if (v == null) continue;
 
@@ -351,15 +350,14 @@ class XmileWriter {
 				}
 			};
 
-			int w = rect.width() > 0 ? rect.width() : 80;
-			int h = rect.height() > 0 ? rect.height() : 45;
-			double x = rect.x() + w / 2.0;
-			double y = rect.y() + h / 2.0;
 			vv.setName(id.label());
-			vv.setX(x);
-			vv.setY(y);
-			vv.setWidth((double) w);
-			vv.setHeight((double) h);
+			var rect = entry.getValue();
+			if (rect != null) {
+				vv.setX(rect.x());
+				vv.setY(rect.y());
+				vv.setWidth((double) rect.width());
+				vv.setHeight((double) rect.height());
+			}
 		}
 
 		xmiModel.viewList().add(view);

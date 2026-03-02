@@ -125,11 +125,9 @@ class XmileReader {
 		if (id.isNil() || model.positions().containsKey(id))
 			return;
 		int w = v.width() != null ? v.width().intValue() : 80;
-		int h = v.height() != null ? v.height().intValue() : 45;
+		int h = v.height() != null ? v.height().intValue() : 50;
 		model.positions().put(id, new Rect(
-			(int) v.x() - w / 2,
-			(int) v.y() - h / 2,
-			w, h));
+			(int) v.x(), (int) v.y(), w, h));
 	}
 
 	private void readExtensions() {
