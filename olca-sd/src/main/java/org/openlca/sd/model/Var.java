@@ -1,28 +1,68 @@
 package org.openlca.sd.model;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.openlca.sd.model.cells.Cell;
 
-public sealed interface Var permits Auxil, Rate, Stock {
+public sealed abstract class Var permits Auxil, Rate, Stock {
 
-	Id name();
+	private Id name;
+	private Cell def;
+	private String unit;
+	private List<Cell> values;
 
-	Cell def();
+	protected Var() {
+	}
 
-	String unit();
+	protected Var(Id name, Cell def, String unit, List<Cell> values) {
+		this.name = Objects.requireNonNull(name);
+		this.def = Objects.requireNonNull(def);
+		this.unit = unit;
+		this.values = Objects.requireNonNull(values);
+	}
 
-	List<Cell> values();
+	public Id name() {
+		return name;
+	}
+
+	public void setName(Id name) {
+		this.name = name;
+	}
+
+	public Cell def() {
+		return def;
+	}
+
+	public void setDef(Cell def) {
+		this.def = def;
+	}
+
+	public String unit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public List<Cell> values() {
+		return values;
+	}
+
+	public void setValues(List<Cell> values) {
+		this.values = values;
+	}
 
 	/// Creates a fresh copy of the variable. This will not copy
 	/// the values from the evaluation history.
-	Var freshCopy();
+	public abstract Var freshCopy();
 
-	default void pushValue(Cell cell) {
+	public void pushValue(Cell cell) {
 		values().add(cell);
 	}
 
-	default Cell value() {
+	public Cell value() {
 		return values().isEmpty()
 				? def()
 				: values().getLast();
