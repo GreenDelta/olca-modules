@@ -18,14 +18,10 @@ public final class Stock extends Var {
 		setValues(new ArrayList<>());
 	}
 
-	public Stock(Id name, Cell def, String unit, List<Id> inFlows, List<Id> outFlows) {
+	public Stock(
+		Id name, Cell def, String unit, List<Id> inFlows, List<Id> outFlows
+	) {
 		super(name, def, unit, new ArrayList<>());
-		this.inFlows = Objects.requireNonNull(inFlows);
-		this.outFlows = Objects.requireNonNull(outFlows);
-	}
-
-	public Stock(Id name, Cell def, String unit, List<Id> inFlows, List<Id> outFlows, List<Cell> values) {
-		super(name, def, unit, Objects.requireNonNull(values));
 		this.inFlows = Objects.requireNonNull(inFlows);
 		this.outFlows = Objects.requireNonNull(outFlows);
 	}
@@ -48,7 +44,8 @@ public final class Stock extends Var {
 
 	@Override
 	public Stock freshCopy() {
-		return new Stock(name(), def(), unit(), new ArrayList<>(inFlows), new ArrayList<>(outFlows));
+		return new Stock(
+			name(), def(), unit(), new ArrayList<>(inFlows), new ArrayList<>(outFlows));
 	}
 
 	@Override

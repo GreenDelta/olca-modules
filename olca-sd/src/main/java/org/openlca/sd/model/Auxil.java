@@ -17,10 +17,6 @@ public final class Auxil extends Var {
 		super(name, def, unit, new ArrayList<>());
 	}
 
-	public Auxil(Id name, Cell def, String unit, List<Cell> values) {
-		super(name, def, unit, Objects.requireNonNull(values));
-	}
-
 	@Override
 	public Auxil freshCopy() {
 		return new Auxil(name(), def(), unit());

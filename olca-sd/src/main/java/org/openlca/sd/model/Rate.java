@@ -17,10 +17,6 @@ public final class Rate extends Var {
 		super(name, def, unit, new ArrayList<>());
 	}
 
-	public Rate(Id name, Cell def, String unit, List<Cell> values) {
-		super(name, def, unit, Objects.requireNonNull(values));
-	}
-
 	@Override
 	public Rate freshCopy() {
 		return new Rate(name(), def(), unit());
