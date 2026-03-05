@@ -36,7 +36,7 @@ public final class ImportLog {
 
 	private ImportLog(int size) {
 		MAX_SIZE = size;
-		count = new int[]{State.values().length};
+		count = new int[State.values().length];
 	}
 
 	/**
