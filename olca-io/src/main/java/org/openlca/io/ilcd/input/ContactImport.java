@@ -41,6 +41,7 @@ public class ContactImport {
 		actor = new Actor();
 		actor.category = imp.syncCategory(ds, ModelType.ACTOR);
 		setDescriptionAttributes();
+		imp.log().info("import contact: "	+ actor.name);
 		Import.mapVersionInfo(ds, actor);
 		return imp.insert(actor);
 	}

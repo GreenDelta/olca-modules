@@ -42,6 +42,7 @@ public class ImpactImport {
 		var impact = new ImpactCategory();
 		impact.refId = ImpactMethods.getUUID(ds);
 		impact.name = name();
+		imp.log().info("import impact category: " + impact.name);
 		Import.mapVersionInfo(ds, impact);
 		imp.log().info("import impact category: " + impact.name);
 		impact.category = imp.syncCategory(ds, ModelType.IMPACT_CATEGORY);

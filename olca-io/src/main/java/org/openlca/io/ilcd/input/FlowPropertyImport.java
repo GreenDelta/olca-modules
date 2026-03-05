@@ -38,6 +38,7 @@ public class FlowPropertyImport {
 		prop = new FlowProperty();
 		prop.category = imp.syncCategory(ds, ModelType.FLOW_PROPERTY);
 		mapDescriptionAttributes();
+		imp.log().info("import flow property: " + prop.name);
 		Import.mapVersionInfo(ds, prop);
 		var ref = FlowProperties.getUnitGroupRef(ds);
 		if (ref != null) {

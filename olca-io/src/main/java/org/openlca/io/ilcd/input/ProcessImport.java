@@ -49,6 +49,7 @@ public class ProcessImport {
 		process = new Process();
 		process.category = imp.syncCategory(ds, ModelType.PROCESS);
 		createAndMapContent();
+		imp.log().info("import process: " + process.name);
 		org.openlca.util.Processes.fixInternalIds(process);
 		process = imp.insert(process);
 		imp.providers().pop(process);

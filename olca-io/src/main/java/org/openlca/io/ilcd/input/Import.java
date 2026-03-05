@@ -224,28 +224,23 @@ public class Import implements org.openlca.io.Import {
 		if (dataSet == null)
 			return;
 		try {
-			if (dataSet instanceof Contact contact) {
-				new ContactImport(this, contact).run();
-			} else if (dataSet instanceof Source source) {
-				new SourceImport(this, source).run();
-			} else if (dataSet instanceof UnitGroup group) {
-				new UnitGroupImport(this, group).run();
-			} else if (dataSet instanceof FlowProperty prop) {
-				new FlowPropertyImport(this, prop).run();
-			} else if (dataSet instanceof Flow flow) {
-				new FlowImport(this, flow).run();
-			} else if (dataSet instanceof Process process) {
-				if (Processes.getProcessType(process) == ProcessType.EPD) {
-					new EpdImport(this, process).run();
-				} else {
-					new ProcessImport(this, process).run();
+			switch (dataSet) {
+				case Contact contact -> new ContactImport(this, contact).run();
+				case Source source -> new SourceImport(this, source).run();
+				case UnitGroup group -> new UnitGroupImport(this, group).run();
+				case FlowProperty prop -> new FlowPropertyImport(this, prop).run();
+				case Flow flow -> new FlowImport(this, flow).run();
+				case Process process -> {
+					if (Processes.getProcessType(process) == ProcessType.EPD) {
+						new EpdImport(this, process).run();
+					} else {
+						new ProcessImport(this, process).run();
+					}
 				}
-			} else if (dataSet instanceof ImpactMethod impact) {
-				new ImpactImport(this, impact).run();
-			} else if (dataSet instanceof Model model) {
-				new ModelImport(this).run(model);
-			} else {
-				log.error("No matching import for data set " + dataSet + " available");
+				case ImpactMethod impact -> new ImpactImport(this, impact).run();
+				case Model model -> new ModelImport(this).run(model);
+				default ->
+					log.error("No matching import for data set " + dataSet + " available");
 			}
 		} catch (Exception e) {
 			log.error("Import of " + dataSet + " failed", e);

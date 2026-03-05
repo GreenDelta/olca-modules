@@ -137,14 +137,18 @@ public final class ImportLog {
 		add(new Message(state, Descriptor.of(e)));
 	}
 
-	/**
-	 * Info messages created via this method are not added to the log but are
-	 * just passed to listeners that are attached to this log.
-	 */
+	/// Info messages created via this method are not added to the log but are
+	/// just passed to listeners that are attached to this log. Messages of this
+	/// type should be typically used to inform users about tasks that are
+	/// currently running within the import, so that users can see what is
+	/// currently happening
 	public void info(String message) {
 		if (message == null)
 			return;
-		add(new Message(State.INFO, message));
+		var msg = new Message(State.INFO, message);
+		for (var listener : listeners) {
+			listener.accept(msg);
+		}
 	}
 
 	public void warn(String message) {

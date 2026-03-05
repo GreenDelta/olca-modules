@@ -45,7 +45,7 @@ public class EcoSpold2Import implements Import {
 	@Override
 	public void run() {
 		if (files == null) {
-			log.info("files is null, nothing to do");
+			log.warn("files is null, nothing to do");
 			return;
 		}
 		RefDataIndex index = importRefData(files);

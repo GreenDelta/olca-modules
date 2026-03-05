@@ -41,6 +41,7 @@ public class UnitGroupImport {
 		unitGroup = new UnitGroup();
 		unitGroup.category = imp.syncCategory(ds, ModelType.UNIT_GROUP);
 		mapDescriptionAttributes();
+		imp.log().info("import unit group: " + unitGroup.name);
 		createUnits();
 		return imp.insert(unitGroup);
 	}

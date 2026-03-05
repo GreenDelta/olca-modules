@@ -117,7 +117,7 @@ public class EcoSpold01Import implements Import {
 			return;
 		}
 		try (var stream = new FileInputStream(file)) {
-			log.info("import file " + file.getName());
+			log.info("import file: " + file.getName());
 			run(stream, type.value());
 		} catch (Exception e) {
 			log.error("failed to import XML file " + file, e);

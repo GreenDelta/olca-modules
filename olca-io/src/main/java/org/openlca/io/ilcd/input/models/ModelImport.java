@@ -58,6 +58,7 @@ public class ModelImport {
 		if (Objects.equals("openLCA", origin) || !imp.hasGabiGraphSupport()) {
 			system = new ProductSystem();
 			IO.mapMetaData(model, system);
+			imp.log().info("import product system: " + system.name);
 			String[] path = Categories.getPath(model);
 			system.category = new CategoryDao(imp.db())
 					.sync(ModelType.PRODUCT_SYSTEM, path);

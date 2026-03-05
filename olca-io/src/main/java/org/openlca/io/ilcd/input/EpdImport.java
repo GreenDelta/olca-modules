@@ -55,6 +55,7 @@ public class EpdImport {
 		oEpd.refId = id;
 		oEpd.name = Strings.cutEnd(
 				Processes.getFullName(ds, imp.lang()), 2048);
+		imp.log().info("import EPD: " + oEpd.name);
 		oEpd.category = imp.syncCategory(ds, ModelType.EPD);
 		oEpd.tags = tags();
 		Import.mapVersionInfo(ds, oEpd);

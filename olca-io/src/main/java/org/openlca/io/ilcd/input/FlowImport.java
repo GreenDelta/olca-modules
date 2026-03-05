@@ -36,6 +36,7 @@ public class FlowImport {
 		flow = new Flow();
 		flow.category = imp.syncCategory(ds, ModelType.FLOW);
 		createAndMapContent();
+		imp.log().info("import flow: " + flow.name);
 		if (flow.referenceFlowProperty == null) {
 			imp.log().error("Could not import flow "
 					+ flow.refId + " because the "

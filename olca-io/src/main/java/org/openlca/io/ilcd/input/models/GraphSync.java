@@ -39,6 +39,7 @@ record GraphSync(Import imp) {
 		syncProcesses(g);
 		ProductSystem system = new ProductSystem();
 		IO.mapMetaData(model, system);
+		imp.log().info("import product system: " + system.name);
 		system.category = new CategoryDao(imp.db())
 				.sync(ModelType.PRODUCT_SYSTEM, "eILCD models");
 		mapGraph(g, system);

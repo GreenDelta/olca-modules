@@ -40,6 +40,7 @@ public class SourceImport {
 		source.category = imp.syncCategory(ds, ModelType.SOURCE);
 		Import.mapVersionInfo(ds, source);
 		setDescriptionAttributes();
+		imp.log().info("import source: " + source.name);
 		importExternalFile();
 		return imp.insert(source);
 	}
