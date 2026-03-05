@@ -78,7 +78,7 @@ public class ParameterRedefSets {
 			/* 3 */ "value , " +
 			/* 4 */ "context_type, " +
 			/* 5 */ "f_context from tbl_parameter_redefs where f_owner = " +
-			/* 6 */ "(select id from tbl_parameter_redef_sets where is_baseline = 1 " +
+			/* 6 */ "(select min(id) from tbl_parameter_redef_sets where is_baseline = 1 " +
 			/* 7 */	"and f_product_system = " + system.id + ")";
 		
 		NativeSql.on(db).query(sql, r -> {
