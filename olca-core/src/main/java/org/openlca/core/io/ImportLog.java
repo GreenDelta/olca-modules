@@ -27,7 +27,7 @@ public final class ImportLog {
 	// messages by the database internal ID of the imported data set.
 	private final TLongObjectHashMap<Message> dataSetLogs = new TLongObjectHashMap<>();
 	private final HashSet<Message> otherLogs = new HashSet<>();
-
+	private final int[] count;
 	private final List<Consumer<Message>> listeners = new ArrayList<>();
 
 	public ImportLog() {
@@ -36,6 +36,7 @@ public final class ImportLog {
 
 	private ImportLog(int size) {
 		MAX_SIZE = size;
+		count = new int[]{State.values().length};
 	}
 
 	/**
@@ -58,19 +59,9 @@ public final class ImportLog {
 	}
 
 	public int countOf(State state) {
-		if (state == null)
-			return 0;
-		var count = new Object() {
-			int value = 0;
-		};
-		Consumer<Message> filter = message -> {
-			if (message.state == state) {
-				count.value++;
-			}
-		};
-		eachWithDataSet(filter);
-		otherLogs.forEach(filter);
-		return count.value;
+		return state != null
+			? count[state.ordinal()]
+			: 0;
 	}
 
 	public Collection<Message> messages() {
@@ -157,7 +148,7 @@ public final class ImportLog {
 		add(new Message(State.WARNING, message));
 	}
 
-	public void warn( RootEntity e, String message) {
+	public void warn(RootEntity e, String message) {
 		if (e == null && message == null)
 			return;
 		add(new Message(State.WARNING, message, Descriptor.of(e)));
@@ -174,6 +165,7 @@ public final class ImportLog {
 	}
 
 	private void add(Message message) {
+		count[message.state.ordinal()]++;
 		if (size() >= MAX_SIZE)
 			return;
 		if (message.hasDescriptor()) {
