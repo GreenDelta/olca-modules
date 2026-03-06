@@ -9,6 +9,12 @@ import org.openlca.sd.model.LookupFunc;
 import org.openlca.sd.model.Tensor;
 import org.openlca.sd.util.Tensors;
 
+/// A TensorEqnCell consists of a tensor and an equation. When the cell is
+/// evaluated, first the equation is solved. Then the result of that equation
+/// is applied on the tensor. For example, when the equation evaluates to a
+/// number and the tensor contains lookup functions in its cells, the result of
+/// the equation is applied to each lookup function of the cells to calculate
+/// the respective cell values of the resulting tensor.
 public record TensorEqnCell(Cell eqn, Tensor tensor) implements Cell {
 
 	public TensorEqnCell {
@@ -19,55 +25,49 @@ public record TensorEqnCell(Cell eqn, Tensor tensor) implements Cell {
 	@Override
 	public Res<Cell> eval(Interpreter interpreter) {
 		var res = eqn.eval(interpreter);
-		if (res.isError())
-			return res;
-		var val = res.value();
+		if (res.isError()) return res;
+		var result = res.value();
 
-		if (val instanceof TensorCell(Tensor t))
-			return mergeTensors(t, tensor);
-
-		if (!(val instanceof NumCell(double num)))
+		if (result instanceof TensorCell(Tensor t)) {
+			return apply(t, tensor);
+		}
+		if (!(result instanceof NumCell(double num))) {
 			return Res.error(
-					"Equation does not evaluate to a tensor or number: " + eqn);
-
+				"Equation does not evaluate to a tensor or number: " + eqn);
+		}
 		return apply(num, tensor);
 	}
 
-	private Res<Cell> mergeTensors(Tensor from, Tensor into) {
-		if (!Tensors.haveSameDimensions(from, into))
+	/// Applies the tensor calculated from the equation to the target tensor.
+	private Res<Cell> apply(Tensor eqnRes, Tensor target) {
+		if (!Tensors.haveSameDimensions(eqnRes, target)) {
 			return Res.error("Equation result and tensor definition have " +
-					"different dimensions; cast not supported");
+				"different dimensions; cast not supported");
+		}
 
-		var result = Tensor.of(into.dimensions());
-		for (int i = 0; i < from.size(); i++) {
-			var fromCell = from.get(i);
-			var intoCell = into.get(i);
+		var result = Tensor.of(target.dimensions());
+		for (int i = 0; i < eqnRes.size(); i++) {
+			var eqnCell = eqnRes.get(i);
+			var targetCell = target.get(i);
 
-			Res<Cell> resultCell = switch (fromCell) {
-
-				case TensorCell(Tensor fi) -> switch (intoCell) {
-					case TensorCell(Tensor ii) -> mergeTensors(fi, ii);
-					case TensorEqnCell(Cell eqn, Tensor ii) -> mergeTensors(fi, ii);
+			Res<Cell> resultCell = switch (eqnCell) {
+				case TensorCell(Tensor fi) -> switch (targetCell) {
+					case TensorCell(Tensor ii) -> apply(fi, ii);
+					case TensorEqnCell(Cell ignore, Tensor ii) -> apply(fi, ii);
 					case null, default -> null;
 				};
-
-				case NumCell(double num) -> switch (intoCell) {
-					case LookupCell(LookupFunc fn) -> Res.ok(Cell.of(fn.get(num)));
-					case LookupEqnCell(String eqn, LookupFunc fn) -> Res.ok(
-							Cell.of(fn.get(num)));
-					case null, default -> Res.ok(fromCell);
-				};
-
+				case NumCell(double num) -> apply(num, targetCell);
 				case null, default -> null;
 			};
 
 			if (resultCell == null) {
-				result.set(i, fromCell);
+				result.set(i, eqnCell);
 				continue;
 			}
 
-			if (resultCell.isError())
-				return resultCell.wrapError("Could not merge tensor row: " + i);
+			if (resultCell.isError()) {
+				return resultCell.wrapError("Could not apply tensor row: " + i);
+			}
 			result.set(i, resultCell.value());
 		}
 
@@ -78,8 +78,7 @@ public record TensorEqnCell(Cell eqn, Tensor tensor) implements Cell {
 		var t = Tensor.of(tensor.dimensions());
 		for (int i = 0; i < tensor().size(); i++) {
 			var entry = apply(value, tensor.get(i));
-			if (entry.isError())
-				return entry;
+			if (entry.isError()) return entry;
 			t.set(i, entry.value());
 		}
 		return Res.ok(new TensorCell(t));
@@ -102,9 +101,9 @@ public record TensorEqnCell(Cell eqn, Tensor tensor) implements Cell {
 	@Override
 	public String toString() {
 		var dims = tensor.dimensions()
-				.stream()
-				.map(d -> d.name().label())
-				.collect(Collectors.joining(" × "));
+			.stream()
+			.map(d -> d.name().label())
+			.collect(Collectors.joining(" × "));
 		return "tensorEqn{" + dims + ",'" + eqn + "'}";
 	}
 
