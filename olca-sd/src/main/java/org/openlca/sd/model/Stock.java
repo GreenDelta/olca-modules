@@ -22,8 +22,12 @@ public final class Stock extends Var {
 		Id name, Cell def, String unit, List<Id> inFlows, List<Id> outFlows
 	) {
 		super(name, def, unit, new ArrayList<>());
-		this.inFlows = Objects.requireNonNull(inFlows);
-		this.outFlows = Objects.requireNonNull(outFlows);
+		this.inFlows = inFlows != null
+			? new ArrayList<>(inFlows)
+			: new ArrayList<>();
+		this.outFlows = outFlows != null
+			? new ArrayList<>(outFlows)
+			: new ArrayList<>();
 	}
 
 	public List<Id> inFlows() {
@@ -31,7 +35,7 @@ public final class Stock extends Var {
 	}
 
 	public void setInFlows(List<Id> inFlows) {
-		this.inFlows = inFlows;
+		this.inFlows = inFlows == null ? new ArrayList<>() : inFlows;
 	}
 
 	public List<Id> outFlows() {
@@ -39,7 +43,7 @@ public final class Stock extends Var {
 	}
 
 	public void setOutFlows(List<Id> outFlows) {
-		this.outFlows = outFlows;
+		this.outFlows = outFlows == null ? new ArrayList<>() : outFlows;
 	}
 
 	@Override
