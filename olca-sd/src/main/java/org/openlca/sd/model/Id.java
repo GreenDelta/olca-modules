@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/// `Id` is used for identifiers of variables, dimensions, and array subscripts
+/// in a model. It is immutable and can have two forms: a user-friendly label
+/// and a canonical value. For example, `a Var`, `a_Var`, `"a Var"`, `a\nVar`
+/// have all the same canonical form `a_var` and thus, are the same identifier
+/// in the model.
 public class Id {
 
 	private static final Id NIL = new Id("*nil*", "");
