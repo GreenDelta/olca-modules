@@ -6,7 +6,9 @@ import java.util.List;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.openlca.commons.Res;
+import org.openlca.commons.Strings;
 import org.openlca.sd.eqn.generated.EqnBaseListener;
 import org.openlca.sd.eqn.generated.EqnParser;
 import org.openlca.sd.eqn.generated.EqnParser.ArrayAccessContext;
@@ -55,8 +57,9 @@ public class VarRenamer {
 		}
 
 		var oldName = variable.name();
-		if (oldName.equals(newName))
+		if (oldName.equals(newName)) {
 			return Res.ok();
+		}
 
 		// check that the new name is not already used
 		for (var v : model.vars()) {
@@ -121,33 +124,39 @@ public class VarRenamer {
 		if (cell == null)
 			return null;
 		return switch (cell) {
-			case EqnCell eqn -> {
-				var renamed = renameInEqn(eqn.value());
-				yield renamed.equals(eqn.value()) ? cell : new EqnCell(renamed);
+
+			case EqnCell c -> {
+				var renamed = renameInEqn(c.value());
+				yield renamed.equals(c.value()) ? cell : new EqnCell(renamed);
 			}
-			case LookupEqnCell leqn -> {
-				var renamed = renameInEqn(leqn.eqn());
-				yield renamed.equals(leqn.eqn())
+
+			case LookupEqnCell c -> {
+				var renamed = renameInEqn(c.eqn());
+				yield renamed.equals(c.eqn())
 					? cell
-					: new LookupEqnCell(renamed, leqn.func());
+					: new LookupEqnCell(renamed, c.func());
 			}
-			case TensorEqnCell teqn -> {
-				var renamedEqn = renameInCell(teqn.eqn());
-				renameInTensor(teqn.tensor());
-				yield renamedEqn != teqn.eqn()
-					? new TensorEqnCell(renamedEqn, teqn.tensor())
+
+			case TensorEqnCell c -> {
+				var renamed = renameInCell(c.eqn());
+				renameInTensor(c.tensor());
+				yield renamed != c.eqn()
+					? new TensorEqnCell(renamed, c.tensor())
 					: cell;
 			}
-			case NonNegativeCell nn -> {
-				var renamed = renameInCell(nn.value());
-				yield renamed != nn.value()
+
+			case NonNegativeCell c -> {
+				var renamed = renameInCell(c.value());
+				yield renamed != c.value()
 					? new NonNegativeCell(renamed)
 					: cell;
 			}
-			case TensorCell tc -> {
-				renameInTensor(tc.value());
+
+			case TensorCell c -> {
+				renameInTensor(c.value());
 				yield cell;
 			}
+
 			default -> cell;
 		};
 	}
@@ -163,54 +172,82 @@ public class VarRenamer {
 	}
 
 	private String renameInEqn(String eqn) {
-		var oldName = variable.name();
-		try {
-			var lexer = new EqnLexer(CharStreams.fromString(eqn));
-			var tokens = new CommonTokenStream(lexer);
-			var parser = new EqnParser(tokens);
-			var tree = parser.eqn();
-
-			// collect token positions that reference the old variable name
-			var positions = new ArrayList<int[]>();
-			var collector = new EqnBaseListener() {
-				@Override
-				public void enterVar(VarContext ctx) {
-					checkId(ctx.ID());
-				}
-
-				@Override
-				public void enterArrayAccess(ArrayAccessContext ctx) {
-					checkId(ctx.ID());
-				}
-
-				private void checkId(org.antlr.v4.runtime.tree.TerminalNode node) {
-					if (node == null)
-						return;
-					var id = Id.of(node.getText());
-					if (oldName.equals(id)) {
-						positions.add(new int[]{
-							node.getSymbol().getStartIndex(),
-							node.getSymbol().getStopIndex() + 1
-						});
-					}
-				}
-			};
-			ParseTreeWalker.DEFAULT.walk(collector, tree);
-
-			if (positions.isEmpty())
-				return eqn;
-
-			var result = new StringBuilder();
-			int pos = 0;
-			for (var r : positions) {
-				result.append(eqn, pos, r[0]);
-				result.append(newName.value());
-				pos = r[1];
-			}
-			result.append(eqn, pos, eqn.length());
-			return result.toString();
-		} catch (Exception e) {
+		var posRes = PosCollector.findIn(eqn, variable.name());
+		if (posRes.isError()) {
 			return eqn;
 		}
+		var positions = posRes.value();
+		if (positions.isEmpty()) {
+			return eqn;
+		}
+
+		var buffer = new StringBuilder();
+		int pos = 0;
+		for (var p : positions) {
+			buffer.append(eqn, pos, p.start);
+			buffer.append(newName.value());
+			pos = p.end;
+		}
+		buffer.append(eqn, pos, eqn.length());
+		return buffer.toString();
 	}
+
+	private record Pos(int start, int end) {
+
+		static Pos of(TerminalNode node) {
+			var token = node.getSymbol();
+			int start = token.getStartIndex();
+			int end = token.getStopIndex() + 1;
+			return new Pos(start, end);
+		}
+	}
+
+	private static class PosCollector extends EqnBaseListener {
+
+		private final Id name;
+		private List<Pos> pos;
+
+		PosCollector(Id name) {
+			this.name = name;
+		}
+
+		static Res<List<Pos>> findIn(String eqn, Id name) {
+			if (Strings.isBlank(eqn)) {
+				return Res.ok(List.of());
+			}
+			try {
+				var lexer = new EqnLexer(CharStreams.fromString(eqn));
+				var tokens = new CommonTokenStream(lexer);
+				var parser = new EqnParser(tokens);
+				var collector = new PosCollector(name);
+				ParseTreeWalker.DEFAULT.walk(collector,  parser.eqn());
+				return collector.pos != null
+					? Res.ok(collector.pos)
+					: Res.ok(List.of());
+			} catch (Exception e) {
+				return Res.error("Failed to parse equation " + eqn, e);
+			}
+		}
+
+		@Override
+		public void enterVar(VarContext ctx) {
+			push(ctx.ID());
+		}
+
+		@Override
+		public void enterArrayAccess(ArrayAccessContext ctx) {
+			push(ctx.ID());
+		}
+
+		private void push(TerminalNode node) {
+			if (node == null) return;
+			var id = Id.of(node.getText());
+			if (!name.equals(id)) return;
+			if (pos == null) {
+				pos = new ArrayList<>(2);
+			}
+			pos.add(Pos.of(node));
+		}
+	}
+
 }
