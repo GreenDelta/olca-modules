@@ -154,6 +154,8 @@ class XmileReader {
 		var b = new SystemBinding(refOf(xsb.system()));
 		b.setAllocation(xsb.allocation());
 		b.setAmount(xsb.amount());
+
+		// variable bindings
 		if (xsb.amountVar() != null) {
 			b.setAmountVar(Id.of(xsb.amountVar()));
 		}
@@ -162,6 +164,12 @@ class XmileReader {
 			if (vb != null) {
 				b.varBindings().add(vb);
 			}
+		}
+
+		// view
+		if (xsb.view() != null) {
+			var view = xsb.view();
+			b.setView(new Rect(view.x(), view.y(), view.width(), view.height()));
 		}
 		return b;
 	}

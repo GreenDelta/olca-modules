@@ -12,6 +12,7 @@ public class SystemBinding {
 	private double amount = 1.0;
 	private Id amountVar;
 	private final List<VarBinding> varBindings = new ArrayList<>();
+	private Rect view;
 
 	public SystemBinding(EntityRef system) {
 		this.system = system;
@@ -49,6 +50,14 @@ public class SystemBinding {
 
 	public List<VarBinding> varBindings() {
 		return varBindings;
+	}
+
+	public Rect view() {
+		return view;
+	}
+
+	public void setView(Rect view) {
+		this.view = view;
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package org.openlca.sd.model;
 
-import java.util.stream.Collectors;
-
 import org.openlca.commons.Strings;
 import org.openlca.sd.model.cells.BoolCell;
 import org.openlca.sd.model.cells.Cell;
@@ -33,12 +31,15 @@ import org.openlca.sd.xmile.XmiVariable;
 import org.openlca.sd.xmile.Xmile;
 import org.openlca.sd.xmile.lca.XmiEntityRef;
 import org.openlca.sd.xmile.lca.XmiLca;
+import org.openlca.sd.xmile.lca.XmiRect;
 import org.openlca.sd.xmile.lca.XmiSystemBinding;
 import org.openlca.sd.xmile.lca.XmiVarBinding;
 import org.openlca.sd.xmile.view.XmiAuxView;
 import org.openlca.sd.xmile.view.XmiFlowView;
 import org.openlca.sd.xmile.view.XmiStockView;
 import org.openlca.sd.xmile.view.XmiView;
+
+import java.util.stream.Collectors;
 
 class XmileWriter {
 
@@ -296,6 +297,8 @@ class XmileWriter {
 			}
 			xsb.setAllocation(b.allocation());
 			xsb.setAmount(b.amount());
+			xsb.setView(xmiRectOf(b.view()));
+
 			if (b.amountVar() != null) {
 				xsb.setAmountVar(b.amountVar().label());
 			}
@@ -313,6 +316,16 @@ class XmileWriter {
 			ex.systemBindings().add(xsb);
 		}
 		xmile.setLca(ex);
+	}
+
+	private static XmiRect xmiRectOf(Rect view) {
+		if (view == null) return null;
+		var xmi = new XmiRect();
+		xmi.setX(view.x());
+		xmi.setY(view.y());
+		xmi.setWidth(view.width());
+		xmi.setHeight(view.height());
+		return xmi;
 	}
 
 	private XmiEntityRef xmiRefOf(EntityRef ref) {

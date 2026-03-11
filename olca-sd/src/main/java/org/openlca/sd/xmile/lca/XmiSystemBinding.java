@@ -29,6 +29,9 @@ public class XmiSystemBinding {
 	@XmlElement(name = "varBinding", namespace = XmiLca.NS)
 	private List<XmiVarBinding> varBindings;
 
+	@XmlElement(name = "view", namespace = XmiLca.NS)
+	private XmiRect view;
+
 	public XmiEntityRef system() {
 		return system;
 	}
@@ -66,5 +69,13 @@ public class XmiSystemBinding {
 			varBindings = new ArrayList<>();
 		}
 		return varBindings;
+	}
+
+	public XmiRect view() {
+		return view;
+	}
+
+	public void setView(XmiRect view) {
+		this.view = view;
 	}
 }
