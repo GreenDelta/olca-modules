@@ -200,12 +200,11 @@ public class VarRenamer {
 			if (positions.isEmpty())
 				return eqn;
 
-			var replacement = eqnNameOf(newName);
 			var result = new StringBuilder();
 			int pos = 0;
 			for (var r : positions) {
 				result.append(eqn, pos, r[0]);
-				result.append(replacement);
+				result.append(newName.value());
 				pos = r[1];
 			}
 			result.append(eqn, pos, eqn.length());
@@ -213,14 +212,5 @@ public class VarRenamer {
 		} catch (Exception e) {
 			return eqn;
 		}
-	}
-
-	private static String eqnNameOf(Id id) {
-		var label = id.label().strip();
-		if (label.startsWith("\"") && label.endsWith("\""))
-			return label;
-		if (label.matches("[a-zA-Z_$][a-zA-Z_$0-9]*"))
-			return label;
-		return "\"" + label + "\"";
 	}
 }
