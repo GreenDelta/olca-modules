@@ -4,7 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -76,6 +78,40 @@ public class ExchangeTable {
 		} catch (Exception e) {
 			throw new RuntimeException("failed to query exchange table", e);
 		}
+	}
+
+	/**
+	 * Loads all exchanges for the processes in the given tech index using a single
+	 * query. For large indices (≥1000) uses a full table scan to avoid a huge
+	 * IN clause; for small indices uses {@code WHERE f_owner IN (...)}.
+	 * Returns a map from process ID to list of CalcExchange for that process.
+	 */
+	public Map<Long, List<CalcExchange>> loadAllForTechIndex(TechIndex techIndex) {
+		String sql = query();
+		if (techIndex.size() < 1000) {
+			sql += " where f_owner in " + CacheUtil.asSql(
+				techIndex.getProcessIds());
+		}
+		var map = new HashMap<Long, List<CalcExchange>>();
+		try {
+			NativeSql.on(db).query(sql, r -> {
+				long owner = r.getLong(2);
+				if (techIndex.isProvider(owner)) {
+					try {
+						CalcExchange e = next(owner, r);
+						map.computeIfAbsent(owner, k -> new ArrayList<>()).add(e);
+					} catch (Exception ex) {
+						throw new RuntimeException("failed to read exchange row", ex);
+					}
+				}
+				return true;
+			});
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException("failed to query exchange table", e);
+		}
+		return map;
 	}
 
 	private static String query() {

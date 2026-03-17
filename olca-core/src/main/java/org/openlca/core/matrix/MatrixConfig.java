@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.cache.LoadingCache;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
@@ -41,6 +43,13 @@ public class MatrixConfig {
 	public final EnviIndex cachedEnviIndex;
 	public final ImpactIndex cachedImpactIndex;
 	public final MatrixReader cachedImpactMatrix;
+
+	/**
+	 * Optional in-memory exchange cache (processId -> list of CalcExchange).
+	 * When set, InventoryBuilder uses this instead of reading from the database,
+	 * so that repeated builds with different parameters skip DB I/O.
+	 */
+	public final LoadingCache<Long, List<CalcExchange>> exchangeCache;
 
 	private MatrixConfig(Builder builder) {
 		this.db = builder.db;
@@ -78,6 +87,7 @@ public class MatrixConfig {
 		cachedEnviIndex = builder.cachedEnviIndex;
 		cachedImpactIndex = builder.cachedImpactIndex;
 		cachedImpactMatrix = builder.cachedImpactMatrix;
+		exchangeCache = builder.exchangeCache;
 	}
 
 	public static Builder of(IDatabase db, TechIndex techIndex) {
@@ -104,6 +114,7 @@ public class MatrixConfig {
 		private EnviIndex cachedEnviIndex;
 		private ImpactIndex cachedImpactIndex;
 		private MatrixReader cachedImpactMatrix;
+		private LoadingCache<Long, List<CalcExchange>> exchangeCache;
 
 		private AllocationMethod allocationMethod;
 		private boolean withUncertainties;
@@ -187,6 +198,16 @@ public class MatrixConfig {
 		/** Use a pre-built impact matrix (e.g. from cache) when only parameters change. */
 		public Builder withCachedImpactMatrix(MatrixReader impactMatrix) {
 			this.cachedImpactMatrix = impactMatrix;
+			return this;
+		}
+
+		/**
+		 * Use an in-memory exchange cache so that matrix build reads from cache
+		 * instead of the database. Caller must preload the cache for the tech index's
+		 * process IDs before building. Safe when only parameters change between builds.
+		 */
+		public Builder withExchangeCache(LoadingCache<Long, List<CalcExchange>> cache) {
+			this.exchangeCache = cache;
 			return this;
 		}
 

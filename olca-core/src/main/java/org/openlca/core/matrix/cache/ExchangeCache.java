@@ -110,8 +110,7 @@ public class ExchangeCache {
 			e.isInput = r.getBoolean("is_input");
 			e.defaultProviderId = r.getLong("f_default_provider");
 			e.isAvoided = r.getBoolean("avoided_product");
-
-			// costs
+			e.locationId = r.getLong("f_location");
 			long currency = r.getLong("f_currency");
 			if (!r.wasNull()) {
 				e.costValue = r.getDouble("cost_value");

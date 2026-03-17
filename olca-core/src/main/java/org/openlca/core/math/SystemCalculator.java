@@ -3,17 +3,23 @@ package org.openlca.core.math;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+
+import com.google.common.cache.LoadingCache;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.CalcExchange;
 import org.openlca.core.matrix.format.MatrixReader;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
+import org.openlca.core.matrix.cache.ExchangeCache;
+import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
@@ -43,6 +49,15 @@ public class SystemCalculator {
 	private LibReaderRegistry libraries;
 	private MatrixSolver solver;
 
+	private Map<Long, LcaResult> subResultsCache;
+
+	/**
+	 * When true, exchanges are loaded into an in-memory cache and reused for
+	 * subsequent matrix builds (e.g. when only parameters change). Created lazily.
+	 */
+	private boolean useExchangeCache;
+	private LoadingCache<Long, List<CalcExchange>> exchangeCache;
+
 	public SystemCalculator(IDatabase db) {
 		this.db = db;
 	}
@@ -61,6 +76,23 @@ public class SystemCalculator {
 
 	public SystemCalculator withSolver(MatrixSolver solver) {
 		this.solver = solver;
+		return this;
+	}
+
+	public SystemCalculator withSubResultsCache(Map<Long, LcaResult> subResultsCache) {
+		this.subResultsCache = subResultsCache;
+		return this;
+	}
+
+	/**
+	 * When enabled, exchanges are loaded into an in-memory cache on the first
+	 * matrix build and reused for subsequent builds. Use when the product system
+	 * (tech index) stays the same but parameters may change between builds; DB
+	 * reads are skipped after the first build while formula evaluation still runs
+	 * with the current parameters.
+	 */
+	public SystemCalculator withExchangeCache(boolean useExchangeCache) {
+		this.useExchangeCache = useExchangeCache;
 		return this;
 	}
 
@@ -140,7 +172,19 @@ public class SystemCalculator {
 		if (cachedImpactMatrix != null) {
 			builder.withCachedImpactMatrix(cachedImpactMatrix);
 		}
+		if (useExchangeCache) {
+			ensureExchangeCache();
+			preloadExchangeCache(techIndex);
+			builder.withExchangeCache(exchangeCache);
+		}
+		long t0 = System.nanoTime();
 		var data = builder.build();
+		long matrixDataMs = (System.nanoTime() - t0) / 1_000_000;
+		log.info("[PROFILE] MatrixData.build: {} ms", matrixDataMs);
+		log.info("[PROFILE] MatrixData.build: techMatrix={}x{}, enviMatrix={}x{}, enviIndex.size={}",
+				data.techMatrix != null ? data.techMatrix.rows() : 0, data.techMatrix != null ? data.techMatrix.columns() : 0,
+				data.enviMatrix != null ? data.enviMatrix.rows() : 0, data.enviMatrix != null ? data.enviMatrix.columns() : 0,
+				data.enviIndex != null ? data.enviIndex.size() : 0);
 		return new BuildResult(data, subs);
 	}
 
@@ -219,11 +263,16 @@ public class SystemCalculator {
 		long subSystemsMs = (System.nanoTime() - t0) / 1_000_000;
 		log.info("[PROFILE] solveSubSystems: {} ms (subs.count={})", subSystemsMs, subs.size());
 
-		t0 = System.nanoTime();
-		var data = MatrixData.of(db, techIndex)
+		var matrixBuilder = MatrixData.of(db, techIndex)
 				.withSetup(setup)
-				.withSubResults(subs)
-				.build();
+				.withSubResults(subs);
+		if (useExchangeCache) {
+			ensureExchangeCache();
+			preloadExchangeCache(techIndex);
+			matrixBuilder.withExchangeCache(exchangeCache);
+		}
+		t0 = System.nanoTime();
+		var data = matrixBuilder.build();
 		long matrixDataMs = (System.nanoTime() - t0) / 1_000_000;
 		int techRows = data.techMatrix != null ? data.techMatrix.rows() : 0;
 		int techCols = data.techMatrix != null ? data.techMatrix.columns() : 0;
@@ -276,6 +325,35 @@ public class SystemCalculator {
 		};
 	}
 
+	private void ensureExchangeCache() {
+		if (exchangeCache == null) {
+			exchangeCache = ExchangeCache.create(db);
+		}
+	}
+
+	/** Preloads the exchange cache using a single full table scan (no huge IN clause).
+	 * Only runs when the cache is empty so subsequent builds with the same tech index skip the DB.
+	 */
+	private void preloadExchangeCache(TechIndex techIndex) {
+		if (exchangeCache == null || techIndex == null)
+			return;
+		// Only load from DB when cache is empty (first build); reuse for subsequent builds
+		if (!exchangeCache.asMap().isEmpty()) {
+			log.info("[PROFILE] Exchange cache reuse (skipping preload, size={})", exchangeCache.asMap().size());
+			return;
+		}
+		long t0 = System.nanoTime();
+		try {
+			var table = new ExchangeTable(db);
+			Map<Long, List<CalcExchange>> map = table.loadAllForTechIndex(techIndex);
+			exchangeCache.asMap().putAll(map);
+			long ms = (System.nanoTime() - t0) / 1_000_000;
+			log.info("[PROFILE] Exchange cache preload (full table scan): {} ms, {} processes", ms, map.size());
+		} catch (Exception e) {
+			throw new RuntimeException("failed to preload exchange cache", e);
+		}
+	}
+
 	/// Calculates (recursively) the sub-systems of the given setup. It returns an
 	/// empty map when there are no subsystems. For the sub-results, the same
 	/// calculation type is performed as defined in the original calculation setup.
@@ -297,10 +375,19 @@ public class SystemCalculator {
 				continue;
 			}
 			if (p.isResult()) {
-				var result = db.get(Result.class, p.providerId());
-				if (result != null) {
-					subResults.put(p, new LcaResult(ResultModelProvider.of(result)));
+				if (subResultsCache != null && subResultsCache.containsKey(p.providerId())) {
+					subResults.put(p, subResultsCache.get(p.providerId()));
 					resultCount++;
+				} else {
+					var result = db.get(Result.class, p.providerId());
+					if (result != null) {
+						var lcaResult = new LcaResult(ResultModelProvider.of(result));
+						subResults.put(p, lcaResult);
+						if (subResultsCache != null) {
+							subResultsCache.put(p.providerId(), lcaResult);
+						}
+						resultCount++;
+					}
 				}
 			}
 		}

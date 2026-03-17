@@ -1,6 +1,7 @@
 package org.openlca.core.matrix;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.cache.ExchangeTable;
@@ -11,11 +12,14 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.uncertainties.UMatrix;
 import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
 public class InventoryBuilder {
+
+	private static final Logger log = LoggerFactory.getLogger(InventoryBuilder.class);
 
 	private final MatrixConfig conf;
 	private final TechIndex techIndex;
@@ -30,6 +34,14 @@ public class InventoryBuilder {
 	private UMatrix techUncerts;
 	private UMatrix enviUncerts;
 	private double[] costs;
+
+	/** Accumulated nanos for [PROFILE] logs. */
+	private long exchangeTableScanNs;
+	private long formulaEvalNs;
+	private long allocationEvalNs;
+	private long matrixWritesNs;
+	private long indexLookupsNs;
+	private long linkerNs;
 
 	public InventoryBuilder(MatrixConfig conf) {
 		this.conf = conf;
@@ -74,6 +86,16 @@ public class InventoryBuilder {
 
 		// fill the matrices
 		fillMatrices();
+
+		log.info("[PROFILE] Exchange table scan (ExchangeTable.each{}): {} ms", conf.exchangeCache != null ? " / cache" : "", exchangeTableScanNs / 1_000_000);
+		log.info("[PROFILE] Formula evaluation per exchange (matrixValue/costValue): {} ms", formulaEvalNs / 1_000_000);
+		log.info("[PROFILE] Allocation factor evaluation (get(interpreter)): {} ms", allocationEvalNs / 1_000_000);
+		log.info("[PROFILE] Matrix writes (techBuilder/enviBuilder add/set): {} ms", matrixWritesNs / 1_000_000);
+		long otherNs = exchangeTableScanNs - formulaEvalNs - allocationEvalNs - matrixWritesNs;
+		log.info("[PROFILE] Other — Index lookups (getProviders, techIndex.of, flowIndex.of/register): {} ms", indexLookupsNs / 1_000_000);
+		log.info("[PROFILE] Other — Linker (providerOf): {} ms", linkerNs / 1_000_000);
+		log.info("[PROFILE] Other — DB + CalcExchange + remainder: {} ms", (otherNs - indexLookupsNs - linkerNs) / 1_000_000);
+
 		new DiagCheck(this).exec();
 		int n = techIndex.size();
 		int m = flowIndex.size();
@@ -103,13 +125,21 @@ public class InventoryBuilder {
 
 	private void fillMatrices() {
 		// fill the matrices with process data
-		var exchanges = new ExchangeTable(conf.db);
-		exchanges.each(techIndex, exchange -> {
-			var products = techIndex.getProviders(exchange.processId);
-			for (TechFlow product : products) {
-				putExchangeValue(product, exchange);
-			}
-		});
+		long t0 = System.nanoTime();
+		if (conf.exchangeCache != null) {
+			fillMatricesFromCache();
+		} else {
+			var exchanges = new ExchangeTable(conf.db);
+			exchanges.each(techIndex, exchange -> {
+				long t1 = System.nanoTime();
+				var products = techIndex.getProviders(exchange.processId);
+				indexLookupsNs += System.nanoTime() - t1;
+				for (TechFlow product : products) {
+					putExchangeValue(product, exchange);
+				}
+			});
+		}
+		exchangeTableScanNs = System.nanoTime() - t0;
 
 		// now put the entries of the sub-system into the matrices
 		var subSystems = new HashSet<TechFlow>();
@@ -154,6 +184,35 @@ public class InventoryBuilder {
 		}
 	}
 
+	/**
+	 * Fills the matrices from the in-memory exchange cache instead of the database.
+	 * Only processes in the tech index are iterated; for each exchange we use the
+	 * same putExchangeValue logic (formula eval, allocation, matrix writes).
+	 */
+	private void fillMatricesFromCache() {
+		for (var product : techIndex) {
+			if (!product.isProcess())
+				continue;
+			long processId = product.providerId();
+			List<CalcExchange> exchanges;
+			try {
+				exchanges = conf.exchangeCache.get(processId);
+			} catch (Exception e) {
+				throw new RuntimeException("failed to get exchanges from cache for process " + processId, e);
+			}
+			if (exchanges == null)
+				continue;
+			for (CalcExchange exchange : exchanges) {
+				long t1 = System.nanoTime();
+				var products = techIndex.getProviders(exchange.processId);
+				indexLookupsNs += System.nanoTime() - t1;
+				for (TechFlow p : products) {
+					putExchangeValue(p, exchange);
+				}
+			}
+		}
+	}
+
 	private void putExchangeValue(TechFlow provider, CalcExchange e) {
 		if (e.isElementary()) {
 			// elementary flows
@@ -162,10 +221,14 @@ public class InventoryBuilder {
 		}
 
 		if (e.isLinkable()) {
+			long t0 = System.nanoTime();
 			var linkedProvider = conf.linker.providerOf(e);
+			linkerNs += System.nanoTime() - t0;
 			if (linkedProvider != null) {
 				// linked product input or waste output
+				t0 = System.nanoTime();
 				int row = techIndex.of(linkedProvider);
+				indexLookupsNs += System.nanoTime() - t0;
 				add(row, provider, techBuilder, e);
 			} else {
 				// unlinked product input or waste output
@@ -176,7 +239,9 @@ public class InventoryBuilder {
 
 		if (provider.matches(e.processId, e.flowId)) {
 			// the reference product or waste flow
+			long t0 = System.nanoTime();
 			int idx = techIndex.of(provider);
+			indexLookupsNs += System.nanoTime() - t0;
 			add(idx, provider, techBuilder, e);
 			return;
 		}
@@ -188,9 +253,11 @@ public class InventoryBuilder {
 	}
 
 	private void addIntervention(TechFlow provider, CalcExchange e) {
+		long t0 = System.nanoTime();
 		int row = conf.cachedEnviIndex != null
 			? flowIndex.of(e.flowId, e.locationId)
 			: flowIndex.register(provider, e, flows, locations);
+		indexLookupsNs += System.nanoTime() - t0;
 		if (row < 0)
 			return;
 		add(row, provider, enviBuilder, e);
@@ -199,24 +266,30 @@ public class InventoryBuilder {
 	private void add(int row, TechFlow provider, MatrixBuilder matrix,
 		CalcExchange exchange) {
 
+		long t0 = System.nanoTime();
 		int col = techIndex.of(provider);
+		indexLookupsNs += System.nanoTime() - t0;
 		if (row < 0 || col < 0)
 			return;
 
 		var allocationFactor = allocationIndex != null && exchange.isAllocatable()
 			? allocationIndex.getFactor(provider, exchange.exchangeId)
 			: null;
+		t0 = System.nanoTime();
 		var af = allocationFactor != null
 			? allocationFactor.get(conf.interpreter)
 			: 1;
+		allocationEvalNs += System.nanoTime() - t0;
 
+		t0 = System.nanoTime();
 		double value = exchange.matrixValue(conf.interpreter, af);
-		matrix.add(row, col, value);
-
 		if (conf.withCosts) {
 			costs[col] += exchange.costValue(conf.interpreter, af);
 		}
+		formulaEvalNs += System.nanoTime() - t0;
 
+		t0 = System.nanoTime();
+		matrix.add(row, col, value);
 		if (conf.withUncertainties) {
 			if (matrix == techBuilder) {
 				techUncerts.add(row, col, exchange, allocationFactor);
@@ -225,6 +298,7 @@ public class InventoryBuilder {
 				enviUncerts.add(row, col, exchange, allocationFactor);
 			}
 		}
+		matrixWritesNs += System.nanoTime() - t0;
 	}
 
 	/**
