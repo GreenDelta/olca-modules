@@ -154,6 +154,10 @@ public class Simulator implements Iterable<Res<SimulationState>> {
 
 		private Res<SimulationState> nextState() {
 
+			iteration++;
+			double time = timeAt(iteration);
+			timeVar.pushValue(Cell.of(time));
+
 			// update the stocks
 			for (var stock : stocks) {
 				var stockVal = stock.value();
@@ -205,10 +209,7 @@ public class Simulator implements Iterable<Res<SimulationState>> {
 				v.pushValue(res.value());
 			}
 
-			iteration++;
-			double t = timeAt(iteration);
-			timeVar.pushValue(Cell.of(t));
-			return Res.ok(new SimulationState(iteration, t, state));
+			return Res.ok(new SimulationState(iteration, time, state));
 		}
 
 		private Res<Cell> flowDelta(Cell stock, Id flowId) {
