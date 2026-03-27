@@ -6,22 +6,33 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.sd.eqn.SimulationState;
 import org.openlca.sd.model.Id;
+import org.openlca.sd.model.SimSpecs;
 import org.openlca.sd.model.Var;
 import org.openlca.sd.model.cells.NumCell;
 
 public class CoupledResult {
 
+	private final SimSpecs simSpecs;
 	private final Map<Id, Var> vars = new HashMap<>();
 	private final List<Double> time = new ArrayList<>();
 
 	private ImpactIndex impactIdx;
 	private List<Double>[] impactResults;
+
+	public CoupledResult(SimSpecs simSpecs) {
+		this.simSpecs = Objects.requireNonNull(simSpecs);
+	}
+
+	public SimSpecs simSpecs() {
+		return simSpecs;
+	}
 
 	public boolean hasImpactResults() {
 		return impactIdx != null

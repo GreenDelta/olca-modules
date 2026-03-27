@@ -34,7 +34,7 @@ public class CoupledSimulator {
 		this.model = model;
 		this.resolver = resolver;
 		this.calculator = calculator;
-		this.result = new CoupledResult();
+		this.result = new CoupledResult(model.simSpecs());
 	}
 
 	public static Res<CoupledSimulator> of(
