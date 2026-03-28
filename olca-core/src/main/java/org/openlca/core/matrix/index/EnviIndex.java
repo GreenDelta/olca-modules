@@ -183,7 +183,7 @@ public abstract class EnviIndex implements MatrixIndex<EnviFlow> {
 
 	/**
 	 * This method should be only called from inventory builders to index flows.
-	 * Only when this index is not regionalized, it is save to pass a null value for
+	 * Only when this index is not regionalized, it is safe to pass a null value for
 	 * the locations into this method.
 	 */
 	public final int register(

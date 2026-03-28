@@ -6,6 +6,7 @@ import java.util.HashSet;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
+import org.openlca.core.model.Direction;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
@@ -54,12 +55,22 @@ class ImpactDefaultsMap {
 				long locId = enviFlow.location() != null
 						? enviFlow.location().id
 						: 0L;
-				if (wasAdded(impact, flowId, locId))
+				if (wasAdded(impact, flowId, locId)) {
 					continue;
+				}
 
 				var factor = m.get(flowId);
-				if (factor == null)
-					continue;
+				if (factor == null) continue;
+
+				// we need to set the direction here when the flow
+				// without location was not in the inventory so it
+				// could not determine the default direction correctly
+				// (and it is fine to mutate a shared instance here,
+				// as for the same flow the impact direction is always
+				// the same, independently of the location)
+				factor.isInput = impact.direction != null
+					? impact.direction == Direction.INPUT
+					: enviIndex.isInput(flowId, locId);
 				fn.apply(row, col, factor);
 			}
 		}

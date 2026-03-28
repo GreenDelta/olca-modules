@@ -278,7 +278,7 @@ public class RegionalizedCalculationTest {
 	}
 
 	@Test
-	public void testMatrixBuilderProcesssLocations() {
+	public void testMatrixBuilderProcessLocations() {
 		p1 = setLoc(p1, loc1);
 		p2 = setLoc(p2, loc2);
 		var setup = calcSetup().withRegionalization(true);
@@ -538,6 +538,6 @@ public class RegionalizedCalculationTest {
 
 	private Process setLoc(Process p, Location loc) {
 		p.location = loc;
-		return new ProcessDao(db).update(p);
+		return db.update(p);
 	}
 }
