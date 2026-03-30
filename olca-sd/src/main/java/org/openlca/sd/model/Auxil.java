@@ -1,7 +1,6 @@
 package org.openlca.sd.model;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import org.openlca.sd.model.cells.Cell;
@@ -11,6 +10,10 @@ public final class Auxil extends Var {
 	public Auxil() {
 		super();
 		setValues(new ArrayList<>());
+	}
+
+	public Auxil(Id name, Cell def) {
+		this(name, def, null);
 	}
 
 	public Auxil(Id name, Cell def, String unit) {
