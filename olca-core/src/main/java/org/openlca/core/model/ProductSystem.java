@@ -165,6 +165,7 @@ public final class ProductSystem extends RootEntity
 		copy.targetFlowPropertyFactor = targetFlowPropertyFactor;
 		copy.targetUnit = targetUnit;
 		copy.processes.addAll(processes);
+		copy.cutoff = cutoff;
 		for (var link : processLinks) {
 			copy.processLinks.add(link.copy());
 		}

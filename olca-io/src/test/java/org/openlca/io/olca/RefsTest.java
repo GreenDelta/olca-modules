@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
 import org.openlca.core.model.Currency;
@@ -152,10 +153,16 @@ public class RefsTest {
 		// product system
 		var system = ProductSystem.of("system", qQ);
 		system.link(pP, qQ);
+		system.cutoff = 0.25;
 		var sysParams = new ParameterRedefSet();
 		sysParams.parameters.add(
 				ParameterRedef.of(qQ.parameters.getFirst(), qQ));
 		system.parameterSets.add(sysParams);
+		var analysisGroup = new AnalysisGroup();
+		analysisGroup.name = "group";
+		analysisGroup.processes.add(pP.id);
+		analysisGroup.processes.add(qQ.id);
+		system.analysisGroups.add(analysisGroup);
 		db.insert(system);
 
 		// result
@@ -346,10 +353,14 @@ public class RefsTest {
 		check(sys.referenceExchange.unit, "kg");
 		check(sys.targetUnit, "kg");
 		check(sys.targetFlowPropertyFactor.flowProperty, "mass");
+		assertEquals(Double.valueOf(0.25), sys.cutoff);
 
 		var pP = get(Process.class, "pP");
 		var qQ = get(Process.class, "qQ");
 		assertTrue(sys.processes.containsAll(
+				List.of(pP.id, qQ.id)));
+		assertEquals(1, sys.analysisGroups.size());
+		assertTrue(sys.analysisGroups.getFirst().processes.containsAll(
 				List.of(pP.id, qQ.id)));
 
 		// link IDs

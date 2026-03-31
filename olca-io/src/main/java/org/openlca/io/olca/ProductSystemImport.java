@@ -26,6 +26,7 @@ class ProductSystemImport {
 			copy.referenceProcess = conf.swap(system.referenceProcess);
 			swapQRef(system, copy);
 			swapParameters(copy);
+			swapAnalysisGroups(copy);
 			ProductSystemLinks.map(conf, copy);
 			return copy;
 		});
@@ -67,6 +68,17 @@ class ProductSystemImport {
 						? seq.get(ModelType.IMPACT_CATEGORY, p.contextId)
 						: seq.get(ModelType.PROCESS, p.contextId);
 			}
+		}
+	}
+
+	private void swapAnalysisGroups(ProductSystem copy) {
+		for (var group : copy.analysisGroups) {
+			var mapped = group.processes.stream()
+					.map(id -> seq.get(ModelType.PROCESS, id))
+					.filter(id -> id != 0)
+					.toList();
+			group.processes.clear();
+			group.processes.addAll(mapped);
 		}
 	}
 }
