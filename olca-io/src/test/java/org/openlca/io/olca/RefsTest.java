@@ -172,6 +172,9 @@ public class RefsTest {
 		epd.verifier = actor;
 		epd.manufacturer = actor;
 		epd.programOperator = actor;
+		epd.location = loc;
+		epd.originalEpd = source;
+		epd.dataGenerator = actor;
 		epd.modules.add(EpdModule.of("mod", result));
 		db.insert(epd);
 
@@ -393,6 +396,9 @@ public class RefsTest {
 		check(epd.manufacturer , "actor");
 		check(epd.programOperator , "actor");
 		check(epd.verifier , "actor");
+		check(epd.location, "loc");
+		check(epd.originalEpd, "source");
+		check(epd.dataGenerator, "actor");
 		check(epd.modules.getFirst().result, "result");
 	}
 

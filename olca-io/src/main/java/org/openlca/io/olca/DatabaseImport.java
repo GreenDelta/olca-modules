@@ -177,6 +177,9 @@ public class DatabaseImport implements Import {
 			copy.programOperator = conf.swap(copy.programOperator);
 			copy.manufacturer = conf.swap(copy.manufacturer);
 			copy.verifier = conf.swap(copy.verifier);
+			copy.location = conf.swap(copy.location);
+			copy.originalEpd = conf.swap(copy.originalEpd);
+			copy.dataGenerator = conf.swap(copy.dataGenerator);
 			if (copy.product != null) {
 				var p = copy.product;
 				p.flow = conf.swap(p.flow);
