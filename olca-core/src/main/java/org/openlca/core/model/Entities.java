@@ -36,6 +36,9 @@ class Entities {
 		to.library = from.library;
 		to.version = from.version;
 		to.lastChange = from.lastChange;
+		to.otherProperties = from.otherProperties != null
+			? from.otherProperties.clone()
+			: null;
 	}
 
 }

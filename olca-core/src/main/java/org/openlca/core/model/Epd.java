@@ -100,7 +100,7 @@ public class Epd extends RootEntity {
 	@Override
 	public Epd copy() {
 		var copy = new Epd();
-		Entities.copyRefFields(this, copy);
+		Entities.copyFields(this, copy);
 		copy.urn = urn;
 		if (product != null) {
 			copy.product = product.copy();

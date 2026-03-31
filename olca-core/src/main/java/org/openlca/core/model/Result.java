@@ -60,15 +60,22 @@ public class Result extends RootEntity {
 	@Override
 	public Result copy() {
 		var copy = new Result();
-		Entities.copyRefFields(this, copy);
+		Entities.copyFields(this, copy);
 		copy.productSystem = productSystem;
 		copy.impactMethod = impactMethod;
+
+		// avoid two instances of the reference flow here
+		FlowResult refCopy = null;
 		if (referenceFlow != null) {
-			copy.referenceFlow = referenceFlow.copy();
+			refCopy = referenceFlow.copy();
+			copy.referenceFlow = refCopy;
 		}
 		for (var flow : flowResults) {
-			copy.flowResults.add(flow.copy());
+			copy.flowResults.add(flow == referenceFlow
+				? refCopy
+				: flow.copy());
 		}
+
 		for (var impact : impactResults) {
 			copy.impactResults.add(impact.copy());
 		}

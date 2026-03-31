@@ -46,7 +46,9 @@ public class Location extends RootEntity {
 		clone.code = code;
 		clone.latitude = latitude;
 		clone.longitude = longitude;
-		clone.geodata = geodata;
+		clone.geodata = geodata != null
+			? geodata.clone()
+			: null;
 		return clone;
 	}
 }
