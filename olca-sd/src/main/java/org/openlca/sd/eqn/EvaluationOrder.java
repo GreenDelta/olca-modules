@@ -9,7 +9,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.openlca.commons.Res;
+import org.openlca.sd.model.Id;
+import org.openlca.sd.model.LookupFunc;
 import org.openlca.sd.model.Tensor;
+import org.openlca.sd.model.Var;
 import org.openlca.sd.model.cells.BoolCell;
 import org.openlca.sd.model.cells.Cell;
 import org.openlca.sd.model.cells.EmptyCell;
@@ -20,9 +23,6 @@ import org.openlca.sd.model.cells.NonNegativeCell;
 import org.openlca.sd.model.cells.NumCell;
 import org.openlca.sd.model.cells.TensorCell;
 import org.openlca.sd.model.cells.TensorEqnCell;
-import org.openlca.sd.model.Id;
-import org.openlca.sd.model.LookupFunc;
-import org.openlca.sd.model.Var;
 
 public class EvaluationOrder {
 
@@ -108,6 +108,14 @@ public class EvaluationOrder {
 
 		Res<List<Var>> sort() {
 
+			for (var id : successors.keySet()) {
+				var v = vars.get(id);
+				if (v == null) {
+					return Res.error(
+						"Variable is used but not defined in model: " + id.value());
+				}
+			}
+
 			while (!unordered.isEmpty()) {
 
 				Id next = null;
@@ -116,9 +124,9 @@ public class EvaluationOrder {
 						next = indeg.getKey();
 					}
 				}
-
-				if (next == null)
-					return Res.error("there are cycles in the evaluation graph");
+				if (next == null) {
+					return Res.error(reportCycle());
+				}
 
 				ordered.add(next);
 				unordered.remove(next);
@@ -137,6 +145,41 @@ public class EvaluationOrder {
 				sorted.add(vars.get(id));
 			}
 			return Res.ok(sorted);
+		}
+
+		private String reportCycle() {
+			var msg = new StringBuilder(
+				"There are cycles between variable equations");
+			if (unordered.isEmpty()) {
+				return msg.toString();
+			}
+
+			var visited = new HashSet<Id>();
+			int i = 0;
+			for (var id = unordered.iterator().next(); id != null; id = nextDepOf(id)) {
+				msg.append('\n')
+					.append(" ".repeat(i))
+					.append(" -> ")
+					.append(id.value());
+				if (visited.contains(id) || i > 9) {
+					break;
+				}
+				i++;
+				visited.add(id);
+			}
+
+			return msg.toString();
+		}
+
+		private Id nextDepOf(Id node) {
+			var v = vars.get(node);
+			if (v == null) return null;
+			for (var dep : dependenciesOf(v)) {
+				if (unordered.contains(dep)) {
+					return dep;
+				}
+			}
+			return null;
 		}
 	}
 }
