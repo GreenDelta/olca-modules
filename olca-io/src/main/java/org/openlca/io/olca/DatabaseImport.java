@@ -68,8 +68,8 @@ public class DatabaseImport implements Import {
 
 		// import unit groups and remember which unit groups
 		// need to be updated with a default flow property
-		var unitImport = new UnitGroupImport(conf);
-		unitImport.run();
+		var unitImport = new UnitGroupTransfer(conf);
+		unitImport.syncAll();
 
 		// import flow properties
 		conf.syncAll(FlowProperty.class, prop -> {

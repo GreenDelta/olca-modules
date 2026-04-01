@@ -49,6 +49,18 @@ public class TransferConfig {
 		return new TransferConfig(source, target, seq, log);
 	}
 
+	/// Get the corresponding mapped entity from the target database if it exists.
+	/// Returns `null` if there is no mapping for that entity yet.
+	@SuppressWarnings("unchecked")
+	<T extends RootEntity> T getMapped(T sourceEntity) {
+		if (sourceEntity == null)
+			return null;
+		var targetId = seq.get(ModelType.of(sourceEntity), sourceEntity.id);
+		return targetId != 0
+			? (T) target.get(sourceEntity.getClass(), targetId)
+			: null;
+	}
+
 	<T extends RootEntity> void syncAll(Class<T> type, Function<T, T> fn) {
 		if (type == null || fn == null)
 			return;
@@ -88,19 +100,12 @@ public class TransferConfig {
 		return copied;
 	}
 
-	@SuppressWarnings("unchecked")
 	<T extends RootEntity> T swap(T sourceEntity) {
-		if (sourceEntity == null)
-			return null;
-		var clazz = sourceEntity.getClass();
-		var type = ModelType.of(clazz);
-		long id = seq.get(type, sourceEntity.id);
-		if (id == 0) {
-			log.error("could not find " + clazz
-				+ " " + sourceEntity.refId);
-			return null;
-		}
-		return (T) target.get(clazz, id);
+		if (sourceEntity == null) return null;
+		var mapped = getMapped(sourceEntity);
+		return mapped != null
+			? mapped
+			: EntityTransfer.call(sourceEntity, this);
 	}
 
 	/// Returns the corresponding flow property factor of the destination flow.

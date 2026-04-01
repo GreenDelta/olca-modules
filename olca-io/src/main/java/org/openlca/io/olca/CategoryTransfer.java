@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-public class CategoryTransfer {
+public final class CategoryTransfer implements EntityTransfer<Category> {
 
 	private final TransferConfig conf;
 
@@ -18,6 +18,7 @@ public class CategoryTransfer {
 		this.conf = Objects.requireNonNull(conf);
 	}
 
+	@Override
 	public void syncAll() {
 		var dao = new CategoryDao(conf.source());
 		for (var root : dao.getRootCategories()) {
@@ -27,16 +28,13 @@ public class CategoryTransfer {
 		}
 	}
 
+	@Override
 	public Category sync(Category category) {
-		if (category == null)
-			return null;
-		var targetId = conf.seq().get(ModelType.CATEGORY, category.id);
-		if (targetId > 0) {
-			var target = conf.target().get(Category.class, targetId);
-			if (target != null)
-				return target;
-		}
-		return Path.of(category).sync(conf);
+		if (category == null) return null;
+		var mapped = conf.getMapped(category);
+		return mapped == null
+			? Path.of(category).sync(conf)
+			: mapped;
 	}
 
 	private record Path(Category category, int length, Path parent) {
