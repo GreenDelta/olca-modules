@@ -53,7 +53,7 @@ public class DatabaseImport implements Import {
 	public void run() {
 		try {
 			// the order is very important for correct linking
-			CategoryImport.run(conf);
+			CategoryTransfer.syncAll(conf);
 			copyUnits();
 			copyEntities();
 			swapDefaultProviders();
