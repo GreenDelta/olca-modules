@@ -1,14 +1,14 @@
 package org.openlca.io.olca;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Stack;
-
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 
 class CategoryTransfer {
 
@@ -46,9 +46,14 @@ class CategoryTransfer {
 		}
 
 		static Path of(Category category) {
-			var stack = new Stack<Category>();
+			var stack = new ArrayDeque<Category>();
 			var c = category;
+			var visited = new HashSet<Long>(); // check for cycles
 			while (c != null) {
+				if (visited.contains(c.id)) {
+					break;
+				}
+				visited.add(c.id);
 				stack.push(c);
 				c = c.category;
 			}
@@ -68,8 +73,15 @@ class CategoryTransfer {
 			var queue = new ArrayDeque<Path>();
 			queue.add(Path.root(category));
 			var paths = new ArrayList<Path>();
+			var visited = new HashSet<Long>(); // check for cycles
+
 			while (!queue.isEmpty()) {
 				var path = queue.poll();
+				if (visited.contains(path.category.id)) {
+					continue;
+				}
+				visited.add(path.category.id);
+
 				var cs = path.category.childCategories;
 				if (cs.isEmpty()) {
 					paths.add(path);
@@ -86,7 +98,7 @@ class CategoryTransfer {
 			return new Path(category, length + 1, this);
 		}
 
-		private String[] toStringArray() {
+		private String[] segments() {
 			var array = new String[length];
 			var node = this;
 			for (int i = length - 1; i >= 0; i--) {
@@ -99,7 +111,7 @@ class CategoryTransfer {
 
 		Category sync(Config conf) {
 			var target = CategoryDao.sync(
-				conf.target(), category().modelType, toStringArray());
+				conf.target(), category().modelType, segments());
 			var ti = target;
 			var pi = this;
 			while (ti != null && pi != null) {
