@@ -10,15 +10,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-class CategoryTransfer {
+public class CategoryTransfer {
 
-	private final Config conf;
+	private final TransferConfig conf;
 
-	CategoryTransfer(Config conf) {
+	public CategoryTransfer(TransferConfig conf) {
 		this.conf = Objects.requireNonNull(conf);
 	}
 
-	static void syncAll(Config conf) {
+	public void syncAll() {
 		var dao = new CategoryDao(conf.source());
 		for (var root : dao.getRootCategories()) {
 			for (var path : Path.allFromTree(root)) {
@@ -27,7 +27,7 @@ class CategoryTransfer {
 		}
 	}
 
-	Category sync(Category category) {
+	public Category sync(Category category) {
 		if (category == null)
 			return null;
 		var targetId = conf.seq().get(ModelType.CATEGORY, category.id);
@@ -109,7 +109,7 @@ class CategoryTransfer {
 			return array;
 		}
 
-		Category sync(Config conf) {
+		Category sync(TransferConfig conf) {
 			var target = CategoryDao.sync(
 				conf.target(), category().modelType, segments());
 			var ti = target;

@@ -15,14 +15,14 @@ class UnitGroupImport {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final Config conf;
+	private final TransferConfig conf;
 	private final UnitGroupDao srcDao;
 	private final UnitGroupDao destDao;
 	private final SeqMap seq;
 
 	private final List<DefaultLink> defaultLinks = new ArrayList<>();
 
-	UnitGroupImport(Config conf) {
+	UnitGroupImport(TransferConfig conf) {
 		this.conf = conf;
 		this.srcDao = new UnitGroupDao(conf.source());
 		this.destDao = new UnitGroupDao(conf.target());

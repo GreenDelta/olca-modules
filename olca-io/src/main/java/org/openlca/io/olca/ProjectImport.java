@@ -7,13 +7,13 @@ import org.openlca.core.model.ProjectVariant;
 
 class ProjectImport {
 
-	private final Config conf;
+	private final TransferConfig conf;
 
-	private ProjectImport(Config conf) {
+	private ProjectImport(TransferConfig conf) {
 		this.conf = conf;
 	}
 
-	static void run(Config conf) {
+	static void run(TransferConfig conf) {
 		new ProjectImport(conf).run();
 	}
 

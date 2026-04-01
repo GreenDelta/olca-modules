@@ -19,19 +19,19 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 /// we then search for negative provider IDs and replace them.
 class ProcessImport {
 
-	private final Config conf;
+	private final TransferConfig conf;
 	private final ImportLog log;
 	private final ProcessDao srcDao;
 	private final ProcessDao destDao;
 
-	private ProcessImport(Config config) {
+	private ProcessImport(TransferConfig config) {
 		this.conf = config;
 		this.log = config.log();
 		this.srcDao = new ProcessDao(config.source());
 		this.destDao = new ProcessDao(config.target());
 	}
 
-	static void run(Config conf) {
+	static void run(TransferConfig conf) {
 		new ProcessImport(conf).run();
 	}
 

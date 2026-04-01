@@ -7,13 +7,13 @@ import org.openlca.core.model.Result;
 
 class ResultImport {
 
-	private final Config conf;
+	private final TransferConfig conf;
 
-	private ResultImport(Config conf) {
+	private ResultImport(TransferConfig conf) {
 		this.conf = conf;
 	}
 
-	static void run(Config conf) {
+	static void run(TransferConfig conf) {
 		new ResultImport(conf).run();
 	}
 

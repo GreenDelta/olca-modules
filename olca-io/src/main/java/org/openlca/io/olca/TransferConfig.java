@@ -11,16 +11,42 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Unit;
 
-record Config(
-		IDatabase source,
-		IDatabase target,
-		SeqMap seq,
-		ImportLog log) {
+public class TransferConfig {
 
-	static Config of(IDatabase source, IDatabase target) {
+	private final IDatabase source;
+	private final IDatabase target;
+	private final SeqMap seq;
+	private final ImportLog log;
+
+	private TransferConfig(
+		IDatabase source, IDatabase target, SeqMap seq, ImportLog log
+	) {
+		this.source = source;
+		this.target = target;
+		this.seq = seq;
+		this.log = log;
+	}
+
+	IDatabase source() {
+		return source;
+	}
+
+	IDatabase target() {
+		return target;
+	}
+
+	SeqMap seq() {
+		return seq;
+	}
+
+	public ImportLog log() {
+		return log;
+	}
+
+	public static TransferConfig of(IDatabase source, IDatabase target) {
 		var seq = SeqMap.create(source, target);
 		var log = new ImportLog();
-		return new Config(source, target, seq, log);
+		return new TransferConfig(source, target, seq, log);
 	}
 
 	<T extends RootEntity> void syncAll(Class<T> type, Function<T, T> fn) {
@@ -71,7 +97,7 @@ record Config(
 		long id = seq.get(type, sourceEntity.id);
 		if (id == 0) {
 			log.error("could not find " + clazz
-					+ " " + sourceEntity.refId);
+				+ " " + sourceEntity.refId);
 			return null;
 		}
 		return (T) target.get(clazz, id);
@@ -93,20 +119,20 @@ record Config(
 		}
 
 		log.error("could not find flow property "
-				+ srcFactor.flowProperty.refId + " in flow " + destFlow.refId);
+			+ srcFactor.flowProperty.refId + " in flow " + destFlow.refId);
 		return null;
 	}
 
 	Unit mapUnit(FlowPropertyFactor destFac, Unit srcUnit) {
 		return destFac != null
-				? mapUnit(destFac.flowProperty, srcUnit)
-				: null;
+			? mapUnit(destFac.flowProperty, srcUnit)
+			: null;
 	}
 
 	Unit mapUnit(FlowProperty destProp, Unit srcUnit) {
 		if (destProp == null
-				|| destProp.unitGroup == null
-				|| srcUnit == null)
+			|| destProp.unitGroup == null
+			|| srcUnit == null)
 			return null;
 
 		// first check the reference unit, because this is often requested
@@ -129,7 +155,7 @@ record Config(
 			return u;
 
 		log.error("could not find unit " + srcUnit.name
-				+ " in flow property " + destProp.name);
+			+ " in flow property " + destProp.name);
 		return null;
 	}
 }

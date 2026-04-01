@@ -19,18 +19,18 @@ import gnu.trove.map.hash.TLongDoubleHashMap;
  */
 class ProductSystemLinks {
 
-	private final Config conf;
+	private final TransferConfig conf;
 	private final ProductSystem system;
 	private final RefIdMap<Long, String> srcIdMap;
 	private final RefIdMap<String, Long> destIdMap;
 
-	static void map(Config conf, ProductSystem system) {
+	static void map(TransferConfig conf, ProductSystem system) {
 		if (system == null)
 			return;
 		new ProductSystemLinks(conf, system).map();
 	}
 
-	private ProductSystemLinks(Config conf, ProductSystem system) {
+	private ProductSystemLinks(TransferConfig conf, ProductSystem system) {
 		this.conf = conf;
 		this.system = system;
 		srcIdMap = RefIdMap.internalToRef(

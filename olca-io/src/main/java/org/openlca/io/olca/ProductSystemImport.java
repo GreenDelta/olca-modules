@@ -8,15 +8,15 @@ import org.openlca.core.model.ProductSystem;
 
 class ProductSystemImport {
 
-	private final Config conf;
+	private final TransferConfig conf;
 	private final SeqMap seq;
 
-	private ProductSystemImport(Config conf) {
+	private ProductSystemImport(TransferConfig conf) {
 		this.conf = conf;
 		this.seq = conf.seq();
 	}
 
-	static void run(Config conf) {
+	static void run(TransferConfig conf) {
 		new ProductSystemImport(conf).run();
 	}
 

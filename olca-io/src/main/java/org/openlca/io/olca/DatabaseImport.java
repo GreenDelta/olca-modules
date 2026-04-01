@@ -27,11 +27,11 @@ import org.openlca.io.Import;
 public class DatabaseImport implements Import {
 
 	private final ImportLog log;
-	private final Config conf;
+	private final TransferConfig conf;
 	private volatile boolean cancelled;
 
 	public DatabaseImport(IDatabase source, IDatabase target) {
-		conf = Config.of(source, target);
+		conf = TransferConfig.of(source, target);
 		log = conf.log();
 	}
 
@@ -53,7 +53,7 @@ public class DatabaseImport implements Import {
 	public void run() {
 		try {
 			// the order is very important for correct linking
-			CategoryTransfer.syncAll(conf);
+			new CategoryTransfer(conf).syncAll();
 			copyUnits();
 			copyEntities();
 			swapDefaultProviders();

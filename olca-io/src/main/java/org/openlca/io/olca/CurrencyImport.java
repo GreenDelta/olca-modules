@@ -8,13 +8,13 @@ import com.google.common.base.Objects;
 
 class CurrencyImport {
 
-	private final Config conf;
+	private final TransferConfig conf;
 
-	private CurrencyImport(Config conf) {
+	private CurrencyImport(TransferConfig conf) {
 		this.conf = conf;
 	}
 
-	static void run(Config conf) {
+	static void run(TransferConfig conf) {
 		new CurrencyImport(conf).run();
 	}
 

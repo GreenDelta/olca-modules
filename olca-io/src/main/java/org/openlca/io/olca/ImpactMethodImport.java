@@ -7,13 +7,13 @@ import org.openlca.core.model.NwSet;
 
 class ImpactMethodImport {
 
-	private final Config conf;
+	private final TransferConfig conf;
 
-	private ImpactMethodImport(Config conf) {
+	private ImpactMethodImport(TransferConfig conf) {
 		this.conf = conf;
 	}
 
-	static void run(Config config) {
+	static void run(TransferConfig config) {
 		new ImpactMethodImport(config).run();
 	}
 
