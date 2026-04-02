@@ -1,7 +1,6 @@
 package org.openlca.io.olca;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.EnumMap;
 import java.util.UUID;
@@ -13,13 +12,15 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.SocialAspect;
 import org.openlca.core.model.SocialIndicator;
+import org.openlca.core.model.UnitGroup;
 
-public class TestDatabaseImport {
+public class DatabaseImportTest {
 
 	private IDatabase source;
 	private IDatabase target;
@@ -34,6 +35,29 @@ public class TestDatabaseImport {
 	public void cleanup() throws Exception {
 		source.close();
 		target.close();
+	}
+
+	@Test
+	public void testUnitGroupPropertyCycle() {
+		var units = UnitGroup.of("Mass units", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		source.insert(units, mass);
+		units.defaultFlowProperty = mass;
+		source.update(units);
+		new DatabaseImport(source, target).run();
+
+		var unitsCopy = target.getForName(UnitGroup.class, "Mass units");
+		assertNotNull(unitsCopy);
+		assertEquals(1, unitsCopy.units.size());
+		assertEquals(units.referenceUnit.refId, unitsCopy.referenceUnit.refId);
+		assertEquals("kg", unitsCopy.referenceUnit.name);
+
+		var massCopy = target.getForName(FlowProperty.class, "Mass");
+		assertNotNull(massCopy);
+		assertEquals(massCopy.id, unitsCopy.defaultFlowProperty.id);
+		assertEquals(unitsCopy.id, massCopy.unitGroup.id);
+		assertEquals(1, target.getAll(UnitGroup.class).size());
+		assertEquals(1, target.getAll(FlowProperty.class).size());
 	}
 
 	@Test

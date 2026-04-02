@@ -1,6 +1,7 @@
 package org.openlca.io.olca;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
@@ -84,7 +85,7 @@ public class TransferConfig {
 				continue;
 			}
 			var e = source.get(type, d.id);
-			copy(e, fn);
+			sync(e, () -> fn.apply(e));
 		}
 	}
 
@@ -92,21 +93,17 @@ public class TransferConfig {
 		return seq.isMapped(seqType, sourceId);
 	}
 
-	<T extends RootEntity> T copy(T entity, Function<T, T> fn) {
-		if (entity == null)
-			return null;
-		var copied = fn.apply(entity);
-		if (copied == null)
-			return null;
-		copied.refId = entity.refId;
-		copied.category = swap(entity.category);
-		copied = target.insert(copied);
-		log.imported(copied);
-		var seqType = ModelType.of(copied);
-		if (seqType == null)
-			return copied;
-		seq.put(seqType, entity.id, copied.id);
-		return copied;
+	<T extends RootEntity> T sync(T origin, Supplier<T> fn) {
+		if (origin == null)	return null;
+		var mapped = getMapped(origin);
+		if (mapped != null) return mapped;
+		var copy = fn.get();
+		if (copy == null) return null;
+		copy.refId = origin.refId;
+		copy.category = swap(origin.category);
+		copy = save(origin.id, copy);
+		log.imported(copy);
+		return copy;
 	}
 
 	<T extends RootEntity> T swap(T sourceEntity) {

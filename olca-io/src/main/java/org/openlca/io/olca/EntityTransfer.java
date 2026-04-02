@@ -1,12 +1,14 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.model.Category;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 
 public sealed interface EntityTransfer<T extends RootEntity> permits
 	CategoryTransfer,
+CurrencyTransfer,
 	FlowPropertyTransfer,
 	UnitGroupTransfer {
 
@@ -19,6 +21,7 @@ public sealed interface EntityTransfer<T extends RootEntity> permits
 		return (T) switch (sourceEntity) {
 			case null -> null;
 			case Category c -> new CategoryTransfer(config).sync(c);
+			case Currency c -> new CurrencyTransfer(config).sync(c);
 			case FlowProperty p -> new FlowPropertyTransfer(config).sync(p);
 			case UnitGroup u -> new UnitGroupTransfer(config).sync(u);
 			default -> throw new IllegalArgumentException(

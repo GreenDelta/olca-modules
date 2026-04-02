@@ -75,7 +75,7 @@ public class DatabaseImport implements Import {
 
 		copyGlobalParameters();
 		copyFlows();
-		CurrencyImport.run(conf);
+		new CurrencyTransfer(conf).syncAll();
 		copySocialIndicators();
 		conf.syncAll(DQSystem.class, system -> {
 			var copy = system.copy();
