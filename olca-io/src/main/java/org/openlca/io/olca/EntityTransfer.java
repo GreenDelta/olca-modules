@@ -1,11 +1,13 @@
 package org.openlca.io.olca;
 
 import org.openlca.core.model.Category;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 
 public sealed interface EntityTransfer<T extends RootEntity> permits
 	CategoryTransfer,
+	FlowPropertyTransfer,
 	UnitGroupTransfer {
 
 	void syncAll();
@@ -17,6 +19,7 @@ public sealed interface EntityTransfer<T extends RootEntity> permits
 		return (T) switch (sourceEntity) {
 			case null -> null;
 			case Category c -> new CategoryTransfer(config).sync(c);
+			case FlowProperty p -> new FlowPropertyTransfer(config).sync(p);
 			case UnitGroup u -> new UnitGroupTransfer(config).sync(u);
 			default -> throw new IllegalArgumentException(
 				"No transfer registered for: " + sourceEntity);

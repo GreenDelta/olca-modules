@@ -49,6 +49,15 @@ public class TransferConfig {
 		return new TransferConfig(source, target, seq, log);
 	}
 
+	<T extends RootEntity> T save(long sourceId, T targetEntity) {
+		if (targetEntity == null) return null;
+		var saved = targetEntity.id == 0
+			? target.insert(targetEntity)
+			: target.update(targetEntity);
+		seq.put(ModelType.of(targetEntity), sourceId, saved.id);
+		return saved;
+	}
+
 	/// Get the corresponding mapped entity from the target database if it exists.
 	/// Returns `null` if there is no mapping for that entity yet.
 	@SuppressWarnings("unchecked")

@@ -11,11 +11,9 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
@@ -65,28 +63,8 @@ public class DatabaseImport implements Import {
 	}
 
 	private void copyUnits() {
-
-		// import unit groups and remember which unit groups
-		// need to be updated with a default flow property
-		var unitImport = new UnitGroupTransfer(conf);
-		unitImport.syncAll();
-
-		// import flow properties
-		conf.syncAll(FlowProperty.class, prop -> {
-			var copy = prop.copy();
-			copy.unitGroup = conf.swap(prop.unitGroup);
-			return copy;
-		});
-
-		// update default properties in unit groups
-		var db = conf.target();
-		for (var link : unitImport.getDefaultLinks()) {
-			var unitGroup = link.targetUnitGroup();
-			long propId = conf.seq().get(
-					ModelType.FLOW_PROPERTY, link.sourcePropertyId());
-			unitGroup.defaultFlowProperty = db.get(FlowProperty.class, propId);
-			db.update(unitGroup);
-		}
+		new UnitGroupTransfer(conf).syncAll();
+		new FlowPropertyTransfer(conf).syncAll();
 	}
 
 	private void copyEntities() {

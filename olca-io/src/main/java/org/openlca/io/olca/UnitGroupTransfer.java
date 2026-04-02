@@ -1,9 +1,6 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.model.ModelType;
-import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.core.model.descriptors.UnitGroupDescriptor;
 
 public final class UnitGroupTransfer implements EntityTransfer<UnitGroup>{
 
@@ -21,32 +18,23 @@ public final class UnitGroupTransfer implements EntityTransfer<UnitGroup>{
 	}
 
 	@Override
-	public UnitGroup sync(UnitGroup group) {
-		if (group == null) return null;
-		var mapped = conf.getMapped(group);
+	public UnitGroup sync(UnitGroup origin) {
+		if (origin == null) return null;
+		var mapped = conf.getMapped(origin);
 		if (mapped != null) return mapped;
 
-		var copy = group.copy();
-		copy.refId = group.refId;
-		copy.category = conf.swap(group.category);
+		var copy = origin.copy();
+		copy.refId = origin.refId;
+		copy.category = conf.swap(origin.category);
 		copy.defaultFlowProperty = null; // break possible cycles
-		switchUnitRefIds(group, copy);
+		switchUnitRefIds(origin, copy);
 
-		copy = sync()
-
-	}
-
-	private void copy(UnitGroupDescriptor d) {
-		UnitGroup dest = src.copy();
-
-
-
-		dest.category = conf.swap(src.category);
-		dest = destDao.insert(dest);
-		seq.put(ModelType.UNIT_GROUP, src.id, dest.id);
-		if (src.defaultFlowProperty != null) {
-			defaultLinks.add(new DefaultLink(dest, src.defaultFlowProperty.id));
+		copy = conf.save(origin.id, copy);
+		if (origin.defaultFlowProperty != null) {
+			copy.defaultFlowProperty = conf.swap(origin.defaultFlowProperty);
+			copy = conf.save(origin.id, copy);
 		}
+		return copy;
 	}
 
 	private void switchUnitRefIds(UnitGroup group, UnitGroup copy) {
@@ -56,10 +44,4 @@ public final class UnitGroupTransfer implements EntityTransfer<UnitGroup>{
 			unitCopy.refId = unit.refId;
 		}
 	}
-
-	/// Stores the default flow property link for a unit group. We need to set
-	/// the link after the import of flow properties.
-	record DefaultLink(UnitGroup targetUnitGroup, long sourcePropertyId) {
-	}
-
 }
