@@ -5,30 +5,35 @@ import java.util.Objects;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 
-class ProjectTransfer {
+final class ProjectTransfer implements EntityTransfer<Project> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 
-	private ProjectTransfer(TransferConfig conf) {
-		this.conf = conf;
+	ProjectTransfer(TransferContext ctx) {
+		this.ctx = ctx;
 	}
 
-	static void run(TransferConfig conf) {
-		new ProjectTransfer(conf).run();
+	@Override
+	public void syncAll() {
+		for (var d : ctx.source().getDescriptors(Project.class)) {
+			var origin = ctx.source().get(Project.class, d.id);
+			sync(origin);
+		}
 	}
 
-	private void run() {
-		conf.syncAll(Project.class, project -> {
-			var copy = project.copy();
-			copy.impactMethod = conf.swap(project.impactMethod);
-			if (copy.impactMethod != null && project.nwSet != null) {
+	@Override
+	public Project sync(Project origin) {
+		return ctx.sync(origin, () -> {
+			var copy = origin.copy();
+			copy.impactMethod = ctx.swap(origin.impactMethod);
+			if (copy.impactMethod != null && origin.nwSet != null) {
 				copy.nwSet = copy.impactMethod.nwSets.stream()
-						.filter(nws -> Objects.equals(nws.refId, project.nwSet.refId))
+						.filter(nws -> Objects.equals(nws.refId, origin.nwSet.refId))
 						.findFirst()
 						.orElse(null);
 				if (copy.nwSet == null) {
-					conf.log().error("could not map NW set "
-							+ project.nwSet.refId + " in project " + project.refId);
+					ctx.log().error("could not map NW set "
+							+ origin.nwSet.refId + " in project " + origin.refId);
 				}
 			}
 			for (var variant : copy.variants) {
@@ -39,13 +44,13 @@ class ProjectTransfer {
 	}
 
 	private void swapRefsOf(ProjectVariant variant) {
-		variant.productSystem = conf.swap(variant.productSystem);
+		variant.productSystem = ctx.swap(variant.productSystem);
 		swapPropertyOf(variant);
-		variant.unit = conf.mapUnit(variant.flowPropertyFactor, variant.unit);
+		variant.unit = ctx.mapUnit(variant.flowPropertyFactor, variant.unit);
 		for (var param : variant.parameterRedefs) {
 			if (param.contextId == null)
 				continue;
-			param.contextId = conf.seq().get(param.contextType, param.contextId);
+			param.contextId = ctx.seq().get(param.contextType, param.contextId);
 		}
 	}
 
@@ -58,7 +63,7 @@ class ProjectTransfer {
 			return;
 		}
 		var flow = system.referenceExchange.flow;
-		variant.flowPropertyFactor = conf.mapFactor(
+		variant.flowPropertyFactor = ctx.mapFactor(
 				flow, variant.flowPropertyFactor);
 	}
 }

@@ -12,18 +12,18 @@ import org.openlca.core.model.ModelType;
 
 final class CategoryTransfer implements EntityTransfer<Category> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 
-	CategoryTransfer(TransferConfig conf) {
-		this.conf = Objects.requireNonNull(conf);
+	CategoryTransfer(TransferContext ctx) {
+		this.ctx = Objects.requireNonNull(ctx);
 	}
 
 	@Override
 	public void syncAll() {
-		var dao = new CategoryDao(conf.source());
+		var dao = new CategoryDao(ctx.source());
 		for (var root : dao.getRootCategories()) {
 			for (var path : Path.allFromTree(root)) {
-				path.sync(conf);
+				path.sync(ctx);
 			}
 		}
 	}
@@ -31,9 +31,9 @@ final class CategoryTransfer implements EntityTransfer<Category> {
 	@Override
 	public Category sync(Category category) {
 		if (category == null) return null;
-		var mapped = conf.getMapped(category);
+		var mapped = ctx.getMapped(category);
 		return mapped == null
-			? Path.of(category).sync(conf)
+			? Path.of(category).sync(ctx)
 			: mapped;
 	}
 
@@ -107,7 +107,7 @@ final class CategoryTransfer implements EntityTransfer<Category> {
 			return array;
 		}
 
-		Category sync(TransferConfig conf) {
+		Category sync(TransferContext conf) {
 			var target = CategoryDao.sync(
 				conf.target(), category().modelType, segments());
 			var ti = target;

@@ -6,26 +6,26 @@ import org.openlca.core.model.Currency;
 
 final class CurrencyTransfer implements EntityTransfer<Currency> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 
-	CurrencyTransfer(TransferConfig conf) {
-		this.conf = conf;
+	CurrencyTransfer(TransferContext ctx) {
+		this.ctx = ctx;
 	}
 
 	@Override
 	public void syncAll() {
-		for (var origin : conf.source().getAll(Currency.class)) {
+		for (var origin : ctx.source().getAll(Currency.class)) {
 			sync(origin);
 		}
 	}
 
 	@Override
 	public Currency sync(Currency origin) {
-		return conf.sync(origin, () -> {
+		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
 			copy.referenceCurrency = Objects.equals(origin, origin.referenceCurrency)
 				? copy
-				: conf.swap(origin.referenceCurrency);
+				: ctx.swap(origin.referenceCurrency);
 			return copy;
 		});
 	}

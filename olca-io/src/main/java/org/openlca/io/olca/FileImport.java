@@ -17,13 +17,13 @@ class FileImport {
 	private final IDatabase source;
 	private final IDatabase dest;
 
-	private FileImport(TransferConfig conf) {
-		this.log = conf.log();
-		this.source = conf.source();
-		this.dest = conf.target();
+	private FileImport(TransferContext ctx) {
+		this.log = ctx.log();
+		this.source = ctx.source();
+		this.dest = ctx.target();
 	}
 
-	static void run(TransferConfig conf) {
+	static void run(TransferContext conf) {
 		new FileImport(conf).run();
 	}
 

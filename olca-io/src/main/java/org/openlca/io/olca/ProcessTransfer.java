@@ -17,38 +17,38 @@ import org.openlca.core.model.ProviderType;
 /// we then search for negative provider IDs and replace them.
 final class ProcessTransfer implements EntityTransfer<Process> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 	private final ImportLog log;
 
-	ProcessTransfer(TransferConfig config) {
-		this.conf = config;
-		this.log = config.log();
+	ProcessTransfer(TransferContext ctx) {
+		this.ctx = ctx;
+		this.log = ctx.log();
 	}
 
 	@Override
 	public void syncAll() {
-		for (var d : conf.source().getDescriptors(Process.class)) {
-			var origin = conf.source().get(Process.class, d.id);
+		for (var d : ctx.source().getDescriptors(Process.class)) {
+			var origin = ctx.source().get(Process.class, d.id);
 			sync(origin);
 		}
 	}
 
 	@Override
 	public Process sync(Process origin) {
-		return conf.sync(origin, () -> {
+		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
 
-			copy.location = conf.swap(origin.location);
-			copy.dqSystem = conf.swap(copy.dqSystem);
-			copy.exchangeDqSystem = conf.swap(copy.exchangeDqSystem);
-			copy.socialDqSystem = conf.swap(copy.socialDqSystem);
+			copy.location = ctx.swap(origin.location);
+			copy.dqSystem = ctx.swap(copy.dqSystem);
+			copy.exchangeDqSystem = ctx.swap(copy.exchangeDqSystem);
+			copy.socialDqSystem = ctx.swap(copy.socialDqSystem);
 
 			swapExchangeRefs(copy);
 			swapAllocationProducts(copy);
 			swapDocRefs(copy);
 			for (var a : copy.socialAspects) {
-				a.indicator = conf.swap(a.indicator);
-				a.source = conf.swap(a.source);
+				a.indicator = ctx.swap(a.indicator);
+				a.source = ctx.swap(a.source);
 			}
 			return copy;
 		});
@@ -67,11 +67,11 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 			}
 
 			// swap references
-			e.flow = conf.swap(e.flow);
-			e.flowPropertyFactor = conf.mapFactor(e.flow, e.flowPropertyFactor);
-			e.unit = conf.mapUnit(e.flowPropertyFactor, e.unit);
-			e.currency = conf.swap(e.currency);
-			e.location = conf.swap(e.location);
+			e.flow = ctx.swap(e.flow);
+			e.flowPropertyFactor = ctx.mapFactor(e.flow, e.flowPropertyFactor);
+			e.unit = ctx.mapUnit(e.flowPropertyFactor, e.unit);
+			e.currency = ctx.swap(e.currency);
+			e.location = ctx.swap(e.location);
 			mapDefaultProvider(e);
 		}
 
@@ -86,7 +86,7 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 		if (e.defaultProviderId == 0)
 			return;
 		var type = ProviderType.toModelType(e.defaultProviderType);
-		var destId = conf.seq().get(type, e.defaultProviderId);
+		var destId = ctx.seq().get(type, e.defaultProviderId);
 		if (destId != 0) {
 			e.defaultProviderId = destId;
 			return;
@@ -105,7 +105,7 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 	private void swapAllocationProducts(Process copy) {
 		for (var f : copy.allocationFactors) {
 			if (f.productId != 0) {
-				f.productId = conf.seq().get(ModelType.FLOW, f.productId);
+				f.productId = ctx.seq().get(ModelType.FLOW, f.productId);
 			}
 		}
 	}
@@ -114,14 +114,14 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 		if (copy.documentation == null)
 			return;
 		var doc = copy.documentation;
-		doc.dataGenerator = conf.swap(doc.dataGenerator);
-		doc.dataDocumentor = conf.swap(doc.dataDocumentor);
-		doc.dataOwner = conf.swap(doc.dataOwner);
-		doc.publication = conf.swap(doc.publication);
+		doc.dataGenerator = ctx.swap(doc.dataGenerator);
+		doc.dataDocumentor = ctx.swap(doc.dataDocumentor);
+		doc.dataOwner = ctx.swap(doc.dataOwner);
+		doc.publication = ctx.swap(doc.publication);
 
 		// sources
 		var sources = doc.sources.stream()
-			.map(conf::swap)
+			.map(ctx::swap)
 			.filter(Objects::nonNull)
 			.toList();
 		doc.sources.clear();
@@ -129,9 +129,9 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 		// reviews
 		for (var rev : doc.reviews) {
-			rev.report = conf.swap(rev.report);
+			rev.report = ctx.swap(rev.report);
 			var reviewers = rev.reviewers.stream()
-				.map(conf::swap)
+				.map(ctx::swap)
 				.filter(Objects::nonNull)
 				.toList();
 			rev.reviewers.clear();
@@ -140,7 +140,7 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 		// compliance declarations
 		for (var dec : doc.complianceDeclarations) {
-			dec.system = conf.swap(dec.system);
+			dec.system = ctx.swap(dec.system);
 		}
 	}
 }

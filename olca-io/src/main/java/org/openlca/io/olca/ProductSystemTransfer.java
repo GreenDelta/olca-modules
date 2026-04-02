@@ -8,31 +8,31 @@ import org.openlca.core.model.ProductSystem;
 
 final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 	private final SeqMap seq;
 
-	ProductSystemTransfer(TransferConfig conf) {
-		this.conf = conf;
-		this.seq = conf.seq();
+	ProductSystemTransfer(TransferContext ctx) {
+		this.ctx = ctx;
+		this.seq = ctx.seq();
 	}
 
 	@Override
 	public void syncAll() {
-		for (var d : conf.source().getDescriptors(ProductSystem.class)) {
-			var origin = conf.source().get(ProductSystem.class, d.id);
+		for (var d : ctx.source().getDescriptors(ProductSystem.class)) {
+			var origin = ctx.source().get(ProductSystem.class, d.id);
 			sync(origin);
 		}
 	}
 
 	@Override
 	public ProductSystem sync(ProductSystem origin) {
-		return conf.sync(origin, () -> {
+		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.referenceProcess = conf.swap(origin.referenceProcess);
+			copy.referenceProcess = ctx.swap(origin.referenceProcess);
 			swapQRef(origin, copy);
 			swapParameters(copy);
 			swapAnalysisGroups(copy);
-			ProductSystemLinks.map(conf, copy);
+			ProductSystemLinks.map(ctx, copy);
 			return copy;
 		});
 	}
@@ -50,9 +50,9 @@ final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 		if (refFlow == null)
 			return;
 		copy.targetFlowPropertyFactor =
-				conf.mapFactor(refFlow, src.targetFlowPropertyFactor);
+				ctx.mapFactor(refFlow, src.targetFlowPropertyFactor);
 		copy.targetUnit =
-				conf.mapUnit(copy.targetFlowPropertyFactor, src.targetUnit);
+				ctx.mapUnit(copy.targetFlowPropertyFactor, src.targetUnit);
 	}
 
 	private boolean isSame(Exchange e, Exchange copy) {

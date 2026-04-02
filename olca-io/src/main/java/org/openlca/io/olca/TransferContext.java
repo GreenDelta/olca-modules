@@ -1,25 +1,27 @@
 package org.openlca.io.olca;
 
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Source;
 import org.openlca.core.model.Unit;
 
-public class TransferConfig {
+public class TransferContext {
 
 	private final IDatabase source;
 	private final IDatabase target;
 	private final SeqMap seq;
 	private final ImportLog log;
 
-	private TransferConfig(
+	private TransferContext(
 		IDatabase source, IDatabase target, SeqMap seq, ImportLog log
 	) {
 		this.source = source;
@@ -44,10 +46,44 @@ public class TransferConfig {
 		return log;
 	}
 
-	public static TransferConfig of(IDatabase source, IDatabase target) {
+	public static TransferContext create(IDatabase source, IDatabase target) {
 		var seq = SeqMap.create(source, target);
 		var log = new ImportLog();
-		return new TransferConfig(source, target, seq, log);
+		return new TransferContext(source, target, seq, log);
+	}
+
+	public EntityTransfer<?> getTransfer(ModelType type) {
+		return switch(type) {
+			case ACTOR -> new DefaultTransfer<>(this, Actor.class);
+			case CATEGORY -> new CategoryTransfer(this);
+			case CURRENCY -> new CurrencyTransfer(this);
+			case DQ_SYSTEM -> new DqsTransfer(this);
+			case EPD -> new EpdTransfer(this);
+			case FLOW -> new FlowTransfer(this);
+			case FLOW_PROPERTY -> new FlowPropertyTransfer(this);
+			case IMPACT_CATEGORY -> new ImpactCategoryTransfer(this);
+			case IMPACT_METHOD -> new ImpactMethodTransfer(this);
+			case LOCATION -> new DefaultTransfer<>(this, Location.class);
+			case PARAMETER -> new ParameterTransfer(this);
+			case PROCESS -> new ProcessTransfer(this);
+			case PRODUCT_SYSTEM -> new ProductSystemTransfer(this);
+			case PROJECT -> new ProjectTransfer(this);
+			case RESULT -> new ResultTransfer(this);
+			case SOCIAL_INDICATOR -> new SocialIndicatorTransfer(this);
+			case SOURCE -> new DefaultTransfer<>(this, Source.class);
+			case UNIT_GROUP -> new UnitGroupTransfer(this);
+			case null -> throw new IllegalArgumentException("type is null");
+		};
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends RootEntity> EntityTransfer<T> getTransfer(Class<T> type) {
+		if (type == null)
+			throw new IllegalArgumentException("type is null");
+		var modelType = ModelType.of(type);
+		if (modelType == null)
+			throw new IllegalArgumentException("unsupported type: " + type.getName());
+		return (EntityTransfer<T>) getTransfer(modelType);
 	}
 
 	<T extends RootEntity> T save(long sourceId, T targetEntity) {
@@ -71,28 +107,6 @@ public class TransferConfig {
 			: null;
 	}
 
-	<T extends RootEntity> void syncAll(Class<T> type, Function<T, T> fn) {
-		if (type == null || fn == null)
-			return;
-		var seqType = ModelType.of(type);
-		if (seqType == null) {
-			log.error("unknown type " + type.getName());
-			return;
-		}
-		for (var d : source.getDescriptors(type)) {
-			if (isMapped(seqType, d.id)) {
-				log.skipped(d);
-				continue;
-			}
-			var e = source.get(type, d.id);
-			sync(e, () -> fn.apply(e));
-		}
-	}
-
-	boolean isMapped(ModelType seqType, long sourceId) {
-		return seq.isMapped(seqType, sourceId);
-	}
-
 	<T extends RootEntity> T sync(T origin, Supplier<T> fn) {
 		if (origin == null)	return null;
 		var mapped = getMapped(origin);
@@ -106,12 +120,13 @@ public class TransferConfig {
 		return copy;
 	}
 
+	@SuppressWarnings("unchecked")
 	<T extends RootEntity> T swap(T sourceEntity) {
 		if (sourceEntity == null) return null;
 		var mapped = getMapped(sourceEntity);
-		return mapped != null
-			? mapped
-			: EntityTransfer.call(sourceEntity, this);
+		if (mapped != null) return mapped;
+		var type = (Class<T>) sourceEntity.getClass();
+		return getTransfer(type).sync(sourceEntity);
 	}
 
 	/// Returns the corresponding flow property factor of the destination flow.

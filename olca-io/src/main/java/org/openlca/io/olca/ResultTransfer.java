@@ -7,26 +7,26 @@ import org.openlca.core.model.Result;
 
 final class ResultTransfer implements EntityTransfer<Result> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 
-	ResultTransfer(TransferConfig conf) {
-		this.conf = conf;
+	ResultTransfer(TransferContext ctx) {
+		this.ctx = ctx;
 	}
 
 	@Override
 	public void syncAll() {
-		for (var d : conf.source().getDescriptors(Result.class)) {
-			var origin = conf.source().get(Result.class, d.id);
+		for (var d : ctx.source().getDescriptors(Result.class)) {
+			var origin = ctx.source().get(Result.class, d.id);
 			sync(origin);
 		}
 	}
 
 	@Override
 	public Result sync(Result origin) {
-		return conf.sync(origin, () -> {
+		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.impactMethod = conf.swap(origin.impactMethod);
-			copy.productSystem = conf.swap(origin.productSystem);
+			copy.impactMethod = ctx.swap(origin.impactMethod);
+			copy.productSystem = ctx.swap(origin.productSystem);
 			if (copy.referenceFlow != null) {
 				swapRefsOf(copy.referenceFlow);
 			}
@@ -36,16 +36,16 @@ final class ResultTransfer implements EntityTransfer<Result> {
 				swapRefsOf(e);
 			}
 			for (var i : copy.impactResults) {
-				i.indicator = conf.swap(i.indicator);
+				i.indicator = ctx.swap(i.indicator);
 			}
 			return copy;
 		});
 	}
 
 	private void swapRefsOf(FlowResult e) {
-		e.flow = conf.swap(e.flow);
-		e.flowPropertyFactor = conf.mapFactor(e.flow, e.flowPropertyFactor);
-		e.unit = conf.mapUnit(e.flowPropertyFactor, e.unit);
-		e.location = conf.swap(e.location);
+		e.flow = ctx.swap(e.flow);
+		e.flowPropertyFactor = ctx.mapFactor(e.flow, e.flowPropertyFactor);
+		e.unit = ctx.mapUnit(e.flowPropertyFactor, e.unit);
+		e.location = ctx.swap(e.location);
 	}
 }

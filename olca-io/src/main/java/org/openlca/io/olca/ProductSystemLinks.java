@@ -19,24 +19,24 @@ import gnu.trove.map.hash.TLongDoubleHashMap;
  */
 class ProductSystemLinks {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 	private final ProductSystem system;
 	private final RefIdMap<Long, String> srcIdMap;
 	private final RefIdMap<String, Long> destIdMap;
 
-	static void map(TransferConfig conf, ProductSystem system) {
+	static void map(TransferContext conf, ProductSystem system) {
 		if (system == null)
 			return;
 		new ProductSystemLinks(conf, system).map();
 	}
 
-	private ProductSystemLinks(TransferConfig conf, ProductSystem system) {
-		this.conf = conf;
+	private ProductSystemLinks(TransferContext ctx, ProductSystem system) {
+		this.ctx = ctx;
 		this.system = system;
 		srcIdMap = RefIdMap.internalToRef(
-				conf.source(), Process.class, Flow.class, Unit.class);
+				ctx.source(), Process.class, Flow.class, Unit.class);
 		destIdMap = RefIdMap.refToInternal(
-				conf.target(), Process.class, Flow.class, Unit.class);
+				ctx.target(), Process.class, Flow.class, Unit.class);
 	}
 
 	private long destId(Class<?> type, long sourceId) {
@@ -90,7 +90,7 @@ class ProductSystemLinks {
 					+ "resulting_amount_value, f_default_provider "
 					+ "from tbl_exchanges where id=" + id;
 			try {
-				NativeSql.on(conf.source()).query(sql, r -> {
+				NativeSql.on(ctx.source()).query(sql, r -> {
 					processId = r.getLong(1);
 					flowId = r.getLong(2);
 					unitId = r.getLong(3);
@@ -100,7 +100,7 @@ class ProductSystemLinks {
 					return false;
 				});
 			} catch (Exception e) {
-				conf.log().error("failed to query exchange: " + sql, e);
+				ctx.log().error("failed to query exchange: " + sql, e);
 			}
 		}
 
@@ -130,7 +130,7 @@ class ProductSystemLinks {
 
 		long queryId(String sql) {
 			var vals = new TLongDoubleHashMap();
-			NativeSql.on(conf.target()).query(sql, r -> {
+			NativeSql.on(ctx.target()).query(sql, r -> {
 				vals.put(r.getLong(1), r.getDouble(2));
 				return true;
 			});

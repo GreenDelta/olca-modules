@@ -7,30 +7,30 @@ import org.openlca.core.model.NwSet;
 
 final class ImpactMethodTransfer implements EntityTransfer<ImpactMethod> {
 
-	private final TransferConfig conf;
+	private final TransferContext ctx;
 
-	ImpactMethodTransfer(TransferConfig conf) {
-		this.conf = conf;
+	ImpactMethodTransfer(TransferContext ctx) {
+		this.ctx = ctx;
 	}
 
 	@Override
 	public void syncAll() {
-		for (var d : conf.source().getDescriptors(ImpactMethod.class)) {
-			var origin = conf.source().get(ImpactMethod.class, d.id);
+		for (var d : ctx.source().getDescriptors(ImpactMethod.class)) {
+			var origin = ctx.source().get(ImpactMethod.class, d.id);
 			sync(origin);
 		}
 	}
 
 	@Override
 	public ImpactMethod sync(ImpactMethod origin) {
-		return conf.sync(origin, () -> {
+		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.source = conf.swap(origin.source);
+			copy.source = ctx.swap(origin.source);
 
 			// swap impact categories
 			copy.impactCategories.clear();
 			for (var impact : origin.impactCategories) {
-				var swapped = conf.swap(impact);
+				var swapped = ctx.swap(impact);
 				if (swapped != null) {
 					copy.impactCategories.add(swapped);
 				}
@@ -39,7 +39,7 @@ final class ImpactMethodTransfer implements EntityTransfer<ImpactMethod> {
 			// swap impact categories in NW-sets
 			for (var copied : copy.nwSets) {
 				for (var f : copied.factors) {
-					f.impactCategory = conf.swap(f.impactCategory);
+					f.impactCategory = ctx.swap(f.impactCategory);
 				}
 			}
 			for (var nwSet : origin.nwSets) {
