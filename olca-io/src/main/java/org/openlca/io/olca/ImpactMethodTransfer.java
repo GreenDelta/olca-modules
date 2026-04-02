@@ -5,26 +5,31 @@ import java.util.Objects;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.NwSet;
 
-class ImpactMethodImport {
+final class ImpactMethodTransfer implements EntityTransfer<ImpactMethod> {
 
 	private final TransferConfig conf;
 
-	private ImpactMethodImport(TransferConfig conf) {
+	ImpactMethodTransfer(TransferConfig conf) {
 		this.conf = conf;
 	}
 
-	static void run(TransferConfig config) {
-		new ImpactMethodImport(config).run();
+	@Override
+	public void syncAll() {
+		for (var d : conf.source().getDescriptors(ImpactMethod.class)) {
+			var origin = conf.source().get(ImpactMethod.class, d.id);
+			sync(origin);
+		}
 	}
 
-	private void run() {
-		conf.syncAll(ImpactMethod.class, method -> {
-			var copy = method.copy();
-			copy.source = conf.swap(method.source);
+	@Override
+	public ImpactMethod sync(ImpactMethod origin) {
+		return conf.sync(origin, () -> {
+			var copy = origin.copy();
+			copy.source = conf.swap(origin.source);
 
 			// swap impact categories
 			copy.impactCategories.clear();
-			for (var impact : method.impactCategories) {
+			for (var impact : origin.impactCategories) {
 				var swapped = conf.swap(impact);
 				if (swapped != null) {
 					copy.impactCategories.add(swapped);
@@ -37,7 +42,7 @@ class ImpactMethodImport {
 					f.impactCategory = conf.swap(f.impactCategory);
 				}
 			}
-			for (var nwSet : method.nwSets) {
+			for (var nwSet : origin.nwSets) {
 				for (var copied : copy.nwSets) {
 					// we need to set the reference IDs from the source as they are
 					// generated new in the clone method.

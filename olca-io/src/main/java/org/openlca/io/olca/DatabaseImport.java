@@ -76,10 +76,10 @@ public class DatabaseImport implements Import {
 			return copy;
 		});
 
-		ProcessImport.run(conf);
+		new ProcessTransfer(conf).syncAll();
 		ProductSystemImport.run(conf);
 		new ImpactCategoryTransfer(conf).syncAll();
-		ImpactMethodImport.run(conf);
+		new ImpactMethodTransfer(conf).syncAll();
 		ProjectImport.run(conf);
 		new ResultTransfer(conf).syncAll();
 		new EpdTransfer(conf).syncAll();

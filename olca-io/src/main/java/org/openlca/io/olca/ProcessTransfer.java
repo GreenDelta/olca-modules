@@ -9,7 +9,6 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProviderType;
-import org.openlca.core.model.descriptors.ProcessDescriptor;
 
 /// Copies and imports the processes into the target database. While copying the
 /// processes, the default providers could be not present in the target database
@@ -17,50 +16,46 @@ import org.openlca.core.model.descriptors.ProcessDescriptor;
 /// negative value of the corresponding ID in the source database. After the
 /// import of all possible provider types (also results and product systems),
 /// we then search for negative provider IDs and replace them.
-class ProcessImport {
+final class ProcessTransfer implements EntityTransfer<Process> {
 
 	private final TransferConfig conf;
 	private final ImportLog log;
 	private final ProcessDao srcDao;
 	private final ProcessDao destDao;
 
-	private ProcessImport(TransferConfig config) {
+	ProcessTransfer(TransferConfig config) {
 		this.conf = config;
 		this.log = config.log();
 		this.srcDao = new ProcessDao(config.source());
 		this.destDao = new ProcessDao(config.target());
 	}
 
-	static void run(TransferConfig conf) {
-		new ProcessImport(conf).run();
-	}
-
-	private void run() {
+	@Override
+	public void syncAll() {
 		for (var d : srcDao.getDescriptors()) {
-			if (conf.isMapped(ModelType.PROCESS, d.id)) {
-				log.skipped(d);
-				continue;
-			}
 			try {
-				copy(d);
+				var origin = srcDao.getForId(d.id);
+				sync(origin);
 			} catch (Exception e) {
 				log.error("failed to copy process " + d.refId, e);
 			}
 		}
 	}
 
-	private void copy(ProcessDescriptor d) {
+	@Override
+	public Process sync(Process origin) {
+		if (origin == null)
+			return null;
+		var mapped = conf.getMapped(origin);
+		if (mapped != null)
+			return mapped;
 
-		// init copy
-		var src = srcDao.getForId(d.id);
-		if (src == null)
-			return;
-		var copy = src.copy();
-		copy.refId = src.refId;
+		var copy = origin.copy();
+		copy.refId = origin.refId;
 
 		// swap references
-		copy.category = conf.swap(src.category);
-		copy.location = conf.swap(src.location);
+		copy.category = conf.swap(origin.category);
+		copy.location = conf.swap(origin.location);
 		copy.dqSystem = conf.swap(copy.dqSystem);
 		copy.exchangeDqSystem = conf.swap(copy.exchangeDqSystem);
 		copy.socialDqSystem = conf.swap(copy.socialDqSystem);
@@ -74,7 +69,9 @@ class ProcessImport {
 		}
 
 		copy = destDao.insert(copy);
-		conf.seq().put(ModelType.PROCESS, src.id, copy.id);
+		conf.seq().put(ModelType.PROCESS, origin.id, copy.id);
+		log.imported(copy);
+		return copy;
 	}
 
 	/**
