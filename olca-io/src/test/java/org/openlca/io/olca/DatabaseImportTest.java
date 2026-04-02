@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
+import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
@@ -58,6 +59,26 @@ public class DatabaseImportTest {
 		assertEquals(unitsCopy.id, massCopy.unitGroup.id);
 		assertEquals(1, target.getAll(UnitGroup.class).size());
 		assertEquals(1, target.getAll(FlowProperty.class).size());
+	}
+
+	@Test
+	public void testCurrenciesReferenceDefaultCurrency() {
+		var eur = Currency.of("EUR");
+		eur.referenceCurrency = eur;
+		var usd = Currency.of("USD");
+		usd.conversionFactor = 1.08;
+		usd.referenceCurrency = eur;
+		source.insert(eur, usd);
+
+		new DatabaseImport(source, target).run();
+
+		var eurCopy = target.getForName(Currency.class, "EUR");
+		var usdCopy = target.getForName(Currency.class, "USD");
+		assertNotNull(eurCopy.referenceCurrency);
+		assertNotNull(usdCopy.referenceCurrency);
+		assertEquals(eurCopy.id, eurCopy.referenceCurrency.id);
+		assertEquals(eurCopy.id, usdCopy.referenceCurrency.id);
+		assertEquals(eurCopy.id, new CurrencyDao(target).getReferenceCurrency().id);
 	}
 
 	@Test

@@ -21,8 +21,13 @@ public class Currency extends RootEntity {
 	public Currency referenceCurrency;
 
 	public static Currency of(String name) {
+		return of(name, name);
+	}
+
+	public static Currency of(String name, String code) {
 		var currency = new Currency();
 		Entities.init(currency, name);
+		currency.code = code;
 		currency.conversionFactor = 1.0;
 		return currency;
 	}
