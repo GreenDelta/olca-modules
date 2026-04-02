@@ -15,17 +15,18 @@ final class ResultTransfer implements EntityTransfer<Result> {
 
 	@Override
 	public void syncAll() {
-		for (var result : conf.source().getAll(Result.class)) {
-			sync(result);
+		for (var d : conf.source().getDescriptors(Result.class)) {
+			var origin = conf.source().get(Result.class, d.id);
+			sync(origin);
 		}
 	}
 
 	@Override
-	public Result sync(Result result) {
-		return conf.sync(result, () -> {
-			var copy = result.copy();
-			copy.impactMethod = conf.swap(result.impactMethod);
-			copy.productSystem = conf.swap(result.productSystem);
+	public Result sync(Result origin) {
+		return conf.sync(origin, () -> {
+			var copy = origin.copy();
+			copy.impactMethod = conf.swap(origin.impactMethod);
+			copy.productSystem = conf.swap(origin.productSystem);
 			if (copy.referenceFlow != null) {
 				swapRefsOf(copy.referenceFlow);
 			}

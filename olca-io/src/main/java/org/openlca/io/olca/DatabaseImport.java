@@ -1,21 +1,14 @@
 package org.openlca.io.olca;
 
-import java.util.stream.Collectors;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.database.ParameterDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.DQSystem;
-import org.openlca.core.model.Epd;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.ProviderType;
-import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.Source;
 import org.openlca.io.Import;
 
@@ -73,10 +66,10 @@ public class DatabaseImport implements Import {
 		conf.syncAll(Location.class, Location::copy);
 		conf.syncAll(Source.class, Source::copy);
 
-		copyGlobalParameters();
-		copyFlows();
+		new ParameterTransfer(conf).syncAll();
+		new FlowTransfer(conf).syncAll();
 		new CurrencyTransfer(conf).syncAll();
-		copySocialIndicators();
+		new SocialIndicatorTransfer(conf).syncAll();
 		conf.syncAll(DQSystem.class, system -> {
 			var copy = system.copy();
 			copy.source = conf.swap(system.source);
@@ -85,90 +78,11 @@ public class DatabaseImport implements Import {
 
 		ProcessImport.run(conf);
 		ProductSystemImport.run(conf);
-		copyImpactCategories();
+		new ImpactCategoryTransfer(conf).syncAll();
 		ImpactMethodImport.run(conf);
 		ProjectImport.run(conf);
 		new ResultTransfer(conf).syncAll();
-		copyEpds();
-	}
-
-	private void copyGlobalParameters() {
-		var existing = new ParameterDao(conf.target())
-				.getGlobalParameters()
-				.stream()
-				.map(p -> p.name)
-				.collect(Collectors.toSet());
-
-		new ParameterDao(conf.source())
-				.getGlobalParameters()
-				.stream()
-				.filter(p -> !existing.contains(p.name))
-				.forEach(p -> {
-					var copy = p.copy();
-					copy.refId = p.refId;
-					copy.category = conf.swap(p.category);
-					conf.target().insert(copy);
-				});
-	}
-
-	private void copyFlows() {
-		conf.syncAll(Flow.class, flow -> {
-			var copy = flow.copy();
-			copy.location = conf.swap(flow.location);
-			copy.referenceFlowProperty = conf.swap(flow.referenceFlowProperty);
-			for (var fac : copy.flowPropertyFactors) {
-				fac.flowProperty = conf.swap(fac.flowProperty);
-			}
-			return copy;
-		});
-	}
-
-	private void copySocialIndicators() {
-		conf.syncAll(SocialIndicator.class, src -> {
-			var copy = src.copy();
-			copy.activityQuantity = conf.swap(src.activityQuantity);
-			copy.activityUnit = conf.mapUnit(copy.activityQuantity, src.activityUnit);
-			return copy;
-		});
-	}
-
-	private void copyImpactCategories() {
-		conf.syncAll(ImpactCategory.class, impact -> {
-			var copy = impact.copy();
-			copy.source = conf.swap(impact.source);
-			for (var f : copy.impactFactors) {
-				f.flow = conf.swap(f.flow);
-				f.flowPropertyFactor = conf.mapFactor(f.flow, f.flowPropertyFactor);
-				f.unit = f.unit != null
-						? conf.mapUnit(f.flowPropertyFactor, f.unit)
-						: null;
-				f.location = conf.swap(f.location);
-			}
-			return copy;
-		});
-	}
-
-	private void copyEpds() {
-		conf.syncAll(Epd.class, epd -> {
-			var copy = epd.copy();
-			copy.pcr = conf.swap(epd.pcr);
-			copy.programOperator = conf.swap(copy.programOperator);
-			copy.manufacturer = conf.swap(copy.manufacturer);
-			copy.verifier = conf.swap(copy.verifier);
-			copy.location = conf.swap(copy.location);
-			copy.originalEpd = conf.swap(copy.originalEpd);
-			copy.dataGenerator = conf.swap(copy.dataGenerator);
-			if (copy.product != null) {
-				var p = copy.product;
-				p.flow = conf.swap(p.flow);
-				p.property = conf.swap(p.property);
-				p.unit = conf.mapUnit(p.property, p.unit);
-			}
-			for (var mod : copy.modules) {
-				mod.result = conf.swap(mod.result);
-			}
-			return copy;
-		});
+		new EpdTransfer(conf).syncAll();
 	}
 
 	private void copyMappingFiles() {

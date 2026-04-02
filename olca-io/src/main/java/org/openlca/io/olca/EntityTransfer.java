@@ -2,17 +2,27 @@ package org.openlca.io.olca;
 
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
+import org.openlca.core.model.Epd;
+import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.ImpactCategory;
+import org.openlca.core.model.Parameter;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.SocialIndicator;
 import org.openlca.core.model.UnitGroup;
 
 public sealed interface EntityTransfer<T extends RootEntity> permits
 	CategoryTransfer,
 	CurrencyTransfer,
 	DefaultTransfer,
+	EpdTransfer,
+	FlowTransfer,
 	FlowPropertyTransfer,
+	ImpactCategoryTransfer,
+	ParameterTransfer,
 	ResultTransfer,
+	SocialIndicatorTransfer,
 	UnitGroupTransfer {
 
 	void syncAll();
@@ -25,8 +35,13 @@ public sealed interface EntityTransfer<T extends RootEntity> permits
 			case null -> null;
 			case Category c -> new CategoryTransfer(config).sync(c);
 			case Currency c -> new CurrencyTransfer(config).sync(c);
+			case Epd e -> new EpdTransfer(config).sync(e);
+			case Flow f -> new FlowTransfer(config).sync(f);
 			case FlowProperty p -> new FlowPropertyTransfer(config).sync(p);
+			case ImpactCategory i -> new ImpactCategoryTransfer(config).sync(i);
+			case Parameter p -> new ParameterTransfer(config).sync(p);
 			case Result r -> new ResultTransfer(config).sync(r);
+			case SocialIndicator s -> new SocialIndicatorTransfer(config).sync(s);
 			case UnitGroup u -> new UnitGroupTransfer(config).sync(u);
 			default ->
 				new DefaultTransfer<>(config, (Class<T>) sourceEntity.getClass())
