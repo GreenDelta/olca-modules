@@ -2,11 +2,11 @@ package org.openlca.io.olca;
 
 import org.openlca.core.model.UnitGroup;
 
-public final class UnitGroupTransfer implements EntityTransfer<UnitGroup>{
+final class UnitGroupTransfer implements EntityTransfer<UnitGroup>{
 
 	private final TransferConfig conf;
 
-	public UnitGroupTransfer(TransferConfig conf) {
+	UnitGroupTransfer(TransferConfig conf) {
 		this.conf = conf;
 	}
 

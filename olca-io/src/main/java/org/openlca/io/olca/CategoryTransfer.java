@@ -1,20 +1,20 @@
 package org.openlca.io.olca;
 
-import org.openlca.core.database.CategoryDao;
-import org.openlca.core.model.Category;
-import org.openlca.core.model.ModelType;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-public final class CategoryTransfer implements EntityTransfer<Category> {
+import org.openlca.core.database.CategoryDao;
+import org.openlca.core.model.Category;
+import org.openlca.core.model.ModelType;
+
+final class CategoryTransfer implements EntityTransfer<Category> {
 
 	private final TransferConfig conf;
 
-	public CategoryTransfer(TransferConfig conf) {
+	CategoryTransfer(TransferConfig conf) {
 		this.conf = Objects.requireNonNull(conf);
 	}
 

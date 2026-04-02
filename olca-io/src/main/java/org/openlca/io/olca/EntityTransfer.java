@@ -8,7 +8,8 @@ import org.openlca.core.model.UnitGroup;
 
 public sealed interface EntityTransfer<T extends RootEntity> permits
 	CategoryTransfer,
-CurrencyTransfer,
+	CurrencyTransfer,
+	DefaultTransfer,
 	FlowPropertyTransfer,
 	UnitGroupTransfer {
 
@@ -24,8 +25,9 @@ CurrencyTransfer,
 			case Currency c -> new CurrencyTransfer(config).sync(c);
 			case FlowProperty p -> new FlowPropertyTransfer(config).sync(p);
 			case UnitGroup u -> new UnitGroupTransfer(config).sync(u);
-			default -> throw new IllegalArgumentException(
-				"No transfer registered for: " + sourceEntity);
+			default ->
+				new DefaultTransfer<>(config, (Class<T>) sourceEntity.getClass())
+					.sync(sourceEntity);
 		};
 	}
 }

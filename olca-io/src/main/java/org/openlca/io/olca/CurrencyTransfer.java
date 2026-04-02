@@ -4,11 +4,11 @@ import java.util.Objects;
 
 import org.openlca.core.model.Currency;
 
-public final class CurrencyTransfer implements EntityTransfer<Currency> {
+final class CurrencyTransfer implements EntityTransfer<Currency> {
 
 	private final TransferConfig conf;
 
-	public CurrencyTransfer(TransferConfig conf) {
+	CurrencyTransfer(TransferConfig conf) {
 		this.conf = conf;
 	}
 

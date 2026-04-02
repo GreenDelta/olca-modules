@@ -6,11 +6,9 @@ import java.util.EnumMap;
 import java.util.UUID;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.CurrencyDao;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.FlowProperty;
@@ -23,19 +21,13 @@ import org.openlca.core.model.UnitGroup;
 
 public class DatabaseImportTest {
 
-	private IDatabase source;
-	private IDatabase target;
-
-	@Before
-	public void setup() {
-		source = Derby.createInMemory();
-		target = Derby.createInMemory();
-	}
+	private final TestContext ctx = TestContext.get();
+	private final IDatabase source = ctx.source();
+	private final IDatabase target = ctx.target();
 
 	@After
-	public void cleanup() throws Exception {
-		source.close();
-		target.close();
+	public void cleanup() {
+		ctx.clear();
 	}
 
 	@Test

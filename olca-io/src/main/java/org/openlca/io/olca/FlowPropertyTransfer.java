@@ -2,11 +2,11 @@ package org.openlca.io.olca;
 
 import org.openlca.core.model.FlowProperty;
 
-public final class FlowPropertyTransfer implements EntityTransfer<FlowProperty> {
+final class FlowPropertyTransfer implements EntityTransfer<FlowProperty> {
 
 	private final TransferConfig conf;
 
-	public FlowPropertyTransfer(TransferConfig conf) {
+	FlowPropertyTransfer(TransferConfig conf) {
 		this.conf = conf;
 	}
 
