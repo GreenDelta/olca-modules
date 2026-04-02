@@ -88,7 +88,7 @@ public class DatabaseImport implements Import {
 		copyImpactCategories();
 		ImpactMethodImport.run(conf);
 		ProjectImport.run(conf);
-		ResultImport.run(conf);
+		new ResultTransfer(conf).syncAll();
 		copyEpds();
 	}
 

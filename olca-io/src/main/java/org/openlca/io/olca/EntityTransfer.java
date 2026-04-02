@@ -3,6 +3,7 @@ package org.openlca.io.olca;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
 
@@ -11,6 +12,7 @@ public sealed interface EntityTransfer<T extends RootEntity> permits
 	CurrencyTransfer,
 	DefaultTransfer,
 	FlowPropertyTransfer,
+	ResultTransfer,
 	UnitGroupTransfer {
 
 	void syncAll();
@@ -24,6 +26,7 @@ public sealed interface EntityTransfer<T extends RootEntity> permits
 			case Category c -> new CategoryTransfer(config).sync(c);
 			case Currency c -> new CurrencyTransfer(config).sync(c);
 			case FlowProperty p -> new FlowPropertyTransfer(config).sync(p);
+			case Result r -> new ResultTransfer(config).sync(r);
 			case UnitGroup u -> new UnitGroupTransfer(config).sync(u);
 			default ->
 				new DefaultTransfer<>(config, (Class<T>) sourceEntity.getClass())

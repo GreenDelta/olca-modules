@@ -5,20 +5,24 @@ import java.util.Objects;
 import org.openlca.core.model.FlowResult;
 import org.openlca.core.model.Result;
 
-class ResultImport {
+final class ResultTransfer implements EntityTransfer<Result> {
 
 	private final TransferConfig conf;
 
-	private ResultImport(TransferConfig conf) {
+	ResultTransfer(TransferConfig conf) {
 		this.conf = conf;
 	}
 
-	static void run(TransferConfig conf) {
-		new ResultImport(conf).run();
+	@Override
+	public void syncAll() {
+		for (var result : conf.source().getAll(Result.class)) {
+			sync(result);
+		}
 	}
 
-	private void run() {
-		conf.syncAll(Result.class, result -> {
+	@Override
+	public Result sync(Result result) {
+		return conf.sync(result, () -> {
 			var copy = result.copy();
 			copy.impactMethod = conf.swap(result.impactMethod);
 			copy.productSystem = conf.swap(result.productSystem);
