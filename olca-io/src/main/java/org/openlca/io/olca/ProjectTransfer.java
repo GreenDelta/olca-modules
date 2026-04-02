@@ -5,16 +5,16 @@ import java.util.Objects;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 
-class ProjectImport {
+class ProjectTransfer {
 
 	private final TransferConfig conf;
 
-	private ProjectImport(TransferConfig conf) {
+	private ProjectTransfer(TransferConfig conf) {
 		this.conf = conf;
 	}
 
 	static void run(TransferConfig conf) {
-		new ProjectImport(conf).run();
+		new ProjectTransfer(conf).run();
 	}
 
 	private void run() {

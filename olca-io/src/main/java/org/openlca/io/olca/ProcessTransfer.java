@@ -3,7 +3,6 @@ package org.openlca.io.olca;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import org.openlca.core.database.ProcessDao;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
@@ -20,58 +19,39 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 	private final TransferConfig conf;
 	private final ImportLog log;
-	private final ProcessDao srcDao;
-	private final ProcessDao destDao;
 
 	ProcessTransfer(TransferConfig config) {
 		this.conf = config;
 		this.log = config.log();
-		this.srcDao = new ProcessDao(config.source());
-		this.destDao = new ProcessDao(config.target());
 	}
 
 	@Override
 	public void syncAll() {
-		for (var d : srcDao.getDescriptors()) {
-			try {
-				var origin = srcDao.getForId(d.id);
-				sync(origin);
-			} catch (Exception e) {
-				log.error("failed to copy process " + d.refId, e);
-			}
+		for (var d : conf.source().getDescriptors(Process.class)) {
+			var origin = conf.source().get(Process.class, d.id);
+			sync(origin);
 		}
 	}
 
 	@Override
 	public Process sync(Process origin) {
-		if (origin == null)
-			return null;
-		var mapped = conf.getMapped(origin);
-		if (mapped != null)
-			return mapped;
+		return conf.sync(origin, () -> {
+			var copy = origin.copy();
 
-		var copy = origin.copy();
-		copy.refId = origin.refId;
+			copy.location = conf.swap(origin.location);
+			copy.dqSystem = conf.swap(copy.dqSystem);
+			copy.exchangeDqSystem = conf.swap(copy.exchangeDqSystem);
+			copy.socialDqSystem = conf.swap(copy.socialDqSystem);
 
-		// swap references
-		copy.category = conf.swap(origin.category);
-		copy.location = conf.swap(origin.location);
-		copy.dqSystem = conf.swap(copy.dqSystem);
-		copy.exchangeDqSystem = conf.swap(copy.exchangeDqSystem);
-		copy.socialDqSystem = conf.swap(copy.socialDqSystem);
-
-		swapExchangeRefs(copy);
-		swapAllocationProducts(copy);
-		swapDocRefs(copy);
-		for (var a : copy.socialAspects) {
-			a.indicator = conf.swap(a.indicator);
-			a.source = conf.swap(a.source);
-		}
-
-		copy = destDao.insert(copy);
-		conf.seq().put(ModelType.PROCESS, origin.id, copy.id);
-		log.imported(copy);
-		return copy;
+			swapExchangeRefs(copy);
+			swapAllocationProducts(copy);
+			swapDocRefs(copy);
+			for (var a : copy.socialAspects) {
+				a.indicator = conf.swap(a.indicator);
+				a.source = conf.swap(a.source);
+			}
+			return copy;
+		});
 	}
 
 	/**
@@ -97,7 +77,7 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 		if (!removals.isEmpty()) {
 			log.warn(copy,
-					"had invalid exchanges that were removed in the import");
+				"had invalid exchanges that were removed in the import");
 			copy.exchanges.removeAll(removals);
 		}
 	}
@@ -117,9 +97,9 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 	private boolean isValid(Exchange e) {
 		return e.flow != null
-				&& e.flowPropertyFactor != null
-				&& e.flowPropertyFactor.flowProperty != null
-				&& e.unit != null;
+			&& e.flowPropertyFactor != null
+			&& e.flowPropertyFactor.flowProperty != null
+			&& e.unit != null;
 	}
 
 	private void swapAllocationProducts(Process copy) {
@@ -141,9 +121,9 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 		// sources
 		var sources = doc.sources.stream()
-				.map(conf::swap)
-				.filter(Objects::nonNull)
-				.toList();
+			.map(conf::swap)
+			.filter(Objects::nonNull)
+			.toList();
 		doc.sources.clear();
 		doc.sources.addAll(sources);
 
@@ -151,9 +131,9 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 		for (var rev : doc.reviews) {
 			rev.report = conf.swap(rev.report);
 			var reviewers = rev.reviewers.stream()
-					.map(conf::swap)
-					.filter(Objects::nonNull)
-					.toList();
+				.map(conf::swap)
+				.filter(Objects::nonNull)
+				.toList();
 			rev.reviewers.clear();
 			rev.reviewers.addAll(reviewers);
 		}

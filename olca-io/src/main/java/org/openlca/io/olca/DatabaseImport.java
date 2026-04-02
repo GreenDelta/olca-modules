@@ -5,7 +5,6 @@ import org.openlca.core.database.MappingFileDao;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.MappingFile;
 import org.openlca.core.model.ProviderType;
@@ -70,17 +69,13 @@ public class DatabaseImport implements Import {
 		new FlowTransfer(conf).syncAll();
 		new CurrencyTransfer(conf).syncAll();
 		new SocialIndicatorTransfer(conf).syncAll();
-		conf.syncAll(DQSystem.class, system -> {
-			var copy = system.copy();
-			copy.source = conf.swap(system.source);
-			return copy;
-		});
+		new DqsTransfer(conf).syncAll();
 
 		new ProcessTransfer(conf).syncAll();
-		ProductSystemImport.run(conf);
+		new ProductSystemTransfer(conf).syncAll();
 		new ImpactCategoryTransfer(conf).syncAll();
 		new ImpactMethodTransfer(conf).syncAll();
-		ProjectImport.run(conf);
+		ProjectTransfer.run(conf);
 		new ResultTransfer(conf).syncAll();
 		new EpdTransfer(conf).syncAll();
 	}

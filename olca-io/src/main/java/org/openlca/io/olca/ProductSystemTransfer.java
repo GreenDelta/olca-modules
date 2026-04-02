@@ -6,25 +6,30 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 
-class ProductSystemImport {
+final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 
 	private final TransferConfig conf;
 	private final SeqMap seq;
 
-	private ProductSystemImport(TransferConfig conf) {
+	ProductSystemTransfer(TransferConfig conf) {
 		this.conf = conf;
 		this.seq = conf.seq();
 	}
 
-	static void run(TransferConfig conf) {
-		new ProductSystemImport(conf).run();
+	@Override
+	public void syncAll() {
+		for (var d : conf.source().getDescriptors(ProductSystem.class)) {
+			var origin = conf.source().get(ProductSystem.class, d.id);
+			sync(origin);
+		}
 	}
 
-	private void run() {
-		conf.syncAll(ProductSystem.class, system -> {
-			var copy = system.copy();
-			copy.referenceProcess = conf.swap(system.referenceProcess);
-			swapQRef(system, copy);
+	@Override
+	public ProductSystem sync(ProductSystem origin) {
+		return conf.sync(origin, () -> {
+			var copy = origin.copy();
+			copy.referenceProcess = conf.swap(origin.referenceProcess);
+			swapQRef(origin, copy);
 			swapParameters(copy);
 			swapAnalysisGroups(copy);
 			ProductSystemLinks.map(conf, copy);
