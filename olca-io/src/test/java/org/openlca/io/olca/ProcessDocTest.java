@@ -1,18 +1,8 @@
 package org.openlca.io.olca;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Process;
@@ -21,12 +11,18 @@ import org.openlca.core.model.doc.ComplianceDeclaration;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 import org.openlca.core.model.doc.ReviewScope;
-import org.openlca.io.Tests;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.*;
 
 public class ProcessDocTest {
 
-	private final IDatabase sourceDb = Tests.getDb();
-	private final IDatabase targetDb = Derby.createInMemory();
+	private final TestContext ctx = TestContext.get();
+	private final IDatabase sourceDb = ctx.source();
+	private final IDatabase targetDb = ctx.target();
 	private Process process;
 	private Actor actor;
 	private Source source;
@@ -40,9 +36,7 @@ public class ProcessDocTest {
 
 	@After
 	public void cleanup() {
-		sourceDb.delete(actor, source);
-		targetDb.clear();
-		targetDb.clear();
+		ctx.clear();
 	}
 
 	@Test

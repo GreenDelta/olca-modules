@@ -1,15 +1,8 @@
 package org.openlca.io.olca;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -20,12 +13,17 @@ import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.io.Tests;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class DefaultProviderTest {
 
-	private final IDatabase source = Tests.getDb();
-	private final IDatabase target = Derby.createInMemory();
+	private final TestContext ctx = TestContext.get();
+	private final IDatabase source = ctx.source();
+	private final IDatabase target = ctx.target();
 
 	@Before
 	public void setup() {
@@ -85,8 +83,7 @@ public class DefaultProviderTest {
 
 	@After
 	public void cleanup() throws IOException {
-		source.clear();
-		target.close();
+		ctx.clear();
 	}
 
 	@Test
@@ -108,7 +105,7 @@ public class DefaultProviderTest {
 			byte type = ProviderType.of(ModelType.of(provider));
 			for (var e : root.exchanges) {
 				if (e.defaultProviderId == provider.id
-						&& e.defaultProviderType == type) {
+					&& e.defaultProviderType == type) {
 					found = true;
 					break;
 				}

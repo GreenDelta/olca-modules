@@ -1,21 +1,13 @@
 package org.openlca.io.olca;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.function.Consumer;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
+import org.openlca.core.model.AnalysisGroup;
 import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Epd;
@@ -46,6 +38,11 @@ import org.openlca.core.model.UnitGroup;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
 
+import java.util.List;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.*;
+
 /**
  * Tests that references between entities a correctly set in a database import.
  * We do not check category references here as this is already covered in
@@ -53,21 +50,20 @@ import org.openlca.core.model.doc.Review;
  */
 public class RefsTest {
 
-	private static IDatabase db;
-	private static IDatabase target;
+	private final TestContext ctx = TestContext.get();
+	private final IDatabase source = ctx.source();
+	private final IDatabase target = ctx.target();
 
-	@BeforeClass
-	public static void setup() {
-		db = Derby.createInMemory();
-		target = Derby.createInMemory();
+	@Before
+	public void setup() {
 
 		// unit group and flow property with circular link
 		var units = UnitGroup.of("units", "kg");
 		var mass = FlowProperty.of("mass", units);
-		db.insert(units, mass);
+		source.insert(units, mass);
 		units.defaultFlowProperty = mass;
-		db.update(units);
-		mass = db.get(FlowProperty.class, mass.id);
+		source.update(units);
+		mass = source.get(FlowProperty.class, mass.id);
 
 		// currency, location, flows
 		var eur = Currency.of("eur");
@@ -76,7 +72,7 @@ public class RefsTest {
 		var p = Flow.product("p", mass);
 		var q = Flow.product("q", mass);
 		var e = Flow.elementary("e", mass);
-		db.insert(eur, loc, p, q, e);
+		source.insert(eur, loc, p, q, e);
 
 		// actor, source, parameter, social indicator, dqs
 		var actor = Actor.of("actor");
@@ -85,14 +81,14 @@ public class RefsTest {
 		var social = SocialIndicator.of("social", mass);
 		var dqs = DQSystem.of("dqs");
 		dqs.source = source;
-		db.insert(actor, source, param, social, dqs);
+		this.source.insert(actor, source, param, social, dqs);
 
 		// impact category
 		var impact = ImpactCategory.of("impact");
 		impact.source = source;
 		var factor = impact.factor(e, 1);
 		factor.location = loc;
-		db.insert(impact);
+		this.source.insert(impact);
 
 		// impact method
 		var method = ImpactMethod.of("method");
@@ -101,7 +97,7 @@ public class RefsTest {
 		var nws = NwSet.of("nws");
 		method.add(nws);
 		nws.add(NwFactor.of(impact, 1, 1));
-		db.insert(method);
+		this.source.insert(method);
 
 		// processes
 		Consumer<Process> decor = proc -> {
@@ -131,24 +127,24 @@ public class RefsTest {
 		decor.accept(pP);
 		pP.output(q, 1);
 		var eex = pP.exchanges.stream()
-				.filter(ex -> ex.flow.equals(e))
-				.findFirst()
-				.orElseThrow();
+			.filter(ex -> ex.flow.equals(e))
+			.findFirst()
+			.orElseThrow();
 		pP.allocationFactors.addAll(List.of(
-				AllocationFactor.economic(p, 1),
-				AllocationFactor.economic(q, 0),
-				AllocationFactor.physical(p, 1),
-				AllocationFactor.physical(q, 0),
-				AllocationFactor.causal(p, eex, 1),
-				AllocationFactor.causal(q, eex, 0)
+			AllocationFactor.economic(p, 1),
+			AllocationFactor.economic(q, 0),
+			AllocationFactor.physical(p, 1),
+			AllocationFactor.physical(q, 0),
+			AllocationFactor.causal(p, eex, 1),
+			AllocationFactor.causal(q, eex, 0)
 		));
-		db.insert(pP);
+		this.source.insert(pP);
 
 		var qQ = Process.of("qQ", q);
 		decor.accept(qQ);
 		qQ.input(p, 1).defaultProviderId = pP.id;
 		qQ.parameters.add(Parameter.process("param", 42));
-		db.insert(qQ);
+		this.source.insert(qQ);
 
 		// product system
 		var system = ProductSystem.of("system", qQ);
@@ -156,14 +152,14 @@ public class RefsTest {
 		system.cutoff = 0.25;
 		var sysParams = new ParameterRedefSet();
 		sysParams.parameters.add(
-				ParameterRedef.of(qQ.parameters.getFirst(), qQ));
+			ParameterRedef.of(qQ.parameters.getFirst(), qQ));
 		system.parameterSets.add(sysParams);
 		var analysisGroup = new AnalysisGroup();
 		analysisGroup.name = "group";
 		analysisGroup.processes.add(pP.id);
 		analysisGroup.processes.add(qQ.id);
 		system.analysisGroups.add(analysisGroup);
-		db.insert(system);
+		this.source.insert(system);
 
 		// result
 		var result = Result.of("result", q);
@@ -171,7 +167,7 @@ public class RefsTest {
 		result.impactResults.add(ImpactResult.of(impact, 42));
 		result.productSystem = system;
 		result.impactMethod = method;
-		db.insert(result);
+		this.source.insert(result);
 
 		// EPD
 		var epd = Epd.of("epd", q);
@@ -183,7 +179,7 @@ public class RefsTest {
 		epd.originalEpd = source;
 		epd.dataGenerator = actor;
 		epd.modules.add(EpdModule.of("mod", result));
-		db.insert(epd);
+		this.source.insert(epd);
 
 		// project
 		var project = Project.of("project");
@@ -191,17 +187,16 @@ public class RefsTest {
 		project.nwSet = method.nwSets.getFirst();
 		var variant = ProjectVariant.of("v1", system);
 		variant.parameterRedefs.add(
-				system.parameterSets.getFirst().parameters.getFirst().copy());
+			system.parameterSets.getFirst().parameters.getFirst().copy());
 		project.variants.add(variant);
-		db.insert(project);
+		this.source.insert(project);
 
-		new DatabaseImport(db, target).run();
+		new DatabaseImport(this.source, target).run();
 	}
 
-	@AfterClass
-	public static void cleanup() throws Exception {
-		db.close();
-		target.close();
+	@After
+	public void cleanup() throws Exception {
+		ctx.clear();
 	}
 
 	@Test
@@ -260,9 +255,9 @@ public class RefsTest {
 	@Test
 	public void testFlows() {
 		var flows = List.of(
-				get(Flow.class, "p"),
-				get(Flow.class, "q"),
-				get(Flow.class, "e"));
+			get(Flow.class, "p"),
+			get(Flow.class, "q"),
+			get(Flow.class, "e"));
 		for (var flow : flows) {
 			check(flow.referenceFlowProperty, "mass");
 			check(flow.flowPropertyFactors.getFirst().flowProperty, "mass");
@@ -314,15 +309,15 @@ public class RefsTest {
 			var flow = p.name.equals("pP") ? "p" : "q";
 			check(p.quantitativeReference.flow, flow);
 			var qex = p.exchanges.stream()
-					.filter(e -> e.flow.name.equals(flow))
-					.findFirst().orElseThrow();
+				.filter(e -> e.flow.name.equals(flow))
+				.findFirst().orElseThrow();
 			assertEquals(p.quantitativeReference, qex);
 
 			// other exchange references
 			assertTrue(p.exchanges.size() > 1);
 			var eex = p.exchanges.stream()
-					.filter(e -> e.flow.name.equals("e"))
-					.findFirst().orElseThrow();
+				.filter(e -> e.flow.name.equals("e"))
+				.findFirst().orElseThrow();
 			check(eex.location, "loc");
 			check(eex.currency, "eur");
 			for (var ex : p.exchanges) {
@@ -358,10 +353,10 @@ public class RefsTest {
 		var pP = get(Process.class, "pP");
 		var qQ = get(Process.class, "qQ");
 		assertTrue(sys.processes.containsAll(
-				List.of(pP.id, qQ.id)));
+			List.of(pP.id, qQ.id)));
 		assertEquals(1, sys.analysisGroups.size());
 		assertTrue(sys.analysisGroups.getFirst().processes.containsAll(
-				List.of(pP.id, qQ.id)));
+			List.of(pP.id, qQ.id)));
 
 		// link IDs
 		var link = sys.processLinks.getFirst();
@@ -369,12 +364,12 @@ public class RefsTest {
 		assertEquals(qQ.id, link.processId);
 		assertEquals(pP.quantitativeReference.flow.id, link.flowId);
 		assertEquals(
-				qQ.exchanges.stream()
-						.filter(e -> e.flow.name.equals("p"))
-						.findFirst()
-						.orElseThrow()
-						.id,
-				link.exchangeId);
+			qQ.exchanges.stream()
+				.filter(e -> e.flow.name.equals("p"))
+				.findFirst()
+				.orElseThrow()
+				.id,
+			link.exchangeId);
 
 		// parameter redef.
 		var param = sys.parameterSets.getFirst().parameters.getFirst();
@@ -404,9 +399,9 @@ public class RefsTest {
 		check(epd.product.property, "mass");
 		check(epd.product.unit, "kg");
 		check(epd.pcr, "source");
-		check(epd.manufacturer , "actor");
-		check(epd.programOperator , "actor");
-		check(epd.verifier , "actor");
+		check(epd.manufacturer, "actor");
+		check(epd.programOperator, "actor");
+		check(epd.verifier, "actor");
 		check(epd.location, "loc");
 		check(epd.originalEpd, "source");
 		check(epd.dataGenerator, "actor");
@@ -424,7 +419,7 @@ public class RefsTest {
 		check(v.flowPropertyFactor.flowProperty, "mass");
 		var qQ = get(Process.class, "qQ");
 		assertEquals(
-				qQ.id, v.parameterRedefs.getFirst().contextId.longValue());
+			qQ.id, v.parameterRedefs.getFirst().contextId.longValue());
 	}
 
 	private <T extends RootEntity> T get(Class<T> type, String name) {
