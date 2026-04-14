@@ -107,7 +107,7 @@ interface ProcessMapper {
 		var path = new ArrayList<String>();
 		var c = flow.category;
 		while (c != null) {
-			path.add(0, c.name);
+			path.addFirst(c.name);
 			c = c.category;
 		}
 		if (path.isEmpty())

@@ -110,7 +110,7 @@ class Processes implements ProcessMapper {
 
 	static String nameOf(ProcessBlock block) {
 		if (!block.products().isEmpty())
-			return block.products().get(0).name();
+			return block.products().getFirst().name();
 		if (block.wasteTreatment() != null)
 			return block.wasteTreatment().name();
 		if (block.wasteScenario() != null)

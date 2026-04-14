@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.FlowProperty;
@@ -75,7 +76,7 @@ class UnitSync {
 
 		while (!unknownUnits.isEmpty()) {
 
-			var unit = unknownUnits.remove(0);
+			var unit = unknownUnits.removeFirst();
 			UnitRow unitRow = null;
 			for (var row : dataSet.units()) {
 				if (Objects.equals(unit, row.name())) {
@@ -236,16 +237,21 @@ class UnitSync {
 		// from flows
 		for (var type : ElementaryFlowType.values()) {
 			for (var f : csv.getElementaryFlows(type)) {
-				units.add(f.unit());
+				if (Strings.isNotBlank(f.unit())) {
+					units.add(f.unit());
+				}
 			}
 		}
 
 		// from exchanges
 		Consumer<List<? extends ExchangeRow>> exchanges = list -> {
 			for (var e : list) {
-				units.add(e.unit());
+				if (Strings.isNotBlank(e.unit())) {
+					units.add(e.unit());
+				}
 			}
 		};
+
 		for (var p: csv.processes()) {
 			exchanges.accept(p.products());
 			for (var type : ProductType.values()) {
@@ -278,7 +284,9 @@ class UnitSync {
 		for (var m : csv.methods()) {
 			for (var i : m.impactCategories()) {
 				for (var f : i.factors()) {
-					units.add(f.unit());
+					if (Strings.isNotBlank(f.unit())) {
+						units.add(f.unit());
+					}
 				}
 			}
 		}
