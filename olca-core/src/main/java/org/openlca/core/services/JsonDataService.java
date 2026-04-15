@@ -281,11 +281,6 @@ public record JsonDataService(IDatabase db) {
 			return Response.error(e);
 		}
 	}
-
-	public static void main(
-			String[] args) {
-		System.out.println(ParameterizedEntity.class.isAssignableFrom(Process.class));
-	}
 	
 	public <T extends RootEntity> Response<JsonArray> getParametersOf(
 			Class<T> type, String id) {
