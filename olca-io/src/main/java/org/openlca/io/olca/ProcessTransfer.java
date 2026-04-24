@@ -38,17 +38,17 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
 
-			copy.location = ctx.swap(origin.location);
-			copy.dqSystem = ctx.swap(copy.dqSystem);
-			copy.exchangeDqSystem = ctx.swap(copy.exchangeDqSystem);
-			copy.socialDqSystem = ctx.swap(copy.socialDqSystem);
+			copy.location = ctx.resolve(origin.location);
+			copy.dqSystem = ctx.resolve(copy.dqSystem);
+			copy.exchangeDqSystem = ctx.resolve(copy.exchangeDqSystem);
+			copy.socialDqSystem = ctx.resolve(copy.socialDqSystem);
 
 			swapExchangeRefs(copy);
 			swapAllocationProducts(copy);
 			swapDocRefs(copy);
 			for (var a : copy.socialAspects) {
-				a.indicator = ctx.swap(a.indicator);
-				a.source = ctx.swap(a.source);
+				a.indicator = ctx.resolve(a.indicator);
+				a.source = ctx.resolve(a.source);
 			}
 			return copy;
 		});
@@ -67,11 +67,11 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 			}
 
 			// swap references
-			e.flow = ctx.swap(e.flow);
+			e.flow = ctx.resolve(e.flow);
 			e.flowPropertyFactor = ctx.mapFactor(e.flow, e.flowPropertyFactor);
 			e.unit = ctx.mapUnit(e.flowPropertyFactor, e.unit);
-			e.currency = ctx.swap(e.currency);
-			e.location = ctx.swap(e.location);
+			e.currency = ctx.resolve(e.currency);
+			e.location = ctx.resolve(e.location);
 			mapDefaultProvider(e);
 		}
 
@@ -114,14 +114,14 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 		if (copy.documentation == null)
 			return;
 		var doc = copy.documentation;
-		doc.dataGenerator = ctx.swap(doc.dataGenerator);
-		doc.dataDocumentor = ctx.swap(doc.dataDocumentor);
-		doc.dataOwner = ctx.swap(doc.dataOwner);
-		doc.publication = ctx.swap(doc.publication);
+		doc.dataGenerator = ctx.resolve(doc.dataGenerator);
+		doc.dataDocumentor = ctx.resolve(doc.dataDocumentor);
+		doc.dataOwner = ctx.resolve(doc.dataOwner);
+		doc.publication = ctx.resolve(doc.publication);
 
 		// sources
 		var sources = doc.sources.stream()
-			.map(ctx::swap)
+			.map(ctx::resolve)
 			.filter(Objects::nonNull)
 			.toList();
 		doc.sources.clear();
@@ -129,9 +129,9 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 		// reviews
 		for (var rev : doc.reviews) {
-			rev.report = ctx.swap(rev.report);
+			rev.report = ctx.resolve(rev.report);
 			var reviewers = rev.reviewers.stream()
-				.map(ctx::swap)
+				.map(ctx::resolve)
 				.filter(Objects::nonNull)
 				.toList();
 			rev.reviewers.clear();
@@ -140,7 +140,7 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 
 		// compliance declarations
 		for (var dec : doc.complianceDeclarations) {
-			dec.system = ctx.swap(dec.system);
+			dec.system = ctx.resolve(dec.system);
 		}
 	}
 }

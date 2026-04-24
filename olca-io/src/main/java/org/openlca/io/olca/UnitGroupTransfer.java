@@ -25,13 +25,13 @@ final class UnitGroupTransfer implements EntityTransfer<UnitGroup>{
 
 		var copy = origin.copy();
 		copy.refId = origin.refId;
-		copy.category = ctx.swap(origin.category);
+		copy.category = ctx.resolve(origin.category);
 		copy.defaultFlowProperty = null; // break possible cycles
 		switchUnitRefIds(origin, copy);
 
 		copy = ctx.save(origin.id, copy);
 		if (origin.defaultFlowProperty != null) {
-			copy.defaultFlowProperty = ctx.swap(origin.defaultFlowProperty);
+			copy.defaultFlowProperty = ctx.resolve(origin.defaultFlowProperty);
 			copy = ctx.save(origin.id, copy);
 		}
 		return copy;

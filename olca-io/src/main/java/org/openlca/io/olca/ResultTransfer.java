@@ -25,8 +25,8 @@ final class ResultTransfer implements EntityTransfer<Result> {
 	public Result sync(Result origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.impactMethod = ctx.swap(origin.impactMethod);
-			copy.productSystem = ctx.swap(origin.productSystem);
+			copy.impactMethod = ctx.resolve(origin.impactMethod);
+			copy.productSystem = ctx.resolve(origin.productSystem);
 			if (copy.referenceFlow != null) {
 				swapRefsOf(copy.referenceFlow);
 			}
@@ -36,16 +36,16 @@ final class ResultTransfer implements EntityTransfer<Result> {
 				swapRefsOf(e);
 			}
 			for (var i : copy.impactResults) {
-				i.indicator = ctx.swap(i.indicator);
+				i.indicator = ctx.resolve(i.indicator);
 			}
 			return copy;
 		});
 	}
 
 	private void swapRefsOf(FlowResult e) {
-		e.flow = ctx.swap(e.flow);
+		e.flow = ctx.resolve(e.flow);
 		e.flowPropertyFactor = ctx.mapFactor(e.flow, e.flowPropertyFactor);
 		e.unit = ctx.mapUnit(e.flowPropertyFactor, e.unit);
-		e.location = ctx.swap(e.location);
+		e.location = ctx.resolve(e.location);
 	}
 }

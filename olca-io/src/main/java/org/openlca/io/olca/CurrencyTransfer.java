@@ -25,7 +25,7 @@ final class CurrencyTransfer implements EntityTransfer<Currency> {
 			var copy = origin.copy();
 			copy.referenceCurrency = Objects.equals(origin, origin.referenceCurrency)
 				? copy
-				: ctx.swap(origin.referenceCurrency);
+				: ctx.resolve(origin.referenceCurrency);
 			return copy;
 		});
 	}

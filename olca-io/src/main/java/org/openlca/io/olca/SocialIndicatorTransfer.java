@@ -22,7 +22,7 @@ final class SocialIndicatorTransfer implements EntityTransfer<SocialIndicator> {
 	public SocialIndicator sync(SocialIndicator origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.activityQuantity = ctx.swap(origin.activityQuantity);
+			copy.activityQuantity = ctx.resolve(origin.activityQuantity);
 			copy.activityUnit = ctx.mapUnit(copy.activityQuantity, origin.activityUnit);
 			return copy;
 		});

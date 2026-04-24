@@ -53,7 +53,7 @@ public class TransferContext {
 	}
 
 	public EntityTransfer<?> getTransfer(ModelType type) {
-		return switch(type) {
+		return switch (type) {
 			case ACTOR -> new DefaultTransfer<>(this, Actor.class);
 			case CATEGORY -> new CategoryTransfer(this);
 			case CURRENCY -> new CurrencyTransfer(this);
@@ -77,13 +77,11 @@ public class TransferContext {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends RootEntity> EntityTransfer<T> getTransfer(Class<T> type) {
-		if (type == null)
-			throw new IllegalArgumentException("type is null");
-		var modelType = ModelType.of(type);
-		if (modelType == null)
-			throw new IllegalArgumentException("unsupported type: " + type.getName());
-		return (EntityTransfer<T>) getTransfer(modelType);
+	public <T extends RootEntity> T resolve(T sourceEntity) {
+		if (sourceEntity == null) return null;
+		var type = ModelType.of(sourceEntity);
+		var transfer = (EntityTransfer<T>) getTransfer(type);
+		return transfer.sync(sourceEntity);
 	}
 
 	<T extends RootEntity> T save(long sourceId, T targetEntity) {
@@ -108,25 +106,16 @@ public class TransferContext {
 	}
 
 	<T extends RootEntity> T sync(T origin, Supplier<T> fn) {
-		if (origin == null)	return null;
+		if (origin == null) return null;
 		var mapped = getMapped(origin);
 		if (mapped != null) return mapped;
 		var copy = fn.get();
 		if (copy == null) return null;
 		copy.refId = origin.refId;
-		copy.category = swap(origin.category);
+		copy.category = resolve(origin.category);
 		copy = save(origin.id, copy);
 		log.imported(copy);
 		return copy;
-	}
-
-	@SuppressWarnings("unchecked")
-	<T extends RootEntity> T swap(T sourceEntity) {
-		if (sourceEntity == null) return null;
-		var mapped = getMapped(sourceEntity);
-		if (mapped != null) return mapped;
-		var type = (Class<T>) sourceEntity.getClass();
-		return getTransfer(type).sync(sourceEntity);
 	}
 
 	/// Returns the corresponding flow property factor of the destination flow.

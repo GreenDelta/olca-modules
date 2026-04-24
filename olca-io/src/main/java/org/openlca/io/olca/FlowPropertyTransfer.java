@@ -21,7 +21,7 @@ final class FlowPropertyTransfer implements EntityTransfer<FlowProperty> {
 	public FlowProperty sync(FlowProperty origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.unitGroup = ctx.swap(origin.unitGroup);
+			copy.unitGroup = ctx.resolve(origin.unitGroup);
 			return copy;
 		});
 	}

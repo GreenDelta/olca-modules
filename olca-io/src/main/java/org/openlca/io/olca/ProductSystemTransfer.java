@@ -28,7 +28,7 @@ final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 	public ProductSystem sync(ProductSystem origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.referenceProcess = ctx.swap(origin.referenceProcess);
+			copy.referenceProcess = ctx.resolve(origin.referenceProcess);
 			swapQRef(origin, copy);
 			swapParameters(copy);
 			swapAnalysisGroups(copy);

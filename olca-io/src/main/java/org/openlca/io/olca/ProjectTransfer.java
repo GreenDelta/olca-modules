@@ -25,7 +25,7 @@ final class ProjectTransfer implements EntityTransfer<Project> {
 	public Project sync(Project origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.impactMethod = ctx.swap(origin.impactMethod);
+			copy.impactMethod = ctx.resolve(origin.impactMethod);
 			if (copy.impactMethod != null && origin.nwSet != null) {
 				copy.nwSet = copy.impactMethod.nwSets.stream()
 						.filter(nws -> Objects.equals(nws.refId, origin.nwSet.refId))
@@ -44,7 +44,7 @@ final class ProjectTransfer implements EntityTransfer<Project> {
 	}
 
 	private void swapRefsOf(ProjectVariant variant) {
-		variant.productSystem = ctx.swap(variant.productSystem);
+		variant.productSystem = ctx.resolve(variant.productSystem);
 		swapPropertyOf(variant);
 		variant.unit = ctx.mapUnit(variant.flowPropertyFactor, variant.unit);
 		for (var param : variant.parameterRedefs) {

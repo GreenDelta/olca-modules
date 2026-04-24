@@ -25,12 +25,12 @@ final class ImpactMethodTransfer implements EntityTransfer<ImpactMethod> {
 	public ImpactMethod sync(ImpactMethod origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.source = ctx.swap(origin.source);
+			copy.source = ctx.resolve(origin.source);
 
 			// swap impact categories
 			copy.impactCategories.clear();
 			for (var impact : origin.impactCategories) {
-				var swapped = ctx.swap(impact);
+				var swapped = ctx.resolve(impact);
 				if (swapped != null) {
 					copy.impactCategories.add(swapped);
 				}
@@ -39,7 +39,7 @@ final class ImpactMethodTransfer implements EntityTransfer<ImpactMethod> {
 			// swap impact categories in NW-sets
 			for (var copied : copy.nwSets) {
 				for (var f : copied.factors) {
-					f.impactCategory = ctx.swap(f.impactCategory);
+					f.impactCategory = ctx.resolve(f.impactCategory);
 				}
 			}
 			for (var nwSet : origin.nwSets) {

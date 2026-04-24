@@ -22,10 +22,10 @@ final class FlowTransfer implements EntityTransfer<Flow> {
 	public Flow sync(Flow origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.location = ctx.swap(origin.location);
-			copy.referenceFlowProperty = ctx.swap(origin.referenceFlowProperty);
+			copy.location = ctx.resolve(origin.location);
+			copy.referenceFlowProperty = ctx.resolve(origin.referenceFlowProperty);
 			for (var fac : copy.flowPropertyFactors) {
-				fac.flowProperty = ctx.swap(fac.flowProperty);
+				fac.flowProperty = ctx.resolve(fac.flowProperty);
 			}
 			return copy;
 		});

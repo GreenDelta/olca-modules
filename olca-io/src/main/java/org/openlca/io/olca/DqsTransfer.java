@@ -22,7 +22,7 @@ final class DqsTransfer implements EntityTransfer<DQSystem> {
 	public DQSystem sync(DQSystem origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.source = ctx.swap(origin.source);
+			copy.source = ctx.resolve(origin.source);
 			return copy;
 		});
 	}

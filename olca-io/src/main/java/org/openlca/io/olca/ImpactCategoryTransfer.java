@@ -22,14 +22,14 @@ final class ImpactCategoryTransfer implements EntityTransfer<ImpactCategory> {
 	public ImpactCategory sync(ImpactCategory origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.source = ctx.swap(origin.source);
+			copy.source = ctx.resolve(origin.source);
 			for (var f : copy.impactFactors) {
-				f.flow = ctx.swap(f.flow);
+				f.flow = ctx.resolve(f.flow);
 				f.flowPropertyFactor = ctx.mapFactor(f.flow, f.flowPropertyFactor);
 				f.unit = f.unit != null
 						? ctx.mapUnit(f.flowPropertyFactor, f.unit)
 						: null;
-				f.location = ctx.swap(f.location);
+				f.location = ctx.resolve(f.location);
 			}
 			return copy;
 		});

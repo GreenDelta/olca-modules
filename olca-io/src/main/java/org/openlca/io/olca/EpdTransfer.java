@@ -22,22 +22,22 @@ final class EpdTransfer implements EntityTransfer<Epd> {
 	public Epd sync(Epd origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.pcr = ctx.swap(origin.pcr);
-			copy.programOperator = ctx.swap(origin.programOperator);
-			copy.manufacturer = ctx.swap(origin.manufacturer);
-			copy.verifier = ctx.swap(origin.verifier);
-			copy.location = ctx.swap(origin.location);
-			copy.originalEpd = ctx.swap(origin.originalEpd);
-			copy.dataGenerator = ctx.swap(origin.dataGenerator);
+			copy.pcr = ctx.resolve(origin.pcr);
+			copy.programOperator = ctx.resolve(origin.programOperator);
+			copy.manufacturer = ctx.resolve(origin.manufacturer);
+			copy.verifier = ctx.resolve(origin.verifier);
+			copy.location = ctx.resolve(origin.location);
+			copy.originalEpd = ctx.resolve(origin.originalEpd);
+			copy.dataGenerator = ctx.resolve(origin.dataGenerator);
 			if (copy.product != null && origin.product != null) {
 				var p = copy.product;
 				var originProduct = origin.product;
-				p.flow = ctx.swap(originProduct.flow);
-				p.property = ctx.swap(originProduct.property);
+				p.flow = ctx.resolve(originProduct.flow);
+				p.property = ctx.resolve(originProduct.property);
 				p.unit = ctx.mapUnit(p.property, originProduct.unit);
 			}
 			for (var mod : copy.modules) {
-				mod.result = ctx.swap(mod.result);
+				mod.result = ctx.resolve(mod.result);
 			}
 			return copy;
 		});
