@@ -1,0 +1,95 @@
+package org.openlca.io.olca.systransfer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.openlca.core.database.FlowDao;
+import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.LocationDao;
+import org.openlca.core.database.NativeSql;
+import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.ResultDao;
+import org.openlca.core.model.FlowType;
+import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
+import org.openlca.core.model.descriptors.ResultDescriptor;
+import org.openlca.core.model.descriptors.RootDescriptor;
+
+import gnu.trove.map.hash.TLongObjectHashMap;
+
+public record ProviderCandidate(
+	FlowDescriptor flow,
+	RootDescriptor provider,
+	LocationDescriptor location
+) {
+
+	public static List<ProviderCandidate> allOf(IDatabase db) {
+		return new Scan(db).collect();
+	}
+
+	private static final class Scan {
+
+		private final NativeSql sql;
+		private final TLongObjectHashMap<ProcessDescriptor> processes;
+		private final TLongObjectHashMap<ResultDescriptor> results;
+		private final Map<Long, FlowDescriptor> flows;
+		private final TLongObjectHashMap<LocationDescriptor> locations;
+
+		private Scan(IDatabase db) {
+			sql = NativeSql.on(db);
+			processes = new ProcessDao(db).descriptorMap();
+			results = new ResultDao(db).descriptorMap();
+			flows = new FlowDao(db)
+				.getDescriptors(FlowType.PRODUCT_FLOW, FlowType.WASTE_FLOW)
+				.stream()
+				.collect(Collectors.toMap(d -> d.id, d -> d, (a, b) -> a));
+			locations = new LocationDao(db).descriptorMap();
+		}
+
+		private List<ProviderCandidate> collect() {
+			var candidates = new ArrayList<ProviderCandidate>();
+			processes(candidates);
+			results(candidates);
+			return candidates;
+		}
+
+		private void processes(List<ProviderCandidate> candidates) {
+			sql.query("select f_owner, f_flow, is_input from tbl_exchanges", r -> {
+				var provider = processes.get(r.getLong(1));
+				var flow = flows.get(r.getLong(2));
+				if (provider == null || skipFlow(flow, r.getBoolean(3)))
+					return true;
+
+				var location = provider.location != null
+					? locations.get(provider.location)
+					: null;
+				candidates.add(new ProviderCandidate(flow, provider, location));
+				return true;
+			});
+		}
+
+		private void results(List<ProviderCandidate> candidates) {
+			sql.query("select f_result, f_flow, is_input from tbl_flow_results", r -> {
+				var provider = results.get(r.getLong(1));
+				var flow = flows.get(r.getLong(2));
+				if (provider == null || skipFlow(flow, r.getBoolean(3)) )
+					return true;
+				candidates.add(new ProviderCandidate(flow, provider, null));
+				return true;
+			});
+		}
+
+		private boolean skipFlow(FlowDescriptor flow, boolean isInput) {
+			if (flow == null || flow.flowType == null)
+				return true;
+			return switch (flow.flowType) {
+				case PRODUCT_FLOW -> isInput;
+				case WASTE_FLOW -> !isInput;
+				default -> true;
+			};
+		}
+	}
+}
