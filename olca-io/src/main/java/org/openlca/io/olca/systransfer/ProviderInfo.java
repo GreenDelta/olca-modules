@@ -20,14 +20,18 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-public record ProviderCandidate(
+public record ProviderInfo(
 	FlowDescriptor flow,
 	RootDescriptor provider,
 	LocationDescriptor location
 ) {
 
-	public static List<ProviderCandidate> allOf(IDatabase db) {
+	static List<ProviderInfo> allOf(IDatabase db) {
 		return new Scan(db).collect();
+	}
+
+	String flowId() {
+		return flow != null ? flow.refId : null;
 	}
 
 	private static final class Scan {
@@ -49,14 +53,14 @@ public record ProviderCandidate(
 			locations = new LocationDao(db).descriptorMap();
 		}
 
-		private List<ProviderCandidate> collect() {
-			var candidates = new ArrayList<ProviderCandidate>();
+		private List<ProviderInfo> collect() {
+			var candidates = new ArrayList<ProviderInfo>();
 			processes(candidates);
 			results(candidates);
 			return candidates;
 		}
 
-		private void processes(List<ProviderCandidate> candidates) {
+		private void processes(List<ProviderInfo> candidates) {
 			sql.query("select f_owner, f_flow, is_input from tbl_exchanges", r -> {
 				var provider = processes.get(r.getLong(1));
 				var flow = flows.get(r.getLong(2));
@@ -66,18 +70,18 @@ public record ProviderCandidate(
 				var location = provider.location != null
 					? locations.get(provider.location)
 					: null;
-				candidates.add(new ProviderCandidate(flow, provider, location));
+				candidates.add(new ProviderInfo(flow, provider, location));
 				return true;
 			});
 		}
 
-		private void results(List<ProviderCandidate> candidates) {
+		private void results(List<ProviderInfo> candidates) {
 			sql.query("select f_result, f_flow, is_input from tbl_flow_results", r -> {
 				var provider = results.get(r.getLong(1));
 				var flow = flows.get(r.getLong(2));
 				if (provider == null || skipFlow(flow, r.getBoolean(3)) )
 					return true;
-				candidates.add(new ProviderCandidate(flow, provider, null));
+				candidates.add(new ProviderInfo(flow, provider, null));
 				return true;
 			});
 		}
