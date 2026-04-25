@@ -11,7 +11,7 @@ public class ProviderMatch {
 
 	private final ProviderInfo provider;
 	private ProviderInfo selected;
-	private List<ProviderInfo> alternatives;
+	private final List<ProviderInfo> alternatives;
 
 	ProviderMatch(
 		ProviderInfo provider,

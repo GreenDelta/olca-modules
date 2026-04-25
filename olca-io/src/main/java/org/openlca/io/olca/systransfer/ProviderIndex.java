@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.model.ProductSystem;
 
 public class ProviderIndex {
 
@@ -21,7 +22,13 @@ public class ProviderIndex {
 	}
 
 	public static ProviderIndex of(IDatabase db) {
-		var candidates = ProviderInfo.allOf(db);
+		return of(db, null);
+	}
+
+	public static ProviderIndex of(IDatabase db, ProductSystem system) {
+		var candidates = system != null
+			? ProviderInfo.allOf(db, ProviderFilter.of(system))
+			: ProviderInfo.allOf(db);
 		return new ProviderIndex(candidates);
 	}
 

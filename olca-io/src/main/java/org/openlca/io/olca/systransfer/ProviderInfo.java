@@ -27,7 +27,11 @@ public record ProviderInfo(
 ) {
 
 	static List<ProviderInfo> allOf(IDatabase db) {
-		return new Scan(db).collect();
+		return allOf(db, null);
+	}
+
+	static List<ProviderInfo> allOf(IDatabase db, ProviderFilter filter) {
+		return new Scan(db, filter).collect();
 	}
 
 	String flowId() {
@@ -36,13 +40,15 @@ public record ProviderInfo(
 
 	private static final class Scan {
 
+		private final ProviderFilter filter;
 		private final NativeSql sql;
 		private final TLongObjectHashMap<ProcessDescriptor> processes;
 		private final TLongObjectHashMap<ResultDescriptor> results;
 		private final Map<Long, FlowDescriptor> flows;
 		private final TLongObjectHashMap<LocationDescriptor> locations;
 
-		private Scan(IDatabase db) {
+		private Scan(IDatabase db, ProviderFilter filter) {
+			this.filter = filter;
 			sql = NativeSql.on(db);
 			processes = new ProcessDao(db).descriptorMap();
 			results = new ResultDao(db).descriptorMap();
@@ -62,7 +68,10 @@ public record ProviderInfo(
 
 		private void processes(List<ProviderInfo> candidates) {
 			sql.query("select f_owner, f_flow, is_input from tbl_exchanges", r -> {
-				var provider = processes.get(r.getLong(1));
+				long pid = r.getLong(1);
+				if (filter != null && !filter.containsProcess(pid))
+					return true;
+				var provider = processes.get(pid);
 				var flow = flows.get(r.getLong(2));
 				if (provider == null || skipFlow(flow, r.getBoolean(3)))
 					return true;
@@ -77,7 +86,10 @@ public record ProviderInfo(
 
 		private void results(List<ProviderInfo> candidates) {
 			sql.query("select f_result, f_flow, is_input from tbl_flow_results", r -> {
-				var provider = results.get(r.getLong(1));
+				var pid = r.getLong(1);
+				if (filter != null && !filter.containsResult(pid))
+					return true;
+				var provider = results.get(pid);
 				var flow = flows.get(r.getLong(2));
 				if (provider == null || skipFlow(flow, r.getBoolean(3)) )
 					return true;
