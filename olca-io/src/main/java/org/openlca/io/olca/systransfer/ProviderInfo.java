@@ -61,8 +61,12 @@ public record ProviderInfo(
 
 		private List<ProviderInfo> collect() {
 			var candidates = new ArrayList<ProviderInfo>();
-			processes(candidates);
-			results(candidates);
+			if (filter == null || filter.hasProcesses()) {
+				processes(candidates);
+			}
+			if (filter == null || filter.hasResults()) {
+				results(candidates);
+			}
 			return candidates;
 		}
 

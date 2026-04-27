@@ -32,10 +32,6 @@ public class ProviderIndex {
 		return new ProviderIndex(candidates);
 	}
 
-	public int size() {
-		return index.size();
-	}
-
 	public boolean isEmpty() {
 		return index.isEmpty();
 	}

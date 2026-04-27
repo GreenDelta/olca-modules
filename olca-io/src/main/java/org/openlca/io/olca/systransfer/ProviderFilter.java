@@ -53,4 +53,16 @@ record ProviderFilter(
 	boolean containsSystem(long id) {
 		return systems != null && systems.contains(id);
 	}
+
+	boolean hasProcesses() {
+		return processes != null && !processes.isEmpty();
+	}
+
+	boolean hasResults() {
+		return results != null && !results.isEmpty();
+	}
+
+	boolean hasSystems() {
+		return systems != null && !systems.isEmpty();
+	}
 }
