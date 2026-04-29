@@ -15,6 +15,10 @@ record ProviderFilter(
 		if (system == null)
 			return new ProviderFilter(null, null, null);
 		TLongHashSet processes = null;
+		if (system.referenceProcess != null) {
+			processes = new TLongHashSet();
+			processes.add(system.referenceProcess.id);
+		}
 		TLongHashSet results = null;
 		TLongHashSet systems = null;
 		for (var link : system.processLinks) {
