@@ -12,6 +12,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ResultDao;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
@@ -30,7 +31,10 @@ public record ProviderInfo(
 		return allOf(db, null);
 	}
 
-	static List<ProviderInfo> allOf(IDatabase db, ProviderFilter filter) {
+	static List<ProviderInfo> allOf(IDatabase db, ProductSystem system) {
+		var filter = system != null
+			? ProviderFilter.of(system)
+			: null;
 		return new Scan(db, filter).collect();
 	}
 

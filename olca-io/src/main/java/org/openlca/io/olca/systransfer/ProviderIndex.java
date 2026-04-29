@@ -27,7 +27,7 @@ public class ProviderIndex {
 
 	public static ProviderIndex of(IDatabase db, ProductSystem system) {
 		var candidates = system != null
-			? ProviderInfo.allOf(db, ProviderFilter.of(system))
+			? ProviderInfo.allOf(db, system)
 			: ProviderInfo.allOf(db);
 		return new ProviderIndex(candidates);
 	}
