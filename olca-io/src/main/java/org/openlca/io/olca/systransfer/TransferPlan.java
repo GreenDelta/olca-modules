@@ -3,6 +3,7 @@ package org.openlca.io.olca.systransfer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -10,12 +11,10 @@ import org.openlca.commons.Res;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 
-import gnu.trove.map.hash.TLongObjectHashMap;
-
 public record TransferPlan(
 	TransferConfig config,
 	List<ProviderMatch> matches,
-	List<ProviderInfo> copied
+	List<ProviderInfo> copies
 ) {
 
 	public static Res<TransferPlan> createFrom(TransferConfig config) {
@@ -40,9 +39,11 @@ public record TransferPlan(
 
 		Res<TransferPlan> build() {
 
-			var links = new TLongObjectHashMap<ProcessLink>();
+			var linkIdx = new HashMap<Long, List<ProcessLink>>();
 			for (var link : system.processLinks) {
-				links.put(link.processId, link);
+				linkIdx
+					.computeIfAbsent(link.processId, processId -> new ArrayList<>())
+					.add(link);
 			}
 
 			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
@@ -59,31 +60,51 @@ public record TransferPlan(
 
 			var queue = new ArrayDeque<ProviderFlow>();
 			queue.add(ProviderFlow.rootOf(system));
+			var visited = new HashSet<ProviderFlow>();
+			var matches = new ArrayList<ProviderMatch>();
+			var copies = new ArrayList<ProviderInfo>();
 
 			while (!queue.isEmpty()) {
-				var next = queue.poll();
-				var provider = sourceIdx.get(next);
+				var pid = queue.poll();
+				visited.add(pid);
+				var provider = sourceIdx.get(pid);
 				if (provider == null)
-					return Res.error("Could not find provider for: " + next);
+					return Res.error("Could not find provider for: " + pid);
+				var match = matchOf(provider, targetIdx);
+				if (match != null) {
+					matches.add(match);
+					continue;
+				}
 
+				copies.add(provider);
+				var links = linkIdx.get(pid.provider);
+				if (links == null)
+					continue;
+				for (var link : links) {
+					var next = ProviderFlow.of(link);
+					if (!visited.contains(next) && !queue.contains(next)) {
+						queue.add(next);
+					}
+				}
 			}
-			return Res.error("Not yet implemented");
+
+			var plan = new TransferPlan(config, matches, copies);
+			return Res.ok(plan);
 		}
 
 		private ProviderMatch matchOf(
-			ProviderInfo source, Map<String, List<ProviderInfo>> target
+			ProviderInfo provider, Map<String, List<ProviderInfo>> targetIdx
 		) {
-			var candidates = target.get(source.flowId());
-			if (candidates.isEmpty())
+			var candidates = targetIdx.get(provider.flowId());
+			if (candidates == null || candidates.isEmpty())
 				return null;
-
-			for (var c : candidates) {
-
+			for (var strategy : config.strategies()) {
+				var match = strategy.matchOf(provider, candidates);
+				if (match != null)
+					return match;
 			}
-
 			return null;
 		}
-
 	}
 
 	private record ProviderFlow(long provider, long flow) {
@@ -103,6 +124,11 @@ public record TransferPlan(
 				? new ProviderFlow(info.provider().id, info.flow().id)
 				: new ProviderFlow(0, 0);
 		}
-	}
 
+		static ProviderFlow of(ProcessLink link) {
+			return link != null
+				? new ProviderFlow(link.providerId, link.flowId)
+				: new ProviderFlow(0, 0);
+		}
+	}
 }

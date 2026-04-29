@@ -14,7 +14,26 @@ public enum MatchingStrategy {
 		ProviderMatch matchOf(
 			ProviderInfo provider, List<ProviderInfo> candidates
 		) {
-			return null;
+			var refId = idOf(provider);
+			if (Strings.isBlank(refId))
+				return null;
+
+			ProviderInfo selected = null;
+			for (var c : candidates) {
+				if (Strings.equalsIgnoreCase(refId, idOf(c))) {
+					selected = c;
+					break;
+				}
+			}
+			return selected != null
+				? new ProviderMatch(provider, selected, candidates)
+				: null;
+		}
+
+		private String idOf(ProviderInfo info) {
+			return info != null && info.provider() != null
+				? info.provider().refId
+				: null;
 		}
 	},
 
