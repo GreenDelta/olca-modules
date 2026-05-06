@@ -22,7 +22,7 @@ public class ClientRepository extends OlcaRepository {
 		super(gitDir);
 		this.index = HeadIndex.of(this);
 		this.database = database;
-		this.fileStore = new FileStore(database);
+		this.fileStore = FileStore.of(database).orElseThrow();
 		this.descriptors = Descriptors.of(database);
 	}
 

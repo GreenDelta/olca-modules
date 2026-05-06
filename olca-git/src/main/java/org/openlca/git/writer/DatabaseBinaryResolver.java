@@ -19,7 +19,7 @@ public class DatabaseBinaryResolver implements BinaryResolver {
 	private final FileStore fileStore;
 
 	public DatabaseBinaryResolver(IDatabase database) {
-		this.fileStore = new FileStore(database);
+		this.fileStore = FileStore.of(database).orElseThrow();
 	}
 
 	@Override
