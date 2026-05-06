@@ -134,7 +134,6 @@ class UnitSync {
 		group.units.add(newUnit);
 
 		// update the unit group
-		group.lastChange = System.currentTimeMillis();
 		Version.incUpdate(group);
 		group = db.update(group);
 		log.updated(group);

@@ -1,7 +1,5 @@
 package org.openlca.io.ilcd.input;
 
-import java.util.Calendar;
-
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.UnitGroupDao;
 import org.openlca.core.model.Unit;
@@ -13,11 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Synchronisation of an existing unit group in the database with an imported
- * unit group data set. A synchronisation is only done if the openLCA extensions
- * are available in the ILCD data set (which is basically only the unit ID).
+ * Synchronization of an existing unit group in the database with an imported
+ * unit group data set. This is only done if the openLCA extensions are available
+ * in the ILCD data set (which is basically only the unit ID).
  * <p>
- * The synchronisation adds new units to a unit-group data set in openLCA if it
+ * The synchronization adds new units to a unit-group data set in openLCA if it
  * is not yet contained in the database. If there is a new unit there are two
  * possible cases:
  *
@@ -53,7 +51,6 @@ class UnitGroupSync {
 					/ ilcdRefUnit.getFactor();
 			boolean changed = syncUnits(factor);
 			if (changed) {
-				group.lastChange = Calendar.getInstance().getTimeInMillis();
 				Version.incUpdate(group);
 				new UnitGroupDao(db).update(group);
 			}

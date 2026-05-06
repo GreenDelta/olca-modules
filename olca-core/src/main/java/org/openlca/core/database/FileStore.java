@@ -1,7 +1,9 @@
 package org.openlca.core.database;
 
 import java.io.File;
+import java.util.Objects;
 
+import org.openlca.commons.Res;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.Descriptor;
@@ -13,27 +15,30 @@ import org.slf4j.LoggerFactory;
  * Provides structured access to files that are stored outside of a database.
  * Such files can be shapefiles of LCIA methods, PDF documents of sources etc.
  */
-public class FileStore {
+public record FileStore(File root) {
 
-	private final File root;
-
-	public FileStore(File rootFolder) {
-		this.root = rootFolder;
+	public FileStore {
+		Objects.requireNonNull(root);
 	}
 
-	public FileStore(IDatabase db) {
-		this(db.getFileStorageLocation());
-	}
-
-	public File getRoot() {
-		return root;
+	public static Res<FileStore> of(IDatabase db) {
+		if (db == null)
+			return Res.error("No database provided");
+		var dir = db.getFileStorageLocation();
+		if (dir == null)
+			return Res.error("Database has no file storage linked");
+		try {
+			Dirs.createIfAbsent(dir);
+			return Res.ok(new FileStore(dir));
+		} catch (Exception e) {
+			return Res.error("Failed to create file storage location of database", e);
+		}
 	}
 
 	public File getFolder(Descriptor d) {
-		if (d == null)
-			return new File(root, "null");
-		else
-			return getFolder(d.type, d.refId);
+		return d == null
+			? new File(root, "null")
+			: getFolder(d.type, d.refId);
 	}
 
 	public File getFolder(RootEntity e) {
@@ -74,7 +79,7 @@ public class FileStore {
 			Dirs.copy(fromDir.toPath(), toDir.toPath());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("Failed to copy directory " + fromDir + " to " + toDir, e);
+			log.error("Failed to copy directory {} to {}", fromDir, toDir, e);
 		}
 	}
 
@@ -95,19 +100,19 @@ public class FileStore {
 		if (type == null || id == null)
 			return;
 		File dir = getFolder(type, id);
-		if (dir == null || !dir.exists())
+		if (!dir.exists())
 			return;
 		try {
 			Dirs.delete(dir.toPath());
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
-			log.error("Failed to delete directory " + dir, e);
+			log.error("Failed to delete directory {}", dir, e);
 		}
 	}
 
 	/**
 	 * Returns the path/folder name for the given model type (e.g. 'processes',
-	 * 'flow_properties' etc).
+	 * 'flow_properties' etc.).
 	 */
 	public static String getPath(ModelType type) {
 		if (type == null)
@@ -131,7 +136,6 @@ public class FileStore {
 			case CURRENCY -> "currencies";
 			case DQ_SYSTEM -> "dq_systems";
 			case PARAMETER -> "parameters";
-			default -> "unknown";
 		};
 	}
 

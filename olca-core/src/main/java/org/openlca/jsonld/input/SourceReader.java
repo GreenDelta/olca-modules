@@ -29,10 +29,8 @@ public record SourceReader(EntityResolver resolver)
 		source.externalFile = Json.getString(json, "externalFile");
 		source.textReference = Json.getString(json, "textReference");
 		var year = json.get("year");
-		if (year != null && year.isJsonPrimitive()) {
-			source.year = year.getAsShort();
-		} else {
-			source.year = null;
-		}
+		source.year = year != null && year.isJsonPrimitive()
+			? year.getAsShort()
+			: null;
 	}
 }

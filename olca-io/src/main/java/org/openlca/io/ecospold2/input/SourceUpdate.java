@@ -2,7 +2,6 @@ package org.openlca.io.ecospold2.input;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Calendar;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.SourceDao;
@@ -69,7 +68,6 @@ public class SourceUpdate implements Runnable {
 		olcaSource.name = shortTitle.toString();
 		olcaSource.description = source.comment;
 		olcaSource.textReference = title.toString();
-		olcaSource.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(olcaSource);
 		dao.update(olcaSource);
 	}

@@ -1,6 +1,5 @@
 package org.openlca.io;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,8 +18,8 @@ import org.slf4j.LoggerFactory;
  */
 public class UnitMappingSync {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
-	private IDatabase database;
+	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase database;
 
 	public UnitMappingSync(IDatabase database) {
 		this.database = database;
@@ -58,7 +57,6 @@ public class UnitMappingSync {
 		double factor = entry.factor == null ? 1d : entry.factor;
 		unit.conversionFactor = factor;
 		unitGroup.units.add(unit);
-		unitGroup.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(unitGroup);
 		unitGroup = new UnitGroupDao(database).update(unitGroup);
 		entry.factor = factor;
@@ -77,8 +75,7 @@ public class UnitMappingSync {
 		for (UnitMappingEntry entry : entries) {
 			if (!Objects.equals(updatedGroup, entry.unitGroup))
 				continue;
-			Unit unit = updatedGroup.getUnit(entry.unitName);
-			entry.unit = unit;
+			entry.unit = updatedGroup.getUnit(entry.unitName);
 			entry.unitGroup = updatedGroup;
 		}
 	}
