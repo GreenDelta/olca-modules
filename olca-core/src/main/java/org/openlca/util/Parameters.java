@@ -262,7 +262,6 @@ public class Parameters {
 		if (Strings.isBlank(param.name) || eq(param.name, name)) {
 			param.name = name;
 			Version.incUpdate(param);
-			param.lastChange = new Date().getTime();
 			return new ParameterDao(db).update(param);
 		}
 
@@ -353,7 +352,6 @@ public class Parameters {
 		// finally, update the parameter
 		param.name = name;
 		Version.incUpdate(param);
-		param.lastChange = new Date().getTime();
 		return new ParameterDao(db).update(param);
 	}
 

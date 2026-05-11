@@ -33,8 +33,8 @@ public class StatisticsTest {
 		Statistics stats = Statistics.of(
 				new double[] { 1d, 2d, 3d });
 		assertEquals(3, stats.count);
-		assertEquals(1, stats.getPercentileValue(5), 1e-16);
-		assertEquals(2.5, stats.getPercentileValue(95), 1e-16);
+		assertEquals(1.05, stats.getPercentileValue(2.5), 1e-3);
+		assertEquals(2.95, stats.getPercentileValue(97.5), 1e-16);
 		assertEquals(3, stats.max, 1e-16);
 		assertEquals(2, stats.mean, 1e-16);
 		assertEquals(2, stats.median, 1e-16);

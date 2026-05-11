@@ -27,7 +27,7 @@ public class Statistics {
 
 		private Histogram(Statistics stats, int intervalCount) {
 			this.statistics = stats;
-			this.intervalCount = intervalCount < 1 ? 1 : intervalCount;
+			this.intervalCount = Math.max(intervalCount, 1);
 			frequencies = new int[intervalCount];
 			for (double val : stats.values) {
 				int idx = getInterval(val);
@@ -43,9 +43,7 @@ public class Statistics {
 			double min = statistics.min;
 			double intervalRange = statistics.range / intervalCount;
 			int bucket = (int) ((value - min) / intervalRange);
-			if (bucket > (intervalCount - 1))
-				return intervalCount - 1;
-			return bucket;
+			return Math.min(bucket, (intervalCount - 1));
 		}
 
 		public int getAbsoluteFrequency(int interval) {
@@ -68,9 +66,8 @@ public class Statistics {
 	 * number of intervals.
 	 */
 	public static Histogram hist(double[] values, int intervalCount) {
-		Statistics stats = new Statistics(values);
-		Histogram hist = new Histogram(stats, intervalCount);
-		return hist;
+		var stats = new Statistics(values);
+		return new Histogram(stats, intervalCount);
 	}
 
 	private Statistics(double[] values) {
@@ -133,18 +130,22 @@ public class Statistics {
 		return new Statistics(null);
 	}
 
-	/**
-	 * Returns the value at the given percentile.
-	 *
-	 * @param percentile
-	 *            the percentage value (0..100)
-	 */
-	public double getPercentileValue(int percentile) {
-		if (values.length == 0)
+	public double getPercentileValue(double percentile) {
+		int n = values.length;
+		if (n == 0)
 			return 0;
-		int index = percentile * values.length / 100;
-		if (index == 0 || 1 == (index % 2))
-			return values[index];
-		return (values[index] + values[index - 1]) / 2;
+		if (percentile <= 0)
+			return values[0];
+		if (percentile >= 100)
+			return values[n - 1];
+
+		double position = percentile * (n - 1) / 100.0;
+		int lower = (int) Math.floor(position);
+		int upper = (int) Math.ceil(position);
+
+		if (lower == upper || upper >= n)
+			return values[lower];
+		double fraction = position - lower;
+		return values[lower] + fraction * (values[upper] - values[lower]);
 	}
 }

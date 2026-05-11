@@ -55,14 +55,20 @@ public class Version {
 		return new Version(version).toString();
 	}
 
+	/// Increments the major part of the version which resets the minor and update
+	/// part to 0. This will also update the last change timestamp of the entity.
 	public static void incMajor(RootEntity entity) {
 		inc(entity, Version::incMajor);
 	}
 
+	/// Increments the minor part of the version which resets the update part to 0.
+	/// This will also update the last change timestamp of the entity.
 	public static void incMinor(RootEntity entity) {
 		inc(entity, Version::incMinor);
 	}
 
+	/// Increments the update part of the version. This will also update the last
+	/// change timestamp of the entity.
 	public static void incUpdate(RootEntity entity) {
 		inc(entity, Version::incUpdate);
 	}
@@ -76,6 +82,7 @@ public class Version {
 		var v = new Version(entity.version);
 		inc.accept(v);
 		entity.version = v.getValue();
+		entity.lastChange = System.currentTimeMillis();
 	}
 
 	public int getMajor() {

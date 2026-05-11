@@ -2,7 +2,6 @@ package org.openlca.io.ecospold2.input;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Calendar;
 
 import org.openlca.core.database.ActorDao;
 import org.openlca.core.database.IDatabase;
@@ -20,10 +19,10 @@ import spold2.PersonList;
  */
 public class PersonUpdate implements Runnable {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private ActorDao dao;
-	private File personFile;
+	private final ActorDao dao;
+	private final File personFile;
 
 	public PersonUpdate(IDatabase database, File personFile) {
 		this.dao = new ActorDao(database);
@@ -56,7 +55,6 @@ public class PersonUpdate implements Runnable {
 		actor.telephone = person.telephone;
 		if (person.company != null)
 			actor.description = "company: " + person.company;
-		actor.lastChange = Calendar.getInstance().getTimeInMillis();
 		Version.incUpdate(actor);
 		dao.update(actor);
 	}
