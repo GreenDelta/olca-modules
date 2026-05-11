@@ -23,9 +23,9 @@ public class PhraseSimilarity {
 	}
 
 	public double get(WordBuffer phrase1, WordBuffer phrase2) {
-		if (phrase1.size() == 0 && phrase2.size() == 0)
+		if (phrase1.isEmpty() && phrase2.isEmpty())
 			return 1;
-		if (phrase1.size() == 0 || phrase2.size() == 0)
+		if (phrase1.isEmpty() || phrase2.isEmpty())
 			return 0;
 
 		matrix.reset(phrase1, phrase2);
