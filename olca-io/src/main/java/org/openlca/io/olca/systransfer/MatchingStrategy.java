@@ -29,7 +29,7 @@ public enum MatchingStrategy {
 				}
 			}
 			return selected != null
-				? new ProviderMatch(provider, selected, candidates)
+				? new ProviderMatch(provider, candidates).select(selected, this)
 				: null;
 		}
 
@@ -55,7 +55,7 @@ public enum MatchingStrategy {
 				}
 			}
 			return selected != null
-				? new ProviderMatch(provider, selected, candidates)
+				? new ProviderMatch(provider, candidates).select(selected, this)
 				: null;
 		}
 
@@ -73,7 +73,8 @@ public enum MatchingStrategy {
 			if (candidates.isEmpty())
 				return null;
 			if (candidates.size() == 1)
-				return new ProviderMatch(provider, candidates.getFirst(), candidates);
+				return new ProviderMatch(provider, candidates)
+					.select(candidates.getFirst(), this);
 
 			var parser = new PhraseParser();
 			var similarity = new PhraseSimilarity();
@@ -90,7 +91,7 @@ public enum MatchingStrategy {
 			}
 
 			return selected != null
-				? new ProviderMatch(provider, selected, candidates)
+				? new ProviderMatch(provider, candidates).select(selected, this)
 				: null;
 		}
 	};

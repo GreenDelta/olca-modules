@@ -10,15 +10,15 @@ import java.util.Objects;
 public class ProviderMatch {
 
 	private final ProviderInfo provider;
-	private ProviderInfo selected;
 	private final List<ProviderInfo> alternatives;
+
+	private ProviderInfo selected;
+	private MatchingStrategy strategy;
 
 	ProviderMatch(
 		ProviderInfo provider,
-		ProviderInfo selected,
 		List<ProviderInfo> alternatives) {
 		this.provider = Objects.requireNonNull(provider);
-		this.selected = Objects.requireNonNull(selected);
 		this.alternatives = Objects.requireNonNull(alternatives);
 	}
 
@@ -34,12 +34,27 @@ public class ProviderMatch {
 		return alternatives;
 	}
 
+	/// Returns a possible matching strategy with which the matching provider was
+	/// selected. This may return `null`, e.g. when it was selected manually.
+	public MatchingStrategy strategy() {
+		return strategy;
+	}
+
 	public void select(ProviderInfo selected) {
+		select(selected, null);
+	}
+
+	ProviderMatch select(
+		ProviderInfo selected, MatchingStrategy strategy
+	) {
+		if (selected == null) return this;
 		if (!alternatives.contains(selected)) {
 			throw new IllegalArgumentException(
 				"Selected provider must be one of the alternatives");
 		}
 		this.selected = selected;
+		this.strategy = strategy;
+		return this;
 	}
 
 }
