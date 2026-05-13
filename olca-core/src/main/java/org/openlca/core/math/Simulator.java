@@ -24,8 +24,10 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.SimulationResult;
+import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SimpleResultProvider;
@@ -374,12 +376,14 @@ public class Simulator {
 		LcaResult lastResult;
 
 		Node(CalculationSetup setup, IDatabase db,
-				Map<TechFlow, LcaResult> subResults) {
+				 Map<TechFlow, LcaResult> subResults) {
 
-			data = MatrixData.of(db, TechIndex.of(db, setup))
+			var techIndex = TechIndex.of(db, setup);
+			var subs = addLinkedResults(db, techIndex, subResults);
+			data = MatrixData.of(db, techIndex)
 					.withSetup(setup)
 					.withUncertainties(true)
-					.withSubResults(subResults)
+					.withSubResults(subs)
 					.build();
 
 			if (setup.hasProductSystem()) {
@@ -407,6 +411,22 @@ public class Simulator {
 			parameters = ParameterTable.forSimulation(
 					db, paramContexts, setup.parameters());
 		}
-	}
 
+		/// Creates a new sub-system result map that also contains the results
+		/// of possible linked pre-calculated results in addition to possible
+		/// results of sub-systems.
+		private HashMap<TechFlow, LcaResult> addLinkedResults(
+			IDatabase db, TechIndex techIndex, Map<TechFlow, LcaResult> results) {
+			var subs = new HashMap<>(results);
+			for (var techFlow : techIndex) {
+				if (!techFlow.isResult() || subs.containsKey(techFlow))
+					continue;
+				var result = db.get(Result.class, techFlow.providerId());
+				if (result == null)
+					continue;
+				subs.put(techFlow, new LcaResult(ResultModelProvider.of(result)));
+			}
+			return subs;
+		}
+	}
 }
