@@ -48,6 +48,4 @@ public class NwSetSyncTest {
 		SyncTestUtils.doImport(nwSetData, db);
 		SyncTestUtils.validate(db);
 	}
-
-
 }

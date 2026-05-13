@@ -15,6 +15,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.core.model.store.EntityStore;
+import org.openlca.util.Dirs;
 import org.openlca.util.TLongSets;
 
 import gnu.trove.set.TLongSet;
@@ -289,11 +290,13 @@ public interface IDatabase extends EntityStore, Closeable {
 		var candidates = dao.getForName(name);
 		return candidates.isEmpty()
 				? null
-				: (T) candidates.get(0);
+				: (T) candidates.getFirst();
 	}
 
 	@Override
 	default void clear() {
+		Dirs.clean(getFileStorageLocation());
+
 		var tables = new ArrayList<String>();
 		// type = T means user table
 		String sql = "SELECT TABLENAME FROM SYS.SYSTABLES WHERE TABLETYPE = 'T'";

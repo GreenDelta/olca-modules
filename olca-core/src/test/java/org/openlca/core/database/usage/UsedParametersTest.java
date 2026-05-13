@@ -21,7 +21,7 @@ import com.google.common.base.Objects;
 
 public class UsedParametersTest {
 
-	private IDatabase db = Tests.getEmptyDb();
+	private final IDatabase db = Tests.getDb();
 
 	@Test
 	public void testInSystem() {
@@ -29,9 +29,9 @@ public class UsedParametersTest {
 		parameter(ParameterScope.GLOBAL, "g2", 6);
 		parameter(ParameterScope.GLOBAL, "g3", 7);
 		parameter(ParameterScope.GLOBAL, "g4", 8);
-		parameter(ParameterScope.GLOBAL, "g5", "3*g4");
 		parameter(ParameterScope.GLOBAL, "p1", 1);
 		parameter(ParameterScope.GLOBAL, "g6", 1);
+		db.insert(Parameter.global("g5", "3*g4"));
 
 		var p1 = new Process();
 		var e1 = new Exchange();
@@ -129,19 +129,4 @@ public class UsedParametersTest {
 		p.refId = UUID.randomUUID().toString();
 		return db.insert(p);
 	}
-
-	private Parameter parameter(
-			ParameterScope scope,
-			String name,
-			String formula) {
-		var p = new Parameter();
-		p.name = name;
-		p.formula = formula;
-		p.scope = scope;
-		if (scope != ParameterScope.GLOBAL)
-			return p;
-		p.refId = UUID.randomUUID().toString();
-		return db.insert(p);
-	}
-
 }
