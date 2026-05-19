@@ -98,6 +98,7 @@ public class EcoSpold1Export implements Closeable {
 
 		boolean singleFile = false;
 		boolean withDefaults = false;
+		boolean writeRefIdInfo = false;
 
 		// config for product names
 		boolean withLocationSuffixes;
@@ -120,6 +121,13 @@ public class EcoSpold1Export implements Closeable {
 		/// are required by the schema but cannot be filled by the actual data set.
 		public EcoSpold1Config writeDefaultValues(boolean createDefaults) {
 			this.withDefaults = createDefaults;
+			return this;
+		}
+
+		/// If set to `true`, the export appends the openLCA reference ID of the
+		/// exported model to the data set general comment.
+		public EcoSpold1Config writeRefIdInfo(boolean writeRefIdInfo) {
+			this.writeRefIdInfo = writeRefIdInfo;
 			return this;
 		}
 

@@ -7,7 +7,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
@@ -29,14 +28,14 @@ class MethodConverter {
 
 	private IEcoSpold doIt() {
 		var ecoSpold = factory.createEcoSpold();
-		for (var category : method.impactCategories) {
+		for (var indicator : method.impactCategories) {
 			var ds = factory.createDataSet();
 			var dataSet = new DataSet(ds, factory);
 			Util.setDataSetAttributes(dataSet, method);
-			mapLCIACategory(category, dataSet);
-			IReferenceFunction refFun = dataSet.getReferenceFunction();
+			mapLCIACategory(indicator, dataSet);
+			var refFun = dataSet.getReferenceFunction();
 			refFun.setCategory(method.name);
-			refFun.setGeneralComment(method.description);
+			refFun.setGeneralComment(Util.comment(indicator, config));
 			if (config.withDefaults) {
 				SchemaDefaults.write(ds, factory);
 			}

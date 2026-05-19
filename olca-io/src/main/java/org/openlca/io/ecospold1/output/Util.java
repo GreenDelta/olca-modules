@@ -4,17 +4,31 @@ import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RefEntity;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.io.Xml;
+import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class Util {
 
 	private Util() {
+	}
+
+	static String comment(RefEntity model, EcoSpold1Config config) {
+		if (model == null) return null;
+		if (config == null || !config.writeRefIdInfo)
+			return model.description;
+		var refIdInfo = "# openLCA export\n"
+			+ "This data set was exported from openLCA. The UUID of "
+			+ "the data set in openLCA was:\n" + model.refId;
+		return Strings.isNotBlank(model.description)
+			? model.description + "\n\n" + refIdInfo
+			: refIdInfo;
 	}
 
 	static XMLGregorianCalendar toXml(Short year) {

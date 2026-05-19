@@ -235,7 +235,7 @@ class ProcessConverter {
 	private void mapRefFlow(DataSet ds, Exchange e, IExchange ix) {
 		var refFun = mapQuantitativeReference(e);
 		ds.setReferenceFunction(refFun);
-		refFun.setGeneralComment(process.description);
+		refFun.setGeneralComment(Util.comment(process, config));
 		refFun.setInfrastructureProcess(process.infrastructureProcess);
 		var loc = process.location;
 		if (loc != null && !Strings.isBlank(loc.code)) {
