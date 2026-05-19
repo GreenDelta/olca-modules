@@ -1,6 +1,6 @@
 package org.openlca.io.ecospold1;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -16,6 +16,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.IDataSet;
+import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.io.EcoSpold;
 import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
@@ -43,7 +44,9 @@ public class FlowNameConfigTest {
 		var steel = Flow.product("steel", mass);
 		process = Process.of("steel production", steel);
 		process.location = db.insert(Location.of("Germany", "DE"));
+		process.processType = ProcessType.UNIT_PROCESS;
 		process.input(coal, 42).defaultProviderId = provider.id;
+		process.output(e, 2);
 		db.insert(e, steel, process);
 	}
 
@@ -54,13 +57,63 @@ public class FlowNameConfigTest {
 	}
 
 	@Test
+	public void testBaseNames() {
+		var config = EcoSpold1Export.of(db, dir);
+		assertNames(config, "steel", "coal");
+	}
+
+	@Test
+	public void testProcessSuffixes() {
+		var config = EcoSpold1Export.of(db, dir)
+			.withProcessSuffixes(true);
+		assertNames(config,
+			"steel | steel production", "coal | coal production");
+	}
+
+	@Test
+	public void testLocationSuffixes() {
+		var config = EcoSpold1Export.of(db, dir)
+			.withLocationSuffixes(true);
+		assertNames(config, "steel {DE}", "coal {PL}");
+	}
+
+	@Test
+	public void testTypeSuffixes() {
+		var config = EcoSpold1Export.of(db, dir)
+			.withTypeSuffixes(true);
+		assertNames(config, "steel, U", "coal, S");
+	}
+
+	@Test
 	public void testFullNames() {
 		var config = EcoSpold1Export.of(db, dir)
 			.withProcessSuffixes(true)
 			.withLocationSuffixes(true)
 			.withTypeSuffixes(true);
+		assertNames(config,
+			"steel | steel production {DE}, U",
+			"coal | coal production {PL}, S");
+	}
+
+	private void assertNames(EcoSpold1Config config, String ref, String input) {
 		var spold = spoldOf(config);
-		// TODO: check
+		assertEquals(ref, spold.getMetaInformation()
+			.getProcessInformation()
+			.getReferenceFunction()
+			.getName());
+		assertEquals(input, exchangeOf(spold, "coal").getName());
+		assertEquals("carbon dioxide",
+			exchangeOf(spold, "carbon dioxide").getName());
+	}
+
+	private IExchange exchangeOf(IDataSet ds, String prefix) {
+		for (var e : ds.getFlowData().getFirst().getExchange()) {
+			var name = e.getName();
+			if (name != null && name.startsWith(prefix))
+				return e;
+		}
+		throw new RuntimeException(
+			"Could not find exchange with prefix: " + prefix);
 	}
 
 	private IDataSet spoldOf(EcoSpold1Config config) {
