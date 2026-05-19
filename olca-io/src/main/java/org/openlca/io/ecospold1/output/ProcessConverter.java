@@ -178,7 +178,7 @@ class ProcessConverter {
 
 	private void mapTechnology(ProcessDoc doc, DataSet dataset) {
 		ITechnology technology = factory.createTechnology();
-		technology.setText(doc.technology);
+		technology.setText(Util.technologyComment(doc.technology));
 		dataset.setTechnology(technology);
 	}
 
@@ -253,6 +253,9 @@ class ProcessConverter {
 		refFun.setLocalName(refFun.getName());
 		refFun.setUnit(e.unit.name);
 		refFun.setInfrastructureProcess(flow.infrastructureFlow);
+		refFun.setIncludedProcesses(Util.includedProcesses(process.documentation != null
+				? process.documentation.technology
+				: null));
 		refFun.setAmount(e.amount);
 		var category = flow.category != null
 				? flow.category

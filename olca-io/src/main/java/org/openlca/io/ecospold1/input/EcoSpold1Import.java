@@ -265,6 +265,13 @@ public class EcoSpold1Import implements Import {
 			doc.technology = Strings.cutEnd(
 					(ds.getTechnology().getText()), 65500);
 		}
+		if (refFun != null && Strings.isNotBlank(refFun.getIncludedProcesses())) {
+			doc.technology = Strings.cutEnd(
+					Util.appendIncludedProcesses(
+						doc.technology,
+						refFun.getIncludedProcesses()),
+					65500);
+		}
 
 		mapExchanges(ds.getExchanges(), p);
 		if (p.quantitativeReference == null)

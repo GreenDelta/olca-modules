@@ -20,6 +20,8 @@ import com.google.common.base.Joiner;
 
 class Util {
 
+	private static final String INCLUDED_PROCESSES_HEADER = "# Included processes";
+
 	static void mapPerson(IPerson p, Actor target) {
 		target.name = p.getName();
 		target.address = p.getAddress();
@@ -117,6 +119,17 @@ class Util {
 		var r = new Review();
 		doc.reviews.add(r);
 		return r;
+	}
+
+	static String appendIncludedProcesses(String technology, String includedProcesses) {
+		if (Strings.isBlank(includedProcesses))
+			return technology;
+		var block = INCLUDED_PROCESSES_HEADER + "\n" + includedProcesses.strip();
+		if (Strings.isBlank(technology))
+			return block;
+		if (technology.contains(INCLUDED_PROCESSES_HEADER))
+			return technology;
+		return technology.stripTrailing() + "\n\n" + block;
 	}
 
 }

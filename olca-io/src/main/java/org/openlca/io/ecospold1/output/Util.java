@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 class Util {
 
+	private static final String INCLUDED_PROCESSES_HEADER = "# Included processes";
+
 	private Util() {
 	}
 
@@ -29,6 +31,42 @@ class Util {
 		return Strings.isNotBlank(model.description)
 			? model.description + "\n\n" + refIdInfo
 			: refIdInfo;
+	}
+
+	static String technologyComment(String text) {
+		if (Strings.isBlank(text))
+			return text;
+		var block = includedProcesses(text);
+		if (Strings.isBlank(block))
+			return text;
+		var start = text.indexOf(INCLUDED_PROCESSES_HEADER);
+		if (start < 0)
+			return text;
+		var end = endOfIncludedProcesses(text, start);
+		var prefix = text.substring(0, start).stripTrailing();
+		var suffix = text.substring(end).stripLeading();
+		if (prefix.isEmpty())
+			return suffix.isEmpty() ? null : suffix;
+		if (suffix.isEmpty())
+			return prefix;
+		return prefix + "\n\n" + suffix;
+	}
+
+	static String includedProcesses(String text) {
+		if (Strings.isBlank(text))
+			return null;
+		var start = text.indexOf(INCLUDED_PROCESSES_HEADER);
+		if (start < 0)
+			return null;
+		var blockStart = start + INCLUDED_PROCESSES_HEADER.length();
+		var end = endOfIncludedProcesses(text, start);
+		var block = text.substring(blockStart, end).strip();
+		return block.isEmpty() ? null : block;
+	}
+
+	private static int endOfIncludedProcesses(String text, int start) {
+		var nextHeader = text.indexOf("\n# ", start + INCLUDED_PROCESSES_HEADER.length());
+		return nextHeader >= 0 ? nextHeader + 1 : text.length();
 	}
 
 	static XMLGregorianCalendar toXml(Short year) {
