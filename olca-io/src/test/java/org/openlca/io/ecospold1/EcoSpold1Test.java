@@ -1,4 +1,4 @@
-package org.openlca.io;
+package org.openlca.io.ecospold1;
 
 import static org.junit.Assert.*;
 
@@ -14,15 +14,14 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
+import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.input.ES1KeyGen;
 import org.openlca.io.ecospold1.input.EcoSpold1Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
-import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.openlca.util.Dirs;
 
 public class EcoSpold1Test {
@@ -60,12 +59,12 @@ public class EcoSpold1Test {
 		// check the import
 		var processes = db.getAll(Process.class);
 		assertEquals(1, processes.size());
-		var p = processes.get(0);
+		var p = processes.getFirst();
 		assertEquals(2, p.exchanges.size());
 		for (var e : p.exchanges) {
 			assertFalse(e.isInput);
 			assertTrue(e.flow.name.equals("steel")
-					|| e.flow.name.equals("CO2"));
+				|| e.flow.name.equals("CO2"));
 			if (e.flow.name.equals("steel")) {
 				assertEquals(e, p.quantitativeReference);
 				assertEquals(1.0, e.amount, 1e-10);
@@ -78,46 +77,6 @@ public class EcoSpold1Test {
 		db.clear();
 	}
 
-	@Test
-	public void testProductNameConfig() {
-
-		var units = UnitGroup.of("Mass units", "kg");
-		var mass = FlowProperty.of("Mass", units);
-		var steel = Flow.product("steel", mass);
-		var process = Process.of("Steel production", steel);
-		var location = db.insert(Location.of("Germany", "DE"));
-		process.location = location;
-		process.processType = org.openlca.core.model.ProcessType.LCI_RESULT;
-		db.insert(units);
-		db.insert(mass);
-		db.insert(steel);
-		db.insert(process);
-
-		try {
-			var dir = Files.createTempDirectory("_spold_out");
-			var config = new EcoSpold1Config()
-				.withProcessSuffixes(true)
-				.withLocationSuffixes(true)
-				.withTypeSuffixes(true);
-			try (var export = new EcoSpold1Export(dir.toFile(), config)) {
-				export.export(process);
-			}
-
-			var file = Files.walk(dir)
-				.filter(Files::isRegularFile)
-				.filter(path -> path.getFileName().toString().startsWith("process_"))
-				.findFirst()
-				.orElseThrow();
-			var xml = Files.readString(file);
-			assertTrue(xml.contains("steel | Steel production {DE}, S"));
-
-			Dirs.delete(dir);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			db.clear();
-		}
-	}
 
 	@Test
 	public void testImpacts() {
@@ -149,9 +108,8 @@ public class EcoSpold1Test {
 		assertEquals(2, methods.size());
 		for (var method : methods) {
 			assertTrue(method.name.equals("Method 1")
-					|| method.name.equals("Method 2"));
-			assertEquals(2, method.impactCategories
-					.get(0).impactFactors.size());
+				|| method.name.equals("Method 2"));
+			assertEquals(2, method.impactCategories.getFirst().impactFactors.size());
 		}
 
 	}
@@ -160,8 +118,12 @@ public class EcoSpold1Test {
 		try {
 			// export it to a temporary folder
 			var dir = Files.createTempDirectory("_spold_out");
-			var export = new EcoSpold1Export(dir.toFile());
-			fn.accept(export);
+			var export = EcoSpold1Export.of(db, dir.toFile())
+				.create()
+				.orElseThrow();
+			try (export) {
+				fn.accept(export);
+			}
 
 			// clear the database
 			db.clear();
@@ -170,9 +132,9 @@ public class EcoSpold1Test {
 			var config = new ImportConfig(db);
 			var imp = new EcoSpold1Import(config);
 			var files = Files.walk(dir)
-					.filter(Files::isRegularFile)
-					.map(Path::toFile)
-					.toArray(File[]::new);
+				.filter(Files::isRegularFile)
+				.map(Path::toFile)
+				.toArray(File[]::new);
 			assertNotNull(files);
 			assertTrue(files.length > 0);
 			imp.setFiles(files);

@@ -25,12 +25,13 @@ public class EcoSpold1Export implements Closeable {
 	private final EcoSpold1Config config;
 	private IEcoSpold singleSpold;
 	private final CategoryFile categoryFile;
-
+	private final FlowNameFormatter flowNames;
 
 	private EcoSpold1Export(EcoSpold1Config config) {
 		File categoryFile = new File(config.dir, "categories.xml");
 		this.categoryFile = new CategoryFile(categoryFile);
 		this.config = config;
+		this.flowNames = new FlowNameFormatter(config);
 	}
 
 	public static EcoSpold1Config of(IDatabase db, File outDir) {
@@ -46,13 +47,13 @@ public class EcoSpold1Export implements Closeable {
 
 	public void export(Process process) {
 		categoryFile.addCategoriesOf(process);
-		var dataSet = ProcessConverter.convert(process, config);
+		var ds = ProcessConverter.convert(process, config, flowNames);
 		if (config.singleFile) {
-			append(dataSet);
+			append(ds);
 		} else {
 			var factory = DataSetType.PROCESS.getFactory();
 			var spold = factory.createEcoSpold();
-			spold.getDataset().add(dataSet);
+			spold.getDataset().add(ds);
 			var fileName = "process_" + process.refId + ".xml";
 			var file = new File(config.dir, fileName);
 			EcoSpold.write(file, spold);

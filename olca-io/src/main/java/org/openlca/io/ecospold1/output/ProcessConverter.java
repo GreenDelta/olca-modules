@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
@@ -22,26 +21,29 @@ import org.openlca.ecospold.ITechnology;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.io.Xml;
+import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.openlca.util.Exchanges;
 import org.openlca.util.Processes;
 
 class ProcessConverter {
 
 	private final Process process;
-	private final EcoSpold1Export.EcoSpold1Config config;
+	private final EcoSpold1Config config;
 	private final IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 	private final ActorSourceMapper actorSourceMapper;
 	private final FlowNameFormatter flowNames;
 
-	static IDataSet convert(Process process, EcoSpold1Export.EcoSpold1Config config) {
-		return new ProcessConverter(process, config).doIt();
+	static IDataSet convert(
+		Process process, EcoSpold1Config config, FlowNameFormatter flowNames) {
+		return new ProcessConverter(process, config, flowNames).doIt();
 	}
 
-	private ProcessConverter(Process process, EcoSpold1Export.EcoSpold1Config config) {
+	private ProcessConverter(
+		Process process, EcoSpold1Config config, FlowNameFormatter flowNames) {
 		this.process = process;
 		this.config = config;
 		actorSourceMapper = new ActorSourceMapper(factory, config);
-		flowNames = new FlowNameFormatter(config);
+		this.flowNames = flowNames;
 	}
 
 	private IDataSet doIt() {
@@ -210,7 +212,7 @@ class ProcessConverter {
 			boolean isQRef = e.equals(qRef);
 			var ix = factory.createExchange();
 			ix.setNumber((int) e.flow.id);
-			ix.setName(flowNames.of(e, process));
+			ix.setName(flowNames.of(process, e));
 
 			// input/output group
 			if (Exchanges.isProviderFlow(e)) {
@@ -256,11 +258,11 @@ class ProcessConverter {
 
 	private IReferenceFunction mapQuantitativeReference(Exchange e) {
 		var refFun = factory.createReferenceFunction();
-		Flow flow = e.flow;
+		var flow = e.flow;
 		refFun.setDatasetRelatesToProduct(true);
 		refFun.setCASNumber(flow.casNumber);
 		refFun.setFormula(flow.formula);
-		refFun.setName(flowNames.of(flow, process));
+		refFun.setName(flowNames.of(process, e));
 		refFun.setLocalName(refFun.getName());
 		refFun.setUnit(e.unit.name);
 		refFun.setInfrastructureProcess(flow.infrastructureFlow);
