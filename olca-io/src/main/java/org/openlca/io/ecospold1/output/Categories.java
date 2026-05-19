@@ -9,62 +9,33 @@ final class Categories {
 	private Categories() {
 	}
 
-	static void map(Category category, IReferenceFunction refFun,
-			EcoSpold1Export.EcoSpold1Config config) {
-		if (category != null) {
-			var parent = category.category;
-			if (parent == null) {
-				refFun.setCategory(category.name);
-				refFun.setLocalCategory(category.name);
-			} else {
-				refFun.setCategory(parent.name);
-				refFun.setLocalCategory(parent.name);
-				refFun.setSubCategory(category.name);
-				refFun.setLocalSubCategory(category.name);
-			}
-		}
-		if (config.withDefaults) {
-			createDefaults(refFun);
+	static void map(Category category, IReferenceFunction refFun) {
+		if (category == null || refFun == null)
+			return;
+		var parent = category.category;
+		if (parent == null) {
+			refFun.setCategory(category.name);
+			refFun.setLocalCategory(category.name);
+		} else {
+			refFun.setCategory(parent.name);
+			refFun.setLocalCategory(parent.name);
+			refFun.setSubCategory(category.name);
+			refFun.setLocalSubCategory(category.name);
 		}
 	}
 
-	private static void createDefaults(IReferenceFunction refFun) {
-		if (refFun.getCategory() == null) {
-			refFun.setCategory("unspecified");
-			refFun.setLocalCategory("unspecified");
-		}
-		if (refFun.getSubCategory() == null) {
-			refFun.setSubCategory("unspecified");
-			refFun.setLocalSubCategory("unspecified");
-		}
-	}
-
-	static void map(Category category, IExchange exchange, EcoSpold1Export.EcoSpold1Config config) {
-		if (category != null) {
-			if (category.category == null) {
-				exchange.setCategory(category.name);
-				exchange.setLocalCategory(category.name);
-			} else {
-				Category parent = category.category;
-				exchange.setCategory(parent.name);
-				exchange.setLocalCategory(parent.name);
-				exchange.setSubCategory(category.name);
-				exchange.setLocalSubCategory(category.name);
-			}
-		}
-		if (config.withDefaults) {
-			createDefaults(exchange);
-		}
-	}
-
-	private static void createDefaults(IExchange exchange) {
-		if (exchange.getCategory() == null) {
-			exchange.setCategory("unspecified");
-			exchange.setLocalCategory("unspecified");
-		}
-		if (exchange.getSubCategory() == null) {
-			exchange.setSubCategory("unspecified");
-			exchange.setLocalSubCategory("unspecified");
+	static void map(Category category, IExchange exchange) {
+		if (category == null || exchange == null)
+			return;
+		if (category.category == null) {
+			exchange.setCategory(category.name);
+			exchange.setLocalCategory(category.name);
+		} else {
+			Category parent = category.category;
+			exchange.setCategory(parent.name);
+			exchange.setLocalCategory(parent.name);
+			exchange.setSubCategory(category.name);
+			exchange.setLocalSubCategory(category.name);
 		}
 	}
 }

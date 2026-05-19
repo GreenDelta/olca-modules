@@ -6,16 +6,13 @@ import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IPerson;
 import org.openlca.ecospold.ISource;
 import org.openlca.ecospold.io.DataSet;
-import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 
 final class ActorSourceMapper {
 
-	private final EcoSpold1Config config;
 	private final IEcoSpoldFactory factory;
 
-	ActorSourceMapper(IEcoSpoldFactory factory, EcoSpold1Config config) {
+	ActorSourceMapper(IEcoSpoldFactory factory) {
 		this.factory = factory;
-		this.config = config;
 	}
 
 	int map(Actor actor, DataSet ds) {
@@ -28,7 +25,6 @@ final class ActorSourceMapper {
 		}
 		var p = factory.createPerson();
 		p.setNumber(id);
-		p.setCompanyCode("unknown");
 		p.setName(actor.name);
 		p.setAddress(actor.address);
 		p.setCountryCode(factory.getCountryCode(actor.country));
@@ -36,19 +32,7 @@ final class ActorSourceMapper {
 		p.setTelefax(actor.telefax);
 		p.setTelephone(actor.telephone);
 		ds.getPersons().add(p);
-		createDefaults(p);
 		return id;
-	}
-
-	private void createDefaults(IPerson person) {
-		if (config.withDefaults)
-			return;
-		if (person.getAddress() == null)
-			person.setAddress("no address");
-		if (person.getTelephone() == null)
-			person.setTelephone("000");
-		if (person.getCountryCode() == null)
-			person.setCountryCode(factory.getCountryCode("CH"));
 	}
 
 	int map(Source inSource, DataSet ds) {
@@ -68,17 +52,6 @@ final class ActorSourceMapper {
 		s.setPlaceOfPublications("unknown");
 		s.setSourceType(0);
 		ds.getSources().add(s);
-		createDefaults(s);
 		return id;
 	}
-
-	private void createDefaults(ISource source) {
-		if (config.withDefaults)
-			return;
-		if (source.getTitle() == null)
-			source.setTitle("no title");
-		if (source.getYear() == null)
-			source.setYear(Util.toXml((short) 9999));
-	}
-
 }

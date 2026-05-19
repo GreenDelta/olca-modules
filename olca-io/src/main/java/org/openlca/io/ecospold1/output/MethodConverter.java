@@ -4,47 +4,50 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IEcoSpold;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.io.DataSet;
 import org.openlca.ecospold.io.DataSetType;
+import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 
 class MethodConverter {
 
 	private final ImpactMethod method;
-	private final EcoSpold1Export.EcoSpold1Config config;
+	private final EcoSpold1Config config;
 	private final IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 
-	static IEcoSpold convert(ImpactMethod method, EcoSpold1Export.EcoSpold1Config config) {
+	static IEcoSpold convert(ImpactMethod method, EcoSpold1Config config) {
 		return new MethodConverter(method, config).doIt();
 	}
 
-	private MethodConverter(ImpactMethod method, EcoSpold1Export.EcoSpold1Config config) {
+	private MethodConverter(ImpactMethod method, EcoSpold1Config config) {
 		this.method = method;
 		this.config = config;
 	}
 
 	private IEcoSpold doIt() {
-		IEcoSpold ecoSpold = factory.createEcoSpold();
-		for (ImpactCategory category : method.impactCategories) {
-			IDataSet iDataSet = factory.createDataSet();
-			DataSet dataSet = new DataSet(iDataSet, factory);
+		var ecoSpold = factory.createEcoSpold();
+		for (var category : method.impactCategories) {
+			var ds = factory.createDataSet();
+			var dataSet = new DataSet(ds, factory);
 			Util.setDataSetAttributes(dataSet, method);
 			mapLCIACategory(category, dataSet);
 			IReferenceFunction refFun = dataSet.getReferenceFunction();
 			refFun.setCategory(method.name);
 			refFun.setGeneralComment(method.description);
-			ecoSpold.getDataset().add(iDataSet);
+			if (config.withDefaults) {
+				SchemaDefaults.write(ds, factory);
+			}
+			ecoSpold.getDataset().add(ds);
 		}
 		return ecoSpold;
 	}
 
-	private void mapLCIACategory(ImpactCategory category, DataSet dataSet) {
-		IReferenceFunction refFun = factory.createReferenceFunction();
-		dataSet.setReferenceFunction(refFun);
+	private void mapLCIACategory(ImpactCategory category, DataSet ds) {
+		var refFun = factory.createReferenceFunction();
+		ds.setReferenceFunction(refFun);
 		String subCategory = category.name;
 		String name = null;
 		if (subCategory.contains("-")) {
@@ -56,15 +59,15 @@ class MethodConverter {
 		refFun.setName(name);
 		refFun.setUnit(category.referenceUnit);
 		for (ImpactFactor factor : category.impactFactors) {
-			dataSet.getExchanges().add(mapLCIAFactor(factor));
+			ds.getExchanges().add(mapLCIAFactor(factor));
 		}
 	}
 
 	private IExchange mapLCIAFactor(ImpactFactor factor) {
-		IExchange exchange = factory.createExchange();
+		var exchange = factory.createExchange();
 		Flow flow = factor.flow;
 		exchange.setNumber((int) flow.id);
-		Categories.map(factor.flow.category, exchange, config);
+		Categories.map(factor.flow.category, exchange);
 		Util.mapFlowInformation(exchange, factor.flow);
 		exchange.setUnit(factor.unit.name);
 		exchange.setName(factor.flow.name);

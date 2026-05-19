@@ -15,7 +15,6 @@ import org.openlca.ecospold.IDataEntryBy;
 import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IGeography;
 import org.openlca.ecospold.IReferenceFunction;
 import org.openlca.ecospold.ITechnology;
 import org.openlca.ecospold.io.DataSet;
@@ -42,7 +41,7 @@ class ProcessConverter {
 		Process process, EcoSpold1Config config, FlowNameFormatter flowNames) {
 		this.process = process;
 		this.config = config;
-		actorSourceMapper = new ActorSourceMapper(factory, config);
+		actorSourceMapper = new ActorSourceMapper(factory);
 		this.flowNames = flowNames;
 	}
 
@@ -55,7 +54,7 @@ class ProcessConverter {
 		// TODO: map allocation factors
 		// mapAllocations(process, dataSet, factory);
 		if (config.withDefaults) {
-			SchemaDefaults.add(dataSet, factory);
+			SchemaDefaults.write(ds, factory);
 		}
 		return ds;
 	}
@@ -102,17 +101,13 @@ class ProcessConverter {
 	}
 
 	private void mapGeography(ProcessDoc doc, DataSet dataSet) {
-		IGeography geography = factory.createGeography();
+		var geography = factory.createGeography();
 		dataSet.setGeography(geography);
 		Location location = process.location;
 		if (location != null)
 			geography.setLocation(location.code);
 		if (doc.geography != null)
 			geography.setText(doc.geography);
-		if (!config.withDefaults)
-			return;
-		if (geography.getLocation() == null)
-			geography.setLocation("GLO");
 	}
 
 	private void mapModelingAndValidation(ProcessDoc doc, DataSet ds) {
@@ -196,12 +191,6 @@ class ProcessConverter {
 			time.setEndDate(Xml.calendar(doc.validUntil));
 		time.setText(doc.time);
 		dataset.setTimePeriod(time);
-		if (!config.withDefaults)
-			return;
-		if (time.getStartDate() == null)
-			time.setStartDate(Xml.calendar(new Date(253370761200000L)));
-		if (time.getEndDate() == null)
-			time.setEndDate(Xml.calendar(new Date(253402210800000L)));
 	}
 
 	private void mapExchanges(DataSet ds) {
@@ -225,7 +214,7 @@ class ProcessConverter {
 				ix.setOutputGroup(4);
 			}
 
-			Categories.map(e.flow.category, ix, config);
+			Categories.map(e.flow.category, ix);
 			Util.mapFlowInformation(ix, e.flow);
 			if (e.unit != null) {
 				ix.setUnit(e.unit.name);
@@ -251,8 +240,6 @@ class ProcessConverter {
 		var loc = process.location;
 		if (loc != null && !Strings.isBlank(loc.code)) {
 			ix.setLocation(loc.code);
-		} else if (config.withDefaults) {
-			ix.setLocation("GLO");
 		}
 	}
 
@@ -270,7 +257,7 @@ class ProcessConverter {
 		var category = flow.category != null
 				? flow.category
 				: process.category;
-		Categories.map(category, refFun, config);
+		Categories.map(category, refFun);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
 		return refFun;
