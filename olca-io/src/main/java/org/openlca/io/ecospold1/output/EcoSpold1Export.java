@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.openlca.commons.Res;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.ecospold.IDataSet;
@@ -23,7 +24,7 @@ public class EcoSpold1Export implements Closeable {
 	private final File outDir;
 	private final ExportConfig config;
 	private IEcoSpold singleSpold;
-	private final CategoryWriter categoryWriter;
+	private final CategoryFile categoryFile;
 
 	public EcoSpold1Export(File outDir) {
 		this(outDir, ExportConfig.getDefault());
@@ -31,7 +32,7 @@ public class EcoSpold1Export implements Closeable {
 
 	public EcoSpold1Export(File outDir, ExportConfig config) {
 		File categoryFile = new File(outDir, "categories.xml");
-		categoryWriter = new CategoryWriter(categoryFile, config);
+		this.categoryFile = new CategoryFile(categoryFile);
 		File dir = new File(outDir, "EcoSpold01");
 		if (!dir.exists())
 			dir.mkdirs();
@@ -39,25 +40,24 @@ public class EcoSpold1Export implements Closeable {
 		this.config = config;
 	}
 
-	public void export(ImpactMethod method) {
-		IEcoSpold spold = MethodConverter.convert(method, config);
-		String fileName = "lcia_method_" + method.refId + ".xml";
-		File file = new File(outDir, fileName);
-		EcoSpold.write(file, spold);
-		log.trace("wrote {} to {}", method, file);
+	public Res<Void> export(ImpactMethod method) {
+		var spold = MethodConverter.convert(method, config);
+		var fileName = "lcia_method_" + method.refId + ".xml";
+		var file = new File(outDir, fileName);
+		return EcoSpold.write(file, spold);
 	}
 
 	public void export(Process process) {
-		categoryWriter.takeFrom(process);
-		IDataSet dataSet = ProcessConverter.convert(process, config);
-		if (config.isSingleFile())
+		categoryFile.addCategoriesOf(process);
+		var dataSet = ProcessConverter.convert(process, config);
+		if (config.isSingleFile()) {
 			append(dataSet);
-		else {
-			IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
-			IEcoSpold spold = factory.createEcoSpold();
+		} else {
+			var factory = DataSetType.PROCESS.getFactory();
+			var spold = factory.createEcoSpold();
 			spold.getDataset().add(dataSet);
-			String fileName = "process_" + process.refId + ".xml";
-			File file = new File(outDir, fileName);
+			var fileName = "process_" + process.refId + ".xml";
+			var file = new File(outDir, fileName);
 			EcoSpold.write(file, spold);
 			log.trace("wrote {} to {}", process, file);
 		}
@@ -73,30 +73,24 @@ public class EcoSpold1Export implements Closeable {
 		singleSpold.getDataset().add(dataSet);
 	}
 
-	/**
-	 * It is very important to call this method if multiple processes should be
-	 * exported into a single file as this single file is written when this
-	 * method is called.
-	 */
+	/// It is important to always close the export. The category file and a
+	/// possible single output file (if configured) is only written when `close`
+	/// is called.
 	@Override
 	public void close() throws IOException {
-		if (singleSpold == null)
-			return;
-		try {
-			SimpleDateFormat format = new SimpleDateFormat(
-					"yyyy-MM-dd'T'hh-mm-ss");
-			String time = format.format(new Date());
-			int size = singleSpold.getDataset().size();
-			String fileName = "EcoSpold_" + size + "_processes_" + time
-					+ ".xml";
-			File file = new File(outDir, fileName);
-			EcoSpold.write(file, singleSpold);
-			log.trace("wrote {} processes to {}", size, file);
-			categoryWriter.close();
-		} catch (Exception e) {
-			log.error("export failed", e);
-			throw new IOException(e);
-		}
-	}
+			categoryFile.close();
+			if (singleSpold == null)
+				return;
 
+			var format = new SimpleDateFormat("yyyy-MM-dd'T'hh-mm-ss");
+			var time = format.format(new Date());
+			int size = singleSpold.getDataset().size();
+			var fileName = "EcoSpold_" + size + "_processes_" + time + ".xml";
+			var file = new File(outDir, fileName);
+			var res = EcoSpold.write(file, singleSpold);
+			if (res.isError()) {
+				throw new IOException(
+					"Failed to write file: " + file + "\n  ->" + res.error());
+			}
+	}
 }
