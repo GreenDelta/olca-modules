@@ -9,10 +9,10 @@ import org.openlca.ecospold.io.DataSet;
 
 final class ActorSourceMapper {
 
-	private final ExportConfig config;
+	private final EcoSpold1Config config;
 	private final IEcoSpoldFactory factory;
 
-	ActorSourceMapper(IEcoSpoldFactory factory, ExportConfig config) {
+	ActorSourceMapper(IEcoSpoldFactory factory, EcoSpold1Config config) {
 		this.factory = factory;
 		this.config = config;
 	}

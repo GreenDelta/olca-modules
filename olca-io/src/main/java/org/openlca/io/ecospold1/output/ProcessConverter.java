@@ -27,15 +27,15 @@ import org.openlca.util.Processes;
 class ProcessConverter {
 
 	private final Process process;
-	private final ExportConfig config;
+	private final EcoSpold1Config config;
 	private final IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 	private final ActorSourceMapper actorSourceMapper;
 
-	static IDataSet convert(Process process, ExportConfig config) {
+	static IDataSet convert(Process process, EcoSpold1Config config) {
 		return new ProcessConverter(process, config).doIt();
 	}
 
-	private ProcessConverter(Process process, ExportConfig config) {
+	private ProcessConverter(Process process, EcoSpold1Config config) {
 		this.process = process;
 		this.config = config;
 		actorSourceMapper = new ActorSourceMapper(factory, config);
@@ -127,7 +127,7 @@ class ProcessConverter {
 	private void mapValidation(ProcessDoc doc, DataSet ds) {
 		if (doc.reviews.isEmpty())
 			return;
-		var r = doc.reviews.get(0);
+		var r = doc.reviews.getFirst();
 		var validation = ds.getValidation();
 		if (validation == null) {
 			validation = factory.createValidation();

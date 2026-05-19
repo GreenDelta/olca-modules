@@ -45,7 +45,7 @@ import org.openlca.util.ZipFiles;
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Import implements Import {
+public class EcoSpold1Import implements Import {
 
 	private Category processCategory;
 	private final HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
@@ -55,7 +55,7 @@ public class EcoSpold01Import implements Import {
 	private File[] files;
 	private final ImportLog log = new ImportLog();
 
-	public EcoSpold01Import(ImportConfig config) {
+	public EcoSpold1Import(ImportConfig config) {
 		this.db = new DB(config.db);
 		this.flowImport = new FlowImport(db, config);
 	}

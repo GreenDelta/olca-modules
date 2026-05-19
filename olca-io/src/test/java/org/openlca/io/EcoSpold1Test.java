@@ -1,9 +1,6 @@
 package org.openlca.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -21,7 +18,7 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.io.ecospold1.input.ES1KeyGen;
-import org.openlca.io.ecospold1.input.EcoSpold01Import;
+import org.openlca.io.ecospold1.input.EcoSpold1Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
 import org.openlca.util.Dirs;
@@ -128,7 +125,7 @@ public class EcoSpold1Test {
 
 			// import it
 			var config = new ImportConfig(db);
-			var imp = new EcoSpold01Import(config);
+			var imp = new EcoSpold1Import(config);
 			var files = Files.walk(dir)
 					.filter(Files::isRegularFile)
 					.map(Path::toFile)

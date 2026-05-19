@@ -10,7 +10,7 @@ final class Categories {
 	}
 
 	static void map(Category category, IReferenceFunction refFun,
-			ExportConfig config) {
+			EcoSpold1Config config) {
 		if (category != null) {
 			var parent = category.category;
 			if (parent == null) {
@@ -39,7 +39,7 @@ final class Categories {
 		}
 	}
 
-	static void map(Category category, IExchange exchange, ExportConfig config) {
+	static void map(Category category, IExchange exchange, EcoSpold1Config config) {
 		if (category != null) {
 			if (category.category == null) {
 				exchange.setCategory(category.name);

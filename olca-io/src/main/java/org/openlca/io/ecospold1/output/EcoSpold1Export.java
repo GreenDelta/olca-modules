@@ -11,7 +11,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.ecospold.IDataSet;
 import org.openlca.ecospold.IEcoSpold;
-import org.openlca.ecospold.IEcoSpoldFactory;
 import org.openlca.ecospold.io.DataSetType;
 import org.openlca.ecospold.io.EcoSpold;
 import org.slf4j.Logger;
@@ -22,15 +21,15 @@ public class EcoSpold1Export implements Closeable {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final File outDir;
-	private final ExportConfig config;
+	private final EcoSpold1Config config;
 	private IEcoSpold singleSpold;
 	private final CategoryFile categoryFile;
 
 	public EcoSpold1Export(File outDir) {
-		this(outDir, ExportConfig.getDefault());
+		this(outDir, new EcoSpold1Config());
 	}
 
-	public EcoSpold1Export(File outDir, ExportConfig config) {
+	public EcoSpold1Export(File outDir, EcoSpold1Config config) {
 		File categoryFile = new File(outDir, "categories.xml");
 		this.categoryFile = new CategoryFile(categoryFile);
 		File dir = new File(outDir, "EcoSpold01");
@@ -50,7 +49,7 @@ public class EcoSpold1Export implements Closeable {
 	public void export(Process process) {
 		categoryFile.addCategoriesOf(process);
 		var dataSet = ProcessConverter.convert(process, config);
-		if (config.isSingleFile()) {
+		if (config.singleFile) {
 			append(dataSet);
 		} else {
 			var factory = DataSetType.PROCESS.getFactory();
@@ -63,14 +62,13 @@ public class EcoSpold1Export implements Closeable {
 		}
 	}
 
-	private void append(IDataSet dataSet) {
-		if (dataSet == null)
-			return;
+	private void append(IDataSet ds) {
+		if (ds == null) return;
 		if (singleSpold == null) {
-			IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
+			var factory = DataSetType.PROCESS.getFactory();
 			singleSpold = factory.createEcoSpold();
 		}
-		singleSpold.getDataset().add(dataSet);
+		singleSpold.getDataset().add(ds);
 	}
 
 	/// It is important to always close the export. The category file and a

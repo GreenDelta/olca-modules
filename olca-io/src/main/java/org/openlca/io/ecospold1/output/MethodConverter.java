@@ -15,15 +15,15 @@ import org.openlca.ecospold.io.DataSetType;
 class MethodConverter {
 
 	private ImpactMethod method;
-	private ExportConfig config;
+	private EcoSpold1Config config;
 
 	private IEcoSpoldFactory factory = DataSetType.IMPACT_METHOD.getFactory();
 
-	static IEcoSpold convert(ImpactMethod method, ExportConfig config) {
+	static IEcoSpold convert(ImpactMethod method, EcoSpold1Config config) {
 		return new MethodConverter(method, config).doIt();
 	}
 
-	private MethodConverter(ImpactMethod method, ExportConfig config) {
+	private MethodConverter(ImpactMethod method, EcoSpold1Config config) {
 		this.method = method;
 		this.config = config;
 	}
