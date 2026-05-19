@@ -9,10 +9,10 @@ import org.openlca.ecospold.io.DataSet;
 
 final class ActorSourceMapper {
 
-	private final EcoSpold1Config config;
+	private final EcoSpold1Export.EcoSpold1Config config;
 	private final IEcoSpoldFactory factory;
 
-	ActorSourceMapper(IEcoSpoldFactory factory, EcoSpold1Config config) {
+	ActorSourceMapper(IEcoSpoldFactory factory, EcoSpold1Export.EcoSpold1Config config) {
 		this.factory = factory;
 		this.config = config;
 	}
@@ -40,7 +40,7 @@ final class ActorSourceMapper {
 	}
 
 	private void createDefaults(IPerson person) {
-		if (!config.isCreateDefaults())
+		if (config.withDefaults)
 			return;
 		if (person.getAddress() == null)
 			person.setAddress("no address");
@@ -72,7 +72,7 @@ final class ActorSourceMapper {
 	}
 
 	private void createDefaults(ISource source) {
-		if (!config.isCreateDefaults())
+		if (config.withDefaults)
 			return;
 		if (source.getTitle() == null)
 			source.setTitle("no title");

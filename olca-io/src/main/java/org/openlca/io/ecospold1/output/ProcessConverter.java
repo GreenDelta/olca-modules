@@ -28,18 +28,20 @@ import org.openlca.util.Processes;
 class ProcessConverter {
 
 	private final Process process;
-	private final EcoSpold1Config config;
+	private final EcoSpold1Export.EcoSpold1Config config;
 	private final IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
 	private final ActorSourceMapper actorSourceMapper;
+	private final FlowNameFormatter flowNames;
 
-	static IDataSet convert(Process process, EcoSpold1Config config) {
+	static IDataSet convert(Process process, EcoSpold1Export.EcoSpold1Config config) {
 		return new ProcessConverter(process, config).doIt();
 	}
 
-	private ProcessConverter(Process process, EcoSpold1Config config) {
+	private ProcessConverter(Process process, EcoSpold1Export.EcoSpold1Config config) {
 		this.process = process;
 		this.config = config;
 		actorSourceMapper = new ActorSourceMapper(factory, config);
+		flowNames = new FlowNameFormatter(config);
 	}
 
 	private IDataSet doIt() {
@@ -208,7 +210,7 @@ class ProcessConverter {
 			boolean isQRef = e.equals(qRef);
 			var ix = factory.createExchange();
 			ix.setNumber((int) e.flow.id);
-			ix.setName(e.flow.name);
+			ix.setName(flowNames.of(e, process));
 
 			// input/output group
 			if (Exchanges.isProviderFlow(e)) {
@@ -258,7 +260,7 @@ class ProcessConverter {
 		refFun.setDatasetRelatesToProduct(true);
 		refFun.setCASNumber(flow.casNumber);
 		refFun.setFormula(flow.formula);
-		refFun.setName(e.flow.name);
+		refFun.setName(flowNames.of(flow, process));
 		refFun.setLocalName(refFun.getName());
 		refFun.setUnit(e.unit.name);
 		refFun.setInfrastructureProcess(flow.infrastructureFlow);

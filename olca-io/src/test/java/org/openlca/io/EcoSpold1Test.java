@@ -14,6 +14,7 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
 import org.openlca.ecospold.io.DataSetType;
@@ -21,6 +22,7 @@ import org.openlca.io.ecospold1.input.ES1KeyGen;
 import org.openlca.io.ecospold1.input.EcoSpold1Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
+import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.openlca.util.Dirs;
 
 public class EcoSpold1Test {
@@ -74,6 +76,47 @@ public class EcoSpold1Test {
 		}
 
 		db.clear();
+	}
+
+	@Test
+	public void testProductNameConfig() {
+
+		var units = UnitGroup.of("Mass units", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		var steel = Flow.product("steel", mass);
+		var process = Process.of("Steel production", steel);
+		var location = db.insert(Location.of("Germany", "DE"));
+		process.location = location;
+		process.processType = org.openlca.core.model.ProcessType.LCI_RESULT;
+		db.insert(units);
+		db.insert(mass);
+		db.insert(steel);
+		db.insert(process);
+
+		try {
+			var dir = Files.createTempDirectory("_spold_out");
+			var config = new EcoSpold1Config()
+				.withProcessSuffixes(true)
+				.withLocationSuffixes(true)
+				.withTypeSuffixes(true);
+			try (var export = new EcoSpold1Export(dir.toFile(), config)) {
+				export.export(process);
+			}
+
+			var file = Files.walk(dir)
+				.filter(Files::isRegularFile)
+				.filter(path -> path.getFileName().toString().startsWith("process_"))
+				.findFirst()
+				.orElseThrow();
+			var xml = Files.readString(file);
+			assertTrue(xml.contains("steel | Steel production {DE}, S"));
+
+			Dirs.delete(dir);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			db.clear();
+		}
 	}
 
 	@Test
