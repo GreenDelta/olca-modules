@@ -2,6 +2,7 @@ package org.openlca.io.ecospold1.output;
 
 import java.util.Date;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.Location;
@@ -49,8 +50,8 @@ class ProcessConverter {
 		mapExchanges(dataSet);
 		// TODO: map allocation factors
 		// mapAllocations(process, dataSet, factory);
-		if (config.isCreateDefaults()) {
-			StructureDefaults.add(dataSet, factory);
+		if (config.withDefaults) {
+			SchemaDefaults.add(dataSet, factory);
 		}
 		return ds;
 	}
@@ -104,7 +105,7 @@ class ProcessConverter {
 			geography.setLocation(location.code);
 		if (doc.geography != null)
 			geography.setText(doc.geography);
-		if (!config.isCreateDefaults())
+		if (!config.withDefaults)
 			return;
 		if (geography.getLocation() == null)
 			geography.setLocation("GLO");
@@ -137,7 +138,7 @@ class ProcessConverter {
 				r.details != null ? r.details : "none");
 
 		if (!r.reviewers.isEmpty()) {
-			int reviewer = actorSourceMapper.map(r.reviewers.get(0), ds);
+			int reviewer = actorSourceMapper.map(r.reviewers.getFirst(), ds);
 			if (reviewer > 0) {
 				validation.setProofReadingValidator(reviewer);
 			}
@@ -191,7 +192,7 @@ class ProcessConverter {
 			time.setEndDate(Xml.calendar(doc.validUntil));
 		time.setText(doc.time);
 		dataset.setTimePeriod(time);
-		if (!config.isCreateDefaults())
+		if (!config.withDefaults)
 			return;
 		if (time.getStartDate() == null)
 			time.setStartDate(Xml.calendar(new Date(253370761200000L)));
@@ -244,9 +245,9 @@ class ProcessConverter {
 		refFun.setGeneralComment(process.description);
 		refFun.setInfrastructureProcess(process.infrastructureProcess);
 		var loc = process.location;
-		if (loc != null) {
+		if (loc != null && !Strings.isBlank(loc.code)) {
 			ix.setLocation(loc.code);
-		} else if (config.isCreateDefaults()) {
+		} else if (config.withDefaults) {
 			ix.setLocation("GLO");
 		}
 	}

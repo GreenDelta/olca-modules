@@ -23,7 +23,7 @@ final class Categories {
 				refFun.setLocalSubCategory(category.name);
 			}
 		}
-		if (config.isCreateDefaults()) {
+		if (config.withDefaults) {
 			createDefaults(refFun);
 		}
 	}
@@ -52,8 +52,9 @@ final class Categories {
 				exchange.setLocalSubCategory(category.name);
 			}
 		}
-		if (config.isCreateDefaults())
+		if (config.withDefaults) {
 			createDefaults(exchange);
+		}
 	}
 
 	private static void createDefaults(IExchange exchange) {

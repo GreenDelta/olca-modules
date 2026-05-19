@@ -11,9 +11,9 @@ import org.openlca.ecospold.io.DataSet;
 /**
  * Adds defaults for required structure elements that are missing in a data set.
  */
-final class StructureDefaults {
+final class SchemaDefaults {
 
-	private StructureDefaults() {
+	private SchemaDefaults() {
 	}
 
 	public static void add(DataSet dataSet, IEcoSpoldFactory factory) {
@@ -24,13 +24,12 @@ final class StructureDefaults {
 			defSource(dataSet, factory);
 	}
 
-	private static void checkValidation(DataSet dataSet,
-			IEcoSpoldFactory factory) {
-		IValidation validation = dataSet.getValidation();
+	private static void checkValidation(DataSet ds, IEcoSpoldFactory factory) {
+		IValidation validation = ds.getValidation();
 		if (validation == null)
 			return;
 		if (validation.getProofReadingValidator() == 0) {
-			IPerson person = defPerson(dataSet, factory);
+			IPerson person = defPerson(ds, factory);
 			validation.setProofReadingValidator(person.getNumber());
 		}
 		if (validation.getProofReadingDetails() == null)
