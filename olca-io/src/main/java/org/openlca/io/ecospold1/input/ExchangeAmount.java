@@ -2,7 +2,7 @@ package org.openlca.io.ecospold1.input;
 
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.ecospold.IExchange;
+import org.openlca.ecospold.model.IExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
  */
 class ExchangeAmount {
 
-	private Exchange olcaExchange;
-	private IExchange esExchange;
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Exchange olcaExchange;
+	private final IExchange esExchange;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public ExchangeAmount(Exchange olcaExchange, IExchange esExchange) {
 		this.olcaExchange = olcaExchange;

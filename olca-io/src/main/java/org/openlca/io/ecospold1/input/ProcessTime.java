@@ -5,14 +5,14 @@ import java.util.Date;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ecospold.ITimePeriod;
+import org.openlca.ecospold.model.ITimePeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class ProcessTime {
 
-	private ITimePeriod timePeriod;
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private final ITimePeriod timePeriod;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	public ProcessTime(ITimePeriod timePeriod) {
 		this.timePeriod = timePeriod;
@@ -46,10 +46,9 @@ class ProcessTime {
 
 	private Date convert(XMLGregorianCalendar cal) {
 		try {
-			Date date = cal.toGregorianCalendar().getTime();
-			return date;
+			return cal.toGregorianCalendar().getTime();
 		} catch (Exception e) {
-			log.error("Cannot convert XML date: " + cal, e);
+			log.error("Cannot convert XML date: {}", cal, e);
 			return null;
 		}
 	}

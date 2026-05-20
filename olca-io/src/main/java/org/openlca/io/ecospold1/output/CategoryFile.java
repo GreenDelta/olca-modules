@@ -10,9 +10,9 @@ import org.openlca.commons.Strings;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
-import org.openlca.ecospold.Category;
-import org.openlca.ecospold.CategoryDocument;
-import org.openlca.ecospold.SubCategory;
+import org.openlca.ecospold.model.Category;
+import org.openlca.ecospold.model.CategoryDocument;
+import org.openlca.ecospold.model.SubCategory;
 
 import jakarta.xml.bind.JAXB;
 

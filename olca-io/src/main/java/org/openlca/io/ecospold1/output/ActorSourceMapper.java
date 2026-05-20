@@ -2,10 +2,10 @@ package org.openlca.io.ecospold1.output;
 
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Source;
-import org.openlca.ecospold.IEcoSpoldFactory;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
+import org.openlca.ecospold.model.IEcoSpoldFactory;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.DataSet;
 
 final class ActorSourceMapper {
 

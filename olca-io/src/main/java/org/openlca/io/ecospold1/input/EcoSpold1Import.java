@@ -27,16 +27,16 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ecospold.IAllocation;
-import org.openlca.ecospold.IEcoSpold;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IGeography;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.IReferenceFunction;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpold;
+import org.openlca.ecospold.model.IAllocation;
+import org.openlca.ecospold.model.IEcoSpold;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IGeography;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.IReferenceFunction;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.DataSetType;
+import org.openlca.ecospold.EcoSpold;
 import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.ZipFiles;
@@ -164,7 +164,7 @@ public class EcoSpold1Import implements Import {
 		if (type == DataSetType.IMPACT_METHOD) {
 			importImpacts(spold.value());
 		} else {
-			for (var ds : spold.value().getDataset()) {
+			for (var ds : spold.value().getDataSets()) {
 				var wrap = new DataSet(ds, type.getFactory());
 				importProcess(wrap);
 			}
@@ -240,8 +240,8 @@ public class EcoSpold1Import implements Import {
 	}
 
 	private void process(DataSet ds) {
-		String id = ES1KeyGen.forProcess(ds);
-		Process p = db.get(Process.class, id);
+		var id = ES1KeyGen.forProcess(ds);
+		var p = db.get(Process.class, id);
 		if (p != null) {
 			log.skipped(p);
 			return;
@@ -249,7 +249,7 @@ public class EcoSpold1Import implements Import {
 
 		p = new Process();
 		p.refId = id;
-		ProcessDoc doc = new ProcessDoc();
+		var doc = new ProcessDoc();
 		p.documentation = doc;
 
 		var refFun = ds.getReferenceFunction();
@@ -259,19 +259,7 @@ public class EcoSpold1Import implements Import {
 
 		p.processType = Util.getProcessType(ds);
 		mapTimeAndGeography(ds, p, doc);
-
-		if (ds.getTechnology() != null
-				&& ds.getTechnology().getText() != null) {
-			doc.technology = Strings.cutEnd(
-					(ds.getTechnology().getText()), 65500);
-		}
-		if (refFun != null && Strings.isNotBlank(refFun.getIncludedProcesses())) {
-			doc.technology = Strings.cutEnd(
-					Util.appendIncludedProcesses(
-						doc.technology,
-						refFun.getIncludedProcesses()),
-					65500);
-		}
+		mapTechnology(ds, doc);
 
 		mapExchanges(ds.getExchanges(), p);
 		if (p.quantitativeReference == null)
@@ -292,14 +280,30 @@ public class EcoSpold1Import implements Import {
 		log.imported(p);
 	}
 
-	private void mapTimeAndGeography(DataSet ds, Process p,
-			ProcessDoc doc) {
-		ProcessTime time = new ProcessTime(ds.getTimePeriod());
+	private static void mapTechnology(DataSet ds, ProcessDoc doc) {
+		var tech = ds.getTechnology();
+		var techDoc = tech != null && Strings.isNotBlank(tech.getText())
+			? tech.getText().trim()
+			: null;
+
+		var refFun = ds.getReferenceFunction();
+		if (refFun != null && Strings.isNotBlank(refFun.getIncludedProcesses())) {
+			var incp = "# Included processes\n" + refFun.getIncludedProcesses();
+			techDoc = techDoc != null
+				? techDoc + "\n\n" + incp
+				: incp;
+		}
+
+		doc.technology = techDoc;
+	}
+
+	private void mapTimeAndGeography(DataSet ds, Process p, ProcessDoc doc) {
+		var time = new ProcessTime(ds.getTimePeriod());
 		time.map(doc);
 		if (ds.getGeography() != null) {
-			String locationCode = ds.getGeography().getLocation();
+			var locationCode = ds.getGeography().getLocation();
 			if (locationCode != null) {
-				String genKey = KeyGen.get(locationCode);
+				var genKey = KeyGen.get(locationCode);
 				p.location = db.findLocation(locationCode, genKey);
 			}
 			doc.geography = ds.getGeography().getText();

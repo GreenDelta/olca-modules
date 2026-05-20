@@ -1,24 +1,16 @@
 package org.openlca.io.ecospold1.output;
 
-import java.math.BigInteger;
 import java.util.Date;
-import java.util.List;
 
-import org.openlca.ecospold.IDataEntryBy;
-import org.openlca.ecospold.IDataGeneratorAndPublication;
-import org.openlca.ecospold.IDataSet;
-import org.openlca.ecospold.IDataSetInformation;
-import org.openlca.ecospold.IEcoSpoldFactory;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IGeography;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.IReferenceFunction;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.ITechnology;
-import org.openlca.ecospold.ITimePeriod;
-import org.openlca.ecospold.IValidation;
-import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.DataSetType;
+import org.openlca.commons.Strings;
+import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.model.IEcoSpoldFactory;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.IReferenceFunction;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.ITimePeriod;
+import org.openlca.ecospold.model.impact.ImpactMethodFactory;
 import org.openlca.io.Xml;
 
 /**
@@ -26,20 +18,19 @@ import org.openlca.io.Xml;
  */
 final class SchemaDefaults {
 
-	private final IDataSet ds;
+	private final DataSet ds;
 	private final IEcoSpoldFactory factory;
 
-	private SchemaDefaults(IDataSet ds, IEcoSpoldFactory factory) {
+	private SchemaDefaults(DataSet ds) {
 		this.ds = ds;
-		this.factory = factory;
+		this.factory = ds.factory();
 	}
 
-	static void write(IDataSet ds, IEcoSpoldFactory factory) {
-		new SchemaDefaults(ds, factory).write();
+	static void write(DataSet ds) {
+		new SchemaDefaults(ds).write();
 	}
 
 	private void write() {
-		var dataSet = dataSet();
 		checkDataSetAttributes();
 		checkDataSetInformation();
 		checkDataEntry();
@@ -52,30 +43,26 @@ final class SchemaDefaults {
 		checkExchanges();
 		checkPersons();
 		checkSources();
-		if (dataSet.getSources().isEmpty()) {
-			defSource();
-		}
+
 	}
 
 	private void checkDataSetAttributes() {
-		var dataSet = dataSet();
-		if (isBlank(dataSet.getGenerator())) {
-			dataSet.setGenerator("openLCA");
+		var r = ds.root();
+		if (Strings.isBlank(r.getGenerator())) {
+			r.setGenerator("openLCA");
 		}
-		if (dataSet.getNumber() <= 0) {
-			dataSet.setNumber(1);
+		if (r.getNumber() <= 0) {
+			r.setNumber(1);
 		}
-		if (dataSet.getTimestamp() == null) {
-			dataSet.setTimestamp(Xml.calendar(new Date()));
+		if (r.getTimestamp() == null) {
+			r.setTimestamp(Xml.calendar(new Date()));
 		}
 	}
 
 	private void checkDataSetInformation() {
-		var dataSet = dataSet();
-		IDataSetInformation info = dataSet.getDataSetInformation();
+		var info = ds.getDataSetInformation();
 		if (info == null) {
-			info = factory.createDataSetInformation();
-			dataSet.setDataSetInformation(info);
+			info = ds.withDataSetInformation();
 			info.setType(defaultDataSetType());
 			info.setImpactAssessmentResult(isImpactDataSet());
 			info.setVersion(1.0f);
@@ -83,96 +70,68 @@ final class SchemaDefaults {
 			info.setEnergyValues(0);
 		}
 		if (info.getTimestamp() == null) {
-			info.setTimestamp(dataSet.getTimestamp());
+			info.setTimestamp(ds.root().getTimestamp());
 		}
 		if (info.getLanguageCode() == null) {
 			info.setLanguageCode(factory.getLanguageCode("en"));
 		}
 		if (info.getLocalLanguageCode() == null) {
 			var lang = info.getLanguageCode();
-			info.setLocalLanguageCode(lang != null ? lang : factory.getLanguageCode("en"));
+			info.setLocalLanguageCode(
+				lang != null ? lang : factory.getLanguageCode("en"));
 		}
 	}
 
 	private void checkValidation() {
-		IValidation validation = dataSet().getValidation();
-		if (validation == null)
-			return;
-		if (validation.getProofReadingValidator() == 0) {
-			IPerson person = defPerson();
-			validation.setProofReadingValidator(person.getNumber());
+		var v = ds.getValidation();
+		if (v == null) return;
+		if (v.getProofReadingValidator() == 0) {
+			var person = addDefaultPerson();
+			v.setProofReadingValidator(person.getNumber());
 		}
-		if (validation.getProofReadingDetails() == null)
-			validation.setProofReadingDetails("none");
+		if (Strings.isBlank(v.getProofReadingDetails())) {
+			v.setProofReadingDetails("none");
+		}
 	}
 
 	private void checkPublication() {
-		var dataSet = dataSet();
-		IDataGeneratorAndPublication publication = dataSet
-				.getDataGeneratorAndPublication();
-		if (publication == null) {
-			publication = factory.createDataGeneratorAndPublication();
-			dataSet.setDataGeneratorAndPublication(publication);
+		var pub = ds.withDataGeneratorAndPublication();
+		if (pub.getPerson() == 0) {
+			var person = addDefaultPerson();
+			pub.setPerson(person.getNumber());
 		}
-		if (publication.getPerson() == 0) {
-			IPerson person = defPerson();
-			publication.setPerson(person.getNumber());
-		}
-		publication.setDataPublishedIn(publication.getDataPublishedIn());
+		pub.setDataPublishedIn(pub.getDataPublishedIn());
 	}
 
 	private void checkDataEntry() {
-		var dataSet = dataSet();
-		IDataEntryBy entry = dataSet.getDataEntryBy();
-		if (entry == null) {
-			entry = factory.createDataEntryBy();
-			dataSet.setDataEntryBy(entry);
-		}
+		var entry = ds.withDataEntryBy();
 		if (entry.getPerson() == 0) {
-			IPerson person = defPerson();
+			var person = addDefaultPerson();
 			entry.setPerson(person.getNumber());
 		}
 		if (entry.getQualityNetwork() == null) {
-			entry.setQualityNetwork(BigInteger.ONE);
+			entry.setQualityNetwork(1L);
 		}
 	}
 
 	private void checkGeography() {
-		var dataSet = dataSet();
-		IGeography geography = dataSet.getGeography();
-		if (geography == null) {
-			geography = factory.createGeography();
-			dataSet.setGeography(geography);
-		}
-		if (geography.getLocation() == null) {
-			geography.setLocation("GLO");
+		var geo = ds.withGeography();
+		if (Strings.isBlank(geo.getLocation())) {
+			geo.setLocation("GLO");
 		}
 	}
 
 	private void checkTechnology() {
 		if (isImpactDataSet())
 			return;
-		var dataSet = dataSet();
-		ITechnology technology = dataSet.getTechnology();
-		if (technology == null) {
-			technology = factory.createTechnology();
-			dataSet.setTechnology(technology);
-		}
-		if (isBlank(technology.getText())) {
-			technology.setText("unspecified");
+		var tech = ds.withTechnology();
+		if (Strings.isBlank(tech.getText())) {
+			tech.setText("unspecified");
 		}
 	}
 
 	private void checkTimePeriod() {
-		var dataSet = dataSet();
-		ITimePeriod time = dataSet.getTimePeriod();
-		if (time == null && isImpactDataSet())
-			return;
-		if (time == null) {
-			time = factory.createTimePeriod();
-			time.setDataValidForEntirePeriod(true);
-			dataSet.setTimePeriod(time);
-		}
+		var time = ds.withTimePeriod();
 		if (time.getStartDate() == null) {
 			time.setStartDate(Xml.calendar(new Date(253370761200000L)));
 		}
@@ -182,7 +141,6 @@ final class SchemaDefaults {
 	}
 
 	private void checkReferenceFunction() {
-		var dataSet = dataSet();
 		IReferenceFunction refFun = dataSet.getReferenceFunction();
 		if (refFun == null) {
 			refFun = factory.createReferenceFunction();
@@ -258,7 +216,7 @@ final class SchemaDefaults {
 
 	private void checkSources() {
 		var nextNumber = 1;
-		for (ISource source : dataSet().getSources()) {
+		for (ISource source : ds.getSources()) {
 			if (source.getNumber() <= 0) {
 				source.setNumber(nextSourceNumber(nextNumber));
 			}
@@ -277,26 +235,24 @@ final class SchemaDefaults {
 			}
 			source.setSourceType(source.getSourceType());
 		}
-	}
 
-	private ISource defSource() {
-		var dataSet = dataSet();
-		for (ISource source : dataSet.getSources()) {
-			if (source.getNumber() == 1)
-				return source;
+		if (ds.getSources().isEmpty()) {
+			addDefaultSource();
 		}
-		ISource source = factory.createSource();
-		source.setNumber(1);
-		source.setFirstAuthor("default");
-		source.setYear(Util.toXml((short) 9999));
-		source.setTitle("Created for EcoSpold 1 compatibility");
-		source.setPlaceOfPublications("none");
-		source.setSourceType(0);
-		dataSet.getSources().add(source);
-		return source;
 	}
 
-	private IPerson defPerson() {
+	private void addDefaultSource() {
+		var s = factory.createSource();
+		s.setNumber(1);
+		s.setFirstAuthor("default");
+		s.setYear(Util.toXml((short) 9999));
+		s.setTitle("Created for EcoSpold 1 compatibility");
+		s.setPlaceOfPublications("none");
+		s.setSourceType(0);
+		ds.withSources().add(s);
+	}
+
+	private IPerson addDefaultPerson() {
 		var dataSet = dataSet();
 		for (IPerson person : dataSet.getPersons()) {
 			if (person.getNumber() == 1)
@@ -311,10 +267,6 @@ final class SchemaDefaults {
 		person.setCountryCode(factory.getCountryCode("CH"));
 		dataSet.getPersons().add(person);
 		return person;
-	}
-
-	private DataSet dataSet() {
-		return new DataSet(ds, factory);
 	}
 
 	private void defaultCategories(IReferenceFunction refFun) {
@@ -348,13 +300,13 @@ final class SchemaDefaults {
 	}
 
 	private boolean isImpactDataSet() {
-		return factory == DataSetType.IMPACT_METHOD.getFactory();
+		return factory instanceof ImpactMethodFactory;
 	}
 
 	private int defaultDataSetType() {
 		if (isImpactDataSet())
 			return 4;
-		for (IExchange exchange : dataSet().getExchanges()) {
+		for (IExchange exchange : ds.getExchanges()) {
 			if (Integer.valueOf(2).equals(exchange.getOutputGroup()))
 				return 5;
 		}
@@ -365,35 +317,5 @@ final class SchemaDefaults {
 		return Integer.valueOf(0).equals(exchange.getOutputGroup());
 	}
 
-	private int nextPersonNumber(int fallback) {
-		return nextNumber(dataSet().getPersons(), fallback);
-	}
 
-	private int nextSourceNumber(int fallback) {
-		return nextNumber(dataSet().getSources(), fallback);
-	}
-
-	private int nextExchangeNumber(int fallback) {
-		return nextNumber(dataSet().getExchanges(), fallback);
-	}
-
-	private int nextNumber(List<?> values, int fallback) {
-		var next = Math.max(1, fallback);
-		for (var value : values) {
-			int number = switch (value) {
-				case IPerson person -> person.getNumber();
-				case ISource source -> source.getNumber();
-				case IExchange exchange -> exchange.getNumber();
-				default -> 0;
-			};
-			if (number >= next) {
-				next = number + 1;
-			}
-		}
-		return next;
-	}
-
-	private boolean isBlank(String value) {
-		return value == null || value.isBlank();
-	}
 }

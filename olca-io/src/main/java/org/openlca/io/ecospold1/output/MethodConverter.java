@@ -4,11 +4,11 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
-import org.openlca.ecospold.IEcoSpold;
-import org.openlca.ecospold.IEcoSpoldFactory;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.DataSetType;
+import org.openlca.ecospold.model.IEcoSpold;
+import org.openlca.ecospold.model.IEcoSpoldFactory;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.DataSetType;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 
 class MethodConverter {

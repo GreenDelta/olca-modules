@@ -1,8 +1,8 @@
 package org.openlca.io.ecospold1.output;
 
 import org.openlca.core.model.Category;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IReferenceFunction;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IReferenceFunction;
 
 final class Categories {
 

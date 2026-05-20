@@ -11,14 +11,13 @@ import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ecospold.IDataEntryBy;
-import org.openlca.ecospold.IDataSet;
-import org.openlca.ecospold.IEcoSpoldFactory;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IReferenceFunction;
-import org.openlca.ecospold.ITechnology;
-import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.DataSetType;
+import org.openlca.ecospold.model.IDataEntryBy;
+import org.openlca.ecospold.model.IDataSet;
+import org.openlca.ecospold.model.IEcoSpoldFactory;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IReferenceFunction;
+import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.DataSetType;
 import org.openlca.io.Xml;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.openlca.util.Exchanges;
@@ -176,10 +175,12 @@ class ProcessConverter {
 		entryBy.setPerson(n);
 	}
 
-	private void mapTechnology(ProcessDoc doc, DataSet dataset) {
-		ITechnology technology = factory.createTechnology();
+	private void mapTechnology(ProcessDoc doc, DataSet ds) {
+
+
+		var technology = factory.createTechnology();
 		technology.setText(Util.technologyComment(doc.technology));
-		dataset.setTechnology(technology);
+		ds.setTechnology(technology);
 	}
 
 	private void mapTime(ProcessDoc doc, DataSet dataset) {

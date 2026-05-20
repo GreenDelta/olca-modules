@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 class Util {
 
-	private static final String INCLUDED_PROCESSES_HEADER = "# Included processes";
-
 	private Util() {
 	}
 
