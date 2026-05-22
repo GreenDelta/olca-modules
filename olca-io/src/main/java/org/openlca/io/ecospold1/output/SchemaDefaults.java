@@ -63,18 +63,11 @@ final class SchemaDefaults {
 		defaultWith(refFun::getLocalName, refFun::setLocalName, refFun.getName());
 		defaultWith(refFun::getUnit, refFun::setUnit, "unspecified");
 		defaultWith(refFun::getCategory, refFun::setCategory, "unspecified");
-
-		// TODO: these here below all with defaultWith
-		if (refFun.getLocalCategory() == null) {
-			refFun.setLocalCategory(refFun.getCategory());
-		}
-		if (refFun.getSubCategory() == null) {
-			refFun.setSubCategory("unspecified");
-		}
-		if (refFun.getLocalSubCategory() == null) {
-			refFun.setLocalSubCategory(refFun.getSubCategory());
-		}
-
+		defaultWith(refFun::getLocalCategory, refFun::setLocalCategory,
+			refFun.getCategory());
+		defaultWith(refFun::getSubCategory, refFun::setSubCategory, "unspecified");
+		defaultWith(refFun::getLocalSubCategory, refFun::setLocalSubCategory,
+			refFun.getSubCategory());
 		if (!isImpactDataSet()) {
 			// the field can be null but the getter returns a primitive!
 			refFun.setInfrastructureIncluded(refFun.isInfrastructureIncluded());
@@ -177,17 +170,10 @@ final class SchemaDefaults {
 			defaultWith(e::getName, e::setName, "unspecified");
 			defaultWith(e::getUnit, e::setUnit, "unspecified");
 			defaultWith(e::getCategory, e::setCategory, "unspecified");
-
-			// TODO: here use also defaultWith below
-			if (e.getLocalCategory() == null) {
-				e.setLocalCategory(e.getCategory());
-			}
-			if (e.getSubCategory() == null) {
-				e.setSubCategory("unspecified");
-			}
-			if (e.getLocalSubCategory() == null) {
-				e.setLocalSubCategory(e.getSubCategory());
-			}
+			defaultWith(e::getLocalCategory, e::setLocalCategory, e.getCategory());
+			defaultWith(e::getSubCategory, e::setSubCategory, "unspecified");
+			defaultWith(e::getLocalSubCategory, e::setLocalSubCategory,
+				e.getSubCategory());
 
 			if (!e.isElementaryFlow()) {
 				defaultWith(e::getLocation, e::setLocation, "GLO");
