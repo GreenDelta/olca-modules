@@ -217,7 +217,6 @@ class ProcessConverter {
 				mapUncertainty(e, ix);
 			}
 			mapComment(e, ix);
-			ds.getExchanges().add(ix);
 			if (isQRef) {
 				mapRefFlow(ds, e, ix);
 			}

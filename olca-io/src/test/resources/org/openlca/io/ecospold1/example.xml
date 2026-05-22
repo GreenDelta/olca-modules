@@ -38,7 +38,9 @@
 					location="DE"
 					text="Values describe a fictional neighborhood-scale operation in Germany."
 				/>
-				<technology text="Aerated compost bins with manual turning and covered storage." />
+				<technology
+					text="Aerated compost bins with manual turning and covered storage."
+				/>
 				<timePeriod
 					dataValidForEntirePeriod="true"
 					text="Representative period used for the fictional test inventory."
@@ -76,7 +78,10 @@
 					volumeNo="1"
 					text="Internal example document"
 				/>
-				<validation proofReadingDetails="Synthetic dataset reviewed for schema coverage." proofReadingValidator="2" />
+				<validation
+					proofReadingDetails="Synthetic dataset reviewed for schema coverage."
+					proofReadingValidator="2"
+				/>
 			</modellingAndValidation>
 			<administrativeInformation>
 				<dataEntryBy person="1" qualityNetwork="1" />

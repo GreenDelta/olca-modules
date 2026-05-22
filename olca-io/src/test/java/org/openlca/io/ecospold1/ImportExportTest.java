@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Calendar;
 import java.util.UUID;
 
 import org.junit.After;
@@ -58,6 +59,17 @@ public class ImportExportTest {
 		Dirs.delete(dir);
 	}
 
+	@Test
+	public void testProcessTime() {
+		var imported = getProcess();
+		assertNotNull(imported.documentation);
+		assertNotNull(imported.documentation.validUntil);
+		var calendar = Calendar.getInstance();
+		calendar.setTime(imported.documentation.validUntil);
+		assertEquals(2025, calendar.get(Calendar.YEAR));
+		assertEquals(Calendar.DECEMBER, calendar.get(Calendar.MONTH));
+		assertEquals(31, calendar.get(Calendar.DAY_OF_MONTH));
+	}
 
 	@Test
 	public void testRoundTrip() throws Exception {
@@ -82,6 +94,7 @@ public class ImportExportTest {
 		assertFalse("No datasets in exported file", spold.getDataSets().isEmpty());
 		var ds = new DataSet(
 			spold.getDataSets().getFirst(), DataSetType.PROCESS.getFactory());
+		EcoSpold.write(new File("target/spold.xml"), spold);
 
 		// check the fields
 		var refFun = ds.getReferenceFunction();
