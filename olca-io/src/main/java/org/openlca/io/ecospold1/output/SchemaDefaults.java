@@ -1,8 +1,10 @@
 package org.openlca.io.ecospold1.output;
 
 import java.util.Date;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 
 import org.openlca.commons.Strings;
 import org.openlca.ecospold.model.DataSet;
@@ -10,7 +12,6 @@ import org.openlca.ecospold.model.IEcoSpoldFactory;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.IReferenceFunction;
-import org.openlca.ecospold.model.ISource;
 import org.openlca.ecospold.model.impact.ImpactMethodFactory;
 import org.openlca.io.Xml;
 
@@ -126,11 +127,12 @@ final class SchemaDefaults {
 		if (t.getStartDate() == null
 			&& t.getStartYear() == null
 			&& t.getStartYearMonth() == null) {
-			t.setStartYear(Xml.calendar());
-			t.setStartDate(Xml.calendar(new Date(253370761200000L)));
+			t.setStartYear(Util.xmlYear(9999));
 		}
-		if (t.getEndDate() == null) {
-			t.setEndDate(Xml.calendar(new Date(253402210800000L)));
+		if (t.getEndDate() == null
+			&& t.getEndYear() == null
+			&& t.getEndYearMonth() == null) {
+			t.setEndYear(Util.xmlYear(9999));
 		}
 	}
 
@@ -147,34 +149,36 @@ final class SchemaDefaults {
 	}
 
 	private void checkExchanges() {
-		var nextNumber = 1;
+
 		for (var e : ds.getExchanges()) {
-			if (e.getNumber() <= 0) {
-				e.setNumber(nextExchangeNumber(nextNumber));
-			}
-			nextNumber = Math.max(nextNumber, e.getNumber() + 1);
 			defaultWith(e::getName, e::setName, "unspecified");
 			defaultWith(e::getUnit, e::setUnit, "unspecified");
 			defaultCategories(e);
 			if (!e.isElementaryFlow()) {
 				defaultWith(e::getLocation, e::setLocation, "GLO");
 			}
-			if (e.isInfrastructureProcess() == null) {
+			if (!e.isElementaryFlow() && e.isInfrastructureProcess() == null) {
 				e.setInfrastructureProcess(false);
 			}
-			if (e.getUncertaintyType() == null && !isReferenceProduct(e)) {
-				e.setUncertaintyType(0);
+			// clear uncertainty information for the reference flow
+			if (isRefFlow(e)) {
+				e.setUncertaintyType(null);
+				e.setStandardDeviation95(null);
+				e.setMostLikelyValue(null);
+				e.setMaxValue(null);
+				e.setMinValue(null);
 			}
 		}
 	}
 
+	private boolean isRefFlow(IExchange e) {
+		return e != null
+			&& e.getOutputGroup() != null
+			&& e.getOutputGroup() == 0;
+	}
+
 	private void checkPersons() {
-		var nextNumber = 1;
-		for (IPerson person : dataSet().getPersons()) {
-			if (person.getNumber() <= 0) {
-				person.setNumber(nextPersonNumber(nextNumber));
-			}
-			nextNumber = Math.max(nextNumber, person.getNumber() + 1);
+		for (var person : ds.getPersons()) {
 			defaultWith(person::getName, person::setName, "default");
 			defaultWith(person::getAddress, person::setAddress, "no address");
 			defaultWith(person::getTelephone, person::setTelephone, "000");
@@ -186,23 +190,13 @@ final class SchemaDefaults {
 	}
 
 	private void checkSources() {
-		var nextNumber = 1;
-		for (ISource source : ds.getSources()) {
-			if (source.getNumber() <= 0) {
-				source.setNumber(nextSourceNumber(nextNumber));
+		for (var s : ds.getSources()) {
+			defaultWith(s::getFirstAuthor, s::setFirstAuthor, "default");
+			defaultWith(s::getPlaceOfPublications, s::setPlaceOfPublications, "none");
+			defaultWith(s::getTitle, s::setTitle, "no title");
+			if (s.getYear() == null) {
+				s.setYear(Util.xmlYear(9999));
 			}
-			nextNumber = Math.max(nextNumber, source.getNumber() + 1);
-			defaultWith(source::getFirstAuthor, source::setFirstAuthor, "default");
-			defaultWith(source::getPlaceOfPublications, source::setPlaceOfPublications, "none");
-			defaultWith(source::getTitle, source::setTitle, "no title");
-			if (source.getYear() == null) {
-				source.setYear(Util.toXml((short) 9999));
-			}
-			source.setSourceType(source.getSourceType());
-		}
-
-		if (ds.getSources().isEmpty()) {
-			addDefaultSource();
 		}
 	}
 
@@ -210,7 +204,7 @@ final class SchemaDefaults {
 		var s = factory.createSource();
 		s.setNumber(1);
 		s.setFirstAuthor("default");
-		s.setYear(Util.toXml((short) 9999));
+		s.setYear(Util.xmlYear((short) 9999));
 		s.setTitle("Created for EcoSpold 1 compatibility");
 		s.setPlaceOfPublications("none");
 		s.setSourceType(0);
@@ -283,6 +277,18 @@ final class SchemaDefaults {
 		if (Strings.isBlank(get.get())) {
 			set.accept(value);
 		}
+	}
+
+
+	private <T> int nextNumOf(List<T> elems, ToIntFunction<T> get) {
+		var nextNum = 1;
+		for (var e : elems) {
+			int num = get.applyAsInt(e);
+			if (num >= nextNum) {
+				nextNum = num + 1;
+			}
+		}
+		return nextNum;
 	}
 
 }

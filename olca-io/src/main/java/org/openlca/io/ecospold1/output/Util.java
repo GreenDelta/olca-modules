@@ -33,9 +33,7 @@ class Util {
 			: refIdInfo;
 	}
 
-	static XMLGregorianCalendar toXml(Short year) {
-		if (year == null)
-			return null;
+	static XMLGregorianCalendar xmlYear(int year) {
 		try {
 			var xmlCal = Xml.types().newXMLGregorianCalendar();
 			xmlCal.setYear(year);
@@ -105,7 +103,7 @@ class Util {
 		s.setFirstAuthor(source.name);
 		s.setText(source.description);
 		s.setTitle(source.textReference);
-		s.setYear(Util.toXml(source.year));
+		s.setYear(Util.xmlYear(source.year));
 		s.setPlaceOfPublications("unknown");
 		s.setSourceType(0);
 		return id;

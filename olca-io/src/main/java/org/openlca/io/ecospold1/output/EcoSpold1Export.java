@@ -12,7 +12,6 @@ import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.ecospold.model.IDataSet;
 import org.openlca.ecospold.model.IEcoSpold;
-import org.openlca.ecospold.DataSetType;
 import org.openlca.ecospold.EcoSpold;
 import org.openlca.util.Dirs;
 import org.slf4j.Logger;
@@ -51,9 +50,8 @@ public class EcoSpold1Export implements Closeable {
 		if (config.singleFile) {
 			append(ds);
 		} else {
-			var factory = DataSetType.PROCESS.getFactory();
-			var spold = factory.createEcoSpold();
-			spold.getDataset().add(ds);
+			var spold = EcoSpold.newProcess();
+			spold.getDataSets().add(ds);
 			var fileName = "process_" + process.refId + ".xml";
 			var file = new File(config.dir, fileName);
 			EcoSpold.write(file, spold);
@@ -64,10 +62,9 @@ public class EcoSpold1Export implements Closeable {
 	private void append(IDataSet ds) {
 		if (ds == null) return;
 		if (singleSpold == null) {
-			var factory = DataSetType.PROCESS.getFactory();
-			singleSpold = factory.createEcoSpold();
+			singleSpold = EcoSpold.newProcess();
 		}
-		singleSpold.getDataset().add(ds);
+		singleSpold.getDataSets().add(ds);
 	}
 
 	/// It is important to always close the export. The category file and a
@@ -81,7 +78,7 @@ public class EcoSpold1Export implements Closeable {
 
 			var format = new SimpleDateFormat("yyyy-MM-dd'T'hh-mm-ss");
 			var time = format.format(new Date());
-			int size = singleSpold.getDataset().size();
+			int size = singleSpold.getDataSets().size();
 			var fileName = "EcoSpold_" + size + "_processes_" + time + ".xml";
 			var file = new File(config.dir, fileName);
 			var res = EcoSpold.write(file, singleSpold);
