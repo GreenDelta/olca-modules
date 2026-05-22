@@ -110,7 +110,6 @@ public class ImportExportTest {
 		assertFalse("No datasets in exported file", spold.getDataSets().isEmpty());
 		var ds = new DataSet(
 			spold.getDataSets().getFirst(), DataSetType.PROCESS.getFactory());
-		EcoSpold.write(new File("target/spold.xml"), spold);
 
 		// check the fields
 		var info = ds.getDataSetInformation();

@@ -33,8 +33,12 @@ public class EcoSpold1Export implements Closeable {
 		this.flowNames = new FlowNameFormatter(config);
 	}
 
+	public static EcoSpold1Config of(IDatabase db) {
+		return new EcoSpold1Config(db);
+	}
+
 	public static EcoSpold1Config of(IDatabase db, File outDir) {
-		return new EcoSpold1Config(db, outDir);
+		return new EcoSpold1Config(db).withDir(outDir);
 	}
 
 	public Res<Void> export(ImpactMethod method) {
@@ -91,7 +95,7 @@ public class EcoSpold1Export implements Closeable {
 	public static class EcoSpold1Config {
 
 		final IDatabase db;
-		final File dir;
+		File dir;
 
 		boolean singleFile = false;
 		boolean withDefaults = false;
@@ -102,9 +106,13 @@ public class EcoSpold1Export implements Closeable {
 		boolean withTypeSuffixes;
 		boolean withProcessSuffixes;
 
-		EcoSpold1Config(IDatabase db, File dir) {
+		EcoSpold1Config(IDatabase db) {
 			this.db = db;
+		}
+
+		public EcoSpold1Config withDir(File dir) {
 			this.dir = dir;
+			return this;
 		}
 
 		/// If set to `true`, the export will write all process data sets into a

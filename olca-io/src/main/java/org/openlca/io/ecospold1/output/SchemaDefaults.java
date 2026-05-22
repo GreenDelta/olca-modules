@@ -1,5 +1,6 @@
 package org.openlca.io.ecospold1.output;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,7 +11,6 @@ import org.openlca.commons.Strings;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
-import org.openlca.ecospold.model.IReferenceFunction;
 import org.openlca.ecospold.model.impact.ImpactMethodFactory;
 import org.openlca.io.Xml;
 
@@ -18,6 +18,8 @@ import org.openlca.io.Xml;
 final class SchemaDefaults {
 
 	private final DataSet ds;
+
+	private IPerson defaultPerson;
 
 	private SchemaDefaults(DataSet ds) {
 		this.ds = ds;
@@ -29,19 +31,44 @@ final class SchemaDefaults {
 
 	private void write() {
 		checkDataSetAttributes();
-		checkDataSetInformation();
-		checkDataEntry();
-		checkPublication();
-		checkValidation();
+		checkReferenceFunction();
 		checkGeography();
 		checkTechnology();
 		checkTimePeriod();
-		checkReferenceFunction();
-		checkExchanges();
-		checkPersons();
+		checkDataSetInformation();
 		checkSources();
-
+		checkValidation();
+		checkDataEntry();
+		checkPublication();
+		checkPersons();
+		checkExchanges();
 	}
+
+	private void checkReferenceFunction() {
+		var refFun = ds.withReferenceFunction();
+		refFun.setDatasetRelatesToProduct(!isImpactDataSet());
+		defaultWith(refFun::getName, refFun::setName, "unspecified");
+		defaultWith(refFun::getLocalName, refFun::setLocalName, refFun.getName());
+		defaultWith(refFun::getUnit, refFun::setUnit, "unspecified");
+		defaultWith(refFun::getCategory, refFun::setCategory, "unspecified");
+
+		// TODO: these here below all with defaultWith
+		if (refFun.getLocalCategory() == null) {
+			refFun.setLocalCategory(refFun.getCategory());
+		}
+		if (refFun.getSubCategory() == null) {
+			refFun.setSubCategory("unspecified");
+		}
+		if (refFun.getLocalSubCategory() == null) {
+			refFun.setLocalSubCategory(refFun.getSubCategory());
+		}
+
+		if (!isImpactDataSet()) {
+			// the field can be null but the getter returns a primitive!
+			refFun.setInfrastructureIncluded(refFun.isInfrastructureIncluded());
+		}
+	}
+
 
 	private void checkDataSetAttributes() {
 		var r = ds.root();
@@ -59,29 +86,38 @@ final class SchemaDefaults {
 		if (info == null) {
 			info = ds.withDataSetInformation();
 			info.setType(defaultDataSetType());
-			info.setImpactAssessmentResult(isImpactDataSet());
+			info.setImpactAssessmentResult(false);
 			info.setVersion(1.0f);
 			info.setInternalVersion(1.0f);
 			info.setEnergyValues(0);
 		}
 		if (info.getTimestamp() == null) {
-			info.setTimestamp(ds.root().getTimestamp());
+			info.setTimestamp(Xml.calendar(new Date()));
 		}
 		if (info.getLanguageCode() == null) {
 			info.setLanguageCode(ds.factory().getLanguageCode("en"));
 		}
 		if (info.getLocalLanguageCode() == null) {
-			var lang = info.getLanguageCode();
-			info.setLocalLanguageCode(
-				lang != null ? lang : ds.factory().getLanguageCode("en"));
+			info.setLocalLanguageCode(info.getLanguageCode());
 		}
+	}
+
+	private int defaultDataSetType() {
+		if (isImpactDataSet())
+			return 4;
+		var coProd = Integer.valueOf(2);
+		for (IExchange exchange : ds.getExchanges()) {
+			if (coProd.equals(exchange.getOutputGroup()))
+				return 5;
+		}
+		return 0;
 	}
 
 	private void checkValidation() {
 		var v = ds.getValidation();
 		if (v == null) return;
 		if (v.getProofReadingValidator() == 0) {
-			var person = addDefaultPerson();
+			var person = getDefaultPerson();
 			v.setProofReadingValidator(person.getNumber());
 		}
 		defaultWith(v::getProofReadingDetails, v::setProofReadingDetails, "none");
@@ -90,16 +126,17 @@ final class SchemaDefaults {
 	private void checkPublication() {
 		var pub = ds.withDataGeneratorAndPublication();
 		if (pub.getPerson() == 0) {
-			var person = addDefaultPerson();
+			var person = getDefaultPerson();
 			pub.setPerson(person.getNumber());
 		}
+		// the field can be null but the getter returns a primitive!
 		pub.setDataPublishedIn(pub.getDataPublishedIn());
 	}
 
 	private void checkDataEntry() {
 		var entry = ds.withDataEntryBy();
 		if (entry.getPerson() == 0) {
-			var person = addDefaultPerson();
+			var person = getDefaultPerson();
 			entry.setPerson(person.getNumber());
 		}
 		if (entry.getQualityNetwork() == null) {
@@ -133,24 +170,25 @@ final class SchemaDefaults {
 		}
 	}
 
-	private void checkReferenceFunction() {
-		var refFun = ds.withReferenceFunction();
-		refFun.setDatasetRelatesToProduct(!isImpactDataSet());
-		defaultWith(refFun::getName, refFun::setName, "unspecified");
-		defaultWith(refFun::getLocalName, refFun::setLocalName, refFun.getName());
-		if (refFun.getAmount() == 0) {
-			refFun.setAmount(1.0);
-		}
-		defaultWith(refFun::getUnit, refFun::setUnit, "unspecified");
-		defaultCategories(refFun);
-	}
 
 	private void checkExchanges() {
 
 		for (var e : ds.getExchanges()) {
 			defaultWith(e::getName, e::setName, "unspecified");
 			defaultWith(e::getUnit, e::setUnit, "unspecified");
-			defaultCategories(e);
+			defaultWith(e::getCategory, e::setCategory, "unspecified");
+
+			// TODO: here use also defaultWith below
+			if (e.getLocalCategory() == null) {
+				e.setLocalCategory(e.getCategory());
+			}
+			if (e.getSubCategory() == null) {
+				e.setSubCategory("unspecified");
+			}
+			if (e.getLocalSubCategory() == null) {
+				e.setLocalSubCategory(e.getSubCategory());
+			}
+
 			if (!e.isElementaryFlow()) {
 				defaultWith(e::getLocation, e::setLocation, "GLO");
 			}
@@ -159,7 +197,7 @@ final class SchemaDefaults {
 			}
 			// clear uncertainty information for the reference flow
 			if (isRefFlow(e)) {
-				e.setUncertaintyType(null);
+				e.setUncertaintyType(0);
 				e.setStandardDeviation95(null);
 				e.setMostLikelyValue(null);
 				e.setMaxValue(null);
@@ -176,10 +214,10 @@ final class SchemaDefaults {
 
 	private void checkPersons() {
 		for (var person : ds.getPersons()) {
-			defaultWith(person::getName, person::setName, "default");
+			defaultWith(person::getName, person::setName, "unknown");
 			defaultWith(person::getAddress, person::setAddress, "no address");
 			defaultWith(person::getTelephone, person::setTelephone, "000");
-			defaultWith(person::getCompanyCode, person::setCompanyCode, "default");
+			defaultWith(person::getCompanyCode, person::setCompanyCode, "unknown");
 			if (person.getCountryCode() == null) {
 				person.setCountryCode(ds.factory().getCountryCode("CH"));
 			}
@@ -188,12 +226,15 @@ final class SchemaDefaults {
 
 	private void checkSources() {
 		for (var s : ds.getSources()) {
-			defaultWith(s::getFirstAuthor, s::setFirstAuthor, "default");
-			defaultWith(s::getPlaceOfPublications, s::setPlaceOfPublications, "none");
+			defaultWith(s::getFirstAuthor, s::setFirstAuthor, "unknown");
 			defaultWith(s::getTitle, s::setTitle, "no title");
+			defaultWith(s::getPlaceOfPublications, s::setPlaceOfPublications, "unknown");
 			if (s.getYear() == null) {
 				s.setYear(Util.xmlYear(9999));
 			}
+		}
+		if (ds.getSources().isEmpty()) {
+			addDefaultSource();
 		}
 	}
 
@@ -201,67 +242,29 @@ final class SchemaDefaults {
 		var s = ds.withSource();
 		s.setNumber(1);
 		s.setFirstAuthor("default");
-		s.setYear(Util.xmlYear((short) 9999));
+		s.setYear(Util.xmlYear(Calendar.getInstance().get(Calendar.YEAR)));
 		s.setTitle("Created for EcoSpold 1 compatibility");
 		s.setPlaceOfPublications("none");
 		s.setSourceType(0);
 	}
 
-	private IPerson addDefaultPerson() {
+	private IPerson getDefaultPerson() {
+		if (defaultPerson != null)
+			return defaultPerson;
 		var p = ds.withPerson();
-		p.setNumber(1);
-		p.setName("default");
+		p.setNumber(nextNumOf(ds.getPersons(), IPerson::getNumber));
+		p.setName("Default");
 		p.setAddress("Created for EcoSpold 1 compatibility");
 		p.setTelephone("000");
 		p.setCompanyCode("default");
 		p.setCountryCode(ds.factory().getCountryCode("CH"));
-		ds.getPersons().add(p);
+		defaultPerson = p;
 		return p;
-	}
-
-	private void defaultCategories(IReferenceFunction refFun) {
-		if (refFun.getCategory() == null) {
-			refFun.setCategory("unspecified");
-		}
-		if (refFun.getLocalCategory() == null) {
-			refFun.setLocalCategory(refFun.getCategory());
-		}
-		if (refFun.getSubCategory() == null) {
-			refFun.setSubCategory("unspecified");
-		}
-		if (refFun.getLocalSubCategory() == null) {
-			refFun.setLocalSubCategory(refFun.getSubCategory());
-		}
-	}
-
-	private void defaultCategories(IExchange e) {
-		defaultWith(e::getCategory, e::setCategory, "unspecified");
-
-		if (e.getLocalCategory() == null) {
-			e.setLocalCategory(e.getCategory());
-		}
-		if (e.getSubCategory() == null) {
-			e.setSubCategory("unspecified");
-		}
-		if (e.getLocalSubCategory() == null) {
-			e.setLocalSubCategory(e.getSubCategory());
-		}
 	}
 
 	private boolean isImpactDataSet() {
 		return ds.factory() instanceof ImpactMethodFactory;
 	}
-
-	private int defaultDataSetType() {
-		if (isImpactDataSet())
-			return 4;
-		for (IExchange exchange : ds.getExchanges()) {
-			if (Integer.valueOf(2).equals(exchange.getOutputGroup()))
-				return 5;
-		}
-		return 1;
-	}
-
 
 	private void defaultWith(
 		Supplier<String> get, Consumer<String> set, String value

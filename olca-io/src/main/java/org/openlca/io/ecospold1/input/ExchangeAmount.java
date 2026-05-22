@@ -25,8 +25,9 @@ class ExchangeAmount {
 		try {
 			double mean = esExchange.getMeanValue() * factor;
 			olcaExchange.amount = mean;
-			if (esExchange.getUncertaintyType() != null)
+			if (esExchange.getUncertaintyType() != 0) {
 				setUncertaintyValues(mean);
+			}
 		} catch (Exception e) {
 			log.error("Mapping uncertainty distribution failed", e);
 		}
