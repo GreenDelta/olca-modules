@@ -61,17 +61,27 @@ public class ImportExportTest {
 	}
 
 	@Test
-	public void testProcessTime() {
-		var imported = getProcess();
-		assertNotNull(imported.documentation);
-		assertNotNull(imported.documentation.validUntil);
+	public void testProcess() {
+		var proc = getProcess();
+		var doc = proc.documentation;
+		assertNotNull(doc);
+		assertEquals(
+			"Values were created solely for software tests and documentation examples.",
+			doc.samplingProcedure);
+		assertEquals(
+			"No extrapolation was applied because the dataset is synthetic.",
+			doc.dataTreatment);
+		assertEquals("None.", doc.dataSelection);
+		assertEquals("1500 kg/year", doc.dataCompleteness);
+
+		assertNotNull(doc.validUntil);
 		var calendar = Calendar.getInstance();
-		calendar.setTime(imported.documentation.validUntil);
+		calendar.setTime(doc.validUntil);
 		assertEquals(2025, calendar.get(Calendar.YEAR));
 		assertEquals(Calendar.DECEMBER, calendar.get(Calendar.MONTH));
 		assertEquals(31, calendar.get(Calendar.DAY_OF_MONTH));
 
-		var version = new Version(imported.version);
+		var version = new Version(proc.version);
 		assertEquals(12, version.getMajor());
 		assertEquals(34, version.getMinor());
 		assertEquals(67, version.getUpdate());
@@ -107,6 +117,17 @@ public class ImportExportTest {
 		assertNotNull(info);
 		assertEquals(12.34f, info.getVersion(), 0.001f);
 		assertEquals(67.0f, info.getInternalVersion(), 0.001f);
+
+		var repr = ds.getRepresentativeness();
+		assertNotNull(repr);
+		assertEquals(
+			"Values were created solely for software tests and documentation examples.",
+			repr.getSamplingProcedure());
+		assertEquals(
+			"No extrapolation was applied because the dataset is synthetic.",
+			repr.getExtrapolations());
+		assertEquals("None.", repr.getUncertaintyAdjustments());
+		assertEquals("1500 kg/year", repr.getProductionVolume());
 
 		var refFun = ds.getReferenceFunction();
 		assertNotNull(refFun);

@@ -70,6 +70,9 @@ class Util {
 		var repr = ds.getRepresentativeness();
 		if (repr != null) {
 			doc.samplingProcedure = repr.getSamplingProcedure();
+			doc.dataTreatment = repr.getExtrapolations();
+			doc.dataSelection = repr.getUncertaintyAdjustments();
+			doc.dataCompleteness = repr.getProductionVolume();
 		}
 	}
 

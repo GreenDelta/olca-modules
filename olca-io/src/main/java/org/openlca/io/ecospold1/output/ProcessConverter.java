@@ -50,16 +50,16 @@ class ProcessConverter {
 		return ds.root();
 	}
 
-	private void mapDocumentation(DataSet dataSet) {
+	private void mapDocumentation(DataSet ds) {
 		var doc = process.documentation;
 		if (doc == null)
 			return;
-		mapDataSetInformation(doc, dataSet);
-		mapTime(doc, dataSet);
-		mapTechnology(doc, dataSet);
-		mapGeography(doc, dataSet);
-		mapModelingAndValidation(doc, dataSet);
-		mapAdminInfo(doc, dataSet);
+		mapDataSetInformation(doc, ds);
+		mapTime(doc, ds);
+		mapTechnology(doc, ds);
+		mapGeography(doc, ds);
+		mapModelingAndValidation(doc, ds);
+		mapAdminInfo(doc, ds);
 	}
 
 	private void mapDataSetInformation(ProcessDoc doc, DataSet ds) {
@@ -72,8 +72,8 @@ class ProcessConverter {
 			info.setTimestamp(Xml.calendar(process.lastChange));
 		} else {
 			var date = doc.creationDate != null
-					? doc.creationDate
-					: new Date();
+				? doc.creationDate
+				: new Date();
 			info.setTimestamp(Xml.calendar(date));
 		}
 		info.setType(getProcessType());
@@ -85,8 +85,8 @@ class ProcessConverter {
 		if (process.processType == ProcessType.LCI_RESULT)
 			return 2;
 		return Processes.isMultiFunctional(process)
-				? 5
-				: 1;
+			? 5
+			: 1;
 	}
 
 	private void mapGeography(ProcessDoc doc, DataSet ds) {
@@ -105,10 +105,16 @@ class ProcessConverter {
 		for (Source source : doc.sources) {
 			Util.sourceOf(source, ds);
 		}
-		if (doc.samplingProcedure == null)
+		if (Strings.isBlank(doc.samplingProcedure)
+			&& Strings.isBlank(doc.dataTreatment)
+			&& Strings.isBlank(doc.dataSelection)
+			&& Strings.isBlank(doc.dataCompleteness))
 			return;
 		var repr = ds.withRepresentativeness();
 		repr.setSamplingProcedure(doc.samplingProcedure);
+		repr.setExtrapolations(doc.dataTreatment);
+		repr.setUncertaintyAdjustments(doc.dataSelection);
+		repr.setProductionVolume(doc.dataCompleteness);
 	}
 
 	private void mapValidation(ProcessDoc doc, DataSet ds) {
@@ -117,7 +123,7 @@ class ProcessConverter {
 		var r = doc.reviews.getFirst();
 		var validation = ds.withValidation();
 		validation.setProofReadingDetails(
-				r.details != null ? r.details : "none");
+			r.details != null ? r.details : "none");
 		if (!r.reviewers.isEmpty()) {
 			int reviewer = Util.personOf(r.reviewers.getFirst(), ds);
 			if (reviewer > 0) {
@@ -243,8 +249,8 @@ class ProcessConverter {
 		refFun.setInfrastructureProcess(flow.infrastructureFlow);
 		refFun.setAmount(e.amount);
 		var category = flow.category != null
-				? flow.category
-				: process.category;
+			? flow.category
+			: process.category;
 		Categories.map(category, refFun);
 		refFun.setLocalCategory(refFun.getCategory());
 		refFun.setLocalSubCategory(refFun.getSubCategory());
@@ -258,7 +264,7 @@ class ProcessConverter {
 			exchange.setGeneralComment(inExchange.description);
 		} else {
 			exchange.setGeneralComment(
-					inExchange.dqEntry + "; " + inExchange.description);
+				inExchange.dqEntry + "; " + inExchange.description);
 		}
 	}
 

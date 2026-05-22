@@ -64,6 +64,7 @@
 					samplingProcedure="Values were created solely for software tests and documentation examples."
 					extrapolations="No extrapolation was applied because the dataset is synthetic."
 					uncertaintyAdjustments="None."
+					productionVolume="1500 kg/year"
 				/>
 				<source
 					number="10"
