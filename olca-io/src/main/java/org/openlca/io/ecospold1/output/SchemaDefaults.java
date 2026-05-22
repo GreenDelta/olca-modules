@@ -11,6 +11,7 @@ import org.openlca.commons.Strings;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.ISource;
 import org.openlca.ecospold.model.impact.ImpactMethodFactory;
 import org.openlca.io.Xml;
 
@@ -44,6 +45,17 @@ final class SchemaDefaults {
 		checkExchanges();
 	}
 
+	private void checkDataSetAttributes() {
+		var r = ds.root();
+		defaultWith(r::getGenerator, r::setGenerator, "openLCA");
+		if (r.getNumber() <= 0) {
+			r.setNumber(1);
+		}
+		if (r.getTimestamp() == null) {
+			r.setTimestamp(Xml.calendar(new Date()));
+		}
+	}
+
 	private void checkReferenceFunction() {
 		var refFun = ds.withReferenceFunction();
 		refFun.setDatasetRelatesToProduct(!isImpactDataSet());
@@ -66,18 +78,6 @@ final class SchemaDefaults {
 		if (!isImpactDataSet()) {
 			// the field can be null but the getter returns a primitive!
 			refFun.setInfrastructureIncluded(refFun.isInfrastructureIncluded());
-		}
-	}
-
-
-	private void checkDataSetAttributes() {
-		var r = ds.root();
-		defaultWith(r::getGenerator, r::setGenerator, "openLCA");
-		if (r.getNumber() <= 0) {
-			r.setNumber(1);
-		}
-		if (r.getTimestamp() == null) {
-			r.setTimestamp(Xml.calendar(new Date()));
 		}
 	}
 
@@ -240,7 +240,7 @@ final class SchemaDefaults {
 
 	private void addDefaultSource() {
 		var s = ds.withSource();
-		s.setNumber(1);
+		s.setNumber(nextNumOf(ds.getSources(), ISource::getNumber));
 		s.setFirstAuthor("default");
 		s.setYear(Util.xmlYear(Calendar.getInstance().get(Calendar.YEAR)));
 		s.setTitle("Created for EcoSpold 1 compatibility");
@@ -273,7 +273,6 @@ final class SchemaDefaults {
 			set.accept(value);
 		}
 	}
-
 
 	private <T> int nextNumOf(List<T> elems, ToIntFunction<T> get) {
 		var nextNum = 1;
