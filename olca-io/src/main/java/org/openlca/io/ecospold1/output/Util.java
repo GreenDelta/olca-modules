@@ -5,10 +5,12 @@ import java.util.Date;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.openlca.commons.Strings;
+import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RefEntity;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.io.DataSet;
+import org.openlca.core.model.Source;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.io.Xml;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.slf4j.Logger;
@@ -31,42 +33,6 @@ class Util {
 			: refIdInfo;
 	}
 
-	static String technologyComment(String text) {
-		if (Strings.isBlank(text))
-			return text;
-		var block = includedProcesses(text);
-		if (Strings.isBlank(block))
-			return text;
-		var start = text.indexOf(INCLUDED_PROCESSES_HEADER);
-		if (start < 0)
-			return text;
-		var end = endOfIncludedProcesses(text, start);
-		var prefix = text.substring(0, start).stripTrailing();
-		var suffix = text.substring(end).stripLeading();
-		if (prefix.isEmpty())
-			return suffix.isEmpty() ? null : suffix;
-		if (suffix.isEmpty())
-			return prefix;
-		return prefix + "\n\n" + suffix;
-	}
-
-	static String includedProcesses(String text) {
-		if (Strings.isBlank(text))
-			return null;
-		var start = text.indexOf(INCLUDED_PROCESSES_HEADER);
-		if (start < 0)
-			return null;
-		var blockStart = start + INCLUDED_PROCESSES_HEADER.length();
-		var end = endOfIncludedProcesses(text, start);
-		var block = text.substring(blockStart, end).strip();
-		return block.isEmpty() ? null : block;
-	}
-
-	private static int endOfIncludedProcesses(String text, int start) {
-		var nextHeader = text.indexOf("\n# ", start + INCLUDED_PROCESSES_HEADER.length());
-		return nextHeader >= 0 ? nextHeader + 1 : text.length();
-	}
-
 	static XMLGregorianCalendar toXml(Short year) {
 		if (year == null)
 			return null;
@@ -81,14 +47,13 @@ class Util {
 		}
 	}
 
-	static void setDataSetAttributes(DataSet dataSet, RefEntity model) {
-		if (model != null)
-			dataSet.setNumber((int) model.id);
-		dataSet.setGenerator("openLCA");
-		dataSet.setTimestamp(Xml.calendar(new Date()));
-		// setting a link to the categories file results in an error in the
-		// EcoSpold access tool
-		// dataSet.setValidCategories("../categories.xml");
+	static void setDataSetAttributes(DataSet ds, RefEntity model) {
+		var r = ds.root();
+		if (model != null) {
+			r.setNumber((int) model.id);
+		}
+		r.setGenerator("openLCA");
+		r.setTimestamp(Xml.calendar(new Date()));
 	}
 
 	static void mapFlowInformation(IExchange exchange, Flow flow) {
@@ -105,4 +70,44 @@ class Util {
 		exchange.setInfrastructureProcess(flow.infrastructureFlow);
 	}
 
+	static int personOf(Actor actor, DataSet ds) {
+		if (actor == null)
+			return -1;
+		int id = (int) actor.id;
+		for (var p : ds.getPersons()) {
+			if (p.getNumber() == id)
+				return id;
+		}
+		var p = ds.withPerson();
+		p.setNumber(id);
+		p.setName(actor.name);
+		p.setAddress(actor.address);
+		p.setEmail(actor.email);
+		p.setTelefax(actor.telefax);
+		p.setTelephone(actor.telephone);
+		if (Strings.isNotBlank(actor.country)) {
+			var code = ds.factory().getCountryCode(actor.country);
+			p.setCountryCode(code);
+		}
+		return id;
+	}
+
+	static int sourceOf(Source source, DataSet ds) {
+		if (source == null)
+			return -1;
+		int id = (int) source.id;
+		for (var s : ds.getSources()) {
+			if (s.getNumber() == id)
+				return id;
+		}
+		var s = ds.withSource();
+		s.setNumber(id);
+		s.setFirstAuthor(source.name);
+		s.setText(source.description);
+		s.setTitle(source.textReference);
+		s.setYear(Util.toXml(source.year));
+		s.setPlaceOfPublications("unknown");
+		s.setSourceType(0);
+		return id;
+	}
 }

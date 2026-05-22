@@ -163,35 +163,34 @@ class ProcessConverter {
 		}
 	}
 
-	private void mapEntryBy(ProcessDoc doc, DataSet dataset) {
+	private void mapEntryBy(ProcessDoc doc, DataSet ds) {
 		if (doc.dataDocumentor == null)
 			return;
-		int n = actorSourceMapper.map(doc.dataDocumentor, dataset);
-		IDataEntryBy entryBy = dataset.getDataEntryBy();
+		int n = actorSourceMapper.map(doc.dataDocumentor, ds);
+		IDataEntryBy entryBy = ds.getDataEntryBy();
 		if (entryBy == null) {
 			entryBy = factory.createDataEntryBy();
-			dataset.setDataEntryBy(entryBy);
+			ds.setDataEntryBy(entryBy);
 		}
 		entryBy.setPerson(n);
 	}
 
 	private void mapTechnology(ProcessDoc doc, DataSet ds) {
-
-
-		var technology = factory.createTechnology();
+		var technology = ds.withTechnology();
 		technology.setText(Util.technologyComment(doc.technology));
-		ds.setTechnology(technology);
+		// TODO ..
 	}
 
-	private void mapTime(ProcessDoc doc, DataSet dataset) {
-		var time = factory.createTimePeriod();
-		time.setDataValidForEntirePeriod(true);
-		if (doc.validFrom != null)
-			time.setStartDate(Xml.calendar(doc.validFrom));
-		if (doc.validUntil != null)
-			time.setEndDate(Xml.calendar(doc.validUntil));
-		time.setText(doc.time);
-		dataset.setTimePeriod(time);
+	private void mapTime(ProcessDoc doc, DataSet ds) {
+		var r = ds.withTimePeriod();
+		r.setDataValidForEntirePeriod(true);
+		if (doc.validFrom != null) {
+			r.setStartDate(Xml.calendar(doc.validFrom));
+		}
+		if (doc.validUntil != null) {
+			r.setEndDate(Xml.calendar(doc.validUntil));
+		}
+		r.setText(doc.time);
 	}
 
 	private void mapExchanges(DataSet ds) {
