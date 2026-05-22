@@ -15,9 +15,9 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ecospold.IDataSet;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.io.EcoSpold;
+import org.openlca.ecospold.model.IDataSet;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.EcoSpold;
 import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
@@ -107,7 +107,7 @@ public class FlowNameConfigTest {
 	}
 
 	private IExchange exchangeOf(IDataSet ds, String prefix) {
-		for (var e : ds.getFlowData().getFirst().getExchange()) {
+		for (var e : ds.getFlowData().getFirst().getExchanges()) {
 			var name = e.getName();
 			if (name != null && name.startsWith(prefix))
 				return e;
@@ -127,7 +127,7 @@ public class FlowNameConfigTest {
 			for (var file : files) {
 				if (file.getName().startsWith("process_")) {
 					var spold = EcoSpold.read(file).orElseThrow();
-					return spold.getDataset().getFirst();
+					return spold.getDataSets().getFirst();
 				}
 			}
 
