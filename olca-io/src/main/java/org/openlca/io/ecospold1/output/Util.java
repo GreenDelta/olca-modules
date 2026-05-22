@@ -8,9 +8,11 @@ import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.RefEntity;
+import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
-import org.openlca.ecospold.model.IExchange;
+import org.openlca.core.model.Version;
 import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.model.IExchange;
 import org.openlca.io.Xml;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.slf4j.Logger;
@@ -107,5 +109,21 @@ class Util {
 		s.setPlaceOfPublications("unknown");
 		s.setSourceType(0);
 		return id;
+	}
+
+	static float versionOf(RootEntity e) {
+		if (e == null)
+			return 0f;
+		var v = new Version(e.version);
+		var major = (float) v.getMajor();
+		var minor = (float) v.getMinor();
+		return major + (minor / 100f);
+	}
+
+	static float internalVersionOf(RootEntity e) {
+		if (e == null)
+			return 0f;
+		var v = new Version(e.version);
+		return v.getUpdate();
 	}
 }

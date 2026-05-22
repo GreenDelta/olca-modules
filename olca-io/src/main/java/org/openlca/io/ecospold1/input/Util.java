@@ -1,20 +1,18 @@
 package org.openlca.io.ecospold1.input;
 
-import java.util.Date;
-
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
-import org.openlca.ecospold.model.IDataSetInformation;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.ISource;
-import org.openlca.ecospold.model.DataSet;
 
 import com.google.common.base.Joiner;
 
@@ -78,12 +76,12 @@ class Util {
 	static void mapAdminInfo(DataSet ds, Process process) {
 		if (process == null || process.documentation == null)
 			return;
+		process.version = versionOf(ds);
 		ProcessDoc doc = process.documentation;
 		mapPublication(ds, doc);
-		IDataSetInformation info = ds.getDataSetInformation();
+		var info = ds.getDataSetInformation();
 		if (info != null && info.getTimestamp() != null) {
-			Date lastChange = info.getTimestamp().toGregorianCalendar()
-					.getTime();
+			var lastChange = info.getTimestamp().toGregorianCalendar().getTime();
 			process.lastChange = lastChange.getTime();
 			doc.creationDate = lastChange;
 		}
@@ -117,5 +115,16 @@ class Util {
 		var r = new Review();
 		doc.reviews.add(r);
 		return r;
+	}
+
+	static long versionOf(DataSet ds) {
+		var info = ds.getDataSetInformation();
+		if (info == null)
+			return 0;
+		var raw = info.getVersion();
+		int major = (int) raw;
+		int minor = (int) ((raw - (major)) * 100);
+		int update = (int) info.getInternalVersion();
+		return new Version(major, minor, update).getValue();
 	}
 }

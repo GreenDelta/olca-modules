@@ -15,6 +15,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.model.Version;
 import org.openlca.ecospold.DataSetType;
 import org.openlca.ecospold.EcoSpold;
 import org.openlca.ecospold.model.DataSet;
@@ -69,6 +70,11 @@ public class ImportExportTest {
 		assertEquals(2025, calendar.get(Calendar.YEAR));
 		assertEquals(Calendar.DECEMBER, calendar.get(Calendar.MONTH));
 		assertEquals(31, calendar.get(Calendar.DAY_OF_MONTH));
+
+		var version = new Version(imported.version);
+		assertEquals(12, version.getMajor());
+		assertEquals(34, version.getMinor());
+		assertEquals(67, version.getUpdate());
 	}
 
 	@Test
@@ -97,6 +103,11 @@ public class ImportExportTest {
 		EcoSpold.write(new File("target/spold.xml"), spold);
 
 		// check the fields
+		var info = ds.getDataSetInformation();
+		assertNotNull(info);
+		assertEquals(12.34f, info.getVersion(), 0.001f);
+		assertEquals(67.0f, info.getInternalVersion(), 0.001f);
+
 		var refFun = ds.getReferenceFunction();
 		assertNotNull(refFun);
 		assertEquals("community garden compost service", refFun.getName());

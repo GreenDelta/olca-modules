@@ -9,7 +9,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.Uncertainty;
-import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IDataSet;
@@ -78,9 +77,8 @@ class ProcessConverter {
 			info.setTimestamp(Xml.calendar(date));
 		}
 		info.setType(getProcessType());
-		var v = new Version(process.version);
-		info.setVersion(v.getMajor());
-		info.setInternalVersion(v.getMinor());
+		info.setVersion(Util.versionOf(process));
+		info.setInternalVersion(Util.internalVersionOf(process));
 	}
 
 	private int getProcessType() {

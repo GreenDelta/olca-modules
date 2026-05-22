@@ -333,7 +333,7 @@ public class EcoSpold1Import implements Import {
 
 	private void mapAllocations(Process process,
 			List<IAllocation> allocations) {
-		for (IAllocation allocation : allocations) {
+		for (var allocation : allocations) {
 			double factor = Math.round(allocation.getFraction() * 10000d)
 					/ 1000000d;
 			Exchange product = localExchangeCache.get(allocation
@@ -345,7 +345,7 @@ public class EcoSpold1Import implements Import {
 							+ "does not exist: " + i);
 					continue;
 				}
-				AllocationFactor af = new AllocationFactor();
+				var af = new AllocationFactor();
 				af.productId = product.flow.id;
 				af.value = factor;
 				af.method = AllocationMethod.CAUSAL;
@@ -407,18 +407,16 @@ public class EcoSpold1Import implements Import {
 				: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
 	}
 
-	private void createProductFromRefFun(DataSet dataSet, Process process) {
-		FlowBucket flow = flowImport.handleProcessProduct(dataSet);
+	private void createProductFromRefFun(DataSet ds, Process process) {
+		var flow = flowImport.handleProcessProduct(ds);
 		if (flow == null || !flow.isValid()) {
-			log.warn("Could not create reference flow: " + dataSet);
+			log.warn("Could not create reference flow: " + ds);
 			return;
 		}
-		var exchange = process.add(
-				Exchange.of(flow.flow, flow.flowProperty, flow.unit));
-		exchange.isInput = false;
-		exchange.amount = dataSet.getReferenceFunction().getAmount()
-				* flow.conversionFactor;
-		process.quantitativeReference = exchange;
+		var e = process.add(Exchange.of(flow.flow, flow.flowProperty, flow.unit));
+		e.isInput = false;
+		e.amount = ds.getReferenceFunction().getAmount() * flow.conversionFactor;
+		process.quantitativeReference = e;
 	}
 
 	private void mapSources(ProcessDoc doc, DataSet dataSet) {
