@@ -18,6 +18,7 @@ import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IReferenceFunction;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.DataSetType;
+import org.openlca.ecospold.model.process.ProcessFactory;
 import org.openlca.io.Xml;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 import org.openlca.util.Exchanges;
@@ -27,8 +28,6 @@ class ProcessConverter {
 
 	private final Process process;
 	private final EcoSpold1Config config;
-	private final IEcoSpoldFactory factory = DataSetType.PROCESS.getFactory();
-	private final ActorSourceMapper actorSourceMapper;
 	private final FlowNameFormatter flowNames;
 
 	static IDataSet convert(
@@ -40,22 +39,20 @@ class ProcessConverter {
 		Process process, EcoSpold1Config config, FlowNameFormatter flowNames) {
 		this.process = process;
 		this.config = config;
-		actorSourceMapper = new ActorSourceMapper(factory);
 		this.flowNames = flowNames;
 	}
 
 	private IDataSet doIt() {
-		var ds = factory.createDataSet();
-		var dataSet = new DataSet(ds, factory);
-		Util.setDataSetAttributes(dataSet, process);
-		mapDocumentation(dataSet);
-		mapExchanges(dataSet);
+		var ds = DataSet.newProcess();
+		Util.setDataSetAttributes(ds, process);
+		mapDocumentation(ds);
+		mapExchanges(ds);
 		// TODO: map allocation factors
 		// mapAllocations(process, dataSet, factory);
 		if (config.withDefaults) {
-			SchemaDefaults.write(ds, factory);
+			SchemaDefaults.write(ds);
 		}
-		return ds;
+		return ds.root();
 	}
 
 	private void mapDocumentation(DataSet dataSet) {

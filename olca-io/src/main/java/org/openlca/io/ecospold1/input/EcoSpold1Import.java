@@ -442,7 +442,7 @@ public class EcoSpold1Import implements Import {
 		if (es == null)
 			return;
 		var db = this.db.database;
-		for (var ds : es.getDataset()) {
+		for (var ds : es.getDataSets()) {
 			var wrap = new DataSet(
 					ds, DataSetType.IMPACT_METHOD.getFactory());
 			var ref = wrap.getReferenceFunction();

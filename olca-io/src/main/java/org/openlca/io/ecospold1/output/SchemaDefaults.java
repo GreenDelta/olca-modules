@@ -8,7 +8,6 @@ import java.util.function.ToIntFunction;
 
 import org.openlca.commons.Strings;
 import org.openlca.ecospold.model.DataSet;
-import org.openlca.ecospold.model.IEcoSpoldFactory;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.IReferenceFunction;
@@ -19,11 +18,9 @@ import org.openlca.io.Xml;
 final class SchemaDefaults {
 
 	private final DataSet ds;
-	private final IEcoSpoldFactory factory;
 
 	private SchemaDefaults(DataSet ds) {
 		this.ds = ds;
-		this.factory = ds.factory();
 	}
 
 	static void write(DataSet ds) {
@@ -71,12 +68,12 @@ final class SchemaDefaults {
 			info.setTimestamp(ds.root().getTimestamp());
 		}
 		if (info.getLanguageCode() == null) {
-			info.setLanguageCode(factory.getLanguageCode("en"));
+			info.setLanguageCode(ds.factory().getLanguageCode("en"));
 		}
 		if (info.getLocalLanguageCode() == null) {
 			var lang = info.getLanguageCode();
 			info.setLocalLanguageCode(
-				lang != null ? lang : factory.getLanguageCode("en"));
+				lang != null ? lang : ds.factory().getLanguageCode("en"));
 		}
 	}
 
@@ -184,7 +181,7 @@ final class SchemaDefaults {
 			defaultWith(person::getTelephone, person::setTelephone, "000");
 			defaultWith(person::getCompanyCode, person::setCompanyCode, "default");
 			if (person.getCountryCode() == null) {
-				person.setCountryCode(factory.getCountryCode("CH"));
+				person.setCountryCode(ds.factory().getCountryCode("CH"));
 			}
 		}
 	}
@@ -201,28 +198,23 @@ final class SchemaDefaults {
 	}
 
 	private void addDefaultSource() {
-		var s = factory.createSource();
+		var s = ds.withSource();
 		s.setNumber(1);
 		s.setFirstAuthor("default");
 		s.setYear(Util.xmlYear((short) 9999));
 		s.setTitle("Created for EcoSpold 1 compatibility");
 		s.setPlaceOfPublications("none");
 		s.setSourceType(0);
-		ds.withSources().add(s);
 	}
 
 	private IPerson addDefaultPerson() {
-		for (IPerson person : ds.getPersons()) {
-			if (person.getNumber() == 1)
-				return person;
-		}
-		var p = factory.createPerson();
+		var p = ds.withPerson();
 		p.setNumber(1);
 		p.setName("default");
 		p.setAddress("Created for EcoSpold 1 compatibility");
 		p.setTelephone("000");
 		p.setCompanyCode("default");
-		p.setCountryCode(factory.getCountryCode("CH"));
+		p.setCountryCode(ds.factory().getCountryCode("CH"));
 		ds.getPersons().add(p);
 		return p;
 	}
@@ -257,7 +249,7 @@ final class SchemaDefaults {
 	}
 
 	private boolean isImpactDataSet() {
-		return factory instanceof ImpactMethodFactory;
+		return ds.factory() instanceof ImpactMethodFactory;
 	}
 
 	private int defaultDataSetType() {

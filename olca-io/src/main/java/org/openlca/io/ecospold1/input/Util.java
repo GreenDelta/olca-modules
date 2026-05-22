@@ -10,11 +10,11 @@ import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
-import org.openlca.ecospold.IDataSetInformation;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
+import org.openlca.ecospold.model.IDataSetInformation;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.DataSet;
 
 import com.google.common.base.Joiner;
 
