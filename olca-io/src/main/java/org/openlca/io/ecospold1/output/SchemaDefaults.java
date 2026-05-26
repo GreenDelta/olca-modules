@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import java.util.regex.Pattern;
 
 import org.openlca.commons.Strings;
 import org.openlca.ecospold.model.DataSet;
@@ -17,6 +18,8 @@ import org.openlca.io.Xml;
 
 /// Adds defaults for required structure elements that are missing in a data set.
 final class SchemaDefaults {
+
+	private static final Pattern CAS = Pattern.compile("\\d{2,7}-\\d{2}-\\d");
 
 	private final DataSet ds;
 
@@ -72,6 +75,7 @@ final class SchemaDefaults {
 			// the field can be null but the getter returns a primitive!
 			refFun.setInfrastructureIncluded(refFun.isInfrastructureIncluded());
 		}
+		refFun.setCASNumber(validCasOf(refFun.getCASNumber()));
 	}
 
 	private void checkDataSetInformation() {
@@ -181,6 +185,8 @@ final class SchemaDefaults {
 			if (!e.isElementaryFlow() && e.isInfrastructureProcess() == null) {
 				e.setInfrastructureProcess(false);
 			}
+			e.setCASNumber(validCasOf(e.getCASNumber()));
+
 			// clear uncertainty information for the reference flow
 			if (isRefFlow(e)) {
 				e.setUncertaintyType(0);
@@ -280,6 +286,15 @@ final class SchemaDefaults {
 			}
 		}
 		return nextNum;
+	}
+
+	private static String validCasOf(String value) {
+		if (Strings.isBlank(value))
+			return null;
+		var cas = value.trim();
+		return CAS.matcher(cas).matches()
+			? cas
+			: null;
 	}
 
 }
