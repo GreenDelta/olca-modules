@@ -105,7 +105,9 @@ class Util {
 		s.setFirstAuthor(source.name);
 		s.setText(source.description);
 		s.setTitle(source.textReference);
-		s.setYear(Util.xmlYear(source.year));
+		if (source.year != null) {
+			s.setYear(Util.xmlYear(source.year));
+		}
 		s.setPlaceOfPublications("unknown");
 		s.setSourceType(0);
 		return id;

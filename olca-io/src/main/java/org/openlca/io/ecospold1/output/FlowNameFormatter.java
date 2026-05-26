@@ -44,13 +44,29 @@ class FlowNameFormatter {
 		var base = baseNameOf(e.flow);
 		if (Exchanges.isProviderFlow(e))
 			return Provider.of(owner).addSuffix(base, config);
-		if (!Exchanges.isLinkable(e) || e.defaultProviderId == 0)
+		if (!Exchanges.isLinkable(e))
 			return base;
 
-		var p = providers.getProvider(e.defaultProviderId);
+		var p = providerOf(e);
 		return p != null
 			? new Provider(p.name, locationOf(p), typeOf(p)).addSuffix(base, config)
 			: base;
+	}
+
+	private RootDescriptor providerOf(Exchange e) {
+		if (e.defaultProviderId != 0) {
+			var p = providers.getProvider(e.defaultProviderId);
+			if (p != null)
+				return p;
+		}
+		var ps = providers.getProvidersOf(e.flow.id);
+		if (ps.isEmpty())
+			return null;
+		for (var p : ps) {
+			if (p.isProcess())
+				return p.provider();
+		}
+		return null;
 	}
 
 	private String locationOf(RootDescriptor d) {
