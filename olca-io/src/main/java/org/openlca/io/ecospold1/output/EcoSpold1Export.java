@@ -97,9 +97,9 @@ public class EcoSpold1Export implements Closeable {
 		final IDatabase db;
 		File dir;
 
-		boolean singleFile = false;
-		boolean withDefaults = false;
-		boolean writeRefIdInfo = false;
+		boolean singleFile;
+		boolean withDefaults;
+		boolean withRefIdInfo;
 
 		// config for product names
 		boolean withLocationSuffixes;
@@ -115,40 +115,68 @@ public class EcoSpold1Export implements Closeable {
 			return this;
 		}
 
+		public File dir() {
+			return dir;
+		}
+
 		/// If set to `true`, the export will write all process data sets into a
 		/// single file.
-		public EcoSpold1Config writeSingleFile(boolean singleFile) {
-			this.singleFile = singleFile;
+		public EcoSpold1Config writeSingleFile(boolean b) {
+			this.singleFile = b;
 			return this;
+		}
+
+		public boolean isWithSingleFile() {
+			return singleFile;
 		}
 
 		/// If set to `true`, the export will write default values for fields that
 		/// are required by the schema but cannot be filled by the actual data set.
-		public EcoSpold1Config writeDefaultValues(boolean createDefaults) {
-			this.withDefaults = createDefaults;
+		public EcoSpold1Config writeDefaultValues(boolean b) {
+			this.withDefaults = b;
 			return this;
+		}
+
+		public boolean isWithDefaultValues() {
+			return withDefaults;
 		}
 
 		/// If set to `true`, the export appends the openLCA reference ID of the
 		/// exported model to the data set general comment.
-		public EcoSpold1Config writeRefIdInfo(boolean writeRefIdInfo) {
-			this.writeRefIdInfo = writeRefIdInfo;
+		public EcoSpold1Config writeRefIdInfo(boolean b) {
+			this.withRefIdInfo = b;
 			return this;
 		}
 
-		public EcoSpold1Config withLocationSuffixes(boolean withLocationSuffixes) {
-			this.withLocationSuffixes = withLocationSuffixes;
+		public boolean isWithRefIdInfo() {
+			return withRefIdInfo;
+		}
+
+		public EcoSpold1Config withLocationSuffixes(boolean b) {
+			this.withLocationSuffixes = b;
 			return this;
 		}
 
-		public EcoSpold1Config withTypeSuffixes(boolean withTypeSuffixes) {
-			this.withTypeSuffixes = withTypeSuffixes;
+		public boolean isWithLocationSuffixes() {
+			return withLocationSuffixes;
+		}
+
+		public EcoSpold1Config withTypeSuffixes(boolean b) {
+			this.withTypeSuffixes = b;
 			return this;
 		}
 
-		public EcoSpold1Config withProcessSuffixes(boolean withProcessSuffixes) {
-			this.withProcessSuffixes = withProcessSuffixes;
+		public boolean isWithTypeSuffixes() {
+			return withTypeSuffixes;
+		}
+
+		public EcoSpold1Config withProcessSuffixes(boolean b) {
+			this.withProcessSuffixes = b;
 			return this;
+		}
+
+		public boolean isWithProcessSuffixes() {
+			return withProcessSuffixes;
 		}
 
 		public Res<EcoSpold1Export> create() {

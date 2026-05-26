@@ -25,7 +25,7 @@ class Util {
 
 	static String comment(RefEntity model, EcoSpold1Config config) {
 		if (model == null) return null;
-		if (config == null || !config.writeRefIdInfo)
+		if (config == null || !config.withRefIdInfo)
 			return model.description;
 		var refIdInfo = "# openLCA export\n"
 			+ "This data set was exported from openLCA. The UUID of "
