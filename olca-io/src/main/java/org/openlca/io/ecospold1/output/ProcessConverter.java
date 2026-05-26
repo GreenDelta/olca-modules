@@ -161,7 +161,7 @@ class ProcessConverter {
 		if (Strings.isBlank(text))
 			return;
 		var parts = text.split("# Included processes");
-		if (parts.length == 0) {
+		if (parts.length == 1) {
 			ds.withTechnology().setText(text);
 			return;
 		}

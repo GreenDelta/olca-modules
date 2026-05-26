@@ -108,8 +108,7 @@ public class ImportExportTest {
 		// read the exported EcoSpold dataset
 		var spold = EcoSpold.read(file, DataSetType.PROCESS).orElseThrow();
 		assertFalse("No datasets in exported file", spold.getDataSets().isEmpty());
-		var ds = new DataSet(
-			spold.getDataSets().getFirst(), DataSetType.PROCESS.getFactory());
+		var ds = DataSet.first(spold).orElseThrow();
 
 		// check the fields
 		var info = ds.getDataSetInformation();
