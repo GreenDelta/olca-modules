@@ -200,7 +200,7 @@ final class SchemaDefaults {
 
 	private void checkPersons() {
 		for (var person : ds.getPersons()) {
-			defaultWith(person::getName, person::setName, "unknown");
+			defaultWith(person::getName, person::setName, "unknown", 40);
 			defaultWith(person::getAddress, person::setAddress, "no address");
 			defaultWith(person::getTelephone, person::setTelephone, "000");
 			defaultWith(person::getCompanyCode, person::setCompanyCode, "unknown");
@@ -212,7 +212,7 @@ final class SchemaDefaults {
 
 	private void checkSources() {
 		for (var s : ds.getSources()) {
-			defaultWith(s::getFirstAuthor, s::setFirstAuthor, "unknown");
+			defaultWith(s::getFirstAuthor, s::setFirstAuthor, "unknown", 40);
 			defaultWith(s::getTitle, s::setTitle, "no title");
 			defaultWith(s::getPlaceOfPublications, s::setPlaceOfPublications, "unknown");
 			if (s.getYear() == null) {
@@ -255,8 +255,19 @@ final class SchemaDefaults {
 	private void defaultWith(
 		Supplier<String> get, Consumer<String> set, String value
 	) {
-		if (Strings.isBlank(get.get())) {
+		defaultWith(get, set, value, -1);
+	}
+
+	private void defaultWith(
+		Supplier<String> get, Consumer<String> set, String value, int len
+	) {
+		var s = get.get();
+		if (Strings.isBlank(s)) {
 			set.accept(value);
+			return;
+		}
+		if (len > 0 && s.length() > len) {
+			set.accept(Strings.cutEnd(s, len));
 		}
 	}
 

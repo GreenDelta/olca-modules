@@ -29,13 +29,40 @@ class Util {
 		target.telephone = p.getTelephone();
 	}
 
-	static void mapSource(ISource s, Source target) {
-		target.name = s.getFirstAuthor();
-		target.description = s.getText();
-		target.textReference = s.getTitle();
+	static void mapSource(ISource s, Source source) {
+		source.name = s.getTitle();
+		source.description = s.getText();
 		if (s.getYear() != null) {
-			target.year = (short) s.getYear().getYear();
+			source.year = (short) s.getYear().getYear();
 		}
+
+		var ref = new StringBuilder();
+		add(ref, "", s.getFirstAuthor());
+		add(ref, ", ", s.getAdditionalAuthors());
+		if (s.getYear() != null) {
+			add(ref, " - ", s.getYear().toString());
+		}
+		add(ref, ": ", s.getTitle());
+		add(ref, ". In: ", s.getJournal());
+		add(ref, ". In: ", s.getTitleOfAnthology());
+		ref.append(", Vol. ").append(s.getVolumeNo());
+		ref.append(", No. ").append(s.getIssueNo());
+		ref.append(", eds. ").append(s.getNameOfEditors());
+		add(ref, ", pp. ", s.getPageNumbers());
+		add(ref, ", ", s.getPublisher());
+		add(ref, ", ", s.getPlaceOfPublications());
+		if (!ref.isEmpty()) {
+			if (ref.charAt(ref.length() - 1) != '.') {
+				ref.append(".");
+			}
+			source.textReference = ref.toString();
+		}
+	}
+
+	private static void add(StringBuilder buffer, String prefix, String value) {
+		if (Strings.isBlank(value))
+			return;
+		buffer.append(prefix).append(value);
 	}
 
 	static FlowType getFlowType(IExchange e) {

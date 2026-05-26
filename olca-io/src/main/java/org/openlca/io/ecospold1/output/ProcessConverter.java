@@ -196,7 +196,7 @@ class ProcessConverter {
 				continue;
 			boolean isQRef = e.equals(qRef);
 			var ix = ds.withExchange();
-			ix.setNumber((int) e.flow.id);
+			ix.setNumber((int) e.id);
 			ix.setName(flowNames.of(process, e));
 
 			// input/output group

@@ -56,18 +56,20 @@ class Util {
 		r.setTimestamp(Xml.calendar(new Date()));
 	}
 
-	static void mapFlowInformation(IExchange exchange, Flow flow) {
-		exchange.setCASNumber(flow.casNumber);
-		exchange.setFormula(flow.formula);
-		exchange.setInfrastructureProcess(flow.infrastructureFlow);
+	static void mapFlowInformation(IExchange e, Flow flow) {
+		if (Strings.isNotBlank(flow.casNumber)) {
+			e.setCASNumber(flow.casNumber);
+		}
+		e.setFormula(flow.formula);
+		e.setInfrastructureProcess(flow.infrastructureFlow);
 		if (flow.location != null) {
 			if (flow.location.code != null) {
-				exchange.setLocation(flow.location.code);
+				e.setLocation(flow.location.code);
 			} else if (flow.location.name != null) {
-				exchange.setLocation(flow.location.name);
+				e.setLocation(flow.location.name);
 			}
 		}
-		exchange.setInfrastructureProcess(flow.infrastructureFlow);
+		e.setInfrastructureProcess(flow.infrastructureFlow);
 	}
 
 	static int personOf(Actor actor, DataSet ds) {
@@ -102,9 +104,9 @@ class Util {
 		}
 		var s = ds.withSource();
 		s.setNumber(id);
-		s.setFirstAuthor(source.name);
+		s.setTitle(source.name);
+		s.setFirstAuthor(source.textReference);
 		s.setText(source.description);
-		s.setTitle(source.textReference);
 		if (source.year != null) {
 			s.setYear(Util.xmlYear(source.year));
 		}
