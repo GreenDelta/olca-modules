@@ -45,9 +45,11 @@ class Util {
 		add(ref, ": ", s.getTitle());
 		add(ref, ". In: ", s.getJournal());
 		add(ref, ". In: ", s.getTitleOfAnthology());
-		ref.append(", Vol. ").append(s.getVolumeNo());
-		ref.append(", No. ").append(s.getIssueNo());
-		ref.append(", eds. ").append(s.getNameOfEditors());
+		if (s.getVolumeNo() != null) {
+			add(ref, ", Vol. ", s.getVolumeNo().toString());
+		}
+		add(ref, ", No. ", s.getIssueNo());
+		add(ref, ", eds. ", s.getNameOfEditors());
 		add(ref, ", pp. ", s.getPageNumbers());
 		add(ref, ", ", s.getPublisher());
 		add(ref, ", ", s.getPlaceOfPublications());
@@ -80,16 +82,16 @@ class Util {
 			return ProcessType.UNIT_PROCESS;
 		var info = ds.getDataSetInformation();
 		return info.getType() == 2
-				? ProcessType.LCI_RESULT
-				: ProcessType.UNIT_PROCESS;
+			? ProcessType.LCI_RESULT
+			: ProcessType.UNIT_PROCESS;
 	}
 
 	static void mapModellingAndValidation(DataSet ds, ProcessDoc doc) {
 		var v = ds.getValidation();
 		if (v != null) {
 			var text = Joiner.on(" ")
-					.skipNulls()
-					.join(v.getProofReadingDetails(), v.getOtherDetails());
+				.skipNulls()
+				.join(v.getProofReadingDetails(), v.getOtherDetails());
 			if (Strings.isNotBlank(text)) {
 				reviewOf(doc).details = text;
 			}
@@ -128,13 +130,13 @@ class Util {
 		doc.accessRestrictions = switch (restrictedTo) {
 			case 0 -> "All information can be accessed by everybody.";
 			case 2 -> "Ecoinvent clients have access to LCI results "
-					+ "but not to unit process raw data. Members of "
-					+ "the ecoinvent quality network (ecoinvent centre) "
-					+ "have access to all information.";
+				+ "but not to unit process raw data. Members of "
+				+ "the ecoinvent quality network (ecoinvent centre) "
+				+ "have access to all information.";
 			case 3 -> "The ecoinvent administrator has full access to "
-					+ "information. Via the web only LCI results are "
-					+ "accessible (for ecoinvent clients and "
-					+ "for members of the ecoinvent centre).";
+				+ "information. Via the web only LCI results are "
+				+ "accessible (for ecoinvent clients and "
+				+ "for members of the ecoinvent centre).";
 			default -> null;
 		};
 	}

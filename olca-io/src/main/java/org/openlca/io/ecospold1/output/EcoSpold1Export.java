@@ -27,9 +27,10 @@ public class EcoSpold1Export implements Closeable {
 	private final FlowNameFormatter flowNames;
 
 	private EcoSpold1Export(EcoSpold1Config config) {
-		File categoryFile = new File(config.dir, "categories.xml");
-		this.categoryFile = new CategoryFile(categoryFile);
 		this.config = config;
+		this.categoryFile = config.withCategoryFile
+			? new CategoryFile(new File(config.dir, "categories.xml"))
+			: null;
 		this.flowNames = new FlowNameFormatter(config);
 	}
 
@@ -49,7 +50,9 @@ public class EcoSpold1Export implements Closeable {
 	}
 
 	public void export(Process process) {
-		categoryFile.addCategoriesOf(process);
+		if (categoryFile != null) {
+			categoryFile.addCategoriesOf(process);
+		}
 		var ds = ProcessConverter.convert(process, config, flowNames);
 		if (config.singleFile) {
 			append(ds);
@@ -76,20 +79,22 @@ public class EcoSpold1Export implements Closeable {
 	/// is called.
 	@Override
 	public void close() throws IOException {
+		if (categoryFile != null) {
 			categoryFile.close();
-			if (singleSpold == null)
-				return;
+		}
+		if (singleSpold == null)
+			return;
 
-			var format = new SimpleDateFormat("yyyy-MM-dd'T'hh-mm-ss");
-			var time = format.format(new Date());
-			int size = singleSpold.getDataSets().size();
-			var fileName = "EcoSpold_" + size + "_processes_" + time + ".xml";
-			var file = new File(config.dir, fileName);
-			var res = EcoSpold.write(file, singleSpold);
-			if (res.isError()) {
-				throw new IOException(
-					"Failed to write file: " + file + "\n  ->" + res.error());
-			}
+		var format = new SimpleDateFormat("yyyy-MM-dd'T'hh-mm-ss");
+		var time = format.format(new Date());
+		int size = singleSpold.getDataSets().size();
+		var fileName = "EcoSpold_" + size + "_processes_" + time + ".xml";
+		var file = new File(config.dir, fileName);
+		var res = EcoSpold.write(file, singleSpold);
+		if (res.isError()) {
+			throw new IOException(
+				"Failed to write file: " + file + "\n  ->" + res.error());
+		}
 	}
 
 	public static class EcoSpold1Config {
@@ -100,6 +105,7 @@ public class EcoSpold1Export implements Closeable {
 		boolean singleFile;
 		boolean withDefaults;
 		boolean withRefIdInfo;
+		boolean withCategoryFile;
 
 		// config for product names
 		boolean withLocationSuffixes;
@@ -150,6 +156,15 @@ public class EcoSpold1Export implements Closeable {
 
 		public boolean isWithRefIdInfo() {
 			return withRefIdInfo;
+		}
+
+		public EcoSpold1Config writeCategoryFile(boolean b) {
+			this.withCategoryFile = b;
+			return this;
+		}
+
+		public boolean isWithCategoryFile() {
+			return withCategoryFile;
 		}
 
 		public EcoSpold1Config withLocationSuffixes(boolean b) {

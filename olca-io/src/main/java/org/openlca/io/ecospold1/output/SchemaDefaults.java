@@ -143,7 +143,7 @@ final class SchemaDefaults {
 
 	private void checkGeography() {
 		var geo = ds.withGeography();
-		defaultWith(geo::getLocation, geo::setLocation, "GLO");
+		defaultWith(geo::getLocation, geo::setLocation, "GLO", 7);
 	}
 
 	private void checkTechnology() {
@@ -180,8 +180,11 @@ final class SchemaDefaults {
 				e.getSubCategory());
 
 			if (!e.isElementaryFlow()) {
-				defaultWith(e::getLocation, e::setLocation, "GLO");
+				defaultWith(e::getLocation, e::setLocation, "GLO", 7);
+			} else {
+				optLen(e::getLocation, e::setLocation, 7);
 			}
+
 			if (!e.isElementaryFlow() && e.isInfrastructureProcess() == null) {
 				e.setInfrastructureProcess(false);
 			}
@@ -295,6 +298,17 @@ final class SchemaDefaults {
 		return CAS.matcher(cas).matches()
 			? cas
 			: null;
+	}
+
+	private static void optLen(
+		Supplier<String> get, Consumer<String> set, int len
+	) {
+		var val = get.get();
+		if (Strings.isBlank(val))
+			return;
+		if (val.length() > len) {
+			set.accept(Strings.cutEnd(val, len));
+		}
 	}
 
 }
