@@ -1,20 +1,18 @@
 package org.openlca.io.ecospold1.input;
 
-import java.util.Date;
-
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
+import org.openlca.core.model.Version;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.core.model.doc.Review;
-import org.openlca.ecospold.IDataSetInformation;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
+import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.ISource;
 
 import com.google.common.base.Joiner;
 
@@ -31,13 +29,42 @@ class Util {
 		target.telephone = p.getTelephone();
 	}
 
-	static void mapSource(ISource s, Source target) {
-		target.name = s.getFirstAuthor();
-		target.description = s.getText();
-		target.textReference = s.getTitle();
+	static void mapSource(ISource s, Source source) {
+		source.name = s.getTitle();
+		source.description = s.getText();
 		if (s.getYear() != null) {
-			target.year = (short) s.getYear().getYear();
+			source.year = (short) s.getYear().getYear();
 		}
+
+		var ref = new StringBuilder();
+		add(ref, "", s.getFirstAuthor());
+		add(ref, ", ", s.getAdditionalAuthors());
+		if (s.getYear() != null) {
+			add(ref, " - ", s.getYear().toString());
+		}
+		add(ref, ": ", s.getTitle());
+		add(ref, ". In: ", s.getJournal());
+		add(ref, ". In: ", s.getTitleOfAnthology());
+		if (s.getVolumeNo() != null) {
+			add(ref, ", Vol. ", s.getVolumeNo().toString());
+		}
+		add(ref, ", No. ", s.getIssueNo());
+		add(ref, ", eds. ", s.getNameOfEditors());
+		add(ref, ", pp. ", s.getPageNumbers());
+		add(ref, ", ", s.getPublisher());
+		add(ref, ", ", s.getPlaceOfPublications());
+		if (!ref.isEmpty()) {
+			if (ref.charAt(ref.length() - 1) != '.') {
+				ref.append(".");
+			}
+			source.textReference = ref.toString();
+		}
+	}
+
+	private static void add(StringBuilder buffer, String prefix, String value) {
+		if (Strings.isBlank(value))
+			return;
+		buffer.append(prefix).append(value);
 	}
 
 	static FlowType getFlowType(IExchange e) {
@@ -55,16 +82,16 @@ class Util {
 			return ProcessType.UNIT_PROCESS;
 		var info = ds.getDataSetInformation();
 		return info.getType() == 2
-				? ProcessType.LCI_RESULT
-				: ProcessType.UNIT_PROCESS;
+			? ProcessType.LCI_RESULT
+			: ProcessType.UNIT_PROCESS;
 	}
 
 	static void mapModellingAndValidation(DataSet ds, ProcessDoc doc) {
 		var v = ds.getValidation();
 		if (v != null) {
 			var text = Joiner.on(" ")
-					.skipNulls()
-					.join(v.getProofReadingDetails(), v.getOtherDetails());
+				.skipNulls()
+				.join(v.getProofReadingDetails(), v.getOtherDetails());
 			if (Strings.isNotBlank(text)) {
 				reviewOf(doc).details = text;
 			}
@@ -72,18 +99,21 @@ class Util {
 		var repr = ds.getRepresentativeness();
 		if (repr != null) {
 			doc.samplingProcedure = repr.getSamplingProcedure();
+			doc.dataTreatment = repr.getExtrapolations();
+			doc.dataSelection = repr.getUncertaintyAdjustments();
+			doc.dataCompleteness = repr.getProductionVolume();
 		}
 	}
 
 	static void mapAdminInfo(DataSet ds, Process process) {
 		if (process == null || process.documentation == null)
 			return;
+		process.version = versionOf(ds);
 		ProcessDoc doc = process.documentation;
 		mapPublication(ds, doc);
-		IDataSetInformation info = ds.getDataSetInformation();
+		var info = ds.getDataSetInformation();
 		if (info != null && info.getTimestamp() != null) {
-			Date lastChange = info.getTimestamp().toGregorianCalendar()
-					.getTime();
+			var lastChange = info.getTimestamp().toGregorianCalendar().getTime();
 			process.lastChange = lastChange.getTime();
 			doc.creationDate = lastChange;
 		}
@@ -100,23 +130,33 @@ class Util {
 		doc.accessRestrictions = switch (restrictedTo) {
 			case 0 -> "All information can be accessed by everybody.";
 			case 2 -> "Ecoinvent clients have access to LCI results "
-					+ "but not to unit process raw data. Members of "
-					+ "the ecoinvent quality network (ecoinvent centre) "
-					+ "have access to all information.";
+				+ "but not to unit process raw data. Members of "
+				+ "the ecoinvent quality network (ecoinvent centre) "
+				+ "have access to all information.";
 			case 3 -> "The ecoinvent administrator has full access to "
-					+ "information. Via the web only LCI results are "
-					+ "accessible (for ecoinvent clients and "
-					+ "for members of the ecoinvent centre).";
+				+ "information. Via the web only LCI results are "
+				+ "accessible (for ecoinvent clients and "
+				+ "for members of the ecoinvent centre).";
 			default -> null;
 		};
 	}
 
 	static Review reviewOf(ProcessDoc doc) {
 		if (!doc.reviews.isEmpty())
-			return doc.reviews.get(0);
+			return doc.reviews.getFirst();
 		var r = new Review();
 		doc.reviews.add(r);
 		return r;
 	}
 
+	static long versionOf(DataSet ds) {
+		var info = ds.getDataSetInformation();
+		if (info == null)
+			return 0;
+		var raw = info.getVersion();
+		int major = (int) raw;
+		int minor = (int) ((raw - (major)) * 100);
+		int update = (int) info.getInternalVersion();
+		return new Version(major, minor, update).getValue();
+	}
 }

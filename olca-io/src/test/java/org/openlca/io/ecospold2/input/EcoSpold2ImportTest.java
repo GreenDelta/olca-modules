@@ -29,7 +29,7 @@ public class EcoSpold2ImportTest {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final String REF_ID = "e926dd9b-7045-3a90-9702-03e0b1376607";
 	private File tempFile;
-	private ProcessDao dao = new ProcessDao(Tests.getDb());
+	private final ProcessDao dao = new ProcessDao(Tests.getDb());
 
 	@Before
 	public void setUp() throws Exception {
@@ -39,7 +39,7 @@ public class EcoSpold2ImportTest {
 		createUnit("ee5f2241-18af-4444-b457-b275660e5a20",
 				"441238a3-ba09-46ec-b35b-c30cfba746d1", "km");
 		File tempDir = new File(System.getProperty("java.io.tmpdir"));
-		tempFile = new File(tempDir, UUID.randomUUID().toString() + ".spold");
+		tempFile = new File(tempDir, UUID.randomUUID() + ".spold");
 		log.trace("copy ecospold 2 file to {}", tempFile);
 		Files.copy(getClass().getResourceAsStream("sample_ecospold2.xml"),
 				tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -64,11 +64,11 @@ public class EcoSpold2ImportTest {
 		prop.refId = propertyRefId;
 		prop = new FlowPropertyDao(Tests.getDb()).insert(prop);
 		group.defaultFlowProperty = prop;
-		group = new UnitGroupDao(Tests.getDb()).update(group);
+		new UnitGroupDao(Tests.getDb()).update(group);
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		log.trace("delete file {}", tempFile);
 		boolean success = tempFile.delete();
 		log.trace("success? = {}", success);
@@ -122,5 +122,4 @@ public class EcoSpold2ImportTest {
 				uncertainty.distributionType);
 		Assert.assertEquals(33, uncertainty.parameter1, 1e-16);
 	}
-
 }

@@ -261,15 +261,22 @@ class ProcessImport {
 	}
 
 	private String dqEntryOf(spold2.Exchange e) {
-		if (e == null || e.uncertainty == null)	return null;
+		if (e == null || e.uncertainty == null) return null;
 		var pm = e.uncertainty.pedigreeMatrix;
-		if (pm == null)	return null;
-		return dqSystem.toString(
-			pm.reliability,
-			pm.completeness,
-			pm.temporalCorrelation,
-			pm.geographicalCorrelation,
-			pm.technologyCorrelation);
+		if (pm == null) return null;
+		if (dqSystem != null) {
+			return dqSystem.toString(
+				pm.reliability,
+				pm.completeness,
+				pm.temporalCorrelation,
+				pm.geographicalCorrelation,
+				pm.technologyCorrelation);
+		}
+		return "(" + pm.reliability + ", " +
+			pm.completeness + ", " +
+			pm.temporalCorrelation + ", " +
+			pm.geographicalCorrelation + ", " +
+			pm.technologyCorrelation + ")";
 	}
 
 	private Double baseUncertaintyOf(spold2.Exchange e) {
@@ -303,7 +310,7 @@ class ProcessImport {
 	}
 
 	private void mapFormula(spold2.Exchange original, Process process,
-													Exchange exchange, double factor) {
+	                        Exchange exchange, double factor) {
 		String formula = null;
 		String var = original.variableName;
 		if (Strings.isNotBlank(var)
@@ -322,7 +329,7 @@ class ProcessImport {
 	}
 
 	private void addActivityLink(IntermediateExchange input,
-															 Exchange exchange) {
+	                             Exchange exchange) {
 		String refId = RefId.linkID(input);
 		Long processId = index.getProcessId(refId);
 		if (processId != null) {

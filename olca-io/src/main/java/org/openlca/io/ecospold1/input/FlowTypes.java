@@ -8,36 +8,19 @@ class FlowTypes {
 	}
 
 	public static FlowType forInputGroup(int inputGroup) {
-		switch (inputGroup) {
-		case 1:
-			return FlowType.PRODUCT_FLOW;
-		case 2:
-			return FlowType.PRODUCT_FLOW;
-		case 3:
-			return FlowType.PRODUCT_FLOW;
-		case 4:
-			return FlowType.ELEMENTARY_FLOW;
-		case 5:
-			return FlowType.PRODUCT_FLOW;
-		default:
-			return null;
-		}
+		return switch (inputGroup) {
+			case 1, 2, 3, 5 -> FlowType.PRODUCT_FLOW;
+			case 4 -> FlowType.ELEMENTARY_FLOW;
+			default -> null;
+		};
 	}
-	
+
 	public static FlowType forOutputGroup(int outputGroup) {
-		switch (outputGroup) {
-		case 0:
-			return FlowType.PRODUCT_FLOW;
-		case 1:
-			return FlowType.PRODUCT_FLOW;
-		case 2:
-			return FlowType.PRODUCT_FLOW;
-		case 3:
-			return FlowType.WASTE_FLOW;
-		case 4:
-			return FlowType.ELEMENTARY_FLOW;
-		default:
-			return null;
-		}
+		return switch (outputGroup) {
+			case 0, 1, 2 -> FlowType.PRODUCT_FLOW;
+			case 3 -> FlowType.WASTE_FLOW;
+			case 4 -> FlowType.ELEMENTARY_FLOW;
+			default -> null;
+		};
 	}
 }

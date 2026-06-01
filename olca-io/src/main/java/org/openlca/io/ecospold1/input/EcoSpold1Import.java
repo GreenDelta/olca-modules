@@ -27,16 +27,16 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.ProcessDoc;
-import org.openlca.ecospold.IAllocation;
-import org.openlca.ecospold.IEcoSpold;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IGeography;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.IReferenceFunction;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
-import org.openlca.ecospold.io.DataSetType;
-import org.openlca.ecospold.io.EcoSpold;
+import org.openlca.ecospold.model.IAllocation;
+import org.openlca.ecospold.model.IEcoSpold;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IGeography;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.IReferenceFunction;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.DataSetType;
+import org.openlca.ecospold.EcoSpold;
 import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.ZipFiles;
@@ -45,7 +45,7 @@ import org.openlca.util.ZipFiles;
  * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
  * the database
  */
-public class EcoSpold01Import implements Import {
+public class EcoSpold1Import implements Import {
 
 	private Category processCategory;
 	private final HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
@@ -55,7 +55,7 @@ public class EcoSpold01Import implements Import {
 	private File[] files;
 	private final ImportLog log = new ImportLog();
 
-	public EcoSpold01Import(ImportConfig config) {
+	public EcoSpold1Import(ImportConfig config) {
 		this.db = new DB(config.db);
 		this.flowImport = new FlowImport(db, config);
 	}
@@ -164,7 +164,7 @@ public class EcoSpold01Import implements Import {
 		if (type == DataSetType.IMPACT_METHOD) {
 			importImpacts(spold.value());
 		} else {
-			for (var ds : spold.value().getDataset()) {
+			for (var ds : spold.value().getDataSets()) {
 				var wrap = new DataSet(ds, type.getFactory());
 				importProcess(wrap);
 			}
@@ -240,8 +240,8 @@ public class EcoSpold01Import implements Import {
 	}
 
 	private void process(DataSet ds) {
-		String id = ES1KeyGen.forProcess(ds);
-		Process p = db.get(Process.class, id);
+		var id = ES1KeyGen.forProcess(ds);
+		var p = db.get(Process.class, id);
 		if (p != null) {
 			log.skipped(p);
 			return;
@@ -249,7 +249,7 @@ public class EcoSpold01Import implements Import {
 
 		p = new Process();
 		p.refId = id;
-		ProcessDoc doc = new ProcessDoc();
+		var doc = new ProcessDoc();
 		p.documentation = doc;
 
 		var refFun = ds.getReferenceFunction();
@@ -259,12 +259,7 @@ public class EcoSpold01Import implements Import {
 
 		p.processType = Util.getProcessType(ds);
 		mapTimeAndGeography(ds, p, doc);
-
-		if (ds.getTechnology() != null
-				&& ds.getTechnology().getText() != null) {
-			doc.technology = Strings.cutEnd(
-					(ds.getTechnology().getText()), 65500);
-		}
+		mapTechnology(ds, doc);
 
 		mapExchanges(ds.getExchanges(), p);
 		if (p.quantitativeReference == null)
@@ -285,14 +280,30 @@ public class EcoSpold01Import implements Import {
 		log.imported(p);
 	}
 
-	private void mapTimeAndGeography(DataSet ds, Process p,
-			ProcessDoc doc) {
-		ProcessTime time = new ProcessTime(ds.getTimePeriod());
+	private static void mapTechnology(DataSet ds, ProcessDoc doc) {
+		var tech = ds.getTechnology();
+		var techDoc = tech != null && Strings.isNotBlank(tech.getText())
+			? tech.getText().trim()
+			: null;
+
+		var refFun = ds.getReferenceFunction();
+		if (refFun != null && Strings.isNotBlank(refFun.getIncludedProcesses())) {
+			var incp = "# Included processes\n" + refFun.getIncludedProcesses();
+			techDoc = techDoc != null
+				? techDoc + "\n\n" + incp
+				: incp;
+		}
+
+		doc.technology = techDoc;
+	}
+
+	private void mapTimeAndGeography(DataSet ds, Process p, ProcessDoc doc) {
+		var time = new ProcessTime(ds.getTimePeriod());
 		time.map(doc);
 		if (ds.getGeography() != null) {
-			String locationCode = ds.getGeography().getLocation();
+			var locationCode = ds.getGeography().getLocation();
 			if (locationCode != null) {
-				String genKey = KeyGen.get(locationCode);
+				var genKey = KeyGen.get(locationCode);
 				p.location = db.findLocation(locationCode, genKey);
 			}
 			doc.geography = ds.getGeography().getText();
@@ -322,7 +333,7 @@ public class EcoSpold01Import implements Import {
 
 	private void mapAllocations(Process process,
 			List<IAllocation> allocations) {
-		for (IAllocation allocation : allocations) {
+		for (var allocation : allocations) {
 			double factor = Math.round(allocation.getFraction() * 10000d)
 					/ 1000000d;
 			Exchange product = localExchangeCache.get(allocation
@@ -334,7 +345,7 @@ public class EcoSpold01Import implements Import {
 							+ "does not exist: " + i);
 					continue;
 				}
-				AllocationFactor af = new AllocationFactor();
+				var af = new AllocationFactor();
 				af.productId = product.flow.id;
 				af.value = factor;
 				af.method = AllocationMethod.CAUSAL;
@@ -396,18 +407,16 @@ public class EcoSpold01Import implements Import {
 				: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
 	}
 
-	private void createProductFromRefFun(DataSet dataSet, Process process) {
-		FlowBucket flow = flowImport.handleProcessProduct(dataSet);
+	private void createProductFromRefFun(DataSet ds, Process process) {
+		var flow = flowImport.handleProcessProduct(ds);
 		if (flow == null || !flow.isValid()) {
-			log.warn("Could not create reference flow: " + dataSet);
+			log.warn("Could not create reference flow: " + ds);
 			return;
 		}
-		var exchange = process.add(
-				Exchange.of(flow.flow, flow.flowProperty, flow.unit));
-		exchange.isInput = false;
-		exchange.amount = dataSet.getReferenceFunction().getAmount()
-				* flow.conversionFactor;
-		process.quantitativeReference = exchange;
+		var e = process.add(Exchange.of(flow.flow, flow.flowProperty, flow.unit));
+		e.isInput = false;
+		e.amount = ds.getReferenceFunction().getAmount() * flow.conversionFactor;
+		process.quantitativeReference = e;
 	}
 
 	private void mapSources(ProcessDoc doc, DataSet dataSet) {
@@ -431,7 +440,7 @@ public class EcoSpold01Import implements Import {
 		if (es == null)
 			return;
 		var db = this.db.database;
-		for (var ds : es.getDataset()) {
+		for (var ds : es.getDataSets()) {
 			var wrap = new DataSet(
 					ds, DataSetType.IMPACT_METHOD.getFactory());
 			var ref = wrap.getReferenceFunction();

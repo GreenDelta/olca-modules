@@ -1,6 +1,7 @@
 package org.openlca.core;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -76,22 +77,29 @@ public class Tests {
 
 	public static IDatabase getDb() {
 		if (db == null) {
-			db = getEmptyDb();
+			db = USE_FILE_BASED_DB
+				? initFileBasedDb()
+				: initInMemoryDb();
 		}
 		return db;
 	}
-	
-	public static IDatabase getEmptyDb() {
-		return USE_FILE_BASED_DB
-			? initFileBasedDb()
-			: Derby.createInMemory();		
+
+	private static IDatabase initInMemoryDb() {
+		try {
+			var db = Derby.createInMemory();
+			var dir = Files.createTempDirectory("olca_test_db_files_").toFile();
+			db.setFileStorageLocation(dir);
+			return db;
+		} catch (Exception e) {
+			throw new RuntimeException("failed to create test file storage", e);
+		}
 	}
 
 	private static IDatabase initFileBasedDb() {
-		String tmpDirPath = System.getProperty("java.io.tmpdir");
-		String dbName = "olca_test_db_1.4";
-		File tmpDir = new File(tmpDirPath);
-		File folder = new File(tmpDir, dbName);
+		var tmpDirPath = System.getProperty("java.io.tmpdir");
+		var dbName = "olca_test_db_1.4";
+		var tmpDir = new File(tmpDirPath);
+		var folder = new File(tmpDir, dbName);
 		return new Derby(folder);
 	}
 

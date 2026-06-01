@@ -1,9 +1,6 @@
-package org.openlca.io;
+package org.openlca.io.ecospold1;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -19,9 +16,10 @@ import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.UnitGroup;
-import org.openlca.ecospold.io.DataSetType;
+import org.openlca.ecospold.model.process.ProcessFactory;
+import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.input.ES1KeyGen;
-import org.openlca.io.ecospold1.input.EcoSpold01Import;
+import org.openlca.io.ecospold1.input.EcoSpold1Import;
 import org.openlca.io.ecospold1.input.ImportConfig;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
 import org.openlca.util.Dirs;
@@ -32,14 +30,13 @@ public class EcoSpold1Test {
 
 	@Test
 	public void testFlowKey() {
-		var factory = DataSetType.PROCESS.getFactory();
-		var exchange = factory.createExchange();
-		exchange.setOutputGroup(4);
-		exchange.setCategory("air");
-		exchange.setSubCategory("unspecified");
-		exchange.setName("Carbon dioxide");
-		exchange.setUnit("kg");
-		var key = ES1KeyGen.forElementaryFlow(exchange);
+		var e = new ProcessFactory().createExchange();
+		e.setOutputGroup(4);
+		e.setCategory("air");
+		e.setSubCategory("unspecified");
+		e.setName("Carbon dioxide");
+		e.setUnit("kg");
+		var key = ES1KeyGen.forElementaryFlow(e);
 		assertEquals("5e738bf0-6bfe-3acd-8dcb-c74fe4f18b53", key);
 	}
 
@@ -61,12 +58,12 @@ public class EcoSpold1Test {
 		// check the import
 		var processes = db.getAll(Process.class);
 		assertEquals(1, processes.size());
-		var p = processes.get(0);
+		var p = processes.getFirst();
 		assertEquals(2, p.exchanges.size());
 		for (var e : p.exchanges) {
 			assertFalse(e.isInput);
 			assertTrue(e.flow.name.equals("steel")
-					|| e.flow.name.equals("CO2"));
+				|| e.flow.name.equals("CO2"));
 			if (e.flow.name.equals("steel")) {
 				assertEquals(e, p.quantitativeReference);
 				assertEquals(1.0, e.amount, 1e-10);
@@ -78,6 +75,7 @@ public class EcoSpold1Test {
 
 		db.clear();
 	}
+
 
 	@Test
 	public void testImpacts() {
@@ -109,9 +107,8 @@ public class EcoSpold1Test {
 		assertEquals(2, methods.size());
 		for (var method : methods) {
 			assertTrue(method.name.equals("Method 1")
-					|| method.name.equals("Method 2"));
-			assertEquals(2, method.impactCategories
-					.get(0).impactFactors.size());
+				|| method.name.equals("Method 2"));
+			assertEquals(2, method.impactCategories.getFirst().impactFactors.size());
 		}
 
 	}
@@ -120,19 +117,23 @@ public class EcoSpold1Test {
 		try {
 			// export it to a temporary folder
 			var dir = Files.createTempDirectory("_spold_out");
-			var export = new EcoSpold1Export(dir.toFile());
-			fn.accept(export);
+			var export = EcoSpold1Export.of(db, dir.toFile())
+				.create()
+				.orElseThrow();
+			try (export) {
+				fn.accept(export);
+			}
 
 			// clear the database
 			db.clear();
 
 			// import it
 			var config = new ImportConfig(db);
-			var imp = new EcoSpold01Import(config);
+			var imp = new EcoSpold1Import(config);
 			var files = Files.walk(dir)
-					.filter(Files::isRegularFile)
-					.map(Path::toFile)
-					.toArray(File[]::new);
+				.filter(Files::isRegularFile)
+				.map(Path::toFile)
+				.toArray(File[]::new);
 			assertNotNull(files);
 			assertTrue(files.length > 0);
 			imp.setFiles(files);

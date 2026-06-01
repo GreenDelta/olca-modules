@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.math.Simulator;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.CalculationSetup;
@@ -77,6 +78,19 @@ public class LinkedDefaultResultTest {
 		var r = new SystemCalculator(db).calculate(setup);
 		var I = r.impactIndex().at(0);
 		assertEquals(42.0, r.getTotalImpactValueOf(I), 1e-10);
+		r.dispose();
+	}
+
+	@Test
+	public void directSimulation() {
+		var setup = CalculationSetup.of(Q)
+				.withImpactMethod(method)
+				.withSimulationRuns(1);
+		var simulator = Simulator.create(setup, db);
+		var r = simulator.nextRun();
+		var I = r.impactIndex().at(0);
+		assertEquals(42.0, r.getTotalImpactValueOf(I), 1e-10);
+		r.dispose();
 	}
 
 }

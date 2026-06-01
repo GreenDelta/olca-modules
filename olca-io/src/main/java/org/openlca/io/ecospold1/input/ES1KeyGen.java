@@ -1,9 +1,9 @@
 package org.openlca.io.ecospold1.input;
 
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.util.KeyGen;
 
 /**
@@ -47,7 +47,7 @@ public class ES1KeyGen {
 		boolean inf = e.isInfrastructureProcess() != null
 				? e.isInfrastructureProcess()
 				: false;
-		vals[5] = inf ? "true" : "false";
+		vals[5] = Boolean.toString(inf);
 		return KeyGen.get(vals);
 	}
 
@@ -84,7 +84,7 @@ public class ES1KeyGen {
 				? dataSet.getGeography().getLocation()
 				: "GLO";
 		boolean inf = refFun.isInfrastructureProcess();
-		vals[5] = inf ? "true" : "false";
+		vals[5] = Boolean.toString(inf);
 	}
 
 	/**

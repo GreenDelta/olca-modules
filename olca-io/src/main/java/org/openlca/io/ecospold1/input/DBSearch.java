@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.Actor;
@@ -15,22 +15,20 @@ import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Source;
-import org.openlca.ecospold.IExchange;
-import org.openlca.ecospold.IPerson;
-import org.openlca.ecospold.IReferenceFunction;
-import org.openlca.ecospold.ISource;
-import org.openlca.ecospold.io.DataSet;
+import org.openlca.ecospold.model.IExchange;
+import org.openlca.ecospold.model.IPerson;
+import org.openlca.ecospold.model.IReferenceFunction;
+import org.openlca.ecospold.model.ISource;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.io.UnitMappingEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-
 /** Search for EcoSpold entities in the database. */
 class DBSearch {
 
-	private IDatabase database;
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final IDatabase database;
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	public DBSearch(IDatabase database) {
 		this.database = database;
@@ -156,8 +154,8 @@ class DBSearch {
 		try {
 			Category category = flow.category;
 			if (category == null)
-				return Strings.isNullOrEmpty(categoryName)
-						&& Strings.isNullOrEmpty(subCategoryName);
+				return Strings.isBlank(categoryName)
+					&& Strings.isBlank(subCategoryName);
 			Category parent = category.category;
 			if (parent == null)
 				return sameCategory(categoryName, category)
@@ -172,11 +170,11 @@ class DBSearch {
 	}
 
 	private boolean sameCategory(String name, Category category) {
-		if (Strings.isNullOrEmpty(name) && category == null)
+		if (Strings.isBlank(name) && category == null)
 			return true;
-		if (Strings.isNullOrEmpty(name) || category == null)
+		if (Strings.isBlank(name) || category == null)
 			return false;
-		return StringUtils.equalsIgnoreCase(name, category.name);
+		return Strings.equalsIgnoreCase(name, category.name);
 	}
 
 	private boolean sameLocation(String locationCode, Flow flow) {
@@ -185,6 +183,6 @@ class DBSearch {
 					|| "GLO".equalsIgnoreCase(flow.location.code);
 		if (flow.location == null)
 			return false;
-		return StringUtils.equalsIgnoreCase(locationCode, flow.location.code);
+		return Strings.equalsIgnoreCase(locationCode, flow.location.code);
 	}
 }

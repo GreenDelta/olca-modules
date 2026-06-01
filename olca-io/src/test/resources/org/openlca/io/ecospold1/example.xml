@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ecoSpold
+	xmlns="http://www.EcoInvent.org/EcoSpold01"
+	validationId="0"
+	validationStatus="test-sample"
+>
+	<dataset
+		validCompanyCodes="CompanyCodes.xml"
+		validRegionalCodes="RegionalCodes.xml"
+		validCategories="Categories.xml"
+		validUnits="Units.xml"
+		number="42"
+		timestamp="2026-05-20T10:15:00"
+		generator="openLCA test fixture"
+		internalSchemaVersion="1.0"
+	>
+		<metaInformation>
+			<processInformation>
+				<referenceFunction
+					name="community garden compost service"
+					localName="community garden compost service"
+					infrastructureProcess="false"
+					unit="kg"
+					category="waste treatment"
+					subCategory="community composting"
+					localCategory="waste treatment"
+					localSubCategory="community composting"
+					amount="1"
+					includedProcesses="Collection of garden residues, manual sorting, bin composting, and local use of mature compost are included."
+					generalComment="Fictitious dataset for parser and writer tests. Values are illustrative only and do not represent measured industrial data."
+					formula="0"
+					infrastructureIncluded="false"
+					datasetRelatesToProduct="true"
+				>
+					<synonym>garden compost test flow</synonym>
+				</referenceFunction>
+				<geography
+					location="DE"
+					text="Values describe a fictional neighborhood-scale operation in Germany."
+				/>
+				<technology
+					text="Aerated compost bins with manual turning and covered storage."
+				/>
+				<timePeriod
+					dataValidForEntirePeriod="true"
+					text="Representative period used for the fictional test inventory."
+				>
+					<startYear>2024</startYear>
+					<endYear>2025</endYear>
+				</timePeriod>
+				<dataSetInformation
+					type="1"
+					impactAssessmentResult="false"
+					timestamp="2026-05-20T10:15:00"
+					version="12.34"
+					internalVersion="67.0"
+					energyValues="0"
+					languageCode="en"
+					localLanguageCode="en"
+				/>
+			</processInformation>
+			<modellingAndValidation>
+				<representativeness
+					samplingProcedure="Values were created solely for software tests and documentation examples."
+					extrapolations="No extrapolation was applied because the dataset is synthetic."
+					uncertaintyAdjustments="None."
+					productionVolume="1500 kg/year"
+				/>
+				<source
+					number="10"
+					sourceType="4"
+					firstAuthor="OpenLCA Test Team"
+					additionalAuthors=""
+					year="2026"
+					title="Synthetic EcoSpold Example Dataset"
+					titleOfAnthology="openLCA test resources"
+					placeOfPublications="Berlin, DE"
+					publisher="GreenDelta test data"
+					volumeNo="1"
+					text="Internal example document"
+				/>
+				<validation
+					proofReadingDetails="Synthetic dataset reviewed for schema coverage."
+					proofReadingValidator="2"
+				/>
+			</modellingAndValidation>
+			<administrativeInformation>
+				<dataEntryBy person="1" qualityNetwork="1" />
+				<dataGeneratorAndPublication
+					person="1"
+					dataPublishedIn="0"
+					referenceToPublishedSource="10"
+					copyright="false"
+					accessRestrictedTo="0"
+				/>
+				<person
+					number="1"
+					name="Alex Example"
+					address="Sample Street 1, 10115 Berlin"
+					telephone="+49-30-000000"
+					telefax="+49-30-000001"
+					email="alex.example@example.org"
+					companyCode="OPENLCA-TEST"
+					countryCode="DE"
+				/>
+				<person
+					number="2"
+					name="Casey Checker"
+					address="Sample Street 2, 10115 Berlin"
+					telephone="+49-30-000002"
+					telefax="+49-30-000003"
+					email="casey.checker@example.org"
+					companyCode="OPENLCA-TEST"
+					countryCode="DE"
+				/>
+			</administrativeInformation>
+		</metaInformation>
+		<flowData>
+			<exchange
+				number="1"
+				category="waste treatment"
+				subCategory="community composting"
+				localCategory="waste treatment"
+				localSubCategory="community composting"
+				name="community garden compost service"
+				location="DE"
+				unit="kg"
+				meanValue="1"
+				formula="0"
+				localName="community garden compost service"
+				infrastructureProcess="false"
+			>
+				<outputGroup>0</outputGroup>
+			</exchange>
+			<exchange
+				number="2"
+				category="materials handling"
+				subCategory="wood products"
+				localCategory="materials handling"
+				localSubCategory="wood products"
+				CASNumber="008010-00-0"
+				name="wood chips, bulking agent"
+				location="DE"
+				unit="kg"
+				uncertaintyType="1"
+				meanValue="0.15"
+				standardDeviation95="1.10"
+				formula="0"
+				generalComment="Synthetic input used to exercise exchange parsing."
+				localName="wood chips, bulking agent"
+				infrastructureProcess="false"
+			>
+				<inputGroup>5</inputGroup>
+			</exchange>
+			<allocation referenceToCoProduct="1" allocationMethod="1" fraction="100">
+				<referenceToInputOutput>1</referenceToInputOutput>
+			</allocation>
+		</flowData>
+	</dataset>
+</ecoSpold>
