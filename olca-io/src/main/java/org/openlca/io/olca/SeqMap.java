@@ -17,7 +17,7 @@ import jakarta.persistence.Table;
 /// then references to entities of that source database which we need to replace
 /// with corresponding entities of the target database. Thus, we need to store
 /// the mapping between the source and target IDs.
-class SeqMap {
+public class SeqMap {
 
 	private final Map<ModelType, TLongLongHashMap> sqs;
 

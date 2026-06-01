@@ -30,15 +30,15 @@ public class TransferContext {
 		this.log = log;
 	}
 
-	IDatabase source() {
+	public IDatabase source() {
 		return source;
 	}
 
-	IDatabase target() {
+	public IDatabase target() {
 		return target;
 	}
 
-	SeqMap seq() {
+	public SeqMap seq() {
 		return seq;
 	}
 

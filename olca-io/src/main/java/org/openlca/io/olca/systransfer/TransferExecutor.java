@@ -2,6 +2,7 @@ package org.openlca.io.olca.systransfer;
 
 import org.openlca.commons.Res;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.io.olca.TransferContext;
 
 public class TransferExecutor {
 
@@ -16,6 +17,26 @@ public class TransferExecutor {
 	}
 
 	public Res<ProductSystem> execute() {
+		var res = createContext();
+		if (res.isError())
+			return res.castError();
+		var ctx = res.value();
+
+		for (var p : plan.copies()) {
+			if (p.provider() == null || p.provider().type == null)
+				continue;
+			var entity = ctx.source().get(
+				p.provider().type.getModelClass(), p.provider().id);
+			ctx.resolve(entity);
+		}
+
+		// TODO transfer parameters, parameter sets, analysis groups
+
+		var origin = plan.config().system();
+		var copy = origin.copy();
+		copy.processLinks.clear();
+		copy.analysisGroups.clear();
+		copy.processes.clear();
 
 		// TODO
 		// - traverse the product system in the same way as in the TransferPlan.PlanBuilder
@@ -26,6 +47,32 @@ public class TransferExecutor {
 		// - copy analysis groups, parameter sets (including global parameters)
 
 		return Res.error("Not yet implemented");
+	}
+
+	private Res<TransferContext> createContext() {
+		if (plan == null
+			|| plan.config() == null
+			|| plan.config().isNotComplete())
+			return Res.error("Incomplete transfer configuration");
+		try {
+			var ctx = TransferContext.create(
+				plan.config().source(), plan.config().target());
+			var seq = ctx.seq();
+			for (var match : plan.matches()) {
+				if (match.provider() == null
+					|| match.provider().provider() == null
+					|| match.selected().provider() == null)
+					continue;
+				// TODO: we need to support type switches
+				seq.put(
+					match.provider().provider().type,
+					match.provider().provider().id,
+					match.selected().provider().id);
+			}
+			return Res.ok(ctx);
+		} catch (Exception e) {
+			return Res.error("Failed to create the transfer context", e);
+		}
 	}
 
 }
