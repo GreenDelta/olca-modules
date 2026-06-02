@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.io.olca.systransfer.ProductSystemLinks;
 
 final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 
