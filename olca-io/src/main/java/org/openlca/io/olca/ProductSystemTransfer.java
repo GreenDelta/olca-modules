@@ -1,11 +1,9 @@
 package org.openlca.io.olca;
 
-import java.util.Objects;
-
-import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.io.olca.systransfer.ProductSystemLinks;
+import org.openlca.io.olca.systransfer.SystemTransferUtil;
 
 final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 
@@ -30,39 +28,12 @@ final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
 			copy.referenceProcess = ctx.resolve(origin.referenceProcess);
-			swapQRef(origin, copy);
+			SystemTransferUtil.swapQRef(ctx, origin, copy);
 			swapParameters(copy);
 			swapAnalysisGroups(copy);
 			ProductSystemLinks.map(ctx, copy);
 			return copy;
 		});
-	}
-
-	private void swapQRef(ProductSystem src, ProductSystem copy) {
-		if (src.referenceExchange == null || copy.referenceProcess == null)
-			return;
-		copy.referenceExchange = copy.referenceProcess.exchanges.stream()
-				.filter(e -> isSame(src.referenceExchange, e))
-				.findAny()
-				.orElse(null);
-		var refFlow = copy.referenceExchange != null
-				? copy.referenceExchange.flow
-				: null;
-		if (refFlow == null)
-			return;
-		copy.targetFlowPropertyFactor =
-				ctx.mapFactor(refFlow, src.targetFlowPropertyFactor);
-		copy.targetUnit =
-				ctx.mapUnit(copy.targetFlowPropertyFactor, src.targetUnit);
-	}
-
-	private boolean isSame(Exchange e, Exchange copy) {
-		if (e.isInput != copy.isInput)
-			return false;
-		return e.unit != null && copy.unit != null
-			&& e.flow != null && copy.flow != null
-			&& Objects.equals(e.unit.refId, copy.unit.refId)
-			&& Objects.equals(e.flow.refId, copy.flow.refId);
 	}
 
 	private void swapParameters(ProductSystem copy) {

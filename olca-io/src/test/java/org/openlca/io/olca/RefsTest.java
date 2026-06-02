@@ -346,6 +346,7 @@ public class RefsTest {
 		check(sys.referenceExchange.flow, "q");
 		check(sys.referenceExchange.flowPropertyFactor.flowProperty, "mass");
 		check(sys.referenceExchange.unit, "kg");
+		assertEquals(1.0, sys.targetAmount, 1e-16);
 		check(sys.targetUnit, "kg");
 		check(sys.targetFlowPropertyFactor.flowProperty, "mass");
 		assertEquals(Double.valueOf(0.25), sys.cutoff);

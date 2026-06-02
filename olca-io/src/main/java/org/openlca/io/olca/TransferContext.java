@@ -119,7 +119,7 @@ public class TransferContext {
 	}
 
 	/// Returns the corresponding flow property factor of the destination flow.
-	FlowPropertyFactor mapFactor(Flow destFlow, FlowPropertyFactor srcFactor) {
+	public FlowPropertyFactor mapFactor(Flow destFlow, FlowPropertyFactor srcFactor) {
 		if (srcFactor == null || destFlow == null)
 			return null;
 		FlowProperty srcProp = srcFactor.flowProperty;
@@ -138,7 +138,7 @@ public class TransferContext {
 		return null;
 	}
 
-	Unit mapUnit(FlowPropertyFactor destFac, Unit srcUnit) {
+	public Unit mapUnit(FlowPropertyFactor destFac, Unit srcUnit) {
 		return destFac != null
 			? mapUnit(destFac.flowProperty, srcUnit)
 			: null;
