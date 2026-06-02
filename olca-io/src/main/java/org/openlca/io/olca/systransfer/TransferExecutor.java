@@ -1,12 +1,17 @@
 package org.openlca.io.olca.systransfer;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.commons.Res;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
+import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.io.olca.ProcessTransfer;
 import org.openlca.io.olca.TransferContext;
 
@@ -50,6 +55,46 @@ public class TransferExecutor {
 				.add(link);
 		}
 
+		var matches = new HashSet<Long>();
+		for (var match : plan.matches()) {
+			if (match.selected() != null || match.selected().provider() != null) {
+				matches.add(match.selected().provider().id);
+			}
+		}
+
+		var seq = ctx.seq();
+		var queue = new ArrayDeque<ProviderFlow>();
+		queue.add(ProviderFlow.rootOf(origin));
+		var visited = new HashSet<ProviderFlow>();
+		var exchanges = ExchangeFinder.of(ctx);
+		while (!queue.isEmpty()) {
+			var p = queue.poll();
+			visited.add(p);
+			long targetId = seq.get(p.type, p.provider);
+			if (targetId == 0)
+				continue;
+			copy.processes.add(targetId);
+			if (matches.contains(targetId))
+				continue;
+
+			var links = linkIdx.get(p.provider);
+			if (links == null)
+				continue;
+			for (var link : links) {
+				var next = ProviderFlow.of(link);
+
+				// TODO: when the provider here is matched, it could have a different
+				// type than the original link has!
+				var targetLink = link.copy();
+				targetLink.providerId = seq.get(next.type, next.provider);
+				targetLink.flowId = seq.get(ModelType.FLOW, link.flowId);
+				targetLink.processId = seq.get(ModelType.PROCESS, link.processId);
+				targetLink.exchangeId = exchanges.find(link);
+				copy.processLinks.add(targetLink);
+
+			}
+		}
+
 		// TODO transfer parameters, parameter sets, analysis groups
 
 		// TODO
@@ -89,4 +134,19 @@ public class TransferExecutor {
 		}
 	}
 
+	private record ProviderFlow(long provider, ModelType type) {
+
+		static ProviderFlow rootOf(ProductSystem system) {
+			return system != null && system.referenceProcess != null
+				? new ProviderFlow(system.referenceProcess.id, ModelType.PROCESS)
+				: new ProviderFlow(0, ModelType.PROCESS);
+		}
+
+		static ProviderFlow of(ProcessLink link) {
+			if (link == null)
+				return new ProviderFlow(0, ModelType.PROCESS);
+			var type = ProviderType.toModelType(link.providerType);
+			return new ProviderFlow(link.providerId, type);
+		}
+	}
 }
