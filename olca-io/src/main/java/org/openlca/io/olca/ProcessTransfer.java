@@ -3,6 +3,7 @@ package org.openlca.io.olca;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import org.openlca.core.database.NativeSql;
 import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
@@ -15,7 +16,7 @@ import org.openlca.core.model.ProviderType;
 /// negative value of the corresponding ID in the source database. After the
 /// import of all possible provider types (also results and product systems),
 /// we then search for negative provider IDs and replace them.
-final class ProcessTransfer implements EntityTransfer<Process> {
+public final class ProcessTransfer implements EntityTransfer<Process> {
 
 	private final TransferContext ctx;
 	private final ImportLog log;
@@ -142,5 +143,31 @@ final class ProcessTransfer implements EntityTransfer<Process> {
 		for (var dec : doc.complianceDeclarations) {
 			dec.system = ctx.resolve(dec.system);
 		}
+	}
+
+	/// Replaces temporary placeholder IDs for default providers in the target
+	/// database with their actual mapped IDs.
+	///
+	/// While copying processes, default providers might not be present in the
+	/// target database yet. In such cases, placeholders (negative values of the
+	/// original IDs) are used. This method should be called after all potential
+	/// provider types (processes, results, and product systems) have been
+	/// imported into the target database.
+	public static void swapDefaultProviders(TransferContext ctx) {
+		// see the process import for more information how default providers
+		// are handled (as negative values of their original IDs when they are
+		// not available in the import yet)
+		var q = "select f_default_provider, default_provider_type " +
+			"from tbl_exchanges where f_default_provider < 0";
+		NativeSql.on(ctx.target()).updateRows(q, r -> {
+			long sourceId = Math.abs(r.getLong(1));
+			var type = ProviderType.toModelType(r.getByte(2));
+			long targetId = ctx.seq().get(type, sourceId);
+			if (targetId > 0) {
+				r.updateLong(1, targetId);
+				r.updateRow();
+			}
+			return true;
+		});
 	}
 }

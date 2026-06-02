@@ -39,6 +39,8 @@ public class SystemTransferUtil {
 		dest.targetAmount = src.targetAmount;
 	}
 
+	/// Maps the process references and product system links from the source
+	/// database to the target database.
 	public static void swapProcessLinks(
 		TransferContext ctx, ProductSystem src, ProductSystem dest
 	) {

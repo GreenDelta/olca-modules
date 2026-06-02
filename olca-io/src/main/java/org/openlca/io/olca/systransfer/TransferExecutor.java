@@ -1,7 +1,13 @@
 package org.openlca.io.olca.systransfer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.openlca.commons.Res;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.io.olca.ProcessTransfer;
 import org.openlca.io.olca.TransferContext;
 
 public class TransferExecutor {
@@ -29,6 +35,7 @@ public class TransferExecutor {
 				p.provider().type.getModelClass(), p.provider().id);
 			ctx.resolve(entity);
 		}
+		ProcessTransfer.swapDefaultProviders(ctx);
 
 		var origin = plan.config().system();
 		var copy = origin.copy();
@@ -36,6 +43,12 @@ public class TransferExecutor {
 		copy.analysisGroups.clear();
 		copy.processes.clear();
 		SystemTransferUtil.swapQRef(ctx, origin, copy);
+
+		var linkIdx = new HashMap<Long, List<ProcessLink>>();
+		for (var link : origin.processLinks) {
+			linkIdx.computeIfAbsent(link.processId, $ -> new ArrayList<>())
+				.add(link);
+		}
 
 		// TODO transfer parameters, parameter sets, analysis groups
 
