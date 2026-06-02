@@ -2,7 +2,6 @@ package org.openlca.io.olca;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.io.olca.systransfer.ProductSystemLinks;
 import org.openlca.io.olca.systransfer.SystemTransferUtil;
 
 final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
@@ -27,11 +26,10 @@ final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 	public ProductSystem sync(ProductSystem origin) {
 		return ctx.sync(origin, () -> {
 			var copy = origin.copy();
-			copy.referenceProcess = ctx.resolve(origin.referenceProcess);
 			SystemTransferUtil.swapQRef(ctx, origin, copy);
+			SystemTransferUtil.swapProcessLinks(ctx, origin, copy);
 			swapParameters(copy);
 			swapAnalysisGroups(copy);
-			ProductSystemLinks.map(ctx, copy);
 			return copy;
 		});
 	}

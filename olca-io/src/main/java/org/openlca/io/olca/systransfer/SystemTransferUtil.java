@@ -3,8 +3,10 @@ package org.openlca.io.olca.systransfer;
 import java.util.Objects;
 
 import org.openlca.core.model.Exchange;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.ProviderType;
 import org.openlca.io.olca.TransferContext;
 
 public class SystemTransferUtil {
@@ -12,12 +14,16 @@ public class SystemTransferUtil {
 	private SystemTransferUtil() {
 	}
 
+	/// Maps the reference process, exchange, flow property and unit of the
+	/// quantitative reference of the process.
 	public static void swapQRef(
 		TransferContext ctx, ProductSystem src, ProductSystem dest
 	) {
 		if (ctx == null || src == null || dest == null)
 			return;
-		dest.referenceExchange = findMatch(src.referenceExchange, dest.referenceProcess);
+		dest.referenceProcess = ctx.resolve(src.referenceProcess);
+		dest.referenceExchange = findMatch(
+			src.referenceExchange, dest.referenceProcess);
 		var refFlow = dest.referenceExchange != null
 			? dest.referenceExchange.flow
 			: null;
@@ -26,8 +32,44 @@ public class SystemTransferUtil {
 			dest.targetUnit = null;
 			return;
 		}
-		dest.targetFlowPropertyFactor = ctx.mapFactor(refFlow, src.targetFlowPropertyFactor);
-		dest.targetUnit = ctx.mapUnit(dest.targetFlowPropertyFactor, src.targetUnit);
+		dest.targetFlowPropertyFactor = ctx.mapFactor(
+			refFlow, src.targetFlowPropertyFactor);
+		dest.targetUnit = ctx.mapUnit(
+			dest.targetFlowPropertyFactor, src.targetUnit);
+		dest.targetAmount = src.targetAmount;
+	}
+
+	public static void swapProcessLinks(
+		TransferContext ctx, ProductSystem src, ProductSystem dest
+	) {
+		if (ctx == null || dest == null)
+			return;
+		var seq = ctx.seq();
+
+		// map processes
+		dest.processes.clear();
+		var types = new ModelType[] {
+			ModelType.PROCESS, ModelType.RESULT, ModelType.PRODUCT_SYSTEM
+		};
+		for (var srcId : src.processes) {
+			for (var type : types) {
+				long destId = seq.get(type, srcId);
+				if (destId > 0) {
+					dest.processes.add(destId);
+					break;
+				}
+			}
+		}
+
+		// map process links
+		var exchanges = ExchangeFinder.of(ctx);
+		for (var link : dest.processLinks) {
+			link.processId = seq.get(ModelType.PROCESS, link.processId);
+			var providerType = ProviderType.toModelType(link.providerType);
+			link.providerId = seq.get(providerType, link.providerId);
+			link.flowId = seq.get(ModelType.FLOW, link.flowId);
+			link.exchangeId = exchanges.find(link);
+		}
 	}
 
 	/// Tries to find the corresponding

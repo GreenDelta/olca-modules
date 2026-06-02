@@ -30,13 +30,14 @@ public class TransferExecutor {
 			ctx.resolve(entity);
 		}
 
-		// TODO transfer parameters, parameter sets, analysis groups
-
 		var origin = plan.config().system();
 		var copy = origin.copy();
 		copy.processLinks.clear();
 		copy.analysisGroups.clear();
 		copy.processes.clear();
+		SystemTransferUtil.swapQRef(ctx, origin, copy);
+
+		// TODO transfer parameters, parameter sets, analysis groups
 
 		// TODO
 		// - traverse the product system in the same way as in the TransferPlan.PlanBuilder
