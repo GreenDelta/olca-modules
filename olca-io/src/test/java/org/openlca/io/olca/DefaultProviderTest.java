@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 
 public class DefaultProviderTest {
 
-	private final TestContext ctx = TestContext.get();
+	private final TestTransferContext ctx = TestTransferContext.get();
 	private final IDatabase source = ctx.source();
 	private final IDatabase target = ctx.target();
 

@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 public class ProcessDocTest {
 
-	private final TestContext ctx = TestContext.get();
+	private final TestTransferContext ctx = TestTransferContext.get();
 	private final IDatabase sourceDb = ctx.source();
 	private final IDatabase targetDb = ctx.target();
 	private Process process;

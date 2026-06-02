@@ -31,7 +31,7 @@ public class SystemTransferUtil {
 	}
 
 	/// Tries to find the corresponding
-	static Exchange findMatch(Exchange srcExchange, Process destProcess) {
+	private static Exchange findMatch(Exchange srcExchange, Process destProcess) {
 		if (srcExchange == null || destProcess == null)
 			return null;
 

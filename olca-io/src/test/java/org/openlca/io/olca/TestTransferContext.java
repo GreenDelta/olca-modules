@@ -3,24 +3,24 @@ package org.openlca.io.olca;
 import org.openlca.core.database.Derby;
 import org.openlca.core.database.IDatabase;
 
-class TestContext {
+public class TestTransferContext {
 
 	private static final IDatabase source = Derby.createInMemory();
 	private static final IDatabase target = Derby.createInMemory();
 
-	static TestContext get() {
-		return new TestContext();
+	public static TestTransferContext get() {
+		return new TestTransferContext();
 	}
 
-	IDatabase source() {
+	public IDatabase source() {
 		return source;
 	}
 
-	IDatabase target() {
+	public IDatabase target() {
 		return target;
 	}
 
-	void clear() {
+	public void clear() {
 		source.clear();
 		target.clear();
 	}

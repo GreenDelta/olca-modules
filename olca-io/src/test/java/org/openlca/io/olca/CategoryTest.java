@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 
 public class CategoryTest {
 
-	private final TestContext ctx = TestContext.get();
+	private final TestTransferContext ctx = TestTransferContext.get();
 
 	@Before
 	public void setup() {

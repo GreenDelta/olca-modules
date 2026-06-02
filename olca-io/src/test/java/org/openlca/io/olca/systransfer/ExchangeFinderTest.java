@@ -5,39 +5,36 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.After;
 import org.junit.Test;
-import org.openlca.core.database.Derby;
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.io.olca.TestTransferContext;
 import org.openlca.io.olca.TransferContext;
 
 public class ExchangeFinderTest {
 
-	private final IDatabase source = Derby.createInMemory();
-	private final IDatabase target = Derby.createInMemory();
+	private final TestTransferContext c = TestTransferContext.get();
 
 	@After
 	public void cleanup() throws Exception {
-		source.close();
-		target.close();
+		c.clear();
 	}
 
 	@Test
 	public void findExchangeId() {
 		var units = UnitGroup.of("Units of mass", "kg");
 		var mass = FlowProperty.of("Mass", units);
-		source.insert(units, mass);
+		c.source().insert(units, mass);
 
 		var product = Flow.product("product", mass);
 		var inputFlow = Flow.product("input", mass);
 		var process = Process.of("P", product);
 		var input = process.input(inputFlow, 2.0);
-		source.insert(product, inputFlow, process);
+		c.source().insert(product, inputFlow, process);
 
-		var ctx = TransferContext.create(source, target);
+		var ctx = TransferContext.create(c.source(), c.target());
 		var copy = ctx.resolve(process);
 		assertNotNull(copy);
 

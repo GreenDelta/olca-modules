@@ -21,7 +21,7 @@ import org.openlca.core.model.UnitGroup;
 
 public class DatabaseImportTest {
 
-	private final TestContext ctx = TestContext.get();
+	private final TestTransferContext ctx = TestTransferContext.get();
 	private final IDatabase source = ctx.source();
 	private final IDatabase target = ctx.target();
 
