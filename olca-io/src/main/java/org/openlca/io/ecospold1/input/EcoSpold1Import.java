@@ -27,6 +27,9 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.doc.ProcessDoc;
+import org.openlca.ecospold.DataSetType;
+import org.openlca.ecospold.EcoSpold;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IAllocation;
 import org.openlca.ecospold.model.IEcoSpold;
 import org.openlca.ecospold.model.IExchange;
@@ -34,9 +37,6 @@ import org.openlca.ecospold.model.IGeography;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.IReferenceFunction;
 import org.openlca.ecospold.model.ISource;
-import org.openlca.ecospold.model.DataSet;
-import org.openlca.ecospold.DataSetType;
-import org.openlca.ecospold.EcoSpold;
 import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.ZipFiles;
@@ -118,7 +118,7 @@ public class EcoSpold1Import implements Import {
 		}
 		try (var stream = new FileInputStream(file)) {
 			log.info("import file: " + file.getName());
-			run(stream, type.value());
+			run(stream, type.value(), file.getName());
 		} catch (Exception e) {
 			log.error("failed to import XML file " + file, e);
 		}
@@ -135,7 +135,7 @@ public class EcoSpold1Import implements Import {
 				if (type == null)
 					continue;
 				try (var stream = zip.getInputStream(entry)) {
-					run(stream, type);
+					run(stream, type, entry.getName());
 				}
 			}
 		} catch (Exception e) {
@@ -155,12 +155,14 @@ public class EcoSpold1Import implements Import {
 		}
 	}
 
-	public void run(InputStream is, DataSetType type) {
+	private void run(InputStream is, DataSetType type, String name) {
 		if (is == null || type == null)
 			return;
 		var spold = EcoSpold.read(is, type);
-		if (spold.isError())
+		if (spold.isError()) {
+			log.error("Invalid EcoSpold file: " + name + " - " + spold.error());
 			return;
+		}
 		if (type == DataSetType.IMPACT_METHOD) {
 			importImpacts(spold.value());
 		} else {
