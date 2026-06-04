@@ -62,8 +62,8 @@ class ProductLabeler {
 
 		if (config.withTypeSuffixes) {
 			label += process.processType == ProcessType.LCI_RESULT
-					? ", S"
-					: ", U";
+					? " | S"
+					: " | U";
 		}
 		return label;
 	}

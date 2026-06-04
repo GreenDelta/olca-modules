@@ -104,14 +104,14 @@ class FlowNameFormatter {
 
 		String addSuffix(String base, EcoSpold1Config conf) {
 			var full = base;
-			if (conf.withProcessSuffixes && Strings.isNotBlank(name)) {
-				full += " | " + name.trim();
-			}
 			if (conf.withLocationSuffixes && Strings.isNotBlank(location)) {
 				full += " {" + location.trim() + "}";
 			}
+			if (conf.withProcessSuffixes && Strings.isNotBlank(name)) {
+				full += " | " + name.trim();
+			}
 			if (conf.withTypeSuffixes && Strings.isNotBlank(type)) {
-				full += ", " + type;
+				full += " | " + type;
 			}
 			return full;
 		}
