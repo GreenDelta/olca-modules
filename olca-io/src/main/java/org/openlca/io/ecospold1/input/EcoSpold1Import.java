@@ -41,10 +41,6 @@ import org.openlca.io.Import;
 import org.openlca.util.KeyGen;
 import org.openlca.util.ZipFiles;
 
-/**
- * Parses EcoSpold01 xml files and creates openLCA objects and inserts them into
- * the database
- */
 public class EcoSpold1Import implements Import {
 
 	private Category processCategory;
@@ -79,17 +75,11 @@ public class EcoSpold1Import implements Import {
 		return canceled;
 	}
 
-	/**
-	 * Set an optional root category for the new processes.
-	 */
+	/// Set an optional root category for the new processes.
 	public void setProcessCategory(Category processCategory) {
 		this.processCategory = processCategory;
 	}
 
-	/**
-	 * Runs the import with a set of files (use the respective constructor of
-	 * the setter method for the files).
-	 */
 	@Override
 	public void run() {
 		if (files == null)
@@ -113,14 +103,14 @@ public class EcoSpold1Import implements Import {
 	private void importXml(File file) {
 		var type = EcoSpold.typeOf(file);
 		if (type.isError()) {
-			log.warn("could not detect ecoSpold type of: " + type.error());
+			log.error("Failed to get data set type of: "
+				+ file + " - " + type.error());
 			return;
 		}
 		try (var stream = new FileInputStream(file)) {
-			log.info("import file: " + file.getName());
 			run(stream, type.value(), file.getName());
 		} catch (Exception e) {
-			log.error("failed to import XML file " + file, e);
+			log.error("Failed to import XML file " + file, e);
 		}
 	}
 
@@ -139,7 +129,7 @@ public class EcoSpold1Import implements Import {
 				}
 			}
 		} catch (Exception e) {
-			log.error("failed to import ZIP file " + file, e);
+			log.error("Failed to import ZIP file " + file, e);
 		}
 	}
 
@@ -148,9 +138,15 @@ public class EcoSpold1Import implements Import {
 		if (!name.endsWith(".xml"))
 			return null;
 		try (var stream = zip.getInputStream(entry)) {
-			return EcoSpold.typeOf(stream).orElse(null);
+			var type =  EcoSpold.typeOf(stream);
+			if (type.isError()) {
+				log.error("Failed to get data set type of: "
+					+ entry.getName() + " - " + type.error());
+				return null;
+			}
+			return type.value();
 		} catch (Exception e) {
-			log.error("failed to parse entry: " + entry.getName(), e);
+			log.error("Failed to parse data set: " + entry.getName(), e);
 			return null;
 		}
 	}
@@ -256,6 +252,7 @@ public class EcoSpold1Import implements Import {
 
 		var refFun = ds.getReferenceFunction();
 		if (refFun != null) {
+			log.info("Import process " + refFun.getName());
 			mapReferenceFunction(refFun, p);
 		}
 
@@ -381,8 +378,9 @@ public class EcoSpold1Import implements Import {
 		}
 	}
 
-	private void mapFactors(List<IExchange> inFactors,
-			ImpactCategory ioCategory) {
+	private void mapFactors(
+		List<IExchange> inFactors, ImpactCategory ioCategory
+	) {
 		for (IExchange inFactor : inFactors) {
 			FlowBucket flow = flowImport.handleImpactFactor(inFactor);
 			if (flow == null || !flow.isValid()) {
