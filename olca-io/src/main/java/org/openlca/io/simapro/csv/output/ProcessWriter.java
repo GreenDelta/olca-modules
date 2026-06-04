@@ -224,7 +224,7 @@ class ProcessWriter {
 			linkedFlows.add(e.flow);
 			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
-			w.ln(products.labelOfInput(e),
+			w.ln(products.labelOfLinkable(e),
 					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],
@@ -336,7 +336,7 @@ class ProcessWriter {
 			linkedFlows.add(e.flow);
 			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
-			w.ln(products.labelOfInput(e),
+			w.ln(products.labelOfLinkable(e),
 					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],
@@ -353,7 +353,7 @@ class ProcessWriter {
 			linkedFlows.add(e.flow);
 			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
-			w.ln(products.labelOfInput(e),
+			w.ln(products.labelOfLinkable(e),
 					units.get(ref.unit),
 					ref.amount,
 					u[0], u[1], u[2], u[3],

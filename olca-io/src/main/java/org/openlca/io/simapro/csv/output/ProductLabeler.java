@@ -80,7 +80,7 @@ class ProductLabeler {
 		return product.name;
 	}
 
-	String labelOfInput(Exchange e) {
+	String labelOfLinkable(Exchange e) {
 		if (e == null || e.flow == null)
 			return "?";
 		var provider = providerOf(e);
