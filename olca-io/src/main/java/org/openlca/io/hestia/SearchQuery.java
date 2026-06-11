@@ -5,10 +5,15 @@ import org.openlca.jsonld.Json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public record SearchQuery(int limit, String term, boolean aggregated) {
+public record SearchQuery(
+	int limit, String term, boolean aggregated, String dataVersion) {
+
+	public SearchQuery(int limit, String term, boolean aggregated) {
+		this(limit, term, aggregated, null);
+	}
 
 	public SearchQuery(int limit, String term) {
-		this(limit, term, true);
+		this(limit, term, true, null);
 	}
 
 	JsonObject toJson() {

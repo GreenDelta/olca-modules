@@ -12,6 +12,7 @@ import org.openlca.commons.Res;
 import org.openlca.commons.Strings;
 import org.openlca.jsonld.Json;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -69,6 +70,40 @@ public class HestiaClient implements AutoCloseable {
 			: Res.ok(new User(json.value()));
 	}
 
+	public Res<List<Release>> getReleases() {
+		try {
+			var req = HttpRequest.newBuilder()
+				.uri(URI.create(api + "/users/me/releases"))
+				.header("accept", "application/json")
+				.header("x-access-token", apiKey)
+				.build();
+			var resp = http.send(req, BodyHandlers.ofString());
+			if (resp.statusCode() != 200)
+				return Res.error("request failed: "
+					+ resp.statusCode() + " - " + resp.body());
+
+			var elem = JsonParser.parseString(resp.body());
+			JsonArray array = null;
+			if (elem.isJsonArray()) {
+				array = elem.getAsJsonArray();
+			} else if (elem.isJsonObject()) {
+				array = Json.getArray(elem.getAsJsonObject(), "results");
+			}
+			if (array == null)
+				return Res.error("response does not contain a list of releases");
+
+			var releases = new ArrayList<Release>(array.size());
+			for (var e : array) {
+				if (e.isJsonObject()) {
+					releases.add(Release.of(e.getAsJsonObject()));
+				}
+			}
+			return Res.ok(releases);
+		} catch (Exception e) {
+			return Res.error("failed to get releases", e);
+		}
+	}
+
 	public Res<List<GlossaryFileInfo>> getGlossaryFileInfos() {
 		var json = getJsonObject("/glossary/lookups");
 		if (json.isError())
@@ -105,11 +140,15 @@ public class HestiaClient implements AutoCloseable {
 		try {
 
 			var queryJson = query.toJson().toString();
-			var req = HttpRequest.newBuilder()
+			var builder = HttpRequest.newBuilder()
 				.uri(URI.create(api + "/search"))
 				.header("accept", "application/json")
 				.header("content-type", "application/json")
-				.header("x-access-token", apiKey)
+				.header("x-access-token", apiKey);
+			if (!Strings.isBlank(query.dataVersion())) {
+				builder.header("x-data-version", query.dataVersion());
+			}
+			var req = builder
 				.POST(HttpRequest.BodyPublishers.ofString(queryJson))
 				.build();
 
