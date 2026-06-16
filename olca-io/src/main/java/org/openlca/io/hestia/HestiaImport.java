@@ -32,6 +32,7 @@ public class HestiaImport {
 
 	private ProcessType processType = ProcessType.UNIT_PROCESS;
 	private boolean resolveProviders = true;
+	private String dataVersion;
 	private final String dataInfo;
 
 	public HestiaImport(HestiaClient client, IDatabase db, FlowMap flowMap) {
@@ -61,6 +62,11 @@ public class HestiaImport {
 		return this;
 	}
 
+	public HestiaImport withDataVersion(String dataVersion) {
+		this.dataVersion = dataVersion;
+		return this;
+	}
+
 	public ImportLog log() {
 		return log;
 	}
@@ -75,7 +81,7 @@ public class HestiaImport {
 				+ " already exists: " + refId);
 
 		// fetch the cycle
-		var res = client.getCycle(cycleId);
+		var res = client.getCycle(cycleId, dataVersion);
 		if (res.isError())
 			return res.wrapError("failed to fetch cycle " + cycleId);
 		var cycle = res.value();
@@ -153,7 +159,7 @@ public class HestiaImport {
 		var ref = cycle.site();
 		if (ref == null || Strings.isBlank(ref.id()))
 			return null;
-		var res = client.getSite(ref.id());
+		var res = client.getSite(ref.id(), dataVersion);
 		if (res.isError()) {
 			log.error(res.error());
 			return null;

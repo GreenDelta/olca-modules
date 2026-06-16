@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.openlca.commons.Res;
 import org.openlca.commons.Strings;
 import org.openlca.jsonld.Json;
@@ -61,7 +62,15 @@ public class HestiaClient implements AutoCloseable {
 	}
 
 	public Res<Site> getSite(String id) {
-		var json = getJsonObject("/sites/" + id);
+		return getSite(id, null);
+	}
+
+	public Res<Site> getSite(String id, String dataVersion) {
+		var json = request("/sites/" + id, this::asJsonObject, req -> {
+			if (Strings.isNotBlank(dataVersion)) {
+				req.header("x-data-version", dataVersion);
+			}
+		});
 		return json.isError()
 			? json.wrapError("requesting site " + id + " failed")
 			: Res.ok(new Site(json.value()));
