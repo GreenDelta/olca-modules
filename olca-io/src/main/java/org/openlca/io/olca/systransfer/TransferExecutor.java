@@ -79,6 +79,7 @@ public class TransferExecutor {
 				// type than the original link has!
 				var targetLink = link.copy();
 				targetLink.providerId = seq.get(next.type, next.provider);
+
 				targetLink.flowId = seq.get(ModelType.FLOW, link.flowId);
 				targetLink.processId = seq.get(ModelType.PROCESS, link.processId);
 				targetLink.exchangeId = exchanges.find(link);

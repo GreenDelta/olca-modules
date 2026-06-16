@@ -24,13 +24,11 @@ record TransferSession(
 				plan.config().source(), plan.config().target());
 			var seq = context.seq();
 			for (var match : plan.matches()) {
-				if (match.provider() == null
-					|| match.provider().provider() == null
-					|| match.selected().provider() == null)
+				if (!match.isComplete())
 					continue;
 				seq.put(
-					match.provider().provider().type,
-					match.provider().provider().id,
+					match.source().provider().type,
+					match.source().provider().id,
 					match.selected().provider().id);
 			}
 
@@ -60,16 +58,16 @@ record TransferSession(
 
 		var typeChanges = new HashMap<Long, Byte>();
 		for (var match : plan.matches()) {
-			if (match.provider() == null
-				|| match.provider().provider() == null
+			if (match.source() == null
+				|| match.source().provider() == null
 				|| match.selected() == null
 				|| match.selected().provider() == null)
 				continue;
-			var origType = match.provider().provider().type;
+			var origType = match.source().provider().type;
 			var selType = match.selected().provider().type;
 			if (origType != selType) {
 				typeChanges.put(
-					match.provider().provider().id,
+					match.source().provider().id,
 					ProviderType.of(selType));
 			}
 		}

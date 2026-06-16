@@ -9,27 +9,28 @@ import java.util.Objects;
 /// the list of alternatives.
 public class ProviderMatch {
 
-	private final ProviderInfo provider;
+	private final ProviderInfo source;
 	private final List<ProviderInfo> alternatives;
 
 	private ProviderInfo selected;
 	private MatchingStrategy strategy;
 
-	ProviderMatch(
-		ProviderInfo provider,
-		List<ProviderInfo> alternatives) {
-		this.provider = Objects.requireNonNull(provider);
+	ProviderMatch(ProviderInfo source, List<ProviderInfo> alternatives) {
+		this.source = Objects.requireNonNull(source);
 		this.alternatives = Objects.requireNonNull(alternatives);
 	}
 
-	public ProviderInfo provider() {
-		return provider;
+	/// The provider information of the source database.
+	public ProviderInfo source() {
+		return source;
 	}
 
+	/// The information of the selected provider in the target database.
 	public ProviderInfo selected() {
 		return selected;
 	}
 
+	/// Returns the full list of possible providers in the target database.
 	public List<ProviderInfo> alternatives() {
 		return alternatives;
 	}
@@ -55,6 +56,16 @@ public class ProviderMatch {
 		this.selected = selected;
 		this.strategy = strategy;
 		return this;
+	}
+
+	/// Returns `true` if the match is complete, which means it has a valid
+	/// provider from the source database and a valid selected provider
+	public boolean isComplete() {
+		return source.provider() != null
+			&& source.flow() != null
+			&& selected != null
+			&& selected.provider() != null
+			&& selected.flow() != null;
 	}
 
 }
