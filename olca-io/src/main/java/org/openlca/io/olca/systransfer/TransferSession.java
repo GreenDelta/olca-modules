@@ -1,15 +1,20 @@
 package org.openlca.io.olca.systransfer;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openlca.commons.Res;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.model.ModelType;
+import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProviderType;
 import org.openlca.io.olca.TransferContext;
 
 record TransferSession(
 	TransferPlan plan,
-	TransferContext context
+	TransferContext context,
+	ExchangeFinder exchanges,
+	Map<Long, Byte> typeChanges
 ) {
 
 	static Res<TransferSession> create(TransferPlan plan) {
@@ -32,11 +37,31 @@ record TransferSession(
 					match.selected().provider().id);
 			}
 
-			var session = new TransferSession(plan, context);
+			var session = new TransferSession(
+				plan, context, ExchangeFinder.of(context), typeChangesOf(plan));
 			return Res.ok(session);
 		} catch (Exception e) {
 			return Res.error("Failed to create the transfer session", e);
 		}
+	}
+
+	private static Map<Long, Byte> typeChangesOf(TransferPlan plan) {
+		var map = new HashMap<Long, Byte>();
+		for (var match : plan.matches()) {
+			if (match.source() == null
+				|| match.source().provider() == null
+				|| match.selected() == null
+				|| match.selected().provider() == null)
+				continue;
+			var originalType = match.source().provider().type;
+			var selectedType = match.selected().provider().type;
+			if (originalType != selectedType) {
+				map.put(
+					match.source().provider().id,
+					ProviderType.of(selectedType));
+			}
+		}
+		return map;
 	}
 
 	void transferCopies() {
@@ -50,28 +75,30 @@ record TransferSession(
 		swapDefaultProviders();
 	}
 
+	ProcessLink copyLink(ProcessLink origin) {
+		var target = origin.copy();
+
+		// map provider
+		var originalType = ProviderType.toModelType(origin.providerType);
+		target.providerId = context.seq().get(originalType, origin.providerId);
+		var newType = typeChanges.get(origin.providerId);
+		if (newType != null) {
+			target.providerType = newType;
+		}
+
+		// map flow, process, and exchange
+		target.flowId = context.seq().get(ModelType.FLOW, origin.flowId);
+		target.processId = context.seq().get(ModelType.PROCESS, origin.processId);
+		target.exchangeId = exchanges.find(origin);
+
+		return target;
+	}
+
 	/// Same as in `ProcessTransfer.swapDefaultProviders` but here we need to
 	/// consider that the type of a provider could change, for example when a
 	/// process in the source database is mapped to a precalculated result in
 	/// the target database.
 	private void swapDefaultProviders() {
-
-		var typeChanges = new HashMap<Long, Byte>();
-		for (var match : plan.matches()) {
-			if (match.source() == null
-				|| match.source().provider() == null
-				|| match.selected() == null
-				|| match.selected().provider() == null)
-				continue;
-			var origType = match.source().provider().type;
-			var selType = match.selected().provider().type;
-			if (origType != selType) {
-				typeChanges.put(
-					match.source().provider().id,
-					ProviderType.of(selType));
-			}
-		}
-
 		var q = "select f_default_provider, default_provider_type "
 			+ "from tbl_exchanges where f_default_provider < 0";
 		NativeSql.on(context.target()).updateRows(q, r -> {

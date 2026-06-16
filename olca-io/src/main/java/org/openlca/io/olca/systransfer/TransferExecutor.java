@@ -11,7 +11,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
-import org.openlca.io.olca.TransferContext;
 
 public class TransferExecutor {
 
@@ -58,7 +57,6 @@ public class TransferExecutor {
 		var queue = new ArrayDeque<ProviderFlow>();
 		queue.add(ProviderFlow.rootOf(origin));
 		var visited = new HashSet<ProviderFlow>();
-		var exchanges = ExchangeFinder.of(ctx);
 		while (!queue.isEmpty()) {
 			var p = queue.poll();
 			visited.add(p);
@@ -73,18 +71,7 @@ public class TransferExecutor {
 			if (links == null)
 				continue;
 			for (var link : links) {
-				var next = ProviderFlow.of(link);
-
-				// TODO: when the provider here is matched, it could have a different
-				// type than the original link has!
-				var targetLink = link.copy();
-				targetLink.providerId = seq.get(next.type, next.provider);
-
-				targetLink.flowId = seq.get(ModelType.FLOW, link.flowId);
-				targetLink.processId = seq.get(ModelType.PROCESS, link.processId);
-				targetLink.exchangeId = exchanges.find(link);
-				copy.processLinks.add(targetLink);
-
+				copy.processLinks.add(session.copyLink(link));
 			}
 		}
 
