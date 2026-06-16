@@ -7,6 +7,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.openlca.commons.Res;
 import org.openlca.commons.Strings;
@@ -44,9 +46,17 @@ public class HestiaClient implements AutoCloseable {
 	}
 
 	public Res<Cycle> getCycle(String id) {
-		var json = getJsonObject("/cycles/" + id);
+		return getCycle(id, null);
+	}
+
+	public Res<Cycle> getCycle(String id, String dataVersion) {
+		var json = request("/cycles/" + id, this::asJsonObject, req -> {
+			if (Strings.isNotBlank(dataVersion)) {
+				req.header("x-data-version", dataVersion);
+			}
+		});
 		return json.isError()
-			? json.wrapError("requesting cycle " + id + " failed")
+			? json.wrapError("Failed to get Cycle with ID=" + id)
 			: Res.ok(new Cycle(json.value()));
 	}
 
@@ -102,91 +112,81 @@ public class HestiaClient implements AutoCloseable {
 	}
 
 	private Res<JsonArray> getJsonArray(String path) {
-		var res = getJson(path);
-		if (res.isError())
-			return res.castError();
-		var json = res.value();
-		return json.isJsonArray()
-			? Res.ok(json.getAsJsonArray())
-			: Res.error("Returned response is not a JSON array: GET " + path);
+		return request(path, this::asJsonArray, req -> {
+		});
 	}
 
 	private Res<JsonObject> getJsonObject(String path) {
-		var res = getJson(path);
-		if (res.isError())
-			return res.castError();
-		var json = res.value();
-		return json.isJsonObject()
-			? Res.ok(json.getAsJsonObject())
-			: Res.error("Returned response is not a JSON object: GET " + path);
-	}
-
-	private Res<JsonElement> getJson(String path) {
-		try {
-			var req = HttpRequest.newBuilder()
-				.uri(URI.create(api + path))
-				.header("accept", "application/json")
-				.header("x-access-token", apiKey)
-				.build();
-			return fetchJson(req);
-		} catch (Exception e) {
-			return Res.error("Request failed: GET " + path, e);
-		}
+		return request(path, this::asJsonObject, req -> {
+		});
 	}
 
 	public Res<List<SearchResult>> search(SearchQuery query) {
 		if (query == null || Strings.isBlank(query.term()))
 			return Res.error("empty search query provided");
 
-		try {
-
-			var queryJson = query.toJson().toString();
-			var builder = HttpRequest.newBuilder()
-				.uri(URI.create(api + "/search"))
-				.header("accept", "application/json")
-				.header("content-type", "application/json")
-				.header("x-access-token", apiKey);
+		var res = request("/search", this::asJsonObject, req -> {
+			req.header("content-type", "application/json");
 			if (Strings.isNotBlank(query.dataVersion())) {
-				builder.header("x-data-version", query.dataVersion());
+				req.header("x-data-version", query.dataVersion());
 			}
-			var req = builder
-				.POST(HttpRequest.BodyPublishers.ofString(queryJson))
-				.build();
+			var queryJson = query.toJson().toString();
+			req.POST(HttpRequest.BodyPublishers.ofString(queryJson));
+		});
+		if (res.isError())
+			return res.wrapError("Search request failed");
 
-			var res = fetchJson(req);
-			if (res.isError())
-				return res.wrapError("Search failed");
-			var json = res.value();
-			if (!json.isJsonObject())
-				return Res.error("Search failed: response is not a JSON object");
-			var array = Json.getArray(json.getAsJsonObject(), "results");
-			if (array == null)
-				return Res.error("Response does not contain results array");
+		var array = Json.getArray(res.value(), "results");
+		if (array == null)
+			return Res.error("Search request failed: no results in response");
 
-			var results = new ArrayList<SearchResult>();
-			for (var e : array) {
-				if (e.isJsonObject()) {
-					results.add(new SearchResult(e.getAsJsonObject()));
-				}
+		var results = new ArrayList<SearchResult>();
+		for (var e : array) {
+			if (e.isJsonObject()) {
+				results.add(new SearchResult(e.getAsJsonObject()));
 			}
-			return Res.ok(results);
-		} catch (Exception e) {
-			return Res.error("search request failed", e);
 		}
+		return Res.ok(results);
 	}
 
-	private Res<JsonElement> fetchJson(HttpRequest req) {
+	private <T extends JsonElement> Res<T> request(
+		String path,
+		Function<JsonElement, Res<T>> converter,
+		Consumer<HttpRequest.Builder> decorator
+	) {
 		try {
+			var builder = HttpRequest.newBuilder()
+				.uri(URI.create(api + path))
+				.header("accept", "application/json")
+				.header("x-access-token", apiKey);
+			decorator.accept(builder);
+			var req = builder.build();
+
 			var resp = http.send(req, BodyHandlers.ofString());
 			if (resp.statusCode() != 200) {
 				return Res.error("Request failed: "
 					+ resp.statusCode() + " - " + resp.body());
 			}
 			var json = JsonParser.parseString(resp.body());
-			return Res.ok(json);
+			var res = converter.apply(json);
+			return res.isError()
+				? res.wrapError("Request failed: " + req.method() + " " + path)
+				: res;
 		} catch (Exception e) {
-			return Res.error("Request failed", e);
+			return Res.error("Request failed: " + path, e);
 		}
+	}
+
+	private Res<JsonObject> asJsonObject(JsonElement json) {
+		return json.isJsonObject()
+			? Res.ok(json.getAsJsonObject())
+			: Res.error("Returned value is not a JSON object");
+	}
+
+	private Res<JsonArray> asJsonArray(JsonElement json) {
+		return json.isJsonArray()
+			? Res.ok(json.getAsJsonArray())
+			: Res.error("Returned value is not a JSON array");
 	}
 
 	@Override
