@@ -27,9 +27,7 @@ class Util {
 		if (model == null) return null;
 		if (config == null || !config.withRefIdInfo)
 			return model.description;
-		var refIdInfo = "# openLCA export\n"
-			+ "This data set was exported from openLCA. The UUID of "
-			+ "the data set in openLCA was:\n" + model.refId;
+		var refIdInfo = "openLCA UUID: " + model.refId;
 		return Strings.isNotBlank(model.description)
 			? model.description + "\n\n" + refIdInfo
 			: refIdInfo;

@@ -62,8 +62,8 @@ class ProductLabeler {
 
 		if (config.withTypeSuffixes) {
 			label += process.processType == ProcessType.LCI_RESULT
-					? ", S"
-					: ", U";
+					? " | S"
+					: " | U";
 		}
 		return label;
 	}
@@ -80,7 +80,7 @@ class ProductLabeler {
 		return product.name;
 	}
 
-	String labelOfInput(Exchange e) {
+	String labelOfLinkable(Exchange e) {
 		if (e == null || e.flow == null)
 			return "?";
 		var provider = providerOf(e);

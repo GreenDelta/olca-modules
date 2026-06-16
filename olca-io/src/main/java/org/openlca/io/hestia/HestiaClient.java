@@ -7,11 +7,16 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.openlca.commons.Res;
 import org.openlca.commons.Strings;
 import org.openlca.jsonld.Json;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -42,14 +47,30 @@ public class HestiaClient implements AutoCloseable {
 	}
 
 	public Res<Cycle> getCycle(String id) {
-		var json = getJsonObject("/cycles/" + id);
+		return getCycle(id, null);
+	}
+
+	public Res<Cycle> getCycle(String id, String dataVersion) {
+		var json = request("/cycles/" + id, this::asJsonObject, req -> {
+			if (Strings.isNotBlank(dataVersion)) {
+				req.header("x-data-version", dataVersion);
+			}
+		});
 		return json.isError()
-			? json.wrapError("requesting cycle " + id + " failed")
+			? json.wrapError("Failed to get Cycle with ID=" + id)
 			: Res.ok(new Cycle(json.value()));
 	}
 
 	public Res<Site> getSite(String id) {
-		var json = getJsonObject("/sites/" + id);
+		return getSite(id, null);
+	}
+
+	public Res<Site> getSite(String id, String dataVersion) {
+		var json = request("/sites/" + id, this::asJsonObject, req -> {
+			if (Strings.isNotBlank(dataVersion)) {
+				req.header("x-data-version", dataVersion);
+			}
+		});
 		return json.isError()
 			? json.wrapError("requesting site " + id + " failed")
 			: Res.ok(new Site(json.value()));
@@ -69,6 +90,20 @@ public class HestiaClient implements AutoCloseable {
 			: Res.ok(new User(json.value()));
 	}
 
+	public Res<List<Release>> getReleases() {
+		var res = getJsonArray("/users/me/releases");
+		if (res.isError())
+			return res.wrapError("Failed to get the enabled releases");
+		var array = res.value();
+		var releases = new ArrayList<Release>(array.size());
+		for (var e : array) {
+			if (e.isJsonObject()) {
+				releases.add(new Release(e.getAsJsonObject()));
+			}
+		}
+		return Res.ok(releases);
+	}
+
 	public Res<List<GlossaryFileInfo>> getGlossaryFileInfos() {
 		var json = getJsonObject("/glossary/lookups");
 		if (json.isError())
@@ -85,67 +120,82 @@ public class HestiaClient implements AutoCloseable {
 		return Res.ok(infos);
 	}
 
+	private Res<JsonArray> getJsonArray(String path) {
+		return request(path, this::asJsonArray, req -> {
+		});
+	}
+
 	private Res<JsonObject> getJsonObject(String path) {
-		try {
-			var req = HttpRequest.newBuilder()
-				.uri(URI.create(api + path))
-				.header("accept", "application/json")
-				.header("x-access-token", apiKey)
-				.build();
-			return fetchJsonObject(req);
-		} catch (Exception e) {
-			return Res.error("requesting " + path + " failed", e);
-		}
+		return request(path, this::asJsonObject, req -> {
+		});
 	}
 
 	public Res<List<SearchResult>> search(SearchQuery query) {
 		if (query == null || Strings.isBlank(query.term()))
 			return Res.error("empty search query provided");
 
-		try {
-
-			var queryJson = query.toJson().toString();
-			var req = HttpRequest.newBuilder()
-				.uri(URI.create(api + "/search"))
-				.header("accept", "application/json")
-				.header("content-type", "application/json")
-				.header("x-access-token", apiKey)
-				.POST(HttpRequest.BodyPublishers.ofString(queryJson))
-				.build();
-
-			var json = fetchJsonObject(req);
-			if (json.isError())
-				return json.wrapError("search failed");
-			var array = Json.getArray(json.value(), "results");
-			if (array == null)
-				return Res.error("response does not contain results array");
-
-			var results = new ArrayList<SearchResult>();
-			for (var e : array) {
-				if (e.isJsonObject()) {
-					results.add(new SearchResult(e.getAsJsonObject()));
-				}
+		var res = request("/search", this::asJsonObject, req -> {
+			req.header("content-type", "application/json");
+			if (Strings.isNotBlank(query.dataVersion())) {
+				req.header("x-data-version", query.dataVersion());
 			}
-			return Res.ok(results);
-		} catch (Exception e) {
-			return Res.error("search request failed", e);
+			var queryJson = query.toJson().toString();
+			req.POST(HttpRequest.BodyPublishers.ofString(queryJson));
+		});
+		if (res.isError())
+			return res.wrapError("Search request failed");
+
+		var array = Json.getArray(res.value(), "results");
+		if (array == null)
+			return Res.error("Search request failed: no results in response");
+
+		var results = new ArrayList<SearchResult>();
+		for (var e : array) {
+			if (e.isJsonObject()) {
+				results.add(new SearchResult(e.getAsJsonObject()));
+			}
 		}
+		return Res.ok(results);
 	}
 
-	private Res<JsonObject> fetchJsonObject(HttpRequest req) {
+	private <T extends JsonElement> Res<T> request(
+		String path,
+		Function<JsonElement, Res<T>> converter,
+		Consumer<HttpRequest.Builder> decorator
+	) {
 		try {
+			var builder = HttpRequest.newBuilder()
+				.uri(URI.create(api + path))
+				.header("accept", "application/json")
+				.header("x-access-token", apiKey);
+			decorator.accept(builder);
+			var req = builder.build();
+
 			var resp = http.send(req, BodyHandlers.ofString());
 			if (resp.statusCode() != 200) {
-				return Res.error("request failed: "
+				return Res.error("Request failed: "
 					+ resp.statusCode() + " - " + resp.body());
 			}
 			var json = JsonParser.parseString(resp.body());
-			return json.isJsonObject()
-				? Res.ok(json.getAsJsonObject())
-				: Res.error("response is not a JSON object");
+			var res = converter.apply(json);
+			return res.isError()
+				? res.wrapError("Request failed: " + req.method() + " " + path)
+				: res;
 		} catch (Exception e) {
-			return Res.error("request failed", e);
+			return Res.error("Request failed: " + path, e);
 		}
+	}
+
+	private Res<JsonObject> asJsonObject(JsonElement json) {
+		return json.isJsonObject()
+			? Res.ok(json.getAsJsonObject())
+			: Res.error("Returned value is not a JSON object");
+	}
+
+	private Res<JsonArray> asJsonArray(JsonElement json) {
+		return json.isJsonArray()
+			? Res.ok(json.getAsJsonArray())
+			: Res.error("Returned value is not a JSON array");
 	}
 
 	@Override

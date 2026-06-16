@@ -111,8 +111,7 @@ final class SchemaDefaults {
 	}
 
 	private void checkValidation() {
-		var v = ds.getValidation();
-		if (v == null) return;
+		var v = ds.withValidation();
 		if (v.getProofReadingValidator() == 0) {
 			var person = getDefaultPerson();
 			v.setProofReadingValidator(person.getNumber());
