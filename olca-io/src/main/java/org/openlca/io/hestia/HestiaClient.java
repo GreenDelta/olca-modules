@@ -13,6 +13,7 @@ import org.openlca.commons.Strings;
 import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -71,37 +72,17 @@ public class HestiaClient implements AutoCloseable {
 	}
 
 	public Res<List<Release>> getReleases() {
-		try {
-			var req = HttpRequest.newBuilder()
-				.uri(URI.create(api + "/users/me/releases"))
-				.header("accept", "application/json")
-				.header("x-access-token", apiKey)
-				.build();
-			var resp = http.send(req, BodyHandlers.ofString());
-			if (resp.statusCode() != 200)
-				return Res.error("request failed: "
-					+ resp.statusCode() + " - " + resp.body());
-
-			var elem = JsonParser.parseString(resp.body());
-			JsonArray array = null;
-			if (elem.isJsonArray()) {
-				array = elem.getAsJsonArray();
-			} else if (elem.isJsonObject()) {
-				array = Json.getArray(elem.getAsJsonObject(), "results");
+		var res = getJsonArray("/users/me/releases");
+		if (res.isError())
+			return res.wrapError("Failed to get the enabled releases");
+		var array = res.value();
+		var releases = new ArrayList<Release>(array.size());
+		for (var e : array) {
+			if (e.isJsonObject()) {
+				releases.add(new Release(e.getAsJsonObject()));
 			}
-			if (array == null)
-				return Res.error("response does not contain a list of releases");
-
-			var releases = new ArrayList<Release>(array.size());
-			for (var e : array) {
-				if (e.isJsonObject()) {
-					releases.add(Release.of(e.getAsJsonObject()));
-				}
-			}
-			return Res.ok(releases);
-		} catch (Exception e) {
-			return Res.error("failed to get releases", e);
 		}
+		return Res.ok(releases);
 	}
 
 	public Res<List<GlossaryFileInfo>> getGlossaryFileInfos() {
@@ -120,16 +101,36 @@ public class HestiaClient implements AutoCloseable {
 		return Res.ok(infos);
 	}
 
+	private Res<JsonArray> getJsonArray(String path) {
+		var res = getJson(path);
+		if (res.isError())
+			return res.castError();
+		var json = res.value();
+		return json.isJsonArray()
+			? Res.ok(json.getAsJsonArray())
+			: Res.error("Returned response is not a JSON array: GET " + path);
+	}
+
 	private Res<JsonObject> getJsonObject(String path) {
+		var res = getJson(path);
+		if (res.isError())
+			return res.castError();
+		var json = res.value();
+		return json.isJsonObject()
+			? Res.ok(json.getAsJsonObject())
+			: Res.error("Returned response is not a JSON object: GET " + path);
+	}
+
+	private Res<JsonElement> getJson(String path) {
 		try {
 			var req = HttpRequest.newBuilder()
 				.uri(URI.create(api + path))
 				.header("accept", "application/json")
 				.header("x-access-token", apiKey)
 				.build();
-			return fetchJsonObject(req);
+			return fetchJson(req);
 		} catch (Exception e) {
-			return Res.error("requesting " + path + " failed", e);
+			return Res.error("Request failed: GET " + path, e);
 		}
 	}
 
@@ -145,19 +146,22 @@ public class HestiaClient implements AutoCloseable {
 				.header("accept", "application/json")
 				.header("content-type", "application/json")
 				.header("x-access-token", apiKey);
-			if (!Strings.isBlank(query.dataVersion())) {
+			if (Strings.isNotBlank(query.dataVersion())) {
 				builder.header("x-data-version", query.dataVersion());
 			}
 			var req = builder
 				.POST(HttpRequest.BodyPublishers.ofString(queryJson))
 				.build();
 
-			var json = fetchJsonObject(req);
-			if (json.isError())
-				return json.wrapError("search failed");
-			var array = Json.getArray(json.value(), "results");
+			var res = fetchJson(req);
+			if (res.isError())
+				return res.wrapError("Search failed");
+			var json = res.value();
+			if (!json.isJsonObject())
+				return Res.error("Search failed: response is not a JSON object");
+			var array = Json.getArray(json.getAsJsonObject(), "results");
 			if (array == null)
-				return Res.error("response does not contain results array");
+				return Res.error("Response does not contain results array");
 
 			var results = new ArrayList<SearchResult>();
 			for (var e : array) {
@@ -171,19 +175,17 @@ public class HestiaClient implements AutoCloseable {
 		}
 	}
 
-	private Res<JsonObject> fetchJsonObject(HttpRequest req) {
+	private Res<JsonElement> fetchJson(HttpRequest req) {
 		try {
 			var resp = http.send(req, BodyHandlers.ofString());
 			if (resp.statusCode() != 200) {
-				return Res.error("request failed: "
+				return Res.error("Request failed: "
 					+ resp.statusCode() + " - " + resp.body());
 			}
 			var json = JsonParser.parseString(resp.body());
-			return json.isJsonObject()
-				? Res.ok(json.getAsJsonObject())
-				: Res.error("response is not a JSON object");
+			return Res.ok(json);
 		} catch (Exception e) {
-			return Res.error("request failed", e);
+			return Res.error("Request failed", e);
 		}
 	}
 

@@ -4,11 +4,13 @@ import org.openlca.jsonld.Json;
 
 import com.google.gson.JsonObject;
 
-public record Release(String version, String name) {
+public record Release(JsonObject json) {
 
-	static Release of(JsonObject obj) {
-		return new Release(
-			Json.getString(obj, "version"),
-			Json.getString(obj, "name"));
+	public String version() {
+		return Json.getString(json, "version");
+	}
+
+	public String name() {
+		return Json.getString(json, "name");
 	}
 }
