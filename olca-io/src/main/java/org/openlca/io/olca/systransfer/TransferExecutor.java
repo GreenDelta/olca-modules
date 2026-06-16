@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.commons.Res;
-import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -33,14 +32,7 @@ public class TransferExecutor {
 		var session = res.value();
 		var ctx = session.context();
 
-		for (var p : plan.copies()) {
-			if (p.provider() == null || p.provider().type == null)
-				continue;
-			var entity = ctx.source().get(
-				p.provider().type.getModelClass(), p.provider().id);
-			ctx.resolve(entity);
-		}
-		swapDefaultProviders(ctx);
+		session.transferCopies();
 
 		var origin = plan.config().system();
 		var copy = origin.copy();
@@ -108,43 +100,6 @@ public class TransferExecutor {
 		return Res.error("Not yet implemented");
 	}
 
-
-	private void swapDefaultProviders(TransferContext ctx) {
-		// Build a map of original provider IDs to selected provider types
-		// for matches where the type changed
-		var typeChanges = new HashMap<Long, Byte>();
-		for (var match : plan.matches()) {
-			if (match.provider() == null
-				|| match.provider().provider() == null
-				|| match.selected() == null
-				|| match.selected().provider() == null)
-				continue;
-			var origType = match.provider().provider().type;
-			var selType = match.selected().provider().type;
-			if (origType != selType) {
-				typeChanges.put(
-					match.provider().provider().id,
-					ProviderType.of(selType));
-			}
-		}
-
-		var q = "select f_default_provider, default_provider_type "
-			+ "from tbl_exchanges where f_default_provider < 0";
-		NativeSql.on(ctx.target()).updateRows(q, r -> {
-			long sourceId = Math.abs(r.getLong(1));
-			var storedType = ProviderType.toModelType(r.getByte(2));
-			long targetId = ctx.seq().get(storedType, sourceId);
-			if (targetId > 0) {
-				r.updateLong(1, targetId);
-				var newType = typeChanges.get(sourceId);
-				if (newType != null) {
-					r.updateByte(2, newType);
-				}
-				r.updateRow();
-			}
-			return true;
-		});
-	}
 
 	private record ProviderFlow(long provider, ModelType type) {
 
