@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.openlca.commons.Res;
+import org.openlca.core.matrix.ProductSystemBuilder;
+import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -57,6 +59,7 @@ public class TransferExecutor {
 		var queue = new ArrayDeque<ProviderFlow>();
 		queue.add(ProviderFlow.rootOf(origin));
 		var visited = new HashSet<ProviderFlow>();
+		var completionPoints = new HashSet<Long>();
 		while (!queue.isEmpty()) {
 			var p = queue.poll();
 			visited.add(p);
@@ -64,15 +67,31 @@ public class TransferExecutor {
 			if (targetId == 0)
 				continue;
 			copy.processes.add(targetId);
-			if (matches.contains(targetId))
+			if (matches.contains(targetId)) {
+				completionPoints.add(targetId);
 				continue;
+			}
 
 			var links = linkIdx.get(p.provider);
 			if (links == null)
 				continue;
 			for (var link : links) {
 				copy.processLinks.add(session.copyLink(link));
+				var next = ProviderFlow.of(link);
+				if (!visited.contains(next) && !queue.contains(next)) {
+					queue.add(next);
+				}
 			}
+		}
+
+		var db = plan.config().target();
+		copy = db.insert(copy);
+		var builder = new ProductSystemBuilder(db, new LinkingConfig());
+		for (var id : completionPoints) {
+			// TODO: we need tech-flows for the completion points here
+			// also, the completion should only run for processes
+			// and maybe with a better way than calling n times
+			// builder.autoComplete();
 		}
 
 		// TODO transfer parameters, parameter sets, analysis groups

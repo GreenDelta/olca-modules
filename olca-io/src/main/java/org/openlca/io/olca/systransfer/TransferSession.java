@@ -77,18 +77,19 @@ record TransferSession(
 
 	ProcessLink copyLink(ProcessLink origin) {
 		var target = origin.copy();
+		var seq = context.seq();
 
 		// map provider
 		var originalType = ProviderType.toModelType(origin.providerType);
-		target.providerId = context.seq().get(originalType, origin.providerId);
+		target.providerId = seq.get(originalType, origin.providerId);
 		var newType = typeChanges.get(origin.providerId);
 		if (newType != null) {
 			target.providerType = newType;
 		}
 
 		// map flow, process, and exchange
-		target.flowId = context.seq().get(ModelType.FLOW, origin.flowId);
-		target.processId = context.seq().get(ModelType.PROCESS, origin.processId);
+		target.flowId = seq.get(ModelType.FLOW, origin.flowId);
+		target.processId = seq.get(ModelType.PROCESS, origin.processId);
 		target.exchangeId = exchanges.find(origin);
 
 		return target;
