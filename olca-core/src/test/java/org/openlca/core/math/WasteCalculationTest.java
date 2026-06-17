@@ -62,7 +62,7 @@ public class WasteCalculationTest {
 				.link(p, w);
 		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db).calculate(setup);
-		assertEquals(4.0, result.getTotalFlows().get(0).value(), 1e-10);
+		assertEquals(4.0, result.getTotalFlows().getFirst().value(), 1e-10);
 		result.dispose();
 	}
 
@@ -78,7 +78,7 @@ public class WasteCalculationTest {
 				.link(p, w);
 		var setup = CalculationSetup.of(system);
 		var result = new SystemCalculator(db).calculate(setup);
-		assertEquals(4.0, result.getTotalFlows().get(0).value(), 1e-10);
+		assertEquals(4.0, result.getTotalFlows().getFirst().value(), 1e-10);
 		result.dispose();
 	}
 
