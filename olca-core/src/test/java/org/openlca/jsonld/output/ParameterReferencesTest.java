@@ -46,7 +46,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testCircularReferenceTest() {
+	public void testCircularReference() {
 		var a = db.insert(Parameter.global("A", "1 + B"));
 		var b = db.insert(Parameter.global("B", "1 + A"));
 		with(store -> {
@@ -57,7 +57,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	}
 
 	@Test
-	public void testBrokenFormulaTest() {
+	public void testBrokenFormula() {
 		var a = db.insert(Parameter.global("A", "1 + B / nothing"));
 		var b = db.insert(Parameter.global("B", "1 + A ? 8( - s)"));
 		with(store -> {
