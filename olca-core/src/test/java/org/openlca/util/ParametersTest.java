@@ -1,8 +1,7 @@
 package org.openlca.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.openlca.util.Parameters.isValidName;
 
 import org.junit.Test;
 import org.openlca.core.TestProcess;
@@ -26,6 +25,62 @@ public class ParametersTest {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
+	public void testIsValidName() {
+
+		// valid: single letter/underscore/dollar
+		assertTrue(isValidName("a"));
+		assertTrue(isValidName("Z"));
+		assertTrue(isValidName("_"));
+		assertTrue(isValidName("$"));
+
+		// valid: multiple letters
+		assertTrue(isValidName("abc"));
+		assertTrue(isValidName("ABC"));
+		assertTrue(isValidName("fooBar"));
+
+		// valid: letters with digits
+		assertTrue(isValidName("a1"));
+		assertTrue(isValidName("var42"));
+		assertTrue(isValidName("x2y3"));
+
+		// valid: underscores and dollars in various positions
+		assertTrue(isValidName("_foo"));
+		assertTrue(isValidName("$bar"));
+		assertTrue(isValidName("a_b"));
+		assertTrue(isValidName("a$b"));
+		assertTrue(isValidName("a_b$c"));
+		assertTrue(isValidName("__"));
+		assertTrue(isValidName("$$"));
+		assertTrue(isValidName("_$"));
+		assertTrue(isValidName("$_"));
+
+		// invalid: null or empty
+		assertFalse(isValidName(null));
+		assertFalse(isValidName(""));
+		assertFalse(isValidName("   "));
+
+		// invalid: starts with digit
+		assertFalse(isValidName("1"));
+		assertFalse(isValidName("1abc"));
+		assertFalse(isValidName("42foo"));
+
+		// invalid: contains special characters
+		assertFalse(isValidName("_+"));
+		assertFalse(isValidName("a-b"));
+		assertFalse(isValidName("a.b"));
+		assertFalse(isValidName("a b"));
+		assertFalse(isValidName("a!"));
+		assertFalse(isValidName("foo@bar"));
+		assertFalse(isValidName("a#b"));
+		assertFalse(isValidName("a%"));
+		assertFalse(isValidName("a^b"));
+		assertFalse(isValidName("a(b)"));
+
+		// invalid: leading whitespace is trimmed but inner space is invalid
+		assertFalse(isValidName("a b"));
+	}
+
+	@Test
 	public void testFindRedefOwners() {
 
 		// create a process with a local parameter
@@ -33,7 +88,7 @@ public class ParametersTest {
 				.refProduct("prod", 1, "kg")
 				.param("param", 42)
 				.get();
-		var param = process.parameters.get(0);
+		var param = process.parameters.getFirst();
 
 		// create project and product system
 		var project = new Project();
@@ -54,10 +109,10 @@ public class ParametersTest {
 		redef.contextId = process.id;
 		redef.contextType = ModelType.PROCESS;
 		redef.value = 24;
-		project.variants.get(0)
+		project.variants.getFirst()
 				.parameterRedefs.add(redef.copy());
 		project = db.update(project);
-		system.parameterSets.get(0)
+		system.parameterSets.getFirst()
 				.parameters.add(redef.copy());
 		system = db.update(system);
 
