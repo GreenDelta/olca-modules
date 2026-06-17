@@ -9,7 +9,6 @@ import java.util.List;
 import org.openlca.commons.Res;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.index.TechFlow;
-import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
@@ -62,7 +61,7 @@ public class TransferExecutor {
 		var queue = new ArrayDeque<ProviderFlow>();
 		queue.add(ProviderFlow.rootOf(origin));
 		var visited = new HashSet<ProviderFlow>();
-		var completionPoints = new HashSet<TechFlow>();
+		var usedMatches = new HashSet<TechFlow>();
 
 		while (!queue.isEmpty()) {
 			var p = queue.poll();
@@ -73,7 +72,7 @@ public class TransferExecutor {
 			copy.processes.add(targetId);
 			var match = matches.get(targetId);
 			if (match != null) {
-				completionPoints.add(match);
+				usedMatches.add(match);
 				continue;
 			}
 
@@ -89,29 +88,21 @@ public class TransferExecutor {
 			}
 		}
 
-		var db = plan.config().target();
-		copy = db.insert(copy);
-		var builder = new ProductSystemBuilder(db, new LinkingConfig());
-		for (var techFlow : completionPoints) {
-			if (techFlow.isProcess()) {
-				builder.autoComplete(copy, techFlow);
-			}
+		// auto-complete matched processes
+		var completionPoints = usedMatches.stream()
+			.filter(tf -> tf.isProcess() && !tf.isFromLibrary())
+			.toList();
+		if (!completionPoints.isEmpty()) {
+			new ProductSystemBuilder(plan.config().target())
+				.autoComplete(copy, completionPoints);
 		}
-		copy = ProductSystemBuilder.update(db, copy);
+
 
 		// TODO transfer parameters, parameter sets, analysis groups
 
-		// TODO
-		// - traverse the product system in the same way as in the TransferPlan.PlanBuilder
-		// - while traversing complete the new product system
-		// - copy required for foreground processes
-		// - link matched providers
-		// - autocomplete the system for the matched providers
-		// - copy analysis groups, parameter sets (including global parameters)
-
-		return Res.error("Not yet implemented");
+		copy = plan.config().target().insert(copy);
+		return Res.ok(copy);
 	}
-
 
 	private record ProviderFlow(long provider, ModelType type) {
 

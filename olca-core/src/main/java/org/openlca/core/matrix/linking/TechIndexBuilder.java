@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.linking;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +25,7 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 	private final ExchangeTable exchanges;
 
 	public TechIndexBuilder(
-			IDatabase db, ProductSystem system, LinkingConfig config
+		IDatabase db, ProductSystem system, LinkingConfig config
 	) {
 		this.system = system;
 		this.providers = new ProviderSearch(ProviderMap.create(db), config);
@@ -33,13 +34,24 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 
 	@Override
 	public TechIndex build(TechFlow refFlow) {
-
 		log.trace("build product index for {}", refFlow);
-		var index = new TechIndex(refFlow);
+		return refFlow != null
+			? build(List.of(refFlow))
+			: new TechIndex();
+	}
+
+	public TechIndex build(Collection<TechFlow> nodes) {
+		if (nodes == null || nodes.isEmpty())
+			return new TechIndex();
+		log.trace("build product index for {} entrypoint(s)", nodes.size());
+
+		var index = new TechIndex();
+		for (var n : nodes) {
+			index.add(n);
+		}
 		addSystemLinks(index);
 
-		var block = new ArrayList<TechFlow>();
-		block.add(refFlow);
+		var block = new ArrayList<TechFlow>(nodes);
 		var handled = new HashSet<TechFlow>();
 
 		while (!block.isEmpty()) {
@@ -54,9 +66,9 @@ public class TechIndexBuilder implements ITechIndexBuilder {
 				if (provider == null)
 					continue;
 				var exchange = new LongPair(
-						linkable.processId(), linkable.exchangeId());
+					linkable.processId(), linkable.exchangeId());
 				index.putLink(exchange, provider);
-				if (!handled.contains(provider)	&& !block.contains(provider))
+				if (!handled.contains(provider) && !block.contains(provider))
 					block.add(provider);
 			}
 		}

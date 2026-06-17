@@ -1,5 +1,6 @@
 package org.openlca.core.matrix;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,9 +36,11 @@ public class ProductSystemBuilder {
 	private final LinkingConfig config;
 	private final ITechIndexBuilder linker;
 
-	/**
-	 * Create a new product system builder.
-	 */
+
+	public ProductSystemBuilder(IDatabase db) {
+		this(db, new LinkingConfig());
+	}
+
 	public ProductSystemBuilder(IDatabase db, LinkingConfig config) {
 		this.db = Objects.requireNonNull(db);
 		this.config = Objects.requireNonNull(config);
@@ -87,10 +90,12 @@ public class ProductSystemBuilder {
 
 	/**
 	 * Does the same as {@link #autoComplete(ProductSystem)} but starts the
-	 * linking at the given process product which can be arbitrary product in
+	 * linking at the given process product which can be an arbitrary product in
 	 * the supply chain of the given system.
 	 */
 	public void autoComplete(ProductSystem system, TechFlow product) {
+		if (system == null || product == null)
+			return;
 		log.trace("auto complete product system {}", system);
 		log.trace("build product index");
 		var builder = selectBuilderFor(system);
@@ -99,10 +104,28 @@ public class ProductSystemBuilder {
 		addLinksAndProcesses(system, index);
 	}
 
+	/// Autocompletes the product systems at multiple end-points. This only works
+	/// with the standard tech-index builder, cutoff-settings are ignored.
+	public void autoComplete(ProductSystem system, Collection<TechFlow> products) {
+		if (db == null
+			|| config == null
+			|| system == null
+			|| products == null
+			|| products.isEmpty())
+			return;
+		log.trace("auto complete product system {} at {} endpoints",
+			system, products.size());
+		var builder = new TechIndexBuilder(db, system, config);
+		var index = builder.build(products);
+		addLinksAndProcesses(system, index);
+	}
+
 	private ITechIndexBuilder selectBuilderFor(ProductSystem system) {
 		if (linker != null)
 			return linker;
-		return config != null && config.cutoff().isEmpty()
+		if (config == null)
+			return new TechIndexBuilder(db, system, new LinkingConfig());
+		return config.cutoff().isEmpty()
 			? new TechIndexBuilder(db, system, config)
 			: new TechIndexCutoffBuilder(db, system, config);
 	}
