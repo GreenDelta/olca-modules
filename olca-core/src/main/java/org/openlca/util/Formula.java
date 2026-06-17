@@ -30,7 +30,7 @@ public class Formula {
 		}
 		return false;
 	}
-	
+
 	public static Set<String> getVariables(String formula) {
 		if (Strings.isBlank(formula))
 			return Collections.emptySet();
@@ -45,7 +45,7 @@ public class Formula {
 			return vars;
 		} catch (ParseException e) {
 			Logger log = LoggerFactory.getLogger(Formula.class);
-			log.warn("Failed to parse formula " + formula, e);
+			log.warn("Failed to parse formula {}", formula, e);
 			return Collections.emptySet();
 		}
 	}

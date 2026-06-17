@@ -150,9 +150,6 @@ class GlobalParameters {
 			if (g == null)
 				continue;
 			exp.write(g);
-			// the global parameter could have again a formula
-			// that contains references to other global parameters.
-			sync(g, exp);
 		}
 	}
 
