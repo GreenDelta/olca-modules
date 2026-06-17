@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.openlca.commons.Res;
 import org.openlca.core.matrix.ProductSystemBuilder;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.linking.LinkingConfig;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
@@ -48,18 +49,21 @@ public class TransferExecutor {
 				.add(link);
 		}
 
-		var matches = new HashSet<Long>();
+		var matches = new HashMap<Long, TechFlow>();
 		for (var match : plan.matches()) {
-			if (match.selected() != null || match.selected().provider() != null) {
-				matches.add(match.selected().provider().id);
-			}
+			if (!match.isComplete())
+				continue;
+			var techFlow = TechFlow.of(
+				match.selected().provider(), match.selected().flow());
+			matches.put(techFlow.providerId(), techFlow);
 		}
 
 		var seq = ctx.seq();
 		var queue = new ArrayDeque<ProviderFlow>();
 		queue.add(ProviderFlow.rootOf(origin));
 		var visited = new HashSet<ProviderFlow>();
-		var completionPoints = new HashSet<Long>();
+		var completionPoints = new HashSet<TechFlow>();
+
 		while (!queue.isEmpty()) {
 			var p = queue.poll();
 			visited.add(p);
@@ -67,8 +71,9 @@ public class TransferExecutor {
 			if (targetId == 0)
 				continue;
 			copy.processes.add(targetId);
-			if (matches.contains(targetId)) {
-				completionPoints.add(targetId);
+			var match = matches.get(targetId);
+			if (match != null) {
+				completionPoints.add(match);
 				continue;
 			}
 
@@ -87,12 +92,12 @@ public class TransferExecutor {
 		var db = plan.config().target();
 		copy = db.insert(copy);
 		var builder = new ProductSystemBuilder(db, new LinkingConfig());
-		for (var id : completionPoints) {
-			// TODO: we need tech-flows for the completion points here
-			// also, the completion should only run for processes
-			// and maybe with a better way than calling n times
-			// builder.autoComplete();
+		for (var techFlow : completionPoints) {
+			if (techFlow.isProcess()) {
+				builder.autoComplete(copy, techFlow);
+			}
 		}
+		copy = ProductSystemBuilder.update(db, copy);
 
 		// TODO transfer parameters, parameter sets, analysis groups
 
