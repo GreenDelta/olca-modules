@@ -15,9 +15,11 @@ record TransferSession(
 	TransferPlan plan,
 	TransferContext context,
 	ExchangeFinder exchanges,
-	Map<Long, Byte> typeChanges,
-	Map<Long, ModelType> providerTypes
+	Map<Long, TypeMapping> providerTypes
 ) {
+
+	record TypeMapping(ModelType originalType, byte mappedType) {
+	}
 
 	static Res<TransferSession> create(TransferPlan plan) {
 
@@ -40,46 +42,29 @@ record TransferSession(
 			}
 
 			var session = new TransferSession(
-				plan, context, ExchangeFinder.of(context),
-				typeChangesOf(plan), providerTypesOf(plan));
+				plan, context, ExchangeFinder.of(context), typeMappingsOf(plan));
 			return Res.ok(session);
 		} catch (Exception e) {
 			return Res.error("Failed to create the transfer session", e);
 		}
 	}
 
-	private static Map<Long, Byte> typeChangesOf(TransferPlan plan) {
-		var map = new HashMap<Long, Byte>();
+	private static Map<Long, TypeMapping> typeMappingsOf(TransferPlan plan) {
+		var map = new HashMap<Long, TypeMapping>();
 		for (var match : plan.matches()) {
-			if (match.source() == null
-				|| match.source().provider() == null
-				|| match.selected() == null
-				|| match.selected().provider() == null)
+			if (!match.isComplete())
 				continue;
 			var originalType = match.source().provider().type;
-			var selectedType = match.selected().provider().type;
-			if (originalType != selectedType) {
-				map.put(
-					match.source().provider().id,
-					ProviderType.of(selectedType));
-			}
-		}
-		return map;
-	}
-
-	private static Map<Long, ModelType> providerTypesOf(TransferPlan plan) {
-		var map = new HashMap<Long, ModelType>();
-		for (var match : plan.matches()) {
-			if (match.source() == null
-				|| match.source().provider() == null
-				|| match.source().provider().type == null)
-				continue;
-			map.put(match.source().provider().id, match.source().provider().type);
+			byte mappedType = ProviderType.of(match.selected().provider().type);
+			map.put(match.source().provider().id,
+				new TypeMapping(originalType, mappedType));
 		}
 		for (var copy : plan.copies()) {
 			if (copy.provider() == null || copy.provider().type == null)
 				continue;
-			map.put(copy.provider().id, copy.provider().type);
+			var type = copy.provider().type;
+			map.put(copy.provider().id,
+				new TypeMapping(type, ProviderType.of(type)));
 		}
 		return map;
 	}
@@ -90,10 +75,10 @@ record TransferSession(
 			var groupCopy = group.copy();
 			groupCopy.processes.clear();
 			for (var oid : group.processes) {
-				var type = providerTypes.get(oid);
-				if (type == null)
+				var mapping = providerTypes.get(oid);
+				if (mapping == null)
 					continue;
-				long mappedId = seq.get(type, oid);
+				long mappedId = seq.get(mapping.originalType(), oid);
 				if (mappedId > 0 && copy.processes.contains(mappedId)) {
 					groupCopy.processes.add(mappedId);
 				}
@@ -120,9 +105,9 @@ record TransferSession(
 		// map provider
 		var originalType = ProviderType.toModelType(origin.providerType);
 		target.providerId = seq.get(originalType, origin.providerId);
-		var newType = typeChanges.get(origin.providerId);
-		if (newType != null) {
-			target.providerType = newType;
+		var mapping = providerTypes.get(origin.providerId);
+		if (mapping != null) {
+			target.providerType = mapping.mappedType();
 		}
 
 		// map flow, process, and exchange
@@ -146,9 +131,9 @@ record TransferSession(
 			long targetId = context.seq().get(storedType, sourceId);
 			if (targetId > 0) {
 				r.updateLong(1, targetId);
-				var newType = typeChanges.get(sourceId);
-				if (newType != null) {
-					r.updateByte(2, newType);
+				var mapping = providerTypes.get(sourceId);
+				if (mapping != null) {
+					r.updateByte(2, mapping.mappedType());
 				}
 				r.updateRow();
 			}
