@@ -9,6 +9,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.expressions.FormulaInterpreter;
+import org.openlca.util.Parameters;
 
 class FormulaCheck implements Runnable {
 
@@ -191,8 +192,8 @@ class FormulaCheck implements Runnable {
 			var owner = r.getLong(4);
 			if (Strings.isBlank(name)) {
 				error = "parameter with empty name";
-				//} else if (!Parameters.isValidName(name)) { // TODO too heavy currently
-				//	error = "invalid parameter name: '" + name + "'";
+			} else if (!Parameters.isValidName(name)) {
+				error = "invalid parameter name: '" + name + "'";
 			} else {
 				var key = name.trim().toLowerCase(Locale.US) + "#" + owner;
 				if (keys.contains(key)) {

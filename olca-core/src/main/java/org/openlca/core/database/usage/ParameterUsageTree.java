@@ -22,7 +22,6 @@ import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.util.Formula;
 
 import gnu.trove.map.hash.TLongLongHashMap;
 import gnu.trove.set.hash.TLongHashSet;
@@ -210,7 +209,7 @@ public class ParameterUsageTree {
 					if (r.wasNull() || ownerID <= 0)
 						return true;
 					var name = r.getString(2);
-					if (Formula.matches(name, this.name)) {
+					if (Formula.contains(name, this.name)) {
 						hasLocalDef.add(ownerID);
 					}
 					return true;
@@ -247,9 +246,9 @@ public class ParameterUsageTree {
 			NativeSql.on(db).query(sql, r -> {
 				var amountFormula = r.getString(3);
 				var costFormula = r.getString(4);
-				var formula = Formula.matches(amountFormula, name)
+				var formula = Formula.contains(amountFormula, name)
 						? amountFormula
-						: Formula.matches(costFormula, name)
+						: Formula.contains(costFormula, name)
 							? costFormula
 							: null;
 				if (formula == null)
@@ -271,7 +270,7 @@ public class ParameterUsageTree {
 					"tbl_allocation_factors WHERE formula IS NOT NULL";
 			NativeSql.on(db).query(sql, r -> {
 				var formula = r.getString(3);
-				if (!Formula.matches(formula, name))
+				if (!Formula.contains(formula, name))
 					return true;
 				long ownerID = r.getLong(2);
 				if (skipOwner(ownerID))
@@ -296,7 +295,7 @@ public class ParameterUsageTree {
 					"  WHERE fac.formula IS NOT NULL";
 			NativeSql.on(db).query(sql, r -> {
 				String formula = r.getString(3);
-				if (!Formula.matches(formula, name))
+				if (!Formula.contains(formula, name))
 					return true;
 				long ownerID = r.getLong(1);
 				if (skipOwner(ownerID))
@@ -342,7 +341,7 @@ public class ParameterUsageTree {
 					long ownerID = owners.get(p.id);
 					if (ownerID != owner.id
 							|| p.isInputParameter
-							|| !Formula.matches(p.formula, name))
+							|| !Formula.contains(p.formula, name))
 						continue;
 					roots.computeIfAbsent(owner.id, id -> new Node(owner))
 							.add(new Node(p).of(UsageType.FORMULA, p.formula));
@@ -357,7 +356,7 @@ public class ParameterUsageTree {
 				for (var p : new ParameterDao(db).getAll()) {
 					long ownerID = owners.get(p.id);
 					if (hasLocalDef.contains(ownerID)
-							|| !Formula.matches(p.formula, name))
+							|| !Formula.contains(p.formula, name))
 						continue;
 					var node = new Node(p).of(UsageType.FORMULA, p.formula);
 					var root = parent(p, ownerID);
@@ -372,10 +371,10 @@ public class ParameterUsageTree {
 
 			// search via all text matches
 			for (var p : new ParameterDao(db).getAll()) {
-				var nameMatch = Formula.matches(p.name, name);
+				var nameMatch = Formula.contains(p.name, name);
 				var formulaMatch = !nameMatch
 						&& !p.isInputParameter
-						&& Formula.matches(p.formula, name);
+						&& Formula.contains(p.formula, name);
 				if (!nameMatch && !formulaMatch)
 					continue;
 
@@ -428,7 +427,7 @@ public class ParameterUsageTree {
 		}
 
 		private boolean matches(ParameterRedef redef) {
-			if (!Formula.matches(redef.name, name))
+			if (!Formula.contains(redef.name, name))
 				return false;
 			if (owner != null)
 				return redef.contextId != null

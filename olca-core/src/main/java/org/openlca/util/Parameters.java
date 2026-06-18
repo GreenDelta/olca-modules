@@ -1,6 +1,5 @@
 package org.openlca.util;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,8 +20,6 @@ import org.openlca.core.model.ParameterizedEntity;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.Version;
 import org.openlca.core.model.descriptors.RootDescriptor;
-import org.openlca.expressions.FormulaInterpreter;
-import org.openlca.expressions.InterpreterException;
 import org.openlca.formula.Formulas;
 
 import gnu.trove.set.hash.TLongHashSet;
@@ -32,31 +29,37 @@ public class Parameters {
 	private Parameters() {
 	}
 
-	/**
-	 * Returns true if the given name is a valid identifier for a parameter. We
-	 * allow the same rules as for Java identifiers.
-	 */
+	/// Returns `true` if the given name is a valid identifier for a parameter.
+	/// Matches the `IDENTIFIER` rule from the `olca-formula` JavaCC lexer:
+	///
+	/// ```
+  /// IDENTIFIER:
+  ///     ( <OTHERCHARS> | <LETTER> )+ ( <DIGIT> | <LETTER> | <OTHERCHARS> )*
+  /// ```
+	/// where `LETTER` is `[a-zA-Z]`, `DIGIT` is `[0-9]`, and `OTHERCHARS` is
+	/// `[_$]`. This simplifies to `[a-zA-Z_$][a-zA-Z0-9_$]*`.
 	public static boolean isValidName(String name) {
 		if (name == null)
 			return false;
 		String id = name.trim();
 		if (id.isEmpty())
 			return false;
-		for (int i = 0; i < id.length(); i++) {
-			char c = id.charAt(i);
-			if (i == 0 && !Character.isLetter(c))
-				return false;
-			if (i > 0 && !Character.isJavaIdentifierPart(c))
-				return false;
-		}
 
-		// TODO: better if we would use the lexer rules here
-		FormulaInterpreter interpreter = new FormulaInterpreter();
-		interpreter.bind(name, "1");
-		try {
-			interpreter.eval(name);
-		} catch (InterpreterException e) {
+		char first = id.charAt(0);
+		if (!((first >= 'a' && first <= 'z')
+			|| (first >= 'A' && first <= 'Z')
+			|| first == '_'
+			|| first == '$'))
 			return false;
+
+		for (int i = 1; i < id.length(); i++) {
+			char c = id.charAt(i);
+			if (!((c >= 'a' && c <= 'z')
+				|| (c >= 'A' && c <= 'Z')
+				|| (c >= '0' && c <= '9')
+				|| c == '_'
+				|| c == '$'))
+				return false;
 		}
 		return true;
 	}
@@ -67,7 +70,7 @@ public class Parameters {
 	 * owner are checked in the given object and not in the database.
 	 */
 	public static boolean isUsed(
-			Parameter param, ParameterizedEntity owner, IDatabase db) {
+		Parameter param, ParameterizedEntity owner, IDatabase db) {
 
 		// search in parameter redefinitions
 		var redefOwners = findRedefOwners(param, owner, db);
@@ -113,7 +116,7 @@ public class Parameters {
 	 * systems) where this parameter is redefined.
 	 */
 	public static List<RootDescriptor> findRedefOwners(
-			Parameter param, ParameterizedEntity owner, IDatabase db) {
+		Parameter param, ParameterizedEntity owner, IDatabase db) {
 
 		var sql = "select f_owner, name, f_context from tbl_parameter_redefs";
 		var redefOwners = new TLongHashSet();
@@ -130,16 +133,16 @@ public class Parameters {
 		// collect project and product system descriptors
 		swapRedefOwners(db, redefOwners);
 		var projects = new ProjectDao(db)
-				.getDescriptors()
-				.stream()
-				.filter(d -> redefOwners.contains(d.id));
+			.getDescriptors()
+			.stream()
+			.filter(d -> redefOwners.contains(d.id));
 		var systems = new ProductSystemDao(db)
-				.getDescriptors()
-				.stream()
-				.filter(d -> redefOwners.contains(d.id));
+			.getDescriptors()
+			.stream()
+			.filter(d -> redefOwners.contains(d.id));
 		return Stream
-				.concat(projects, systems)
-				.collect(Collectors.toList());
+			.concat(projects, systems)
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -150,7 +153,7 @@ public class Parameters {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends ParameterizedEntity> T rename(
-			Parameter param, T owner, IDatabase db, String newName) {
+		Parameter param, T owner, IDatabase db, String newName) {
 
 		var oldName = param.name;
 
@@ -188,7 +191,7 @@ public class Parameters {
 			if (Objects.equals(param, p) || p.isInputParameter)
 				continue;
 			p.formula = Formulas.renameVariable(
-					p.formula, oldName, newName);
+				p.formula, oldName, newName);
 		}
 
 		// update the version and last change date of the owner
@@ -200,25 +203,25 @@ public class Parameters {
 			for (var e : process.exchanges) {
 				if (e.formula != null) {
 					e.formula = Formulas.renameVariable(
-							e.formula, oldName, newName);
+						e.formula, oldName, newName);
 				}
 				if (e.costFormula != null) {
 					e.costFormula = Formulas.renameVariable(
-							e.costFormula, oldName, newName);
+						e.costFormula, oldName, newName);
 				}
 			}
 
 			for (var af : process.allocationFactors) {
 				if (af.formula != null) {
 					af.formula = Formulas.renameVariable(
-							af.formula, oldName, newName);
+						af.formula, oldName, newName);
 				}
 			}
 
 			var dao = new ProcessDao(db);
 			return (T) (process.id == 0
-					? dao.insert(process)
-					: dao.update(process));
+				? dao.insert(process)
+				: dao.update(process));
 		}
 
 		// rename in impact formulas
@@ -226,18 +229,18 @@ public class Parameters {
 			for (var f : impact.impactFactors) {
 				if (f.formula != null) {
 					f.formula = Formulas.renameVariable(
-							f.formula, oldName, newName);
+						f.formula, oldName, newName);
 				}
 			}
 
 			var dao = new ImpactCategoryDao(db);
 			return (T) (impact.id == 0
-					? dao.insert(impact)
-					: dao.update(impact));
+				? dao.insert(impact)
+				: dao.update(impact));
 		}
 
 		throw new IllegalArgumentException(
-				"unknown parameterized entity type: " + owner);
+			"unknown parameterized entity type: " + owner);
 	}
 
 	/**
@@ -250,11 +253,11 @@ public class Parameters {
 	public static Parameter rename(IDatabase db, Parameter param, String name) {
 		if (param.scope != ParameterScope.GLOBAL) {
 			throw new IllegalArgumentException(
-					param + " is not defined in the global scope");
+				param + " is not defined in the global scope");
 		}
 		if (!isValidName(name)) {
 			throw new IllegalArgumentException(
-					name + " is not a valid parameter name");
+				name + " is not a valid parameter name");
 		}
 
 		// if the parameter has no name or if it is equivalent to the
@@ -290,7 +293,7 @@ public class Parameters {
 			if (!hasVariable(formula, param.name))
 				return true;
 			formula = Formulas.renameVariable(
-					formula, param.name, name);
+				formula, param.name, name);
 			r.updateString(2, formula);
 			r.updateRow();
 			updatedOwners.add(owner);
@@ -299,27 +302,27 @@ public class Parameters {
 
 		// rename unbound variables in parameter formulas
 		sql = "select f_owner, formula from tbl_parameters" +
-				" where formula is not null";
+			" where formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		// rename unbound variables in exchange formulas
 		sql = "select f_owner, resulting_amount_formula from" +
-				" tbl_exchanges where resulting_amount_formula is not null";
+			" tbl_exchanges where resulting_amount_formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		// rename unbound variables in cost formulas of exchanges
 		sql = "select f_owner, cost_formula from tbl_exchanges" +
-				" where cost_formula is not null";
+			" where cost_formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		// rename unbound variables in impact factor formulas
 		sql = "select f_impact_category, formula from tbl_impact_factors" +
-				" where formula is not null";
+			" where formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		// rename unbound variables in formulas of allocation factors
 		sql = "select f_process, formula from tbl_allocation_factors" +
-				" where formula is not null";
+			" where formula is not null";
 		NativeSql.on(db).updateRows(sql, formulaUpdate);
 
 		// rename redefinitions of global parameters
@@ -376,16 +379,16 @@ public class Parameters {
 
 		// swap parameter set IDs => product system IDs
 		var sql = "select sys.id as sysid, params.id as paramid" +
-				" from tbl_product_systems sys inner join" +
-				" tbl_parameter_redef_sets params on" +
-				" params.f_product_system = sys.id";
+			" from tbl_product_systems sys inner join" +
+			" tbl_parameter_redef_sets params on" +
+			" params.f_product_system = sys.id";
 		NativeSql.on(db).query(sql, swapOwner);
 
 		// swap project variant IDs => project IDs
 		sql = "select proj.id as projid, var.id as varid" +
-				" from tbl_projects proj inner join" +
-				" tbl_project_variants var on" +
-				" var.f_project = proj.id";
+			" from tbl_projects proj inner join" +
+			" tbl_project_variants var on" +
+			" var.f_project = proj.id";
 		NativeSql.on(db).query(sql, swapOwner);
 	}
 
@@ -397,15 +400,15 @@ public class Parameters {
 		if (name1 == null || name2 == null)
 			return false;
 		return Objects.equals(
-				name1.trim().toLowerCase(),
-				name2.trim().toLowerCase());
+			name1.trim().toLowerCase(),
+			name2.trim().toLowerCase());
 	}
 
 	private static boolean hasVariable(String formula, String variable) {
 		if (formula == null || variable == null)
 			return false;
 		return Formulas.getVariables(formula)
-				.stream()
-				.anyMatch(v -> eq(v, variable));
+			.stream()
+			.anyMatch(v -> eq(v, variable));
 	}
 }

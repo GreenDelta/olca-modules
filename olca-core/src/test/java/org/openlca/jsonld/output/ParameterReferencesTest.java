@@ -23,7 +23,6 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
-import org.openlca.core.model.Uncertainty;
 import org.openlca.jsonld.AbstractZipTest;
 
 public class ParameterReferencesTest extends AbstractZipTest {
@@ -43,6 +42,28 @@ public class ParameterReferencesTest extends AbstractZipTest {
 			new JsonExport(db, store).write(p2);
 			assertNotNull(store.get(ModelType.PARAMETER, p1.refId));
 			assertNotNull(store.get(ModelType.PARAMETER, p2.refId));
+		});
+	}
+
+	@Test
+	public void testCircularReference() {
+		var a = db.insert(Parameter.global("A", "1 + B"));
+		var b = db.insert(Parameter.global("B", "1 + A"));
+		with(store -> {
+			new JsonExport(db, store).write(a);
+			assertNotNull(store.get(ModelType.PARAMETER, a.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, b.refId));
+		});
+	}
+
+	@Test
+	public void testBrokenFormula() {
+		var a = db.insert(Parameter.global("A", "1 + B / nothing"));
+		var b = db.insert(Parameter.global("B", "1 + A ? 8( - s)"));
+		with(store -> {
+			new JsonExport(db, store).write(b);
+			assertNotNull(store.get(ModelType.PARAMETER, a.refId));
+			assertNotNull(store.get(ModelType.PARAMETER, b.refId));
 		});
 	}
 
@@ -104,11 +125,11 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	@Test
 	public void testImpactMethodParameter() {
-		Parameter p1Global = createParameter("p1", "2*2", null, null);
-		Parameter p1 = createParameter("p1", "2*2", ParameterScope.PROCESS, null);
-		Parameter p2 = createParameter("p2", "2*p1*p3", ParameterScope.PROCESS, null);
-		Parameter p3Global = createParameter("p3", "2*p4", null, null);
-		Parameter p4Global = createParameter("p4", "2", null, null);
+		Parameter p1Global = createParameter("p1", "2*2", null);
+		Parameter p1 = createParameter("p1", "2*2", ParameterScope.PROCESS);
+		Parameter p2 = createParameter("p2", "2*p1*p3", ParameterScope.PROCESS);
+		Parameter p3Global = createParameter("p3", "2*p4", null);
+		Parameter p4Global = createParameter("p4", "2", null);
 		ImpactCategory impact = impactCategoryOf(
 			null, new Parameter[]{p1, p2});
 		with((store) -> {
@@ -125,8 +146,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	@Test
 	public void testProductSystemRedef() {
-		Parameter p1 = createParameter("p1", "3", null, null);
-		Parameter p2 = createParameter("p2", "3", ParameterScope.PROCESS, null);
+		Parameter p1 = createParameter("p1", "3", null);
+		Parameter p2 = createParameter("p2", "3", ParameterScope.PROCESS);
 		ParameterRedef redef1 = createRedef(p1);
 		ParameterRedef redef2 = createRedef(p2);
 		ProductSystem system = createSystem(redef1, redef2);
@@ -142,8 +163,8 @@ public class ParameterReferencesTest extends AbstractZipTest {
 
 	@Test
 	public void testProjectRedef() {
-		Parameter p1 = createParameter("p1", "3", null, null);
-		Parameter p2 = createParameter("p2", "3", ParameterScope.PROCESS, null);
+		Parameter p1 = createParameter("p1", "3", null);
+		Parameter p2 = createParameter("p2", "3", ParameterScope.PROCESS);
 		ParameterRedef redef1 = createRedef(p1);
 		ParameterRedef redef2 = createRedef(p2);
 		Project project = createProject(redef1, redef2);
@@ -157,7 +178,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 	}
 
 	private Parameter createParameter(String name, String formula,
-		ParameterScope scope, Uncertainty u) {
+		ParameterScope scope) {
 		Parameter p = new Parameter();
 		p.name = name;
 		p.value = 1;
@@ -171,7 +192,7 @@ public class ParameterReferencesTest extends AbstractZipTest {
 		else
 			p.scope = ParameterScope.GLOBAL;
 		p.refId = UUID.randomUUID().toString();
-		p.uncertainty = u;
+		p.uncertainty = null;
 		if (p.scope != ParameterScope.GLOBAL)
 			return p;
 		return new ParameterDao(db).insert(p);

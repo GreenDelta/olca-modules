@@ -15,7 +15,6 @@ import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.descriptors.ProductSystemDescriptor;
-import org.openlca.util.Formula;
 import org.openlca.util.ProductSystems;
 
 public class UsedParameters {
@@ -200,7 +199,7 @@ public class UsedParameters {
 				+ "WHERE formula IS NOT NULL AND is_input_param = 0";
 		NativeSql.on(db).query(sql, r -> {
 			var ownerId = r.getLong(1);
-			if (ownerId == 0l) {
+			if (ownerId == 0L) {
 				formulas.add(new ScopedFormula(r.getString(3), r.getString(2)));
 			}
 			if (!processes.contains(ownerId))
@@ -225,7 +224,7 @@ public class UsedParameters {
 				return false;
 			if (contextId != null && !contextId.equals(ownerId))
 				return false;
-			return Formula.matches(formula, param.name);
+			return Formula.contains(formula, param.name);
 		}
 
 		private boolean isParam() {

@@ -14,7 +14,7 @@ import org.openlca.core.model.ParameterRedef;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.util.Formula;
+import org.openlca.formula.Formulas;
 
 /**
  * When global parameters are used in formulas or parameter redefinitions, we
@@ -71,8 +71,8 @@ class GlobalParameters {
 			return;
 		var names = new HashSet<String>();
 		for (Exchange e : p.exchanges) {
-			names.addAll(Formula.getVariables(e.formula));
-			names.addAll(Formula.getVariables(e.costFormula));
+			names.addAll(Formulas.getVariables(e.formula));
+			names.addAll(Formulas.getVariables(e.costFormula));
 		}
 		names.addAll(variablesOf(p.parameters));
 		filterLocals(names, p.parameters);
@@ -88,7 +88,7 @@ class GlobalParameters {
 			return;
 		var names = new HashSet<String>();
 		for (var factor : impact.impactFactors) {
-			names.addAll(Formula.getVariables(factor.formula));
+			names.addAll(Formulas.getVariables(factor.formula));
 		}
 		names.addAll(variablesOf(impact.parameters));
 		filterLocals(names, impact.parameters);
@@ -102,8 +102,7 @@ class GlobalParameters {
 	public static void sync(Parameter p, JsonExport exp) {
 		if (skipSync(exp) || p.isInputParameter)
 			return;
-		var names = new HashSet<String>();
-		names.addAll(Formula.getVariables(p.formula));
+		var names = new HashSet<>(Formulas.getVariables(p.formula));
 		writeGlobals(names, exp);
 	}
 
@@ -113,7 +112,7 @@ class GlobalParameters {
 			// no formulas in input parameters
 			if (param.isInputParameter)
 				continue;
-			names.addAll(Formula.getVariables(param.formula));
+			names.addAll(Formulas.getVariables(param.formula));
 		}
 		return names;
 	}
@@ -150,9 +149,6 @@ class GlobalParameters {
 			if (g == null)
 				continue;
 			exp.write(g);
-			// the global parameter could have again a formula
-			// that contains references to other global parameters.
-			sync(g, exp);
 		}
 	}
 
