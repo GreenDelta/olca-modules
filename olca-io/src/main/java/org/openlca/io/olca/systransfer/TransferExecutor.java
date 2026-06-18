@@ -98,7 +98,7 @@ public class TransferExecutor {
 		}
 
 
-		// TODO transfer parameters, parameter sets, analysis groups
+		session.copyAnalysisGroups(origin, copy);
 
 		copy = plan.config().target().insert(copy);
 		return Res.ok(copy);

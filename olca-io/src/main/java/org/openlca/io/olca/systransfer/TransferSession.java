@@ -7,6 +7,7 @@ import org.openlca.commons.Res;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
+import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
 import org.openlca.io.olca.TransferContext;
 
@@ -14,7 +15,8 @@ record TransferSession(
 	TransferPlan plan,
 	TransferContext context,
 	ExchangeFinder exchanges,
-	Map<Long, Byte> typeChanges
+	Map<Long, Byte> typeChanges,
+	Map<Long, ModelType> providerTypes
 ) {
 
 	static Res<TransferSession> create(TransferPlan plan) {
@@ -38,7 +40,8 @@ record TransferSession(
 			}
 
 			var session = new TransferSession(
-				plan, context, ExchangeFinder.of(context), typeChangesOf(plan));
+				plan, context, ExchangeFinder.of(context),
+				typeChangesOf(plan), providerTypesOf(plan));
 			return Res.ok(session);
 		} catch (Exception e) {
 			return Res.error("Failed to create the transfer session", e);
@@ -62,6 +65,41 @@ record TransferSession(
 			}
 		}
 		return map;
+	}
+
+	private static Map<Long, ModelType> providerTypesOf(TransferPlan plan) {
+		var map = new HashMap<Long, ModelType>();
+		for (var match : plan.matches()) {
+			if (match.source() == null
+				|| match.source().provider() == null
+				|| match.source().provider().type == null)
+				continue;
+			map.put(match.source().provider().id, match.source().provider().type);
+		}
+		for (var copy : plan.copies()) {
+			if (copy.provider() == null || copy.provider().type == null)
+				continue;
+			map.put(copy.provider().id, copy.provider().type);
+		}
+		return map;
+	}
+
+	void copyAnalysisGroups(ProductSystem origin, ProductSystem copy) {
+		var seq = context.seq();
+		for (var group : origin.analysisGroups) {
+			var groupCopy = group.copy();
+			groupCopy.processes.clear();
+			for (var oid : group.processes) {
+				var type = providerTypes.get(oid);
+				if (type == null)
+					continue;
+				long mappedId = seq.get(type, oid);
+				if (mappedId > 0 && copy.processes.contains(mappedId)) {
+					groupCopy.processes.add(mappedId);
+				}
+			}
+			copy.analysisGroups.add(groupCopy);
+		}
 	}
 
 	void transferCopies() {
