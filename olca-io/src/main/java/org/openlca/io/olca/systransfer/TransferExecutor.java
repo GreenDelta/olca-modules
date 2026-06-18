@@ -27,14 +27,23 @@ public class TransferExecutor {
 	}
 
 	public Res<ProductSystem> execute() {
+
+		// initialize the transfer session
 		var res = TransferSession.create(plan);
 		if (res.isError())
 			return res.castError();
 		var session = res.value();
 		var ctx = session.context();
 
+		// for now, we just copy all global parameters that are not
+		// present yet, later we may only transfer the used ones
+		ctx.getTransfer(ModelType.PARAMETER).syncAll();
+
+		// copy the providers that are not mapped, to the target
+		// database
 		session.transferCopies();
 
+		// initialize the product system copy
 		var origin = plan.config().system();
 		var copy = origin.copy();
 		copy.processLinks.clear();
@@ -97,9 +106,8 @@ public class TransferExecutor {
 				.autoComplete(copy, completionPoints);
 		}
 
-
+		// copy analysis groups & insert the system
 		session.copyAnalysisGroups(origin, copy);
-
 		copy = plan.config().target().insert(copy);
 		return Res.ok(copy);
 	}
