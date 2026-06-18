@@ -21,16 +21,14 @@ record TransferSession(
 	record TypeMapping(ModelType originalType, byte mappedType) {
 	}
 
-	static Res<TransferSession> create(TransferPlan plan) {
+	static Res<TransferSession> create(TransferPlan plan, TransferConfig config) {
 
-		if (plan == null
-			|| plan.config() == null
-			|| plan.config().isNotComplete())
+		if (config == null || config.isNotComplete())
 			return Res.error("Incomplete transfer configuration");
 
 		try {
 			var context = TransferContext.create(
-				plan.config().source(), plan.config().target());
+				config.source(), config.target());
 			var seq = context.seq();
 			for (var match : plan.matches()) {
 				if (!match.isComplete())

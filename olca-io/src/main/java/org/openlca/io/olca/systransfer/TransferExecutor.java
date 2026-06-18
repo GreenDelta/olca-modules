@@ -17,19 +17,21 @@ import org.openlca.core.model.ProviderType;
 public class TransferExecutor {
 
 	private final TransferPlan plan;
+	private final TransferConfig config;
 
-	private TransferExecutor(TransferPlan plan) {
+	private TransferExecutor(TransferPlan plan, TransferConfig config) {
 		this.plan = plan;
+		this.config = config;
 	}
 
-	public static TransferExecutor of(TransferPlan plan) {
-		return new TransferExecutor(plan);
+	public static TransferExecutor of(TransferPlan plan, TransferConfig config) {
+		return new TransferExecutor(plan, config);
 	}
 
 	public Res<ProductSystem> execute() {
 
 		// initialize the transfer session
-		var res = TransferSession.create(plan);
+		var res = TransferSession.create(plan, config);
 		if (res.isError())
 			return res.castError();
 		var session = res.value();
@@ -44,7 +46,7 @@ public class TransferExecutor {
 		session.transferCopies();
 
 		// initialize the product system copy
-		var origin = plan.config().system();
+		var origin = config.system();
 		var copy = origin.copy();
 		copy.processLinks.clear();
 		copy.analysisGroups.clear();
@@ -102,13 +104,13 @@ public class TransferExecutor {
 			.filter(tf -> tf.isProcess() && !tf.isFromLibrary())
 			.toList();
 		if (!completionPoints.isEmpty()) {
-			new ProductSystemBuilder(plan.config().target())
+			new ProductSystemBuilder(config.target())
 				.autoComplete(copy, completionPoints);
 		}
 
 		// copy analysis groups & insert the system
 		session.copyAnalysisGroups(origin, copy);
-		copy = plan.config().target().insert(copy);
+		copy = config.target().insert(copy);
 		return Res.ok(copy);
 	}
 

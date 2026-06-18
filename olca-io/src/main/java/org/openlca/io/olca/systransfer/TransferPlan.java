@@ -12,7 +12,6 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 
 public record TransferPlan(
-	TransferConfig config,
 	List<ProviderMatch> matches,
 	List<ProviderInfo> copies
 ) {
@@ -88,7 +87,7 @@ public record TransferPlan(
 				}
 			}
 
-			var plan = new TransferPlan(config, matches, copies);
+			var plan = new TransferPlan(matches, copies);
 			return Res.ok(plan);
 		}
 
