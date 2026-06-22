@@ -2,8 +2,10 @@ package org.openlca.io.olca;
 
 import java.util.function.Supplier;
 
+import org.openlca.core.database.FileStore;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.ImportLog;
+import org.openlca.util.Dirs;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
@@ -17,7 +19,9 @@ import org.openlca.core.model.Unit;
 public class TransferContext {
 
 	private final IDatabase source;
+	private final FileStore sourceFiles;
 	private final IDatabase target;
+	private final FileStore targetFiles;
 	private final SeqMap seq;
 	private final ImportLog log;
 
@@ -28,6 +32,24 @@ public class TransferContext {
 		this.target = target;
 		this.seq = seq;
 		this.log = log;
+
+		var srcDir = source.getFileStorageLocation();
+		var tgtDir = target.getFileStorageLocation();
+		if (srcDir == null || !srcDir.exists() || tgtDir == null) {
+			sourceFiles = null;
+			targetFiles = null;
+		} else {
+			sourceFiles = FileStore.of(source).orElse(null);
+			targetFiles = sourceFiles != null
+				? FileStore.of(target).orElse(null)
+				: null;
+		}
+	}
+
+	public static TransferContext create(IDatabase source, IDatabase target) {
+		var seq = SeqMap.create(source, target);
+		var log = new ImportLog();
+		return new TransferContext(source, target, seq, log);
 	}
 
 	public IDatabase source() {
@@ -44,12 +66,6 @@ public class TransferContext {
 
 	public ImportLog log() {
 		return log;
-	}
-
-	public static TransferContext create(IDatabase source, IDatabase target) {
-		var seq = SeqMap.create(source, target);
-		var log = new ImportLog();
-		return new TransferContext(source, target, seq, log);
 	}
 
 	public EntityTransfer<?> getTransfer(ModelType type) {
@@ -115,7 +131,23 @@ public class TransferContext {
 		copy.category = resolve(origin.category);
 		copy = save(origin.id, copy);
 		log.imported(copy);
+		copyFiles(ModelType.of(origin), origin.refId);
 		return copy;
+	}
+
+	private void copyFiles(ModelType type, String refId) {
+		if (sourceFiles == null || targetFiles == null)
+			return;
+		var srcDir = sourceFiles.getFolder(type, refId);
+		if (!srcDir.exists())
+			return;
+		try {
+			var tgtDir = targetFiles.getFolder(type, refId);
+			Dirs.createIfAbsent(tgtDir.getParentFile());
+			Dirs.copy(srcDir.toPath(), tgtDir.toPath());
+		} catch (Exception e) {
+			log.error("Failed to copy files of " + type + " :: " + refId, e);
+		}
 	}
 
 	/// Returns the corresponding flow property factor of the destination flow.

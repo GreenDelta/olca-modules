@@ -42,10 +42,9 @@ public record FileStore(File root) {
 	}
 
 	public File getFolder(RootEntity e) {
-		if (e == null)
-			return new File(root, "null");
-		ModelType type = ModelType.of(e.getClass());
-		return getFolder(type, e.refId);
+		return e == null
+			? new File(root, "null")
+			: getFolder(ModelType.of(e.getClass()), e.refId);
 	}
 
 	public File getFolder(ModelType type, String id) {
