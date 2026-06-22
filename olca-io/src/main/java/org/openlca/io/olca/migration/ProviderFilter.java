@@ -1,5 +1,7 @@
 package org.openlca.io.olca.migration;
 
+import java.util.List;
+
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
 
@@ -11,39 +13,39 @@ record ProviderFilter(
 	TLongHashSet systems
 ) {
 
-	static ProviderFilter of(ProductSystem system) {
-		if (system == null)
+	static ProviderFilter of(List<ProductSystem> systems) {
+		if (systems == null || systems.isEmpty())
 			return new ProviderFilter(null, null, null);
-		TLongHashSet processes = null;
-		if (system.referenceProcess != null) {
-			processes = new TLongHashSet();
-			processes.add(system.referenceProcess.id);
+
+		var processes = new TLongHashSet();
+		for (var system : systems) {
+			if (system.referenceProcess != null) {
+				processes.add(system.referenceProcess.id);
+			}
 		}
+
 		TLongHashSet results = null;
-		TLongHashSet systems = null;
-		for (var link : system.processLinks) {
-			switch (link.providerType) {
-				case ProviderType.RESULT -> {
-					if (results == null) {
-						results = new TLongHashSet();
+		TLongHashSet subSystems = null;
+		for (var system : systems) {
+			for (var link : system.processLinks) {
+				switch (link.providerType) {
+					case ProviderType.RESULT -> {
+						if (results == null) {
+							results = new TLongHashSet();
+						}
+						results.add(link.providerId);
 					}
-					results.add(link.providerId);
-				}
-				case ProviderType.SUB_SYSTEM -> {
-					if (systems == null) {
-						systems = new TLongHashSet();
+					case ProviderType.SUB_SYSTEM -> {
+						if (subSystems == null) {
+							subSystems = new TLongHashSet();
+						}
+						subSystems.add(link.providerId);
 					}
-					systems.add(link.providerId);
-				}
-				default -> {
-					if (processes == null) {
-						processes = new TLongHashSet();
-					}
-					processes.add(link.providerId);
+					default -> processes.add(link.providerId);
 				}
 			}
 		}
-		return new ProviderFilter(processes, results, systems);
+		return new ProviderFilter(processes, results, subSystems);
 	}
 
 	boolean containsProcess(long id) {

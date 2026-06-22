@@ -8,42 +8,53 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.commons.Res;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Project;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 public record MigrationPlan(
-	List<ProviderMatch> matches,
-	List<ProviderInfo> copies
+	List<ProductSystem> systems,
+	List<ProviderMatch> providerMatches,
+	List<ProviderInfo> providerCopies,
+	List<RootDescriptor> entityCopies,
+	List<RootDescriptor> entityMatches
 ) {
 
 	public static Res<MigrationPlan> createFrom(MigrationConfig config) {
 		if (config == null || config.isNotComplete())
-			return Res.error("No valid transfer configuration provided");
+			return Res.error("No valid migration configuration provided");
 		try {
 			return new PlanBuilder(config).build();
 		} catch (Exception e) {
-			return Res.error("Failed to create transfer plan", e);
+			return Res.error("Failed to create migration plan", e);
 		}
 	}
 
 	private static class PlanBuilder {
 
 		private final MigrationConfig config;
-		private final ProductSystem system;
+		private final MigrationPlan plan;
+
 
 		PlanBuilder(MigrationConfig config) {
 			this.config = config;
-			this.system = config.system();
+			this.plan = new MigrationPlan(
+				new ArrayList<>(),
+				new ArrayList<>(),
+				new ArrayList<>(),
+				new ArrayList<>(),
+				new ArrayList<>()
+			);
 		}
 
 		Res<MigrationPlan> build() {
+			var res = initPlan();
+			if (res.isError())
+				return res.wrapError("Failed to create migration plan");
 
-			var linkIdx = new HashMap<Long, List<ProcessLink>>();
-			for (var link : system.processLinks) {
-				linkIdx
-					.computeIfAbsent(link.processId, processId -> new ArrayList<>())
-					.add(link);
-			}
 
 			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
 			for (var pi : ProviderInfo.allOf(config.source(), system)) {
@@ -56,6 +67,14 @@ public record MigrationPlan(
 					.computeIfAbsent(pi.flowId(), flowId -> new ArrayList<>())
 					.add(pi);
 			}
+
+			var linkIdx = new HashMap<Long, List<ProcessLink>>();
+			for (var link : system.processLinks) {
+				linkIdx
+					.computeIfAbsent(link.processId, processId -> new ArrayList<>())
+					.add(link);
+			}
+
 
 			var queue = new ArrayDeque<ProviderFlow>();
 			queue.add(ProviderFlow.rootOf(system));
@@ -87,7 +106,6 @@ public record MigrationPlan(
 				}
 			}
 
-			var plan = new MigrationPlan(matches, copies);
 			return Res.ok(plan);
 		}
 
@@ -103,6 +121,50 @@ public record MigrationPlan(
 					return match;
 			}
 			return null;
+		}
+
+		private Res<Void> initPlan() {
+			for (var e : config.entities()) {
+				if (e == null || e.type == null || e.refId == null)
+					return Res.error("Migration configuration contains invalid entities");
+				if (e.isFromLibrary())
+					return Res.error("Cannot migrate library data: " + e.library);
+
+				var d = config.target()
+					.getDescriptor(e.type.getModelClass(), e.refId);
+				if (d != null) {
+					plan.entityMatches.add(d);
+					continue;
+				}
+
+				if (e.type == ModelType.PROJECT) {
+					var project = config.source().get(Project.class, e.id);
+					if (project == null)
+						return Res.error("Failed to load project: " + e.refId);
+					plan.entityCopies.add(e);
+					for (var v : project.variants) {
+						add(v.productSystem);
+					}
+					continue;
+				}
+
+				if (e.type != ModelType.PRODUCT_SYSTEM) {
+					plan.entityCopies.add(e);
+					continue;
+				}
+
+				var system = config.source().get(ProductSystem.class, e.id);
+				if (system == null)
+					return Res.error("Failed to load product system: " + e.refId);
+				add(system);
+			}
+			return Res.ok();
+		}
+
+		private void add(ProductSystem system) {
+			if (system == null || plan.systems.contains(system))
+				return;
+			plan.systems.add(system);
 		}
 	}
 

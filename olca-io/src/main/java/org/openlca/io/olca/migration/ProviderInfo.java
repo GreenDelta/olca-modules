@@ -31,9 +31,9 @@ public record ProviderInfo(
 		return allOf(db, null);
 	}
 
-	static List<ProviderInfo> allOf(IDatabase db, ProductSystem system) {
-		var filter = system != null
-			? ProviderFilter.of(system)
+	static List<ProviderInfo> allOf(IDatabase db, List<ProductSystem> systems) {
+		var filter = systems != null && !systems.isEmpty()
+			? ProviderFilter.of(systems)
 			: null;
 		return new Scan(db, filter).collect();
 	}

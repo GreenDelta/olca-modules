@@ -1,7 +1,10 @@
 package org.openlca.io.olca.migration;
 
+import java.util.List;
+
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.descriptors.RootDescriptor;
 
 /// Configuration for transferring a product system from a source database to a
 /// target database.
@@ -16,13 +19,15 @@ import org.openlca.core.model.ProductSystem;
 public record MigrationConfig(
 	IDatabase source,
 	IDatabase target,
-	ProductSystem system,
+	List<RootDescriptor> entities,
+	boolean allProcesses,
 	MatchingStrategy[] strategies) {
 
 	boolean isNotComplete() {
 		return source == null
 			|| target == null
-			|| system == null
+			|| entities == null
+			|| entities.isEmpty()
 			|| strategies == null
 			|| strategies.length == 0;
 	}

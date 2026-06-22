@@ -60,7 +60,7 @@ public class MigrationExecutor {
 		}
 
 		var matches = new HashMap<Long, TechFlow>();
-		for (var match : plan.matches()) {
+		for (var match : plan.providerMatches()) {
 			if (!match.isComplete())
 				continue;
 			var techFlow = TechFlow.of(

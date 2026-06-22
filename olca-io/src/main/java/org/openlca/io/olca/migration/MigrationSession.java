@@ -30,7 +30,7 @@ record MigrationSession(
 			var context = TransferContext.create(
 				config.source(), config.target());
 			var seq = context.seq();
-			for (var match : plan.matches()) {
+			for (var match : plan.providerMatches()) {
 				if (!match.isComplete())
 					continue;
 				seq.put(
@@ -49,7 +49,7 @@ record MigrationSession(
 
 	private static Map<Long, TypeMapping> typeMappingsOf(MigrationPlan plan) {
 		var map = new HashMap<Long, TypeMapping>();
-		for (var match : plan.matches()) {
+		for (var match : plan.providerMatches()) {
 			if (!match.isComplete())
 				continue;
 			var originalType = match.source().provider().type;
@@ -57,7 +57,7 @@ record MigrationSession(
 			map.put(match.source().provider().id,
 				new TypeMapping(originalType, mappedType));
 		}
-		for (var copy : plan.copies()) {
+		for (var copy : plan.providerCopies()) {
 			if (copy.provider() == null || copy.provider().type == null)
 				continue;
 			var type = copy.provider().type;
@@ -86,7 +86,7 @@ record MigrationSession(
 	}
 
 	void transferCopies() {
-		for (var p : plan.copies()) {
+		for (var p : plan.providerCopies()) {
 			if (p.provider() == null || p.provider().type == null)
 				continue;
 			var entity = context.source().get(
