@@ -65,9 +65,7 @@ public class DatabaseImport implements Import {
 				transfer.syncAll();
 			}
 			ProcessTransfer.swapDefaultProviders(ctx);
-
 			copyMappingFiles();
-			FileImport.run(ctx);
 		} catch (Exception e) {
 			log.error("database import failed", e);
 		}
