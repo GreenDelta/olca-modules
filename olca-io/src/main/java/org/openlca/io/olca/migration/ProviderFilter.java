@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;

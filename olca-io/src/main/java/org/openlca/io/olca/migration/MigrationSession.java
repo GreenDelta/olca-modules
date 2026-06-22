@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,8 +11,8 @@ import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
 import org.openlca.io.olca.TransferContext;
 
-record TransferSession(
-	TransferPlan plan,
+record MigrationSession(
+	MigrationPlan plan,
 	TransferContext context,
 	ExchangeFinder exchanges,
 	Map<Long, TypeMapping> providerTypes
@@ -21,7 +21,7 @@ record TransferSession(
 	record TypeMapping(ModelType originalType, byte mappedType) {
 	}
 
-	static Res<TransferSession> create(TransferPlan plan, TransferConfig config) {
+	static Res<MigrationSession> create(MigrationPlan plan, MigrationConfig config) {
 
 		if (config == null || config.isNotComplete())
 			return Res.error("Incomplete transfer configuration");
@@ -39,7 +39,7 @@ record TransferSession(
 					match.selected().provider().id);
 			}
 
-			var session = new TransferSession(
+			var session = new MigrationSession(
 				plan, context, ExchangeFinder.of(context), typeMappingsOf(plan));
 			return Res.ok(session);
 		} catch (Exception e) {
@@ -47,7 +47,7 @@ record TransferSession(
 		}
 	}
 
-	private static Map<Long, TypeMapping> typeMappingsOf(TransferPlan plan) {
+	private static Map<Long, TypeMapping> typeMappingsOf(MigrationPlan plan) {
 		var map = new HashMap<Long, TypeMapping>();
 		for (var match : plan.matches()) {
 			if (!match.isComplete())

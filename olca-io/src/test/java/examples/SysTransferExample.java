@@ -2,9 +2,9 @@ package examples;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.io.olca.systransfer.MatchingStrategy;
-import org.openlca.io.olca.systransfer.TransferConfig;
-import org.openlca.io.olca.systransfer.TransferPlan;
+import org.openlca.io.olca.migration.MatchingStrategy;
+import org.openlca.io.olca.migration.MigrationConfig;
+import org.openlca.io.olca.migration.MigrationPlan;
 
 public class SysTransferExample {
 
@@ -19,9 +19,9 @@ public class SysTransferExample {
 				.findFirst()
 				.orElseThrow();
 
-			var config = new TransferConfig(
+			var config = new MigrationConfig(
 				source, target, system, MatchingStrategy.values());
-			var plan = TransferPlan.createFrom(config).orElseThrow();
+			var plan = MigrationPlan.createFrom(config).orElseThrow();
 		}
 
 	}

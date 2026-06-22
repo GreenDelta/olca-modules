@@ -2,7 +2,7 @@ package org.openlca.io.olca;
 
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.io.olca.systransfer.SystemTransferUtil;
+import org.openlca.io.olca.migration.SystemTransferUtil;
 
 final class ProductSystemTransfer implements EntityTransfer<ProductSystem> {
 

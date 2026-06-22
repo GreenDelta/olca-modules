@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import java.util.List;
 import java.util.Objects;

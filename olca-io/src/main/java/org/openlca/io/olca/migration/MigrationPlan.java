@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -11,12 +11,12 @@ import org.openlca.commons.Res;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 
-public record TransferPlan(
+public record MigrationPlan(
 	List<ProviderMatch> matches,
 	List<ProviderInfo> copies
 ) {
 
-	public static Res<TransferPlan> createFrom(TransferConfig config) {
+	public static Res<MigrationPlan> createFrom(MigrationConfig config) {
 		if (config == null || config.isNotComplete())
 			return Res.error("No valid transfer configuration provided");
 		try {
@@ -28,15 +28,15 @@ public record TransferPlan(
 
 	private static class PlanBuilder {
 
-		private final TransferConfig config;
+		private final MigrationConfig config;
 		private final ProductSystem system;
 
-		PlanBuilder(TransferConfig config) {
+		PlanBuilder(MigrationConfig config) {
 			this.config = config;
 			this.system = config.system();
 		}
 
-		Res<TransferPlan> build() {
+		Res<MigrationPlan> build() {
 
 			var linkIdx = new HashMap<Long, List<ProcessLink>>();
 			for (var link : system.processLinks) {
@@ -87,7 +87,7 @@ public record TransferPlan(
 				}
 			}
 
-			var plan = new TransferPlan(matches, copies);
+			var plan = new MigrationPlan(matches, copies);
 			return Res.ok(plan);
 		}
 

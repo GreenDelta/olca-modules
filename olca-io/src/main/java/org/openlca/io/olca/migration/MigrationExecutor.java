@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -14,24 +14,24 @@ import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
 
-public class TransferExecutor {
+public class MigrationExecutor {
 
-	private final TransferPlan plan;
-	private final TransferConfig config;
+	private final MigrationPlan plan;
+	private final MigrationConfig config;
 
-	private TransferExecutor(TransferPlan plan, TransferConfig config) {
+	private MigrationExecutor(MigrationPlan plan, MigrationConfig config) {
 		this.plan = plan;
 		this.config = config;
 	}
 
-	public static TransferExecutor of(TransferPlan plan, TransferConfig config) {
-		return new TransferExecutor(plan, config);
+	public static MigrationExecutor of(MigrationPlan plan, MigrationConfig config) {
+		return new MigrationExecutor(plan, config);
 	}
 
 	public Res<ProductSystem> execute() {
 
 		// initialize the transfer session
-		var res = TransferSession.create(plan, config);
+		var res = MigrationSession.create(plan, config);
 		if (res.isError())
 			return res.castError();
 		var session = res.value();

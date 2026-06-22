@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;

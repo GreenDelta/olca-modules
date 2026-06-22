@@ -1,4 +1,4 @@
-package org.openlca.io.olca.systransfer;
+package org.openlca.io.olca.migration;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.model.ProductSystem;
@@ -13,7 +13,7 @@ import org.openlca.core.model.ProductSystem;
 /// matching provider is found in the target database. If no such provider is
 /// found, the provider from the source database is copied to the target
 /// database.
-public record TransferConfig(
+public record MigrationConfig(
 	IDatabase source,
 	IDatabase target,
 	ProductSystem system,
