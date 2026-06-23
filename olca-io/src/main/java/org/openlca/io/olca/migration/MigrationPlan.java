@@ -52,7 +52,7 @@ public record MigrationPlan(
 		}
 
 		Res<MigrationPlan> build() {
-			var res = initPlan().then($ -> this.checkSystems());
+			var res = initPlan().then(this::checkSystems);
 			if (res.isError())
 				return res.wrapError("Failed to create migration plan");
 
