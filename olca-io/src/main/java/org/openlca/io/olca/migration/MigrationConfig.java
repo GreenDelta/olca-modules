@@ -3,7 +3,6 @@ package org.openlca.io.olca.migration;
 import java.util.List;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 /// Configuration for transferring a product system from a source database to a

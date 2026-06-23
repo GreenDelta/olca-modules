@@ -28,7 +28,7 @@ public class MigrationExecutor {
 		return new MigrationExecutor(plan, config);
 	}
 
-	public Res<ProductSystem> execute() {
+	public Res<Void> execute() {
 
 		// initialize the transfer session
 		var res = MigrationSession.create(plan, config);
@@ -43,75 +43,79 @@ public class MigrationExecutor {
 
 		// copy the providers that are not mapped, to the target
 		// database
-		session.transferCopies();
+		session.transferProviderCopies();
+
 
 		// initialize the product system copy
-		var origin = config.system();
-		var copy = origin.copy();
-		copy.processLinks.clear();
-		copy.analysisGroups.clear();
-		copy.processes.clear();
-		SystemTransferUtil.swapQRef(ctx, origin, copy);
+		for (var origin : plan.systems()) {
 
-		var linkIdx = new HashMap<Long, List<ProcessLink>>();
-		for (var link : origin.processLinks) {
-			linkIdx.computeIfAbsent(link.processId, $ -> new ArrayList<>())
-				.add(link);
-		}
+			var copy = origin.copy();
+			copy.processLinks.clear();
+			copy.analysisGroups.clear();
+			copy.processes.clear();
+			SystemTransferUtil.swapQRef(ctx, origin, copy);
 
-		var matches = new HashMap<Long, TechFlow>();
-		for (var match : plan.providerMatches()) {
-			if (!match.isComplete())
-				continue;
-			var techFlow = TechFlow.of(
-				match.selected().provider(), match.selected().flow());
-			matches.put(techFlow.providerId(), techFlow);
-		}
-
-		var seq = ctx.seq();
-		var queue = new ArrayDeque<ProviderFlow>();
-		queue.add(ProviderFlow.rootOf(origin));
-		var visited = new HashSet<ProviderFlow>();
-		var usedMatches = new HashSet<TechFlow>();
-
-		while (!queue.isEmpty()) {
-			var p = queue.poll();
-			visited.add(p);
-			long targetId = seq.get(p.type, p.provider);
-			if (targetId == 0)
-				continue;
-			copy.processes.add(targetId);
-			var match = matches.get(targetId);
-			if (match != null) {
-				usedMatches.add(match);
-				continue;
+			var linkIdx = new HashMap<Long, List<ProcessLink>>();
+			for (var link : origin.processLinks) {
+				linkIdx.computeIfAbsent(link.processId, $ -> new ArrayList<>())
+					.add(link);
 			}
 
-			var links = linkIdx.get(p.provider);
-			if (links == null)
-				continue;
-			for (var link : links) {
-				copy.processLinks.add(session.copyLink(link));
-				var next = ProviderFlow.of(link);
-				if (!visited.contains(next) && !queue.contains(next)) {
-					queue.add(next);
+			var matches = new HashMap<Long, TechFlow>();
+			for (var match : plan.providerMatches()) {
+				if (!match.isComplete())
+					continue;
+				var techFlow = TechFlow.of(
+					match.selected().provider(), match.selected().flow());
+				matches.put(techFlow.providerId(), techFlow);
+			}
+
+			var seq = ctx.seq();
+			var queue = new ArrayDeque<ProviderFlow>();
+			queue.add(ProviderFlow.rootOf(origin));
+			var visited = new HashSet<ProviderFlow>();
+			var usedMatches = new HashSet<TechFlow>();
+
+			while (!queue.isEmpty()) {
+				var p = queue.poll();
+				visited.add(p);
+				long targetId = seq.get(p.type, p.provider);
+				if (targetId == 0)
+					continue;
+				copy.processes.add(targetId);
+				var match = matches.get(targetId);
+				if (match != null) {
+					usedMatches.add(match);
+					continue;
+				}
+
+				var links = linkIdx.get(p.provider);
+				if (links == null)
+					continue;
+				for (var link : links) {
+					copy.processLinks.add(session.copyLink(link));
+					var next = ProviderFlow.of(link);
+					if (!visited.contains(next) && !queue.contains(next)) {
+						queue.add(next);
+					}
 				}
 			}
+
+			// auto-complete matched processes
+			var completionPoints = usedMatches.stream()
+				.filter(tf -> tf.isProcess() && !tf.isFromLibrary())
+				.toList();
+			if (!completionPoints.isEmpty()) {
+				new ProductSystemBuilder(config.target())
+					.autoComplete(copy, completionPoints);
+			}
+
+			// copy analysis groups & insert the system
+			session.copyAnalysisGroups(origin, copy);
+			config.target().insert(copy);
 		}
 
-		// auto-complete matched processes
-		var completionPoints = usedMatches.stream()
-			.filter(tf -> tf.isProcess() && !tf.isFromLibrary())
-			.toList();
-		if (!completionPoints.isEmpty()) {
-			new ProductSystemBuilder(config.target())
-				.autoComplete(copy, completionPoints);
-		}
-
-		// copy analysis groups & insert the system
-		session.copyAnalysisGroups(origin, copy);
-		copy = config.target().insert(copy);
-		return Res.ok(copy);
+		return Res.ok();
 	}
 
 	private record ProviderFlow(long provider, ModelType type) {

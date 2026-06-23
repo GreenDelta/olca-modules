@@ -9,6 +9,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.ProviderType;
+import org.openlca.core.model.Result;
 import org.openlca.io.olca.TransferContext;
 
 record MigrationSession(
@@ -85,12 +86,16 @@ record MigrationSession(
 		}
 	}
 
-	void transferCopies() {
+	void transferProviderCopies() {
 		for (var p : plan.providerCopies()) {
 			if (p.provider() == null || p.provider().type == null)
 				continue;
 			var entity = context.source().get(
 				p.provider().type.getModelClass(), p.provider().id);
+			if (entity instanceof Result r) {
+				// clear possible links to product systems in results
+				r.productSystem = null;
+			}
 			context.resolve(entity);
 		}
 		swapDefaultProviders();

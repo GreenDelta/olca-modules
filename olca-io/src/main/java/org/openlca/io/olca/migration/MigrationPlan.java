@@ -2,6 +2,7 @@ package org.openlca.io.olca.migration;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -152,11 +153,18 @@ public record MigrationPlan(
 		}
 
 		private Res<Void> initPlan() {
+			var allowedTypes = EnumSet.of(
+				ModelType.PROJECT,
+				ModelType.PRODUCT_SYSTEM,
+				ModelType.IMPACT_METHOD);
+
 			for (var e : config.entities()) {
 				if (e == null || e.type == null || e.refId == null)
 					return Res.error("Migration configuration contains invalid entities");
 				if (e.isFromLibrary())
 					return Res.error("Cannot migrate library data: " + e.library);
+				if (!allowedTypes.contains(e.type))
+					return Res.error("Unsupported root type for migration: " + e.type);
 
 				var d = config.target()
 					.getDescriptor(e.type.getModelClass(), e.refId);
