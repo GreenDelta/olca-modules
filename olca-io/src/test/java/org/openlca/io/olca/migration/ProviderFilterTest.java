@@ -2,6 +2,8 @@ package org.openlca.io.olca.migration;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Process;
@@ -19,7 +21,7 @@ public class ProviderFilterTest {
 		process.quantitativeReference = exchange;
 
 		var system = ProductSystem.of("test system", process);
-		var filter = ProviderFilter.of(system);
+		var filter = ProviderFilter.of(List.of(system));
 
 		assertTrue(filter.hasProcesses());
 		assertTrue(filter.containsProcess(process.id));
