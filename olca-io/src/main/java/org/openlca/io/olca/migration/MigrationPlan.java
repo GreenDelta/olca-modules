@@ -12,7 +12,7 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.ProviderType;
 import org.openlca.core.model.descriptors.RootDescriptor;
 
 public record MigrationPlan(
@@ -51,15 +51,16 @@ public record MigrationPlan(
 		}
 
 		Res<MigrationPlan> build() {
-			var res = initPlan();
+			var res = initPlan().then($ -> this.checkSystems());
 			if (res.isError())
 				return res.wrapError("Failed to create migration plan");
 
+			if (!config.allProcesses() && plan.systems.isEmpty())
+				return Res.ok(plan);
 
-			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
-			for (var pi : ProviderInfo.allOf(config.source(), system)) {
-				sourceIdx.put(ProviderFlow.of(pi), pi);
-			}
+			var sourceProviders = config.allProcesses()
+				? ProviderInfo.allOf(config.source())
+				: ProviderInfo.allOf(config.source(), plan.systems);
 
 			var targetIdx = new HashMap<String, List<ProviderInfo>>();
 			for (var pi : ProviderInfo.allOf(config.target())) {
@@ -68,44 +69,71 @@ public record MigrationPlan(
 					.add(pi);
 			}
 
-			var linkIdx = new HashMap<Long, List<ProcessLink>>();
-			for (var link : system.processLinks) {
-				linkIdx
-					.computeIfAbsent(link.processId, processId -> new ArrayList<>())
-					.add(link);
-			}
-
-
-			var queue = new ArrayDeque<ProviderFlow>();
-			queue.add(ProviderFlow.rootOf(system));
-			var visited = new HashSet<ProviderFlow>();
-			var matches = new ArrayList<ProviderMatch>();
-			var copies = new ArrayList<ProviderInfo>();
-
-			while (!queue.isEmpty()) {
-				var pid = queue.poll();
-				visited.add(pid);
-				var provider = sourceIdx.get(pid);
-				if (provider == null)
-					return Res.error("Could not find provider for: " + pid);
-				var match = matchOf(provider, targetIdx);
-				if (match != null) {
-					matches.add(match);
-					continue;
-				}
-
-				copies.add(provider);
-				var links = linkIdx.get(pid.provider);
-				if (links == null)
-					continue;
-				for (var link : links) {
-					var next = ProviderFlow.of(link);
-					if (!visited.contains(next) && !queue.contains(next)) {
-						queue.add(next);
+			if (config.allProcesses()) {
+				for (var p : sourceProviders) {
+					var match = matchOf(p, targetIdx);
+					if (match != null) {
+						plan.providerMatches.add(match);
+					} else {
+						plan.providerCopies.add(p);
 					}
 				}
+				return Res.ok(plan);
 			}
 
+			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
+			for (var pi : sourceProviders) {
+				sourceIdx.put(ProviderFlow.of(pi), pi);
+			}
+			var matchSet = new HashSet<ProviderFlow>();
+			var copySet = new HashSet<ProviderFlow>();
+
+			for (var system : plan.systems) {
+
+				var linkIdx = new HashMap<Long, List<ProcessLink>>();
+				for (var link : system.processLinks) {
+					linkIdx
+						.computeIfAbsent(link.processId, processId -> new ArrayList<>())
+						.add(link);
+				}
+
+				var queue = new ArrayDeque<ProviderFlow>();
+				queue.add(ProviderFlow.rootOf(system));
+				var visited = new HashSet<ProviderFlow>();
+
+				while (!queue.isEmpty()) {
+					var pid = queue.poll();
+					visited.add(pid);
+					var provider = sourceIdx.get(pid);
+					if (provider == null)
+						return Res.error("Could not find provider for: " + pid);
+					if (matchSet.contains(pid))
+						continue;
+
+					var match = matchOf(provider, targetIdx);
+					if (match != null) {
+						plan.providerMatches.add(match);
+						matchSet.add(pid);
+						continue;
+					}
+
+					if (!copySet.contains(pid)) {
+						plan.providerCopies.add(provider);
+						copySet.add(pid);
+					}
+
+					var links = linkIdx.get(pid.provider);
+					if (links == null)
+						continue;
+					for (var link : links) {
+						var next = ProviderFlow.of(link);
+						if (!visited.contains(next) && !queue.contains(next)) {
+							queue.add(next);
+						}
+					}
+				}
+
+			}
 			return Res.ok(plan);
 		}
 
@@ -166,6 +194,20 @@ public record MigrationPlan(
 				return;
 			plan.systems.add(system);
 		}
+
+		private Res<Void> checkSystems() {
+			for (var s : plan.systems) {
+				for (var link : s.processLinks) {
+					if (link.providerType == ProviderType.SUB_SYSTEM)
+						return Res.error(
+							"The migration of product systems with sub-systems is not "
+								+ "supported yet. Sub-system(s) found in product system: "
+								+ s.refId);
+				}
+			}
+			return Res.ok();
+		}
+
 	}
 
 	private record ProviderFlow(long provider, long flow) {
