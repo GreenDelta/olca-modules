@@ -25,7 +25,7 @@ record MigrationSession(
 	static Res<MigrationSession> create(MigrationPlan plan, MigrationConfig config) {
 
 		if (config == null || config.isNotComplete())
-			return Res.error("Incomplete transfer configuration");
+			return Res.error("Incomplete migration configuration");
 
 		try {
 			var context = TransferContext.create(
@@ -44,7 +44,7 @@ record MigrationSession(
 				plan, context, ExchangeFinder.of(context), typeMappingsOf(plan));
 			return Res.ok(session);
 		} catch (Exception e) {
-			return Res.error("Failed to create the transfer session", e);
+			return Res.error("Failed to create the migration session", e);
 		}
 	}
 
@@ -122,9 +122,9 @@ record MigrationSession(
 	}
 
 	/// Same as in `ProcessTransfer.swapDefaultProviders` but here we need to
-	/// consider that the type of a provider could change, for example when a
-	/// process in the source database is mapped to a precalculated result in
-	/// the target database.
+	/// consider that the type of a provider could have changed, for example, when
+	/// a process in the source database is mapped to a precalculated result in the
+	/// target database.
 	private void swapDefaultProviders() {
 		var q = "select f_default_provider, default_provider_type "
 			+ "from tbl_exchanges where f_default_provider < 0";

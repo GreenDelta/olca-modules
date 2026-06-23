@@ -10,7 +10,7 @@ import gnu.trove.set.hash.TLongHashSet;
 record ProviderFilter(
 	TLongHashSet processes,
 	TLongHashSet results,
-	TLongHashSet systems
+	TLongHashSet subSystems
 ) {
 
 	static ProviderFilter of(List<ProductSystem> systems) {
@@ -56,8 +56,8 @@ record ProviderFilter(
 		return results != null && results.contains(id);
 	}
 
-	boolean containsSystem(long id) {
-		return systems != null && systems.contains(id);
+	boolean containsSubSystem(long id) {
+		return subSystems != null && subSystems.contains(id);
 	}
 
 	boolean hasProcesses() {
@@ -68,7 +68,7 @@ record ProviderFilter(
 		return results != null && !results.isEmpty();
 	}
 
-	boolean hasSystems() {
-		return systems != null && !systems.isEmpty();
+	boolean hasSubSystems() {
+		return subSystems != null && !subSystems.isEmpty();
 	}
 }

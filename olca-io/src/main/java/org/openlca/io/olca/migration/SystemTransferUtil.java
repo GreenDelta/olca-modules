@@ -15,7 +15,7 @@ public class SystemTransferUtil {
 	}
 
 	/// Maps the reference process, exchange, flow property and unit of the
-	/// quantitative reference of the process.
+	/// quantitative reference of the product system.
 	public static void swapQRef(
 		TransferContext ctx, ProductSystem src, ProductSystem dest
 	) {
@@ -74,7 +74,8 @@ public class SystemTransferUtil {
 		}
 	}
 
-	/// Tries to find the corresponding
+	/// Tries to find the corresponding exchange in `destProcess` that
+	/// matches `srcExchange`.
 	private static Exchange findMatch(Exchange srcExchange, Process destProcess) {
 		if (srcExchange == null || destProcess == null)
 			return null;

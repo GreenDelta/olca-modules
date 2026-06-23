@@ -105,19 +105,18 @@ public record MigrationPlan(
 				while (!queue.isEmpty()) {
 					var pid = queue.poll();
 					visited.add(pid);
-					var provider = sourceIdx.get(pid);
-					if (provider == null)
-						return Res.error("Could not find provider for: " + pid);
 					if (matchSet.contains(pid))
 						continue;
 
+					var provider = sourceIdx.get(pid);
+					if (provider == null)
+						return Res.error("Could not find provider for: " + pid);
 					var match = matchOf(provider, targetIdx);
 					if (match != null) {
 						plan.providerMatches.add(match);
 						matchSet.add(pid);
 						continue;
 					}
-
 					if (!copySet.contains(pid)) {
 						plan.providerCopies.add(provider);
 						copySet.add(pid);
@@ -133,7 +132,6 @@ public record MigrationPlan(
 						}
 					}
 				}
-
 			}
 			return Res.ok(plan);
 		}

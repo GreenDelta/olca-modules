@@ -7,8 +7,8 @@ import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.text.PhraseParser;
 import org.openlca.text.PhraseSimilarity;
 
-/// Strategy for finding matching providers in the target database
-/// when a product system is transferred.
+/// Strategy for finding matching providers in the target database when
+/// initializing a migration plan.
 public enum MatchingStrategy {
 
 	/// Match providers by their reference ID.

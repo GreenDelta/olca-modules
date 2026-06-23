@@ -45,8 +45,7 @@ public class MigrationExecutor {
 		// database
 		session.transferProviderCopies();
 
-
-		// initialize the product system copy
+		// transfer the product systems
 		for (var origin : plan.systems()) {
 
 			var copy = origin.copy();
@@ -101,7 +100,7 @@ public class MigrationExecutor {
 				}
 			}
 
-			// auto-complete matched processes
+			// auto-complete matched process in the target database
 			var completionPoints = usedMatches.stream()
 				.filter(tf -> tf.isProcess() && !tf.isFromLibrary())
 				.toList();

@@ -26,6 +26,6 @@ public class ProviderFilterTest {
 		assertTrue(filter.hasProcesses());
 		assertTrue(filter.containsProcess(process.id));
 		assertFalse(filter.hasResults());
-		assertFalse(filter.hasSystems());
+		assertFalse(filter.hasSubSystems());
 	}
 }
