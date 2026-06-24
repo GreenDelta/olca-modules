@@ -71,15 +71,11 @@ public record MigrationPlan(
 			}
 
 			if (config.allProcesses()) {
-				for (var p : sourceProviders) {
-					var match = matchOf(p, targetIdx);
-					if (match != null) {
-						plan.providerMatches.add(match);
-					} else {
-						plan.providerCopies.add(p);
-					}
-				}
-				return Res.ok(plan);
+				addAllProcessesOf(sourceProviders, targetIdx);
+				// now we added all processes, but there could be results linked
+				// in product systems that we also need to migrate
+				if (plan.systems.isEmpty())
+					return Res.ok(plan);
 			}
 
 			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
@@ -134,6 +130,21 @@ public record MigrationPlan(
 				}
 			}
 			return Res.ok(plan);
+		}
+
+		private void addAllProcessesOf(
+			List<ProviderInfo> providers, Map<String, List<ProviderInfo>> targetIdx
+		) {
+			for (var p : providers) {
+				if (!p.isProcess())
+					continue;
+				var match = matchOf(p, targetIdx);
+				if (match != null) {
+					plan.providerMatches.add(match);
+				} else {
+					plan.providerCopies.add(p);
+				}
+			}
 		}
 
 		private ProviderMatch matchOf(

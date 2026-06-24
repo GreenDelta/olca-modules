@@ -12,6 +12,7 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.ResultDao;
 import org.openlca.core.model.FlowType;
+import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.descriptors.FlowDescriptor;
 import org.openlca.core.model.descriptors.LocationDescriptor;
@@ -40,6 +41,10 @@ public record ProviderInfo(
 
 	String flowId() {
 		return flow != null ? flow.refId : null;
+	}
+
+	boolean isProcess() {
+		return provider != null && provider.type == ModelType.PROCESS;
 	}
 
 	private static final class Scan {
