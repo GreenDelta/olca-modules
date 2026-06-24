@@ -15,9 +15,9 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.ecospold.EcoSpold;
 import org.openlca.ecospold.model.IDataSet;
 import org.openlca.ecospold.model.IExchange;
-import org.openlca.ecospold.EcoSpold;
 import org.openlca.io.Tests;
 import org.openlca.io.ecospold1.output.EcoSpold1Export;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
@@ -81,7 +81,7 @@ public class FlowNameConfigTest {
 	public void testTypeSuffixes() {
 		var config = EcoSpold1Export.of(db, dir)
 			.withTypeSuffixes(true);
-		assertNames(config, "steel, U", "coal, S");
+		assertNames(config, "steel | U", "coal | S");
 	}
 
 	@Test
@@ -91,8 +91,8 @@ public class FlowNameConfigTest {
 			.withLocationSuffixes(true)
 			.withTypeSuffixes(true);
 		assertNames(config,
-			"steel | steel production {DE}, U",
-			"coal | coal production {PL}, S");
+			"steel {DE} | steel production | U",
+			"coal {PL} | coal production | S");
 	}
 
 	private void assertNames(EcoSpold1Config config, String ref, String input) {
