@@ -88,12 +88,19 @@ public record MigrationPlan(
 			List<ProviderInfo> sourceProviders,
 			Map<String, List<ProviderInfo>> targetIdx
 		) {
+
 			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
 			for (var pi : sourceProviders) {
 				sourceIdx.put(ProviderFlow.of(pi), pi);
 			}
 			var matchSet = new HashSet<ProviderFlow>();
 			var copySet = new HashSet<ProviderFlow>();
+			for (var match : plan.providerMatches) {
+				matchSet.add(ProviderFlow.of(match.source()));
+			}
+			for (var copy : plan.providerCopies) {
+				copySet.add(ProviderFlow.of(copy));
+			}
 
 			for (var system : plan.systems) {
 
