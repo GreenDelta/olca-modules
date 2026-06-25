@@ -86,6 +86,20 @@ record MigrationSession(
 		}
 	}
 
+	/// Transfers the selected entities (projects, impact methods) that
+	/// need to be copied to the target database. Product systems are
+	/// skipped here since they are handled separately.
+	void transferOtherEntities() {
+		for (var d : plan.entityCopies()) {
+			if (d.type == null || d.type == ModelType.PRODUCT_SYSTEM)
+				continue;
+			var entity = context.source().get(d.type.getModelClass(), d.id);
+			if (entity == null)
+				continue;
+			context.resolve(entity);
+		}
+	}
+
 	void transferProviderCopies() {
 		for (var p : plan.providerCopies()) {
 			if (p.provider() == null || p.provider().type == null)

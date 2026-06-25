@@ -49,6 +49,8 @@ public class MigrationExecutor {
 		for (var origin : plan.systems()) {
 
 			var copy = origin.copy();
+			copy.version += 1;
+			copy.lastChange = System.currentTimeMillis();
 			copy.processLinks.clear();
 			copy.analysisGroups.clear();
 			copy.processes.clear();
@@ -112,7 +114,14 @@ public class MigrationExecutor {
 			// copy analysis groups & insert the system
 			session.copyAnalysisGroups(origin, copy);
 			config.target().insert(copy);
+
+			// record the mapping so that entity transfers (e.g. projects
+			// referencing this product system) can resolve it via seq
+			ctx.seq().put(ModelType.PRODUCT_SYSTEM, origin.id, copy.id);
 		}
+
+		// transfer the remaining selected entities
+		session.transferOtherEntities();
 
 		return Res.ok();
 	}
