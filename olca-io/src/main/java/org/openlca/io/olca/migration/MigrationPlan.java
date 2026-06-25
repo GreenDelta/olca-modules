@@ -75,9 +75,19 @@ public record MigrationPlan(
 				// now we added all processes, but there could be results linked
 				// in product systems that we also need to migrate
 				if (plan.systems.isEmpty())
-					return Res.ok(plan);
+					return checkNoLibraryCopies();
 			}
 
+			var tRes = traverseSystems(sourceProviders, targetIdx);
+			return tRes.isError()
+				? tRes.wrapError("Failed to collect providers from product systems")
+				: checkNoLibraryCopies();
+		}
+
+		private Res<Void> traverseSystems(
+			List<ProviderInfo> sourceProviders,
+			Map<String, List<ProviderInfo>> targetIdx
+		) {
 			var sourceIdx = new HashMap<ProviderFlow, ProviderInfo>();
 			for (var pi : sourceProviders) {
 				sourceIdx.put(ProviderFlow.of(pi), pi);
@@ -129,7 +139,7 @@ public record MigrationPlan(
 					}
 				}
 			}
-			return Res.ok(plan);
+			return Res.ok();
 		}
 
 		private void addAllProcessesOf(
@@ -225,6 +235,16 @@ public record MigrationPlan(
 			return Res.ok();
 		}
 
+		private Res<MigrationPlan> checkNoLibraryCopies() {
+			for (var p : plan.providerCopies) {
+				if (p.provider() != null && p.provider().isFromLibrary()) {
+					return Res.error(
+						"The migration setup would require to copy library data, "
+							+ "e.g. from library " + p.provider().library);
+				}
+			}
+			return Res.ok(plan);
+		}
 	}
 
 	private record ProviderFlow(long provider, long flow) {
