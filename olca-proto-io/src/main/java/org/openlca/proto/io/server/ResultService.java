@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.io.DbEntityResolver;
-import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.math.SystemCalculator;
 import org.openlca.core.results.LcaResult;
@@ -32,13 +31,21 @@ import io.grpc.stub.StreamObserver;
 
 class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 
-	final IDatabase db;
-	private final LibraryDir libDir;
-	final Map<String, LcaResult> results = new HashMap<>();
+	private final IDatabase db;
+	private final LibReaderRegistry libraries;
+	private final Map<String, LcaResult> results = new HashMap<>();
 
 	ResultService(ServerConfig config) {
-		this.db = config.db();
-		this.libDir = config.dataDir().getLibraryDir();
+		db = config.db();
+		libraries = config.libraries().orElse(null);
+	}
+
+	LcaResult getResult(String id) {
+		return results.get(id);
+	}
+
+	IDatabase db() {
+		return db;
 	}
 
 	@Override
@@ -54,7 +61,7 @@ class ResultService extends ResultServiceGrpc.ResultServiceImplBase {
 		}
 
 		var result = new SystemCalculator(db)
-			.withLibraries(LibReaderRegistry.of(db, libDir))
+			.withLibraries(libraries)
 			.calculate(setup);
 		var key = UUID.randomUUID().toString();
 		results.put(key, result);

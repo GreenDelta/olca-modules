@@ -37,10 +37,7 @@ public class CalculationQueue {
 	public static CalculationQueue of(ServerConfig config) {
 		var db = config.db();
 		var queue = new CalculationQueue(db, config.threadCount());
-		if (db.hasLibraries()) {
-			var libDir = config.dataDir().getLibraryDir();
-		  queue.withLibraries(LibReaderRegistry.of(db, libDir));
-		}
+		config.libraries().ifPresent(queue::withLibraries);
 		if (config.timeout() > 0) {
 			queue.withTimeout(config.timeout(), TimeUnit.MINUTES);
 		}

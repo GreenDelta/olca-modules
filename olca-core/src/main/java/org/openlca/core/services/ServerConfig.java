@@ -5,91 +5,85 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openlca.core.DataDir;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.upgrades.Upgrades;
+import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.solvers.mkl.MKL;
 import org.openlca.nativelib.NativeLib;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * General configuration of a service interface. A server configuration is
- * typically parsed from the command line arguments of a server application
- * when the server starts. The following parameters are interpreted by the
- * parser, they are all optional and have a default value where possible:
- *
- * <pre>
- * {@code
- *
- *  -data <path to data folder>
- *  The path to the data folder that contains the database and possible
- *  libraries. The folder structure need to follow the openLCA workspace
- *  structure, means the sub-folder `databases` of that folder contains the
- *  database and the sub-folder `libraries` possible data libraries to which
- *  the database is linked. If this parameter is not provided, the default
- *  openLCA workspace (currently `~/openLCA-data-1.4`) is taken as data folder.
- *
- *  -db <database>
- *  The name of the database in the data folder (only the name, not a full
- *  file path, must be provided); defaults to 'database'.
- *
- *  -port <port>
- *  The port of the server; defaults to 8080.
- *
- *  -native <path to native library folder>
- *  The path to the folder from which the native libraries should be
- *  loaded; defaults to the data folder.
- *
- * 	-threads <number of calculation threads>
- * 	The number of parallel threads that can be used for calculations. Make sure
- * 	that the server has enough resources if you provide a larger number than 1
- * 	here; defaults to 1.
- *
- * 	-timeout <minutes after which results are disposed>
- * 	The time in minutes after which results are cleaned up if they were not
- * 	disposed by the user. A value of <=0 means that no timeout should be
- * 	applied; defaults to 0.
- *
- *  --readonly <true | false>?
- *  If this flag is set, the server will run in readonly mode and modifying the
- *  database will not be possible.
- *
- *  -static <path to folder with static files>
- *  A path to a folder with static files that should be hosted by the server.
- *  This only has an effect if the server supports hosting of static files.
- *
- * }
- * </pre>
- *
- * When parsing configuration options, everything that starts with a dash, -,
- * followed by a value is stored as a configuration pair in the {@code args}
- * map. Arguments that start with two dashes, --, that are not followed by a
- * value, are stored as {@code (--<flag>, "true")} pairs by default.
- *
- * @param dataDir    the data folder that contains the database and possible
- *                   data libraries.
- * @param db         the database that is used by the service.
- * @param port       the port of the server
- * @param isReadonly indicates if the server runs in read-only mode;
- *                   modification of the database is not supported in this case.
- * @param staticDir  an optional folder from which static files are hosted by
- *                   the server, if this is supported; {@code null} by default}
- * @param args       all configuration arguments as key-value pairs
- */
+/// General configuration of a service interface. A server configuration is
+/// typically parsed from the command line arguments of a server application
+/// when the server starts. The following parameters are interpreted by the
+/// parser. These are all optional and have a default value where possible:
+///
+///   `-data <path to data folder>`
+///   The path to the data folder that contains the database and possible
+///   libraries.
+///
+///   `-db <database>`
+///   The name of the database in the data folder (only the name, not a full
+///   file path, must be provided); defaults to 'database'.
+///
+///   `-port <port>`
+///   The port of the server; defaults to 8080.
+///
+///   `-native <path to native library folder>`
+///   The path to the folder from which the native libraries should be loaded.
+///
+///   `-threads <number of calculation threads>`
+///   The number of parallel threads that can be used for calculations.
+///
+///   `-timeout <minutes after which results are disposed>`
+///   The time in minutes after which results are cleaned up if they were not
+///   disposed by the user.
+///
+///   `--readonly <true | false>?`
+///   If this flag is set, the server will run in readonly mode.
+///
+///   `-static <path to folder with static files>`
+///   A path to a folder with static files that should be hosted by the server.
+///
+/// When parsing configuration options, everything that starts with a dash, `-`,
+/// followed by a value is stored as a configuration pair in the `args` map.
+/// Arguments that start with two dashes, `--`, that are not followed by a value,
+/// are stored as `(--<flag>, "true")` pairs by default.
+///
+/// @param dataDir     the data folder that contains the database and possible
+///                   data libraries.
+/// @param db          the database that is used by the service.
+/// @param libraries   optional pre-built library reader registry.
+/// @param port        the port of the server.
+/// @param isReadonly  indicates if the server runs in read-only mode.
+/// @param threadCount the number of calculation threads.
+/// @param timeout     minutes after which results are disposed.
+/// @param staticDir   an optional folder from which static files are hosted.
+/// @param args        all configuration arguments as key-value pairs.
 public record ServerConfig(
-		DataDir dataDir,
-		IDatabase db,
-		int port,
-		boolean isReadonly,
-		File staticDir,
-		int threadCount,
-		int timeout,
-		Map<String, String> args
+	DataDir dataDir,
+	IDatabase db,
+	Optional<LibReaderRegistry> libraries,
+	int port,
+	boolean isReadonly,
+	int threadCount,
+	int timeout,
+	Optional<File> staticDir,
+	Map<String, String> args
 ) {
 
 	private static final Logger log = LoggerFactory.getLogger(ServerConfig.class);
+
+	public ServerConfig {
+		Objects.requireNonNull(dataDir);
+		Objects.requireNonNull(db);
+		Objects.requireNonNull(libraries);
+		Objects.requireNonNull(staticDir);
+		Objects.requireNonNull(args);
+	}
 
 	public static Builder defaultOf(IDatabase db) {
 		return new Builder(db);
@@ -111,7 +105,7 @@ public record ServerConfig(
 		NativeLib.loadFrom(nativeDir);
 		if (!NativeLib.isLoaded()) {
 			log.warn("no native libraries could be loaded;" +
-					" calculations could be very slow");
+				" calculations could be very slow");
 		}
 	}
 
@@ -136,16 +130,22 @@ public record ServerConfig(
 			var db = openDatabase();
 			var staticDir = checkStaticDir();
 			loadNativeLibs();
+
+			var libraries = db.hasLibraries()
+				? LibReaderRegistry.of(db, dataDir.getLibraryDir())
+				: null;
+
 			boolean readonly = "true".equalsIgnoreCase(args.get("--readonly"));
 			return new ServerConfig(
-					dataDir,
-					db,
-					getPort(),
-					readonly,
-					staticDir,
-					getThreadCount(),
-					getTimeout(),
-					args);
+				dataDir,
+				db,
+				Optional.ofNullable(libraries),
+				getPort(),
+				readonly,
+				getThreadCount(),
+				getTimeout(),
+				Optional.ofNullable(staticDir),
+				args);
 		}
 
 		private IDatabase openDatabase() {
@@ -163,7 +163,7 @@ public record ServerConfig(
 			// check the database version
 			if (dbVersion > IDatabase.CURRENT_VERSION) {
 				throw new IllegalArgumentException(
-						"database is newer than this server can handle");
+					"database is newer than this server can handle");
 			}
 			if (dbVersion < IDatabase.CURRENT_VERSION) {
 				Upgrades.on(db);
@@ -184,7 +184,7 @@ public record ServerConfig(
 		}
 
 		private int getTimeout() {
-			int timeout =  Math.max(intOf("-timeout", 0), 0);
+			int timeout = Math.max(intOf("-timeout", 0), 0);
 			log.info("set {} as result timeout", timeout);
 			return timeout;
 		}
@@ -198,7 +198,7 @@ public record ServerConfig(
 			} catch (NumberFormatException e) {
 				log.error("invalid value for {}: " +
 						"{} is not an integer, took default of {}",
-						flag, str, defaultVal);
+					flag, str, defaultVal);
 				return defaultVal;
 			}
 		}
@@ -219,8 +219,8 @@ public record ServerConfig(
 		private void loadNativeLibs() {
 			var nativePath = args.get("-native");
 			var nativeDir = nativePath != null
-					? new File(nativePath)
-					: dataDir.root();
+				? new File(nativePath)
+				: dataDir.root();
 			ServerConfig.loadNativeLibs(nativeDir);
 		}
 
@@ -259,6 +259,7 @@ public record ServerConfig(
 		private int threadCount = 1;
 		private int timeout = 0;
 		private Map<String, String> args;
+		private LibReaderRegistry libraries;
 
 		private Builder(IDatabase db) {
 			this.db = Objects.requireNonNull(db);
@@ -303,16 +304,36 @@ public record ServerConfig(
 			return this;
 		}
 
+		public Builder withLibraries(LibReaderRegistry libraries) {
+			this.libraries = libraries;
+			return this;
+		}
+
 		public ServerConfig get() {
 			var dataDir = this.dataDir == null
-					? DataDir.get()
-					: this.dataDir;
+				? DataDir.get()
+				: this.dataDir;
 			ServerConfig.loadNativeLibs(dataDir.root());
+
+			var libs = libraries;
+			if (libs == null && db.hasLibraries()) {
+				libs = LibReaderRegistry.of(db, dataDir.getLibraryDir());
+			}
+
 			Map<String, String> args = this.args == null
-					? java.util.Map.of()
-					: this.args;
+				? Map.of()
+				: this.args;
+
 			return new ServerConfig(
-					dataDir, db, port, isReadonly, staticDir, threadCount, timeout, args);
+				dataDir,
+				db,
+				Optional.ofNullable(libs),
+				port,
+				isReadonly,
+				threadCount,
+				timeout,
+				Optional.ofNullable(staticDir),
+				args);
 		}
 	}
 }

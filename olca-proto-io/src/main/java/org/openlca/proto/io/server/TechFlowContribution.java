@@ -36,7 +36,7 @@ class TechFlowContribution {
 			return resolved.error(
 				"A valid result and tech-flow are required");
 		var resultId = req.getResult().getId();
-		var result = service.results.get(resultId);
+		var result = service.getResult(resultId);
 		if (result == null)
 			return resolved.error("The result does not exist: " + resultId);
 		resolved.result = result;
@@ -92,7 +92,7 @@ class TechFlowContribution {
 	private void closeWith(double value) {
 		if (isClosed)
 			return;
-		var refData = Refs.dataOf(service.db);
+		var refData = Refs.dataOf(service.db());
 		var proto = ResultValue.newBuilder()
 			.setTechFlow(Results.toProto(product, refData))
 			.setValue(value)
