@@ -45,6 +45,8 @@ public class Server {
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("failed to stop server", e);
+		} finally {
+			config.dispose();
 		}
 	}
 

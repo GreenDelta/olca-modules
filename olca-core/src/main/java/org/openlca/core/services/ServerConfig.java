@@ -85,6 +85,13 @@ public record ServerConfig(
 		Objects.requireNonNull(args);
 	}
 
+	/// Disposes resources managed by this configuration, in particular the
+	/// library reader registry (if present). The database is **not** closed
+	/// by this method as it could be managed externally.
+	public void dispose() {
+		libraries.ifPresent(LibReaderRegistry::dispose);
+	}
+
 	public static Builder defaultOf(IDatabase db) {
 		return new Builder(db);
 	}
@@ -304,6 +311,11 @@ public record ServerConfig(
 			return this;
 		}
 
+		/// Sets a library registry for the server. In contrast to the given
+		/// database, this registry is **closed** when the server stops. This is
+		/// done, because if no such registry is provided, it is created by default
+		/// if the database links to libraries and there is no distinction whether
+		/// if was provided or auto-created.
 		public Builder withLibraries(LibReaderRegistry libraries) {
 			this.libraries = libraries;
 			return this;
