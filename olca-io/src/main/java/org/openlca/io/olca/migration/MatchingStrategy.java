@@ -134,8 +134,9 @@ public enum MatchingStrategy {
 	}
 
 	private static boolean skipSegment(String segment) {
-		// TODO: filter all possible system models
 		return "apos".equals(segment)
-			|| "cutoff".equals(segment);
+			|| "cutoff".equals(segment)
+			|| "consequential".equals(segment)
+			|| "en15804gd".equals(segment);
 	}
 }
