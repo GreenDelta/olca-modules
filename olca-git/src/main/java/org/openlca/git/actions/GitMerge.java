@@ -128,8 +128,8 @@ public class GitMerge extends GitProgressAction<MergeResult> {
 		var update = repo.updateRef(Constants.LOCAL_BRANCH);
 		update.setNewObjectId(ObjectId.fromString(remoteCommit.id));
 		update.update();
-		progressMonitor.beginTask("Updating local index");
-		repo.index.reload();
+		progressMonitor.beginTask("Reloading caches");
+		repo.refresh();
 	}
 
 	public static enum MergeResult {

@@ -83,7 +83,7 @@ public class DbCommitWriter extends CommitWriter {
 			var commitId = write(message, changeIterator, parentCommitIds);
 			if (Constants.HEAD.equals(ref)) {
 				progressMonitor.beginTask("Updating local index");
-				repo.index.reload();
+				repo.refresh();
 			}
 			return commitId;
 		} finally {

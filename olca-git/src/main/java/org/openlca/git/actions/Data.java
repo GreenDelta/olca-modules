@@ -72,8 +72,8 @@ class Data {
 		merged.addAll(doImport());
 		merged.addAll(doDelete());
 		libraries.unmountObsolete();
-		progressMonitor.beginTask("Reloading descriptors");
-		repo.descriptors.reload();
+		progressMonitor.beginTask("Reloading caches");
+		repo.refresh();
 		return merged;
 	}
 

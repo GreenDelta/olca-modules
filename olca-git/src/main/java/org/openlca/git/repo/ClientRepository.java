@@ -64,5 +64,12 @@ public class ClientRepository extends OlcaRepository {
 			return date.getTime();
 		}
 	}
+	
+	public void refresh() {
+		getRefDatabase().refresh();
+		database.clearCache();
+		descriptors.reload();
+		index.reload();
+	}
 
 }
