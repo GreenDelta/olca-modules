@@ -199,28 +199,12 @@ class ProcessConverter {
 	private void mapExchanges(DataSet ds) {
 		var qRef = process.quantitativeReference;
 		for (var e : process.exchanges) {
-			if (e.flow == null)
+			var ix = ExportFlow.of(e, ds, flowMap).orElse(null);
+			if (ix == null)
 				continue;
+
+
 			boolean isQRef = e.equals(qRef);
-
-			var ix = ds.withExchange();
-			ix.setNumber((int) e.id);
-
-			// resolve flow mapping
-			var mapping = e.flow.refId != null
-				? flowMap.get(e.flow.refId)
-				: null;
-			double factor = mapping != null
-				? mapping.factor()
-				: 1.0;
-
-			// name
-			if (mapping != null && mapping.targetFlow() != null
-				&& mapping.targetFlow().flow != null) {
-				ix.setName(mapping.targetFlow().flow.name);
-			} else {
-				ix.setName(flowNames.of(process, e));
-			}
 
 			// input/output group
 			if (Exchanges.isProviderFlow(e)) {
@@ -233,13 +217,7 @@ class ProcessConverter {
 				ix.setOutputGroup(4);
 			}
 
-			// category
-			if (mapping != null && mapping.targetFlow() != null
-				&& mapping.targetFlow().flowCategory != null) {
-				Categories.map(mapping.targetFlow().flowCategory, ix);
-			} else {
-				Categories.map(e.flow.category, ix);
-			}
+
 
 			Util.mapFlowInformation(ix, e.flow);
 

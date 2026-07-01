@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.openlca.core.io.maps.FlowMapEntry;
-import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
@@ -65,20 +64,9 @@ class MethodConverter {
 	}
 
 	private void mapLCIAFactor(ImpactFactor factor, DataSet ds) {
-		var e = ExportFlow.of(factor, flowMap, ds).orElse(null);
+		var e = ExportFlow.of(factor, ds, flowMap).orElse(null);
 		if (e == null)
 			return;
-
-		Flow flow = factor.flow;
-
-		// resolve flow mapping
-		var mapping = flow.refId != null
-			? flowMap.get(flow.refId)
-			: null;
-		double f = mapping != null
-			? mapping.factor()
-			: 1.0;
-
 
 
 		Util.mapFlowInformation(e, factor.flow);
