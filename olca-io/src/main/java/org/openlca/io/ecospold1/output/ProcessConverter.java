@@ -1,8 +1,11 @@
 package org.openlca.io.ecospold1.output;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 
 import org.openlca.commons.Strings;
+import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
@@ -24,6 +27,7 @@ class ProcessConverter {
 	private final Process process;
 	private final EcoSpold1Config config;
 	private final FlowNameFormatter flowNames;
+	private final Map<String, FlowMapEntry> flowMap;
 
 	static IDataSet convert(
 		Process process, EcoSpold1Config config, FlowNameFormatter flowNames) {
@@ -35,6 +39,9 @@ class ProcessConverter {
 		this.process = process;
 		this.config = config;
 		this.flowNames = flowNames;
+		this.flowMap = config.flowMap != null
+			? config.flowMap.index()
+			: Collections.emptyMap();
 	}
 
 	private IDataSet doIt() {
@@ -195,9 +202,25 @@ class ProcessConverter {
 			if (e.flow == null)
 				continue;
 			boolean isQRef = e.equals(qRef);
+
 			var ix = ds.withExchange();
 			ix.setNumber((int) e.id);
-			ix.setName(flowNames.of(process, e));
+
+			// resolve flow mapping
+			var mapping = e.flow.refId != null
+				? flowMap.get(e.flow.refId)
+				: null;
+			double factor = mapping != null
+				? mapping.factor()
+				: 1.0;
+
+			// name
+			if (mapping != null && mapping.targetFlow() != null
+				&& mapping.targetFlow().flow != null) {
+				ix.setName(mapping.targetFlow().flow.name);
+			} else {
+				ix.setName(flowNames.of(process, e));
+			}
 
 			// input/output group
 			if (Exchanges.isProviderFlow(e)) {
@@ -210,16 +233,32 @@ class ProcessConverter {
 				ix.setOutputGroup(4);
 			}
 
-			Categories.map(e.flow.category, ix);
+			// category
+			if (mapping != null && mapping.targetFlow() != null
+				&& mapping.targetFlow().flowCategory != null) {
+				Categories.map(mapping.targetFlow().flowCategory, ix);
+			} else {
+				Categories.map(e.flow.category, ix);
+			}
+
 			Util.mapFlowInformation(ix, e.flow);
-			if (e.unit != null) {
+
+			// unit
+			if (mapping != null && mapping.targetFlow() != null
+				&& mapping.targetFlow().unit != null
+				&& mapping.targetFlow().unit.name != null) {
+				ix.setUnit(mapping.targetFlow().unit.name);
+			} else if (e.unit != null) {
 				ix.setUnit(e.unit.name);
 			}
+
+			// amount with conversion factor
 			if (e.uncertainty == null) {
-				ix.setMeanValue(e.amount);
+				ix.setMeanValue(e.amount * factor);
 			} else {
-				mapUncertainty(e, ix);
+				mapUncertainty(e, ix, factor);
 			}
+
 			mapComment(e, ix);
 			if (isQRef) {
 				mapRefFlow(ds, e, ix);
@@ -268,36 +307,36 @@ class ProcessConverter {
 		}
 	}
 
-	private void mapUncertainty(Exchange oExchange, IExchange e) {
-		Uncertainty uncertainty = oExchange.uncertainty;
-		if (uncertainty == null || uncertainty.distributionType == null)
+	private void mapUncertainty(Exchange o, IExchange e, double factor) {
+		var u = o.uncertainty;
+		if (u == null || u.distributionType == null)
 			return;
-		switch (uncertainty.distributionType) {
+		switch (u.distributionType) {
 			case NORMAL -> {
-				e.setMeanValue(uncertainty.parameter1);
-				e.setStandardDeviation95(uncertainty.parameter2 * 2);
+				e.setMeanValue(u.parameter1 * factor);
+				e.setStandardDeviation95(u.parameter2 * 2 * factor);
 				e.setUncertaintyType(2);
 			}
 			case LOG_NORMAL -> {
-				e.setMeanValue(uncertainty.parameter1);
-				double sd = uncertainty.parameter2;
+				e.setMeanValue(u.parameter1 * factor);
+				double sd = u.parameter2;
 				e.setStandardDeviation95(Math.pow(sd, 2));
 				e.setUncertaintyType(1);
 			}
 			case TRIANGLE -> {
-				e.setMinValue(uncertainty.parameter1);
-				e.setMostLikelyValue(uncertainty.parameter2);
-				e.setMaxValue(uncertainty.parameter3);
-				e.setMeanValue(oExchange.amount);
+				e.setMinValue(u.parameter1 * factor);
+				e.setMostLikelyValue(u.parameter2 * factor);
+				e.setMaxValue(u.parameter3 * factor);
+				e.setMeanValue(o.amount * factor);
 				e.setUncertaintyType(3);
 			}
 			case UNIFORM -> {
-				e.setMinValue(uncertainty.parameter1);
-				e.setMaxValue(uncertainty.parameter2);
-				e.setMeanValue(oExchange.amount);
+				e.setMinValue(u.parameter1 * factor);
+				e.setMaxValue(u.parameter2 * factor);
+				e.setMeanValue(o.amount * factor);
 				e.setUncertaintyType(4);
 			}
-			default -> e.setMeanValue(oExchange.amount);
+			default -> e.setMeanValue(o.amount * factor);
 		}
 	}
 

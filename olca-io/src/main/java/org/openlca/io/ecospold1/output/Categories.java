@@ -38,4 +38,23 @@ final class Categories {
 			exchange.setLocalSubCategory(category.name);
 		}
 	}
+
+	/// Maps a category path string (e.g. "air/unspecified") to an EcoSpold 1
+	/// exchange. The path is split by "/" into category and sub-category.
+	static void map(String path, IExchange e) {
+		if (path == null || e == null)
+			return;
+		int idx = path.indexOf('/');
+		if (idx < 0) {
+			e.setCategory(path);
+			e.setLocalCategory(path);
+		} else {
+			var cat = path.substring(0, idx).trim();
+			var sub = path.substring(idx + 1).trim();
+			e.setCategory(cat);
+			e.setLocalCategory(cat);
+			e.setSubCategory(sub);
+			e.setLocalSubCategory(sub);
+		}
+	}
 }
