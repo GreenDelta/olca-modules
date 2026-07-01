@@ -8,6 +8,7 @@ import java.util.Date;
 
 import org.openlca.commons.Res;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.io.maps.FlowMap;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.Process;
 import org.openlca.ecospold.model.IDataSet;
@@ -112,6 +113,8 @@ public class EcoSpold1Export implements Closeable {
 		boolean withTypeSuffixes;
 		boolean withProcessSuffixes;
 
+		FlowMap flowMap;
+
 		EcoSpold1Config(IDatabase db) {
 			this.db = db;
 		}
@@ -192,6 +195,11 @@ public class EcoSpold1Export implements Closeable {
 
 		public boolean isWithProcessSuffixes() {
 			return withProcessSuffixes;
+		}
+
+		public EcoSpold1Config withFlowMap(FlowMap flowMap) {
+			this.flowMap = flowMap;
+			return this;
 		}
 
 		public Res<EcoSpold1Export> create() {

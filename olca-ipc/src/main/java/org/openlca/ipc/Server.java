@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 
 import org.openlca.commons.Strings;
-import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.services.JsonResultService;
 import org.openlca.core.services.ServerConfig;
 import org.openlca.ipc.handlers.DataHandler;

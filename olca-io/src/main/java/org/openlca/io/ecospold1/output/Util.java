@@ -7,6 +7,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
@@ -55,19 +56,28 @@ class Util {
 	}
 
 	static void mapFlowInformation(IExchange e, Flow flow) {
+		if (e == null || flow == null)
+			return;
+
 		if (Strings.isNotBlank(flow.casNumber)) {
 			e.setCASNumber(flow.casNumber);
 		}
 		e.setFormula(flow.formula);
-		e.setInfrastructureProcess(flow.infrastructureFlow);
-		if (flow.location != null) {
-			if (flow.location.code != null) {
-				e.setLocation(flow.location.code);
-			} else if (flow.location.name != null) {
-				e.setLocation(flow.location.name);
-			}
+
+		if (flow.flowType == FlowType.ELEMENTARY_FLOW)
+			return;
+
+		if (flow.infrastructureFlow) {
+			// only set it, if it is explicitly true
+			e.setInfrastructureProcess(true);
 		}
-		e.setInfrastructureProcess(flow.infrastructureFlow);
+
+		if (flow.location != null) {
+			var code = Strings.isNotBlank(flow.location.code)
+				? flow.location.code
+				: flow.location.name;
+			e.setLocation(code);
+		}
 	}
 
 	static int personOf(Actor actor, DataSet ds) {
