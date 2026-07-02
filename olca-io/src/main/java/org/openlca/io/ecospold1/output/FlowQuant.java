@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import org.openlca.commons.Strings;
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.io.maps.FlowRef;
+import org.openlca.core.math.ReferenceAmount;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
@@ -99,12 +100,25 @@ sealed interface FlowQuant {
 		@NonNull FlowMapEntry e,
 		@NonNull Flow flow,
 		@NonNull Unit unit,
-		FlowPropertyFactor fpf
+		FlowPropertyFactor property
 	) {
-		var def = DefUnit.of(e, flow);
-		return def != null
-			? e.factor() * def.factor(unit, fpf)
-			: e.factor();
+		// factor for converting the current amount into the reference unit
+		var refFactor = ReferenceAmount.get(1, unit, property);
+
+		var defUnit = DefUnit.of(e, flow);
+
+		// when no unit is defined for the mapping, we assume it is defined for
+		// the reference unit of the flow
+		if (defUnit == null)
+			return refFactor;
+
+		// then, we need to convert the reference amount into the unit for which
+		// the mapping was defined; that is applying the inverse of the factor
+		// for converting it to the reference amount
+		var defFactor = ReferenceAmount.get(1, defUnit.unit, defUnit.property);
+		return defFactor != 0
+			? refFactor / defFactor
+			: 0;
 	}
 
 	/// The unit of the source flow for which the conversion factor of a flow
@@ -146,30 +160,6 @@ sealed interface FlowQuant {
 			return Strings.equalsIgnoreCase(d.refId, e.refId)
 				|| Strings.equalsIgnoreCase(d.name, e.name);
 		}
-
-		double factor(Unit otherUnit, @Nullable FlowPropertyFactor otherProperty) {
-			double uf = nullEq(this.unit, otherUnit) || this.unit.conversionFactor == 0
-				? 1
-				: otherUnit.conversionFactor / this.unit.conversionFactor;
-			if (otherProperty == null
-				|| otherProperty.conversionFactor == 0
-				|| nullEq(this.property.flowProperty, otherProperty.flowProperty)) {
-				return uf;
-			}
-			return uf * this.property.conversionFactor
-				/ otherProperty.conversionFactor;
-		}
-
-
-		private static boolean nullEq(
-			RefEntity thisEntity, @Nullable RefEntity otherEntity
-		) {
-			if (otherEntity == null)
-				return true;
-			return Strings.equalsIgnoreCase(thisEntity.refId, otherEntity.refId)
-				|| Strings.equalsIgnoreCase(thisEntity.name, otherEntity.name);
-		}
-
 	}
 
 	record ExchangeQuant(

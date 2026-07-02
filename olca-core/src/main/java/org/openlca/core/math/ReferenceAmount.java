@@ -1,5 +1,6 @@
 package org.openlca.core.math;
 
+import org.jspecify.annotations.Nullable;
 import org.openlca.core.model.AbstractExchange;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ProductSystem;
@@ -37,22 +38,38 @@ public final class ReferenceAmount {
 	/**
 	 * Get the reference amount of the given exchange.
 	 */
-	public static double get(AbstractExchange e) {
-		if (e == null)
-			return 0;
-		return get(e.amount, e.unit, e.flowPropertyFactor);
+	public static double get(@Nullable AbstractExchange e) {
+		return e != null
+			? get(e.amount, e.unit, e.flowPropertyFactor)
+			: 0;
 	}
 
-	public static double get(double amount, Unit unit,
-		FlowPropertyFactor factor) {
-		double refAmount = amount;
-		if (unit != null) {
-			refAmount = refAmount * unit.conversionFactor;
-		}
-		if (factor != null) {
-			refAmount = refAmount / factor.conversionFactor;
-		}
-		return refAmount;
-	}
+	/// Converts the given amount from its current unit and flow property
+	/// into the reference unit of the reference flow property.
+	///
+	/// The conversion follows the formula:
+	///
+	/// ```
+	/// (amount * unitFactor) / propertyFactor
+	/// ```
+	///
+	/// If the unit or property is `null`, they are treated as already being in
+	/// the reference state.
+	public static double get(
+		double amount,
+		@Nullable Unit unit,
+		@Nullable FlowPropertyFactor property
+	) {
 
+		double refAmount = unit != null
+			? amount * unit.conversionFactor
+			: amount;
+
+		if (property == null)
+			return refAmount;
+
+		return property.conversionFactor != 0
+			? refAmount / property.conversionFactor
+			: 0;
+	}
 }
