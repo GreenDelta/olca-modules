@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.ImpactFactor;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.ecospold.EcoSpold;
 import org.openlca.ecospold.model.IEcoSpold;
@@ -35,7 +34,7 @@ class MethodConverter {
 		for (var indicator : method.impactCategories) {
 			var ds = spold.newDataSet();
 			Util.setDataSetAttributes(ds, method);
-			mapLCIACategory(indicator, ds);
+			mapIndicator(indicator, ds);
 			var refFun = ds.withReferenceFunction();
 			refFun.setCategory(method.name);
 			refFun.setGeneralComment(Util.comment(indicator, config));
@@ -46,44 +45,22 @@ class MethodConverter {
 		return spold;
 	}
 
-	private void mapLCIACategory(ImpactCategory category, DataSet ds) {
+	private void mapIndicator(ImpactCategory indicator, DataSet ds) {
 		var refFun = ds.withReferenceFunction();
-		String subCategory = category.name;
+		var subCategory = indicator.name;
 		String name = null;
-		if (subCategory.contains("-")) {
+		if (subCategory != null && subCategory.contains("-")) {
 			String[] parts = subCategory.split("-", 2);
 			subCategory = parts[0].trim();
 			name = parts[1].trim();
 		}
 		refFun.setSubCategory(subCategory);
 		refFun.setName(name);
-		refFun.setUnit(category.referenceUnit);
-		for (var f : category.impactFactors) {
-			mapLCIAFactor(f, ds);
+		refFun.setUnit(indicator.referenceUnit);
+
+		// add impact factors
+		for (var f : indicator.impactFactors) {
+			ExportFlow.of(f, ds, flowMap);
 		}
 	}
-
-	private void mapLCIAFactor(ImpactFactor factor, DataSet ds) {
-		var e = ExportFlow.of(factor, ds, flowMap).orElse(null);
-		if (e == null)
-			return;
-
-
-		Util.mapFlowInformation(e, factor.flow);
-
-		// unit
-		if (mapping != null && mapping.targetFlow() != null
-			&& mapping.targetFlow().unit != null
-			&& mapping.targetFlow().unit.name != null) {
-			e.setUnit(mapping.targetFlow().unit.name);
-		} else {
-			e.setUnit(factor.unit.name);
-		}
-
-		e.setMeanValue(factor.value * f);
-	}
-
-
-
-
 }

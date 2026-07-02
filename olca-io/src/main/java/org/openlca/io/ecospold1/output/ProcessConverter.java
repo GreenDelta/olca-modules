@@ -199,7 +199,7 @@ class ProcessConverter {
 	private void mapExchanges(DataSet ds) {
 		var qRef = process.quantitativeReference;
 		for (var e : process.exchanges) {
-			var ix = ExportFlow.of(e, ds, flowMap).orElse(null);
+			var ix = ExportFlow.of(e, ds, flowMap);
 			if (ix == null)
 				continue;
 
@@ -215,19 +215,6 @@ class ProcessConverter {
 				ix.setInputGroup(4);
 			} else {
 				ix.setOutputGroup(4);
-			}
-
-
-
-			Util.mapFlowInformation(ix, e.flow);
-
-			// unit
-			if (mapping != null && mapping.targetFlow() != null
-				&& mapping.targetFlow().unit != null
-				&& mapping.targetFlow().unit.name != null) {
-				ix.setUnit(mapping.targetFlow().unit.name);
-			} else if (e.unit != null) {
-				ix.setUnit(e.unit.name);
 			}
 
 			// amount with conversion factor

@@ -1,131 +1,113 @@
 package org.openlca.io.ecospold1.output;
 
 import java.util.Map;
-import java.util.Optional;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.openlca.commons.Strings;
 import org.openlca.core.io.maps.FlowMapEntry;
-import org.openlca.core.io.maps.FlowRef;
 import org.openlca.core.model.Exchange;
-import org.openlca.core.model.Flow;
-import org.openlca.core.model.FlowPropertyFactor;
+import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactFactor;
-import org.openlca.core.model.Unit;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 
 class ExportFlow {
 
-	private final Flow flow;
-	private final FlowRef mapping;
-	private final double factor;
 	private final IExchange exchange;
+	private final FlowQuant quant;
 
-	private ExportFlow(Flow flow, IExchange e, MappingFactor mf) {
-		this.flow = flow;
-		this.exchange = e;
-		this.mapping = mf != null ? mf.flowRef : null;
-		this.factor = mf != null ? mf.value : 1.0;
+	private ExportFlow(
+		@NonNull IExchange exchange, @NonNull FlowQuant quant) {
+		this.exchange = exchange;
+		this.quant = quant;
 	}
 
-	static Optional<IExchange> of(
-		ImpactFactor f, DataSet ds, Map<String, FlowMapEntry> mappings
+	@Nullable
+	static IExchange of(
+		ImpactFactor factor, DataSet ds, Map<String, FlowMapEntry> mappings
 	) {
-		if (f == null || f.flow == null || ds == null)
-			return Optional.empty();
-		var e = ds.withExchange();
-		e.setNumber((int) f.id);
-		var mf = MappingFactor.of(f, mappings).orElse(null);
-		new ExportFlow(f.flow, e, mf).fill();
-		return Optional.of(e);
+		var quant = FlowQuant.of(factor, mappings);
+		return quant != null
+			? new ExportFlow(ds.withExchange(), quant).fill()
+			: null;
 	}
 
-	static Optional<IExchange> of(
+	@Nullable
+	static IExchange of(
 		Exchange exchange, DataSet ds, Map<String, FlowMapEntry> mappings
 	) {
-		if (exchange == null || exchange.flow == null || ds == null)
-			return Optional.empty();
-		var e = ds.withExchange();
-		e.setNumber((int) exchange.id);
-		var mf = MappingFactor.of(exchange, mappings).orElse(null);
-		new ExportFlow(exchange.flow, e, mf).fill();
-		return Optional.of(e);
+		var quant = FlowQuant.of(exchange, mappings);
+		return quant != null
+			? new ExportFlow(ds.withExchange(), quant).fill()
+			: null;
 	}
 
-	private void fill() {
+	private IExchange fill() {
 		exchange.setName(name());
+		exchange.setMeanValue(amount());
+		exchange.setUnit(unit());
 		fillCategory();
-	}
-
-	private void fillCategory() {
-		if (mapping != null && Strings.isNotBlank(mapping.flowCategory)) {
-			Categories.map(mapping.flowCategory, exchange);
-		} else {
-			Categories.map(flow.category, exchange);
-		}
+		fillFlowAttributes();
+		return exchange;
 	}
 
 	private String name() {
-		if (mapping != null
-			&& mapping.flow != null
-			&& Strings.isNotBlank(mapping.flow.name)) {
-			return mapping.flow.name;
+		var m = quant.mapping();
+		if (m != null
+			&& m.flow != null
+			&& Strings.isNotBlank(m.flow.name)) {
+			return m.flow.name;
 		}
-		return flow.name;
+		return quant.flow().name;
 	}
 
 	private String unit() {
-		if (mapping != null
-		&& mapping.unit != null
-		&& Strings.isNotBlank(mapping.unit.name)) {
-			return mapping.unit.name;
+		var m = quant.mapping();
+		if (m != null
+			&& m.unit != null
+			&& Strings.isNotBlank(m.unit.name)) {
+			return m.unit.name;
 		}
-		return
+		return quant.unit().name;
 	}
 
-	private record MappingFactor(FlowRef flowRef, double value) {
+	private double amount() {
+		return quant.mapping() != null
+			? quant.factor() * quant.amount()
+			: quant.amount();
+	}
 
-		static Optional<MappingFactor> of(
-			ImpactFactor f, Map<String, FlowMapEntry> mappings
-		) {
-			if (f == null || f.flow == null || mappings == null)
-				return Optional.empty();
-			var entry = mappings.get(f.flow.refId);
-			if (skip(entry))
-				return Optional.empty();
-			double factor = factorOf(entry, f.unit, f.flowPropertyFactor);
-			if (factor == 0)
-				return Optional.empty();
-			return Optional.of(new MappingFactor(entry.targetFlow(), 1 / factor));
-		}
-
-		static Optional<MappingFactor> of(
-			Exchange e, Map<String, FlowMapEntry> mappings
-		) {
-			if (e == null || e.flow == null || mappings == null)
-				return Optional.empty();
-			var entry = mappings.get(e.flow.refId);
-			if (skip(entry))
-				return Optional.empty();
-			double factor = factorOf(entry, e.unit, e.flowPropertyFactor);
-			return factor == 0
-				? Optional.empty()
-				: Optional.of(new MappingFactor(entry.targetFlow(), factor));
-		}
-
-		private static double factorOf(
-			FlowMapEntry e, Unit unit, FlowPropertyFactor fpf
-		) {
-			double f = e.factor();
-
-			// TODO: we need to check and may convert units here!
-			return f;
-		}
-
-		private static boolean skip(FlowMapEntry e) {
-			return e == null
-				|| e.targetFlow() == null
-				|| e.targetFlow().flow == null;
+	private void fillCategory() {
+		var m = quant.mapping();
+		if (m != null && Strings.isNotBlank(m.flowCategory)) {
+			Categories.map(m.flowCategory, exchange);
+		} else {
+			Categories.map(quant.flow().category, exchange);
 		}
 	}
+
+	private void fillFlowAttributes() {
+		var flow = quant.flow();
+		if (Strings.isNotBlank(flow.casNumber)) {
+			exchange.setCASNumber(flow.casNumber);
+		}
+		exchange.setFormula(flow.formula);
+
+		if (flow.flowType == FlowType.ELEMENTARY_FLOW)
+			return;
+
+		if (flow.infrastructureFlow) {
+			// only set it, if it is explicitly true
+			exchange.setInfrastructureProcess(true);
+		}
+
+		if (flow.location != null) {
+			var code = Strings.isNotBlank(flow.location.code)
+				? flow.location.code
+				: flow.location.name;
+			exchange.setLocation(code);
+		}
+	}
+
 }
