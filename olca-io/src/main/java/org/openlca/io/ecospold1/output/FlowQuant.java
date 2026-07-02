@@ -110,14 +110,14 @@ sealed interface FlowQuant {
 		// when no unit is defined for the mapping, we assume it is defined for
 		// the reference unit of the flow
 		if (defUnit == null)
-			return refFactor;
+			return e.factor() * refFactor;
 
 		// then, we need to convert the reference amount into the unit for which
 		// the mapping was defined; that is applying the inverse of the factor
 		// for converting it to the reference amount
 		var defFactor = ReferenceAmount.get(1, defUnit.unit, defUnit.property);
 		return defFactor != 0
-			? refFactor / defFactor
+			? e.factor() * refFactor / defFactor
 			: 0;
 	}
 
