@@ -10,6 +10,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
 
 /// Process exchanges and characterization factors are flow quantities that are
@@ -29,6 +30,9 @@ sealed interface FlowQuant {
 
 	@NonNull
 	Unit unit();
+
+	@Nullable
+	Uncertainty uncertainty();
 
 	/// Describes a possible target flow, if a flow mapping is applied for this
 	/// flow.
@@ -95,7 +99,6 @@ sealed interface FlowQuant {
 		return f;
 	}
 
-
 	record ExchangeQuant(
 		Exchange value,
 		FlowRef mapping,
@@ -120,6 +123,11 @@ sealed interface FlowQuant {
 		@Override
 		public Unit unit() {
 			return value.unit;
+		}
+
+		@Override
+		public @Nullable Uncertainty uncertainty() {
+			return value.uncertainty;
 		}
 	}
 
@@ -147,6 +155,11 @@ sealed interface FlowQuant {
 		@Override
 		public Unit unit() {
 			return value.unit;
+		}
+
+		@Override
+		public @Nullable Uncertainty uncertainty() {
+			return value.uncertainty;
 		}
 	}
 }

@@ -9,6 +9,7 @@ import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.UncertaintyType;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 
@@ -23,14 +24,13 @@ class ExportFlow {
 		this.quant = quant;
 	}
 
-	@Nullable
-	static IExchange of(
+	static void of(
 		ImpactFactor factor, DataSet ds, Map<String, FlowMapEntry> mappings
 	) {
 		var quant = FlowQuant.of(factor, mappings);
-		return quant != null
-			? new ExportFlow(ds.withExchange(), quant).fill()
-			: null;
+		if (quant != null) {
+			new ExportFlow(ds.withExchange(), quant).fill();
+		}
 	}
 
 	@Nullable
@@ -49,6 +49,7 @@ class ExportFlow {
 		exchange.setUnit(unit());
 		fillCategory();
 		fillFlowAttributes();
+		fillUncertainty();
 		return exchange;
 	}
 
@@ -110,4 +111,54 @@ class ExportFlow {
 		}
 	}
 
+	private void fillUncertainty() {
+		var u = quant.uncertainty();
+		if (u == null
+			|| u.distributionType == null
+			|| u.parameter1 == null
+			|| u.parameter2 == null)
+			return;
+		if (u.distributionType == UncertaintyType.TRIANGLE
+			&& u.parameter3 == null)
+			return;
+
+		var e = exchange;
+
+		switch (u.distributionType) {
+
+			case NORMAL -> {
+				e.setMeanValue(conv(u.parameter1));
+				e.setStandardDeviation95(conv(u.parameter2 * 2));
+				e.setUncertaintyType(2);
+			}
+
+			case LOG_NORMAL -> {
+				e.setMeanValue(conv(u.parameter1));
+				e.setStandardDeviation95(Math.pow(u.parameter2, 2));
+				e.setUncertaintyType(1);
+			}
+
+			case TRIANGLE -> {
+				e.setMinValue(conv(u.parameter1));
+				e.setMostLikelyValue(conv(u.parameter2));
+				e.setMaxValue(conv(u.parameter3));
+				e.setUncertaintyType(3);
+			}
+
+			case UNIFORM -> {
+				e.setMinValue(conv(u.parameter1));
+				e.setMaxValue(conv(u.parameter2));
+				e.setUncertaintyType(4);
+			}
+			default -> {
+			}
+		}
+	}
+
+	private double conv(Double v) {
+		if (v == null) return 0;
+		return quant.mapping() != null
+			? v * quant.factor()
+			: v;
+	}
 }

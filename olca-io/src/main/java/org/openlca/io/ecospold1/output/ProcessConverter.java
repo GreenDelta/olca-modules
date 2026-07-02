@@ -11,7 +11,6 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IDataSet;
@@ -202,11 +201,10 @@ class ProcessConverter {
 			var ix = ExportFlow.of(e, ds, flowMap);
 			if (ix == null)
 				continue;
-
-
-			boolean isQRef = e.equals(qRef);
+			mapComment(e, ix);
 
 			// input/output group
+			boolean isQRef = e.equals(qRef);
 			if (Exchanges.isProviderFlow(e)) {
 				ix.setOutputGroup(isQRef ? 0 : 2);
 			} else if (Exchanges.isLinkable(e)) {
@@ -216,15 +214,6 @@ class ProcessConverter {
 			} else {
 				ix.setOutputGroup(4);
 			}
-
-			// amount with conversion factor
-			if (e.uncertainty == null) {
-				ix.setMeanValue(e.amount * factor);
-			} else {
-				mapUncertainty(e, ix, factor);
-			}
-
-			mapComment(e, ix);
 			if (isQRef) {
 				mapRefFlow(ds, e, ix);
 			}
@@ -261,47 +250,13 @@ class ProcessConverter {
 		return refFun;
 	}
 
-	private void mapComment(Exchange inExchange, IExchange exchange) {
-		if (inExchange.description == null) {
-			exchange.setGeneralComment(inExchange.dqEntry);
-		} else if (inExchange.dqEntry == null) {
-			exchange.setGeneralComment(inExchange.description);
+	private void mapComment(Exchange o, IExchange ex) {
+		if (Strings.isBlank(o.description)) {
+			ex.setGeneralComment(o.dqEntry);
+		} else if (Strings.isBlank(o.dqEntry)) {
+			ex.setGeneralComment(o.description);
 		} else {
-			exchange.setGeneralComment(
-				inExchange.dqEntry + "; " + inExchange.description);
-		}
-	}
-
-	private void mapUncertainty(Exchange o, IExchange e, double factor) {
-		var u = o.uncertainty;
-		if (u == null || u.distributionType == null)
-			return;
-		switch (u.distributionType) {
-			case NORMAL -> {
-				e.setMeanValue(u.parameter1 * factor);
-				e.setStandardDeviation95(u.parameter2 * 2 * factor);
-				e.setUncertaintyType(2);
-			}
-			case LOG_NORMAL -> {
-				e.setMeanValue(u.parameter1 * factor);
-				double sd = u.parameter2;
-				e.setStandardDeviation95(Math.pow(sd, 2));
-				e.setUncertaintyType(1);
-			}
-			case TRIANGLE -> {
-				e.setMinValue(u.parameter1 * factor);
-				e.setMostLikelyValue(u.parameter2 * factor);
-				e.setMaxValue(u.parameter3 * factor);
-				e.setMeanValue(o.amount * factor);
-				e.setUncertaintyType(3);
-			}
-			case UNIFORM -> {
-				e.setMinValue(u.parameter1 * factor);
-				e.setMaxValue(u.parameter2 * factor);
-				e.setMeanValue(o.amount * factor);
-				e.setUncertaintyType(4);
-			}
-			default -> e.setMeanValue(o.amount * factor);
+			ex.setGeneralComment(o.dqEntry + "; " + o.description);
 		}
 	}
 
