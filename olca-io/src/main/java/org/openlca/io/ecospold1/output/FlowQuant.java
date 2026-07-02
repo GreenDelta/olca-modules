@@ -3,15 +3,19 @@ package org.openlca.io.ecospold1.output;
 import java.util.Map;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.openlca.commons.Strings;
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.io.maps.FlowRef;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowPropertyFactor;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.RefEntity;
 import org.openlca.core.model.Uncertainty;
 import org.openlca.core.model.Unit;
+import org.openlca.core.model.descriptors.Descriptor;
 
 /// Process exchanges and characterization factors are flow quantities that are
 /// translated to `exchange` elements in the EcoSpold 1 format. This class is a
@@ -53,7 +57,8 @@ sealed interface FlowQuant {
 		var mapping = mappingOf(exchange.flow, mappings);
 		if (mapping == null)
 			return new ExchangeQuant(exchange, null, 1.0);
-		double f = factorOf(mapping, exchange.unit, exchange.flowPropertyFactor);
+		double f = factorOf(
+			mapping, exchange.flow, exchange.unit, exchange.flowPropertyFactor);
 		return new ExchangeQuant(exchange, mapping.targetFlow(), f);
 	}
 
@@ -66,7 +71,8 @@ sealed interface FlowQuant {
 		var mapping = mappingOf(factor.flow, mappings);
 		if (mapping == null)
 			return new ImpactQuant(factor, null, 1.0);
-		double f = factorOf(mapping, factor.unit, factor.flowPropertyFactor);
+		double f = factorOf(
+			mapping, factor.flow, factor.unit, factor.flowPropertyFactor);
 		// characterization factors are per unit of flow, thus, we also need to
 		// invert a possible unit conversion factor
 		if (f != 0 && f != 1) {
@@ -90,13 +96,80 @@ sealed interface FlowQuant {
 	}
 
 	private static double factorOf(
-		@NonNull FlowMapEntry e, @NonNull Unit unit, FlowPropertyFactor fpf
+		@NonNull FlowMapEntry e,
+		@NonNull Flow flow,
+		@NonNull Unit unit,
+		FlowPropertyFactor fpf
 	) {
-		double f = e.factor();
+		var def = DefUnit.of(e, flow);
+		return def != null
+			? e.factor() * def.factor(unit, fpf)
+			: e.factor();
+	}
+
+	/// The unit of the source flow for which the conversion factor of a flow
+	/// mapping was defined.
+	@NullMarked
+	record DefUnit(Unit unit, FlowPropertyFactor property) {
+
+		@Nullable
+		static DefUnit of(FlowMapEntry e, Flow flow) {
+			var def = e.sourceFlow();
+			if (def == null || def.unit == null)
+				return null;
+			var prop = defPropertyOf(def, flow);
+			if (prop == null || prop.flowProperty.unitGroup == null)
+				return null;
+
+			for (var unit : prop.flowProperty.unitGroup.units) {
+				if (eq(def.unit, unit))
+					return new DefUnit(unit, prop);
+			}
+			return null;
+		}
+
+		@Nullable
+		private static FlowPropertyFactor defPropertyOf(FlowRef ref, Flow flow) {
+			if (ref.property == null)
+				return flow.getReferenceFactor();
+			for (var f : flow.flowPropertyFactors) {
+				if (eq(ref.property, f.flowProperty))
+					return f;
+			}
+			return flow.getReferenceFactor();
+		}
+
+		private static boolean eq(Descriptor d, @Nullable RefEntity e) {
+			if (e == null)
+				return false;
+			// identifying things by name is fine for flow properties & units
+			return Strings.equalsIgnoreCase(d.refId, e.refId)
+				|| Strings.equalsIgnoreCase(d.name, e.name);
+		}
+
+		double factor(Unit otherUnit, @Nullable FlowPropertyFactor otherProperty) {
+			double uf = nullEq(this.unit, otherUnit) || this.unit.conversionFactor == 0
+				? 1
+				: otherUnit.conversionFactor / this.unit.conversionFactor;
+			if (otherProperty == null
+				|| otherProperty.conversionFactor == 0
+				|| nullEq(this.property.flowProperty, otherProperty.flowProperty)) {
+				return uf;
+			}
+			return uf * this.property.conversionFactor
+				/ otherProperty.conversionFactor;
+		}
 
 
-		// TODO: we need to check and may convert units here!
-		return f;
+		private static boolean nullEq(
+			RefEntity thisEntity, @Nullable RefEntity otherEntity
+		) {
+			if (otherEntity == null)
+				return true;
+			return Strings.equalsIgnoreCase(thisEntity.refId, otherEntity.refId)
+				|| Strings.equalsIgnoreCase(thisEntity.name, otherEntity.name);
+		}
+
 	}
 
 	record ExchangeQuant(
