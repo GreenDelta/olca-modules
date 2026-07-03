@@ -44,6 +44,7 @@ class ExportFlow {
 	}
 
 	private IExchange fill() {
+		exchange.setNumber(quant.number());
 		exchange.setName(name());
 		exchange.setMeanValue(amount());
 		exchange.setUnit(unit());
@@ -93,7 +94,9 @@ class ExportFlow {
 		if (Strings.isNotBlank(flow.casNumber)) {
 			exchange.setCASNumber(flow.casNumber);
 		}
-		exchange.setFormula(flow.formula);
+		if (Strings.isNotBlank(flow.formula)) {
+			exchange.setFormula(flow.formula);
+		}
 
 		if (flow.flowType == FlowType.ELEMENTARY_FLOW)
 			return;
