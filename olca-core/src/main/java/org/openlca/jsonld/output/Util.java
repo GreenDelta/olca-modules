@@ -37,24 +37,24 @@ class Util {
 			T entity, JsonExport export
 	) {
 		return (JsonWriter<T>) switch (entity) {
-			case Actor ignored -> new ActorWriter(export);
-			case Currency ignored -> new CurrencyWriter(export);
-			case Epd ignored -> new EpdWriter(export);
-			case FlowProperty ignored -> new FlowPropertyWriter(export);
-			case Flow ignored -> new FlowWriter(export);
-			case ImpactCategory ignored -> new ImpactCategoryWriter(export);
-			case ImpactMethod ignored -> new ImpactMethodWriter(export);
-			case Location ignored -> new LocationWriter(export);
-			case Parameter ignored -> new ParameterWriter(export);
-			case Process ignored -> new ProcessWriter(export);
-			case Result ignored -> new ResultWriter(export);
-			case Source ignored -> new SourceWriter(export);
-			case UnitGroup ignored -> new UnitGroupWriter(export);
-			case SocialIndicator ignored -> new SocialIndicatorWriter(export);
-			case ProductSystem ignored -> new ProductSystemWriter(export);
-			case Project ignored -> new ProjectWriter(export);
-			case DQSystem ignored -> new DQSystemWriter(export);
-			case Unit ignored -> new UnitWriter(export);
+			case Actor _ -> new ActorWriter(export);
+			case Currency _ -> new CurrencyWriter(export);
+			case Epd _ -> new EpdWriter(export);
+			case FlowProperty _ -> new FlowPropertyWriter(export);
+			case Flow _ -> new FlowWriter(export);
+			case ImpactCategory _ -> new ImpactCategoryWriter(export);
+			case ImpactMethod _ -> new ImpactMethodWriter(export);
+			case Location _ -> new LocationWriter(export);
+			case Parameter _ -> new ParameterWriter(export);
+			case Process _ -> new ProcessWriter(export);
+			case Result _ -> new ResultWriter(export);
+			case Source _ -> new SourceWriter(export);
+			case UnitGroup _ -> new UnitGroupWriter(export);
+			case SocialIndicator _ -> new SocialIndicatorWriter(export);
+			case ProductSystem _ -> new ProductSystemWriter(export);
+			case Project _ -> new ProjectWriter(export);
+			case DQSystem _ -> new DQSystemWriter(export);
+			case Unit _ -> new UnitWriter(export);
 			case null, default -> null;
 		};
 	}

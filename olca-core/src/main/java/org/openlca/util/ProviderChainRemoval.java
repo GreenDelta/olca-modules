@@ -28,10 +28,10 @@ public class ProviderChainRemoval {
 		this.outLinks = new HashMap<>();
 		for (var link : system.processLinks) {
 			inLinks.computeIfAbsent(
-							link.processId, $ -> new ArrayList<>())
+							link.processId, _ -> new ArrayList<>())
 					.add(link);
 			outLinks.computeIfAbsent(
-							link.providerId, $ -> new ArrayList<>())
+							link.providerId, _ -> new ArrayList<>())
 					.add(link);
 		}
 	}

@@ -58,7 +58,7 @@ public class SeqMap {
 				continue;
 
 			log.info("scan source table");
-			var map = seqMap.sqs.computeIfAbsent(type, $ -> new TLongLongHashMap());
+			var map = seqMap.sqs.computeIfAbsent(type, _ -> new TLongLongHashMap());
 			sSql.query(q, r -> {
 				var refId = r.getString(2);
 				if (refId == null)

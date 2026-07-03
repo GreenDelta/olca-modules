@@ -230,7 +230,7 @@ public record ParameterUseSearch(IDatabase db) implements UsageSearch {
 				var name = norm(r.getString(1));
 				if (params.contains(name)) {
 					var cx = contexts.computeIfAbsent(
-						name, $ -> new TLongHashSet());
+						name, _ -> new TLongHashSet());
 					cx.add(owner);
 				}
 				return true;

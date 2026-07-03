@@ -100,7 +100,7 @@ public class EvaluationOrder {
 				var deps = dependenciesOf(v);
 				inDegrees.put(v.name(), deps.size());
 				for (var dep : deps) {
-					successors.computeIfAbsent(dep, $ -> new HashSet<>())
+					successors.computeIfAbsent(dep, _ -> new HashSet<>())
 						.add(v.name());
 				}
 			}
@@ -135,7 +135,7 @@ public class EvaluationOrder {
 				if (ss != null) {
 					for (var suc : ss) {
 						inDegrees.compute(
-							suc, ($, num) -> num == null || num == 0 ? 0 : num - 1);
+							suc, (_, num) -> num == null || num == 0 ? 0 : num - 1);
 					}
 				}
 			}
@@ -158,7 +158,7 @@ public class EvaluationOrder {
 			int i = 0;
 			for (var id = unordered.iterator().next(); id != null; id = nextDepOf(id)) {
 				msg.append('\n')
-					.append(" ".repeat(i))
+					.repeat(" ", i)
 					.append(" -> ")
 					.append(id.value());
 				if (visited.contains(id) || i > 9) {

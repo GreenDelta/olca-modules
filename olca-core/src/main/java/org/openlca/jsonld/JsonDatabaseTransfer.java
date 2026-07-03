@@ -49,7 +49,7 @@ public class JsonDatabaseTransfer {
 	public JsonDatabaseTransfer add(ModelType type, String refId) {
 		if (type == null || refId == null)
 			return this;
-		var ids = transfers.computeIfAbsent(type, $ -> new HashSet<>());
+		var ids = transfers.computeIfAbsent(type, _ -> new HashSet<>());
 		ids.add(refId);
 		return this;
 	}

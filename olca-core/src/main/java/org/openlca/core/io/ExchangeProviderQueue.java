@@ -61,7 +61,7 @@ public class ExchangeProviderQueue {
 			exchange.defaultProviderId = processId;
 			return;
 		}
-		queue.computeIfAbsent(providerId, $ -> new ArrayList<>())
+		queue.computeIfAbsent(providerId, _ -> new ArrayList<>())
 			.add(exchange);
 	}
 

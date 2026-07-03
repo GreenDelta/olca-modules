@@ -39,28 +39,32 @@ public record Cycle(JsonObject json) implements HestiaObject {
 
 	public Date endDate() {
 		var s = Json.getString(json, "endDate");
+		if (s == null)
+			return null;
 		try {
 			var year = Integer.parseInt(s);
 			var instant = LocalDate.of(year, Month.DECEMBER, 31)
 					.atStartOfDay(ZoneId.systemDefault())
 					.toInstant();
 			return Date.from(instant);
-		} catch (Exception ignored) {
+		} catch (Exception _) {
+			return Json.parseDate(s);
 		}
-		return Json.parseDate(s);
 	}
 
 	public Date startDate() {
 		var s = Json.getString(json, "startDate");
+		if (s == null)
+			return null;
 		try {
 			var year = Integer.parseInt(s);
 			var instant = LocalDate.of(year, Month.JANUARY, 1)
 					.atStartOfDay(ZoneId.systemDefault())
 					.toInstant();
 			return Date.from(instant);
-		} catch (Exception ignored) {
+		} catch (Exception _) {
+			return Json.parseDate(s);
 		}
-		return Json.parseDate(s);
 	}
 
 	public HestiaRef site() {

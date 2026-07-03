@@ -38,7 +38,7 @@ class ImpactDefaultsMap {
 	}
 
 	void markAdded(long impactId, LongPair regioFlow) {
-		added.computeIfAbsent(impactId, $ -> new HashSet<>())
+		added.computeIfAbsent(impactId, _ -> new HashSet<>())
 				.add(regioFlow);
 	}
 

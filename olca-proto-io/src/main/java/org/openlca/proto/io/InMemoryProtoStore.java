@@ -265,7 +265,7 @@ public class InMemoryProtoStore implements ProtoStoreReader, ProtoStoreWriter {
 	}
 
 	private void put(ModelType type, AbstractMessage proto, String id) {
-		var map = store.computeIfAbsent(type, $ -> new HashMap<>());
+		var map = store.computeIfAbsent(type, _ -> new HashMap<>());
 		map.put(id, proto);
 	}
 

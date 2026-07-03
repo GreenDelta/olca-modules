@@ -237,7 +237,7 @@ public class JsonExport {
 		// check visited state
 		if (hasVisited(type, entity.refId))
 			return;
-		visited.computeIfAbsent(type, $ -> new HashSet<>())
+		visited.computeIfAbsent(type, _ -> new HashSet<>())
 				.add(entity.refId);
 
 		if (Strings.isNotBlank(entity.library)) {

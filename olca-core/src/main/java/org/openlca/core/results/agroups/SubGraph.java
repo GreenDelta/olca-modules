@@ -67,7 +67,7 @@ record SubGraph(
 				if (!handled.add(id))
 					continue;
 				var list = linkIdx.computeIfAbsent(
-					link.processId, $ -> new ArrayList<>());
+					link.processId, _ -> new ArrayList<>());
 				list.add(link);
 			}
 
@@ -110,7 +110,7 @@ record SubGraph(
 				for (var link : nextLinks) {
 					if (nodes.contains(link.providerId)) {
 						linkCount++;
-						links.computeIfAbsent(n, $ -> new ArrayList<>()).add(link);
+						links.computeIfAbsent(n, _ -> new ArrayList<>()).add(link);
 					}
 				}
 			}

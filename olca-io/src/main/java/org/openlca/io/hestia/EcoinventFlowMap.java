@@ -1,6 +1,6 @@
 package org.openlca.io.hestia;
 
-import static org.openlca.commons.Strings.*;
+import static org.openlca.commons.Strings.isBlank;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class EcoinventFlowMap {
 			var process = parts[0].trim();
 			var flow = parts[1].trim();
 			var key = (flow + ", " + process).toLowerCase();
-			map.computeIfAbsent(key, $ -> new ArrayList<>()).add(d);
+			map.computeIfAbsent(key, _ -> new ArrayList<>()).add(d);
 		}
 		return map;
 	}

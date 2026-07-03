@@ -219,7 +219,7 @@ public class SmartEpdWriter {
 		) {
 			if (method == null || indicator == null || value == null)
 				return;
-			var list = results.computeIfAbsent(indicator, $ -> new ArrayList<>());
+			var list = results.computeIfAbsent(indicator, _ -> new ArrayList<>());
 			SmartResult result;
 			if (indicator.isImpact()) {
 				result = list.stream()

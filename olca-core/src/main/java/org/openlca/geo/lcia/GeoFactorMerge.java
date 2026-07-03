@@ -55,7 +55,7 @@ public class GeoFactorMerge {
 	private Map<Long, Set<Long>> index(List<ImpactFactor> factors) {
 		var idx = new HashMap<Long, Set<Long>>();
 		for (var f : factors) {
-			idx.computeIfAbsent(id(f.flow), $ -> new HashSet<>())
+			idx.computeIfAbsent(id(f.flow), _ -> new HashSet<>())
 					.add(id(f.location));
 		}
 		return idx;

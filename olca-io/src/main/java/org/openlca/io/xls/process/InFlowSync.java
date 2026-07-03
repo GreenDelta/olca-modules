@@ -111,7 +111,7 @@ class InFlowSync {
 			var flow = row.str(Field.FLOW);
 			var category = row.str(Field.CATEGORY);
 			var key = EntityIndex.flowKeyOf(flow, category);
-			map.computeIfAbsent(key, $ -> new ArrayList<>()).add(factor);
+			map.computeIfAbsent(key, _ -> new ArrayList<>()).add(factor);
 		});
 
 		return map;

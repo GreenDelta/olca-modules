@@ -1,22 +1,6 @@
 package org.openlca.core.database;
 
-import static org.openlca.core.model.ModelType.ACTOR;
-import static org.openlca.core.model.ModelType.CURRENCY;
-import static org.openlca.core.model.ModelType.DQ_SYSTEM;
-import static org.openlca.core.model.ModelType.EPD;
-import static org.openlca.core.model.ModelType.FLOW;
-import static org.openlca.core.model.ModelType.FLOW_PROPERTY;
-import static org.openlca.core.model.ModelType.IMPACT_CATEGORY;
-import static org.openlca.core.model.ModelType.IMPACT_METHOD;
-import static org.openlca.core.model.ModelType.LOCATION;
-import static org.openlca.core.model.ModelType.PARAMETER;
-import static org.openlca.core.model.ModelType.PROCESS;
-import static org.openlca.core.model.ModelType.PRODUCT_SYSTEM;
-import static org.openlca.core.model.ModelType.PROJECT;
-import static org.openlca.core.model.ModelType.RESULT;
-import static org.openlca.core.model.ModelType.SOCIAL_INDICATOR;
-import static org.openlca.core.model.ModelType.SOURCE;
-import static org.openlca.core.model.ModelType.UNIT_GROUP;
+import static org.openlca.core.model.ModelType.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -806,7 +790,7 @@ public class TransDeps {
 	private void put(ModelType type, long id) {
 		if (type == null || id == 0L)
 			return;
-		var ids = refs.computeIfAbsent(type, $ -> new TLongHashSet());
+		var ids = refs.computeIfAbsent(type, _ -> new TLongHashSet());
 		ids.add(id);
 	}
 
@@ -864,8 +848,7 @@ public class TransDeps {
 						ParameterScope.fromString(r.getString(4)),
 						r.getString(5));
 				var list = map.computeIfAbsent(
-						strip(param.name),
-						$ -> new ArrayList<>());
+						strip(param.name), _ -> new ArrayList<>());
 				list.add(param);
 				return true;
 			});

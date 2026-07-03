@@ -45,7 +45,7 @@ class MatrixCache {
 
 	double[] columnOf(LibMatrix m, int j) {
 		var cache = columns.computeIfAbsent(
-			m, $ -> new TIntObjectHashMap<>());
+			m, _ -> new TIntObjectHashMap<>());
 		var cached = cache.get(j);
 		if (cached != null)
 			return cached;
@@ -59,7 +59,7 @@ class MatrixCache {
 
 	void putColumn(LibMatrix m, int j, double[] column) {
 		var cache = columns.computeIfAbsent(
-			m, $ -> new TIntObjectHashMap<>());
+			m, _ -> new TIntObjectHashMap<>());
 		cache.put(j, column);
 	}
 

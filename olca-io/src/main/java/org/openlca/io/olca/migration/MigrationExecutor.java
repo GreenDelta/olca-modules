@@ -58,7 +58,7 @@ public class MigrationExecutor {
 
 			var linkIdx = new HashMap<Long, List<ProcessLink>>();
 			for (var link : origin.processLinks) {
-				linkIdx.computeIfAbsent(link.processId, $ -> new ArrayList<>())
+				linkIdx.computeIfAbsent(link.processId, _ -> new ArrayList<>())
 					.add(link);
 			}
 
