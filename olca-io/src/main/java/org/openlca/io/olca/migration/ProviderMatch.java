@@ -45,7 +45,7 @@ public class ProviderMatch {
 		select(selected, null);
 	}
 
-	ProviderMatch select(
+	public ProviderMatch select(
 		ProviderInfo selected, MatchingStrategy strategy
 	) {
 		if (selected == null) return this;
