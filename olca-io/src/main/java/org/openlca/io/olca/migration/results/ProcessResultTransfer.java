@@ -1,9 +1,6 @@
-package org.openlca.io.olca.migration;
+package org.openlca.io.olca.migration.results;
 
 import java.util.HashMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 
 import org.openlca.commons.Res;
 import org.openlca.core.database.CategoryDao;
@@ -23,7 +20,6 @@ import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
 import org.openlca.core.results.providers.FactorizationSolver;
 import org.openlca.core.results.providers.SolverContext;
-import org.openlca.io.olca.EntityTransfer;
 import org.openlca.io.olca.TransferContext;
 import org.openlca.util.Categories;
 import org.slf4j.Logger;
@@ -78,10 +74,8 @@ public class ProcessResultTransfer {
 			}
 			var locationCodes = new LocationDao(source).getCodes();
 
-			@SuppressWarnings("unchecked")
-			var entityTransfer = (EntityTransfer<Result>) ctx.getTransfer(ModelType.RESULT);
-			var transferTask = new TransferTask(entityTransfer);
-			var transferThread = new Thread(transferTask, "ProcessResultTransfer-thread");
+			var transfer = new TransferTask(ctx);
+			var transferThread = new Thread(transfer, "transfer-thread");
 			transferThread.start();
 
 			var solverCtx = SolverContext.of(source, matrices).withSolver(solver);
@@ -89,9 +83,8 @@ public class ProcessResultTransfer {
 
 			var results = FactorizationSolver.solve(solverCtx);
 			for (int i = 0; i < techIdx.size(); i++) {
-				if (transferTask.error != null) {
+				if (transfer.hasError())
 					break;
-				}
 
 				var techFlow = techIdx.at(i);
 				var flow = source.get(Flow.class, techFlow.flowId());
@@ -124,10 +117,10 @@ public class ProcessResultTransfer {
 					log.info("Created {} results", i);
 				}
 
-				transferTask.put(r);
+				transfer.put(r);
 			}
 
-			transferTask.stop();
+			transfer.stop();
 			try {
 				transferThread.join();
 			} catch (InterruptedException e) {
@@ -135,11 +128,10 @@ public class ProcessResultTransfer {
 				return Res.error("Transfer interrupted", e);
 			}
 
-			if (transferTask.error != null) {
-				return Res.error(transferTask.error);
-			}
+			return transfer.hasError()
+				? Res.error(transfer.error())
+				: Res.ok();
 
-			return Res.ok();
 		} catch (Exception e) {
 			return Res.error("Failed to calculate and transfer database results", e);
 		}
@@ -154,65 +146,4 @@ public class ProcessResultTransfer {
 			source, ModelType.RESULT, path.toArray(new String[0]));
 	}
 
-	private static class TransferTask implements Runnable {
-		private final EntityTransfer<Result> transfer;
-		private final BlockingQueue<Item> queue;
-		private final CountDownLatch latch;
-		private volatile String error;
-
-		TransferTask(EntityTransfer<Result> transfer) {
-			this.transfer = transfer;
-			this.queue = new ArrayBlockingQueue<>(100);
-			this.latch = new CountDownLatch(1);
-		}
-
-		void put(Result result) {
-			try {
-				queue.put(new Item(result));
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				error = "Failed to add Result to transfer queue: " + e.getMessage();
-			}
-		}
-
-		void stop() {
-			try {
-				queue.put(Item.stop());
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
-		}
-
-		@Override
-		public void run() {
-			try {
-				while (true) {
-					if (error != null) {
-						break;
-					}
-					var item = queue.take();
-					if (item.isStop()) {
-						break;
-					}
-					transfer.sync(item.result);
-				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (Exception e) {
-				error = "Database transfer failed: " + e.getMessage();
-			} finally {
-				latch.countDown();
-			}
-		}
-	}
-
-	private record Item(Result result) {
-		static Item stop() {
-			return new Item(null);
-		}
-
-		boolean isStop() {
-			return result == null;
-		}
-	}
 }
