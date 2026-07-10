@@ -1,22 +1,20 @@
 package org.openlca.io.olca.migration.results;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.openlca.commons.Res;
-import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.Demand;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.index.ImpactIndex;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
-import org.openlca.core.matrix.solvers.MatrixSolver;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.core.model.ImpactResult;
-import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Result;
 import org.openlca.core.results.providers.FactorizationSolver;
 import org.openlca.core.results.providers.SolverContext;
@@ -29,76 +27,55 @@ import org.slf4j.LoggerFactory;
 /// assessment method and transfers them to a given target database.
 public class ProcessResultTransfer {
 
-	private static final Logger log = LoggerFactory.getLogger(ProcessResultTransfer.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final IDatabase source;
 	private final ImpactMethod method;
 	private final TransferContext ctx;
 
-	private MatrixSolver solver;
+	private final Map<String, ImpactCategory> indicators;
+	private final Map<Long, String> locationCodes;
 
-	public ProcessResultTransfer(
+	private ProcessResultTransfer(
 		ImpactMethod method, IDatabase source, IDatabase target
 	) {
 		this.source = source;
 		this.method = method;
 		this.ctx = TransferContext.create(source, target);
-	}
-
-	public ProcessResultTransfer withSolver(MatrixSolver solver) {
-		this.solver = solver;
-		return this;
+		locationCodes = new LocationDao(source).getCodes();
+		indicators = new HashMap<>();
+		for (var i : method.impactCategories) {
+			indicators.put(i.refId, i);
+		}
 	}
 
 	public Res<Void> run() {
 		try {
-			var solver = this.solver != null
-				? this.solver
-				: MatrixSolver.get();
 
-			log.info("Build matrix data");
-			var techIdx = TechIndex.of(source);
-			if (techIdx.isEmpty()) {
-				return Res.ok();
-			}
+			log.info("build matrix data");
+			var matrices = buildMatrices();
+			if (matrices == null)
+				return Res.error("Database contains no process data");
+			var techIdx = matrices.techIndex;
 
-			var matrices = MatrixData.of(source, techIdx)
-					.withImpacts(ImpactIndex.of(method))
-					.build();
-			var first = techIdx.at(0);
-			matrices.demand = Demand.of(first, first.isWaste() ? -1 : 1);
-
-			var indicators = new HashMap<String, ImpactCategory>();
-			for (var i : method.impactCategories) {
-				indicators.put(i.refId, i);
-			}
-			var locationCodes = new LocationDao(source).getCodes();
-
+			log.info("initialize transfer");
 			var transfer = new TransferTask(ctx);
 			var transferThread = new Thread(transfer, "transfer-thread");
 			transferThread.start();
 
-			var solverCtx = SolverContext.of(source, matrices).withSolver(solver);
-			log.info("Calculate results with solver {}", solverCtx.solver());
-
+			log.info("calculate results");
+			var solverCtx = SolverContext.of(source, matrices);
 			var results = FactorizationSolver.solve(solverCtx);
+
+			log.info("start result transfer");
 			for (int i = 0; i < techIdx.size(); i++) {
 				if (transfer.hasError())
 					break;
 
 				var techFlow = techIdx.at(i);
-				var flow = source.get(Flow.class, techFlow.flowId());
-
-				var name = techFlow.provider().name.split("\\|")[0].strip()
-					+  " | " + flow.name.strip();
-				var loc = locationCodes.get(techFlow.locationId());
-				if (loc != null) {
-					name += " - " + loc;
-				}
-
-				var r = Result.of(name, flow);
-				r.impactMethod = method;
-				r.category = resultCategoryOf(flow.category);
+				var item = prepareItemOf(techFlow);
+				if (item == null)
+					continue;
 
 				var values = results.totalImpactsOfOne(i);
 				for (int k = 0; k < values.length; k++) {
@@ -110,40 +87,61 @@ public class ProcessResultTransfer {
 					var value = techFlow.isWaste()
 						? -values[k]
 						: values[k];
-					r.impactResults.add(ImpactResult.of(indicator, value));
+					item.add(ImpactResult.of(indicator, value));
 				}
 
 				if (i > 0 && i % 1000 == 0) {
 					log.info("Created {} results", i);
 				}
 
-				transfer.put(r);
+				transfer.put(item);
 			}
 
-			transfer.stop();
-			try {
-				transferThread.join();
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return Res.error("Transfer interrupted", e);
-			}
-
-			return transfer.hasError()
-				? Res.error(transfer.error())
-				: Res.ok();
+			log.info("wait for transfer thread");
+			return finalizeIt(transfer, transferThread);
 
 		} catch (Exception e) {
-			return Res.error("Failed to calculate and transfer database results", e);
+			return Res.error("Failed to calculate and transfer results", e);
 		}
 	}
 
-	// TODO: this will create a category but we want to have it in-memory
-	private Category resultCategoryOf(Category category) {
-		if (category == null)
+	private MatrixData buildMatrices() {
+		var techIdx = TechIndex.of(source);
+		if (techIdx.isEmpty())
 			return null;
-		var path = Categories.path(category);
-		return CategoryDao.sync(
-			source, ModelType.RESULT, path.toArray(new String[0]));
+		var matrices = MatrixData.of(source, techIdx)
+				.withImpacts(ImpactIndex.of(method))
+				.build();
+		var first = techIdx.at(0);
+		matrices.demand = Demand.of(first, first.isWaste() ? -1 : 1);
+		return matrices;
 	}
 
+	private QueueItem prepareItemOf(TechFlow tf) {
+		var flow = source.get(Flow.class, tf.flowId());
+		if (flow == null)
+			return null;
+		var name = tf.provider().name.split("\\|")[0].strip()
+			+  " | " + flow.name.strip();
+		var loc = locationCodes.get(tf.locationId());
+		if (loc != null) {
+			name += " - " + loc;
+		}
+		var r = Result.of(name, flow);
+		r.impactMethod = method;
+		return new QueueItem(r, Categories.path(flow.category));
+	}
+
+	private Res<Void> finalizeIt(TransferTask transfer, Thread thread) {
+		transfer.stop();
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return Res.error("Transfer interrupted", e);
+		}
+		return transfer.hasError()
+			? Res.error(transfer.error())
+			: Res.ok();
+	}
 }
