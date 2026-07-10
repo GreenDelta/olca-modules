@@ -56,7 +56,8 @@ class ImportCache {
 		loc.name = code;
 		imp.db().insert(loc);
 		imp.log().imported(loc);
-		locations.put(code, loc);
+		locations.put(norm(code), loc);
+		locations.put(refId, loc);
 		return loc;
 	}
 
