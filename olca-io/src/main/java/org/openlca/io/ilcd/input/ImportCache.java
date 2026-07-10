@@ -1,6 +1,7 @@
 package org.openlca.io.ilcd.input;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.openlca.commons.Strings;
@@ -24,22 +25,45 @@ class ImportCache {
 	Location locationOf(String code) {
 		if (Strings.isBlank(code))
 			return null;
+
+		// build the location index if not done yet
 		if (locations == null) {
 			locations = new HashMap<>();
-			imp.db().getAll(Location.class).forEach(
-					loc -> locations.put(loc.code, loc));
+			for (var loc : imp.db().getAll(Location.class)) {
+				if (Strings.isNotBlank(loc.code)) {
+					locations.put(norm(loc.code), loc);
+				}
+				if (Strings.isNotBlank(loc.name)) {
+					locations.put(norm(loc.name), loc);
+				}
+				if (Strings.isNotBlank(loc.refId)) {
+					locations.put(norm(loc.refId), loc);
+				}
+			}
 		}
-		var cached = locations.get(code);
+
+		var cached = locations.get(norm(code));
 		if (cached != null)
 			return cached;
+		var refId =  KeyGen.get(code);
+		cached = locations.get(refId);
+		if (cached != null)
+			return cached;
+
 		var loc = new Location();
-		loc.refId = KeyGen.get(code);
+		loc.refId = refId;
 		loc.code = code;
 		loc.name = code;
 		imp.db().insert(loc);
 		imp.log().imported(loc);
 		locations.put(code, loc);
 		return loc;
+	}
+
+	private String norm(String s) {
+		return s != null
+			? s.trim().toLowerCase(Locale.ROOT)
+			: "";
 	}
 
 	/**
