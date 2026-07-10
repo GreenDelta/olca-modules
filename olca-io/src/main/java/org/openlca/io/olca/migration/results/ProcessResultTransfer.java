@@ -51,57 +51,60 @@ public class ProcessResultTransfer {
 
 	public Res<Void> run() {
 		try {
-
 			log.info("build matrix data");
 			var matrices = buildMatrices();
 			if (matrices == null)
 				return Res.error("Database contains no process data");
-			var techIdx = matrices.techIndex;
 
 			log.info("initialize transfer");
 			var transfer = new TransferTask(ctx);
 			var transferThread = new Thread(transfer, "transfer-thread");
 			transferThread.start();
 
-			log.info("calculate results");
-			var solverCtx = SolverContext.of(source, matrices);
-			var results = FactorizationSolver.solve(solverCtx);
-
-			log.info("start result transfer");
-			for (int i = 0; i < techIdx.size(); i++) {
-				if (transfer.hasError())
-					break;
-
-				var techFlow = techIdx.at(i);
-				var item = prepareItemOf(techFlow);
-				if (item == null)
-					continue;
-
-				var values = results.totalImpactsOfOne(i);
-				for (int k = 0; k < values.length; k++) {
-					var d = matrices.impactIndex.at(k);
-					var indicator = indicators.get(d.refId);
-					if (indicator == null) {
-						continue;
-					}
-					var value = techFlow.isWaste()
-						? -values[k]
-						: values[k];
-					item.add(ImpactResult.of(indicator, value));
-				}
-
-				if (i > 0 && i % 1000 == 0) {
-					log.info("Created {} results", i);
-				}
-
-				transfer.put(item);
-			}
+			log.info("produce results");
+			produceResults(matrices, transfer);
 
 			log.info("wait for transfer thread");
 			return finalizeIt(transfer, transferThread);
 
 		} catch (Exception e) {
 			return Res.error("Failed to calculate and transfer results", e);
+		}
+	}
+
+	private void produceResults(MatrixData matrices, TransferTask transfer) {
+		var techIdx = matrices.techIndex;
+		var solverCtx = SolverContext.of(source, matrices);
+		var results = FactorizationSolver.solve(solverCtx);
+
+		log.info("start result transfer");
+		for (int i = 0; i < techIdx.size(); i++) {
+			if (transfer.hasError())
+				break;
+
+			var techFlow = techIdx.at(i);
+			var item = prepareItemOf(techFlow);
+			if (item == null)
+				continue;
+
+			var values = results.totalImpactsOfOne(i);
+			for (int k = 0; k < values.length; k++) {
+				var d = matrices.impactIndex.at(k);
+				var indicator = indicators.get(d.refId);
+				if (indicator == null) {
+					continue;
+				}
+				var value = techFlow.isWaste()
+					? -values[k]
+					: values[k];
+				item.add(ImpactResult.of(indicator, value));
+			}
+
+			if (i > 0 && i % 1000 == 0) {
+				log.info("Created {} results", i);
+			}
+
+			transfer.put(item);
 		}
 	}
 

@@ -50,8 +50,7 @@ class TransferTask implements Runnable {
 				var item = queue.take();
 				if (item.isStop())
 					break;
-				ctx.resolve(item.result());
-
+				item.transfer(ctx);
 			}
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
