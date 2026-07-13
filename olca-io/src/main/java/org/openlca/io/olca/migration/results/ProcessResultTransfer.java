@@ -49,7 +49,15 @@ public class ProcessResultTransfer {
 		}
 	}
 
-	public Res<Void> run() {
+	public static Res<Void> run(
+		ImpactMethod method, IDatabase source, IDatabase target
+	) {
+		return source == null || target == null || method == null
+			? Res.error("Invalid transfer setup; null-data provided")
+			: new ProcessResultTransfer(method, source, target).run();
+	}
+
+	private Res<Void> run() {
 		try {
 			log.info("build matrix data");
 			var matrices = buildMatrices();
@@ -113,8 +121,8 @@ public class ProcessResultTransfer {
 		if (techIdx.isEmpty())
 			return null;
 		var matrices = MatrixData.of(source, techIdx)
-				.withImpacts(ImpactIndex.of(method))
-				.build();
+			.withImpacts(ImpactIndex.of(method))
+			.build();
 		var first = techIdx.at(0);
 		matrices.demand = Demand.of(first, first.isWaste() ? -1 : 1);
 		return matrices;
@@ -125,7 +133,7 @@ public class ProcessResultTransfer {
 		if (flow == null)
 			return null;
 		var name = tf.provider().name.split("\\|")[0].strip()
-			+  " | " + flow.name.strip();
+			+ " | " + flow.name.strip();
 		var loc = locationCodes.get(tf.locationId());
 		if (loc != null) {
 			name += " - " + loc;
