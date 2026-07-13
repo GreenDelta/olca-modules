@@ -105,7 +105,9 @@ public class TransferContext {
 		var saved = targetEntity.id == 0
 			? target.insert(targetEntity)
 			: target.update(targetEntity);
-		seq.put(ModelType.of(targetEntity), sourceId, saved.id);
+		if (sourceId != 0) {
+			seq.put(ModelType.of(targetEntity), sourceId, saved.id);
+		}
 		return saved;
 	}
 
@@ -113,7 +115,7 @@ public class TransferContext {
 	/// Returns `null` if there is no mapping for that entity yet.
 	@SuppressWarnings("unchecked")
 	<T extends RootEntity> T getMapped(T sourceEntity) {
-		if (sourceEntity == null)
+		if (sourceEntity == null || sourceEntity.id == 0)
 			return null;
 		var targetId = seq.get(ModelType.of(sourceEntity), sourceEntity.id);
 		return targetId != 0
