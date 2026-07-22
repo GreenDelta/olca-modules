@@ -28,7 +28,7 @@ public class ExchangeCache {
 		return CacheBuilder.newBuilder().build(loader);
 	}
 
-	public static LoadingCache<Long, List<CalcExchange>> create(CacheContext ctx) {
+	public static LoadingCache<Long, List<CalcExchange>> create(MatrixBuildContext ctx) {
 		var conversions = ctx.conversions();
 		var flows = ctx.flowTable();
 		var loader = new ExchangeLoader(ctx.db(), conversions, flows);

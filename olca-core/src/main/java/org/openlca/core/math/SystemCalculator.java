@@ -9,6 +9,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
+import org.openlca.core.matrix.cache.MatrixBuildContext;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
@@ -32,7 +33,6 @@ public class SystemCalculator {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final int DEFAULT = 0;
 	private final int LAZY = 1;
 	private final int EAGER = 2;
 
@@ -62,7 +62,7 @@ public class SystemCalculator {
 	}
 
 	public LcaResult calculate(CalculationSetup setup) {
-		return solve(setup, DEFAULT);
+		return solve(setup, 0);
 	}
 
 	public LcaResult calculateLazy(CalculationSetup setup) {
@@ -75,10 +75,11 @@ public class SystemCalculator {
 
 	private LcaResult solve(CalculationSetup setup, int type) {
 		log.info("calculate result for {}", setup.target());
+		var ctx = MatrixBuildContext.of(db);
 		var techIndex = TechIndex.of(db, setup);
 		var subs = solveSubSystems(setup, techIndex);
 		log.trace("solved {} sub-systems", subs.size());
-		var data = MatrixData.of(db, techIndex)
+		var data = MatrixData.of(ctx, techIndex)
 				.withSetup(setup)
 				.withSubResults(subs)
 				.build();

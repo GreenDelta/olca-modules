@@ -6,7 +6,7 @@ import java.util.TreeSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.cache.CacheContext;
+import org.openlca.core.matrix.cache.MatrixBuildContext;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -37,7 +37,7 @@ public final class ImpactBuilder {
 	private UMatrix uncertainties;
 
 	private ImpactBuilder(Config config) {
-		this.db = config.db;
+		this.db = config.ctx.db();
 		this.flowIndex = config.flows;
 
 		// if no impact index is set via the configuration,
@@ -61,9 +61,7 @@ public final class ImpactBuilder {
 		}
 
 		withUncertainties = config.withUncertainties;
-		conversions = config.cacheContext != null
-			? config.cacheContext.conversions()
-			: ConversionTable.create(db);
+		conversions = config.ctx.conversions();
 	}
 
 	public static Config of(IDatabase db, EnviIndex flows) {
@@ -300,21 +298,19 @@ public final class ImpactBuilder {
 
 	public static class Config {
 
-		private final IDatabase db;
+		private final MatrixBuildContext ctx;
 		private final EnviIndex flows;
 		private boolean withUncertainties;
 		private FormulaInterpreter interpreter;
 		private ImpactIndex impacts;
-		CacheContext cacheContext;
 
 		private Config(IDatabase db, EnviIndex flows) {
-			this.db = db;
+			this.ctx = MatrixBuildContext.of(db);
 			this.flows = flows;
 		}
 
 		public Config(MatrixConfig conf, EnviIndex flows) {
-			this.db = conf.db;
-			this.cacheContext = conf.cacheContext;
+			this.ctx = conf.context;
 			this.flows = flows;
 			this.withUncertainties = conf.withUncertainties;
 			this.interpreter = conf.interpreter;
@@ -342,7 +338,7 @@ public final class ImpactBuilder {
 		}
 
 		public Config withImpacts(ImpactMethodDescriptor method) {
-			this.impacts = ImpactIndex.of(db, method);
+			this.impacts = ImpactIndex.of(ctx.db(), method);
 			return this;
 		}
 

@@ -7,7 +7,7 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
-public class CacheContext {
+public class MatrixBuildContext {
 
 	private final IDatabase db;
 	private ConversionTable conversions;
@@ -16,12 +16,12 @@ public class CacheContext {
 	private TLongObjectHashMap<LocationDescriptor> locations;
 	private ProviderMap providers;
 
-	private CacheContext(IDatabase db) {
+	private MatrixBuildContext(IDatabase db) {
 		this.db = db;
 	}
 
-	public static CacheContext of(IDatabase db) {
-		return new CacheContext(db);
+	public static MatrixBuildContext of(IDatabase db) {
+		return new MatrixBuildContext(db);
 	}
 
 	public IDatabase db() {

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.cache.CacheContext;
+import org.openlca.core.matrix.cache.MatrixBuildContext;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
@@ -20,7 +20,7 @@ import org.openlca.expressions.FormulaInterpreter;
 
 public class MatrixConfig {
 
-	public final IDatabase db;
+	public final MatrixBuildContext context;
 	public final TechIndex techIndex;
 	public final TechLinker linker;
 	public final Demand demand;
@@ -36,11 +36,9 @@ public class MatrixConfig {
 	public final Map<TechFlow, LcaResult> subResults;
 	public final ImpactIndex impactIndex;
 	public final FormulaInterpreter interpreter;
-	public final CacheContext cacheContext;
 
 	private MatrixConfig(Builder builder) {
-		this.db = builder.db;
-		this.cacheContext = CacheContext.of(builder.db);
+		this.context = builder.context;
 		this.demand = builder.demand;
 		this.techIndex = builder.techIndex;
 		linker = techIndex.hasLinks()
@@ -60,7 +58,7 @@ public class MatrixConfig {
 			? builder.redefs
 			: Collections.emptyList();
 		interpreter = ParameterTable.interpreter(
-			db, contexts, redefs);
+			context.db(), contexts, redefs);
 
 		// optional settings
 		withUncertainties = builder.withUncertainties;
@@ -75,12 +73,16 @@ public class MatrixConfig {
 	}
 
 	public static Builder of(IDatabase db, TechIndex techIndex) {
-		return new Builder(db, techIndex);
+		return of(MatrixBuildContext.of(db), techIndex);
+	}
+
+	public static Builder of(MatrixBuildContext ctx, TechIndex techIndex) {
+		return new Builder(ctx, techIndex);
 	}
 
 	boolean hasAllocation() {
 		return allocationMethod != null
-					 && allocationMethod != AllocationMethod.NONE;
+			&& allocationMethod != AllocationMethod.NONE;
 	}
 
 	boolean hasImpacts() {
@@ -89,7 +91,7 @@ public class MatrixConfig {
 
 	public static class Builder {
 
-		private final IDatabase db;
+		private final MatrixBuildContext context;
 		private final TechIndex techIndex;
 		private Demand demand;
 		private ImpactIndex impacts;
@@ -101,8 +103,8 @@ public class MatrixConfig {
 		private boolean withCosts;
 		private boolean withRegionalization;
 
-		private Builder(IDatabase db, TechIndex techIndex) {
-			this.db = db;
+		private Builder(MatrixBuildContext context, TechIndex techIndex) {
+			this.context = context;
 			this.techIndex = techIndex;
 		}
 

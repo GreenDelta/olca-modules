@@ -35,7 +35,7 @@ public class InventoryBuilder {
 
 		// setup the indices
 		this.techIndex = conf.techIndex;
-		var ctx = conf.cacheContext;
+		var ctx = conf.context;
 		this.flows = ctx.flowTable();
 		locations = conf.withRegionalization
 			? ctx.locations()
@@ -101,7 +101,7 @@ public class InventoryBuilder {
 
 	private void fillMatrices() {
 		// fill the matrices with process data
-		var exchanges = new ExchangeTable(conf.cacheContext);
+		var exchanges = new ExchangeTable(conf.context);
 		exchanges.each(techIndex, exchange -> {
 			var products = techIndex.getProviders(exchange.processId);
 			for (TechFlow product : products) {

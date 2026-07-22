@@ -40,7 +40,7 @@ public class ResultCache {
 	}
 
 	public static ResultCache of(
-		TechIndex index, CacheContext ctx, ImpactMethod method
+		TechIndex index, MatrixBuildContext ctx, ImpactMethod method
 	) {
 		if (index == null || ctx == null || ctx.db() == null)
 			return new ResultCache(Map.of());
@@ -64,7 +64,7 @@ public class ResultCache {
 	}
 
 	private void fill(
-		Map<Long, TechFlow> providers, CacheContext ctx, ImpactMethod method
+		Map<Long, TechFlow> providers, MatrixBuildContext ctx, ImpactMethod method
 	) {
 
 		// initialize the result data
@@ -126,7 +126,7 @@ public class ResultCache {
 	}
 
 	private void fillFlowValues(
-		CacheContext ctx, NativeSql sql, TLongObjectHashMap<ResultData> data
+		MatrixBuildContext ctx, NativeSql sql, TLongObjectHashMap<ResultData> data
 	) {
 		var conversion = ctx.conversions();
 

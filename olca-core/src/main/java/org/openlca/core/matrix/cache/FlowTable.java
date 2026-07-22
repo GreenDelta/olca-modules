@@ -38,8 +38,8 @@ public class FlowTable {
 		}
 	}
 
-	public FlowDescriptor get(long flowID) {
-		return map.get(flowID);
+	public FlowDescriptor get(long flow) {
+		return map.get(flow);
 	}
 
 	public FlowType type(long flowId) {

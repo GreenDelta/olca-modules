@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.cache.MatrixBuildContext;
 import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.format.HashPointMatrix;
 import org.openlca.core.matrix.format.Matrix;
@@ -92,8 +93,12 @@ public class MatrixData {
 
 	private Boolean _hasLibraryLinks;
 
+	public static MatrixConfig.Builder of(MatrixBuildContext ctx, TechIndex techIndex) {
+		return MatrixConfig.of(ctx, techIndex);
+	}
+
 	public static MatrixConfig.Builder of(IDatabase db, TechIndex techIndex) {
-		return MatrixConfig.of(db, techIndex);
+		return MatrixConfig.of(MatrixBuildContext.of(db), techIndex);
 	}
 
 	/**

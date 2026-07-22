@@ -30,7 +30,7 @@ public class ExchangeTable {
 		flowTypes = FlowTable.getTypes(db);
 	}
 
-	public ExchangeTable(CacheContext ctx) {
+	public ExchangeTable(MatrixBuildContext ctx) {
 		this.db = ctx.db();
 		conversions = ctx.conversions();
 		flowTypes = ctx.flowTypes();
