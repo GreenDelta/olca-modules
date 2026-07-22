@@ -1,10 +1,10 @@
-package org.openlca.core.matrix.cache;
+package org.openlca.core.matrix;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import org.openlca.core.database.NativeSql;
-import org.openlca.core.matrix.Demand;
+import org.openlca.core.matrix.cache.MatrixBuildContext;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
@@ -134,7 +134,6 @@ public class ResultVectorBuilder {
 
 		var qry = """
 			select
-			  id,
 			  f_result,
 			  f_flow,
 			  f_location,
@@ -146,11 +145,11 @@ public class ResultVectorBuilder {
 			""";
 
 		sql.query(qry, r -> {
-			var datum = data.get(r.getLong(2));
+			var datum = data.get(r.getLong(1));
 			if (datum == null)
 				return true;
 
-			long flowId = r.getLong(3);
+			long flowId = r.getLong(2);
 			boolean isRef = datum.techFlow.flowId() == flowId;
 
 			if (!isRef && datum.declaresMethod && datum.impacts != null)
@@ -159,11 +158,11 @@ public class ResultVectorBuilder {
 			if (!isRef && flow.flowType != FlowType.ELEMENTARY_FLOW)
 				return true;
 
-			double factor = conversion.forExchange(r.getLong(7), r.getLong(8));
-			boolean isInput = r.getBoolean(5);
+			double factor = conversion.forExchange(r.getLong(6), r.getLong(7));
+			boolean isInput = r.getBoolean(4);
 			double amount = isInput
-				? -factor * r.getDouble(6)
-				: factor * r.getDouble(6);
+				? -factor * r.getDouble(5)
+				: factor * r.getDouble(5);
 
 			if (isRef) {
 				datum.refAmount = amount;
@@ -178,7 +177,7 @@ public class ResultVectorBuilder {
 			}
 
 			long locId;
-			var loc = regionalized && (locId = r.getLong(4)) > 0
+			var loc = regionalized && (locId = r.getLong(3)) > 0
 				? ctx.locations().get(locId)
 				: null;
 

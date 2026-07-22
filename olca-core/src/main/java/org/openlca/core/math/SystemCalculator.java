@@ -2,7 +2,6 @@ package org.openlca.core.math;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
@@ -10,14 +9,13 @@ import org.openlca.core.library.LibraryDir;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.cache.MatrixBuildContext;
+import org.openlca.core.matrix.ResultVectorBuilder;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Result;
 import org.openlca.core.results.LcaResult;
-import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SolverContext;
 import org.slf4j.Logger;
@@ -36,12 +34,12 @@ public class SystemCalculator {
 	private final int LAZY = 1;
 	private final int EAGER = 2;
 
-	private final IDatabase db;
+	private final MatrixBuildContext ctx;
 	private LibReaderRegistry libraries;
 	private MatrixSolver solver;
 
 	public SystemCalculator(IDatabase db) {
-		this.db = db;
+		this.ctx = MatrixBuildContext.of(db);
 	}
 
 	public SystemCalculator withLibraries(LibReaderRegistry libraries) {
@@ -51,7 +49,7 @@ public class SystemCalculator {
 
 	public SystemCalculator withLibraries(LibraryDir libDir) {
 		if (libDir != null) {
-			this.libraries = LibReaderRegistry.of(db, libDir);
+			this.libraries = LibReaderRegistry.of(ctx.db(), libDir);
 		}
 		return this;
 	}
@@ -75,17 +73,16 @@ public class SystemCalculator {
 
 	private LcaResult solve(CalculationSetup setup, int type) {
 		log.info("calculate result for {}", setup.target());
-		var ctx = MatrixBuildContext.of(db);
-		var techIndex = TechIndex.of(db, setup);
+		var techIndex = TechIndex.of(ctx.db(), setup);
 		var subs = solveSubSystems(setup, techIndex);
 		log.trace("solved {} sub-systems", subs.size());
 		var data = MatrixData.of(ctx, techIndex)
-				.withSetup(setup)
-				.withSubResults(subs)
-				.build();
-		var context = SolverContext.of(db, data)
-				.withLibraries(libraries)
-				.withSolver(solver);
+			.withSetup(setup)
+			.withSubResults(subs)
+			.build();
+		var context = SolverContext.of(ctx.db(), data)
+			.withLibraries(libraries)
+			.withSolver(solver);
 
 		var provider = switch (type) {
 			case LAZY -> ResultProviders.solveLazy(context);
@@ -112,49 +109,35 @@ public class SystemCalculator {
 	/// empty map when there are no subsystems. For the sub-results, the same
 	/// calculation type is performed as defined in the original calculation setup.
 	private Map<TechFlow, LcaResult> solveSubSystems(
-			CalculationSetup setup, TechIndex techIndex
+		CalculationSetup setup, TechIndex techIndex
 	) {
 		if (techIndex == null)
 			return Collections.emptyMap();
 
+		// add vectors of linked results
 		var subResults = new HashMap<TechFlow, LcaResult>();
-		var subSystems = new HashSet<TechFlow>();
+		ResultVectorBuilder.of(setup, techIndex, ctx)
+			.ifPresent(builder -> builder.each(
+				(techFlow, vec) -> subResults.put(techFlow, new LcaResult(vec))));
+
+		// calculate LCI results of sub-systems
 		for (var p : techIndex) {
-			if (p.isProcess())
+			if (!p.isProductSystem())
 				continue;
-			if (p.isProductSystem()) {
-				subSystems.add(p);
-				continue;
-			}
-			if (p.isResult()) {
-				var result = db.get(Result.class, p.providerId());
-				if (result != null) {
-					subResults.put(p, new LcaResult(ResultModelProvider.of(result)));
-				}
-			}
-		}
-
-
-		if (subSystems.isEmpty())
-			return subResults;
-
-		// calculate the LCI results of the sub-systems
-
-		for (var p : subSystems) {
-			var sub = db.get(ProductSystem.class, p.providerId());
+			var sub = ctx.db().get(ProductSystem.class, p.providerId());
 			if (sub == null)
 				continue;
-
 			var subSetup = CalculationSetup.of(sub)
-					.withParameters(ParameterRedefs.join(setup, sub))
-					.withCosts(setup.hasCosts())
-					.withRegionalization(setup.hasRegionalization())
-					.withAllocation(setup.allocation())
-					.withImpactMethod(setup.impactMethod())
-					.withNwSet(setup.nwSet());
+				.withParameters(ParameterRedefs.join(setup, sub))
+				.withCosts(setup.hasCosts())
+				.withRegionalization(setup.hasRegionalization())
+				.withAllocation(setup.allocation())
+				.withImpactMethod(setup.impactMethod())
+				.withNwSet(setup.nwSet());
 			var subResult = calculate(subSetup);
 			subResults.put(p, subResult);
 		}
+
 		return subResults;
 	}
 }
