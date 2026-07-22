@@ -21,41 +21,36 @@ import com.google.common.cache.LoadingCache;
 
 public class ExchangeCache {
 
-	public static LoadingCache<Long, List<CalcExchange>> create(
-			IDatabase database, ConversionTable conversionTable,
-			FlowTable flowTypes) {
-		return CacheBuilder.newBuilder().build(
-				new ExchangeLoader(database, conversionTable, flowTypes));
-	}
-
 	public static LoadingCache<Long, List<CalcExchange>> create(IDatabase db) {
-		return CacheBuilder.newBuilder().build(
-				new ExchangeLoader(
-						db, ConversionTable.create(db), FlowTable.create(db)));
+		var conversions = ConversionTable.create(db);
+		var flows = FlowTable.create(db);
+		var loader = new ExchangeLoader(db, conversions, flows);
+		return CacheBuilder.newBuilder().build(loader);
 	}
 
 	private static class ExchangeLoader extends
 			CacheLoader<Long, List<CalcExchange>> {
 
 		private final Logger log = LoggerFactory.getLogger(getClass());
-		private final IDatabase database;
-		private final ConversionTable conversionTable;
-		private final FlowTable flowTypes;
+		private final IDatabase db;
+		private final ConversionTable conversions;
+		private final FlowTable flows;
 
-		public ExchangeLoader(IDatabase database,
-				ConversionTable conversionTable, FlowTable flowTypes) {
-			this.database = database;
-			this.conversionTable = conversionTable;
-			this.flowTypes = flowTypes;
+		public ExchangeLoader(
+			IDatabase db, ConversionTable conversions, FlowTable flows
+		) {
+			this.db = db;
+			this.conversions = conversions;
+			this.flows = flows;
 		}
 
 		@Override
-		public List<CalcExchange> load(Long key) throws Exception {
+		public List<CalcExchange> load(Long key) {
 			if (key == null)
 				return Collections.emptyList();
 			log.trace("fetch exchanges for key {}", key);
 			String query = "select * from tbl_exchanges where f_owner = " + key;
-			try (Connection con = database.createConnection()) {
+			try (Connection con = db.createConnection()) {
 				Statement statement = con.createStatement();
 				ResultSet result = statement.executeQuery(query);
 				ArrayList<CalcExchange> exchanges = new ArrayList<>();
@@ -77,7 +72,7 @@ public class ExchangeCache {
 		public Map<Long, List<CalcExchange>> loadAll(
 				Iterable<? extends Long> keys) {
 			log.trace("fetch exchanges for multiple keys");
-			try (Connection con = database.createConnection()) {
+			try (Connection con = db.createConnection()) {
 				String query = "select * from tbl_exchanges where f_owner in "
 						+ CacheUtil.asSql(keys);
 				Statement statement = con.createStatement();
@@ -103,10 +98,12 @@ public class ExchangeCache {
 			e.processId = r.getLong("f_owner");
 			e.amount = r.getDouble("resulting_amount_value");
 			e.formula = r.getString("resulting_amount_formula");
-			e.conversionFactor = getConversionFactor(r);
+			e.conversionFactor = conversions.forExchange(
+				r.getLong("f_unit"),
+				r.getLong("f_flow_property_factor"));
 			e.exchangeId = r.getLong("id");
 			e.flowId = r.getLong("f_flow");
-			e.flowType = flowTypes.type(e.flowId);
+			e.flowType = flows.type(e.flowId);
 			e.isInput = r.getBoolean("is_input");
 			e.defaultProviderId = r.getLong("f_default_provider");
 			e.isAvoided = r.getBoolean("avoided_product");
@@ -116,7 +113,7 @@ public class ExchangeCache {
 			if (!r.wasNull()) {
 				e.costValue = r.getDouble("cost_value");
 				e.costFormula = r.getString("cost_formula");
-				e.currencyFactor = conversionTable.getCurrencyFactor(currency);
+				e.currencyFactor = conversions.getCurrencyFactor(currency);
 			}
 
 			// uncertainties
@@ -129,18 +126,6 @@ public class ExchangeCache {
 			}
 			return e;
 		}
-
-		private double getConversionFactor(ResultSet record) throws Exception {
-			long propertyFactorId = record.getLong("f_flow_property_factor");
-			double propertyFactor = conversionTable
-					.getPropertyFactor(propertyFactorId);
-			long unitId = record.getLong("f_unit");
-			double unitFactor = conversionTable.getUnitFactor(unitId);
-			if (propertyFactor == 0)
-				return 0;
-			return unitFactor / propertyFactor;
-		}
-
 	}
 
 }

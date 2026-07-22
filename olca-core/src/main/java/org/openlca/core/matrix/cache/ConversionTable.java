@@ -1,8 +1,6 @@
 package org.openlca.core.matrix.cache;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 
 import org.openlca.core.database.IDatabase;
 import org.slf4j.Logger;
@@ -19,15 +17,11 @@ import gnu.trove.map.hash.TLongDoubleHashMap;
  */
 public class ConversionTable {
 
-	private IDatabase database;
+	private final IDatabase db;
 
-	// primitive maps for the factors: no-key: 0, default conversion factors: 1
-	private TLongDoubleHashMap unitFactors = new TLongDoubleHashMap(
-			Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, 0L, 1d);
-	private TLongDoubleHashMap propertyFactors = new TLongDoubleHashMap(
-			Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, 0L, 1d);
-	private TLongDoubleHashMap currencyFactors = new TLongDoubleHashMap(
-			Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, 0L, 1d);
+	private final TLongDoubleHashMap units = newMap();
+	private final TLongDoubleHashMap properties = newMap();
+	private final TLongDoubleHashMap currencies = newMap();
 
 	public static ConversionTable create(IDatabase db) {
 		ConversionTable table = new ConversionTable(db);
@@ -35,25 +29,25 @@ public class ConversionTable {
 		return table;
 	}
 
-	private ConversionTable(IDatabase db) {
-		this.database = db;
+	private static TLongDoubleHashMap newMap() {
+		return new TLongDoubleHashMap(
+			Constants.DEFAULT_CAPACITY,
+			Constants.DEFAULT_LOAD_FACTOR,
+			0L, // non-entry key
+			1d  // default conversion factor is 1
+		);
 	}
 
-	// TODO: when we remove the matrix cache, we can also remove this
-	// reload function.
-	@Deprecated
-	public void reload() {
-		unitFactors.clear();
-		propertyFactors.clear();
-		currencyFactors.clear();
-		init();
+	private ConversionTable(IDatabase db) {
+		this.db = db;
 	}
+
 
 	private void init() {
-		try (Connection con = database.createConnection()) {
-			loadFactors(con, "tbl_units", unitFactors);
-			loadFactors(con, "tbl_flow_property_factors", propertyFactors);
-			loadFactors(con, "tbl_currencies", currencyFactors);
+		try (Connection con = db.createConnection()) {
+			loadFactors(con, "tbl_units", units);
+			loadFactors(con, "tbl_flow_property_factors", properties);
+			loadFactors(con, "tbl_currencies", currencies);
 		} catch (Exception e) {
 			Logger log = LoggerFactory.getLogger(getClass());
 			log.error("failed to initialize conversion table", e);
@@ -61,19 +55,17 @@ public class ConversionTable {
 	}
 
 	private void loadFactors(
-			Connection con,
-			String table,
-			TLongDoubleHashMap map) throws Exception {
-		Statement statement = con.createStatement();
-		String query = "select id, conversion_factor from " + table;
-		ResultSet set = statement.executeQuery(query);
-		while (set.next()) {
-			long id = set.getLong(1);
-			double factor = set.getDouble(2);
-			map.put(id, factor);
+		Connection con, String table, TLongDoubleHashMap map
+	) throws Exception {
+		var qry = "select id, conversion_factor from " + table;
+		try (var stmt = con.createStatement();
+		     var rs = stmt.executeQuery(qry)) {
+			while (rs.next()) {
+				long id = rs.getLong(1);
+				double factor = rs.getDouble(2);
+				map.put(id, factor);
+			}
 		}
-		statement.close();
-		set.close();
 	}
 
 	/**
@@ -81,7 +73,7 @@ public class ConversionTable {
 	 * unit of the unit group to which this unit belongs.
 	 */
 	public double getUnitFactor(long unitId) {
-		return unitFactors.get(unitId);
+		return units.get(unitId);
 	}
 
 	/**
@@ -89,7 +81,7 @@ public class ConversionTable {
 	 * reference flow property factor of a flow.
 	 */
 	public double getPropertyFactor(long flowPropertyFactorId) {
-		return propertyFactors.get(flowPropertyFactorId);
+		return properties.get(flowPropertyFactorId);
 	}
 
 	/**
@@ -97,6 +89,12 @@ public class ConversionTable {
 	 * reference currency in the database.
 	 */
 	public double getCurrencyFactor(long currencyID) {
-		return currencyFactors.get(currencyID);
+		return currencies.get(currencyID);
+	}
+
+	public double forExchange(long unitId, long propertyFactorId) {
+		double uf = units.get(unitId);
+		double pf = properties.get(propertyFactorId);
+		return pf != 0 ? uf / pf : 0;
 	}
 }

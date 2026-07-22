@@ -107,7 +107,7 @@ public class ExchangeTable {
 		e.processId = owner;
 		e.flowId = r.getLong(3);
 		e.flowType = flowTypes.get(e.flowId);
-		e.conversionFactor = getConversionFactor(r);
+		e.conversionFactor = conversions.forExchange(r.getLong(5), r.getLong(4));
 		e.amount = r.getDouble(6);
 		e.formula = r.getString(7);
 		e.isInput = r.getBoolean(8);
@@ -132,16 +132,6 @@ public class ExchangeTable {
 			e.parameter3 = r.getDouble(17);
 		}
 		return e;
-	}
-
-	private double getConversionFactor(ResultSet record) throws Exception {
-		long propertyFactorId = record.getLong(4);
-		double propertyFactor = conversions.getPropertyFactor(propertyFactorId);
-		long unitId = record.getLong(5);
-		double unitFactor = conversions.getUnitFactor(unitId);
-		if (propertyFactor == 0)
-			return 0;
-		return unitFactor / propertyFactor;
 	}
 
 	public List<Linkable> linkablesOf(Set<Long> processIds) {
