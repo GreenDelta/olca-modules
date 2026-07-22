@@ -63,11 +63,11 @@ public class ConversionTable {
 		}
 	}
 
-	double forUnit(long unitId) {
+	public double forUnit(long unitId) {
 		return units.get(unitId);
 	}
 
-	double forPropertyFactor(long flowPropertyFactorId) {
+	public double forPropertyFactor(long flowPropertyFactorId) {
 		return properties.get(flowPropertyFactorId);
 	}
 

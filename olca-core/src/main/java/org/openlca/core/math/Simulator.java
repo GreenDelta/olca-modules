@@ -15,6 +15,8 @@ import org.openlca.core.database.NativeSql;
 import org.openlca.core.library.reader.LibReaderRegistry;
 import org.openlca.core.matrix.MatrixData;
 import org.openlca.core.matrix.ParameterTable;
+import org.openlca.core.matrix.ResultVectorBuilder;
+import org.openlca.core.matrix.cache.MatrixBuildContext;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.LongPair;
@@ -24,10 +26,8 @@ import org.openlca.core.matrix.solvers.MatrixSolver;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.ProductSystem;
-import org.openlca.core.model.Result;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.SimulationResult;
-import org.openlca.core.results.providers.ResultModelProvider;
 import org.openlca.core.results.providers.ResultProvider;
 import org.openlca.core.results.providers.ResultProviders;
 import org.openlca.core.results.providers.SimpleResultProvider;
@@ -72,6 +72,7 @@ public class Simulator {
 	public final Set<TechFlow> pinnedProducts = new HashSet<>();
 
 	private final IDatabase db;
+	private final MatrixBuildContext ctx;
 
 	/**
 	 * The node of the host-system. This is the node that provides the final
@@ -103,11 +104,12 @@ public class Simulator {
 
 	private Simulator(IDatabase db) {
 		this.db = db;
+		this.ctx = MatrixBuildContext.of(db);
 	}
 
 	public static Simulator create(CalculationSetup setup, IDatabase db) {
 		var g = new Simulator(db);
-		g.init(db, setup);
+		g.init(setup);
 		return g;
 	}
 
@@ -224,12 +226,12 @@ public class Simulator {
 		}
 	}
 
-	private void init(IDatabase db, CalculationSetup setup) {
+	private void init(CalculationSetup setup) {
 
 		// if the calculation target is a process, the simulation graph
 		// has a single node
 		if (!setup.hasProductSystem()) {
-			root = new Node(setup, db, Collections.emptyMap());
+			root = new Node(setup, ctx, Collections.emptyMap());
 			nodeIndex.put(root.providerId, root);
 			return;
 		}
@@ -245,7 +247,7 @@ public class Simulator {
 			}
 		}
 		if (!hasSubSystems) {
-			root = new Node(setup, db, Collections.emptyMap());
+			root = new Node(setup, ctx, Collections.emptyMap());
 			nodeIndex.put(root.providerId, root);
 			return;
 		}
@@ -321,7 +323,7 @@ public class Simulator {
 						.withAllocation(setup.allocation());
 			}
 
-			Node node = new Node(_setup, db, subResults);
+			Node node = new Node(_setup, ctx, subResults);
 			nodeIndex.put(systemId, node);
 			if (systemId == rootId) {
 				root = node;
@@ -375,12 +377,12 @@ public class Simulator {
 		Set<TechFlow> subSystems;
 		LcaResult lastResult;
 
-		Node(CalculationSetup setup, IDatabase db,
+		Node(CalculationSetup setup, MatrixBuildContext ctx,
 				 Map<TechFlow, LcaResult> subResults) {
 
-			var techIndex = TechIndex.of(db, setup);
-			var subs = addLinkedResults(db, techIndex, subResults);
-			data = MatrixData.of(db, techIndex)
+			var techIndex = TechIndex.of(ctx.db(), setup);
+			var subs = addLinkedResults(setup, ctx, techIndex, subResults);
+			data = MatrixData.of(ctx, techIndex)
 					.withSetup(setup)
 					.withUncertainties(true)
 					.withSubResults(subs)
@@ -404,28 +406,24 @@ public class Simulator {
 			});
 			var impactMethod = setup.impactMethod();
 			if (impactMethod != null) {
-				new ImpactMethodDao(db)
+				new ImpactMethodDao(ctx.db())
 						.getCategoryDescriptors(impactMethod.id)
 						.forEach(d -> paramContexts.add(d.id));
 			}
 			parameters = ParameterTable.forSimulation(
-					db, paramContexts, setup.parameters());
+					ctx.db(), paramContexts, setup.parameters());
 		}
 
 		/// Creates a new sub-system result map that also contains the results
 		/// of possible linked pre-calculated results in addition to possible
 		/// results of sub-systems.
 		private HashMap<TechFlow, LcaResult> addLinkedResults(
-			IDatabase db, TechIndex techIndex, Map<TechFlow, LcaResult> results) {
+			CalculationSetup setup, MatrixBuildContext ctx,
+			TechIndex techIndex, Map<TechFlow, LcaResult> results) {
 			var subs = new HashMap<>(results);
-			for (var techFlow : techIndex) {
-				if (!techFlow.isResult() || subs.containsKey(techFlow))
-					continue;
-				var result = db.get(Result.class, techFlow.providerId());
-				if (result == null)
-					continue;
-				subs.put(techFlow, new LcaResult(ResultModelProvider.of(result)));
-			}
+			ResultVectorBuilder.of(setup, techIndex, ctx)
+				.ifPresent(builder -> builder.each(
+					(techFlow, vec) -> subs.putIfAbsent(techFlow, new LcaResult(vec))));
 			return subs;
 		}
 	}
