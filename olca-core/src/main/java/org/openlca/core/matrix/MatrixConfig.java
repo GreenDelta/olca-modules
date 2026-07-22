@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.matrix.cache.CacheContext;
 import org.openlca.core.matrix.index.EnviIndex;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
@@ -35,9 +36,11 @@ public class MatrixConfig {
 	public final Map<TechFlow, LcaResult> subResults;
 	public final ImpactIndex impactIndex;
 	public final FormulaInterpreter interpreter;
+	public final CacheContext cacheContext;
 
 	private MatrixConfig(Builder builder) {
 		this.db = builder.db;
+		this.cacheContext = CacheContext.of(builder.db);
 		this.demand = builder.demand;
 		this.techIndex = builder.techIndex;
 		linker = techIndex.hasLinks()

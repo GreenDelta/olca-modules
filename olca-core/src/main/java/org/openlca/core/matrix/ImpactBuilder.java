@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactCategoryDao;
 import org.openlca.core.database.NativeSql;
+import org.openlca.core.matrix.cache.CacheContext;
 import org.openlca.core.matrix.cache.ConversionTable;
 import org.openlca.core.matrix.format.Matrix;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -54,13 +55,15 @@ public final class ImpactBuilder {
 			this.interpreter = config.interpreter;
 		} else {
 			var contexts = new TreeSet<Long>();
-			impactIndex.each((i, d) -> contexts.add(d.id));
+			impactIndex.each((_, d) -> contexts.add(d.id));
 			this.interpreter = ParameterTable.interpreter(
 				db, contexts, Collections.emptyList());
 		}
 
 		withUncertainties = config.withUncertainties;
-		conversions = ConversionTable.create(db);
+		conversions = config.cacheContext != null
+			? config.cacheContext.conversions()
+			: ConversionTable.create(db);
 	}
 
 	public static Config of(IDatabase db, EnviIndex flows) {
@@ -302,6 +305,7 @@ public final class ImpactBuilder {
 		private boolean withUncertainties;
 		private FormulaInterpreter interpreter;
 		private ImpactIndex impacts;
+		CacheContext cacheContext;
 
 		private Config(IDatabase db, EnviIndex flows) {
 			this.db = db;
@@ -310,6 +314,7 @@ public final class ImpactBuilder {
 
 		public Config(MatrixConfig conf, EnviIndex flows) {
 			this.db = conf.db;
+			this.cacheContext = conf.cacheContext;
 			this.flows = flows;
 			this.withUncertainties = conf.withUncertainties;
 			this.interpreter = conf.interpreter;

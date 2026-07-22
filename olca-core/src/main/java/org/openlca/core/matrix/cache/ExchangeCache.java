@@ -28,6 +28,13 @@ public class ExchangeCache {
 		return CacheBuilder.newBuilder().build(loader);
 	}
 
+	public static LoadingCache<Long, List<CalcExchange>> create(CacheContext ctx) {
+		var conversions = ctx.conversions();
+		var flows = ctx.flowTable();
+		var loader = new ExchangeLoader(ctx.db(), conversions, flows);
+		return CacheBuilder.newBuilder().build(loader);
+	}
+
 	private static class ExchangeLoader extends
 			CacheLoader<Long, List<CalcExchange>> {
 

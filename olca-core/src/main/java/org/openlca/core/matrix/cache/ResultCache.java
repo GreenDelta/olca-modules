@@ -3,7 +3,6 @@ package org.openlca.core.matrix.cache;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.index.ImpactIndex;
 import org.openlca.core.matrix.index.TechFlow;
@@ -41,9 +40,9 @@ public class ResultCache {
 	}
 
 	public static ResultCache of(
-		TechIndex index, IDatabase db, ImpactMethod method
+		TechIndex index, CacheContext ctx, ImpactMethod method
 	) {
-		if (index == null || db == null)
+		if (index == null || ctx == null || ctx.db() == null)
 			return new ResultCache(Map.of());
 
 		Map<Long, TechFlow> providers = null;
@@ -60,16 +59,16 @@ public class ResultCache {
 			return new ResultCache(Map.of());
 
 		var cache = new ResultCache(new HashMap<>(providers.size()));
-		cache.fill(providers, db, method);
+		cache.fill(providers, ctx, method);
 		return cache;
 	}
 
 	private void fill(
-		Map<Long, TechFlow> providers, IDatabase db, ImpactMethod method
+		Map<Long, TechFlow> providers, CacheContext ctx, ImpactMethod method
 	) {
 
 		// initialize the result data
-		var sql = NativeSql.on(db);
+		var sql = NativeSql.on(ctx.db());
 		var data = new TLongObjectHashMap<ResultData>(providers.size());
 		var qry = """
 			select
@@ -94,7 +93,7 @@ public class ResultCache {
 		if (method != null) {
 			fillImpactValues(sql, data, method);
 		}
-		fillFlowValues(db, sql, data);
+		fillFlowValues(ctx, sql, data);
 	}
 
 	private void fillImpactValues(
@@ -127,9 +126,9 @@ public class ResultCache {
 	}
 
 	private void fillFlowValues(
-		IDatabase db, NativeSql sql, TLongObjectHashMap<ResultData> data
+		CacheContext ctx, NativeSql sql, TLongObjectHashMap<ResultData> data
 	) {
-		var conversion = ConversionTable.create(db);
+		var conversion = ctx.conversions();
 
 		var qry = """
 			select

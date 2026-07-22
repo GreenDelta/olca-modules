@@ -30,6 +30,12 @@ public class ExchangeTable {
 		flowTypes = FlowTable.getTypes(db);
 	}
 
+	public ExchangeTable(CacheContext ctx) {
+		this.db = ctx.db();
+		conversions = ctx.conversions();
+		flowTypes = ctx.flowTypes();
+	}
+
 	/**
 	 * Calls the given function for each exchange of the processes in the given
 	 * index.

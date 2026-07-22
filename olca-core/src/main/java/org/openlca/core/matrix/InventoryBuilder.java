@@ -2,7 +2,6 @@ package org.openlca.core.matrix;
 
 import java.util.HashSet;
 
-import org.openlca.core.database.LocationDao;
 import org.openlca.core.matrix.cache.ExchangeTable;
 import org.openlca.core.matrix.cache.FlowTable;
 import org.openlca.core.matrix.format.MatrixBuilder;
@@ -36,9 +35,10 @@ public class InventoryBuilder {
 
 		// setup the indices
 		this.techIndex = conf.techIndex;
-		this.flows = FlowTable.create(conf.db);
+		var ctx = conf.cacheContext;
+		this.flows = ctx.flowTable();
 		locations = conf.withRegionalization
-			? new LocationDao(conf.db).descriptorMap()
+			? ctx.locations()
 			: null;
 		allocationIndex = conf.hasAllocation()
 			? AllocationIndex.create(conf)
@@ -101,7 +101,7 @@ public class InventoryBuilder {
 
 	private void fillMatrices() {
 		// fill the matrices with process data
-		var exchanges = new ExchangeTable(conf.db);
+		var exchanges = new ExchangeTable(conf.cacheContext);
 		exchanges.each(techIndex, exchange -> {
 			var products = techIndex.getProviders(exchange.processId);
 			for (TechFlow product : products) {
@@ -111,7 +111,7 @@ public class InventoryBuilder {
 
 		// now put the entries of the sub-system into the matrices
 		var subSystems = new HashSet<TechFlow>();
-		techIndex.each((i, p) -> {
+		techIndex.each((_, p) -> {
 			if (p.provider() == null || p.isProcess())
 				return;
 			subSystems.add(p);
@@ -136,7 +136,7 @@ public class InventoryBuilder {
 
 			// add the LCI result
 			if (result.enviIndex() != null) {
-				result.enviIndex().each((i, f) -> {
+				result.enviIndex().each((_, f) -> {
 					double b = result.getTotalFlowValueOf(f);
 					if (f.isInput()) {
 						b = -b;
