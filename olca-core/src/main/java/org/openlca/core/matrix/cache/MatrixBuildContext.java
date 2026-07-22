@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.cache;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.LocationDao;
 import org.openlca.core.model.FlowType;
@@ -7,14 +9,15 @@ import org.openlca.core.model.descriptors.LocationDescriptor;
 
 import gnu.trove.map.hash.TLongObjectHashMap;
 
+@NullMarked
 public class MatrixBuildContext {
 
 	private final IDatabase db;
-	private ConversionTable conversions;
-	private FlowTable flowTable;
-	private TLongObjectHashMap<FlowType> flowTypes;
-	private TLongObjectHashMap<LocationDescriptor> locations;
-	private ProviderMap providers;
+	private @Nullable ConversionTable conversions;
+	private @Nullable FlowTable flowTable;
+	private @Nullable TLongObjectHashMap<FlowType> flowTypes;
+	private @Nullable TLongObjectHashMap<LocationDescriptor> locations;
+	private @Nullable ProviderMap providers;
 
 	private MatrixBuildContext(IDatabase db) {
 		this.db = db;
