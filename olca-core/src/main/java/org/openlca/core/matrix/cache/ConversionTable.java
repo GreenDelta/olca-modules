@@ -9,12 +9,8 @@ import org.slf4j.LoggerFactory;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.hash.TLongDoubleHashMap;
 
-/**
- * A table that contains the conversion factors for units and flow property
- * factors. (Note: A flow can have multiple flow properties and a flow property
- * factor describes the flow specific conversion of a flow property to the
- * reference flow property of a flow).
- */
+/// A table that contains the conversion factors for units, flow property
+/// factors, and currencies.
 public class ConversionTable {
 
 	private final IDatabase db;
@@ -42,7 +38,6 @@ public class ConversionTable {
 		this.db = db;
 	}
 
-
 	private void init() {
 		try (Connection con = db.createConnection()) {
 			loadFactors(con, "tbl_units", units);
@@ -68,33 +63,27 @@ public class ConversionTable {
 		}
 	}
 
-	/**
-	 * Get the conversion factor of the unit with the given ID to the reference
-	 * unit of the unit group to which this unit belongs.
-	 */
-	public double getUnitFactor(long unitId) {
+	double forUnit(long unitId) {
 		return units.get(unitId);
 	}
 
-	/**
-	 * Get the conversion factor of the given flow property factor to the
-	 * reference flow property factor of a flow.
-	 */
-	public double getPropertyFactor(long flowPropertyFactorId) {
+	double forPropertyFactor(long flowPropertyFactorId) {
 		return properties.get(flowPropertyFactorId);
 	}
 
-	/**
-	 * Get the conversion factor of the currency with the given ID to the
-	 * reference currency in the database.
-	 */
-	public double getCurrencyFactor(long currencyID) {
-		return currencies.get(currencyID);
+	public double forCurrency(long currencyId) {
+		return currencies.get(currencyId);
 	}
 
 	public double forExchange(long unitId, long propertyFactorId) {
 		double uf = units.get(unitId);
 		double pf = properties.get(propertyFactorId);
 		return pf != 0 ? uf / pf : 0;
+	}
+
+	public double forCharacterization(long unitId, long propertyFactorId) {
+		double uf = units.get(unitId);
+		double pf = properties.get(propertyFactorId);
+		return uf != 0 ? pf / uf : 0;
 	}
 }

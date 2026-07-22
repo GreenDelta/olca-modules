@@ -120,7 +120,7 @@ public class ExchangeTable {
 		if (!r.wasNull()) {
 			e.costValue = r.getDouble(11);
 			e.costFormula = r.getString(12);
-			e.currencyFactor = conversions.getCurrencyFactor(currency);
+			e.currencyFactor = conversions.forCurrency(currency);
 		}
 
 		// uncertainties

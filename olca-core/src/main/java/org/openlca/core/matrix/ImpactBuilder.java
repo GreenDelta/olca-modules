@@ -1,6 +1,5 @@
 package org.openlca.core.matrix;
 
-import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.TreeSet;
 
@@ -57,7 +56,7 @@ public final class ImpactBuilder {
 			var contexts = new TreeSet<Long>();
 			impactIndex.each((i, d) -> contexts.add(d.id));
 			this.interpreter = ParameterTable.interpreter(
-					db, contexts, Collections.emptyList());
+				db, contexts, Collections.emptyList());
 		}
 
 		withUncertainties = config.withUncertainties;
@@ -80,7 +79,7 @@ public final class ImpactBuilder {
 	 * 1 for these virtual flows for the matching impact categories.
 	 */
 	public static void putVirtualFlowFactors(
-			MatrixBuilder builder, ImpactIndex impacts, EnviIndex flows
+		MatrixBuilder builder, ImpactIndex impacts, EnviIndex flows
 	) {
 		if (builder == null || impacts == null || flows == null)
 			return;
@@ -102,8 +101,8 @@ public final class ImpactBuilder {
 		matrix = new MatrixBuilder();
 		matrix.ensureSize(impactIndex.size(), flowIndex.size());
 		uncertainties = withUncertainties
-				? new UMatrix()
-				: null;
+			? new UMatrix()
+			: null;
 		if (flowIndex.isRegionalized()) {
 			fillRegionalized();
 		} else {
@@ -147,10 +146,11 @@ public final class ImpactBuilder {
 				f.flowId = flowId;
 				f.amount = r.getDouble(3);
 				f.formula = r.getString(4);
-				f.conversionFactor = getConversionFactor(r);
+				f.conversionFactor = conversions.forCharacterization(
+					r.getLong(6), r.getLong(5));
 				f.isInput = impact.direction != null
-						? impact.direction == Direction.INPUT
-						: flowIndex.isInput(flowId);
+					? impact.direction == Direction.INPUT
+					: flowIndex.isInput(flowId);
 
 				// set the matrix value
 				int row = impactIndex.of(impactId);
@@ -173,7 +173,7 @@ public final class ImpactBuilder {
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(
-					"failed to query impact factors", e);
+				"failed to query impact factors", e);
 		}
 	}
 
@@ -206,10 +206,11 @@ public final class ImpactBuilder {
 				f.flowId = flowId;
 				f.amount = r.getDouble(3);
 				f.formula = r.getString(4);
-				f.conversionFactor = getConversionFactor(r);
+				f.conversionFactor = conversions.forCharacterization(
+					r.getLong(6), r.getLong(5));
 				f.isInput = impact.direction != null
-						? impact.direction == Direction.INPUT
-						: flowIndex.isInput(flowId, locationId);
+					? impact.direction == Direction.INPUT
+					: flowIndex.isInput(flowId, locationId);
 
 				if (uncertainties != null) {
 					int uType = r.getInt(7);
@@ -237,7 +238,7 @@ public final class ImpactBuilder {
 			});
 		} catch (Exception e) {
 			throw new RuntimeException(
-					"failed to query impact factors", e);
+				"failed to query impact factors", e);
 		}
 
 		// set default factors where necessary
@@ -251,30 +252,18 @@ public final class ImpactBuilder {
 
 	private String query() {
 		return "SELECT"
-				+ /* 1 */ " f_impact_category,"
-				+ /* 2 */ " f_flow,"
-				+ /* 3 */ " value,"
-				+ /* 4 */ " formula,"
-				+ /* 5 */ " f_flow_property_factor,"
-				+ /* 6 */ " f_unit,"
-				+ /* 7 */ " distribution_type,"
-				+ /* 8 */ " parameter1_value,"
-				+ /* 9 */ " parameter2_value,"
-				+ /* 10 */ " parameter3_value,"
-				+ /* 11 */ " f_location"
-				+ " FROM tbl_impact_factors";
-	}
-
-	private double getConversionFactor(ResultSet r) {
-		try {
-			double propFactor = conversions.getPropertyFactor(r.getLong(5));
-			double unitFactor = conversions.getUnitFactor(r.getLong(6));
-			if (unitFactor == 0)
-				return 0;
-			return propFactor / unitFactor;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+			+ /* 1 */ " f_impact_category,"
+			+ /* 2 */ " f_flow,"
+			+ /* 3 */ " value,"
+			+ /* 4 */ " formula,"
+			+ /* 5 */ " f_flow_property_factor,"
+			+ /* 6 */ " f_unit,"
+			+ /* 7 */ " distribution_type,"
+			+ /* 8 */ " parameter1_value,"
+			+ /* 9 */ " parameter2_value,"
+			+ /* 10 */ " parameter3_value,"
+			+ /* 11 */ " f_location"
+			+ " FROM tbl_impact_factors";
 	}
 
 	/**

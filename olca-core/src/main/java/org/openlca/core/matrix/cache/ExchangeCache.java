@@ -113,7 +113,7 @@ public class ExchangeCache {
 			if (!r.wasNull()) {
 				e.costValue = r.getDouble("cost_value");
 				e.costFormula = r.getString("cost_formula");
-				e.currencyFactor = conversions.getCurrencyFactor(currency);
+				e.currencyFactor = conversions.forCurrency(currency);
 			}
 
 			// uncertainties
