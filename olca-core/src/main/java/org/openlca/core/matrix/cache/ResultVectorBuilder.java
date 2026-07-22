@@ -1,6 +1,7 @@
 package org.openlca.core.matrix.cache;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import org.openlca.core.database.NativeSql;
 import org.openlca.core.matrix.Demand;
@@ -161,8 +162,8 @@ public class ResultVectorBuilder {
 			double factor = conversion.forExchange(r.getLong(7), r.getLong(8));
 			boolean isInput = r.getBoolean(5);
 			double amount = isInput
-				? -factor * r.getLong(6)
-				: factor * r.getLong(6);
+				? -factor * r.getDouble(6)
+				: factor * r.getDouble(6);
 
 			if (isRef) {
 				datum.refAmount = amount;
@@ -190,6 +191,16 @@ public class ResultVectorBuilder {
 		});
 	}
 
+	public void each(BiConsumer<TechFlow, ResultProvider> fn) {
+		if (fn == null)
+			return;
+		data.forEachValue(datum -> {
+			var vector = datum.toVector();
+			fn.accept(datum.techFlow, vector);
+			return true;
+		});
+	}
+
 	private static class ResultData {
 
 		final TechFlow techFlow;
@@ -206,6 +217,42 @@ public class ResultVectorBuilder {
 			this.declaresMethod = declaresMethod;
 		}
 
+		ResultVector toVector() {
+			if (refAmount == 0) {
+				var demand = Demand.of(techFlow, 1.0);
+				return new ResultVector(
+					demand,
+					new TechIndex(techFlow),
+					null,
+					null,
+					null,
+					null);
+			}
+
+			var demand = Demand.of(techFlow, refAmount);
+
+			var flowIdx = this.flowIdx;
+			var flowData = this.flowData;
+
+			if (flowData == null && impacts != null && impactIdx != null) {
+				flowIdx = EnviIndex.create();
+				flowData = new DoubleBuffer();
+				for (int i = 0; i < impacts.length; i++) {
+					var virtualFlow = EnviFlow.virtualOf(impactIdx.at(i));
+					var idx = flowIdx.add(virtualFlow);
+					flowData.add(idx, impacts[i]);
+				}
+			}
+
+			return new ResultVector(
+				demand,
+				new TechIndex(techFlow),
+				flowIdx,
+				impactIdx,
+				flowData != null ? flowData.toArray() : null,
+				impacts
+			);
+		}
 	}
 
 	private record DoubleBuffer(TDoubleArrayList list) {

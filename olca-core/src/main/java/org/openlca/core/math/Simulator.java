@@ -270,7 +270,7 @@ public class Simulator {
 				return true;
 			long system = r.getLong(1);
 			var rels = allRels.computeIfAbsent(
-					system, k -> new ArrayList<>());
+					system, _ -> new ArrayList<>());
 			rels.add(LongPair.of(provider, system));
 			return true;
 		});
@@ -396,7 +396,7 @@ public class Simulator {
 
 			// parameters
 			var paramContexts = new HashSet<Long>();
-			data.techIndex.each((i, p) -> {
+			data.techIndex.each((_, p) -> {
 				if (p.provider() != null
 						&& p.provider().type == ModelType.PROCESS) {
 					paramContexts.add(p.providerId());
