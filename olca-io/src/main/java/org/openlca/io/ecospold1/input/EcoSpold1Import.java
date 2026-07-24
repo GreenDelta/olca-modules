@@ -404,7 +404,7 @@ public class EcoSpold1Import implements Import {
 		String subCategory = refFun.getSubCategory();
 		ioProcess.category = processCategory != null
 				? db.getPutCategory(processCategory, topCategory, subCategory)
-				: db.getPutCategory(ModelType.PROCESS, topCategory, subCategory);
+				: db.resolveCategory(ModelType.PROCESS, topCategory, subCategory);
 	}
 
 	private void createProductFromRefFun(DataSet ds, Process process) {

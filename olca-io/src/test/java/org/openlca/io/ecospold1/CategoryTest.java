@@ -43,24 +43,29 @@ public class CategoryTest {
 	}
 
 	@After
-	public void tearDown() {
+	public void cleanup() {
 		db.clear();
 	}
 
 	@Test
 	public void testCategorySlashes() {
 		check(process.category,
-			"waste/treatment",
-			"community/composting" );
+			"waste",
+			"treatment",
+			"community",
+			"composting" );
 
 		check(flow("compost service").category,
-			"waste/treatment",
+			"waste",
+			"treatment",
 			"composting"
 		);
 
 		check(flow("wood chips").category,
-			"materials\\handling",
-			"wood\\\\products"
+			"materials",
+			"handling",
+			"wood",
+			"products"
 		);
 }
 

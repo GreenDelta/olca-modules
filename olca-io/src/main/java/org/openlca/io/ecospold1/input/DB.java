@@ -1,9 +1,12 @@
 package org.openlca.io.ecospold1.input;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -15,10 +18,10 @@ import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.ISource;
-import org.openlca.ecospold.model.DataSet;
 import org.openlca.io.Categories;
 import org.openlca.io.UnitMappingEntry;
 import org.slf4j.Logger;
@@ -45,36 +48,21 @@ class DB {
 		this.search = new DBSearch(database);
 	}
 
-	public Category getPutCategory(ModelType type, String parentName,
-			String name) {
-		String key = StringUtils.join(new Object[] { type.name(), parentName,
-				name }, "/");
-		Category category = categories.get(key);
-		if (category != null)
-			return category;
-		try {
-			CategoryDao dao = new CategoryDao(database);
-			dao.getRootCategories(type);
-			Category parent = null;
-			if (parentName != null) {
-				parent = Categories.findRoot(database, type, parentName);
-				if (parent == null)
-					parent = Categories.createRoot(database, type, parentName);
+	public Category resolveCategory(
+		ModelType type, String category, String subCategory
+	) {
+		var segments = new ArrayList<String>(2);
+		for (var c : List.of(category, subCategory)) {
+			if (Strings.isBlank(c))
+				continue;
+			for (var seg : c.split("[/\\\\]")) {
+				if(Strings.isBlank(seg))
+					continue;
+				segments.add(seg.strip());
 			}
-			category = parent;
-			if (name != null) {
-				if (parent != null)
-					category = Categories
-							.findOrAddChild(database, parent, name);
-				else
-					category = Categories.createRoot(database, type, name);
-			}
-			categories.put(key, category);
-			return category;
-		} catch (Exception e) {
-			log.error("Failed to get category " + key, e);
-			return null;
 		}
+		var path = segments.toArray(String[]::new);
+		return CategoryDao.sync(database, type, path);
 	}
 
 	public Category getPutCategory(Category root, String parentName, String name) {

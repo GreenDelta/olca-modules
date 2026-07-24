@@ -13,9 +13,9 @@ import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Unit;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IReferenceFunction;
-import org.openlca.ecospold.model.DataSet;
 import org.openlca.io.UnitMapping;
 import org.openlca.io.UnitMappingEntry;
 import org.openlca.util.KeyGen;
@@ -168,7 +168,7 @@ class FlowImport {
 		flow.formula = inExchange.getFormula();
 		if (inExchange.isInfrastructureProcess() != null)
 			flow.infrastructureFlow = inExchange.isInfrastructureProcess();
-		Category flowCategory = db.getPutCategory(ModelType.FLOW,
+		Category flowCategory = db.resolveCategory(ModelType.FLOW,
 				inExchange.getCategory(), inExchange.getSubCategory());
 		if (flowCategory != null)
 			flow.category = flowCategory;
@@ -184,7 +184,7 @@ class FlowImport {
 		IReferenceFunction refFun = dataset.getReferenceFunction();
 		flow.casNumber = refFun.getCASNumber();
 		flow.formula = refFun.getFormula();
-		Category flowCategory = db.getPutCategory(ModelType.FLOW,
+		Category flowCategory = db.resolveCategory(ModelType.FLOW,
 				refFun.getCategory(), refFun.getSubCategory());
 		if (flowCategory != null)
 			flow.category = flowCategory;
