@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecoSpold xmlns="http://www.EcoInvent.org/EcoSpold01">
+	<dataset number="1" generator="openLCA test" internalSchemaVersion="1.0">
+		<metaInformation>
+			<processInformation>
+				<referenceFunction
+					name="compost service"
+					unit="kg"
+					category="waste/treatment"
+					subCategory="community/composting"
+					amount="1"
+				/>
+				<geography location="DE"/>
+				<timePeriod dataValidForEntirePeriod="true">
+					<startYear>2024</startYear>
+					<endYear>2025</endYear>
+				</timePeriod>
+				<dataSetInformation type="1"/>
+			</processInformation>
+			<modellingAndValidation/>
+			<administrativeInformation/>
+		</metaInformation>
+		<flowData>
+			<exchange
+				number="1"
+				category="waste/treatment"
+				subCategory="composting"
+				name="compost service"
+				location="DE"
+				unit="kg"
+				meanValue="1"
+			>
+				<outputGroup>0</outputGroup>
+			</exchange>
+			<exchange
+				number="2"
+				category="materials\handling"
+				subCategory="wood\\products"
+				name="wood chips"
+				location="DE"
+				unit="kg"
+				meanValue="0.15"
+			>
+				<inputGroup>5</inputGroup>
+			</exchange>
+		</flowData>
+	</dataset>
+</ecoSpold>
