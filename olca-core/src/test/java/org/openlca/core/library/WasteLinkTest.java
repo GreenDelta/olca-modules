@@ -46,6 +46,7 @@ public class WasteLinkTest {
 		var e = Flow.elementary("e", mass);
 		var w = Flow.waste("w", mass);
 		var W = Process.of("W", w);
+		W.quantitativeReference.amount = 0.5;
 		W.output(e, 1.0);
 		db.insert(units, mass, e, w, W);
 
@@ -75,12 +76,12 @@ public class WasteLinkTest {
 				.filter(i -> i.flow().name.equals("e"))
 				.findAny()
 				.orElseThrow();
-		assertEquals(2.0, resultP.getTotalFlowValueOf(ei), 1e-16);
+		assertEquals(3.0, resultP.getTotalFlowValueOf(ei), 1e-16);
 
 		var resultW = new SystemCalculator(db)
 				.withLibraries(libRoot)
 				.calculate(CalculationSetup.of(W));
-		assertEquals(1.0, resultW.getTotalFlowValueOf(ei), 1e-16);
+		assertEquals(2.0, resultW.getTotalFlowValueOf(ei), 1e-16);
 
 		db.clear();
 	}

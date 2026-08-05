@@ -70,7 +70,8 @@ public class Scaler {
 			if (v == 0)
 				continue;
 			if (i == j && isTech) {
-				m.set(i, j, 1.0);
+				double diag = v < 0 ? -1 : 1;
+				m.set(i, j, diag);
 				continue;
 			}
 			m.set(i, j, f * v);
