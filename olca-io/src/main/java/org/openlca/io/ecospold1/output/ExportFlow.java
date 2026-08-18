@@ -2,26 +2,44 @@ package org.openlca.io.ecospold1.output;
 
 import java.util.Map;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.openlca.commons.Strings;
 import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.ImpactFactor;
+import org.openlca.core.model.Process;
 import org.openlca.core.model.UncertaintyType;
 import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 
+@NullMarked
 class ExportFlow {
 
 	private final IExchange exchange;
 	private final FlowQuant quant;
 
+	@Nullable
+	private final Exchange value;
+
+	@Nullable
+	private final Process owner;
+
+	@Nullable
+	private final FlowNameFormatter flowNames;
+
 	private ExportFlow(
-		@NonNull IExchange exchange, @NonNull FlowQuant quant) {
+		IExchange exchange,
+		FlowQuant quant,
+		@Nullable Exchange value,
+		@Nullable Process owner,
+		@Nullable FlowNameFormatter flowNames) {
 		this.exchange = exchange;
 		this.quant = quant;
+		this.value = value;
+		this.owner = owner;
+		this.flowNames = flowNames;
 	}
 
 	static void of(
@@ -29,17 +47,22 @@ class ExportFlow {
 	) {
 		var quant = FlowQuant.of(factor, mappings);
 		if (quant != null) {
-			new ExportFlow(ds.withExchange(), quant).fill();
+			new ExportFlow(ds.withExchange(), quant, null, null, null).fill();
 		}
 	}
 
 	@Nullable
 	static IExchange of(
-		Exchange exchange, DataSet ds, Map<String, FlowMapEntry> mappings
+		Exchange exchange,
+		DataSet ds,
+		Map<String, FlowMapEntry> mappings,
+		Process owner,
+		FlowNameFormatter flowNames
 	) {
 		var quant = FlowQuant.of(exchange, mappings);
 		return quant != null
-			? new ExportFlow(ds.withExchange(), quant).fill()
+			? new ExportFlow(
+				ds.withExchange(), quant, exchange, owner, flowNames).fill()
 			: null;
 	}
 
@@ -61,7 +84,9 @@ class ExportFlow {
 			&& Strings.isNotBlank(m.flow.name)) {
 			return m.flow.name;
 		}
-		return quant.flow().name;
+		return flowNames != null && owner != null
+			? flowNames.of(owner, value)
+			: quant.flow().name;
 	}
 
 	private String unit() {
@@ -158,7 +183,7 @@ class ExportFlow {
 		}
 	}
 
-	private double conv(Double v) {
+	private double conv(@Nullable Double v) {
 		if (v == null) return 0;
 		return quant.mapping() != null
 			? v * quant.factor()

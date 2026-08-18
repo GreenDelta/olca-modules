@@ -198,7 +198,7 @@ class ProcessConverter {
 	private void mapExchanges(DataSet ds) {
 		var qRef = process.quantitativeReference;
 		for (var e : process.exchanges) {
-			var ix = ExportFlow.of(e, ds, flowMap);
+			var ix = ExportFlow.of(e, ds, flowMap, process, flowNames);
 			if (ix == null)
 				continue;
 			mapComment(e, ix);
