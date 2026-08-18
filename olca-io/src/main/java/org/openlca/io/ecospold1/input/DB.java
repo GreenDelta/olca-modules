@@ -2,7 +2,6 @@ package org.openlca.io.ecospold1.input;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -52,11 +51,11 @@ class DB {
 		ModelType type, String category, String subCategory
 	) {
 		var segments = new ArrayList<String>(2);
-		for (var c : List.of(category, subCategory)) {
+		for (var c : new String[]{category, subCategory}) {
 			if (Strings.isBlank(c))
 				continue;
 			for (var seg : c.split("[/\\\\]")) {
-				if(Strings.isBlank(seg))
+				if (Strings.isBlank(seg))
 					continue;
 				segments.add(seg.strip());
 			}
@@ -66,8 +65,8 @@ class DB {
 	}
 
 	public Category getPutCategory(Category root, String parentName, String name) {
-		String key = StringUtils.join(new Object[] { root.name,
-				parentName, name }, "/");
+		String key = StringUtils.join(new Object[]{root.name,
+			parentName, name}, "/");
 		Category category = categories.get(key);
 		if (category != null)
 			return category;
@@ -121,7 +120,7 @@ class DB {
 	}
 
 	public Flow findFlow(IExchange exchange, String genKey,
-			UnitMappingEntry unitMapping) {
+		UnitMappingEntry unitMapping) {
 		Flow flow = get(Flow.class, flows, genKey);
 		if (flow != null)
 			return flow;
@@ -132,7 +131,7 @@ class DB {
 	}
 
 	public Flow findFlow(DataSet dataSet, String genKey,
-			UnitMappingEntry unitMapping) {
+		UnitMappingEntry unitMapping) {
 		Flow flow = get(Flow.class, flows, genKey);
 		if (flow != null)
 			return flow;
@@ -143,7 +142,7 @@ class DB {
 	}
 
 	private <T extends RootEntity> T get(
-			Class<T> type, Map<String, T> cache, String genKey) {
+		Class<T> type, Map<String, T> cache, String genKey) {
 		T entity = cache.get(genKey);
 		if (entity != null)
 			return entity;
@@ -159,12 +158,12 @@ class DB {
 			var modelType = ModelType.of(type);
 			return (T) Daos.root(database, modelType).getForRefId(id);
 		} catch (Exception e) {
-			log.error("Failed to query database for " + type + " id=" + id, e);
+			log.error("Failed to query database for {} id={}", type, id, e);
 			return null;
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public <T extends AbstractEntity> void put(T entity, String genKey) {
 		if (entity == null)
 			return;
@@ -175,7 +174,7 @@ class DB {
 			if (cache != null)
 				cache.put(genKey, entity);
 		} catch (Exception e) {
-			log.error("Failed to save entity " + entity + " id=" + genKey, e);
+			log.error("Failed to save entity {} id={}", entity, genKey, e);
 		}
 	}
 
