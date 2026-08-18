@@ -7,8 +7,8 @@ import org.openlca.core.io.maps.FlowMapEntry;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactMethod;
 import org.openlca.ecospold.EcoSpold;
-import org.openlca.ecospold.model.IEcoSpold;
 import org.openlca.ecospold.model.DataSet;
+import org.openlca.ecospold.model.IEcoSpold;
 import org.openlca.io.ecospold1.output.EcoSpold1Export.EcoSpold1Config;
 
 class MethodConverter {
@@ -59,8 +59,9 @@ class MethodConverter {
 		refFun.setUnit(indicator.referenceUnit);
 
 		// add impact factors
+		var b = ExchangeBuilder.of(ds, flowMap);
 		for (var f : indicator.impactFactors) {
-			ExportFlow.of(f, ds, flowMap);
+			b.create(f);
 		}
 	}
 }

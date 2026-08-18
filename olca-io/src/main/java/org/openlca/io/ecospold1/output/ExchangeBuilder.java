@@ -15,81 +15,78 @@ import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 
 @NullMarked
-class ExportFlow {
+class ExchangeBuilder {
 
-	private final IExchange exchange;
-	private final FlowQuant quant;
+	private final DataSet ds;
+	private final Map<String, FlowMapEntry> flowMap;
+	private final @Nullable Process owner;
+	private final @Nullable FlowNameFormatter names;
 
-	@Nullable
-	private final Exchange value;
-
-	@Nullable
-	private final Process owner;
-
-	@Nullable
-	private final FlowNameFormatter flowNames;
-
-	private ExportFlow(
-		IExchange exchange,
-		FlowQuant quant,
-		@Nullable Exchange value,
-		@Nullable Process owner,
-		@Nullable FlowNameFormatter flowNames) {
-		this.exchange = exchange;
-		this.quant = quant;
-		this.value = value;
-		this.owner = owner;
-		this.flowNames = flowNames;
-	}
-
-	static void of(
-		ImpactFactor factor, DataSet ds, Map<String, FlowMapEntry> mappings
-	) {
-		var quant = FlowQuant.of(factor, mappings);
-		if (quant != null) {
-			new ExportFlow(ds.withExchange(), quant, null, null, null).fill();
-		}
-	}
-
-	@Nullable
-	static IExchange of(
-		Exchange exchange,
+	private ExchangeBuilder(
 		DataSet ds,
-		Map<String, FlowMapEntry> mappings,
+		Map<String, FlowMapEntry> flowMap,
+		@Nullable Process owner,
+		@Nullable FlowNameFormatter names) {
+		this.ds = ds;
+		this.flowMap = flowMap;
+		this.owner = owner;
+		this.names = names;
+	}
+
+	static ExchangeBuilder of(
+		DataSet ds,
+		Map<String, FlowMapEntry> flowMap,
 		Process owner,
-		FlowNameFormatter flowNames
+		FlowNameFormatter names
 	) {
-		var quant = FlowQuant.of(exchange, mappings);
+		return new ExchangeBuilder(ds, flowMap, owner, names);
+	}
+
+	static ExchangeBuilder of(DataSet ds, Map<String, FlowMapEntry> flowMap) {
+		return new ExchangeBuilder(ds, flowMap, null, null);
+	}
+
+	@Nullable
+	IExchange create(Exchange exchange) {
+		var quant = FlowQuant.of(exchange, flowMap);
 		return quant != null
-			? new ExportFlow(
-				ds.withExchange(), quant, exchange, owner, flowNames).fill()
+			? fill(ds.withExchange(), quant, exchange)
 			: null;
 	}
 
-	private IExchange fill() {
+	void create(ImpactFactor factor) {
+		var quant = FlowQuant.of(factor, flowMap);
+		if (quant != null) {
+			fill(ds.withExchange(), quant, null);
+		}
+	}
+
+	private IExchange fill(
+		IExchange exchange, FlowQuant quant, @Nullable Exchange origin
+	) {
 		exchange.setNumber(quant.number());
-		exchange.setName(name());
-		exchange.setMeanValue(amount());
-		exchange.setUnit(unit());
-		fillCategory();
-		fillFlowAttributes();
-		fillUncertainty();
+		exchange.setName(name(quant, origin));
+		exchange.setMeanValue(amount(quant));
+		exchange.setUnit(unit(quant));
+		fillCategory(quant, exchange);
+		fillFlowAttributes(quant, exchange);
+		fillUncertainty(quant, exchange);
 		return exchange;
 	}
 
-	private String name() {
+	private String name(FlowQuant quant, @Nullable Exchange origin) {
 		var m = quant.mapping();
 		if (m != null
 			&& m.flow != null
 			&& Strings.isNotBlank(m.flow.name)) {
 			return m.flow.name;
 		}
-		return flowNames != null && owner != null
-			? flowNames.of(owner, value)
+		return names != null && owner != null
+			? names.of(owner, origin)
 			: quant.flow().name;
 	}
 
-	private String unit() {
+	private String unit(FlowQuant quant) {
 		var m = quant.mapping();
 		if (m != null
 			&& m.unit != null
@@ -99,13 +96,13 @@ class ExportFlow {
 		return quant.unit().name;
 	}
 
-	private double amount() {
+	private double amount(FlowQuant quant) {
 		return quant.mapping() != null
 			? quant.factor() * quant.amount()
 			: quant.amount();
 	}
 
-	private void fillCategory() {
+	private void fillCategory(FlowQuant quant, IExchange exchange) {
 		var m = quant.mapping();
 		if (m != null && Strings.isNotBlank(m.flowCategory)) {
 			Categories.map(m.flowCategory, exchange);
@@ -114,7 +111,7 @@ class ExportFlow {
 		}
 	}
 
-	private void fillFlowAttributes() {
+	private void fillFlowAttributes(FlowQuant quant, IExchange exchange) {
 		var flow = quant.flow();
 		if (Strings.isNotBlank(flow.casNumber)) {
 			exchange.setCASNumber(flow.casNumber);
@@ -139,7 +136,7 @@ class ExportFlow {
 		}
 	}
 
-	private void fillUncertainty() {
+	private void fillUncertainty(FlowQuant quant, IExchange e) {
 		var u = quant.uncertainty();
 		if (u == null
 			|| u.distributionType == null
@@ -150,32 +147,30 @@ class ExportFlow {
 			&& u.parameter3 == null)
 			return;
 
-		var e = exchange;
-
 		switch (u.distributionType) {
 
 			case NORMAL -> {
-				e.setMeanValue(conv(u.parameter1));
-				e.setStandardDeviation95(conv(u.parameter2 * 2));
+				e.setMeanValue(conv(u.parameter1, quant));
+				e.setStandardDeviation95(conv(u.parameter2 * 2, quant));
 				e.setUncertaintyType(2);
 			}
 
 			case LOG_NORMAL -> {
-				e.setMeanValue(conv(u.parameter1));
+				e.setMeanValue(conv(u.parameter1, quant));
 				e.setStandardDeviation95(Math.pow(u.parameter2, 2));
 				e.setUncertaintyType(1);
 			}
 
 			case TRIANGLE -> {
-				e.setMinValue(conv(u.parameter1));
-				e.setMostLikelyValue(conv(u.parameter2));
-				e.setMaxValue(conv(u.parameter3));
+				e.setMinValue(conv(u.parameter1, quant));
+				e.setMostLikelyValue(conv(u.parameter2, quant));
+				e.setMaxValue(conv(u.parameter3, quant));
 				e.setUncertaintyType(3);
 			}
 
 			case UNIFORM -> {
-				e.setMinValue(conv(u.parameter1));
-				e.setMaxValue(conv(u.parameter2));
+				e.setMinValue(conv(u.parameter1, quant));
+				e.setMaxValue(conv(u.parameter2, quant));
 				e.setUncertaintyType(4);
 			}
 			default -> {
@@ -183,7 +178,7 @@ class ExportFlow {
 		}
 	}
 
-	private double conv(@Nullable Double v) {
+	private double conv(@Nullable Double v, FlowQuant quant) {
 		if (v == null) return 0;
 		return quant.mapping() != null
 			? v * quant.factor()
