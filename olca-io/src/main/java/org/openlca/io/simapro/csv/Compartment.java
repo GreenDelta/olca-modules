@@ -136,7 +136,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 		if (match(path, "emission", "air")) {
 			var type = ElementaryFlowType.EMISSIONS_TO_AIR;
 
-			if (match(path, "stratosphere", "troposhere"))
+			if (match(path, "stratosphere", "troposphere"))
 				return Compartment.of(
 					type, SubCompartment.AIR_STRATOSPHERE_TROPOSPHERE);
 
