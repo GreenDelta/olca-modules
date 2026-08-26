@@ -166,12 +166,12 @@ public final class ImportLog {
 
 	private void add(Message message) {
 		count[message.state.ordinal()]++;
-		if (size() >= MAX_SIZE)
-			return;
-		if (message.hasDescriptor()) {
-			dataSetLogs.put(message.descriptor.id, message);
-		} else {
-			otherLogs.add(message);
+		if (size() < MAX_SIZE) {
+			if (message.hasDescriptor()) {
+				dataSetLogs.put(message.descriptor.id, message);
+			} else {
+				otherLogs.add(message);
+			}
 		}
 		for (var listener : listeners) {
 			listener.accept(message);

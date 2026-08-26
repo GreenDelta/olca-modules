@@ -1,5 +1,6 @@
 package org.openlca.io.simapro.csv;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import org.openlca.commons.Strings;
@@ -53,7 +54,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 			if (compartment.isPresent())
 				return compartment.get();
 		}
-		return matchPath(path);
+		return matchPath(path.toLowerCase(Locale.ROOT));
 	}
 
 	public static Compartment of(Category category) {
@@ -89,7 +90,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 			}
 			c = c.category;
 		}
-		String path = p.toString().toLowerCase();
+		String path = p.toString().toLowerCase(Locale.ROOT);
 		return matchPath(path);
 	}
 
@@ -135,7 +136,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 		if (match(path, "emission", "air")) {
 			var type = ElementaryFlowType.EMISSIONS_TO_AIR;
 
-			if (match(path, "stratosphere", "troposhere"))
+			if (match(path, "stratosphere", "troposphere"))
 				return Compartment.of(
 					type, SubCompartment.AIR_STRATOSPHERE_TROPOSPHERE);
 
@@ -212,15 +213,15 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 
 			if (match(path, "ocean"))
 				return Compartment.of(
-					type, SubCompartment.WATER_LAKE);
-
-			if (match(path, "river"))
-				return Compartment.of(
-					type, SubCompartment.WATER_RIVER);
+					type, SubCompartment.WATER_OCEAN);
 
 			if (match(path, "river", "long", "term"))
 				return Compartment.of(
 					type, SubCompartment.WATER_RIVER_LONG_TERM);
+
+			if (match(path, "river"))
+				return Compartment.of(
+					type, SubCompartment.WATER_RIVER);
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 		} // water emissions
