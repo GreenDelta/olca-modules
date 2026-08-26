@@ -98,6 +98,11 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 		// find compartments for the path; try to match more specific paths first
 		var path = p == null ? "" : p.toLowerCase(Locale.ROOT);
 
+		// reference data paths start with the top-level segment
+		// "Elementary flows"; remove it so that the matching below operates
+		// only on the actual compartment and sub-compartment names
+		path = path.replaceFirst("^elementary flows[/ ]*", "");
+
 		// economic & social flows
 		if (match(path, "social")) {
 			return Compartment.of(
@@ -129,6 +134,11 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 					type, SubCompartment.RESOURCES_LAND);
 
 			if (match(path, "ground"))
+				return Compartment.of(
+					type, SubCompartment.RESOURCES_IN_GROUND);
+
+			// fossil fuels are extracted from the ground
+			if (match(path, "fossil"))
 				return Compartment.of(
 					type, SubCompartment.RESOURCES_IN_GROUND);
 
@@ -219,16 +229,37 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 				return Compartment.of(
 					type, SubCompartment.WATER_OCEAN);
 
+			if (match(path, "fresh", "long", "term"))
+				return Compartment.of(
+					type, SubCompartment.WATER_RIVER_LONG_TERM);
+
 			if (match(path, "river", "long", "term"))
 				return Compartment.of(
 					type, SubCompartment.WATER_RIVER_LONG_TERM);
 
-			if (match(path, "river"))
+			// "fresh water" and "surface water" of the reference data are
+			// surface waters; SimaPro has no such sub-compartment, so they are
+			// mapped to the river sub-compartment
+			if (match(path, "river") || match(path, "fresh") || match(path, "surface"))
 				return Compartment.of(
 					type, SubCompartment.WATER_RIVER);
 
 			return Compartment.of(type, SubCompartment.UNSPECIFIED);
 		} // water emissions
+
+		// non-material (immaterial) emissions
+		if (match(path, "immaterial") || match(path, "non", "material")) {
+			return Compartment.of(
+				ElementaryFlowType.NON_MATERIAL_EMISSIONS,
+				SubCompartment.UNSPECIFIED);
+		}
+
+		// waste flows
+		if (match(path, "waste")) {
+			return Compartment.of(
+				ElementaryFlowType.FINAL_WASTE_FLOWS,
+				SubCompartment.UNSPECIFIED);
+		}
 
 		if (match(path, "land")) {
 			return Compartment.of(
