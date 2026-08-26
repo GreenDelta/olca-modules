@@ -30,15 +30,15 @@ class Util {
 			case LOG_NORMAL -> {
 				row[0] = "Lognormal";
 				row[1] = u.parameter2 != null
-						? Math.pow(u.parameter2, 2)
-						: 1;
+					? Math.pow(u.parameter2, 2)
+					: 1;
 				return row;
 			}
 			case NORMAL -> {
 				row[0] = "Normal";
 				row[1] = u.parameter2 != null
-						? 2 * factor * u.parameter2
-						: 0;
+					? 2 * factor * u.parameter2
+					: 0;
 				return row;
 			}
 			case TRIANGLE -> {
@@ -110,15 +110,15 @@ class Util {
 		if (texts.isEmpty())
 			return "";
 		if (texts.size() == 1)
-			return texts.get(0);
+			return texts.getFirst();
 
 		var buff = new StringBuilder();
 		for (int i = 0; i < sections.size(); i++) {
 			buff.append("# ")
-					.append(sections.get(i))
-					.append('\n')
-					.append(texts.get(i))
-					.append("\n\n");
+				.append(sections.get(i))
+				.append('\n')
+				.append(texts.get(i))
+				.append("\n\n");
 		}
 
 		return buff.toString();
@@ -139,7 +139,7 @@ class Util {
 			return null;
 		for (var rev : p.documentation.reviews) {
 			if (!rev.reviewers.isEmpty())
-				return rev.reviewers.get(0).name;
+				return rev.reviewers.getFirst().name;
 		}
 		return null;
 	}
@@ -157,7 +157,7 @@ class Util {
 		var refProp = e.flow.getReferenceFactor();
 		var refUnit = e.flow.getReferenceUnit();
 		if (Objects.equals(refProp, e.flowPropertyFactor)
-				&& Objects.equals(refUnit, e.unit))
+			&& Objects.equals(refUnit, e.unit))
 			return e;
 		var clone = e.copy();
 		clone.flowPropertyFactor = refProp;

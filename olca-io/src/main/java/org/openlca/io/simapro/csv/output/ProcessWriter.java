@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openlca.commons.Strings;
 import org.openlca.core.database.ParameterDao;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.model.AllocationMethod;
@@ -20,6 +21,8 @@ import org.openlca.core.model.Process;
 import org.openlca.core.model.ProcessType;
 import org.openlca.core.model.doc.ProcessDoc;
 import org.openlca.io.simapro.csv.SimaProUnit;
+import org.openlca.simapro.csv.CsvHeader;
+import org.openlca.simapro.csv.FormulaConverter;
 import org.openlca.simapro.csv.enums.ElementaryFlowType;
 import org.openlca.simapro.csv.enums.ProcessCategory;
 import org.openlca.util.Exchanges;
@@ -45,13 +48,18 @@ class ProcessWriter {
 	private final Set<Flow> linkedFlows = new HashSet<>();
 	private final Set<Flow> providerFlows = new HashSet<>();
 
+	private final FormulaConverter formulas = FormulaConverter
+		.of(new CsvHeader())
+		.decimalSeparator('.')
+		.parameterSeparator(',');
+
 	ProcessWriter(SimaProExport exp, CsvWriter writer) {
 		this.exp = exp;
 		this.units = new UnitMap();
 		this.products = ProductLabeler.of(exp);
 		this.flows = exp.flowMap != null
-				? FlowClassifier.of(units, exp.flowMap)
-				: FlowClassifier.of(units);
+			? FlowClassifier.of(units, exp.flowMap)
+			: FlowClassifier.of(units);
 		this.w = writer;
 	}
 
@@ -92,7 +100,7 @@ class ProcessWriter {
 			var c = flows.compartmentOf(e.flow);
 			if (c == null) {
 				log.warn("could not assign compartment to elementary flow {};"
-						+ " this flow will be skipped in the export", e.flow);
+					+ " this flow will be skipped in the export", e.flow);
 			}
 		}
 	}
@@ -105,8 +113,8 @@ class ProcessWriter {
 
 		// quantities
 		Set<String> quantities = units.values().stream()
-				.map(u -> u.quantity)
-				.collect(Collectors.toSet());
+			.map(u -> u.quantity)
+			.collect(Collectors.toSet());
 		w.ln("Quantities");
 		if (!quantities.contains(kg.quantity)) {
 			w.ln(kg.quantity, "Yes");
@@ -122,15 +130,15 @@ class ProcessWriter {
 		w.ln("Units");
 		if (!us.contains(kg)) {
 			w.ln(kg.symbol,
-					kg.quantity,
-					Double.toString(kg.factor),
-					kg.refUnit);
+				kg.quantity,
+				Double.toString(kg.factor),
+				kg.refUnit);
 		}
 		for (SimaProUnit u : us) {
 			w.ln(u.symbol,
-					u.quantity,
-					Double.toString(u.factor),
-					u.refUnit);
+				u.quantity,
+				Double.toString(u.factor),
+				u.refUnit);
 		}
 		w.endSection();
 		w.ln();
@@ -154,11 +162,11 @@ class ProcessWriter {
 				// select name & unit
 				var mapping = flows.mappingOf(flow);
 				var name = mapping == null
-						? flow.name
-						: mapping.flow();
+					? flow.name
+					: mapping.flow();
 				var unit = mapping == null
-						? units.get(flow.getReferenceUnit())
-						: units.get(mapping.unit());
+					? units.get(flow.getReferenceUnit())
+					: units.get(mapping.unit());
 				if (name == null || unit == null)
 					continue;
 
@@ -177,8 +185,8 @@ class ProcessWriter {
 	private void writeGlobalParameters() {
 
 		String[] sections = {
-				"Database Input parameters",
-				"Database Calculated parameters",
+			"Database Input parameters",
+			"Database Calculated parameters",
 		};
 		for (String s : sections) {
 			w.ln(s);
@@ -186,7 +194,7 @@ class ProcessWriter {
 		}
 
 		var globals = new ParameterDao(exp.db)
-				.getGlobalParameters();
+			.getGlobalParameters();
 
 		w.ln("Project Input parameters");
 		for (var param : globals) {
@@ -194,10 +202,10 @@ class ProcessWriter {
 				continue;
 			var u = uncertainty(param.value, param.uncertainty, 1);
 			w.ln(param.name,
-					param.value,
-					u[0], u[1], u[2], u[3],
-					"No",
-					param.description);
+				param.value,
+				u[0], u[1], u[2], u[3],
+				"No",
+				param.description);
 		}
 		w.endSection();
 
@@ -206,8 +214,8 @@ class ProcessWriter {
 			if (param.isInputParameter)
 				continue;
 			w.ln(param.name,
-					param.formula,
-					param.description);
+				param.formula,
+				param.description);
 		}
 		w.endSection();
 	}
@@ -225,10 +233,10 @@ class ProcessWriter {
 			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfLinkable(e),
-					units.get(ref.unit),
-					ref.amount,
-					u[0], u[1], u[2], u[3],
-					e.description);
+				units.get(ref.unit),
+				amountOf(ref, 1),
+				u[0], u[1], u[2], u[3],
+				e.description);
 		}
 		w.ln();
 
@@ -255,10 +263,10 @@ class ProcessWriter {
 				continue;
 			var u = uncertainty(param.value, param.uncertainty, 1);
 			w.ln(param.name,
-					param.value,
-					u[0], u[1], u[2], u[3],
-					"No",
-					param.description);
+				param.value,
+				u[0], u[1], u[2], u[3],
+				"No",
+				param.description);
 		}
 		w.ln();
 
@@ -268,8 +276,8 @@ class ProcessWriter {
 			if (param.isInputParameter)
 				continue;
 			w.ln(param.name,
-					param.formula,
-					param.description);
+				param.formula,
+				param.description);
 		}
 
 		w.endSection();
@@ -277,8 +285,8 @@ class ProcessWriter {
 
 	private void writeProductOutputs(Process p) {
 		var outputs = p.exchanges.stream()
-				.filter(e -> Exchanges.isProviderFlow(e) && Exchanges.isProduct(e))
-				.toList();
+			.filter(e -> Exchanges.isProviderFlow(e) && Exchanges.isProduct(e))
+			.toList();
 		if (outputs.isEmpty())
 			return;
 
@@ -298,20 +306,20 @@ class ProcessWriter {
 			}
 
 			w.ln(products.labelOf(e.flow, p),
-					units.get(ref.unit),
-					ref.amount,
-					allocation,
-					"not defined",
-					CategoryPath.of(exp, e.flow).path(),
-					e.description);
+				units.get(ref.unit),
+				amountOf(ref, 1),
+				allocation,
+				"not defined",
+				CategoryPath.of(exp, e.flow).path(),
+				e.description);
 		}
 		w.ln();
 	}
 
 	private void writeWasteInputs(Process p) {
 		var inputs = p.exchanges.stream()
-				.filter(e -> Exchanges.isProviderFlow(e) && Exchanges.isWaste(e))
-				.toList();
+			.filter(e -> Exchanges.isProviderFlow(e) && Exchanges.isWaste(e))
+			.toList();
 		if (inputs.isEmpty())
 			return;
 		w.ln("Waste treatment");
@@ -319,11 +327,11 @@ class ProcessWriter {
 			providerFlows.add(e.flow);
 			var ref = Util.toReferenceAmount(e);
 			w.ln(products.labelOf(e.flow, p),
-					units.get(ref.unit),
-					ref.amount,
-					"All waste types",
-					CategoryPath.of(exp, e.flow).path(),
-					e.description);
+				units.get(ref.unit),
+				amountOf(ref, 1),
+				"All waste types",
+				CategoryPath.of(exp, e.flow).path(),
+				e.description);
 		}
 		w.ln();
 	}
@@ -337,10 +345,10 @@ class ProcessWriter {
 			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfLinkable(e),
-					units.get(ref.unit),
-					ref.amount,
-					u[0], u[1], u[2], u[3],
-					e.description);
+				units.get(ref.unit),
+				amountOf(ref, 1),
+				u[0], u[1], u[2], u[3],
+				e.description);
 		}
 		w.ln();
 	}
@@ -354,10 +362,10 @@ class ProcessWriter {
 			var ref = Util.toReferenceAmount(e);
 			var u = uncertainty(ref.amount, ref.uncertainty, 1);
 			w.ln(products.labelOfLinkable(e),
-					units.get(ref.unit),
-					ref.amount,
-					u[0], u[1], u[2], u[3],
-					e.description);
+				units.get(ref.unit),
+				amountOf(ref, 1),
+				u[0], u[1], u[2], u[3],
+				e.description);
 		}
 		w.ln();
 	}
@@ -377,24 +385,37 @@ class ProcessWriter {
 				var ref = Util.toReferenceAmount(e);
 				var u = uncertainty(ref.amount, ref.uncertainty, 1);
 				w.ln(e.flow.name,
-						comp.sub().toString(),
-						units.get(ref.unit),
-						ref.amount,
-						u[0], u[1], u[2], u[3],
-						e.description);
+					comp.sub().toString(),
+					units.get(ref.unit),
+					amountOf(ref, 1),
+					u[0], u[1], u[2], u[3],
+					e.description);
 				continue;
 			}
 
 			// handle a mapped flow
 			var u = uncertainty(e.amount, e.uncertainty, mapping.factor());
 			w.ln(mapping.flow(),
-					comp.sub().toString(),
-					mapping.unit(),
-					e.amount * mapping.factor(),
-					u[0], u[1], u[2], u[3],
-					e.description);
+				comp.sub().toString(),
+				mapping.unit(),
+				amountOf(e, mapping.factor()),
+				u[0], u[1], u[2], u[3],
+				e.description);
 		}
 		w.ln();
+	}
+
+	/// Returns the value that should be written for the given exchange amount. If
+	/// the exchange has a formula it is converted into the SimaPro syntax,
+	/// otherwise the numeric amount multiplied with the given factor is
+	/// returned.
+	private Object amountOf(Exchange e, double factor) {
+		if (Strings.isBlank(e.formula))
+			return factor == 1 ? e.amount : e.amount * factor;
+		var formula = factor == 1
+			? e.formula
+			: factor + " * (" + e.formula + ")";
+		return formulas.convert(formula);
 	}
 
 	private void writeProcessDoc(Process p) {
@@ -417,8 +438,8 @@ class ProcessWriter {
 
 		w.ln("Type");
 		w.ln(p.processType == ProcessType.UNIT_PROCESS
-				? "Unit process"
-				: "System");
+			? "Unit process"
+			: "System");
 		w.ln();
 
 		w.ln("Process name");
@@ -430,24 +451,24 @@ class ProcessWriter {
 		w.ln();
 
 		List.of(
-				"Time period",
-				"Geography",
-				"Technology",
-				"Representativeness").forEach(s -> {
+			"Time period",
+			"Geography",
+			"Technology",
+			"Representativeness").forEach(s -> {
 			w.ln(s);
 			w.ln("Unspecified");
 			w.ln();
 		});
 
 		if (categoryType == ProcessCategory.WASTE_TREATMENT
-				|| categoryType == ProcessCategory.WASTE_SCENARIO) {
+			|| categoryType == ProcessCategory.WASTE_SCENARIO) {
 			w.ln("Waste treatment allocation");
 			w.ln("Unspecified");
 			w.ln();
 		} else {
 			List.of(
-					"Multiple output allocation",
-					"Substitution allocation").forEach(s -> {
+				"Multiple output allocation",
+				"Substitution allocation").forEach(s -> {
 				w.ln(s);
 				w.ln("Unspecified");
 				w.ln();
@@ -455,9 +476,9 @@ class ProcessWriter {
 		}
 
 		List.of(
-				"Cut off rules",
-				"Capital goods",
-				"Boundary with nature").forEach(s -> {
+			"Cut off rules",
+			"Capital goods",
+			"Boundary with nature").forEach(s -> {
 			w.ln(s);
 			w.ln("Unspecified");
 			w.ln();
@@ -469,19 +490,19 @@ class ProcessWriter {
 
 		w.ln("Date");
 		w.ln(new SimpleDateFormat("dd.MM.yyyy")
-				.format(new Date()));
+			.format(new Date()));
 		w.ln();
 
 		w.ln("Record");
 		w.ln(doc.dataDocumentor != null
-				? doc.dataDocumentor.name
-				: "");
+			? doc.dataDocumentor.name
+			: "");
 		w.ln();
 
 		w.ln("Generator");
 		w.ln(doc.dataGenerator != null
-				? doc.dataGenerator.name
-				: "");
+			? doc.dataGenerator.name
+			: "");
 		w.ln();
 
 		// sources
