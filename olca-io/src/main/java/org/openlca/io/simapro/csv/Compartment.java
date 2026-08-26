@@ -54,7 +54,7 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 			if (compartment.isPresent())
 				return compartment.get();
 		}
-		return matchPath(path.toLowerCase(Locale.ROOT));
+		return matchPath(path);
 	}
 
 	public static Compartment of(Category category) {
@@ -90,18 +90,22 @@ public record Compartment(ElementaryFlowType type, SubCompartment sub) {
 			}
 			c = c.category;
 		}
-		String path = p.toString().toLowerCase(Locale.ROOT);
-		return matchPath(path);
+
+		return matchPath(p.toString());
 	}
 
-	private static Compartment matchPath(String path) {
-		// find compartments for the path
-		// try to match more specific first
+	private static Compartment matchPath(String p) {
+		// find compartments for the path; try to match more specific paths first
+		var path = p == null ? "" : p.toLowerCase(Locale.ROOT);
 
-		// social flows
+		// economic & social flows
 		if (match(path, "social")) {
 			return Compartment.of(
 				ElementaryFlowType.SOCIAL_ISSUES, SubCompartment.UNSPECIFIED);
+		}
+		if (match(path, "economic")) {
+			return Compartment.of(
+				ElementaryFlowType.ECONOMIC_ISSUES, SubCompartment.UNSPECIFIED);
 		}
 
 		// resources
