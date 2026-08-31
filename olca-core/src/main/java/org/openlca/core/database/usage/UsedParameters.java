@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
@@ -24,7 +25,7 @@ public class UsedParameters {
 	private final List<ScopedFormula> formulas = new ArrayList<>();
 	private final Map<Long, Long> contextIds = new HashMap<>();
 	private final Map<String, Parameter> parameters = new HashMap<>();
-	private final Map<String, ParameterRedef> used = new HashMap<>();
+	private final Map<String, Parameter> used = new HashMap<>();
 	private final Set<String> checked = new HashSet<>();
 
 	public static List<ParameterRedef> ofSystem(IDatabase db, ProductSystemDescriptor system) {
@@ -51,14 +52,14 @@ public class UsedParameters {
 						return;
 					put(param);
 				});
-		return new ArrayList<>(used.values());
+		return used.values().stream()
+				.filter(param -> param.isInputParameter)
+				.map(param -> redefOf(param, contextIds.get(param.id)))
+				.collect(Collectors.toList());
 	}
 
 	private void put(Parameter param) {
-		if (!param.isInputParameter)
-			return;
-		var key = keyOf(param);
-		used.put(key, redefOf(param, contextIds.get(param.id)));
+		used.put(keyOf(param), param);
 	}
 
 	private boolean isUsed(Parameter param) {
@@ -80,7 +81,7 @@ public class UsedParameters {
 					continue;
 				if (!isUsed(next))
 					continue;
-				put(param);
+				put(next);
 				return true;
 			}
 		}

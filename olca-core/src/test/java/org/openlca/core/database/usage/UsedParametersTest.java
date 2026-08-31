@@ -24,13 +24,37 @@ public class UsedParametersTest {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
+	public void testMultipleInputsInDependentParameter() {
+		parameter(ParameterScope.GLOBAL, "a", 1);
+		parameter(ParameterScope.GLOBAL, "b", 2);
+		parameter(ParameterScope.GLOBAL, "d", "a+b");
+
+		var process = new Process();
+		var exchange = new Exchange();
+		exchange.formula = "d";
+		process.exchanges.add(exchange);
+		process = db.insert(process);
+
+		var system = new ProductSystem();
+		system.processes.add(process.id);
+		system = db.insert(system);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertTrue(contains(used, "a"));
+		Assert.assertTrue(contains(used, "b"));
+		Assert.assertEquals(2, used.size());
+	}
+
+	@Test
 	public void testInSystem() {
 		parameter(ParameterScope.GLOBAL, "g1", 5);
 		parameter(ParameterScope.GLOBAL, "g2", 6);
 		parameter(ParameterScope.GLOBAL, "g3", 7);
 		parameter(ParameterScope.GLOBAL, "g4", 8);
 		parameter(ParameterScope.GLOBAL, "p1", 1);
-		parameter(ParameterScope.GLOBAL, "g6", 1);
+		parameter(ParameterScope.GLOBAL, "g7", 2);
+		parameter(ParameterScope.GLOBAL, "g8", 3);
+		parameter(ParameterScope.GLOBAL, "g6", "g7*g8");
 		db.insert(Parameter.global("g5", "3*g4"));
 
 		var p1 = new Process();
@@ -84,12 +108,13 @@ public class UsedParametersTest {
 		used = UsedParameters.ofSystem(db, Descriptor.of(ps2));
 		Assert.assertTrue(contains(used, "g2"));
 		Assert.assertTrue(contains(used, "g3"));
-		Assert.assertTrue(contains(used, "g6"));
+		Assert.assertTrue(contains(used, "g7"));
+		Assert.assertTrue(contains(used, "g8"));
 		Assert.assertTrue(contains(used, "p1", ModelType.PROCESS, p3.id));
 		Assert.assertTrue(contains(used, "p1", ModelType.PROCESS, p4.id));
 		Assert.assertTrue(contains(used, "p2", ModelType.PROCESS, p4.id));
 		Assert.assertTrue(contains(used, "g6", ModelType.PROCESS, p4.id));
-		Assert.assertEquals(7, used.size());
+		Assert.assertEquals(8, used.size());
 	}
 
 	private boolean contains(
@@ -124,6 +149,21 @@ public class UsedParametersTest {
 		p.value = value;
 		p.scope = scope;
 		p.isInputParameter = true;
+		if (scope != ParameterScope.GLOBAL)
+			return p;
+		p.refId = UUID.randomUUID().toString();
+		return db.insert(p);
+	}
+
+	private Parameter parameter(
+			ParameterScope scope,
+			String name,
+			String formula) {
+		var p = new Parameter();
+		p.name = name;
+		p.formula = formula;
+		p.scope = scope;
+		p.isInputParameter = false;
 		if (scope != ParameterScope.GLOBAL)
 			return p;
 		p.refId = UUID.randomUUID().toString();
