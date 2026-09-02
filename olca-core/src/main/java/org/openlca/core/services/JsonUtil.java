@@ -155,6 +155,26 @@ final class JsonUtil {
 		return obj;
 	}
 
+	static JsonArray encodeTagValues(Map<String, Double> map) {
+    if (map == null || map.isEmpty())
+      return new JsonArray(0);
+    record TagValue(String tag, double value) {
+      JsonObject toJson() {
+        var obj = new JsonObject();
+        Json.put(obj, "tag", tag);
+        Json.put(obj, "amount", value);
+        return obj;
+      }
+    }
+    var list = new ArrayList<TagValue>(map.size());
+    for (var e : map.entrySet()) {
+      if (e.getKey() == null || e.getValue() == null)
+        continue;
+      list.add(new TagValue(e.getKey(), e.getValue()));
+    }
+    return encodeArray(list, TagValue::toJson);
+  }
+
 	static JsonArray encodeGroupValues(Map<String, Double> map) {
 		if (map == null || map.isEmpty())
 			return new JsonArray(0);
