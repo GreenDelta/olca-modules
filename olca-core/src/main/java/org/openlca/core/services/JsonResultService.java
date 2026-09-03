@@ -9,6 +9,7 @@ import static org.openlca.core.services.JsonUtil.encodeGroupValues;
 import static org.openlca.core.services.JsonUtil.encodeImpact;
 import static org.openlca.core.services.JsonUtil.encodeImpactValues;
 import static org.openlca.core.services.JsonUtil.encodeState;
+import static org.openlca.core.services.JsonUtil.encodeTagValues;
 import static org.openlca.core.services.JsonUtil.encodeTechFlow;
 import static org.openlca.core.services.JsonUtil.encodeTechValue;
 import static org.openlca.core.services.JsonUtil.encodeTechValues;
@@ -23,6 +24,7 @@ import static org.openlca.core.services.Util.techFlowOf;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.openlca.commons.Strings;
 import org.openlca.core.database.CurrencyDao;
@@ -33,6 +35,7 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.Sankey;
+import org.openlca.core.results.TagResult;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamTree;
 import org.openlca.jsonld.Json;
@@ -623,6 +626,51 @@ public class JsonResultService {
 		var nodes = UpstreamPath.parse(path).selectChilds(tree);
 		var refs = refs();
 		return encodeArray(nodes, node -> encodeUpstreamNode(node, refs));
+	}
+
+	// endregion
+
+	// region: tag result
+
+	public Response<JsonObject> getTagDirectFlowContributionOf(
+			String resultId, String tag, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(flow -> {
+					var tagResult = TagResult.of(tag, result);
+					var value = tagResult.inventoryResultOf(flow);
+					return encodeEnviValue(value, refs());
+				}));
+	}
+
+	public Response<JsonArray> getTagsDirectFlowContributionsOf(String resultId, EnviFlowId enviFlowId) {
+		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
+				.map(flow -> {
+					var map = TagResult.allOf(result).stream()
+							.collect(Collectors.toMap(
+									TagResult::tag,
+									tagResult -> tagResult.inventoryResultOf(flow).value()));
+					return encodeTagValues(map);
+				}));
+	}
+
+	public Response<JsonObject> getTagDirectImpactOf(String resultId, String tag, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> {
+					var tagResult = TagResult.of(tag, result);
+					var value = tagResult.impactResultOf(impact);
+					return encodeImpact(value, refs());
+				}));
+	}
+
+	public Response<JsonArray> getTagsDirectImpactsOf(String resultId, String impactId) {
+		return withResult(resultId, result -> impactOf(result, impactId)
+				.map(impact -> {
+					var map = TagResult.allOf(result).stream()
+							.collect(Collectors.toMap(
+									TagResult::tag,
+									tagResult -> tagResult.impactResultOf(impact).value()));
+					return encodeTagValues(map);
+				}));
 	}
 
 	// endregion
