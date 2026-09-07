@@ -338,6 +338,28 @@ public class ResultHandler {
 
 	// endregion
 
+	// region: tag results
+
+	@Rpc("result/tag-results-of-flow")
+  public RpcResponse getTagResultsOfFlow(RpcRequest req) {
+    return ResultRequest.of(req, rr ->
+        results.getTagResultsOfFlow(rr.id(), rr.enviFlow()));
+  }
+
+	@Rpc("result/tag-results-of-impact")
+  public RpcResponse getTagResultsOfImpact(RpcRequest req) {
+    return ResultRequest.of(req, rr ->
+        results.getTagResultsOfImpact(rr.id(), rr.impact()));
+  }
+
+	@Rpc("result/tag-results-of-costs")
+  public RpcResponse getTagResultsOfCosts(RpcRequest req) {
+    return ResultRequest.of(req, rr ->
+        results.getTagResultsOfCosts(rr.id()));
+  }
+
+  // endregion
+
 	@Rpc("result/sankey")
 	public RpcResponse getSankeyGraph(RpcRequest req) {
 		return ResultRequest.of(req, rr -> {
