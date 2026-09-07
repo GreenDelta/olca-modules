@@ -632,17 +632,8 @@ public class JsonResultService {
 
 	// region: tag result
 
-	public Response<JsonObject> getTagDirectFlowContributionOf(
-			String resultId, String tag, EnviFlowId enviFlowId) {
-		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
-				.map(flow -> {
-					var tagResult = TagResult.of(tag, result);
-					var value = tagResult.inventoryResultOf(flow);
-					return encodeEnviValue(value, refs());
-				}));
-	}
-
-	public Response<JsonArray> getTagsDirectFlowContributionsOf(String resultId, EnviFlowId enviFlowId) {
+	public Response<JsonArray> getTagResultsOfFlow(
+			String resultId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
 				.map(flow -> {
 					var map = TagResult.allOf(result).stream()
@@ -653,16 +644,8 @@ public class JsonResultService {
 				}));
 	}
 
-	public Response<JsonObject> getTagDirectImpactOf(String resultId, String tag, String impactId) {
-		return withResult(resultId, result -> impactOf(result, impactId)
-				.map(impact -> {
-					var tagResult = TagResult.of(tag, result);
-					var value = tagResult.impactResultOf(impact);
-					return encodeImpact(value, refs());
-				}));
-	}
-
-	public Response<JsonArray> getTagsDirectImpactsOf(String resultId, String impactId) {
+	public Response<JsonArray> getTagResultsOfImpact(
+			String resultId, String impactId) {
 		return withResult(resultId, result -> impactOf(result, impactId)
 				.map(impact -> {
 					var map = TagResult.allOf(result).stream()
@@ -671,6 +654,17 @@ public class JsonResultService {
 									tagResult -> tagResult.impactResultOf(impact).value()));
 					return encodeTagValues(map);
 				}));
+	}
+
+	public Response<JsonArray> getTagResultsOfCosts(String resultId) {
+		return withResult(resultId, result -> {
+			var map = TagResult.allOf(result).stream()
+					.collect(Collectors.toMap(
+							TagResult::tag,
+							tagResult -> tagResult.costs()));
+			var array = encodeTagValues(map);
+			return Response.of(array);
+		});
 	}
 
 	// endregion
