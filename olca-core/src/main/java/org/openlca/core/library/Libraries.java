@@ -3,6 +3,7 @@ package org.openlca.core.library;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -122,7 +123,10 @@ public final class Libraries {
 		var costs = lib.costs();
 		if (costs == null)
 			return 0;
-		int i = lib.techIndex().of(techFlow);
+		var techIndex = lib.techIndex();
+		if (techIndex == null)
+			return 0;
+		int i = techIndex.of(techFlow);
 		return i < 0 ? 0 : costs[i];
 	}
 
@@ -195,12 +199,14 @@ public final class Libraries {
 
 	public static class NoValidLibraryPackageException extends Exception {
 
+		@Serial
 		private static final long serialVersionUID = 3534858021820406145L;
 
 	}
 
 	public static class NoValidLibraryUrlException extends Exception {
 
+		@Serial
 		private static final long serialVersionUID = 3534858021820406145L;
 
 	}

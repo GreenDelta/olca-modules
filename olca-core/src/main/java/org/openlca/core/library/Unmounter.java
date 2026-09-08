@@ -1,10 +1,13 @@
 package org.openlca.core.library;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openlca.core.database.CategoryDao;
@@ -23,7 +26,7 @@ import org.openlca.util.TypedRefIdMap;
 
 public class Unmounter {
 
-	private final IDatabase database;
+	private final IDatabase db;
 	private final Retention retention;
 	private final String lib;
 	private final LibReader reader;
@@ -52,51 +55,83 @@ public class Unmounter {
 		new Unmounter(database, Retention.KEEP_ALL, reader.libraryName(), reader).unmount();
 	}
 
-	private Unmounter(IDatabase database, Retention retention, String lib, LibReader reader) {
-		this.database = database;
+	private Unmounter(IDatabase db, Retention retention, String lib, LibReader reader) {
+		this.db = db;
 		this.retention = retention;
 		this.lib = lib;
 		this.reader = reader;
-		this.processDao = new ProcessDao(database);
-		this.methodDao = new ImpactMethodDao(database);
+		this.processDao = new ProcessDao(db);
+		this.methodDao = new ImpactMethodDao(db);
 	}
 
 	private void init() {
 		this.categoriesToDelete = collectLibraryCategories();
 		this.keep = new TypedRefIdMap<>();
 		this.references = retention == Retention.KEEP_USED
-				? ModelReferences.scan(database)
-				: null;
+			? ModelReferences.scan(db)
+			: null;
 		determineToKeep();
 	}
 
 	private void unmount() {
 		init();
-		for (var type : ModelType.values()) {
+
+		// iterate through the types in "deletion order" so that projects, epd, etc.
+		// are deleted first and things like units, sources etc. last
+		var types = Arrays.stream(ModelType.values())
+			.sorted((a, b) -> Integer.compare(delOrd(a), delOrd(b)))
+			.toList();
+
+		// first, restore entities; important: we cannot restore and delete in one
+		// run as restoring needs library access
+		var removals = new ArrayList<RootDescriptor>();
+		var restored = new EnumMap<ModelType, Set<String>>(ModelType.class);
+		for (var type : types) {
 			if (type == ModelType.CATEGORY)
 				continue;
-			untag(type);
-		}
-		new CategoryDao(database).deleteAll(categoriesToDelete.values());
-		database.removeLibrary(lib);
-	}
-
-	private void untag(ModelType type) {
-		var dao = Daos.root(database, type);
-		var untag = new HashSet<String>();
-		for (var descriptor : dao.getDescriptors()) {
-			if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
-				continue;
-			if (!keep(descriptor)) {
-				dao.delete(descriptor.id);
-			} else {
-				untag.add(descriptor.refId);
-				restoreFromLibrary(descriptor);
+			var rs = restore(type, removals);
+			if (!rs.isEmpty()) {
+				restored.put(type, rs);
 			}
 		}
-		if (!untag.isEmpty()) {
-			Retagger.updateAllOf(database, type, untag, null);
+
+		// delete unused library data
+		for (var rem : removals) {
+			if (rem.type == null)
+				continue;
+			var type = rem.type.getModelClass();
+			var entity = db.get(type, rem.id);
+			db.delete(entity);
 		}
+
+		// delete empty categories
+		new CategoryDao(db).deleteAll(categoriesToDelete.values());
+
+		// untag restored entities
+		for (var e : restored.entrySet()) {
+			var type = e.getKey();
+			var ids = e.getValue();
+			Retagger.updateAllOf(db, type, ids, null);
+		}
+
+		// finally, remove the library
+		db.removeLibrary(lib);
+	}
+
+	private Set<String> restore(ModelType type, List<RootDescriptor> removals) {
+		var dao = Daos.root(db, type);
+		var restored = new HashSet<String>();
+		for (var d : dao.getDescriptors()) {
+			if (!d.isFromLibrary() || !lib.equals(d.library))
+				continue;
+			if (keep(d)) {
+				restoreFromLibrary(d);
+				restored.add(d.refId);
+			} else {
+				removals.add(d);
+			}
+		}
+		return restored;
 	}
 
 	private boolean keep(RootDescriptor descriptor) {
@@ -112,12 +147,12 @@ public class Unmounter {
 		keepCategory(descriptor.category);
 		if (descriptor.type == ModelType.PROCESS) {
 			var process = processDao.getForId(descriptor.id);
-			Libraries.fillExchangesOf(database, reader, process);
+			Libraries.fillExchangesOf(db, reader, process);
 			processDao.update(process);
 		} else if (descriptor.type == ModelType.IMPACT_METHOD) {
 			var method = methodDao.getForId(descriptor.id);
 			for (var impact : method.impactCategories) {
-				Libraries.fillFactorsOf(database, reader, impact);
+				Libraries.fillFactorsOf(db, reader, impact);
 			}
 			methodDao.update(method);
 		}
@@ -127,7 +162,7 @@ public class Unmounter {
 		if (retention != Retention.KEEP_USED)
 			return;
 		for (var type : ModelType.values()) {
-			for (var descriptor : Daos.root(database, type).getDescriptors()) {
+			for (var descriptor : Daos.root(db, type).getDescriptors()) {
 				var ref = new TypedRefId(descriptor.type, descriptor.refId);
 				if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
 					continue;
@@ -161,13 +196,13 @@ public class Unmounter {
 	private Map<Long, Category> collectLibraryCategories() {
 		if (retention == Retention.KEEP_ALL)
 			return new HashMap<>();
-		this.categoryTest = new CategoryContentTest(database);
+		this.categoryTest = new CategoryContentTest(db);
 		var categories = new ArrayList<Category>();
-		for (var category : new CategoryDao(database).getRootCategories()) {
+		for (var category : new CategoryDao(db).getRootCategories()) {
 			categories.addAll(collectCategories(category));
 		}
 		return categories.stream()
-				.collect(Collectors.toMap(c -> c.id, c -> c));
+			.collect(Collectors.toMap(c -> c.id, c -> c));
 	}
 
 	private List<Category> collectCategories(Category category) {
@@ -197,6 +232,30 @@ public class Unmounter {
 		if (category != null && category.category != null) {
 			keepCategory(category.category.id);
 		}
+	}
+
+	private int delOrd(ModelType type) {
+		return switch (type) {
+			case ModelType.PROJECT -> 1;
+			case ModelType.EPD -> 2;
+			case ModelType.RESULT -> 3;
+			case ModelType.IMPACT_METHOD -> 4;
+			case ModelType.IMPACT_CATEGORY -> 5;
+			case ModelType.SOCIAL_INDICATOR -> 6;
+			case ModelType.PRODUCT_SYSTEM -> 7;
+			case ModelType.PROCESS -> 8;
+			case ModelType.FLOW -> 9;
+			case ModelType.FLOW_PROPERTY -> 10;
+			case ModelType.UNIT_GROUP -> 11;
+			case ModelType.CURRENCY -> 12;
+
+			case ModelType.ACTOR,
+			     ModelType.SOURCE,
+			     ModelType.LOCATION,
+			     ModelType.PARAMETER,
+			     ModelType.DQ_SYSTEM -> 99;
+			case CATEGORY -> -99; // is handled otherwise
+		};
 	}
 
 	public enum Retention {
