@@ -16,6 +16,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.ModelReferences;
 import org.openlca.core.database.ProcessDao;
+import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
@@ -96,13 +97,7 @@ public class Unmounter {
 		}
 
 		// delete unused library data
-		for (var rem : removals) {
-			if (rem.type == null)
-				continue;
-			var type = rem.type.getModelClass();
-			var entity = db.get(type, rem.id);
-			db.delete(entity);
-		}
+		deleteAll(removals);
 
 		// delete empty categories
 		new CategoryDao(db).deleteAll(categoriesToDelete.values());
@@ -116,6 +111,20 @@ public class Unmounter {
 
 		// finally, remove the library
 		db.removeLibrary(lib);
+	}
+
+	private void deleteAll(List<RootDescriptor> removals) {
+		ModelType type = null;
+		RootEntityDao<?, ?> dao = null;
+		for (var rem : removals) {
+			if (rem.type == null)
+				continue;
+			dao = type != rem.type
+				? Daos.root(db, rem.type.getModelClass())
+				: dao;
+			type = rem.type;
+			dao.delete(rem.id);
+		}
 	}
 
 	private Set<String> restore(ModelType type, List<RootDescriptor> removals) {
@@ -241,9 +250,9 @@ public class Unmounter {
 			case ModelType.RESULT -> 3;
 			case ModelType.IMPACT_METHOD -> 4;
 			case ModelType.IMPACT_CATEGORY -> 5;
-			case ModelType.SOCIAL_INDICATOR -> 6;
-			case ModelType.PRODUCT_SYSTEM -> 7;
-			case ModelType.PROCESS -> 8;
+			case ModelType.PRODUCT_SYSTEM -> 6;
+			case ModelType.PROCESS -> 7;
+			case ModelType.SOCIAL_INDICATOR -> 8;
 			case ModelType.FLOW -> 9;
 			case ModelType.FLOW_PROPERTY -> 10;
 			case ModelType.UNIT_GROUP -> 11;

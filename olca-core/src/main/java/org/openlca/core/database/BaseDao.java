@@ -14,7 +14,6 @@ import org.openlca.core.model.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.Table;
 import jakarta.persistence.TypedQuery;
 
@@ -65,38 +64,34 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 
 	@Override
 	public void delete(long id) {
-		if (id == 0l)
+		if (id == 0L)
 			return;
-		var entity = getForId(id);
-		if (entity == null)
-			return;
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			em.getTransaction().begin();
-			em.remove(em.merge(entity));
+			var e = em.find(entityType, id);
+			if (e == null) {
+				em.getTransaction().rollback();
+				return;
+			}
+			em.remove(e);
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
-					+ entityType.getSimpleName(), e);
-		} finally {
-			em.close();
+				+ entityType.getSimpleName(), e);
 		}
 	}
-	
+
 	@Override
 	public void delete(T entity) {
 		if (entity == null)
 			return;
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			em.getTransaction().begin();
 			em.remove(em.merge(entity));
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
-					+ entityType.getSimpleName(), e);
-		} finally {
-			em.close();
+				+ entityType.getSimpleName(), e);
 		}
 	}
 
@@ -104,8 +99,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public void deleteAll(Collection<T> entities) {
 		if (entities == null)
 			return;
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			em.getTransaction().begin();
 			for (T entity : entities) {
 				log.trace("About to remove entity {}", entity);
@@ -114,9 +108,7 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while deleting "
-					+ entityType.getSimpleName(), e);
-		} finally {
-			em.close();
+				+ entityType.getSimpleName(), e);
 		}
 	}
 
@@ -124,18 +116,15 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public T update(T entity) {
 		if (entity == null)
 			return null;
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			em.getTransaction().begin();
 			T retval = em.merge(entity);
 			em.getTransaction().commit();
 			return retval;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while updating "
-					+ entityType.getSimpleName(), e);
+				+ entityType.getSimpleName(), e);
 			return entity;
-		} finally {
-			em.close();
 		}
 	}
 
@@ -143,33 +132,27 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	public T insert(T entity) {
 		if (entity == null)
 			return null;
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			em.getTransaction().begin();
 			em.persist(entity);
 			em.getTransaction().commit();
 			return entity;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while inserting "
-					+ entityType.getSimpleName(), e);
+				+ entityType.getSimpleName(), e);
 			return entity;
-		} finally {
-			em.close();
 		}
 	}
 
 	@Override
 	public T getForId(long id) {
 		log.trace("get {} for id={}", entityType, id);
-		var entityManager = db.newEntityManager();
-		try {
-			return entityManager.find(entityType, id);
+		try (var em = db.newEntityManager()) {
+			return em.find(entityType, id);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while loading "
-					+ entityType.getSimpleName() + " with id " + id, e);
+				+ entityType.getSimpleName() + " with id " + id, e);
 			return null;
-		} finally {
-			entityManager.close();
 		}
 	}
 
@@ -179,19 +162,16 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			return Collections.emptyList();
 		if (ids.size() > MAX_LIST_SIZE)
 			return executeChunked(ids, this::getForIds);
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			String jpql = "SELECT o FROM " + entityType.getSimpleName()
-					+ " o WHERE o.id IN :ids";
+				+ " o WHERE o.id IN :ids";
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			query.setParameter("ids", ids);
 			return query.getResultList();
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while fetching for ids",
-					e);
+				e);
 			return Collections.emptyList();
-		} finally {
-			em.close();
 		}
 	}
 
@@ -232,27 +212,23 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	@Override
 	public List<T> getAll() {
 		log.debug("Select all for class {}", entityType);
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			String jpql = "SELECT o FROM ".concat(entityType.getSimpleName())
-					.concat(" o");
+				.concat(" o");
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			List<T> results = query.getResultList();
 			log.debug("{} results", results.size());
 			return results;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while loading all "
-					+ entityType.getSimpleName(), e);
+				+ entityType.getSimpleName(), e);
 			return Collections.emptyList();
-		} finally {
-			em.close();
 		}
 	}
 
 	@Override
 	public List<T> getAll(String jpql, Map<String, ?> parameters) {
-		var em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			TypedQuery<T> query = em.createQuery(jpql, entityType);
 			for (String param : parameters.keySet()) {
 				query.setParameter(param, parameters.get(param));
@@ -260,10 +236,8 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			return query.getResultList();
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while loading all "
-					+ entityType.getSimpleName(), e);
+				+ entityType.getSimpleName(), e);
 			return Collections.emptyList();
-		} finally {
-			em.close();
 		}
 	}
 
@@ -272,14 +246,13 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 		List<T> list = getAll(jpql, parameters);
 		if (list.isEmpty())
 			return null;
-		return list.get(0);
+		return list.getFirst();
 	}
 
 	@Override
 	public long getCount(String jpql, Map<String, Object> parameters) {
-		var em = db.newEntityManager();
-		try {
-			TypedQuery<Long> query = em.createQuery(jpql, Long.class);
+		try (var em = db.newEntityManager()) {
+			var query = em.createQuery(jpql, Long.class);
 			for (String param : parameters.keySet()) {
 				query.setParameter(param, parameters.get(param));
 			}
@@ -287,10 +260,8 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 			return count == null ? 0 : count;
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while getting count of "
-					+ entityType.getSimpleName(), e);
+				+ entityType.getSimpleName(), e);
 			return 0;
-		} finally {
-			em.close();
 		}
 	}
 
@@ -305,14 +276,11 @@ public class BaseDao<T extends AbstractEntity> implements IDao<T> {
 	}
 
 	public void detach(T val) {
-		EntityManager em = db.newEntityManager();
-		try {
+		try (var em = db.newEntityManager()) {
 			em.detach(val);
 		} catch (Exception e) {
 			DatabaseException.logAndThrow(log, "Error while detaching entity "
-					+ entityType.getSimpleName(), e);
-		} finally {
-			em.close();
+				+ entityType.getSimpleName(), e);
 		}
 	}
 
