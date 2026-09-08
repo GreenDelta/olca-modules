@@ -34,7 +34,7 @@ class ImpactCategoryCheck implements Runnable {
 		if (v.wasCanceled())
 			return;
 
-		var visited = new TLongObjectHashMap<TLongHashSet>();
+		var visited = new TLongObjectHashMap<TLongObjectHashMap<TLongHashSet>>();
 
 		var sql = "select " +
 				/* 1 */ "f_impact_category, " +
@@ -51,32 +51,37 @@ class ImpactCategoryCheck implements Runnable {
 				return !v.wasCanceled();
 			}
 
-			var flowID = r.getLong(2);
-			if (!v.ids.contains(ModelType.FLOW, flowID)) {
+			var flowId = r.getLong(2);
+			if (!v.ids.contains(ModelType.FLOW, flowId)) {
 				v.error(impactId, ModelType.IMPACT_CATEGORY,
-						"impact factor with invalid flow ID @" + flowID);
+						"impact factor with invalid flow ID @" + flowId);
 				foundErrors = true;
 			}
 
-			var propID = r.getLong(3);
-			var unitID = r.getLong(4);
-			if (!v.ids.units().isFlowUnit(flowID, propID, unitID)) {
+			var propId = r.getLong(3);
+			var unitId = r.getLong(4);
+			if (!v.ids.units().isFlowUnit(flowId, propId, unitId)) {
 				v.error(impactId, ModelType.IMPACT_CATEGORY,
 						"impact factor with invalid flow property or unit; "
-								+ "flow=" + flowID + " property=" + propID + " unit=" + unitID);
+								+ "flow=" + flowId + " property=" + propId + " unit=" + unitId);
 				foundErrors = true;
 			}
 
-			var locID = r.getLong(5);
-			if (locID != 0 && !v.ids.contains(ModelType.LOCATION, locID)) {
+			var locId = r.getLong(5);
+			if (locId != 0 && !v.ids.contains(ModelType.LOCATION, locId)) {
 				v.error(impactId, ModelType.IMPACT_CATEGORY,
-						"impact factor with invalid location ID @" + locID);
+						"impact factor with invalid location ID @" + locId);
 				foundErrors = true;
 			}
 
-			if (locID == 0 && wasVisitedTwice(impactId, flowID, visited)) {
-				v.error(flowID, ModelType.FLOW,
-						"has multiple impact factors in impact category @" + impactId);
+			if (isDuplicate(impactId, flowId, locId, visited)) {
+				var loc = locId == 0
+						? " without a location"
+						: " for location @" + locId;
+				v.error(flowId, ModelType.FLOW,
+						"has multiple impact factors" + loc
+								+ " in impact category @" + impactId);
+				foundErrors = true;
 			}
 
 			return !v.wasCanceled();
@@ -103,16 +108,23 @@ class ImpactCategoryCheck implements Runnable {
 		});
 	}
 
-	private boolean wasVisitedTwice(
-			long impactId, long flowId, TLongObjectHashMap<TLongHashSet> visited) {
-		var flowIds = visited.get(impactId);
-		if (flowIds == null) {
-			flowIds = new TLongHashSet();
-			visited.put(impactId, flowIds);
+	private boolean isDuplicate(
+			long impactId, long flowId, long locId,
+			TLongObjectHashMap<TLongObjectHashMap<TLongHashSet>> visited
+	) {
+		var flowLocs = visited.get(impactId);
+		if (flowLocs == null) {
+			flowLocs = new TLongObjectHashMap<>();
+			visited.put(impactId, flowLocs);
 		}
-		if (flowIds.contains(flowId))
+		var locs = flowLocs.get(flowId);
+		if (locs == null) {
+			locs = new TLongHashSet();
+			flowLocs.put(flowId, locs);
+		}
+		if (locs.contains(locId))
 			return true;
-		flowIds.add(flowId);
+		locs.add(locId);
 		return false;
 	}
 }
