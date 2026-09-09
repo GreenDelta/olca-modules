@@ -32,8 +32,8 @@ public class Unmounter {
 	private final ProcessDao processDao;
 	private final ImpactMethodDao methodDao;
 
-	private CategoryContentTest categoryTest;
-	private Map<Long, Category> categoriesToDelete;
+	private final CategoryContentTest categoryTest;
+	private final Map<Long, Category> categoriesToDelete;
 
 	public static void keepNone(IDatabase db, String lib) {
 		if (lib == null)
@@ -61,14 +61,11 @@ public class Unmounter {
 		this.processDao = new ProcessDao(db);
 		this.methodDao = new ImpactMethodDao(db);
 		this.keepSet = UnmounterKeepSet.of(retention, db, reader);
-	}
-
-	private void init() {
+		this.categoryTest = new CategoryContentTest(db);
 		this.categoriesToDelete = collectLibraryCategories();
 	}
 
 	private void unmount() {
-		init();
 
 		// iterate through the types in "deletion order" so that projects, epd, etc.
 		// are deleted first and things like units, sources etc. last
@@ -151,12 +148,9 @@ public class Unmounter {
 		}
 	}
 
-
-
 	private Map<Long, Category> collectLibraryCategories() {
 		if (retention == Retention.KEEP_ALL)
 			return new HashMap<>();
-		this.categoryTest = new CategoryContentTest(db);
 		var categories = new ArrayList<Category>();
 		for (var category : new CategoryDao(db).getRootCategories()) {
 			categories.addAll(collectCategories(category));
