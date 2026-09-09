@@ -14,16 +14,13 @@ import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
-import org.openlca.core.database.ModelReferences;
 import org.openlca.core.database.ProcessDao;
 import org.openlca.core.database.RootEntityDao;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.model.Category;
 import org.openlca.core.model.ModelType;
-import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.util.CategoryContentTest;
-import org.openlca.util.TypedRefIdMap;
 
 public class Unmounter {
 
@@ -31,29 +28,29 @@ public class Unmounter {
 	private final Retention retention;
 	private final String lib;
 	private final LibReader reader;
+	private final UnmounterKeepSet keepSet;
 	private final ProcessDao processDao;
 	private final ImpactMethodDao methodDao;
+
 	private CategoryContentTest categoryTest;
 	private Map<Long, Category> categoriesToDelete;
-	private TypedRefIdMap<Boolean> keep;
-	private ModelReferences references;
 
-	public static void keepNone(IDatabase database, String lib) {
+	public static void keepNone(IDatabase db, String lib) {
 		if (lib == null)
 			return;
-		new Unmounter(database, Retention.KEEP_NONE, lib, null).unmount();
+		new Unmounter(db, Retention.KEEP_NONE, lib, null).unmount();
 	}
 
-	public static void keepUsed(IDatabase database, LibReader reader) {
+	public static void keepUsed(IDatabase db, LibReader reader) {
 		if (reader == null)
 			return;
-		new Unmounter(database, Retention.KEEP_USED, reader.libraryName(), reader).unmount();
+		new Unmounter(db, Retention.KEEP_USED, reader.libraryName(), reader).unmount();
 	}
 
-	public static void keepAll(IDatabase database, LibReader reader) {
+	public static void keepAll(IDatabase db, LibReader reader) {
 		if (reader == null)
 			return;
-		new Unmounter(database, Retention.KEEP_ALL, reader.libraryName(), reader).unmount();
+		new Unmounter(db, Retention.KEEP_ALL, reader.libraryName(), reader).unmount();
 	}
 
 	private Unmounter(IDatabase db, Retention retention, String lib, LibReader reader) {
@@ -63,15 +60,11 @@ public class Unmounter {
 		this.reader = reader;
 		this.processDao = new ProcessDao(db);
 		this.methodDao = new ImpactMethodDao(db);
+		this.keepSet = UnmounterKeepSet.of(retention, db, reader);
 	}
 
 	private void init() {
 		this.categoriesToDelete = collectLibraryCategories();
-		this.keep = new TypedRefIdMap<>();
-		this.references = retention == Retention.KEEP_USED
-			? ModelReferences.scan(db)
-			: null;
-		determineToKeep();
 	}
 
 	private void unmount() {
@@ -131,9 +124,9 @@ public class Unmounter {
 		var dao = Daos.root(db, type);
 		var restored = new HashSet<String>();
 		for (var d : dao.getDescriptors()) {
-			if (!d.isFromLibrary() || !lib.equals(d.library))
+			if (!lib.equals(d.library))
 				continue;
-			if (keep(d)) {
+			if (keepSet.has(d)) {
 				restoreFromLibrary(d);
 				restored.add(d.refId);
 			} else {
@@ -141,15 +134,6 @@ public class Unmounter {
 			}
 		}
 		return restored;
-	}
-
-	private boolean keep(RootDescriptor descriptor) {
-		if (retention == Retention.KEEP_NONE)
-			return false;
-		if (retention == Retention.KEEP_ALL)
-			return true;
-		var keepRef = keep.get(descriptor.type, descriptor.refId);
-		return keepRef != null && keepRef;
 	}
 
 	private void restoreFromLibrary(RootDescriptor descriptor) {
@@ -167,40 +151,7 @@ public class Unmounter {
 		}
 	}
 
-	private void determineToKeep() {
-		if (retention != Retention.KEEP_USED)
-			return;
-		for (var type : ModelType.values()) {
-			for (var descriptor : Daos.root(db, type).getDescriptors()) {
-				var ref = new TypedRefId(descriptor.type, descriptor.refId);
-				if (!descriptor.isFromLibrary() || !lib.equals(descriptor.library))
-					continue;
-				if (keep.contains(ref))
-					continue;
-				references.iterateUsages(ref, usage -> {
-					if (usage.library == null || !usage.library.equals(lib)) {
-						keep(usage);
-						return false;
-					}
-					return true;
-				});
-				if (!keep.contains(ref)) {
-					keep.put(ref, false);
-				}
-			}
-		}
-	}
 
-	private void keep(TypedRefId ref) {
-		if (keep.contains(ref))
-			return;
-		keep.put(ref, true);
-		references.iterateReferences(ref, reference -> {
-			if (!lib.equals(reference.library))
-				return;
-			keep(reference);
-		});
-	}
 
 	private Map<Long, Category> collectLibraryCategories() {
 		if (retention == Retention.KEEP_ALL)
@@ -259,10 +210,10 @@ public class Unmounter {
 			case ModelType.CURRENCY -> 12;
 
 			case ModelType.ACTOR,
-			     ModelType.SOURCE,
-			     ModelType.LOCATION,
-			     ModelType.PARAMETER,
-			     ModelType.DQ_SYSTEM -> 99;
+					 ModelType.SOURCE,
+					 ModelType.LOCATION,
+					 ModelType.PARAMETER,
+					 ModelType.DQ_SYSTEM -> 99;
 			case CATEGORY -> -99; // is handled otherwise
 		};
 	}
