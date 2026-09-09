@@ -14,6 +14,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ModelReferences;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.index.EnviFlow;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -103,9 +104,10 @@ class UnmounterKeepSet {
 		}
 
 		/// Adds the data sets to the keep set that are only visible in the library
-		/// matrices: the default providers (matrix A) and the elementary flows and
-		/// locations (matrix B) of used processes as well as the elementary flows
-		/// and locations (matrix C) of used impact categories.
+		/// matrices: the product and waste flows and default providers (matrix A)
+		/// as well as the elementary flows and locations (matrix B) of used
+		/// processes, and the elementary flows and locations (matrix C) of used
+		/// impact categories.
 		private void scanLibraryData(
 			ModelReferences refs, Map<ModelType, Set<String>> keepSet
 		) {
@@ -141,18 +143,28 @@ class UnmounterKeepSet {
 				if (!scanned.add(j))
 					continue;
 
-				// matrix A: default providers of a used process are used too
+				// matrix A: a used process also uses the product and waste
+				// flows at the non-zero entries of its column; the providers of
+				// these flows (with i != j) are default providers and are used
+				// as well
 				var colA = libReader.columnOf(LibMatrix.A, j);
 				if (colA != null) {
 					for (int i = 0; i < colA.length; i++) {
-						// the diagonal is the own provider flow of the process
-						if (i == j || colA[i] == 0)
+						if (colA[i] == 0)
 							continue;
 						var tf = techIdx.at(i);
+						keepFlowOf(refs, keepSet, tf);
+						if (i == j)
+							continue; // the diagonal is the process's own flow
 						var p = tf.provider();
 						if (p.type != ModelType.PROCESS || !lib.equals(p.library))
 							continue;
-						if (procKeep.add(p.refId)) {
+						// keep adds the process to the keep set AND expands its
+						// complete DB reference tree (documentation actors,
+						// location, DQ systems, ...); we must not add the process
+						// to the keep set before calling keep as that would skip
+						// the tree expansion
+						if (!procKeep.contains(p.refId)) {
 							keep(refs, keepSet, ModelType.PROCESS, p.refId);
 							var col = colOf.get(p.refId);
 							if (col != null)
@@ -189,6 +201,18 @@ class UnmounterKeepSet {
 					}
 				}
 			}
+		}
+
+		private void keepFlowOf(
+			ModelReferences refs,
+			Map<ModelType, Set<String>> keepSet,
+			TechFlow tf
+		) {
+			if (tf == null)
+				return;
+			var flow = tf.flow();
+			if (flow != null && lib.equals(flow.library))
+				keep(refs, keepSet, ModelType.FLOW, flow.refId);
 		}
 
 		private void keepEnviFlow(
