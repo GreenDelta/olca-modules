@@ -1,9 +1,11 @@
 package org.openlca.core.library;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,7 +16,7 @@ import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ModelReferences;
 import org.openlca.core.library.reader.LibReader;
 import org.openlca.core.matrix.index.EnviFlow;
-import org.openlca.core.matrix.index.TechFlow;
+import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.TypedRefId;
 import org.openlca.core.model.descriptors.RootDescriptor;
@@ -95,150 +97,151 @@ class UnmounterKeepSet {
 				}
 			}
 
-			// library processes and impact categories are stored as stubs in the
+			// Library processes and impact categories are stored as stubs in the
 			// database (without exchanges and CFs) so their dependencies (default
 			// providers, flows, locations) only exist in the library matrices; add
-			// them to the keep set here
-			scanLibraryData(refs, keepSet);
+			// them to the keep set here.
+			scanInventoryMatrices(refs, keepSet);
+			scanImpactMatrix(refs, keepSet);
 			return keepSet;
 		}
 
-		/// Adds the data sets to the keep set that are only visible in the library
-		/// matrices: the product and waste flows and default providers (matrix A)
-		/// as well as the elementary flows and locations (matrix B) of used
-		/// processes, and the elementary flows and locations (matrix C) of used
-		/// impact categories.
-		private void scanLibraryData(
+
+		private void scanImpactMatrix(
+			ModelReferences refs, Map<ModelType, Set<String>> keepSet
+		) {
+
+			var used = keepSet.get(ModelType.IMPACT_CATEGORY);
+			if (used == null)
+				return;
+
+			var impactIdx = libReader.impactIndex();
+			var enviIdx = libReader.enviIndex();
+			if (impactIdx == null || enviIdx == null)
+				return;
+
+			var matrixC = libReader.matrixOf(LibMatrix.C);
+			if (matrixC == null)
+				return;
+
+			for (int row = 0; row < impactIdx.size(); row++) {
+				var cat = impactIdx.at(row);
+				if (cat == null || !used.contains(cat.refId))
+					continue;
+				for (int col = 0; col < enviIdx.size(); col++) {
+					if (matrixC.get(row, col) != 0) {
+						keepEnviFlow(refs, keepSet, enviIdx.at(col));
+					}
+				}
+			}
+		}
+
+		private void scanInventoryMatrices(
 			ModelReferences refs, Map<ModelType, Set<String>> keepSet
 		) {
 			var techIdx = libReader.techIndex();
 			var enviIdx = libReader.enviIndex();
 
-			// the column of a library process in A and B is the position of its
-			// provider flow in the tech index
-			var colOf = new HashMap<String, Integer>();
-			if (techIdx != null) {
-				for (int i = 0; i < techIdx.size(); i++) {
-					var tf = techIdx.at(i);
-					var p = tf.provider();
-					if (p.type == ModelType.PROCESS && lib.equals(p.library)) {
-						colOf.put(p.refId, i);
-					}
-				}
-			}
-
-			// default providers, flows and locations of used processes
-			var procKeep = keepSet
-				.computeIfAbsent(ModelType.PROCESS, _ -> new HashSet<>());
+			// start with the used providers, if any;
+			// go through the matrices A and B to add
+			// used flows, locations, and providers;
+			// repeat until all providers are visited
+			var techCols = columnIndexOf(techIdx);
 			var queue = new ArrayDeque<Integer>();
-			var scanned = new HashSet<Integer>();
-			for (var e : colOf.entrySet()) {
-				if (procKeep.contains(e.getKey())) {
-					queue.add(e.getValue());
+			var visited = new HashSet<Integer>();
+			for (var e : techCols.entrySet()) {
+				if (contains(e.getKey(), keepSet)) {
+					queue.addAll(e.getValue());
 				}
 			}
 
 			while (!queue.isEmpty()) {
 				int j = queue.poll();
-				if (!scanned.add(j))
+				if (!visited.add(j))
 					continue;
 
-				// matrix A: a used process also uses the product and waste
-				// flows at the non-zero entries of its column; the providers of
-				// these flows (with i != j) are default providers and are used
-				// as well
 				var colA = libReader.columnOf(LibMatrix.A, j);
-				if (colA != null) {
-					for (int i = 0; i < colA.length; i++) {
-						if (colA[i] == 0)
-							continue;
-						var tf = techIdx.at(i);
-						keepFlowOf(refs, keepSet, tf);
-						if (i == j)
-							continue; // the diagonal is the process's own flow
-						var p = tf.provider();
-						if (p.type != ModelType.PROCESS || !lib.equals(p.library))
-							continue;
-						// keep adds the process to the keep set AND expands its
-						// complete DB reference tree (documentation actors,
-						// location, DQ systems, ...); we must not add the process
-						// to the keep set before calling keep as that would skip
-						// the tree expansion
-						if (!procKeep.contains(p.refId)) {
-							keep(refs, keepSet, ModelType.PROCESS, p.refId);
-							var col = colOf.get(p.refId);
-							if (col != null)
-								queue.add(col);
-						}
+				if (colA == null)
+					continue;
+
+				// collect used product and waste flows and default
+				// providers (recursively) from matrix A
+				for (int i = 0; i < colA.length; i++) {
+					if (i == j || colA[i] == 0)
+						continue;
+
+					var tf = techIdx.at(i);
+					if (tf.provider() == null)
+						continue;
+
+					checkKeep(refs, keepSet, tf.flow());
+					var providerId = new TypedRefId(
+						tf.provider().type, tf.provider().refId);
+					if (contains(providerId, keepSet))
+						continue;
+					checkKeep(refs, keepSet, tf.provider());
+					var nextCols = techCols.get(providerId);
+					if (nextCols != null) {
+						queue.addAll(nextCols);
 					}
 				}
 
-				// matrix B: elementary flows and locations of a used process
+				// collect used elementary flows and locations from
+				// matrix B
+				if (enviIdx == null)
+					continue;
 				var colB = libReader.columnOf(LibMatrix.B, j);
-				if (colB != null && enviIdx != null) {
-					for (int k = 0; k < colB.length; k++) {
-						if (colB[k] != 0)
-							keepEnviFlow(refs, keepSet, enviIdx.at(k));
-					}
-				}
-			}
-
-			// matrix C: elementary flows and locations of used impact categories
-			var impacts = libReader.impactIndex();
-			var catKeep = keepSet.get(ModelType.IMPACT_CATEGORY);
-			if (impacts != null && catKeep != null && enviIdx != null) {
-				var mC = libReader.matrixOf(LibMatrix.C);
-				if (mC != null) {
-					for (int h = 0; h < impacts.size(); h++) {
-						var cat = impacts.at(h);
-						if (cat == null || !catKeep.contains(cat.refId))
-							continue;
-						var row = mC.getRow(h);
-						for (int k = 0; k < row.length; k++) {
-							if (row[k] != 0)
-								keepEnviFlow(refs, keepSet, enviIdx.at(k));
-						}
-					}
+				if (colB == null)
+					continue;
+				for (int k = 0; k < colB.length; k++) {
+					if (colB[k] != 0)
+						keepEnviFlow(refs, keepSet, enviIdx.at(k));
 				}
 			}
 		}
 
-		private void keepFlowOf(
-			ModelReferences refs,
-			Map<ModelType, Set<String>> keepSet,
-			TechFlow tf
+		private Map<TypedRefId, List<Integer>> columnIndexOf(
+			@Nullable TechIndex techIdx
 		) {
-			if (tf == null)
-				return;
-			var flow = tf.flow();
-			if (flow != null && lib.equals(flow.library))
-				keep(refs, keepSet, ModelType.FLOW, flow.refId);
+			if (techIdx == null)
+				return Map.of();
+			var map = new HashMap<TypedRefId, List<Integer>>(techIdx.size());
+			techIdx.each((col, techFlow) -> {
+				var p = techFlow.provider();
+				if (p == null)
+					return;
+				var tid = new TypedRefId(p.type, p.refId);
+				map.computeIfAbsent(tid, _ -> new ArrayList<>()).add(col);
+			});
+			return map;
 		}
 
 		private void keepEnviFlow(
 			ModelReferences refs,
 			Map<ModelType, Set<String>> keepSet,
-			@Nullable EnviFlow iFlow
+			@Nullable EnviFlow enviFlow
 		) {
-			if (iFlow == null)
+			if (enviFlow == null)
 				return;
-			var flow = iFlow.flow();
-			if (flow != null && lib.equals(flow.library))
-				keep(refs, keepSet, ModelType.FLOW, flow.refId);
-			var location = iFlow.location();
-			if (location != null && lib.equals(location.library))
-				keep(refs, keepSet, ModelType.LOCATION, location.refId);
+			checkKeep(refs, keepSet, enviFlow.flow());
+			checkKeep(refs, keepSet, enviFlow.location());
 		}
 
-		private void keep(
+		private void checkKeep(
 			ModelReferences refs,
 			Map<ModelType, Set<String>> keepSet,
-			ModelType type,
-			String refId
+			@Nullable RootDescriptor d
 		) {
-			var set = keepSet.computeIfAbsent(type, _ -> new HashSet<>());
-			if (set.add(refId))
-				keepTreeOf(new TypedRefId(type, refId), refs, keepSet);
+			if (d == null
+				|| d.type == null
+				|| d.refId == null
+				|| !lib.equals(d.library))
+				return;
+			var set = keepSet.computeIfAbsent(d.type, _ -> new HashSet<>());
+			if (set.add(d.refId)) {
+				// if it was newly added, also add the library references
+				keepTreeOf(new TypedRefId(d.type, d.refId), refs, keepSet);
+			}
 		}
 
 		private void keepTreeOf(
@@ -259,5 +262,4 @@ class UnmounterKeepSet {
 			return set != null && set.contains(ref.refId);
 		}
 	}
-
 }
