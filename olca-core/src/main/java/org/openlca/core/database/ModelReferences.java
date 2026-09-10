@@ -154,7 +154,8 @@ public class ModelReferences {
 
 	private void scanDQSystems() {
 		scanTable("tbl_dq_systems", true,
-				new ModelField(ModelType.DQ_SYSTEM, "id"));
+				new ModelField(ModelType.DQ_SYSTEM, "id"),
+				new ModelField(ModelType.SOURCE, "f_source"));
 	}
 
 	private void scanGlobalParameters() {
@@ -234,9 +235,19 @@ public class ModelReferences {
 		scanTable("tbl_compliance_declarations", false,
 				new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
 				new ModelField(ModelType.SOURCE, "f_system"));
-		scanTable("tbl_reviews", false,
+
+		// the reviewers of a review; the owner of a row in the actor links
+		// is the ID of a review which we need to map to the process of the
+		// related process documentation
+		var reviewToDoc = scanTable("tbl_reviews", false, "id",
 				new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
 				new ModelField(ModelType.SOURCE, "f_report"));
+		scanTable("tbl_actor_links", false,
+				new ModelField(ModelType.PROCESS, "f_owner", reviewId -> {
+					var docId = reviewToDoc.get(reviewId);
+					return docId == null ? null : docsToProcess.get(docId);
+				}),
+				new ModelField(ModelType.ACTOR, "f_actor"));
 	}
 
 	private void scanProductSystems() {
@@ -248,6 +259,14 @@ public class ModelReferences {
 				new ModelField(ModelType.PROCESS, "f_process"),
 				new ModelField(new Condition("provider_type", this::getProviderType), "f_provider"),
 				new ModelField(ModelType.FLOW, "f_flow"));
+
+		// the processes contained in a product system; note that this table
+		// has no type information so the entries are registered as processes,
+		// this will not find unlinked results or product systems but is better
+		// than nothing for now.
+		scanTable("tbl_product_system_processes", false,
+				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"),
+				new ModelField(ModelType.PROCESS, "f_process"));
 		var setToSystem = scanTable("tbl_parameter_redef_sets", false, "id",
 				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"));
 		scanParameterRedefs(ModelType.PRODUCT_SYSTEM, setToSystem::get);
