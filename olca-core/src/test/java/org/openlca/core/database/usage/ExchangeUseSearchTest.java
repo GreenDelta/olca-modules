@@ -1,131 +1,155 @@
 package org.openlca.core.database.usage;
 
-import java.util.Arrays;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.database.ProcessDao;
-import org.openlca.core.database.ProductSystemDao;
-import org.openlca.core.model.Exchange;
+import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.Flow;
+import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
-import org.openlca.core.model.ProcessLink;
 import org.openlca.core.model.ProductSystem;
 import org.openlca.core.model.RootEntity;
-import org.openlca.core.model.descriptors.RootDescriptor;
+import org.openlca.core.model.UnitGroup;
 
 /**
  * Creates a simple product system with 2 processes p and q. Process p has 3
  * outputs and process q has 3 inputs with the same flows. The product system
  * has the first output of p as quantitative reference. The second output of p
  * and the second input of q are linked in this product system. The tests search
- * for the the usage of the exchanges of p.
+ * for the usage of the exchanges of p.
  */
 public class ExchangeUseSearchTest {
 
-	private final String SYS_NAME = "ExchangeUseSearchTest_System";
+	private static final String SYS_NAME = "ExchangeUseSearchTest_System";
 
+	private final IDatabase db = Tests.getDb();
+	private final List<RootEntity> created = new ArrayList<>();
+
+	private FlowProperty mass;
 	private Process p;
 	private Process q;
-	private final Stack<RootEntity> entities = new Stack<>();
-	private final IDatabase db = Tests.getDb();
 
 	@Before
 	public void setUp() {
-		p = new Process();
-		q = new Process();
-		addExchanges();
-		ProcessDao dao = new ProcessDao(db);
-		p = dao.insert(p);
-		q = dao.insert(q);
-		entities.push(p);
-		entities.push(q);
-		createSystem();
+		var units = insert(UnitGroup.of("Units of mass", "kg"));
+		mass = insert(FlowProperty.of("Mass", units));
+		var f1 = insert(Flow.product("f1", mass));
+		var f2 = insert(Flow.product("f2", mass));
+		var f3 = insert(Flow.product("f3", mass));
+
+		// p has 3 outputs; the first one is the quantitative reference
+		p = Process.of("p", f1);
+		p.output(f2, 1);
+		p.output(f3, 1);
+		p = insert(p);
+
+		// q has 3 inputs with the same flows as the outputs of p
+		q = Process.of("q", null);
+		q.input(f1, 1);
+		q.input(f2, 1);
+		q.input(f3, 1);
+		q = insert(q);
+
+		// the second output of p is linked with the second input of q
+		var system = ProductSystem.of(SYS_NAME, p);
+		system.link(TechFlow.of(p, f2), q);
+		insert(system);
 	}
 
 	@After
 	public void tearDown() {
-		while (!entities.isEmpty()) {
-			var entity = entities.pop();
-			db.delete(entity);
+		for (int i = created.size() - 1; i >= 0; i--) {
+			db.delete(created.get(i));
 		}
+		created.clear();
 	}
 
-	private void addExchanges() {
-		for (int i = 1; i < 4; i++) {
-			Flow flow = new Flow();
-			flow.name = "flow_" + 1;
-			flow = db.insert(flow);
-			entities.push(flow);
-			Exchange ep = new Exchange();
-			ep.flow = flow;
-			ep.isInput = false;
-			p.exchanges.add(ep);
-			Exchange eq = ep.copy();
-			eq.isInput = true;
-			q.exchanges.add(eq);
-		}
-	}
-
-	private void createSystem() {
-		ProductSystem system = new ProductSystem();
-		system.name = SYS_NAME;
-		system.referenceProcess = p;
-		system.referenceExchange = p.exchanges.get(0);
-		Flow linkFlow = p.exchanges.get(1).flow;
-		ProcessLink link = new ProcessLink();
-		link.providerId = p.id;
-		link.processId = q.id;
-		link.flowId = linkFlow.id;
-		system.processLinks.add(link);
-		system = new ProductSystemDao(db).insert(system);
-		entities.push(system);
+	private <T extends RootEntity> T insert(T e) {
+		created.add(e);
+		return db.insert(e);
 	}
 
 	@Test
 	public void testSingleFindNothing() {
-		ExchangeUseSearch search = new ExchangeUseSearch(db, p);
-		List<RootDescriptor> list = search.findUses(p.exchanges.get(2));
-		Assert.assertTrue(list.isEmpty());
+		var search = new ExchangeUseSearch(db, p);
+		assertTrue(search.findUses(p.exchanges.get(2)).isEmpty());
 	}
 
 	@Test
 	public void testMultiFindNothing() {
-		ExchangeUseSearch search = new ExchangeUseSearch(db, q);
-		List<Exchange> exchanges = Arrays.asList(
-				q.exchanges.get(0), q.exchanges.get(2));
-		List<RootDescriptor> list = search.findUses(exchanges);
-		Assert.assertTrue(list.isEmpty());
+		var search = new ExchangeUseSearch(db, q);
+		var exchanges = List.of(q.exchanges.get(0), q.exchanges.get(2));
+		assertTrue(search.findUses(exchanges).isEmpty());
 	}
 
 	@Test
 	public void testFindInReference() {
-		ExchangeUseSearch search = new ExchangeUseSearch(db, p);
-		List<RootDescriptor> list = search.findUses(p.exchanges.get(0));
-		Assert.assertEquals(list.get(0).name, SYS_NAME);
-		Assert.assertEquals(list.size(), 1);
+		var search = new ExchangeUseSearch(db, p);
+		var uses = search.findUses(p.exchanges.getFirst());
+		assertEquals(1, uses.size());
+		assertEquals(SYS_NAME, uses.getFirst().name);
 	}
 
 	@Test
 	public void testFindInLinks() {
-		ExchangeUseSearch search = new ExchangeUseSearch(db, p);
-		List<RootDescriptor> list = search.findUses(p.exchanges.get(1));
-		Assert.assertEquals(list.get(0).name, SYS_NAME);
-		Assert.assertEquals(list.size(), 1);
+		var search = new ExchangeUseSearch(db, p);
+		var uses = search.findUses(p.exchanges.get(1));
+		assertEquals(1, uses.size());
+		assertEquals(SYS_NAME, uses.getFirst().name);
 	}
 
 	@Test
 	public void testFindAllDistinct() {
-		ExchangeUseSearch search = new ExchangeUseSearch(db, p);
-		List<RootDescriptor> list = search.findUses(p.exchanges);
-		Assert.assertEquals(list.get(0).name, SYS_NAME);
-		Assert.assertEquals(list.size(), 1);
+		var search = new ExchangeUseSearch(db, p);
+		var uses = search.findUses(p.exchanges);
+		assertEquals(1, uses.size());
+		assertEquals(SYS_NAME, uses.getFirst().name);
+	}
+
+	@Test
+	public void testDuplicateFlowInput() {
+		var flow = insert(Flow.product("dup", mass));
+		var provider = insert(Process.of("provider", flow));
+
+		// the consumer has two inputs of the same flow; only the first one
+		// is linked to the provider of that flow
+		var consumer = Process.of(
+			"consumer", insert(Flow.product("p", mass)));
+		consumer.input(flow, 1).description = "A";
+		consumer = insert(consumer);
+
+		var system = ProductSystem.of("duplicate-flow-system", consumer);
+		system.link(TechFlow.of(provider, flow), consumer);
+		system = insert(system);
+
+		// add a second input of the same flow that is not linked
+		consumer.input(flow, 1).description = "B";
+		consumer = db.update(consumer);
+
+		var search = new ExchangeUseSearch(db, consumer);
+		var linked = consumer.exchanges.stream()
+			.filter(e -> "A".equals(e.description))
+			.findAny()
+			.orElseThrow();
+		var unlinked = consumer.exchanges.stream()
+			.filter(e -> "B".equals(e.description))
+			.findAny()
+			.orElseThrow();
+
+		// the linked input is found in the product system
+		var uses = search.findUses(linked);
+		assertEquals(1, uses.size());
+		assertEquals(system.refId, uses.getFirst().refId);
+
+		// the unlinked input is not used, even though it has the same flow
+		assertTrue(search.findUses(unlinked).isEmpty());
 	}
 
 }
