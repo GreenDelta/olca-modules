@@ -3,6 +3,7 @@ package org.openlca.core.database;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,6 +22,9 @@ import org.openlca.util.TypedRefIdMap;
  * (non-transitively)
  */
 public class ModelReferences {
+
+	private static final Set<ModelType> PROVIDER_TYPES = EnumSet.of(
+		ModelType.PROCESS, ModelType.PRODUCT_SYSTEM, ModelType.RESULT);
 
 	private final IDatabase database;
 	private final TypedRefIdMap<IdAndLibrary> refIdToId = new TypedRefIdMap<>();
@@ -121,41 +125,41 @@ public class ModelReferences {
 
 	private void scanLocations() {
 		scanTable("tbl_locations", true,
-				new ModelField(ModelType.LOCATION, "id"));
+			new ModelField(ModelType.LOCATION, "id"));
 	}
 
 	private void scanSources() {
 		scanTable("tbl_sources", true,
-				new ModelField(ModelType.SOURCE, "id"));
+			new ModelField(ModelType.SOURCE, "id"));
 	}
 
 	private void scanActors() {
 		scanTable("tbl_actors", true,
-				new ModelField(ModelType.ACTOR, "id"));
+			new ModelField(ModelType.ACTOR, "id"));
 	}
 
 	private void scanCurrencies() {
 		scanTable("tbl_currencies", true,
-				new ModelField(ModelType.CURRENCY, "id"),
-				new ModelField(ModelType.CURRENCY, "f_reference_currency"));
+			new ModelField(ModelType.CURRENCY, "id"),
+			new ModelField(ModelType.CURRENCY, "f_reference_currency"));
 	}
 
 	private void scanUnitGroups() {
 		scanTable("tbl_unit_groups", true,
-				new ModelField(ModelType.UNIT_GROUP, "id"),
-				new ModelField(ModelType.FLOW_PROPERTY, "f_default_flow_property"));
+			new ModelField(ModelType.UNIT_GROUP, "id"),
+			new ModelField(ModelType.FLOW_PROPERTY, "f_default_flow_property"));
 	}
 
 	private void scanFlowProperties() {
 		scanTable("tbl_flow_properties", true,
-				new ModelField(ModelType.FLOW_PROPERTY, "id"),
-				new ModelField(ModelType.UNIT_GROUP, "f_unit_group"));
+			new ModelField(ModelType.FLOW_PROPERTY, "id"),
+			new ModelField(ModelType.UNIT_GROUP, "f_unit_group"));
 	}
 
 	private void scanDQSystems() {
 		scanTable("tbl_dq_systems", true,
-				new ModelField(ModelType.DQ_SYSTEM, "id"),
-				new ModelField(ModelType.SOURCE, "f_source"));
+			new ModelField(ModelType.DQ_SYSTEM, "id"),
+			new ModelField(ModelType.SOURCE, "f_source"));
 	}
 
 	private void scanGlobalParameters() {
@@ -171,152 +175,197 @@ public class ModelReferences {
 
 	private void scanSocialIndicators() {
 		scanTable("tbl_social_indicators", true,
-				new ModelField(ModelType.SOCIAL_INDICATOR, "id"),
-				new ModelField(ModelType.FLOW_PROPERTY, "f_activity_quantity"));
+			new ModelField(ModelType.SOCIAL_INDICATOR, "id"),
+			new ModelField(ModelType.FLOW_PROPERTY, "f_activity_quantity"));
 	}
 
 	private void scanImpactCategories() {
 		scanTable("tbl_impact_categories", true,
-				new ModelField(ModelType.IMPACT_CATEGORY, "id"),
-				new ModelField(ModelType.SOURCE, "f_source"));
+			new ModelField(ModelType.IMPACT_CATEGORY, "id"),
+			new ModelField(ModelType.SOURCE, "f_source"));
 		scanTable("tbl_impact_factors", false,
-				new ModelField(ModelType.IMPACT_CATEGORY, "f_impact_category"),
-				new ModelField(ModelType.FLOW, "f_flow"),
-				new ModelField(ModelType.LOCATION, "f_location"));
+			new ModelField(ModelType.IMPACT_CATEGORY, "f_impact_category"),
+			new ModelField(ModelType.FLOW, "f_flow"),
+			new ModelField(ModelType.LOCATION, "f_location"));
 	}
 
 	private void scanImpactMethods() {
 		scanTable("tbl_impact_methods", true,
-				new ModelField(ModelType.IMPACT_METHOD, "id"),
-				new ModelField(ModelType.SOURCE, "f_source"));
+			new ModelField(ModelType.IMPACT_METHOD, "id"),
+			new ModelField(ModelType.SOURCE, "f_source"));
 		scanTable("tbl_impact_links", false,
-				new ModelField(ModelType.IMPACT_METHOD, "f_impact_method"),
-				new ModelField(ModelType.IMPACT_CATEGORY, "f_impact_category"));
+			new ModelField(ModelType.IMPACT_METHOD, "f_impact_method"),
+			new ModelField(ModelType.IMPACT_CATEGORY, "f_impact_category"));
 	}
 
 	private void scanFlows() {
 		scanTable("tbl_flows", true,
-				new ModelField(ModelType.FLOW, "id"),
-				new ModelField(ModelType.FLOW_PROPERTY, "f_reference_flow_property"),
-				new ModelField(ModelType.LOCATION, "f_location"));
+			new ModelField(ModelType.FLOW, "id"),
+			new ModelField(ModelType.FLOW_PROPERTY, "f_reference_flow_property"),
+			new ModelField(ModelType.LOCATION, "f_location"));
 		scanTable("tbl_flow_property_factors", false,
-				new ModelField(ModelType.FLOW, "f_flow"),
-				new ModelField(ModelType.FLOW_PROPERTY, "f_flow_property"));
+			new ModelField(ModelType.FLOW, "f_flow"),
+			new ModelField(ModelType.FLOW_PROPERTY, "f_flow_property"));
 	}
 
 	private void scanProcesses() {
 		var docsToProcess = scanTable("tbl_processes", true, "f_process_doc",
-				new ModelField(ModelType.PROCESS, "id"),
-				new ModelField(ModelType.LOCATION, "f_location"),
-				new ModelField(ModelType.DQ_SYSTEM, "f_dq_system"),
-				new ModelField(ModelType.DQ_SYSTEM, "f_exchange_dq_system"),
-				new ModelField(ModelType.DQ_SYSTEM, "f_social_dq_system"));
+			new ModelField(ModelType.PROCESS, "id"),
+			new ModelField(ModelType.LOCATION, "f_location"),
+			new ModelField(ModelType.DQ_SYSTEM, "f_dq_system"),
+			new ModelField(ModelType.DQ_SYSTEM, "f_exchange_dq_system"),
+			new ModelField(ModelType.DQ_SYSTEM, "f_social_dq_system"));
 		scanTable("tbl_process_docs", false,
-				new ModelField(ModelType.PROCESS, "id", docsToProcess::get),
-				new ModelField(ModelType.ACTOR, "f_data_documentor"),
-				new ModelField(ModelType.ACTOR, "f_data_generator"),
-				new ModelField(ModelType.ACTOR, "f_data_owner"),
-				new ModelField(ModelType.SOURCE, "f_publication"));
+			new ModelField(ModelType.PROCESS, "id", docsToProcess::get),
+			new ModelField(ModelType.ACTOR, "f_data_documentor"),
+			new ModelField(ModelType.ACTOR, "f_data_generator"),
+			new ModelField(ModelType.ACTOR, "f_data_owner"),
+			new ModelField(ModelType.SOURCE, "f_publication"));
 		scanTable("tbl_source_links", false,
-				new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
-				new ModelField(ModelType.SOURCE, "f_source"));
+			new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
+			new ModelField(ModelType.SOURCE, "f_source"));
 		scanTable("tbl_exchanges", false,
-				new ModelField(ModelType.PROCESS, "f_owner"),
-				new ModelField(
-						new Condition("default_provider_type", this::getProviderType),
-						"f_default_provider"),
-				new ModelField(ModelType.FLOW, "f_flow"),
-				new ModelField(ModelType.FLOW, "f_location"),
-				new ModelField(ModelType.FLOW, "f_currency"));
+			new ModelField(ModelType.PROCESS, "f_owner"),
+			new ModelField(
+				new Condition("default_provider_type", this::getProviderType),
+				"f_default_provider"),
+			new ModelField(ModelType.FLOW, "f_flow"),
+			new ModelField(ModelType.FLOW, "f_location"),
+			new ModelField(ModelType.FLOW, "f_currency"));
 		scanTable("tbl_social_aspects", false,
-				new ModelField(ModelType.PROCESS, "f_process"),
-				new ModelField(ModelType.SOCIAL_INDICATOR, "f_indicator"),
-				new ModelField(ModelType.SOURCE, "f_source"));
+			new ModelField(ModelType.PROCESS, "f_process"),
+			new ModelField(ModelType.SOCIAL_INDICATOR, "f_indicator"),
+			new ModelField(ModelType.SOURCE, "f_source"));
 		scanTable("tbl_compliance_declarations", false,
-				new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
-				new ModelField(ModelType.SOURCE, "f_system"));
+			new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
+			new ModelField(ModelType.SOURCE, "f_system"));
 
 		// the reviewers of a review; the owner of a row in the actor links
 		// is the ID of a review which we need to map to the process of the
 		// related process documentation
 		var reviewToDoc = scanTable("tbl_reviews", false, "id",
-				new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
-				new ModelField(ModelType.SOURCE, "f_report"));
+			new ModelField(ModelType.PROCESS, "f_owner", docsToProcess::get),
+			new ModelField(ModelType.SOURCE, "f_report"));
 		scanTable("tbl_actor_links", false,
-				new ModelField(ModelType.PROCESS, "f_owner", reviewId -> {
-					var docId = reviewToDoc.get(reviewId);
-					return docId == null ? null : docsToProcess.get(docId);
-				}),
-				new ModelField(ModelType.ACTOR, "f_actor"));
+			new ModelField(ModelType.PROCESS, "f_owner", reviewId -> {
+				var docId = reviewToDoc.get(reviewId);
+				return docId == null ? null : docsToProcess.get(docId);
+			}),
+			new ModelField(ModelType.ACTOR, "f_actor"));
 	}
 
 	private void scanProductSystems() {
 		scanTable("tbl_product_systems", true,
-				new ModelField(ModelType.PRODUCT_SYSTEM, "id"),
-				new ModelField(ModelType.PROCESS, "f_reference_process"));
+			new ModelField(ModelType.PRODUCT_SYSTEM, "id"),
+			new ModelField(ModelType.PROCESS, "f_reference_process"));
 		scanTable("tbl_process_links", false,
-				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"),
-				new ModelField(ModelType.PROCESS, "f_process"),
-				new ModelField(new Condition("provider_type", this::getProviderType), "f_provider"),
-				new ModelField(ModelType.FLOW, "f_flow"));
-
-		// the processes contained in a product system; note that this table
-		// has no type information so the entries are registered as processes,
-		// this will not find unlinked results or product systems but is better
-		// than nothing for now.
-		scanTable("tbl_product_system_processes", false,
-				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"),
-				new ModelField(ModelType.PROCESS, "f_process"));
+			new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"),
+			new ModelField(ModelType.PROCESS, "f_process"),
+			new ModelField(new Condition("provider_type", this::getProviderType), "f_provider"),
+			new ModelField(ModelType.FLOW, "f_flow"));
+		scanUnlinkedProviders();
 		var setToSystem = scanTable("tbl_parameter_redef_sets", false, "id",
-				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"));
+			new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"));
 		scanParameterRedefs(ModelType.PRODUCT_SYSTEM, setToSystem::get);
+	}
+
+	/// The providers of a product system are stored as plain IDs without type
+	/// information in `tbl_product_system_processes`. Entries that are already
+	/// registered through the process links (or the reference process) are
+	/// skipped; for the others the type is resolved from the already scanned
+	/// entities which _process_ in most cases and by default.
+	private void scanUnlinkedProviders() {
+		var sql = "SELECT f_product_system, f_process " +
+			"FROM tbl_product_system_processes";
+		NativeSql.on(database).query(sql, rs -> {
+			var systemId = rs.getLong(1);
+			var entityId = rs.getLong(2);
+			if (!isProviderOf(systemId, entityId)) {
+				var type = providerTypeOf(entityId);
+				putRef(ModelType.PRODUCT_SYSTEM, systemId, type, entityId);
+			}
+			return true;
+		});
+	}
+
+	/// Returns true if the entity with the given ID is already registered as
+	/// a provider or reference process of the given product system.
+	private boolean isProviderOf(long systemId, long entityId) {
+		var systemIds = references.get(ModelType.PRODUCT_SYSTEM);
+		if (systemIds == null)
+			return false;
+		var systemRefs = systemIds.get(systemId);
+		if (systemRefs == null)
+			return false;
+		for (var type : PROVIDER_TYPES) {
+			var ids = systemRefs.get(type);
+			if (ids != null && ids.contains(entityId))
+				return true;
+		}
+		return false;
+	}
+
+	/// The IDs in the provider collections of a product system can refer to
+	/// processes, sub-systems, or results. Unknown IDs (e.g. of deleted
+	/// entities) are mapped to `PROCESS` as this is the default case.
+	private ModelType providerTypeOf(long entityId) {
+		if (exists(ModelType.PRODUCT_SYSTEM, entityId))
+			return ModelType.PRODUCT_SYSTEM;
+		if (exists(ModelType.RESULT, entityId))
+			return ModelType.RESULT;
+		return ModelType.PROCESS;
+	}
+
+	private boolean exists(ModelType type, long id) {
+		var ids = idToRefId.get(type);
+		return ids != null && ids.containsKey(id);
 	}
 
 	private ModelType getProviderType(Object type) {
 		return type instanceof Number num
-				? ProviderType.toModelType(num.byteValue())
-				: ModelType.PROCESS;
+			? ProviderType.toModelType(num.byteValue())
+			: ModelType.PROCESS;
 	}
 
 	private void scanProjects() {
 		scanTable("tbl_projects", true,
-				new ModelField(ModelType.PROJECT, "id"),
-				new ModelField(ModelType.IMPACT_METHOD, "f_impact_method"));
+			new ModelField(ModelType.PROJECT, "id"),
+			new ModelField(ModelType.IMPACT_METHOD, "f_impact_method"));
 		var variantToProject = scanTable("tbl_project_variants", false, "id",
-				new ModelField(ModelType.PROJECT, "f_project"),
-				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"));
+			new ModelField(ModelType.PROJECT, "f_project"),
+			new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"));
 		scanParameterRedefs(ModelType.PROJECT, variantToProject::get);
 	}
 
 	private void scanEpds() {
 		scanTable("tbl_epds", true,
-				new ModelField(ModelType.EPD, "id"),
-				new ModelField(ModelType.ACTOR, "f_manufacturer"),
-				new ModelField(ModelType.ACTOR, "f_verifier"),
-				new ModelField(ModelType.ACTOR, "f_program_operator"),
-				new ModelField(ModelType.ACTOR, "f_data_generator"),
-				new ModelField(ModelType.SOURCE, "f_pcr"),
-				new ModelField(ModelType.SOURCE, "f_original_epd"),
-				new ModelField(ModelType.LOCATION, "f_location"),
-				new ModelField(ModelType.FLOW_PROPERTY, "f_flow_property"),
-				new ModelField(ModelType.FLOW, "f_flow"));
+			new ModelField(ModelType.EPD, "id"),
+			new ModelField(ModelType.ACTOR, "f_manufacturer"),
+			new ModelField(ModelType.ACTOR, "f_verifier"),
+			new ModelField(ModelType.ACTOR, "f_program_operator"),
+			new ModelField(ModelType.ACTOR, "f_data_generator"),
+			new ModelField(ModelType.SOURCE, "f_pcr"),
+			new ModelField(ModelType.SOURCE, "f_original_epd"),
+			new ModelField(ModelType.LOCATION, "f_location"),
+			new ModelField(ModelType.FLOW_PROPERTY, "f_flow_property"),
+			new ModelField(ModelType.FLOW, "f_flow"));
 		scanTable("tbl_epd_modules", false,
-				new ModelField(ModelType.EPD, "f_epd"),
-				new ModelField(ModelType.RESULT, "f_result"));
+			new ModelField(ModelType.EPD, "f_epd"),
+			new ModelField(ModelType.RESULT, "f_result"));
 	}
 
 	private void scanResults() {
 		scanTable("tbl_results", true,
-				new ModelField(ModelType.RESULT, "id"),
-				new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"),
-				new ModelField(ModelType.IMPACT_METHOD, "f_impact_method"));
+			new ModelField(ModelType.RESULT, "id"),
+			new ModelField(ModelType.PRODUCT_SYSTEM, "f_product_system"),
+			new ModelField(ModelType.IMPACT_METHOD, "f_impact_method"));
 		scanTable("tbl_flow_results", false,
-				new ModelField(ModelType.RESULT, "f_result"),
-				new ModelField(ModelType.FLOW, "f_flow"),
-				new ModelField(ModelType.LOCATION, "f_location"));
+			new ModelField(ModelType.RESULT, "f_result"),
+			new ModelField(ModelType.FLOW, "f_flow"),
+			new ModelField(ModelType.LOCATION, "f_location"));
 		scanTable("tbl_impact_results", false,
-				new ModelField(ModelType.RESULT, "f_result"),
-				new ModelField(ModelType.IMPACT_CATEGORY, "f_impact_category"));
+			new ModelField(ModelType.RESULT, "f_result"),
+			new ModelField(ModelType.IMPACT_CATEGORY, "f_impact_category"));
 	}
 
 	private void scanParameterRedefs(ModelType ownerType, Function<Long, Long> mediator) {
@@ -345,7 +394,7 @@ public class ModelReferences {
 	 * empty map
 	 */
 	private Map<Long, Long> scanTable(String table, boolean isRootEntity, String idField, ModelField source,
-			ModelField... targets) {
+		ModelField... targets) {
 		var map = new HashMap<Long, Long>();
 		query(table, isRootEntity, source, idField, targets, values -> {
 			var col = 0;
@@ -386,12 +435,12 @@ public class ModelReferences {
 
 	private long longOf(Object obj) {
 		return obj instanceof Number num
-				? num.longValue()
-				: 0;
+			? num.longValue()
+			: 0;
 	}
 
 	private void query(String table, boolean isRootEntity, ModelField sourceField, String idField,
-			ModelField[] targets, ResultHandler handler) {
+		ModelField[] targets, ResultHandler handler) {
 		var fields = new ArrayList<String>();
 		var conditionIndices = new HashSet<Integer>();
 		fields.add(sourceField.field);
@@ -410,8 +459,8 @@ public class ModelReferences {
 			}
 		}
 		var query = "SELECT " + String.join(",", fields)
-				+ (isRootEntity ? ",ref_id,library " : "")
-				+ " FROM " + table;
+			+ (isRootEntity ? ",ref_id,library " : "")
+			+ " FROM " + table;
 		NativeSql.on(database).query(query, rs -> {
 			var values = new Object[fields.size()];
 			for (var i = 0; i < fields.size(); i++) {
@@ -433,19 +482,19 @@ public class ModelReferences {
 	}
 
 	private void putRef(ModelType sourceType, long sourceId, ModelType targetType, long targetId) {
-		references.computeIfAbsent(sourceType, t -> new HashMap<>())
-				.computeIfAbsent(sourceId, t -> new EnumMap<>(ModelType.class))
-				.computeIfAbsent(targetType, t -> new HashSet<>())
-				.add(targetId);
-		usages.computeIfAbsent(targetType, t -> new HashMap<>())
-				.computeIfAbsent(targetId, t -> new EnumMap<>(ModelType.class))
-				.computeIfAbsent(sourceType, t -> new HashSet<>())
-				.add(sourceId);
+		references.computeIfAbsent(sourceType, _ -> new HashMap<>())
+			.computeIfAbsent(sourceId, _ -> new EnumMap<>(ModelType.class))
+			.computeIfAbsent(targetType, _ -> new HashSet<>())
+			.add(targetId);
+		usages.computeIfAbsent(targetType, _ -> new HashMap<>())
+			.computeIfAbsent(targetId, _ -> new EnumMap<>(ModelType.class))
+			.computeIfAbsent(sourceType, _ -> new HashSet<>())
+			.add(sourceId);
 	}
 
 	private void putRefId(ModelType type, long id, String refId, String library) {
 		refIdToId.put(new TypedRefId(type, refId), new IdAndLibrary(id, library));
-		idToRefId.computeIfAbsent(type, t -> new HashMap<>()).put(id, refId);
+		idToRefId.computeIfAbsent(type, _ -> new HashMap<>()).put(id, refId);
 	}
 
 	private static class ModelField {
@@ -479,7 +528,7 @@ public class ModelReferences {
 	}
 
 	private record Condition(
-			String field, Function<Object, ModelType> typeMapper
+		String field, Function<Object, ModelType> typeMapper
 	) {
 	}
 

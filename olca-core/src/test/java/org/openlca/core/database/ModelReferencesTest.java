@@ -15,6 +15,7 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
+import org.openlca.core.model.Result;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.Source;
 import org.openlca.core.model.TypedRefId;
@@ -63,18 +64,25 @@ public class ModelReferencesTest {
 		var q = Flow.product("q", mass);
 		var P = Process.of("P", p);
 		var Q = Process.of("Q", q);
-		db.insert(units, mass, p, q, P, Q);
+		var subSystem = ProductSystem.of("sub-system", Q);
+		var result = Result.of("result", q);
+		db.insert(units, mass, p, q, P, Q, subSystem, result);
 
-		// Q is contained in the system but it is neither the reference
-		// process nor connected through a process link
+		// the entries of the processes table of a system can also be
+		// sub-systems or results; none of them is linked here
 		var system = ProductSystem.of("S", P);
 		system.processes.add(Q.id);
+		system.processes.add(subSystem.id);
+		system.processes.add(result.id);
 		system = db.insert(system);
 
-		assertRefs(referencesOf(ModelType.PRODUCT_SYSTEM, system.refId), P, Q);
-		assertRefs(usagesOf(ModelType.PROCESS, Q.refId), system);
+		assertRefs(referencesOf(ModelType.PRODUCT_SYSTEM, system.refId),
+			P, Q, subSystem, result);
+		assertRefs(usagesOf(ModelType.PROCESS, Q.refId), system, subSystem);
+		assertRefs(usagesOf(ModelType.PRODUCT_SYSTEM, subSystem.refId), system);
+		assertRefs(usagesOf(ModelType.RESULT, result.refId), system);
 
-		db.delete(system, P, Q, p, q, mass, units);
+		db.delete(system, subSystem, result, P, Q, p, q, mass, units);
 	}
 
 	private List<ModelReference> referencesOf(ModelType type, String refId) {
