@@ -27,11 +27,11 @@ class UnmounterKeepSet {
 	private final Unmounter.Retention retention;
 
 	@Nullable
-	private final EnumMap<ModelType, Set<String>> keep;
+	private final Map<ModelType, Set<String>> keep;
 
 	private UnmounterKeepSet(
 		Unmounter.Retention retention,
-		@Nullable EnumMap<ModelType, Set<String>> keep
+		@Nullable Map<ModelType, Set<String>> keep
 	) {
 		this.retention = retention;
 		this.keep = keep;
@@ -71,25 +71,26 @@ class UnmounterKeepSet {
 		private final IDatabase db;
 		private final LibReader libReader;
 		private final String lib;
+		private final Map<ModelType, Set<String>> keepSet;
+		private final ModelReferences refs;
 
 		UsageScan(IDatabase db, LibReader libReader) {
 			this.db = db;
 			this.libReader = libReader;
 			this.lib = libReader.libraryName();
+			this.keepSet = new EnumMap<>(ModelType.class);
+			this.refs = ModelReferences.scan(db);
 		}
 
-		EnumMap<ModelType, Set<String>> scan() {
-			var refs = ModelReferences.scan(db);
-			var keepSet = new EnumMap<ModelType, Set<String>>(ModelType.class);
-
+		Map<ModelType, Set<String>> scan() {
 			for (var type : ModelType.values()) {
 				for (var d : Daos.root(db, type).getDescriptors()) {
 					var ref = new TypedRefId(d.type, d.refId);
-					if (!lib.equals(d.library) || contains(ref, keepSet))
+					if (!lib.equals(d.library) || contains(ref))
 						continue;
 					refs.iterateUsages(ref, usage -> {
 						if (!lib.equals(usage.library)) {
-							keepTreeOf(ref, refs, keepSet);
+							keepTreeOf(ref);
 							return false;
 						}
 						return true;
@@ -101,15 +102,13 @@ class UnmounterKeepSet {
 			// database (without exchanges and CFs) so their dependencies (default
 			// providers, flows, locations) only exist in the library matrices; add
 			// them to the keep set here.
-			scanInventoryMatrices(refs, keepSet);
-			scanImpactMatrix(refs, keepSet);
+			scanInventoryMatrices();
+			scanImpactMatrix();
 			return keepSet;
 		}
 
 
-		private void scanImpactMatrix(
-			ModelReferences refs, Map<ModelType, Set<String>> keepSet
-		) {
+		private void scanImpactMatrix() {
 
 			var used = keepSet.get(ModelType.IMPACT_CATEGORY);
 			if (used == null)
@@ -130,15 +129,13 @@ class UnmounterKeepSet {
 					continue;
 				for (int col = 0; col < enviIdx.size(); col++) {
 					if (matrixC.get(row, col) != 0) {
-						keepEnviFlow(refs, keepSet, enviIdx.at(col));
+						keepEnviFlow(enviIdx.at(col));
 					}
 				}
 			}
 		}
 
-		private void scanInventoryMatrices(
-			ModelReferences refs, Map<ModelType, Set<String>> keepSet
-		) {
+		private void scanInventoryMatrices() {
 			var techIdx = libReader.techIndex();
 			var enviIdx = libReader.enviIndex();
 
@@ -150,7 +147,7 @@ class UnmounterKeepSet {
 			var queue = new ArrayDeque<Integer>();
 			var visited = new HashSet<Integer>();
 			for (var e : techCols.entrySet()) {
-				if (contains(e.getKey(), keepSet)) {
+				if (contains(e.getKey())) {
 					queue.addAll(e.getValue());
 				}
 			}
@@ -174,12 +171,12 @@ class UnmounterKeepSet {
 					if (tf.provider() == null)
 						continue;
 
-					checkKeep(refs, keepSet, tf.flow());
+					checkKeep(tf.flow());
 					var providerId = new TypedRefId(
 						tf.provider().type, tf.provider().refId);
-					if (contains(providerId, keepSet))
+					if (contains(providerId))
 						continue;
-					checkKeep(refs, keepSet, tf.provider());
+					checkKeep(tf.provider());
 					var nextCols = techCols.get(providerId);
 					if (nextCols != null) {
 						queue.addAll(nextCols);
@@ -195,7 +192,7 @@ class UnmounterKeepSet {
 					continue;
 				for (int k = 0; k < colB.length; k++) {
 					if (colB[k] != 0)
-						keepEnviFlow(refs, keepSet, enviIdx.at(k));
+						keepEnviFlow(enviIdx.at(k));
 				}
 			}
 		}
@@ -216,22 +213,14 @@ class UnmounterKeepSet {
 			return map;
 		}
 
-		private void keepEnviFlow(
-			ModelReferences refs,
-			Map<ModelType, Set<String>> keepSet,
-			@Nullable EnviFlow enviFlow
-		) {
+		private void keepEnviFlow(@Nullable EnviFlow enviFlow) {
 			if (enviFlow == null)
 				return;
-			checkKeep(refs, keepSet, enviFlow.flow());
-			checkKeep(refs, keepSet, enviFlow.location());
+			checkKeep(enviFlow.flow());
+			checkKeep(enviFlow.location());
 		}
 
-		private void checkKeep(
-			ModelReferences refs,
-			Map<ModelType, Set<String>> keepSet,
-			@Nullable RootDescriptor d
-		) {
+		private void checkKeep(@Nullable RootDescriptor d) {
 			if (d == null
 				|| d.type == null
 				|| d.refId == null
@@ -240,24 +229,20 @@ class UnmounterKeepSet {
 			var set = keepSet.computeIfAbsent(d.type, _ -> new HashSet<>());
 			if (set.add(d.refId)) {
 				// if it was newly added, also add the library references
-				keepTreeOf(new TypedRefId(d.type, d.refId), refs, keepSet);
+				keepTreeOf(new TypedRefId(d.type, d.refId));
 			}
 		}
 
-		private void keepTreeOf(
-			TypedRefId ref, ModelReferences refs, Map<ModelType, Set<String>> keepSet
-		) {
+		private void keepTreeOf(TypedRefId ref) {
 			keepSet.computeIfAbsent(ref.type, _ -> new HashSet<>()).add(ref.refId);
 			refs.iterateReferences(ref, next -> {
-				if (lib.equals(next.library) && !contains(next, keepSet)) {
-					keepTreeOf(next, refs, keepSet);
+				if (lib.equals(next.library) && !contains(next)) {
+					keepTreeOf(next);
 				}
 			});
 		}
 
-		private boolean contains(
-			TypedRefId ref, Map<ModelType, Set<String>> keepSet
-		) {
+		private boolean contains(TypedRefId ref) {
 			var set = keepSet.get(ref.type);
 			return set != null && set.contains(ref.refId);
 		}
