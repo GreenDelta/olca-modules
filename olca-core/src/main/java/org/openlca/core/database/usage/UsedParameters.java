@@ -27,7 +27,7 @@ public class UsedParameters {
 	private final Map<String, Parameter> parameters = new HashMap<>();
 	private final Map<String, Parameter> used = new HashMap<>();
 	private final Set<String> checked = new HashSet<>();
-
+	
 	public static List<ParameterRedef> ofSystem(IDatabase db, ProductSystemDescriptor system) {
 		if (db == null || system == null)
 			return null;
@@ -43,8 +43,6 @@ public class UsedParameters {
 
 	private List<ParameterRedef> get() {
 		parameters.values().stream()
-				// process parameters first
-				.sorted((p1, p2) -> p1.scope != p2.scope ? p1.scope == ParameterScope.GLOBAL ? 1 : -1 : 0)
 				.forEach(param -> {
 					if (!param.isInputParameter)
 						return;
@@ -70,7 +68,9 @@ public class UsedParameters {
 		for (var formula : formulas) {
 			if (formula.matches(param, contextIds.get(param.id))) {
 				// check if process parameter is used and not global parameter
-				if (param.scope == ParameterScope.GLOBAL && used.containsKey(keyOf(param.name, formula.ownerId)))
+				if (param.scope == ParameterScope.GLOBAL 
+						&& formula.ownerId != null 
+						&& parameters.containsKey(keyOf(param.name, formula.ownerId)))
 					continue;
 				if (!formula.isParam())
 					return true;
@@ -110,14 +110,14 @@ public class UsedParameters {
 	}
 
 	private void loadParameters() {
-		var sql = "select " +
+		var sql = "SELECT " +
 		/* 1 */ "id, " +
 		/* 2 */ "scope, " +
 		/* 3 */ "f_owner, " +
 		/* 4 */ "name, " +
 		/* 5 */ "is_input_param, " +
 		/* 6 */ "value, " +
-		/* 7 */ "formula from tbl_parameters";
+		/* 7 */ "formula FROM tbl_parameters";
 		NativeSql.on(db).query(sql, r -> {
 
 			var scopeStr = r.getString(2);
@@ -196,11 +196,18 @@ public class UsedParameters {
 		var sql = "SELECT "
 				/* 1 */ + "f_owner, "
 				/* 2 */ + "name, "
-				/* 3 */ + "formula FROM tbl_parameters "
+				/* 3 */ + "formula, "
+				/* 4 */	+ "scope FROM tbl_parameters "
 				+ "WHERE formula IS NOT NULL AND is_input_param = 0";
 		NativeSql.on(db).query(sql, r -> {
+			var scopeStr = r.getString(4);
+			var scope = scopeStr == null
+					? ParameterScope.GLOBAL
+					: ParameterScope.valueOf(scopeStr);
+			if (scope == ParameterScope.IMPACT)
+				return true;
 			var ownerId = r.getLong(1);
-			if (ownerId == 0L) {
+			if (scope == ParameterScope.GLOBAL) {
 				formulas.add(new ScopedFormula(r.getString(3), r.getString(2)));
 			}
 			if (!processes.contains(ownerId))
@@ -213,7 +220,7 @@ public class UsedParameters {
 	private record ScopedFormula(String formula, String parameterName, ParameterScope scope, Long ownerId) {
 
 		private ScopedFormula(String formula, String parameterName) {
-			this(formula, parameterName, null, null);
+			this(formula, parameterName, ParameterScope.GLOBAL, null);
 		}
 
 		private ScopedFormula(String formula, ParameterScope scope, long ownerId) {

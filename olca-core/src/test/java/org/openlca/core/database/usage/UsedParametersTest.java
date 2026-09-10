@@ -24,7 +24,7 @@ public class UsedParametersTest {
 	private final IDatabase db = Tests.getDb();
 
 	@Test
-	public void testMultipleInputsInDependentParameter() {
+	public void testGlobalFormulaWithMultipleParameter() {
 		parameter(ParameterScope.GLOBAL, "a", 1);
 		parameter(ParameterScope.GLOBAL, "b", 2);
 		parameter(ParameterScope.GLOBAL, "d", "a+b");
@@ -43,6 +43,125 @@ public class UsedParametersTest {
 		Assert.assertTrue(contains(used, "a"));
 		Assert.assertTrue(contains(used, "b"));
 		Assert.assertEquals(2, used.size());
+	}
+
+	@Test
+	public void testProcessFormulaWithMultipleParameter() {
+		parameter(ParameterScope.GLOBAL, "a", 1);
+		parameter(ParameterScope.GLOBAL, "b", 2);
+
+		var process = new Process();
+		process.parameters.add(parameter(ParameterScope.PROCESS, "d", "a+b"));
+		var exchange = new Exchange();
+		exchange.formula = "d";
+		process.exchanges.add(exchange);
+		process = db.insert(process);
+
+		var system = new ProductSystem();
+		system.processes.add(process.id);
+		system = db.insert(system);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertTrue(contains(used, "a"));
+		Assert.assertTrue(contains(used, "b"));
+		Assert.assertEquals(2, used.size());
+	}
+
+	@Test
+	public void testParameterNotUsedOutsideSystem() {
+		parameter(ParameterScope.GLOBAL, "x", 10);
+
+		var insideProcess = new Process();
+		insideProcess = db.insert(insideProcess);
+
+		var outsideProcess = new Process();
+		var exchange = new Exchange();
+		exchange.formula = "x";
+		outsideProcess.exchanges.add(exchange);
+		db.insert(outsideProcess);
+
+		var system = new ProductSystem();
+		system.processes.add(insideProcess.id);
+		system = db.insert(system);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertFalse(contains(used, "x"));
+		Assert.assertEquals(0, used.size());
+	}
+
+	@Test
+	public void testCostFormula() {
+		parameter(ParameterScope.GLOBAL, "c", 10);
+
+		var process = new Process();
+		var exchange = new Exchange();
+		exchange.costFormula = "c";
+		process.exchanges.add(exchange);
+		process = db.insert(process);
+
+		var system = new ProductSystem();
+		system.processes.add(process.id);
+		system = db.insert(system);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertTrue(contains(used, "c"));
+		Assert.assertEquals(1, used.size());
+	}
+
+	@Test
+	public void testAllocationFactor() {
+	    parameter(ParameterScope.GLOBAL, "af", 0.5);
+
+	    var process = new Process();
+	    var exchange = new Exchange();
+	    process.exchanges.add(exchange);
+	    var factor = new AllocationFactor();
+	    factor.formula = "af";
+	    process.allocationFactors.add(factor);
+	    process = db.insert(process);
+
+	    var system = new ProductSystem();
+	    system.processes.add(process.id);
+	    system = db.insert(system);
+
+	    var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+	    Assert.assertTrue(contains(used, "af"));
+	    Assert.assertEquals(1, used.size());
+	}
+	@Test
+	public void testCyclicParametersNotUsed() {
+		parameter(ParameterScope.GLOBAL, "a", "b");
+		parameter(ParameterScope.GLOBAL, "b", "a");
+
+		var process = new Process();
+		process = db.insert(process);
+
+		var system = new ProductSystem();
+		system.processes.add(process.id);
+		system = db.insert(system);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertEquals(0, used.size());
+	}
+
+	@Test
+	public void testGlobalParameterShadowedByUnusedLocalParameter() {
+		parameter(ParameterScope.GLOBAL, "x", 10);
+
+		var process = new Process();
+		process.parameters.add(parameter(ParameterScope.PROCESS, "x", "2*3"));
+		var exchange = new Exchange();
+		exchange.formula = "x";
+		process.exchanges.add(exchange);
+		process = db.insert(process);
+
+		var system = new ProductSystem();
+		system.processes.add(process.id);
+		system = db.insert(system);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertFalse(contains(used, "x"));
+		Assert.assertEquals(0, used.size());
 	}
 
 	@Test
