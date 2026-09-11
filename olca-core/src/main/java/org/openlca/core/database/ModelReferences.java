@@ -230,8 +230,8 @@ public class ModelReferences {
 				new Condition("default_provider_type", this::getProviderType),
 				"f_default_provider"),
 			new ModelField(ModelType.FLOW, "f_flow"),
-			new ModelField(ModelType.FLOW, "f_location"),
-			new ModelField(ModelType.FLOW, "f_currency"));
+			new ModelField(ModelType.LOCATION, "f_location"),
+			new ModelField(ModelType.CURRENCY, "f_currency"));
 		scanTable("tbl_social_aspects", false,
 			new ModelField(ModelType.PROCESS, "f_process"),
 			new ModelField(ModelType.SOCIAL_INDICATOR, "f_indicator"),
@@ -388,13 +388,13 @@ public class ModelReferences {
 		scanTable(table, isRootEntity, null, source, targets);
 	}
 
-	/**
-	 * if idField is not null, idField is queried additionally and a map between
-	 * the value of source.field and value of idField is returned, otherwise an
-	 * empty map
-	 */
-	private Map<Long, Long> scanTable(String table, boolean isRootEntity, String idField, ModelField source,
-		ModelField... targets) {
+	/// If `idField` is not `null`, `idField` is queried additionally and a map
+	/// between the value of `source.field` and value of `idField` is returned,
+	/// otherwise an empty map is returned.
+	private Map<Long, Long> scanTable(
+		String table, boolean isRootEntity, String idField, ModelField source,
+		ModelField... targets
+	) {
 		var map = new HashMap<Long, Long>();
 		query(table, isRootEntity, source, idField, targets, values -> {
 			var col = 0;
@@ -414,6 +414,9 @@ public class ModelReferences {
 				return;
 			for (var target : targets) {
 				long targetId = longOf(values[col++]);
+				var conditionValue = target.condition != null
+					? values[col++]
+					: null;
 				if (targetId == 0L)
 					continue;
 				if (target.idMapper != null) {
@@ -424,7 +427,6 @@ public class ModelReferences {
 				}
 				var targetType = target.type;
 				if (target.condition != null) {
-					var conditionValue = values[col++];
 					targetType = target.condition.typeMapper.apply(conditionValue);
 				}
 				putRef(source.type, sourceId, targetType, targetId);
@@ -439,8 +441,10 @@ public class ModelReferences {
 			: 0;
 	}
 
-	private void query(String table, boolean isRootEntity, ModelField sourceField, String idField,
-		ModelField[] targets, ResultHandler handler) {
+	private void query(
+		String table, boolean isRootEntity, ModelField sourceField, String idField,
+		ModelField[] targets, ResultHandler handler
+	) {
 		var fields = new ArrayList<String>();
 		var conditionIndices = new HashSet<Integer>();
 		fields.add(sourceField.field);
@@ -497,34 +501,24 @@ public class ModelReferences {
 		idToRefId.computeIfAbsent(type, _ -> new HashMap<>()).put(id, refId);
 	}
 
-	private static class ModelField {
+	private record ModelField(
+		ModelType type,
+		String field,
+		Condition condition,
+		Function<Long, Long> idMapper
+	) {
 
-		private final ModelType type;
-		private final String field;
-		private final Condition condition;
-		private final Function<Long, Long> idMapper;
-
-		private ModelField(ModelType type, String field) {
-			this.type = type;
-			this.field = field;
-			this.condition = null;
-			this.idMapper = null;
+		ModelField(ModelType type, String field) {
+			this(type, field, null, null);
 		}
 
-		private ModelField(Condition condition, String field) {
-			this.type = null;
-			this.field = field;
-			this.condition = condition;
-			this.idMapper = null;
+		ModelField(Condition condition, String field) {
+			this(null, field, condition, null);
 		}
 
-		private ModelField(ModelType type, String field, Function<Long, Long> idMapper) {
-			this.type = type;
-			this.field = field;
-			this.condition = null;
-			this.idMapper = idMapper;
+		ModelField(ModelType type, String field, Function<Long, Long> idMapper) {
+			this(type, field, null, idMapper);
 		}
-
 	}
 
 	private record Condition(

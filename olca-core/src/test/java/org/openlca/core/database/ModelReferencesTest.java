@@ -9,9 +9,11 @@ import org.junit.Test;
 import org.openlca.core.Tests;
 import org.openlca.core.database.ModelReferences.ModelReference;
 import org.openlca.core.model.Actor;
+import org.openlca.core.model.Currency;
 import org.openlca.core.model.DQSystem;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowProperty;
+import org.openlca.core.model.Location;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -83,6 +85,26 @@ public class ModelReferencesTest {
 		assertRefs(usagesOf(ModelType.RESULT, result.refId), system);
 
 		db.delete(system, subSystem, result, P, Q, p, q, mass, units);
+	}
+
+	@Test
+	public void testExchangeLocationAndCurrency() {
+		var units = UnitGroup.of("Units of mass", "kg");
+		var mass = FlowProperty.of("Mass", units);
+		var flow = Flow.product("p", mass);
+		var location = Location.of("some location");
+		var currency = Currency.of("EUR");
+		var process = Process.of("process", flow);
+		process.quantitativeReference.location = location;
+		process.quantitativeReference.currency = currency;
+		db.insert(units, mass, flow, location, currency, process);
+
+		assertRefs(referencesOf(ModelType.PROCESS, process.refId),
+			flow, location, currency);
+		assertRefs(usagesOf(ModelType.LOCATION, location.refId), process);
+		assertRefs(usagesOf(ModelType.CURRENCY, currency.refId), process);
+
+		db.delete(process, flow, mass, units, location, currency);
 	}
 
 	private List<ModelReference> referencesOf(ModelType type, String refId) {
