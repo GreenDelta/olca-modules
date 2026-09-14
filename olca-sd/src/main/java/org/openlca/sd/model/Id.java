@@ -2,7 +2,6 @@ package org.openlca.sd.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /// `Id` is used for identifiers of variables, dimensions, and array subscripts
 /// in a model. It is immutable and can have two forms: a user-friendly label
@@ -24,41 +23,37 @@ public class Id {
 		if (isNil(s))
 			return NIL;
 		var v = s.strip();
-		if (v.startsWith("\"") && v.endsWith("\"")) {
+		if (v.length() > 1 && v.startsWith("\"") && v.endsWith("\"")) {
 			v = v.substring(1, v.length() - 1);
 		}
 
-		var wasEscape = new AtomicBoolean(false);
-		var val = new StringBuilder();
-		Runnable pushEscape = () -> {
-			if (!wasEscape.get()) {
-				val.append('_');
-				wasEscape.set(true);
-			}
-		};
+		var label = new StringBuilder();
+		var value = new StringBuilder();
+		var wasSeparator = false;
 
 		for (int pos = 0; pos < v.length(); pos++) {
 			char c = v.charAt(pos);
+			boolean isSeparator = Character.isSpaceChar(c)
+				|| (c == '\\' && pos < (v.length() - 1) && v.charAt(pos + 1) == 'n');
 
-			if (Character.isSpaceChar(c)) {
-				pushEscape.run();
+			if (isSeparator) {
+				if (!wasSeparator) {
+					value.append('_');
+					label.append(' ');
+					wasSeparator = true;
+				}
+				if (c == '\\') {
+					pos++; // skip the encoded new line
+				}
 				continue;
 			}
 
-			if (c == '\\' && pos < (v.length() - 1)) {
-				char next = v.charAt(pos + 1);
-				if (next == 'n') {
-					pushEscape.run();
-					pos++;
-					continue;
-				}
-			}
-
-			val.append(c);
-			wasEscape.set(false);
+			value.append(c);
+			label.append(c);
+			wasSeparator = false;
 		}
 
-		return new Id(s, val.toString().toLowerCase());
+		return new Id(label.toString(), value.toString().toLowerCase());
 	}
 
 	public static Id[] ofAll(String... ss) {
