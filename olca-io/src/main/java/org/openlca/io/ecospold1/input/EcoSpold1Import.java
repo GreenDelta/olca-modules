@@ -17,7 +17,6 @@ import org.openlca.core.io.ImportLog;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.AllocationFactor;
 import org.openlca.core.model.AllocationMethod;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ImpactCategory;
 import org.openlca.core.model.ImpactFactor;
@@ -43,7 +42,6 @@ import org.openlca.util.ZipFiles;
 
 public class EcoSpold1Import implements Import {
 
-	private Category processCategory;
 	private final HashMap<Integer, Exchange> localExchangeCache = new HashMap<>();
 	private final DB db;
 	private final FlowImport flowImport;
@@ -73,11 +71,6 @@ public class EcoSpold1Import implements Import {
 	@Override
 	public boolean isCanceled() {
 		return canceled;
-	}
-
-	/// Set an optional root category for the new processes.
-	public void setProcessCategory(Category processCategory) {
-		this.processCategory = processCategory;
 	}
 
 	@Override
@@ -396,15 +389,12 @@ public class EcoSpold1Import implements Import {
 		}
 	}
 
-	private void mapReferenceFunction(IReferenceFunction refFun, Process ioProcess) {
-		ioProcess.name = refFun.getName();
-		ioProcess.description = refFun.getGeneralComment();
-		ioProcess.infrastructureProcess = refFun.isInfrastructureProcess();
-		String topCategory = refFun.getCategory();
-		String subCategory = refFun.getSubCategory();
-		ioProcess.category = processCategory != null
-				? db.getPutCategory(processCategory, topCategory, subCategory)
-				: db.resolveCategory(ModelType.PROCESS, topCategory, subCategory);
+	private void mapReferenceFunction(IReferenceFunction rf, Process p) {
+		p.name = rf.getName();
+		p.description = rf.getGeneralComment();
+		p.infrastructureProcess = rf.isInfrastructureProcess();
+		p.category = db.resolveCategory(
+			ModelType.PROCESS, rf.getCategory(), rf.getSubCategory());
 	}
 
 	private void createProductFromRefFun(DataSet ds, Process process) {

@@ -1,5 +1,7 @@
 package org.openlca.io.ecospold1.input;
 
+import java.util.ArrayList;
+
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Actor;
 import org.openlca.core.model.FlowType;
@@ -158,5 +160,26 @@ class Util {
 		int minor = (int) ((raw - (major)) * 100);
 		int update = (int) info.getInternalVersion();
 		return new Version(major, minor, update).getValue();
+	}
+
+	/// Splits the `category` and `subCategory` attributes of an EcoSpold 1 data
+	/// set into a path of category names. In EcoSpold 1 the characters `/` and
+	/// `\` separate the category levels and empty segments are ignored. The
+	/// returned path starts with the root category and ends with the category
+	/// that is assigned to a data set. For example, the category `A\D//C\\F`
+	/// and the sub-category ` E/G//H\I` result in the path
+	/// `[A, D, C, F, E, G, H, I]`.
+	static String[] categoryPathOf(String category, String subCategory) {
+		var segments = new ArrayList<String>(2);
+		for (var c : new String[]{category, subCategory}) {
+			if (Strings.isBlank(c))
+				continue;
+			for (var seg : c.split("[/\\\\]")) {
+				if (Strings.isBlank(seg))
+					continue;
+				segments.add(seg.strip());
+			}
+		}
+		return segments.toArray(String[]::new);
 	}
 }

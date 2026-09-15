@@ -1,11 +1,8 @@
 package org.openlca.io.ecospold1.input;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.openlca.commons.Strings;
 import org.openlca.core.database.CategoryDao;
 import org.openlca.core.database.Daos;
 import org.openlca.core.database.IDatabase;
@@ -21,7 +18,6 @@ import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.ISource;
-import org.openlca.io.Categories;
 import org.openlca.io.UnitMappingEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,43 +46,8 @@ class DB {
 	public Category resolveCategory(
 		ModelType type, String category, String subCategory
 	) {
-		var segments = new ArrayList<String>(2);
-		for (var c : new String[]{category, subCategory}) {
-			if (Strings.isBlank(c))
-				continue;
-			for (var seg : c.split("[/\\\\]")) {
-				if (Strings.isBlank(seg))
-					continue;
-				segments.add(seg.strip());
-			}
-		}
-		var path = segments.toArray(String[]::new);
+		var path = Util.categoryPathOf(category, subCategory);
 		return CategoryDao.sync(database, type, path);
-	}
-
-	public Category getPutCategory(Category root, String parentName, String name) {
-		String key = StringUtils.join(new Object[]{root.name,
-			parentName, name}, "/");
-		Category category = categories.get(key);
-		if (category != null)
-			return category;
-		try {
-			Category parent = root;
-			if (parentName != null)
-				parent = Categories.findOrAddChild(database, root, parentName);
-			Category cat = parent;
-			if (name != null)
-				cat = Categories.findOrAddChild(database, parent, name);
-			return cacheReturn(key, cat);
-		} catch (Exception e) {
-			log.error("Failed to find or add category", e);
-			return null;
-		}
-	}
-
-	private Category cacheReturn(String key, Category category) {
-		categories.put(key, category);
-		return category;
 	}
 
 	public Actor findActor(IPerson person, String genKey) {
