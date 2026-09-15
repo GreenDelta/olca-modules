@@ -163,12 +163,9 @@ class Util {
 	}
 
 	/// Splits the `category` and `subCategory` attributes of an EcoSpold 1 data
-	/// set into a path of category names. In EcoSpold 1 the characters `/` and
-	/// `\` separate the category levels and empty segments are ignored. The
-	/// returned path starts with the root category and ends with the category
-	/// that is assigned to a data set. For example, the category `A\D//C\\F`
-	/// and the sub-category ` E/G//H\I` result in the path
-	/// `[A, D, C, F, E, G, H, I]`.
+	/// set into a path of category names. It supports additional  `/` and `\`
+	/// separators within these attributes. The returned path starts with the root
+	/// category and ends with the category that is assigned to a data set.
 	static String[] categoryPathOf(String category, String subCategory) {
 		var segments = new ArrayList<String>(2);
 		for (var c : new String[]{category, subCategory}) {
