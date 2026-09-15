@@ -19,6 +19,7 @@ import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.ISource;
 import org.openlca.io.UnitMappingEntry;
+import org.openlca.util.KeyGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,26 +29,45 @@ import org.slf4j.LoggerFactory;
  */
 class DB {
 
-	final IDatabase database;
+	final IDatabase db;
 	private final DBSearch search;
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/// Cache for resolved categories. The values are detached snapshots that are
+	/// only used to assign a category to an entity, which should be fine even if
+	/// other parts of the same category tree are updated.
 	private final Map<String, Category> categories = new HashMap<>();
+
 	private final Map<String, Actor> actors = new HashMap<>();
 	private final Map<String, Source> sources = new HashMap<>();
 	private final Map<String, Location> locations = new HashMap<>();
 	private final Map<String, Flow> flows = new HashMap<>();
 
-	public DB(IDatabase database) {
-		this.database = database;
-		this.search = new DBSearch(database);
+	public DB(IDatabase db) {
+		this.db = db;
+		this.search = new DBSearch(db);
 	}
 
-	public Category resolveCategory(
-		ModelType type, String category, String subCategory
-	) {
-		var path = Util.categoryPathOf(category, subCategory);
-		return CategoryDao.sync(database, type, path);
+	public Category resolveCategory(ModelType type, String top, String sub) {
+		var path = Util.categoryPathOf(top, sub);
+		if (type == null || path.length == 0)
+			return null;
+		var key = categoryKey(type, path);
+		var resolved = categories.get(key);
+		if (resolved != null)
+			return resolved;
+		resolved = CategoryDao.sync(db, type, path);
+		if (resolved != null) {
+			categories.put(key, resolved);
+		}
+		return resolved;
+	}
+
+	private static String categoryKey(ModelType type, String[] path) {
+		var names = new String[path.length + 1];
+		names[0] = type.name();
+		System.arraycopy(path, 0, names, 1, path.length);
+		return KeyGen.toPath(names);
 	}
 
 	public Actor findActor(IPerson person, String genKey) {
@@ -117,7 +137,7 @@ class DB {
 	public <T extends RootEntity> T get(Class<T> type, String id) {
 		try {
 			var modelType = ModelType.of(type);
-			return (T) Daos.root(database, modelType).getForRefId(id);
+			return (T) Daos.root(db, modelType).getForRefId(id);
 		} catch (Exception e) {
 			log.error("Failed to query database for {} id={}", type, id, e);
 			return null;
@@ -130,7 +150,7 @@ class DB {
 			return;
 		try {
 			Class<T> clazz = (Class<T>) entity.getClass();
-			Daos.base(database, clazz).insert(entity);
+			Daos.base(db, clazz).insert(entity);
 			Map cache = getCache(entity);
 			if (cache != null)
 				cache.put(genKey, entity);

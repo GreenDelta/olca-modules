@@ -429,7 +429,7 @@ public class EcoSpold1Import implements Import {
 	private void importImpacts(IEcoSpold es) {
 		if (es == null)
 			return;
-		var db = this.db.database;
+		var db = this.db.db;
 		for (var ds : es.getDataSets()) {
 			var wrap = new DataSet(
 					ds, DataSetType.IMPACT_METHOD.getFactory());

@@ -203,7 +203,7 @@ class FlowImport {
 		if (entry == null || !entry.isValid()) {
 			// we have no valid unit mapping; we create
 			// a new one here
-			var _db = db.database;
+			var _db = db.db;
 			var units = _db.insert(UnitGroup.of("New: " + unit, unit));
 			var prop = _db.insert(FlowProperty.of("New: " + unit, units));
 			entry = new UnitMappingEntry();

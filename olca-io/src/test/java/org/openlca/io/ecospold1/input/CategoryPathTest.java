@@ -50,6 +50,33 @@ public class CategoryPathTest {
 	}
 
 	@Test
+	public void testCategoryCache() {
+		var db = Tests.getDb();
+		var resolved = new DB(db);
+
+		// A/B/C is resolved and cached
+		var c = resolved.resolveCategory(ModelType.FLOW, "A", "B/C");
+		assertEquals("A/B/C", c.toPath());
+
+		// resolving the sibling A/B/D must not invalidate the
+		// cached snapshot of A/B/C
+		var d = resolved.resolveCategory(ModelType.FLOW, "A", "B/D");
+		assertEquals("A/B/D", d.toPath());
+
+		// the cache key is canonical: separators and case
+		// do not matter
+		assertSame(c, resolved.resolveCategory(ModelType.FLOW, "a", "b///c"));
+
+		// and the cached snapshot can still be assigned to a flow
+		var flow = new Flow();
+		flow.refId = "flow-with-cached-category";
+		flow.name = "flow with a cached category";
+		flow.category = c;
+		flow = db.insert(flow);
+		assertEquals("A/B/C", db.get(Flow.class, flow.id).category.toPath());
+	}
+
+	@Test
 	public void testFindFlowWithSplitCategory() throws Exception {
 		var db = Tests.getDb();
 		var file = copyDataSet();
