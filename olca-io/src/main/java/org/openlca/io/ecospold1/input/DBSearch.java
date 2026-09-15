@@ -6,20 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.Query;
 import org.openlca.core.model.Actor;
-import org.openlca.core.model.Category;
 import org.openlca.core.model.Flow;
 import org.openlca.core.model.FlowType;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Source;
+import org.openlca.ecospold.model.DataSet;
 import org.openlca.ecospold.model.IExchange;
 import org.openlca.ecospold.model.IPerson;
 import org.openlca.ecospold.model.IReferenceFunction;
 import org.openlca.ecospold.model.ISource;
-import org.openlca.ecospold.model.DataSet;
 import org.openlca.io.UnitMappingEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,8 +90,8 @@ class DBSearch {
 				continue;
 			if (!hasUnit(flow, mapping))
 				continue;
-			if (!sameCategory(exchange.getCategory(),
-					exchange.getSubCategory(), flow))
+			if (!sameCategory(flow, exchange.getCategory(),
+					exchange.getSubCategory()))
 				continue;
 			if (!sameLocation(exchange.getLocation(), flow))
 				continue;
@@ -112,8 +110,8 @@ class DBSearch {
 		for (Flow flow : candidates) {
 			if (!hasUnit(flow, mapping))
 				continue;
-			if (!sameCategory(refFun.getCategory(), refFun.getSubCategory(),
-					flow))
+			if (!sameCategory(flow, refFun.getCategory(), refFun.getSubCategory()
+			))
 				continue;
 			String locationCode = dataSet.getGeography() == null ? null
 					: dataSet.getGeography().getLocation();
@@ -149,40 +147,38 @@ class DBSearch {
 		return flow.getFactor(mapping.flowProperty) != null;
 	}
 
-	private boolean sameCategory(String categoryName, String subCategoryName,
-			Flow flow) {
-		try {
-			Category category = flow.category;
-			if (category == null)
-				return Strings.isBlank(categoryName)
-					&& Strings.isBlank(subCategoryName);
-			Category parent = category.category;
-			if (parent == null)
-				return sameCategory(categoryName, category)
-						|| sameCategory(subCategoryName, category);
-			else
-				return sameCategory(subCategoryName, category)
-						&& sameCategory(categoryName, parent);
-		} catch (Exception e) {
-			log.error("Failed to check categories");
+	/// EcoSpold 1 defines only a top and sub category field. Some exports use
+	/// additional separators within these fields. We define the category in a
+	/// database to be the same if the path from the EcoSpold file is a suffix of
+	/// the database category.
+	private boolean sameCategory(Flow flow, String top, String sub) {
+		var path = Util.categoryPathOf(top, sub);
+		if (path.length == 0)
+			return flow.category == null;
+		if (flow.category == null)
 			return false;
+		var category = flow.category;
+		for (int i = path.length - 1; i >= 0; i--) {
+			if (category == null || !eq(category.name, path[i]))
+				return false;
+			category = category.category;
 		}
-	}
-
-	private boolean sameCategory(String name, Category category) {
-		if (Strings.isBlank(name) && category == null)
-			return true;
-		if (Strings.isBlank(name) || category == null)
-			return false;
-		return Strings.equalsIgnoreCase(name, category.name);
+		return true;
 	}
 
 	private boolean sameLocation(String locationCode, Flow flow) {
 		if (locationCode == null || locationCode.equals("GLO"))
-			return flow.location == null
-					|| "GLO".equalsIgnoreCase(flow.location.code);
+			return flow.location == null || eq("GLO", flow.location.code);
 		if (flow.location == null)
 			return false;
-		return Strings.equalsIgnoreCase(locationCode, flow.location.code);
+		return eq(locationCode, flow.location.code);
+	}
+
+	private boolean eq(String a, String b) {
+		if (a == null && b == null)
+			return true;
+		if (a == null || b == null)
+			return false;
+		return a.trim().equalsIgnoreCase(b.trim());
 	}
 }
