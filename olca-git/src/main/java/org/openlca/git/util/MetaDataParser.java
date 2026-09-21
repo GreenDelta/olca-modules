@@ -15,9 +15,10 @@ import org.openlca.git.util.FieldDefinition.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.json.JsonFactory;
 
 public class MetaDataParser {
 
@@ -30,7 +31,7 @@ public class MetaDataParser {
 	private boolean skipOnArraysOrObjects;
 
 	private MetaDataParser(InputStream json, List<FieldDefinition> defs) throws IOException {
-		this.parser = new JsonFactory().createParser(json);
+		this.parser = new JsonFactory().createParser(ObjectReadContext.empty(), json);
 		this.defs = new ArrayList<>(defs);
 	}
 
@@ -104,7 +105,7 @@ public class MetaDataParser {
 				if (!fields.isEmpty()) {
 					current = fields.remove(fields.size() - 1);
 				}
-			} else if (JsonToken.FIELD_NAME.equals(token)) {
+			} else if (JsonToken.PROPERTY_NAME.equals(token)) {
 				current = parser.currentName();
 			} else if (current != null) {
 				handleValue(join(fields, current));

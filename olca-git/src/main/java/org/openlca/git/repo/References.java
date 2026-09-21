@@ -134,7 +134,7 @@ public class References {
 
 		public long count() {
 			var count = new AtomicLong();
-			iterate(ref -> {
+			iterate(_ -> {
 				count.addAndGet(1);
 				return true;
 			});

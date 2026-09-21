@@ -74,7 +74,7 @@ class Converter implements JsonStoreWriter {
 	private void convert(Diff change) {
 		try {
 			var model = database.get(change.type.getModelClass(), change.refId);
-			export.write(model, (message, data) -> {
+			export.write(model, (message, _) -> {
 				if (message.type == Callback.Message.ERROR) {
 					handleError(change, message.error);
 				}

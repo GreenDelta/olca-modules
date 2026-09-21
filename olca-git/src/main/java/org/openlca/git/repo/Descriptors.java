@@ -146,7 +146,7 @@ public class Descriptors {
 			}
 			descriptors.byRefId.put(descriptor.refId, descriptor);
 			descriptors.byCategory
-					.computeIfAbsent(descriptor.category, k -> new HashSet<>())
+					.computeIfAbsent(descriptor.category, _ -> new HashSet<>())
 					.add(descriptor);
 		}
 		return descriptors;
@@ -159,7 +159,7 @@ public class Descriptors {
 			if (category.modelType == null)
 				continue;
 			if (category.category == null) {
-				rootCategories.computeIfAbsent(category.modelType, k -> new ArrayList<>())
+				rootCategories.computeIfAbsent(category.modelType, _ -> new ArrayList<>())
 						.add(category);
 			}
 			categoriesByPath.put(Path.of(category), category);

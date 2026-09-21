@@ -111,7 +111,7 @@ public class HeadIndex {
 				var parent = path.contains("/")
 						? path.substring(0, path.lastIndexOf("/"))
 						: "";
-				subPaths.computeIfAbsent(parent, k -> new HashSet<>()).add(path);
+				subPaths.computeIfAbsent(parent, _ -> new HashSet<>()).add(path);
 				if (!entry.isDataset)
 					continue;
 				pathsByRef.put(entry, entry.path);
