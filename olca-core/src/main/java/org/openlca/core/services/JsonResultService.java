@@ -632,6 +632,16 @@ public class JsonResultService {
 
 	// region: tag result
 
+	public Response<JsonArray> getTags(String resultId) {
+		return withResult(resultId, result -> {
+			var tags = new JsonArray();
+			TagResult.allOf(result).stream()
+					.map(TagResult::tag)
+					.forEach(tags::add);
+			return Response.of(tags);
+		});
+	}
+
 	public Response<JsonArray> getTagResultsOfFlow(
 			String resultId, EnviFlowId enviFlowId) {
 		return withResult(resultId, result -> enviFlowOf(result, enviFlowId)
