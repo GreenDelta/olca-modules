@@ -167,6 +167,15 @@ public class DataHandler {
 		}
 	}
 
+	@Rpc("data/get/usage")
+	public RpcResponse getUsage(RpcRequest req) {
+		return withTypedParam(req, (json, type) -> {
+			var resp = service.getUsageOf(
+				type.getModelClass(), JsonRef.idOf(json));
+			return Responses.of(resp, req);
+		});
+	}
+
 	@Rpc("data/get/parameters")
 	public RpcResponse getParameters(RpcRequest req) {
 		return withTypedParam(req, (json, type) -> {

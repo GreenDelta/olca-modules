@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import org.openlca.commons.Strings;
 import org.openlca.core.database.IDatabase;
+import org.openlca.core.database.usage.UsageSearch;
 import org.openlca.core.io.DbEntityResolver;
 import org.openlca.core.matrix.ProductSystemBuilder;
 import org.openlca.core.matrix.cache.ProviderMap;
@@ -115,6 +116,32 @@ public record JsonDataService(IDatabase db) {
 			if (d == null)
 				return Response.empty();
 			return Response.of(refs().asRef(d));
+		} catch (Exception e) {
+			return Response.error(e);
+		}
+	}
+
+	/**
+	 * Get the descriptors of all data sets that use the data set with the
+	 * given type and ID, using the same usage search as the editors (e.g.
+	 * the processes and impact categories that use a flow, or the product
+	 * systems that contain a process). Returns an empty response if no such
+	 * data set exists.
+	 */
+	public Response<JsonArray> getUsageOf(
+			Class<? extends RootEntity> type, String id) {
+		if (type == null || Strings.isBlank(id))
+			return Response.error("type or ID missing");
+		try {
+			var d = db.getDescriptor(type, id);
+			if (d == null)
+				return Response.empty();
+			var array = new JsonArray();
+			var refs = refs();
+			for (var user : UsageSearch.find(db, d)) {
+				array.add(refs.asRef(user));
+			}
+			return Response.of(array);
 		} catch (Exception e) {
 			return Response.error(e);
 		}
