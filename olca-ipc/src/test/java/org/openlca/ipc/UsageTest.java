@@ -33,8 +33,8 @@ public class UsageTest {
 
 	private Flow p;
 	private Flow unused;
-	private Process pP;
-	private ProductSystem sys;
+	private Process process;
+	private ProductSystem system;
 
 	@Before
 	public void setup() {
@@ -46,17 +46,17 @@ public class UsageTest {
 		db.insert(units, mass, p, q, unused);
 
 		// P produces p; Q uses p as an input
-		pP = Process.of("usage test P", p);
+		process = Process.of("usage test P", p);
 		var pQ = Process.of("usage test Q", q);
 		pQ.input(p, 2);
-		db.insert(pP, pQ);
+		db.insert(process, pQ);
 
 		// a product system that contains P
-		sys = ProductSystem.of(pQ);
-		sys.link(pP, pQ);
-		db.insert(sys);
+		system = ProductSystem.of(pQ);
+		system.link(process, pQ);
+		db.insert(system);
 
-		entities = List.of(sys, pQ, pP, unused, q, p, mass, units);
+		entities = List.of(system, pQ, process, unused, q, p, mass, units);
 	}
 
 	@After
@@ -79,8 +79,8 @@ public class UsageTest {
 
 	@Test
 	public void testProcessInProductSystem() {
-		var names = usageOf("Process", pP.refId);
-		assertTrue(names.contains(sys.name));
+		var names = usageOf("Process", process.refId);
+		assertTrue(names.contains(system.name));
 	}
 
 	@Test

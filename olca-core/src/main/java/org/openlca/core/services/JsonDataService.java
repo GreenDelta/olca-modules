@@ -121,13 +121,9 @@ public record JsonDataService(IDatabase db) {
 		}
 	}
 
-	/**
-	 * Get the descriptors of all data sets that use the data set with the
-	 * given type and ID, using the same usage search as the editors (e.g.
-	 * the processes and impact categories that use a flow, or the product
-	 * systems that contain a process). Returns an empty response if no such
-	 * data set exists.
-	 */
+	/// Get the descriptors of all data sets that use the data set with the given
+	/// type and ID, using the standard usage search. Returns an empty array if no
+	/// such data set exists.
 	public Response<JsonArray> getUsageOf(
 			Class<? extends RootEntity> type, String id) {
 		if (type == null || Strings.isBlank(id))
@@ -308,7 +304,7 @@ public record JsonDataService(IDatabase db) {
 			return Response.error(e);
 		}
 	}
-	
+
 	public <T extends RootEntity> Response<JsonArray> getParametersOf(
 			Class<T> type, String id) {
 		if (type == null || id == null)
@@ -318,11 +314,11 @@ public record JsonDataService(IDatabase db) {
 			return Response.empty();
 		if (descriptor instanceof ProductSystemDescriptor psd) {
 			var array = JsonParameters.of(db, psd);
-			return Response.of(array);			
+			return Response.of(array);
 		}
 		if (ParameterizedEntity.class.isAssignableFrom(type)) {
 			var array = JsonParameters.of(db, descriptor);
-			return Response.of(array);			
+			return Response.of(array);
 		}
 		return Response.error(
 				"unsupported parameter container: type=" + type + " id=" + id);
