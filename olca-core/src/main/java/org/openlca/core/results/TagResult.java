@@ -150,7 +150,7 @@ public class TagResult {
 		return tagResult;
 	}
 
-	private static Set<String> allTagsOf(LcaResult result) {
+	public static Set<String> allTagsOf(LcaResult result) {
 		if (result == null)
 			return Collections.emptySet();
 		var tags = new HashSet<String>();

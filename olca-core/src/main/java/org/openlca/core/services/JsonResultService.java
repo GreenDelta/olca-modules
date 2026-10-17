@@ -325,13 +325,11 @@ public class JsonResultService {
 	}
 
 	public Response<JsonArray> getGroupedFlowResultsOf(
-			String resultId, EnviFlowId enviFlowId
-	) {
-		var outer = groupResultOf(queue, resultId).map(r ->
-				enviFlowOf(r.result(), enviFlowId).map(flow -> {
-					var values = r.groups().getResultsOf(flow);
-					return encodeGroupValues(values);
-				}));
+			String resultId, EnviFlowId enviFlowId) {
+		var outer = groupResultOf(queue, resultId).map(r -> enviFlowOf(r.result(), enviFlowId).map(flow -> {
+			var values = r.groups().getResultsOf(flow);
+			return encodeGroupValues(values);
+		}));
 		if (outer.isEmpty())
 			return Response.empty();
 		return outer.isError()
@@ -359,8 +357,7 @@ public class JsonResultService {
 				.map(impact -> {
 					double amount = result.getTotalImpactValueOf(impact);
 					return encodeImpact(impact, amount, refs());
-				})
-		);
+				}));
 	}
 
 	public Response<JsonArray> getNormalizedImpacts(String resultId) {
@@ -403,8 +400,7 @@ public class JsonResultService {
 				.map(impact -> {
 					var values = result.getDirectImpactValuesOf(impact);
 					return encodeTechValues(values, refs());
-				})
-		);
+				}));
 	}
 
 	public Response<JsonArray> getTotalImpactValuesOf(
@@ -518,13 +514,11 @@ public class JsonResultService {
 	}
 
 	public Response<JsonArray> getGroupedImpactResultsOf(
-			String resultId, String impactId
-	) {
-		var outer = groupResultOf(queue, resultId).map(r ->
-				impactOf(r.result(), impactId).map(impact -> {
-					var values = r.groups().getResultsOf(impact);
-					return encodeGroupValues(values);
-				}));
+			String resultId, String impactId) {
+		var outer = groupResultOf(queue, resultId).map(r -> impactOf(r.result(), impactId).map(impact -> {
+			var values = r.groups().getResultsOf(impact);
+			return encodeGroupValues(values);
+		}));
 		if (outer.isEmpty())
 			return Response.empty();
 		return outer.isError()
@@ -635,8 +629,7 @@ public class JsonResultService {
 	public Response<JsonArray> getTags(String resultId) {
 		return withResult(resultId, result -> {
 			var tags = new JsonArray();
-			TagResult.allOf(result).stream()
-					.map(TagResult::tag)
+			TagResult.allTagsOf(result).stream()
 					.forEach(tags::add);
 			return Response.of(tags);
 		});
