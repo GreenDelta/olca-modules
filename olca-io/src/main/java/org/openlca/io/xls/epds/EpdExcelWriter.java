@@ -28,7 +28,7 @@ public class EpdExcelWriter {
 			new InfoSheet(ctx).write();
 			new ResultsSheet(ctx).write();
 			new ModulesSheet(ctx).write();
-			ctx.createSheet(Tab.INDICATORS);
+			new IndicatorsSheet(ctx).write();
 			ctx.createSheet(Tab.SOURCES);
 			ctx.createSheet(Tab.CONTACTS);
 			wb.write(out);

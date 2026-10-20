@@ -12,6 +12,11 @@ enum Field {
 	TAGS("Tags"),
 	DESCRIPTION("Description"),
 
+	CODE("Code"),
+	SOURCE("Source"),
+	REFERENCE_UNIT("Reference unit"),
+	IMPACT_DIRECTION("Impact direction"),
+
 	RESULT("Result"),
 	RESULT_MULTIPLIER("Result multiplier"),
 	PRODUCT_SYSTEM("Product system"),
