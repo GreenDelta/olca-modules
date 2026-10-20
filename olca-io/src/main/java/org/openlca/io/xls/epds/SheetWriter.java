@@ -4,6 +4,9 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.openlca.core.model.RootEntity;
+import org.openlca.core.model.Version;
+import org.openlca.util.Categories;
 
 /// Writes the rows of a sheet in the standard EPD layout: section headers in
 /// column A, field names in column B, values in column C, and units in
@@ -64,10 +67,6 @@ class SheetWriter {
 		return field(field, date, false);
 	}
 
-	SheetWriter dateTime(Field field, Date date) {
-		return field(field, date, true);
-	}
-
 	private SheetWriter field(Field field, Date date, boolean withTime) {
 		label(field);
 		if (date != null) {
@@ -81,9 +80,33 @@ class SheetWriter {
 		return this;
 	}
 
-	SheetWriter blank() {
+	void blank() {
 		cursor++;
-		return this;
+	}
+
+	SheetWriter metaDataFieldsOf(RootEntity entity) {
+		if (entity == null)
+			return this;
+
+		var lastChange = entity.lastChange > 0
+			? new Date(entity.lastChange)
+			: null;
+
+		return field(Field.UUID, entity.refId)
+			.field(Field.CATEGORY, categoryOf(entity))
+			.field(Field.VERSION, Version.asString(entity.version))
+			.field(Field.LAST_CHANGE, lastChange, true)
+			.field(Field.TAGS, entity.tags)
+			.field(Field.DESCRIPTION, entity.description);
+	}
+
+	private static String categoryOf(RootEntity entity) {
+		if (entity.category == null)
+			return null;
+		var path = Categories.path(entity.category);
+		return path.isEmpty()
+			? null
+			: String.join("/", path);
 	}
 
 	private void label(Field field) {

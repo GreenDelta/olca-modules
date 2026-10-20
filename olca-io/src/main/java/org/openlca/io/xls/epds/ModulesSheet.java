@@ -1,15 +1,11 @@
 package org.openlca.io.xls.epds;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.EpdModule;
-import org.openlca.core.model.Result;
-import org.openlca.core.model.Version;
-import org.openlca.util.Categories;
 
 /// Writes the "EPD - Modules" sheet with one section per module and the
 /// metadata of the linked result.
@@ -38,20 +34,13 @@ class ModulesSheet {
 			return;
 		}
 
-		sheet.field(Field.RESULT, result.name)
-			.field(Field.UUID, result.refId);
+		sheet.field(Field.RESULT, result.name);
 
 		if (module.multiplier != 1) {
 			sheet.field(Field.RESULT_MULTIPLIER, module.multiplier, null);
 		}
 
-		sheet.field(Field.CATEGORY, categoryOf(result))
-			.field(Field.VERSION, Version.asString(result.version))
-			.dateTime(Field.LAST_CHANGE, result.lastChange > 0
-				? new Date(result.lastChange)
-				: null)
-			.field(Field.TAGS, result.tags)
-			.field(Field.DESCRIPTION, result.description);
+		sheet.metaDataFieldsOf(result);
 
 		if (result.productSystem != null) {
 			sheet.field(Field.PRODUCT_SYSTEM, result.productSystem.name);
@@ -74,15 +63,6 @@ class ModulesSheet {
 			: null;
 		sheet.field(Field.AMOUNT, amount, unit)
 			.blank();
-	}
-
-	private static String categoryOf(Result result) {
-		if (result.category == null)
-			return null;
-		var path = Categories.path(result.category);
-		return path.isEmpty()
-			? null
-			: String.join("/", path);
 	}
 
 	private List<EpdModule> sortedModules() {

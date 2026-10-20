@@ -1,6 +1,5 @@
 package org.openlca.io.xls.epds;
 
-import java.util.Date;
 import java.util.OptionalDouble;
 
 import org.openlca.commons.Strings;
@@ -8,9 +7,7 @@ import org.openlca.core.model.Actor;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.Location;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
 import org.openlca.io.openepd.EpdConverter;
-import org.openlca.util.Categories;
 
 /// Writes the "EPD - Information" sheet.
 class InfoSheet {
@@ -41,24 +38,9 @@ class InfoSheet {
 	}
 
 	private void writeGeneralInformation(SheetWriter sheet) {
-		String category = null;
-		if (epd.category != null) {
-			var path = Categories.path(epd.category);
-			if (!path.isEmpty()) {
-				category = String.join("/", path);
-			}
-		}
-
 		sheet.section(Section.GENERAL_INFORMATION)
-			.field(Field.UUID, epd.refId)
 			.field(Field.NAME, epd.name)
-			.field(Field.CATEGORY, category)
-			.field(Field.VERSION, Version.asString(epd.version))
-			.dateTime(Field.LAST_CHANGE, epd.lastChange > 0
-				? new Date(epd.lastChange)
-				: null)
-			.field(Field.TAGS, epd.tags)
-			.field(Field.DESCRIPTION, epd.description)
+			.metaDataFieldsOf(epd)
 			.blank();
 	}
 

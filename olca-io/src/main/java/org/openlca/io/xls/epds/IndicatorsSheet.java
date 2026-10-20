@@ -1,7 +1,6 @@
 package org.openlca.io.xls.epds;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,8 +8,6 @@ import org.openlca.commons.Strings;
 import org.openlca.core.model.Direction;
 import org.openlca.core.model.Epd;
 import org.openlca.core.model.ImpactCategory;
-import org.openlca.core.model.Version;
-import org.openlca.util.Categories;
 
 /// Writes the "Indicators" sheet with one section per indicator that is used
 /// in the module results of the EPD.
@@ -32,17 +29,9 @@ class IndicatorsSheet {
 	}
 
 	private void writeIndicator(SheetWriter sheet, ImpactCategory indicator) {
-		sheet.section(headerOf(indicator));
 		ctx.addSource(indicator.source);
-
-		sheet.field(Field.UUID, indicator.refId)
-			.field(Field.CATEGORY, categoryOf(indicator))
-			.field(Field.VERSION, Version.asString(indicator.version))
-			.dateTime(Field.LAST_CHANGE, indicator.lastChange > 0
-				? new Date(indicator.lastChange)
-				: null)
-			.field(Field.TAGS, indicator.tags)
-			.field(Field.DESCRIPTION, indicator.description)
+		sheet.section(headerOf(indicator))
+			.metaDataFieldsOf(indicator)
 			.field(Field.CODE, indicator.code)
 			.field(Field.SOURCE, indicator.source != null
 				? indicator.source.name
@@ -99,15 +88,6 @@ class IndicatorsSheet {
 		return name == null
 			? code
 			: code + " - " + name;
-	}
-
-	private static String categoryOf(ImpactCategory indicator) {
-		if (indicator.category == null)
-			return null;
-		var path = Categories.path(indicator.category);
-		return path.isEmpty()
-			? null
-			: String.join("/", path);
 	}
 
 	private static String directionOf(ImpactCategory indicator) {

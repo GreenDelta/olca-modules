@@ -1,11 +1,7 @@
 package org.openlca.io.xls.epds;
 
-import java.util.Date;
-
 import org.openlca.commons.Strings;
 import org.openlca.core.model.Source;
-import org.openlca.core.model.Version;
-import org.openlca.util.Categories;
 
 /// Writes the "Sources" sheet with one section per referenced source.
 class SourcesSheet {
@@ -31,14 +27,7 @@ class SourcesSheet {
 			: null;
 
 		sheet.section(source.name)
-			.field(Field.UUID, source.refId)
-			.field(Field.CATEGORY, categoryOf(source))
-			.field(Field.VERSION, Version.asString(source.version))
-			.dateTime(Field.LAST_CHANGE, source.lastChange > 0
-				? new Date(source.lastChange)
-				: null)
-			.field(Field.TAGS, source.tags)
-			.field(Field.DESCRIPTION, source.description)
+			.metaDataFieldsOf(source)
 			.field(Field.URL, source.url)
 			.field(Field.TEXT_REFERENCE, source.textReference)
 			.field(Field.YEAR, year, null)
@@ -46,12 +35,4 @@ class SourcesSheet {
 			.blank();
 	}
 
-	private static String categoryOf(Source source) {
-		if (source.category == null)
-			return null;
-		var path = Categories.path(source.category);
-		return path.isEmpty()
-			? null
-			: String.join("/", path);
-	}
 }
