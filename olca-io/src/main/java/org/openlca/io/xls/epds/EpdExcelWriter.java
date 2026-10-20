@@ -29,8 +29,8 @@ public class EpdExcelWriter {
 			new ResultsSheet(ctx).write();
 			new ModulesSheet(ctx).write();
 			new IndicatorsSheet(ctx).write();
-			ctx.createSheet(Tab.SOURCES);
-			ctx.createSheet(Tab.CONTACTS);
+			new SourcesSheet(ctx).write();
+			new ContactsSheet(ctx).write();
 			wb.write(out);
 			return Res.ok();
 		} catch (IOException e) {

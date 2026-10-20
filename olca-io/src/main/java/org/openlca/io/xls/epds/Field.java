@@ -17,6 +17,20 @@ enum Field {
 	REFERENCE_UNIT("Reference unit"),
 	IMPACT_DIRECTION("Impact direction"),
 
+	ADDRESS("Address"),
+	CITY("City"),
+	ZIP_CODE("Zip code"),
+	COUNTRY("Country"),
+	EMAIL("Email"),
+	TELEFAX("Telefax"),
+	TELEPHONE("Telephone"),
+	WEBSITE("Website"),
+
+	URL("URL"),
+	TEXT_REFERENCE("Text reference"),
+	YEAR("Year"),
+	EXTERNAL_FILE("External file"),
+
 	RESULT("Result"),
 	RESULT_MULTIPLIER("Result multiplier"),
 	PRODUCT_SYSTEM("Product system"),
