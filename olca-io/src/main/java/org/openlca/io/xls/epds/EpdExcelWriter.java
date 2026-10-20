@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openlca.commons.Res;
 import org.openlca.core.model.Epd;
 
 /// Writes an EPD to an Excel file.
@@ -18,22 +19,22 @@ public class EpdExcelWriter {
 		this.file = file;
 	}
 
-	public void write() {
+	public Res<Void> write() {
 		if (epd == null || file == null)
-			return;
+			return Res.error("No EPD or file given.");
 		try (var wb = new XSSFWorkbook();
 				 var out = new FileOutputStream(file)) {
 			var ctx = new WriterContext(wb, epd);
 			new InfoSheet(ctx).write();
-			ctx.createSheet(Tab.EPD_RESULTS);
+			new ResultsSheet(ctx).write();
 			ctx.createSheet(Tab.EPD_MODULES);
 			ctx.createSheet(Tab.INDICATORS);
 			ctx.createSheet(Tab.SOURCES);
 			ctx.createSheet(Tab.CONTACTS);
 			wb.write(out);
+			return Res.ok();
 		} catch (IOException e) {
-			throw new RuntimeException(
-				"failed to write EPD " + epd + " to file " + file, e);
+			return Res.error("EPD to Excel export failed", e);
 		}
 	}
 }

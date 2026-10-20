@@ -25,22 +25,24 @@ public class EpdExcelWriterTest {
 
 		var file = Files.createTempFile("_olca_epd_", ".xlsx").toFile();
 		try {
-			new EpdExcelWriter(epd, file).write();
+			new EpdExcelWriter(epd, file)
+				.write()
+				.orElseThrow();
 
 			try (var wb = new XSSFWorkbook(file)) {
 				var sheet = wb.getSheet(Tab.EPD_INFORMATION.label());
 				assertNotNull(sheet);
-				assertCell(sheet, 1, 1, "UUID");
-				assertCell(sheet, 1, 2, "epd-ref-id");
-				assertCell(sheet, 2, 1, "Name");
-				assertCell(sheet, 2, 2, "Example EPD");
+				check(sheet, 1, 1, "UUID");
+				check(sheet, 1, 2, "epd-ref-id");
+				check(sheet, 2, 1, "Name");
+				check(sheet, 2, 2, "Example EPD");
 			}
 		} finally {
 			Files.deleteIfExists(file.toPath());
 		}
 	}
 
-	private static void assertCell(Sheet sheet, int row, int col, String expected) {
+	private static void check(Sheet sheet, int row, int col, String expected) {
 		assertEquals(expected, sheet.getRow(row).getCell(col).getStringCellValue());
 	}
 }
