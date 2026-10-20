@@ -12,7 +12,13 @@ enum Field {
 	TAGS("Tags"),
 	DESCRIPTION("Description"),
 
+	RESULT("Result"),
+	RESULT_MULTIPLIER("Result multiplier"),
+	PRODUCT_SYSTEM("Product system"),
+	LCIA_METHOD("LCIA method"),
+
 	FLOW("Flow"),
+	REFERENCE_FLOW("Reference flow"),
 	AMOUNT("Amount"),
 	MASS("Mass"),
 

@@ -20,10 +20,14 @@ class SheetWriter {
 	}
 
 	SheetWriter section(Section section) {
-		if (section == null)
-			return this;
+		return section != null
+			? section(section.header())
+			: this;
+	}
+
+	SheetWriter section(String header) {
 		var cell = cell(cursor, 0);
-		cell.setCellValue(section.header());
+		cell.setCellValue(header == null ? "" : header);
 		cell.setCellStyle(styles.bold());
 		cursor++;
 		return this;

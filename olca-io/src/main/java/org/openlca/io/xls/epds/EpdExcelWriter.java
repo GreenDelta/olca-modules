@@ -27,7 +27,7 @@ public class EpdExcelWriter {
 			var ctx = new WriterContext(wb, epd);
 			new InfoSheet(ctx).write();
 			new ResultsSheet(ctx).write();
-			ctx.createSheet(Tab.EPD_MODULES);
+			new ModulesSheet(ctx).write();
 			ctx.createSheet(Tab.INDICATORS);
 			ctx.createSheet(Tab.SOURCES);
 			ctx.createSheet(Tab.CONTACTS);
