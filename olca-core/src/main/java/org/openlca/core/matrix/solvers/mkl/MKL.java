@@ -1,5 +1,7 @@
 package org.openlca.core.matrix.solvers.mkl;
 
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+
 import java.io.File;
 import java.lang.foreign.MemorySegment;
 
@@ -20,9 +22,6 @@ public final class MKL {
 	private static final Object lock = new Object();
 	private static volatile MklLib lib;
 
-	// 'N' for no transposition in BLAS/LAPACK calls
-	private static final byte[] NO_TRANS = {'N'};
-
 	/// Calculates `y := A * x`.
 	///
 	/// @param m the number of rows of matrix A.
@@ -33,20 +32,21 @@ public final class MKL {
 	public static void denseMatrixVectorMul(
 		int m, int n, double[] a, double[] x, double[] y
 	) {
-		try {
+		try (var call = new NativeCall()) {
 			lib().dgemv.invokeExact(
-				seg(NO_TRANS), // TRANS
-				seg(m),        // M
-				seg(n),        // N
-				seg(1.0),      // ALPHA
-				seg(a),        // A
-				seg(m),        // LDA
-				seg(x),        // X
-				seg(1),        // INCX
-				seg(0.0),      // BETA
-				seg(y),        // Y
-				seg(1)         // INCY
+				call.of('N'),  // TRANS
+				call.of(m),    // M
+				call.of(n),    // N
+				call.of(1.0),  // ALPHA
+				call.in(a),    // A
+				call.of(m),    // LDA
+				call.in(x),    // X
+				call.of(1),    // INCX
+				call.of(0.0),  // BETA
+				call.out(y),   // Y
+				call.of(1)     // INCY
 			);
+			call.writeBack();
 		} catch (Throwable e) {
 			throw callError("dgemv", e);
 		}
@@ -63,22 +63,23 @@ public final class MKL {
 	public static void denseMatrixMul(
 		int m, int n, int k, double[] a, double[] b, double[] c
 	) {
-		try {
+		try (var call = new NativeCall()) {
 			lib().dgemm.invokeExact(
-				seg(NO_TRANS), // TRANSA
-				seg(NO_TRANS), // TRANSB
-				seg(m),        // M
-				seg(n),        // N
-				seg(k),        // K
-				seg(1.0),      // ALPHA
-				seg(a),        // A
-				seg(m),        // LDA
-				seg(b),        // B
-				seg(k),        // LDB
-				seg(0.0),      // BETA
-				seg(c),        // C
-				seg(m)         // LDC
+				call.of('N'),  // TRANSA
+				call.of('N'),  // TRANSB
+				call.of(m),    // M
+				call.of(n),    // N
+				call.of(k),    // K
+				call.of(1.0),  // ALPHA
+				call.in(a),    // A
+				call.of(m),    // LDA
+				call.in(b),    // B
+				call.of(k),    // LDB
+				call.of(0.0),  // BETA
+				call.out(c),   // C
+				call.of(m)     // LDC
 			);
+			call.writeBack();
 		} catch (Throwable e) {
 			throw callError("dgemm", e);
 		}
@@ -110,22 +111,23 @@ public final class MKL {
 	/// @param b on entry, the right-hand side, on exit the solution x.
 	/// @return 0 on success or an error code otherwise.
 	public static int solveDense(int n, int nrhs, double[] a, double[] b) {
-		var info = new long[1];
-		try {
+		try (var call = new NativeCall()) {
+			var info = call.info();
 			lib().dgesv.invokeExact(
-				seg(n),           // N
-				seg(nrhs),        // NRHS
-				seg(a),           // A
-				seg(n),           // LDA
-				seg(new long[n]), // IPIV
-				seg(b),           // B
-				seg(n),           // LDB
-				seg(info)         // INFO
+				call.of(n),               // N
+				call.of(nrhs),            // NRHS
+				call.inOut(a),            // A
+				call.of(n),               // LDA
+				call.out(new long[n]),    // IPIV
+				call.inOut(b),            // B
+				call.of(n),               // LDB
+				info                      // INFO
 			);
+			call.writeBack();
+			return infoOf(info);
 		} catch (Throwable e) {
 			throw callError("dgesv", e);
 		}
-		return (int) info[0];
 	}
 
 	/// Inverts a matrix A in place.
@@ -134,27 +136,37 @@ public final class MKL {
 	/// @param a on entry the matrix A, on exit the inverse of A.
 	/// @return 0 on success or an error code otherwise.
 	public static int invertDense(int n, double[] a) {
-		var pivots = new long[n];
-		int info = luFactorization(n, a, pivots);
-		if (info != 0)
-			return info;
+		try (var call = new NativeCall()) {
+			var aSeg = call.inOut(a);
+			var pivots = call.out(new long[n]);
+			var info = call.info();
 
-		long lwork = 64L * 2L * n;
-		var infoRef = new long[1];
-		try {
-			lib().dgetri.invokeExact(
-				seg(n),                       // N
-				seg(a),                       // A
-				seg(n),                       // LDA
-				seg(pivots),                  // IPIV
-				seg(new double[(int) lwork]), // WORK
-				seg(lwork),                   // LWORK
-				seg(infoRef)                  // INFO
+			lib().dgetrf.invokeExact(
+				call.of(n), // M
+				call.of(n), // N
+				aSeg,       // A
+				call.of(n), // LDA
+				pivots,     // IPIV
+				info        // INFO
 			);
+			if (infoOf(info) != 0)
+				return infoOf(info);
+
+			long lwork = 64L * 2L * n;
+			lib().dgetri.invokeExact(
+				call.of(n),          // N
+				aSeg,                // A
+				call.of(n),          // LDA
+				pivots,              // IPIV
+				call.work(lwork),    // WORK
+				call.of(lwork),      // LWORK
+				info                 // INFO
+			);
+			call.writeBack();
+			return infoOf(info);
 		} catch (Throwable e) {
-			throw callError("dgetri", e);
+			throw callError("dgetrf/dgetri", e);
 		}
-		return (int) infoRef[0];
 	}
 
 	/// Calculates the LU-factorization of the matrix A in place.
@@ -164,20 +176,21 @@ public final class MKL {
 	/// @param pivots on exit, the pivot indices; an array of size n.
 	/// @return 0 on success or an error code otherwise.
 	static int luFactorization(int n, double[] a, long[] pivots) {
-		var info = new long[1];
-		try {
+		try (var call = new NativeCall()) {
+			var info = call.info();
 			lib().dgetrf.invokeExact(
-				seg(n),      // M
-				seg(n),      // N
-				seg(a),      // A
-				seg(n),      // LDA
-				seg(pivots), // IPIV
-				seg(info)    // INFO
+				call.of(n),        // M
+				call.of(n),        // N
+				call.inOut(a),     // A
+				call.of(n),        // LDA
+				call.out(pivots),  // IPIV
+				info               // INFO
 			);
+			call.writeBack();
+			return infoOf(info);
 		} catch (Throwable e) {
 			throw callError("dgetrf", e);
 		}
-		return (int) info[0];
 	}
 
 	/// Solves `A * X = B` with an LU-factorization of A, see
@@ -192,23 +205,24 @@ public final class MKL {
 	static int luSolve(
 		int n, int nrhs, double[] lu, long[] pivots, double[] b
 	) {
-		var info = new long[1];
-		try {
+		try (var call = new NativeCall()) {
+			var info = call.info();
 			lib().dgetrs.invokeExact(
-				seg(NO_TRANS), // TRANS
-				seg(n),        // N
-				seg(nrhs),     // NRHS
-				seg(lu),       // A
-				seg(n),        // LDA
-				seg(pivots),   // IPIV
-				seg(b),        // B
-				seg(n),        // LDB
-				seg(info)      // INFO
+				call.of('N'),      // TRANS
+				call.of(n),        // N
+				call.of(nrhs),     // NRHS
+				call.in(lu),       // A
+				call.of(n),        // LDA
+				call.in(pivots),   // IPIV
+				call.inOut(b),     // B
+				call.of(n),        // LDB
+				info               // INFO
 			);
+			call.writeBack();
+			return infoOf(info);
 		} catch (Throwable e) {
 			throw callError("dgetrs", e);
 		}
-		return (int) info[0];
 	}
 
 	public static boolean isLoaded() {
@@ -292,27 +306,8 @@ public final class MKL {
 			: "x64";
 	}
 
-	// The BLAS and LAPACK handles are critical functions with heap access,
-	// so we can pass Java arrays directly. Scalars are passed by reference.
-
-	private static MemorySegment seg(double[] values) {
-		return MemorySegment.ofArray(values);
-	}
-
-	private static MemorySegment seg(long[] values) {
-		return MemorySegment.ofArray(values);
-	}
-
-	private static MemorySegment seg(byte[] values) {
-		return MemorySegment.ofArray(values);
-	}
-
-	private static MemorySegment seg(long value) {
-		return MemorySegment.ofArray(new long[]{value});
-	}
-
-	private static MemorySegment seg(double value) {
-		return MemorySegment.ofArray(new double[]{value});
+	private static int infoOf(MemorySegment info) {
+		return (int) info.get(JAVA_LONG, 0);
 	}
 
 	private static RuntimeException callError(String function, Throwable e) {

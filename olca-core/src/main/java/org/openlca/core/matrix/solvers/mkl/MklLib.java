@@ -16,11 +16,14 @@ import java.util.Arrays;
 /// variants (64-bit integers), PARDISO to its LP64 variant (32-bit integers).
 /// All parameters are passed by reference.
 ///
-/// The BLAS and LAPACK handles are linked as critical functions with heap
-/// access, so that Java arrays can be passed directly as heap segments without
-/// copying. PARDISO is linked as a normal function because it can run for a
-/// long time and keeps references to its inputs between calls; thus, all memory
-/// passed to PARDISO must be allocated off-heap.
+/// All functions are linked as normal (non-critical) downcalls. A critical
+/// downcall would allow passing Java arrays directly as heap segments, but the
+/// calling thread would then stay in the Java state during the call, and any
+/// safepoint operation (like a garbage collection) would have to wait until the
+/// call returns, which would stall all Java threads. Critical downcalls are
+/// meant for functions with an extremely short running time, which is not the
+/// case for the MKL functions with larger matrices. Thus, all memory that is
+/// passed to these functions must be allocated off-heap.
 final class MklLib {
 
 	final MethodHandle dgemv;
@@ -33,13 +36,12 @@ final class MklLib {
 
 	private MklLib(SymbolLookup lookup) {
 		var linker = Linker.nativeLinker();
-		var heap = Linker.Option.critical(true);
-		dgemv = bind(linker, lookup, "dgemv_64", 11, heap);
-		dgemm = bind(linker, lookup, "dgemm_64", 13, heap);
-		dgesv = bind(linker, lookup, "dgesv_64", 8, heap);
-		dgetrf = bind(linker, lookup, "dgetrf_64", 6, heap);
-		dgetri = bind(linker, lookup, "dgetri_64", 7, heap);
-		dgetrs = bind(linker, lookup, "dgetrs_64", 9, heap);
+		dgemv = bind(linker, lookup, "dgemv_64", 11);
+		dgemm = bind(linker, lookup, "dgemm_64", 13);
+		dgesv = bind(linker, lookup, "dgesv_64", 8);
+		dgetrf = bind(linker, lookup, "dgetrf_64", 6);
+		dgetri = bind(linker, lookup, "dgetri_64", 7);
+		dgetrs = bind(linker, lookup, "dgetrs_64", 9);
 		pardiso = bind(linker, lookup, "pardiso", 16);
 	}
 
@@ -52,14 +54,13 @@ final class MklLib {
 	}
 
 	private static MethodHandle bind(
-		Linker linker, SymbolLookup lookup, String name, int args,
-		Linker.Option... options
+		Linker linker, SymbolLookup lookup, String name, int args
 	) {
 		var symbol = lookup.find(name).orElseThrow(
 			() -> new IllegalStateException("MKL function not found: " + name));
 		var params = new MemoryLayout[args];
 		Arrays.fill(params, ADDRESS);
 		var descriptor = FunctionDescriptor.ofVoid(params);
-		return linker.downcallHandle(symbol, descriptor, options);
+		return linker.downcallHandle(symbol, descriptor);
 	}
 }
