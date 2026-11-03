@@ -92,7 +92,7 @@ public class CalculationQueue {
 	public ResultState schedule(CalculationSetup setup) {
 		var state = ResultState.schedule(Objects.requireNonNull(setup));
 		states.put(state.id(), state);
-		submit(state.id());
+		submit(state);
 		return state;
 	}
 
@@ -104,7 +104,7 @@ public class CalculationQueue {
 		if (state.isError())
 			return state;
 		states.put(state.id(), state);
-		submit(state.id());
+		submit(state);
 		return state;
 	}
 
@@ -129,20 +129,32 @@ public class CalculationQueue {
 
 		// the values of the previous run are already stored in the
 		// simulation result, so we can dispose its result
-		previous[0].dispose();
-		submit(id);
+		previous[0].disposeResult();
+		submit(next);
 		return next;
 	}
 
-	private void submit(String id) {
+	/// Submits the calculation of the given scheduled state to the thread
+	/// pool. While the state is scheduled, the worker owns a possible
+	/// simulator of that state: it disposes the simulator when the state was
+	/// removed in the meantime or when the calculation failed.
+	private void submit(ResultState scheduled) {
+		var id = scheduled.id();
 		threads.submit(() -> {
 			var state = states.get(id);
-			if (state == null || !state.isScheduled())
+			if (state == null) {
+				// the calculation was disposed before it started
+				dispose(scheduled);
+				return;
+			}
+			if (!state.isScheduled())
 				return;
 			try {
 				LcaResult result;
 				if (state.simulator() != null) {
 					result = state.simulator().nextRun();
+					if (result == null)
+						throw new IllegalStateException("simulation run failed");
 				} else {
 					result = new SystemCalculator(db)
 							.withLibraries(libraries)
@@ -160,8 +172,16 @@ public class CalculationQueue {
 				states.computeIfPresent(id, (_, current) -> current.isScheduled()
 						? state.toError(message)
 						: current);
+				// the error state has no simulator anymore
+				dispose(state);
 			}
 		});
+	}
+
+	private static void dispose(ResultState state) {
+		if (state.simulator() != null) {
+			state.simulator().dispose();
+		}
 	}
 
 	private static class Cleaner extends Thread {

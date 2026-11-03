@@ -37,65 +37,55 @@ import org.openlca.util.TopoSort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * A `Simulator` runs Monte-Carlo simulations with a given calculation setup.
- * <p>
- * When running the Monte Carlo simulation on a product system $s_r$ that has a
- * sub-system (which again can have sub-systems etc.) we need to first run the
- * number generation and calculation for that sub-system and integrate these
- * results into the matrices of $s_r$ in each iteration step of the simulation.
- * In general, we have to do this for each relation $s_i \prec s_j$, where $s_i$
- * is a sub-system of $s_j$, of all product systems $S$ of the recursively
- * expanded sub-system dependencies.
- * <p>
- * $S$ is a strict partially ordered set
- * as we do not allow cycles in the sub-system dependencies. Thus, we can define
- * a linear order of all systems via topological sorting which maps each
- * product system $s_i$ to a position $pos_i$ with $pos_i &lt; pos_j$ when $s_i
- * \prec s_j$.
- * <p>
- * In the simulation, we then run the number generation and calculation for each
- * sub-system starting from the lowest position in $pos = [1 \dots n]$ where the
- * top-most product system $s_r$ has the position $pos_r = n$. Thus, in a
- * simulation step a product system $s_j$ can access and integrate the result of
- * a sub-system $s_i$ when $s_i \prec s_j$. With this, the number generation and
- * calculation have to be done only once for each simulation step for each
- * product system $s_i \in S$.
- */
+/// A `Simulator` runs Monte-Carlo simulations with a given calculation setup.
+///
+/// When running the Monte Carlo simulation on a product system $s_r$ that has a
+/// sub-system (which again can have sub-systems etc.) we need to first run the
+/// number generation and calculation for that sub-system and integrate these
+/// results into the matrices of $s_r$ in each iteration step of the simulation.
+/// In general, we have to do this for each relation $s_i \prec s_j$, where $s_i$
+/// is a sub-system of $s_j$, of all product systems $S$ of the recursively
+/// expanded sub-system dependencies.
+///
+/// $S$ is a strict partially ordered set
+/// as we do not allow cycles in the sub-system dependencies. Thus, we can define
+/// a linear order of all systems via topological sorting which maps each
+/// product system $s_i$ to a position $pos_i$ with $pos_i < pos_j$ when $s_i
+/// \prec s_j$.
+///
+/// In the simulation, we then run the number generation and calculation for each
+/// sub-system starting from the lowest position in $pos = [1 \dots n]$ where the
+/// top-most product system $s_r$ has the position $pos_r = n$. Thus, in a
+/// simulation step a product system $s_j$ can access and integrate the result of
+/// a sub-system $s_i$ when $s_i \prec s_j$. With this, the number generation and
+/// calculation have to be done only once for each simulation step for each
+/// product system $s_i \in S$.
 public class Simulator {
 
-	/**
-	 * A set of products for which upstream and direct contributions should be
-	 * tracked during the simulation. These products must be part of the
-	 * TechIndex.
-	 */
+	/// A set of products for which upstream and direct contributions should be
+	/// tracked during the simulation. These products must be part of the
+	/// [TechIndex].
 	public final Set<TechFlow> pinnedProducts = new HashSet<>();
 
 	private final IDatabase db;
 	private final MatrixBuildContext ctx;
 
-	/**
-	 * The node of the host-system. This is the node that provides the final
-	 * data of the Monte-Carlo simulation.
-	 */
+	/// The node of the host-system. This is the node that provides the final
+	/// data of the Monte-Carlo simulation.
 	private Node root;
 
-	/**
-	 * The topological ordered sub-systems (this is empty when the host-system
-	 * does not contain sub-systems). The matrix data of the sub-systems do not
-	 * contain LCIA data as we only need the LCI (and LCC) results of them. The
-	 * same calculation properties of the host-system (allocation method etc.)
-	 * are shared with these sub-systems. In a simulation run we can just
-	 * calculate the results of the sub-system from $0...n$. When a system $j$
-	 * depends on a sub-system $i$ the topological order assures that it was
-	 * already calculated before.
-	 */
+	/// The topological ordered sub-systems (this is empty when the host-system
+	/// does not contain sub-systems). The matrix data of the sub-systems do not
+	/// contain LCIA data as we only need the LCI (and LCC) results of them. The
+	/// same calculation properties of the host-system (allocation method etc.)
+	/// are shared with these sub-systems. In a simulation run we can just
+	/// calculate the results of the sub-system from $0...n$. When a system $j$
+	/// depends on a sub-system $i$ the topological order assures that it was
+	/// already calculated before.
 	private final List<Node> subNodes = new ArrayList<>();
 
-	/**
-	 * Maps the ID of a product system to the respective node in the simulation
-	 * graph. Contains all nodes, also the root system.
-	 */
+	/// Maps the ID of a product system to the respective node in the simulation
+	/// graph. Contains all nodes, also the root system.
 	private final Map<Long, Node> nodeIndex = new HashMap<>();
 
 	private SimulationResult result;
@@ -123,9 +113,7 @@ public class Simulator {
 		return this;
 	}
 
-	/**
-	 * Get the result of the simulation.
-	 */
+	/// Get the result of the simulation.
 	public SimulationResult getResult() {
 		if (result != null)
 			return result;
@@ -145,23 +133,30 @@ public class Simulator {
 		return root.data.impactIndex;
 	}
 
-	/**
-	 * Generates random numbers and calculates the product system. Returns the
-	 * simulation result if the calculation in this run finished without errors,
-	 * otherwise `null` is returned (e.g. when the resulting matrix was
-	 * singular). The returned result is appended to the result of the simulator
-	 * (which you get via `getResult()`, so it does not need to be cached.
-	 */
+	/// Generates random numbers and calculates the product system. Returns the
+	/// simulation result if the calculation in this run finished without errors,
+	/// otherwise `null` is returned (e.g. when the resulting matrix was
+	/// singular). The returned result is appended to the result of the simulator
+	/// (which you get via [#getResult()]), so it does not need to be cached.
+	/// The caller is responsible for disposing the returned result.
 	public LcaResult nextRun() {
+		LcaResult next = null;
 		try {
 
 			// generate the numbers and calculate the overall result
 			for (var sub : subNodes) {
 				generateData(sub);
-				sub.lastResult = solve(sub.data);
+				var subResult = solve(sub.data);
+				// the values of the previous result are already integrated in the
+				// matrices of the host systems, so we can dispose it
+				var previous = sub.lastResult;
+				sub.lastResult = subResult;
+				if (previous != null) {
+					previous.dispose();
+				}
 			}
 			generateData(root);
-			var next = solve(root.data);
+			next = solve(root.data);
 			var provider = next.provider();
 			var result = getResult();
 			result.append(next);
@@ -186,7 +181,23 @@ public class Simulator {
 		} catch (Throwable e) {
 			Logger log = LoggerFactory.getLogger(this.getClass());
 			log.trace("simulation run failed", e);
+			if (next != null) {
+				next.dispose();
+			}
 			return null;
+		}
+	}
+
+	/// Disposes the results of the sub-systems of the last simulation run.
+	/// Call this method when the simulation is finished. It must not be called
+	/// while a simulation run is running. Calling this method more than once
+	/// has no effect.
+	public void dispose() {
+		for (var sub : subNodes) {
+			if (sub.lastResult != null) {
+				sub.lastResult.dispose();
+				sub.lastResult = null;
+			}
 		}
 	}
 
@@ -364,10 +375,8 @@ public class Simulator {
 		}
 	}
 
-	/**
-	 * A node contains the data for the simulation of a single product (sub-)
-	 * system.
-	 */
+	/// A node contains the data for the simulation of a single product (sub-)
+	/// system.
 	private static class Node {
 		final long providerId;
 		final TechFlow provider;

@@ -131,10 +131,22 @@ public class ResultState {
 		return new ResultState(id, null, null, null, error);
 	}
 
-	/// Disposes the result of this state, if present. This waits until a
-	/// running access of the result is finished. Note that all copies of this
-	/// state share the same result.
+	/// Disposes the result and the simulator of this state, if present. This
+	/// waits until a running access of the result is finished. Note that all
+	/// copies of this state share the same result and simulator. A simulator
+	/// of a scheduled state is not disposed, because a worker of the
+	/// calculation queue can still use it; the worker disposes the simulator
+	/// when it detects that the state was removed.
 	void dispose() {
+		disposeResult();
+		if (simulator != null && !isScheduled()) {
+			simulator.dispose();
+		}
+	}
+
+	/// Disposes only the result of this state, if present, but not the
+	/// simulator.
+	void disposeResult() {
 		if (result != null) {
 			result.dispose();
 		}
