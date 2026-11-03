@@ -17,6 +17,10 @@ import org.openlca.core.results.EnviFlowValue;
 import org.openlca.core.results.ImpactValue;
 import org.openlca.core.results.TechFlowValue;
 import org.openlca.core.results.UpstreamNode;
+import org.openlca.core.services.ResultState.Empty;
+import org.openlca.core.services.ResultState.Failed;
+import org.openlca.core.services.ResultState.Ready;
+import org.openlca.core.services.ResultState.Scheduled;
 import org.openlca.jsonld.Json;
 import org.openlca.jsonld.output.JsonRefs;
 
@@ -74,19 +78,26 @@ final class JsonUtil {
 
 	static JsonObject encodeState(ResultState state) {
 		var obj = new JsonObject();
-		if (state == null || state.isEmpty()) {
-			Json.put(obj, "error", "does not exist");
-			return obj;
+		switch (state) {
+			case null -> Json.put(obj, "error", "does not exist");
+			case Empty _ -> Json.put(obj, "error", "does not exist");
+			case Failed failed -> {
+				Json.put(obj, "@id", failed.id());
+				Json.put(obj, "error", failed.error());
+			}
+			case Scheduled scheduled -> putProgress(obj, scheduled, false);
+			case Ready ready -> putProgress(obj, ready, true);
 		}
-		Json.put(obj, "@id", state.id());
-		if (state.isError()) {
-			Json.put(obj, "error", state.error());
-			return obj;
-		}
-		Json.put(obj, "isReady", state.isReady());
-		Json.put(obj, "isScheduled", state.isScheduled());
-		Json.put(obj, "time", state.time());
 		return obj;
+	}
+
+	private static void putProgress(
+		JsonObject obj, ResultState state, boolean isReady
+	) {
+		Json.put(obj, "@id", state.id());
+		Json.put(obj, "isReady", isReady);
+		Json.put(obj, "isScheduled", !isReady);
+		Json.put(obj, "time", state.time());
 	}
 
 	static JsonObject encodeTechValue(TechFlowValue v, JsonRefs refs) {

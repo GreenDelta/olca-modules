@@ -10,16 +10,20 @@ import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.LcaResult;
 import org.openlca.core.results.agroups.AnalysisGroupResult;
+import org.openlca.core.services.ResultState.Empty;
+import org.openlca.core.services.ResultState.Failed;
+import org.openlca.core.services.ResultState.Ready;
+import org.openlca.core.services.ResultState.Scheduled;
 
 final class Util {
 
 	/// Applies the given function on the result with the given ID under the
-	/// lock of that result, see [ResultState#withResult(Function)].
+	/// lock of that result, see [Ready#withResult(Function)].
 	static <T> Response<T> withResult(
 		CalculationQueue queue, String resultId,
 		Function<LcaResult, Response<T>> fn
 	) {
-		return withState(queue, resultId, state -> state.withResult(fn));
+		return withReady(queue, resultId, ready -> ready.withResult(fn));
 	}
 
 	/// Applies the given function on the result and analysis group results
@@ -28,24 +32,24 @@ final class Util {
 		CalculationQueue queue, String resultId,
 		Function<GroupResult, Response<T>> fn
 	) {
-		return withState(queue, resultId, state -> state.withGroupResult(fn));
+		return withReady(queue, resultId, ready -> ready.withGroupResult(fn));
 	}
 
-	private static <T> Response<T> withState(
+	/// Applies the given function on the state with the given ID if that
+	/// state is ready. Otherwise, it returns an empty response or an error.
+	static <T> Response<T> withReady(
 		CalculationQueue queue, String resultId,
-		Function<ResultState, Response<T>> fn
+		Function<Ready, Response<T>> fn
 	) {
 		if (queue == null)
 			return Response.error("no calculation service available");
 		try {
-			var state = queue.get(resultId);
-			if (state.isError())
-				return Response.error(state.error());
-			if (state.isEmpty())
-				return Response.empty();
-			if (!state.isReady())
-				return Response.error("result not ready yet");
-			return fn.apply(state);
+			return switch (queue.get(resultId)) {
+				case Ready ready -> fn.apply(ready);
+				case Scheduled _ -> Response.error("result not ready yet");
+				case Failed failed -> Response.error(failed.error());
+				case Empty _ -> Response.empty();
+			};
 		} catch (Exception e) {
 			return Response.error(e);
 		}

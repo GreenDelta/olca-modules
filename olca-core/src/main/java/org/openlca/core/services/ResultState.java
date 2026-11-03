@@ -9,158 +9,192 @@ import org.openlca.core.math.Simulator;
 import org.openlca.core.model.CalculationSetup;
 import org.openlca.core.results.LcaResult;
 
-public class ResultState {
+/// The state of a calculation in the [CalculationQueue]. States are immutable;
+/// a state transition returns a new state.
+public sealed interface ResultState {
 
-	private final String id;
-	private final long time;
-	private final CalculationSetup setup;
-	private final Simulator simulator;
-	private final ResultHandle result;
-	private final String error;
+	String id();
 
-	private ResultState(
-		String id,
-		CalculationSetup setup,
-		Simulator simulator,
-		ResultHandle result,
-		String error) {
-		this.id = id;
-		this.time = System.currentTimeMillis();
-		this.setup = setup;
-		this.simulator = simulator;
-		this.result = result;
-		this.error = error;
+	/// The time of the last access of the state in milliseconds.
+	long time();
+
+	/// Returns a copy of this state with the current time as time-stamp.
+	ResultState touch();
+
+	static Empty empty(String id) {
+		return new Empty(id, now());
 	}
 
-	public String id() {
-		return id;
+	static Failed failed(String error) {
+		return new Failed(newId(), now(), error);
 	}
 
-	public long time() {
-		return time;
+	static Scheduled schedule(CalculationSetup setup) {
+		var job = new Job.Calculation(Objects.requireNonNull(setup));
+		return new Scheduled(newId(), now(), job);
 	}
 
-	public CalculationSetup setup() {
-		return setup;
-	}
-
-	public Simulator simulator() {
-		return simulator;
-	}
-
-	public String error() {
-		return error;
-	}
-
-	/// Applies the given function on the result of this state. The result is
-	/// not thread-safe and can be disposed by other threads; thus, it must be
-	/// only accessed within the given function, which runs under the lock of
-	/// the result. Returns an empty response if there is no result.
-	public <T> Response<T> withResult(Function<LcaResult, Response<T>> fn) {
-		return result != null
-			? result.apply(fn)
-			: Response.empty();
-	}
-
-	/// Like [#withResult(Function)] but with the analysis group results.
-	/// Returns an empty response if there are no analysis groups.
-	<T> Response<T> withGroupResult(Function<Util.GroupResult, Response<T>> fn) {
-		return result != null
-			? result.applyWithGroups(fn)
-			: Response.empty();
-	}
-
-	boolean isEmpty() {
-		return !isReady() && !isScheduled() && !isError();
-	}
-
-	boolean isReady() {
-		return result != null;
-	}
-
-	boolean isScheduled() {
-		return setup != null && result == null;
-	}
-
-	boolean isError() {
-		return error != null;
-	}
-
-	static ResultState empty(String id) {
-		return new ResultState(id, null, null, null, null);
-	}
-
-	static ResultState error(String message) {
-		String id = UUID.randomUUID().toString();
-		return new ResultState(id, null, null, null, message);
-	}
-
-	static ResultState schedule(CalculationSetup setup) {
-		String id = UUID.randomUUID().toString();
-		return new ResultState(id, setup, null, null, null);
-	}
-
+	/// Creates the simulator for the given setup and returns the scheduled
+	/// state of the first simulation run, or a failed state if the simulator
+	/// could not be created.
 	static ResultState scheduleSimulation(CalculationSetup setup, IDatabase db) {
-		String id = UUID.randomUUID().toString();
 		try {
 			var simulator = Simulator.create(setup, db);
-			return new ResultState(id, setup, simulator, null, null);
+			var job = new Job.Simulation(setup, simulator);
+			return new Scheduled(newId(), now(), job);
 		} catch (Exception e) {
-			return new ResultState(id, null, null, null,
-				"failed to create simulator: " + e.getMessage());
+			return failed("failed to create simulator: " + e.getMessage());
 		}
 	}
 
-	/// Returns a new state with the given calculated result.
-	ResultState toReady(LcaResult result) {
-		var handle = new ResultHandle(setup, Objects.requireNonNull(result));
-		return new ResultState(id, setup, simulator, handle, null);
+	private static String newId() {
+		return UUID.randomUUID().toString();
 	}
 
-	/// Returns a new state without result that schedules the next run of the
-	/// simulation of this state.
-	ResultState toNextRun() {
-		return new ResultState(id, setup, simulator, null, null);
+	private static long now() {
+		return System.currentTimeMillis();
 	}
 
-	/// Returns a new result state with an updated time-stamp.
-	ResultState update() {
-		return new ResultState(id, setup, simulator, result, null);
-	}
-
-	/// Converts this result state to an error, for example, when the calculation
-	/// of the result failed. The error state does not keep the simulator of
-	/// this state; see [#disposeSimulator()].
-	ResultState toError(String error) {
-		return new ResultState(id, null, null, null, error);
-	}
-
-	/// Disposes the result and the simulator of this state, if present. This
-	/// waits until a running access of the result is finished. Note that all
-	/// copies of this state share the same result and simulator. A simulator
-	/// of a scheduled state is not disposed, because a worker of the
-	/// calculation queue can still use it; the worker disposes the simulator
-	/// when it detects that the state was removed.
-	void dispose() {
-		disposeResult();
-		if (!isScheduled()) {
-			disposeSimulator();
+	private static void dispose(Job job) {
+		if (job instanceof Job.Simulation(_, var simulator)) {
+			simulator.dispose();
 		}
 	}
 
-	/// Disposes only the result of this state, if present, but not the
-	/// simulator.
-	void disposeResult() {
-		if (result != null) {
+	/// There is no calculation with the given ID.
+	record Empty(String id, long time) implements ResultState {
+
+		@Override
+		public Empty touch() {
+			return new Empty(id, now());
+		}
+	}
+
+	/// The calculation failed with the given error.
+	record Failed(String id, long time, String error) implements ResultState {
+
+		@Override
+		public Failed touch() {
+			return new Failed(id, now(), error);
+		}
+	}
+
+	/// The calculation of the job is scheduled or running. While the state
+	/// is scheduled, the job is owned by the worker of the calculation queue
+	/// that runs it.
+	record Scheduled(String id, long time, Job job) implements ResultState {
+
+		@Override
+		public Scheduled touch() {
+			return new Scheduled(id, now(), job);
+		}
+
+		/// Returns the ready state with the given result; the ready state
+		/// takes over the job.
+		Ready toReady(LcaResult result) {
+			var handle = new ResultHandle(job.setup(), Objects.requireNonNull(result));
+			return new Ready(id, now(), job, handle);
+		}
+
+		/// Returns the failed state with the given error; the failed state
+		/// does not take over the job, see [#disposeJob()].
+		Failed toFailed(String error) {
+			return new Failed(id, now(), error);
+		}
+
+		/// Releases the resources of the job. This is called by the worker
+		/// that owns the job, when the state was removed from the queue or
+		/// when the calculation failed.
+		void disposeJob() {
+			ResultState.dispose(job);
+		}
+	}
+
+	/// The calculation is finished and the result is available. The ready
+	/// state owns its job and result, see [#dispose()]. It is not a record,
+	/// so that the result handle is not exposed.
+	final class Ready implements ResultState {
+
+		private final String id;
+		private final long time;
+		private final Job job;
+		private final ResultHandle result;
+
+		private Ready(String id, long time, Job job, ResultHandle result) {
+			this.id = id;
+			this.time = time;
+			this.job = job;
+			this.result = result;
+		}
+
+		@Override
+		public String id() {
+			return id;
+		}
+
+		@Override
+		public long time() {
+			return time;
+		}
+
+		public Job job() {
+			return job;
+		}
+
+		@Override
+		public Ready touch() {
+			return new Ready(id, now(), job, result);
+		}
+
+		/// Applies the given function on the result of this state. The result
+		/// is not thread-safe and can be disposed by other threads; thus, it
+		/// must be only accessed within the given function, which runs under
+		/// the lock of the result. All copies of this state share the same
+		/// result.
+		public <T> Response<T> withResult(Function<LcaResult, Response<T>> fn) {
+			return result.apply(fn);
+		}
+
+		/// Like [#withResult(Function)] but with the analysis group results.
+		/// Returns an empty response if there are no analysis groups.
+		<T> Response<T> withGroupResult(Function<Util.GroupResult, Response<T>> fn) {
+			return result.applyWithGroups(fn);
+		}
+
+		/// Returns the scheduled state of the next simulation run; the
+		/// scheduled state takes over the simulation. This state then only
+		/// owns its result, see [#disposeResult()].
+		Scheduled toNextRun() {
+			if (!(job instanceof Job.Simulation))
+				throw new IllegalStateException("not a simulation: id=" + id);
+			return new Scheduled(id, now(), job);
+		}
+
+		/// Disposes the result and the job of this state. This waits until a
+		/// running access of the result is finished.
+		void dispose() {
+			result.dispose();
+			ResultState.dispose(job);
+		}
+
+		/// Disposes only the result of this state, but not the job.
+		void disposeResult() {
 			result.dispose();
 		}
 	}
 
-	/// Disposes only the simulator of this state, if present, but not the
-	/// result.
-	void disposeSimulator() {
-		if (simulator != null) {
-			simulator.dispose();
+	/// The calculation of a result state: a single calculation or a run of a
+	/// Monte-Carlo simulation.
+	sealed interface Job {
+
+		CalculationSetup setup();
+
+		record Calculation(CalculationSetup setup) implements Job {
+		}
+
+		record Simulation(
+			CalculationSetup setup, Simulator simulator
+		) implements Job {
 		}
 	}
 }

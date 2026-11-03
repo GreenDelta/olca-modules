@@ -16,6 +16,7 @@ import static org.openlca.core.services.JsonUtil.encodeTechValues;
 import static org.openlca.core.services.JsonUtil.encodeUpstreamNode;
 import static org.openlca.core.services.Util.enviFlowOf;
 import static org.openlca.core.services.Util.withGroupResult;
+import static org.openlca.core.services.Util.withReady;
 import static org.openlca.core.services.Util.impactCategoryOf;
 import static org.openlca.core.services.Util.join;
 import static org.openlca.core.services.Util.techFlowOf;
@@ -356,37 +357,31 @@ public class JsonResultService {
 	}
 
 	public Response<JsonArray> getNormalizedImpacts(String resultId) {
-		return withResult(resultId, result -> {
+		return withReady(queue, resultId, ready -> ready.withResult(result -> {
 			var impacts = result.getTotalImpacts();
 			if (impacts.isEmpty())
 				return Response.empty();
-			var state = queue.get(resultId);
-			if (!state.isReady())
-				return Response.error("no result ready");
-			var setup = state.setup();
+			var setup = ready.job().setup();
 			if (setup.nwSet() == null)
 				return Response.error("no nw-set was defined");
 			var factors = NwSetTable.of(db, setup.nwSet());
 			var normalized = factors.normalize(impacts);
 			return Response.of(encodeImpactValues(normalized, refs()));
-		});
+		}));
 	}
 
 	public Response<JsonArray> getWeightedImpacts(String resultId) {
-		return withResult(resultId, result -> {
+		return withReady(queue, resultId, ready -> ready.withResult(result -> {
 			var impacts = result.getTotalImpacts();
 			if (impacts.isEmpty())
 				return Response.empty();
-			var state = queue.get(resultId);
-			if (!state.isReady())
-				return Response.error("no result ready");
-			var setup = state.setup();
+			var setup = ready.job().setup();
 			if (setup.nwSet() == null)
 				return Response.error("no nw-set was defined");
 			var factors = NwSetTable.of(db, setup.nwSet());
 			var weighted = factors.apply(impacts);
 			return Response.of(encodeImpactValues(weighted, refs()));
-		});
+		}));
 	}
 
 	public Response<JsonArray> getImpactContributionsOf(

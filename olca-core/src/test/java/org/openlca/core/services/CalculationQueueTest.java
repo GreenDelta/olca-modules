@@ -1,7 +1,6 @@
 package org.openlca.core.services;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -24,6 +23,10 @@ import org.openlca.core.model.FlowProperty;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.RootEntity;
 import org.openlca.core.model.UnitGroup;
+import org.openlca.core.services.ResultState.Empty;
+import org.openlca.core.services.ResultState.Failed;
+import org.openlca.core.services.ResultState.Ready;
+import org.openlca.core.services.ResultState.Scheduled;
 
 public class CalculationQueueTest {
 
@@ -63,7 +66,7 @@ public class CalculationQueueTest {
 		var ids = new HashSet<String>();
 		for (int i = 0; i < n; i++) {
 			var state = queue.schedule(setup);
-			assertTrue(state.isScheduled());
+			assertTrue(state instanceof Scheduled);
 			ids.add(state.id());
 		}
 
@@ -75,11 +78,12 @@ public class CalculationQueueTest {
 			var finished = new HashSet<String>();
 			for (var id : ids) {
 				var state = queue.get(id);
-				if (state.isScheduled())
+				if (state instanceof Scheduled)
 					continue;
-				assertTrue(state.isReady());
+				if (!(state instanceof Ready ready))
+					throw new AssertionError("unexpected state: " + state);
 				finished.add(id);
-				var value = state.withResult(
+				var value = ready.withResult(
 						r -> Response.of(r.getTotalFlows().get(0).value()));
 				assertEquals(2, value.value(), 1e-10);
 			}
@@ -115,7 +119,7 @@ public class CalculationQueueTest {
 				try {
 					start.await();
 					for (int i = 0; i < 2_000; i++) {
-						var r = queue.get(id).withResult(result -> {
+						var r = Util.withResult(queue, id, result -> {
 							if (active.incrementAndGet() > 1) {
 								overlaps.incrementAndGet();
 							}
@@ -166,7 +170,7 @@ public class CalculationQueueTest {
 		assertEquals(0, overlaps.get());
 		assertEquals(0, accessAfterDispose.get());
 		assertTrue(values.get() > 0);
-		assertTrue(queue.get(id).withResult(r -> Response.of(1)).isEmpty());
+		assertTrue(queue.get(id) instanceof Empty);
 	}
 
 	/// After the next simulation run is scheduled, the result of the previous
@@ -175,7 +179,7 @@ public class CalculationQueueTest {
 	public void testSimulationDisposesPreviousResult() throws Exception {
 		var queue = new CalculationQueue(db, 2);
 		var state = queue.scheduleSimulation(CalculationSetup.of(process));
-		assertFalse(state.error(), state.isError());
+		assertTrue(state instanceof Scheduled);
 		var id = state.id();
 
 		var first = awaitReady(queue, id);
@@ -195,14 +199,17 @@ public class CalculationQueueTest {
 		queue.shutdown();
 	}
 
-	private ResultState awaitReady(CalculationQueue queue, String id)
+	private Ready awaitReady(CalculationQueue queue, String id)
 			throws InterruptedException {
 		for (int i = 0; i < 600; i++) {
-			var state = queue.get(id);
-			assertFalse(state.error(), state.isError());
-			if (state.isReady())
-				return state;
-			Thread.sleep(50);
+			switch (queue.get(id)) {
+				case Ready ready -> {
+					return ready;
+				}
+				case Scheduled _ -> Thread.sleep(50);
+				case Failed failed -> throw new AssertionError(failed.error());
+				case Empty _ -> throw new AssertionError("no state: " + id);
+			}
 		}
 		throw new AssertionError("calculation did not finish: " + id);
 	}
