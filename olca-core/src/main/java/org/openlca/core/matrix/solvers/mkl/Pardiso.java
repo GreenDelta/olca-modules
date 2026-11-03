@@ -57,6 +57,8 @@ final class Pardiso implements AutoCloseable {
 	) {
 		this.lib = lib;
 		this.n = n;
+		// a shared arena because an instance can be created in one thread and
+		// used in another one later (e.g. in the calculation queue)
 		this.arena = Arena.ofShared();
 		try {
 			pt = arena.allocate(JAVA_LONG, 64);

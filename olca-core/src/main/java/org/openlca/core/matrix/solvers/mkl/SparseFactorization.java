@@ -4,13 +4,16 @@ import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.solvers.Factorization;
 
 /// A sparse LU-factorization calculated with PARDISO. The native memory of the
-/// factorization is released when [#dispose()] is called. The methods of this
-/// class are synchronized because PARDISO instances are not thread-safe and the
-/// native memory must not be released while a solve call is running.
+/// factorization is released when [#dispose()] is called.
+///
+/// This class is not thread-safe. A factorization can be used from different
+/// threads, but not concurrently, and [#dispose()] must only be called after
+/// the last call of [#solve(double\[\])]. Solving with a disposed
+/// factorization throws an [IllegalStateException].
 class SparseFactorization implements Factorization {
 
 	private final Pardiso pardiso;
-	private volatile boolean isDisposed;
+	private boolean isDisposed;
 
 	private SparseFactorization(Pardiso pardiso) {
 		this.pardiso = pardiso;
@@ -37,7 +40,7 @@ class SparseFactorization implements Factorization {
 	}
 
 	@Override
-	public synchronized double[] solve(double[] b) {
+	public double[] solve(double[] b) {
 		if (isDisposed)
 			throw new IllegalStateException("factorization was disposed");
 		double[] x = new double[size()];
@@ -49,7 +52,7 @@ class SparseFactorization implements Factorization {
 	}
 
 	@Override
-	public synchronized void dispose() {
+	public void dispose() {
 		if (isDisposed)
 			return;
 		isDisposed = true;
