@@ -15,10 +15,9 @@ import static org.openlca.core.services.JsonUtil.encodeTechValue;
 import static org.openlca.core.services.JsonUtil.encodeTechValues;
 import static org.openlca.core.services.JsonUtil.encodeUpstreamNode;
 import static org.openlca.core.services.Util.enviFlowOf;
-import static org.openlca.core.services.Util.groupResultOf;
+import static org.openlca.core.services.Util.withGroupResult;
 import static org.openlca.core.services.Util.impactCategoryOf;
 import static org.openlca.core.services.Util.join;
-import static org.openlca.core.services.Util.resultOf;
 import static org.openlca.core.services.Util.techFlowOf;
 
 import java.util.Objects;
@@ -326,15 +325,11 @@ public class JsonResultService {
 
 	public Response<JsonArray> getGroupedFlowResultsOf(
 			String resultId, EnviFlowId enviFlowId) {
-		var outer = groupResultOf(queue, resultId).map(r -> enviFlowOf(r.result(), enviFlowId).map(flow -> {
-			var values = r.groups().getResultsOf(flow);
-			return encodeGroupValues(values);
+		return withGroupResult(queue, resultId, r ->
+			enviFlowOf(r.result(), enviFlowId).map(flow -> {
+				var values = r.groups().getResultsOf(flow);
+				return encodeGroupValues(values);
 		}));
-		if (outer.isEmpty())
-			return Response.empty();
-		return outer.isError()
-				? Response.error(outer.error())
-				: outer.value();
 	}
 
 	// endregion
@@ -515,15 +510,11 @@ public class JsonResultService {
 
 	public Response<JsonArray> getGroupedImpactResultsOf(
 			String resultId, String impactId) {
-		var outer = groupResultOf(queue, resultId).map(r -> impactOf(r.result(), impactId).map(impact -> {
-			var values = r.groups().getResultsOf(impact);
-			return encodeGroupValues(values);
+		return withGroupResult(queue, resultId, r ->
+			impactOf(r.result(), impactId).map(impact -> {
+				var values = r.groups().getResultsOf(impact);
+				return encodeGroupValues(values);
 		}));
-		if (outer.isEmpty())
-			return Response.empty();
-		return outer.isError()
-				? Response.error(outer.error())
-				: outer.value();
 	}
 
 	// endregion
@@ -580,9 +571,9 @@ public class JsonResultService {
 	}
 
 	public Response<JsonArray> getGroupedCostResults(String resultId) {
-		return groupResultOf(queue, resultId).map(r -> {
+		return withGroupResult(queue, resultId, r -> {
 			var values = r.groups().getCostResults();
-			return encodeGroupValues(values);
+			return Response.of(encodeGroupValues(values));
 		});
 	}
 
@@ -629,8 +620,7 @@ public class JsonResultService {
 	public Response<JsonArray> getTags(String resultId) {
 		return withResult(resultId, result -> {
 			var tags = new JsonArray();
-			TagResult.allTagsOf(result).stream()
-					.forEach(tags::add);
+			TagResult.allTagsOf(result).forEach(tags::add);
 			return Response.of(tags);
 		});
 	}
@@ -663,8 +653,8 @@ public class JsonResultService {
 		return withResult(resultId, result -> {
 			var map = TagResult.allOf(result).stream()
 					.collect(Collectors.toMap(
-							TagResult::tag,
-							tagResult -> tagResult.costs()));
+						TagResult::tag,
+						TagResult::costs));
 			var array = encodeTagValues(map);
 			return Response.of(array);
 		});
@@ -712,12 +702,7 @@ public class JsonResultService {
 
 	private <T> Response<T> withResult(
 			String resultId, Function<LcaResult, Response<T>> fn) {
-		var res = resultOf(queue, resultId);
-		if (res.isEmpty())
-			return Response.empty();
-		return res.isError()
-				? Response.error(res.error())
-				: fn.apply(res.value());
+		return Util.withResult(queue, resultId, fn);
 	}
 
 	private <T> Response<T> withResultOfTechFlow(

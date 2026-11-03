@@ -2,6 +2,7 @@ package org.openlca.core.services;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.openlca.commons.Strings;
 import org.openlca.core.matrix.index.EnviFlow;
@@ -12,28 +13,27 @@ import org.openlca.core.results.agroups.AnalysisGroupResult;
 
 final class Util {
 
-	static Response<LcaResult> resultOf(CalculationQueue queue, String resultId) {
-		if (queue == null)
-			return Response.error("no calculation service available");
-		try {
-			var state = queue.get(resultId);
-			if (state.isError())
-				return Response.error(state.error());
-			if (state.isEmpty())
-				return Response.empty();
-			return state.isScheduled() || !state.isReady()
-					? Response.error("result not ready yet")
-					: Response.of(state.result());
-		} catch (Exception e) {
-			return Response.error(e);
-		}
+	/// Applies the given function on the result with the given ID under the
+	/// lock of that result, see [ResultState#withResult(Function)].
+	static <T> Response<T> withResult(
+		CalculationQueue queue, String resultId,
+		Function<LcaResult, Response<T>> fn
+	) {
+		return withState(queue, resultId, state -> state.withResult(fn));
 	}
 
-	record GroupResult(LcaResult result, AnalysisGroupResult groups) {
+	/// Applies the given function on the result and analysis group results
+	/// with the given ID under the lock of that result.
+	static <T> Response<T> withGroupResult(
+		CalculationQueue queue, String resultId,
+		Function<GroupResult, Response<T>> fn
+	) {
+		return withState(queue, resultId, state -> state.withGroupResult(fn));
 	}
 
-	static Response<GroupResult> groupResultOf(
-			CalculationQueue queue, String resultId
+	private static <T> Response<T> withState(
+		CalculationQueue queue, String resultId,
+		Function<ResultState, Response<T>> fn
 	) {
 		if (queue == null)
 			return Response.error("no calculation service available");
@@ -45,13 +45,13 @@ final class Util {
 				return Response.empty();
 			if (!state.isReady())
 				return Response.error("result not ready yet");
-			var groups = state.groupResult();
-			return groups.isEmpty()
-					? Response.empty()
-					: Response.of(new GroupResult(state.result(), groups));
+			return fn.apply(state);
 		} catch (Exception e) {
 			return Response.error(e);
 		}
+	}
+
+	record GroupResult(LcaResult result, AnalysisGroupResult groups) {
 	}
 
 	static Response<TechFlow> techFlowOf(LcaResult result, TechFlowId techFlowId) {
@@ -61,8 +61,8 @@ final class Util {
 			return Response.error("no tech-flow ID provided");
 		var techFlow = techFlowId.findTechFlowOf(result).orElse(null);
 		return techFlow == null
-				? Response.error("invalid tech-flow ID: " + techFlowId)
-				: Response.of(techFlow);
+			? Response.error("invalid tech-flow ID: " + techFlowId)
+			: Response.of(techFlow);
 	}
 
 	static Response<EnviFlow> enviFlowOf(LcaResult result, EnviFlowId enviFlowId) {
@@ -72,12 +72,12 @@ final class Util {
 			return Response.error("no envi-flow ID provided");
 		var enviFlow = enviFlowId.findEnviFlowOf(result).orElse(null);
 		return enviFlow == null
-				? Response.error("invalid envi-flow ID: " + enviFlowId)
-				: Response.of(enviFlow);
+			? Response.error("invalid envi-flow ID: " + enviFlowId)
+			: Response.of(enviFlow);
 	}
 
 	static Response<ImpactDescriptor> impactCategoryOf(
-			LcaResult result, String impactId) {
+		LcaResult result, String impactId) {
 		if (result == null)
 			return Response.error("no result available");
 		if (!result.hasImpacts())
@@ -91,8 +91,8 @@ final class Util {
 		return Response.error("invalid LCIA category ID: " + impactId);
 	}
 
-	static <T, U, R> Response<R> join(Response<T> rt, Response<U> ru,
-			BiFunction<T, U, Response<R>> fn) {
+	static <T, U, R> Response<R> join(
+		Response<T> rt, Response<U> ru, BiFunction<T, U, Response<R>> fn) {
 		if (rt == null || rt.isEmpty() || ru == null || ru.isEmpty())
 			return Response.empty();
 		if (rt.isError())
@@ -101,5 +101,4 @@ final class Util {
 			return Response.error(ru.error());
 		return fn.apply(rt.value(), ru.value());
 	}
-
 }

@@ -1,13 +1,12 @@
 package org.openlca.core.services;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.math.Simulator;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.ProductSystem;
 import org.openlca.core.results.LcaResult;
-import org.openlca.core.results.agroups.AnalysisGroupResult;
 
 public class ResultState {
 
@@ -15,17 +14,15 @@ public class ResultState {
 	private final long time;
 	private final CalculationSetup setup;
 	private final Simulator simulator;
-	private final LcaResult result;
+	private final ResultHandle result;
 	private final String error;
 
-	private AnalysisGroupResult groupResult;
-
 	private ResultState(
-			String id,
-			CalculationSetup setup,
-			Simulator simulator,
-			LcaResult result,
-			String error) {
+		String id,
+		CalculationSetup setup,
+		Simulator simulator,
+		ResultHandle result,
+		String error) {
 		this.id = id;
 		this.time = System.currentTimeMillis();
 		this.setup = setup;
@@ -50,31 +47,26 @@ public class ResultState {
 		return simulator;
 	}
 
-	public LcaResult result() {
-		return result;
-	}
-
 	public String error() {
 		return error;
 	}
 
-	AnalysisGroupResult groupResult() {
-		if (groupResult != null)
-			return groupResult;
-		if (setup == null || result == null)
-			return AnalysisGroupResult.empty();
+	/// Applies the given function on the result of this state. The result is
+	/// not thread-safe and can be disposed by other threads; thus, it must be
+	/// only accessed within the given function, which runs under the lock of
+	/// the result. Returns an empty response if there is no result.
+	public <T> Response<T> withResult(Function<LcaResult, Response<T>> fn) {
+		return result != null
+			? result.apply(fn)
+			: Response.empty();
+	}
 
-		synchronized (this) {
-			if (groupResult != null)
-				return groupResult;
-			if (!(setup.target() instanceof ProductSystem sys)
-					|| sys.analysisGroups.isEmpty()) {
-				groupResult = AnalysisGroupResult.empty();
-			} else {
-				groupResult = AnalysisGroupResult.of(sys, result);
-			}
-			return groupResult;
-		}
+	/// Like [#withResult(Function)] but with the analysis group results.
+	/// Returns an empty response if there are no analysis groups.
+	<T> Response<T> withGroupResult(Function<Util.GroupResult, Response<T>> fn) {
+		return result != null
+			? result.applyWithGroups(fn)
+			: Response.empty();
 	}
 
 	boolean isEmpty() {
@@ -114,34 +106,34 @@ public class ResultState {
 			return new ResultState(id, setup, simulator, null, null);
 		} catch (Exception e) {
 			return new ResultState(id, null, null, null,
-					"failed to create simulator: " + e.getMessage());
+				"failed to create simulator: " + e.getMessage());
 		}
 	}
 
-	/**
-	 * Creates a new result state with an updated result. Note that the result
-	 * can be also {@code null}, e.g. if a next simulation result should be
-	 * schedules.
-	 */
+	/// Creates a new result state with an updated result. Note that the result
+	/// can be also `null`, e.g. if a next simulation result should be
+	/// schedules.
 	ResultState updateResult(LcaResult result) {
-		return new ResultState(id, setup, simulator, result, null);
+		var handle = result != null
+			? new ResultHandle(setup, result)
+			: null;
+		return new ResultState(id, setup, simulator, handle, null);
 	}
 
-	/**
-	 * Returns a new result state with an updated time-stamp.
-	 */
+	/// Returns a new result state with an updated time-stamp.
 	ResultState update() {
 		return new ResultState(id, setup, simulator, result, null);
 	}
 
-	/**
-	 * Converts this result state to an error, for example, when the calculation
-	 * of the result failed.
-	 */
+	/// Converts this result state to an error, for example, when the calculation
+	/// of the result failed.
 	ResultState toError(String error) {
 		return new ResultState(id, null, null, null, error);
 	}
 
+	/// Disposes the result of this state, if present. This waits until a
+	/// running access of the result is finished. Note that all copies of this
+	/// state share the same result.
 	void dispose() {
 		if (result != null) {
 			result.dispose();

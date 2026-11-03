@@ -55,14 +55,12 @@ public class CalculationQueue {
 		cleaner.start();
 	}
 
-	/**
-	 * Calls {@code shutdown} on the underlying thread-pool of this calculation
-	 * and returns that thread-pool.
-	 *
-	 * @return the underlying thread-pool of this calculation so that it is
-	 * possible to call additional methods like {@code awaitTermination} on that
-	 * thread-pool.
-	 */
+	/// Calls `shutdown` on the underlying thread-pool of this calculation
+	/// and returns that thread-pool.
+	///
+	/// @return the underlying thread-pool of this calculation so that it is
+	/// possible to call additional methods like `awaitTermination` on that
+	/// thread-pool.
 	public ExecutorService shutdown() {
 		if (cleaner != null) {
 			cleaner.halt();
@@ -71,11 +69,9 @@ public class CalculationQueue {
 		return threads;
 	}
 
-	/**
-	 * Get the state of the calculation with the given ID.
-	 */
+	/// Get the state of the calculation with the given ID.
 	public ResultState get(String id) {
-		var next = states.compute(id, ($, state) -> state != null
+		var next = states.compute(id, (_, state) -> state != null
 				? state.update()
 				: null);
 		return next == null
@@ -83,10 +79,8 @@ public class CalculationQueue {
 				: next;
 	}
 
-	/**
-	 * Removes the calculation or result with the given ID. If the calculation
-	 * was scheduled, it will not be performed.
-	 */
+	/// Removes the calculation or result with the given ID. If the calculation
+	/// was scheduled, it will not be performed.
 	public void dispose(String id) {
 		var state = states.remove(id);
 		if (state != null) {
@@ -94,9 +88,7 @@ public class CalculationQueue {
 		}
 	}
 
-	/**
-	 * Schedules a calculation and returns immediately.
-	 */
+	/// Schedules a calculation and returns immediately.
 	public ResultState schedule(CalculationSetup setup) {
 		var state = ResultState.schedule(Objects.requireNonNull(setup));
 		states.put(state.id(), state);
@@ -104,11 +96,9 @@ public class CalculationQueue {
 		return state;
 	}
 
-	/**
-	 * Schedules a Monte-Carlo-Simulation for the given setup. After
-	 * creating the simulator it schedules the first simulation, and
-	 * returns the state as 'scheduled'.
-	 */
+	/// Schedules a Monte-Carlo-Simulation for the given setup. After
+	/// creating the simulator it schedules the first simulation, and
+	/// returns the state as 'scheduled'.
 	public ResultState scheduleSimulation(CalculationSetup setup) {
 		var state = ResultState.scheduleSimulation(setup, db);
 		if (state.isError())
@@ -118,16 +108,28 @@ public class CalculationQueue {
 		return state;
 	}
 
+	/// Schedules the next run of the simulation with the given ID. The result
+	/// of the previous run is disposed; its values are already stored in the
+	/// simulation result. If the next run is already scheduled, this method
+	/// returns the current state without scheduling another run.
 	public ResultState nextSimulation(String id) {
-		var state = states.get(id);
-		if (state == null || state.isEmpty() || state.simulator() == null)
+		var previous = new ResultState[1];
+		var next = states.computeIfPresent(id, (_, state) -> {
+			if (state.simulator() == null
+					|| state.isError()
+					|| state.isScheduled())
+				return state;
+			previous[0] = state;
+			return state.updateResult(null);
+		});
+		if (next == null || next.simulator() == null)
 			return ResultState.error("no simulator available: id=" + id);
-		if (state.isError())
-			return state;
-		if (state.isScheduled())
-			return state;
-		var next = state.updateResult(null);
-		states.put(id, next);
+		if (previous[0] == null)
+			return next; // error or already scheduled
+
+		// the values of the previous run are already stored in the
+		// simulation result, so we can dispose its result
+		previous[0].dispose();
 		submit(id);
 		return next;
 	}
@@ -147,10 +149,17 @@ public class CalculationQueue {
 							.calculate(state.setup());
 				}
 				var nextState = state.updateResult(result);
-				states.put(state.id(), nextState);
+				var stored = states.computeIfPresent(
+						id, (_, current) -> current.isScheduled() ? nextState : current);
+				if (stored != nextState) {
+					// the calculation was disposed in the meantime
+					nextState.dispose();
+				}
 			} catch (Throwable err) {
 				var message = "Calculation failed: " + err.getMessage();
-				states.put(state.id(), state.toError(message));
+				states.computeIfPresent(id, (_, current) -> current.isScheduled()
+						? state.toError(message)
+						: current);
 			}
 		});
 	}
@@ -187,8 +196,10 @@ public class CalculationQueue {
 				long limit = System.currentTimeMillis() - timeout;
 				for (var e : queue.states.entrySet()) {
 					var state = e.getValue();
-					if (state.time() < limit) {
-						queue.states.remove(e.getKey(), e.getValue());
+					// only dispose the result if the state was not updated by an
+					// access in the meantime
+					if (state.time() < limit
+							&& queue.states.remove(e.getKey(), state)) {
 						state.dispose();
 					}
 				}
