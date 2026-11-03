@@ -1,5 +1,6 @@
 package org.openlca.core.services;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -110,14 +111,16 @@ public class ResultState {
 		}
 	}
 
-	/// Creates a new result state with an updated result. Note that the result
-	/// can be also `null`, e.g. if a next simulation result should be
-	/// schedules.
-	ResultState updateResult(LcaResult result) {
-		var handle = result != null
-			? new ResultHandle(setup, result)
-			: null;
+	/// Returns a new state with the given calculated result.
+	ResultState toReady(LcaResult result) {
+		var handle = new ResultHandle(setup, Objects.requireNonNull(result));
 		return new ResultState(id, setup, simulator, handle, null);
+	}
+
+	/// Returns a new state without result that schedules the next run of the
+	/// simulation of this state.
+	ResultState toNextRun() {
+		return new ResultState(id, setup, simulator, null, null);
 	}
 
 	/// Returns a new result state with an updated time-stamp.
@@ -126,7 +129,8 @@ public class ResultState {
 	}
 
 	/// Converts this result state to an error, for example, when the calculation
-	/// of the result failed.
+	/// of the result failed. The error state does not keep the simulator of
+	/// this state; see [#disposeSimulator()].
 	ResultState toError(String error) {
 		return new ResultState(id, null, null, null, error);
 	}
@@ -139,8 +143,8 @@ public class ResultState {
 	/// when it detects that the state was removed.
 	void dispose() {
 		disposeResult();
-		if (simulator != null && !isScheduled()) {
-			simulator.dispose();
+		if (!isScheduled()) {
+			disposeSimulator();
 		}
 	}
 
@@ -149,6 +153,14 @@ public class ResultState {
 	void disposeResult() {
 		if (result != null) {
 			result.dispose();
+		}
+	}
+
+	/// Disposes only the simulator of this state, if present, but not the
+	/// result.
+	void disposeSimulator() {
+		if (simulator != null) {
+			simulator.dispose();
 		}
 	}
 }

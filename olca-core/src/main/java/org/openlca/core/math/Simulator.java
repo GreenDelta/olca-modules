@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.database.ImpactMethodDao;
 import org.openlca.core.database.NativeSql;
@@ -139,6 +140,7 @@ public class Simulator {
 	/// singular). The returned result is appended to the result of the simulator
 	/// (which you get via [#getResult()]), so it does not need to be cached.
 	/// The caller is responsible for disposing the returned result.
+	@Nullable
 	public LcaResult nextRun() {
 		LcaResult next = null;
 		try {

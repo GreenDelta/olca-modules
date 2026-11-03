@@ -113,25 +113,22 @@ public class CalculationQueue {
 	/// simulation result. If the next run is already scheduled, this method
 	/// returns the current state without scheduling another run.
 	public ResultState nextSimulation(String id) {
-		var previous = new ResultState[1];
-		var next = states.computeIfPresent(id, (_, state) -> {
-			if (state.simulator() == null
-					|| state.isError()
-					|| state.isScheduled())
-				return state;
-			previous[0] = state;
-			return state.updateResult(null);
-		});
-		if (next == null || next.simulator() == null)
-			return ResultState.error("no simulator available: id=" + id);
-		if (previous[0] == null)
-			return next; // error or already scheduled
-
-		// the values of the previous run are already stored in the
-		// simulation result, so we can dispose its result
-		previous[0].disposeResult();
-		submit(next);
-		return next;
+		while (true) {
+			var current = states.get(id);
+			if (current == null || current.simulator() == null)
+				return ResultState.error("no simulator available: id=" + id);
+			if (current.isError() || current.isScheduled())
+				return current;
+			var next = current.toNextRun();
+			// fails if another thread replaced the state in the meantime
+			if (!states.replace(id, current, next))
+				continue;
+			// the values of the previous run are already stored in the
+			// simulation result, so we can dispose its result
+			current.disposeResult();
+			submit(next);
+			return next;
+		}
 	}
 
 	/// Submits the calculation of the given scheduled state to the thread
@@ -144,12 +141,13 @@ public class CalculationQueue {
 			var state = states.get(id);
 			if (state == null) {
 				// the calculation was disposed before it started
-				dispose(scheduled);
+				scheduled.disposeSimulator();
 				return;
 			}
 			if (!state.isScheduled())
 				return;
 			try {
+
 				LcaResult result;
 				if (state.simulator() != null) {
 					result = state.simulator().nextRun();
@@ -160,7 +158,8 @@ public class CalculationQueue {
 							.withLibraries(libraries)
 							.calculate(state.setup());
 				}
-				var nextState = state.updateResult(result);
+
+				var nextState = state.toReady(result);
 				var stored = states.computeIfPresent(
 						id, (_, current) -> current.isScheduled() ? nextState : current);
 				if (stored != nextState) {
@@ -172,16 +171,10 @@ public class CalculationQueue {
 				states.computeIfPresent(id, (_, current) -> current.isScheduled()
 						? state.toError(message)
 						: current);
-				// the error state has no simulator anymore
-				dispose(state);
+				// the error state does not take over the simulator
+				state.disposeSimulator();
 			}
 		});
-	}
-
-	private static void dispose(ResultState state) {
-		if (state.simulator() != null) {
-			state.simulator().dispose();
-		}
 	}
 
 	private static class Cleaner extends Thread {
