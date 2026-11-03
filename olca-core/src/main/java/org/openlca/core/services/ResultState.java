@@ -111,35 +111,11 @@ public sealed interface ResultState {
 	}
 
 	/// The calculation is finished and the result is available. The ready
-	/// state owns its job and result, see [#dispose()]. It is not a record,
-	/// so that the result handle is not exposed.
-	final class Ready implements ResultState {
-
-		private final String id;
-		private final long time;
-		private final Job job;
-		private final ResultHandle result;
-
-		private Ready(String id, long time, Job job, ResultHandle result) {
-			this.id = id;
-			this.time = time;
-			this.job = job;
-			this.result = result;
-		}
-
-		@Override
-		public String id() {
-			return id;
-		}
-
-		@Override
-		public long time() {
-			return time;
-		}
-
-		public Job job() {
-			return job;
-		}
+	/// state owns its job and result, see [#dispose()]. The result can be only
+	/// accessed via [#withResult(Function)].
+	record Ready(
+		String id, long time, Job job, ResultHandle result
+	) implements ResultState {
 
 		@Override
 		public Ready touch() {
@@ -161,13 +137,14 @@ public sealed interface ResultState {
 			return result.applyWithGroups(fn);
 		}
 
-		/// Returns the scheduled state of the next simulation run; the
-		/// scheduled state takes over the simulation. This state then only
-		/// owns its result, see [#disposeResult()].
-		Scheduled toNextRun() {
-			if (!(job instanceof Job.Simulation))
-				throw new IllegalStateException("not a simulation: id=" + id);
-			return new Scheduled(id, now(), job);
+		/// Returns the scheduled state of the next simulation run, or a failed
+		/// state if the job of this state is not a simulation. The scheduled
+		/// state takes over the simulation; this state then only owns its
+		/// result, see [#disposeResult()].
+		ResultState toNextScheduled() {
+			return job instanceof Job.Simulation
+				? new Scheduled(id, now(), job)
+				: new Failed(id, now(), "no simulator available: id=" + id);
 		}
 
 		/// Disposes the result and the job of this state. This waits until a

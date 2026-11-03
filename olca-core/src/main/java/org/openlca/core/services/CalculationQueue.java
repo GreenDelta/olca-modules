@@ -125,19 +125,20 @@ public class CalculationQueue {
 			var current = states.get(id);
 			if (current instanceof Scheduled s && s.job() instanceof Simulation)
 				return current;
-			if (!(current instanceof Ready ready
-					&& ready.job() instanceof Simulation))
+			if (!(current instanceof Ready ready))
 				return ResultState.failed("no simulator available: id=" + id);
+			var next = ready.toNextScheduled();
+			if (!(next instanceof Scheduled scheduled))
+				return next; // not a simulation
 
-			var next = ready.toNextRun();
 			// fails if another thread replaced the state in the meantime
-			if (!states.replace(id, ready, next))
+			if (!states.replace(id, ready, scheduled))
 				continue;
 			// the values of the previous run are already stored in the
 			// simulation result, so we can dispose its result
 			ready.disposeResult();
-			submit(next);
-			return next;
+			submit(scheduled);
+			return scheduled;
 		}
 	}
 
