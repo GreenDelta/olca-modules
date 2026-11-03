@@ -105,24 +105,12 @@ public class MKLSolver implements MatrixSolver {
 
 	@Override
 	public Factorization factorize(MatrixReader matrix) {
+		if (!matrix.isSquare())
+			throw new NonSquareMatrixException(matrix.rows(), matrix.columns());
 		var csc = asSparse(matrix).orElse(null);
-		var ptr = new long[1];
-		if (csc != null) {
-			int info = MKL.sparseFactorization(
-				csc.rows,
-				csc.values,
-				csc.rowIndices,
-				csc.columnPointers,
-				ptr
-			);
-			InfoCode.checkPardiso(info);
-			return new SparseFactorization(ptr[0], csc.rows);
-		}
-
-		var dense = DenseMatrix.of(matrix);
-		int info = MKL.denseFactorization(dense.rows, dense.data, ptr);
-		InfoCode.checkBlas(info);
-		return new DenseFactorization(ptr[0], dense.rows);
+		return csc != null
+			? SparseFactorization.of(csc)
+			: DenseFactorization.of(DenseMatrix.of(matrix));
 	}
 
 	@Override

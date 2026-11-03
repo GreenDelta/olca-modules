@@ -4,15 +4,20 @@ import org.apache.commons.math3.linear.SingularMatrixException;
 
 class InfoCode {
 
+	/// A custom error code that is returned when PARDISO had to perturb pivots
+	/// during the factorization, which means that the matrix is singular.
+	static final int PARDISO_PERTURBED_PIVOTS = -100;
+
 	private InfoCode() {
 	}
 
 	static void checkPardiso(int code) {
 		if (code == 0)
 			return;
-		throw (code == -7
-			? new SingularMatrixException()
-			: PardisoError.of(code));
+		throw switch (code) {
+			case -4, -7, PARDISO_PERTURBED_PIVOTS -> new SingularMatrixException();
+			default -> PardisoError.of(code);
+		};
 	}
 
 	static void checkBlas(int code) {

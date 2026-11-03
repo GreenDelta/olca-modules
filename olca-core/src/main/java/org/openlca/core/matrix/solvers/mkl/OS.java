@@ -4,25 +4,16 @@ import java.util.Locale;
 
 enum OS {
 
-	Linux(new String[]{
-		"libmkl_rt.so.2",
-		"libolcamkl.so"
-	}),
+	Linux("libmkl_rt.so.2"),
 
-	MacOS(new String[]{
-		"libmkl_rt.2.dylib",
-		"libolcamkl.dylib"
-	}),
+	MacOS("libmkl_rt.2.dylib"),
 
-	Windows(new String[]{
-		"mkl_rt.2.dll",
-		"olcamkl.dll",
-	});
+	Windows("mkl_rt.2.dll");
 
-	private final String[] libraries;
+	private final String library;
 
-	OS(String[] libraries) {
-		this.libraries = libraries;
+	OS(String library) {
+		this.library = library;
 	}
 
 	static OS detect() {
@@ -35,7 +26,8 @@ enum OS {
 		return OS.Linux;
 	}
 
-	String[] libraries() {
-		return libraries;
+	/// The file name of the MKL runtime library on this platform.
+	String library() {
+		return library;
 	}
 }

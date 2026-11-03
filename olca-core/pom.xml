@@ -13,6 +13,8 @@
 
 	<properties>
 		<protobuf.version>4.33.0</protobuf.version>
+		<!-- allow native access for the MKL bindings in tests -->
+		<argLine>--enable-native-access=ALL-UNNAMED</argLine>
 	</properties>
 
 	<dependencies>

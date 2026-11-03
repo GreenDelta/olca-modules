@@ -1,49 +1,63 @@
 package org.openlca.core.matrix.solvers.mkl;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import org.openlca.core.matrix.format.CscMatrix;
 import org.openlca.core.matrix.solvers.Factorization;
 
-class SparseFactorization implements Factorization  {
+/// A sparse LU-factorization calculated with PARDISO. The native memory of the
+/// factorization is released when [#dispose()] is called. The methods of this
+/// class are synchronized because PARDISO instances are not thread-safe and the
+/// native memory must not be released while a solve call is running.
+class SparseFactorization implements Factorization {
 
-	private final long pointer;
-	private final int size;
-	private final AtomicBoolean isDisposed;
+	private final Pardiso pardiso;
+	private volatile boolean isDisposed;
 
-	SparseFactorization(long pointer, int size) {
-		this.pointer = pointer;
-		this.size = size;
-		this.isDisposed = new AtomicBoolean(false);
+	private SparseFactorization(Pardiso pardiso) {
+		this.pardiso = pardiso;
+	}
+
+	static SparseFactorization of(CscMatrix matrix) {
+		var pardiso = Pardiso.of(
+			matrix.rows,
+			matrix.values,
+			matrix.rowIndices,
+			matrix.columnPointers);
+		try {
+			InfoCode.checkPardiso(pardiso.factorize());
+			return new SparseFactorization(pardiso);
+		} catch (RuntimeException e) {
+			pardiso.close();
+			throw e;
+		}
 	}
 
 	@Override
 	public int size() {
-		return size;
+		return pardiso.size();
 	}
 
 	@Override
-	public double[] solve(double[] b) {
-		double[] x = new double[size];
+	public synchronized double[] solve(double[] b) {
+		if (isDisposed)
+			throw new IllegalStateException("factorization was disposed");
+		double[] x = new double[size()];
 		if (b == null)
 			return x;
-		int info = MKL.solveSparseFactorization(pointer, b, x);
+		int info = pardiso.solve(b, x);
 		InfoCode.checkPardiso(info);
 		return x;
 	}
 
 	@Override
-	public void dispose() {
-		if (isDisposed.get())
+	public synchronized void dispose() {
+		if (isDisposed)
 			return;
-		synchronized (isDisposed) {
-			if (isDisposed.get())
-				return;
-			MKL.disposeSparseFactorization(pointer);
-		}
+		isDisposed = true;
+		pardiso.close();
 	}
 
 	@Override
 	public boolean isDisposed() {
-		return isDisposed.get();
+		return isDisposed;
 	}
 }
