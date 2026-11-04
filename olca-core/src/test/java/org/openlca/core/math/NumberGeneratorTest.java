@@ -1,7 +1,9 @@
 package org.openlca.core.math;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Test;
 import org.openlca.core.math.rand.NumberGenerator;
@@ -32,11 +34,26 @@ public class NumberGeneratorTest {
 	@Test
 	public void testLogNormal() {
 		var gen = NumberGenerator.logNormal(5, 1.1);
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 100; i++) {
 			assertInInterval(gen.next(), 0, 100);
+		}
 		gen = NumberGenerator.logNormal(5, 1);
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 100; i++) {
 			assertEquals(5.0, gen.next(), 1e-5);
+		}
+
+		var nums = List.of(
+			-2.0, -1.0, -0.5, -0.1, -0.01, 0, 0.01, 0.1, 0.5, 1.0, 2.0
+		);
+		var rand = ThreadLocalRandom.current();
+		for (var d : nums) {
+			int idx = rand.nextInt(0, nums.size());
+			var gmean = nums.get(idx).doubleValue();
+			var ng = NumberGenerator.logNormal(gmean, d.doubleValue());
+			for (int i = 0; i < 10; i++) {
+				assertTrue(Double.isFinite(ng.next()));
+			}
+		}
 	}
 
 	@Test

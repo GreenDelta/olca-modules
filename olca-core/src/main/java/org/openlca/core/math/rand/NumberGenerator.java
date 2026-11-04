@@ -12,8 +12,10 @@ public interface NumberGenerator {
 
 	/// Creates a number generator for a log-normal distribution with the given
 	/// geometric mean and geometric standard deviation.
-	static NumberGenerator logNormal(double geoMean,double geoSd) {
-		return new LogNormal(geoMean, geoSd);
+	static NumberGenerator logNormal(double geoMean, double geoSd) {
+		return geoSd == 0
+			? new Discrete(geoMean)
+			: new LogNormal(geoMean, geoSd);
 	}
 
 	/// Creates a number generator for a uniform distribution with a range between
