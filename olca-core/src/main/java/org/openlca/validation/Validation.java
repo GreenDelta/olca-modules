@@ -129,6 +129,7 @@ public class Validation implements Runnable {
 				new ProductSystemCheck(this),
 				new SourceCheck(this),
 				new SeqIdCheck(this),
+				new UncertaintyCheck(this),
 		};
 		_totalWorkers.set(workers.length);
 		int activeWorkers = 0;
