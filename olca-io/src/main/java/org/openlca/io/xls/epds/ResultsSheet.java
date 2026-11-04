@@ -40,8 +40,8 @@ class ResultsSheet {
 		for (var key : keys) {
 			var indicator = indicators.get(key);
 			var row = sheet.createRow(rowIdx++);
-			text(row, 0, indicator.code);
-			text(row, 1, indicator.name);
+			text(row, 0, indicator.name);
+			text(row, 1, indicator.code);
 			text(row, 2, indicator.referenceUnit);
 
 			var moduleValues = values.get(key);
@@ -82,19 +82,18 @@ class ResultsSheet {
 
 	private List<String> sortedKeysOf(Map<String, ImpactCategory> indicators) {
 		var keys = new ArrayList<>(indicators.keySet());
-		keys.sort((k1, k2) ->
-			compareIndicators(indicators.get(k1), indicators.get(k2)));
+		keys.sort((ki, kj) -> {
+			var i = indicators.get(ki);
+			var j = indicators.get(kj);
+			if (i == null && j == null)
+				return 0;
+			if (i == null)
+				return -1;
+			if (j == null)
+				return 1;
+			return Strings.compareNatural(i.name, j.name);
+		});
 		return keys;
-	}
-
-	private int compareIndicators(ImpactCategory i, ImpactCategory j) {
-		int c = Strings.compareIgnoreCase(i.code, j.code);
-		if (c != 0)
-			return c;
-		c = Strings.compareIgnoreCase(i.name, j.name);
-		if (c != 0)
-			return c;
-		return Strings.compareIgnoreCase(i.referenceUnit, j.referenceUnit);
 	}
 
 	private Map<String, Map<Integer, Double>> valuesOf(List<EpdModule> modules) {
@@ -123,8 +122,8 @@ class ResultsSheet {
 	}
 
 	private static void setColumnWidths(Sheet sheet, int moduleCount) {
-		sheet.setColumnWidth(0, 15 * 256);
-		sheet.setColumnWidth(1, 50 * 256);
+		sheet.setColumnWidth(0, 50 * 256);
+		sheet.setColumnWidth(1, 15 * 256);
 		sheet.setColumnWidth(2, 15 * 256);
 		for (int i = 0; i < moduleCount; i++) {
 			sheet.setColumnWidth(MODULE_COL + i, 15 * 256);
@@ -133,8 +132,8 @@ class ResultsSheet {
 
 	private void writeHeader(Sheet sheet, List<EpdModule> modules) {
 		var header = sheet.createRow(0);
-		header(header, 0, "Code");
-		header(header, 1, "Indicator");
+		header(header, 0, "Indicator");
+		header(header, 1, "Code");
 		header(header, 2, "Unit");
 		for (int i = 0; i < modules.size(); i++) {
 			header(header, MODULE_COL + i, modules.get(i).name);

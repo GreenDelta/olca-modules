@@ -32,10 +32,10 @@ public class EpdExcelWriterTest {
 			try (var wb = new XSSFWorkbook(file)) {
 				var sheet = wb.getSheet(Tab.EPD_INFORMATION.label());
 				assertNotNull(sheet);
-				check(sheet, 1, 1, "UUID");
-				check(sheet, 1, 2, "epd-ref-id");
-				check(sheet, 2, 1, "Name");
-				check(sheet, 2, 2, "Example EPD");
+				check(sheet, 1, 1, "Name");
+				check(sheet, 1, 2, "Example EPD");
+				check(sheet, 2, 1, "UUID");
+				check(sheet, 2, 2, "epd-ref-id");
 			}
 		} finally {
 			Files.deleteIfExists(file.toPath());

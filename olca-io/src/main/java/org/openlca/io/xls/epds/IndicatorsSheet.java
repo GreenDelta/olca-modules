@@ -54,7 +54,7 @@ class IndicatorsSheet {
 			}
 		}
 		var list = new ArrayList<>(indicators.values());
-		list.sort(IndicatorsSheet::compare);
+		list.sort((i, j) -> Strings.compareNatural(i.name, j.name));
 		return list;
 	}
 
@@ -66,28 +66,18 @@ class IndicatorsSheet {
 			+ '/' + Strings.notNull(indicator.referenceUnit);
 	}
 
-	private static int compare(ImpactCategory i, ImpactCategory j) {
-		int c = Strings.compareIgnoreCase(i.code, j.code);
-		if (c != 0)
-			return c;
-		c = Strings.compareIgnoreCase(i.name, j.name);
-		if (c != 0)
-			return c;
-		return Strings.compareIgnoreCase(i.referenceUnit, j.referenceUnit);
-	}
-
 	private static String headerOf(ImpactCategory indicator) {
+		if (indicator == null)
+			return "";
+		var name = Strings.isBlank(indicator.name)
+			? ""
+			: indicator.name.strip();
 		var code = Strings.isBlank(indicator.code)
 			? null
 			: indicator.code.strip();
-		var name = Strings.isBlank(indicator.name)
-			? null
-			: indicator.name.strip();
-		if (code == null)
-			return name;
-		return name == null
-			? code
-			: code + " - " + name;
+		return code != null
+			? name + " (" + code + ")"
+			: name;
 	}
 
 	private static String directionOf(ImpactCategory indicator) {
