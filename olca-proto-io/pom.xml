@@ -13,8 +13,8 @@
   <name>${project.groupId}:${project.artifactId}</name>
 
   <properties>
-    <protobuf.version>4.33.0</protobuf.version>
-    <grpc.version>1.76.0</grpc.version>
+    <protobuf.version>4.36.2</protobuf.version>
+    <grpc.version>1.85.1</grpc.version>
     <olca.proto.version>2.0.2</olca.proto.version>
   </properties>
 
@@ -30,6 +30,12 @@
       <groupId>org.openlca</groupId>
       <artifactId>olca-grpc</artifactId>
       <version>${olca.proto.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>${protobuf.version}</version>
     </dependency>
 
     <dependency>

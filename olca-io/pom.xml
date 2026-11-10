@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.6.0-jre</version>
+			<version>33.7.2-jre</version>
 		</dependency>
 
 		<dependency>
@@ -42,13 +42,13 @@
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ilcd</artifactId>
-			<version>3.1.0</version>
+			<version>4.0.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.openlca</groupId>
 			<artifactId>olca-ecospold-1</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.1</version>
 		</dependency>
 
 		<dependency>
@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.20.0</version>
+			<version>3.21.0</version>
 		</dependency>
 
 		<dependency>
