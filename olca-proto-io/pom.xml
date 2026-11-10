@@ -50,6 +50,20 @@
       <version>${grpc.version}</version>
     </dependency>
 
+    <!-- olca-grpc brings older versions of these; all gRPC modules need to
+         have the same version -->
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.openlca</groupId>
       <artifactId>olca-core</artifactId>
