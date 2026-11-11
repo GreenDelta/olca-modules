@@ -11,27 +11,23 @@ import org.junit.Test;
 
 public class ExcelLimitsTest {
 
-	/**
-	 * Tests that we can exceed the column limit without
-	 * an exception. We ignore this test by default because
-	 * it takes some time to run it.
-	 */
+	/// Tests that we can exceed the column limit without an exception. We
+	/// ignore this test by default because it takes some time to run it.
 	@Test
 	@Ignore
 	public void testLimits() throws Exception {
-		var wb = new SXSSFWorkbook(-1);
-		var sheet = wb.createSheet("test");
-		for (int i = 0; i < 1_000_000; i++) {
-			Excel.cell(sheet, i, 0, 1.0);
-			Excel.cell(sheet, i, i, 1.0);
-			Excel.cell(sheet, 0, i, 1.0);
-		}
 		var file = Files.createTempFile("_olca_test_", ".xlsx").toFile();
-		try (var stream = new FileOutputStream(file);
-				var buffer = new BufferedOutputStream(stream)){
-			wb.write(buffer);
-			wb.close();
-			wb.dispose();
+		try (var wb = new SXSSFWorkbook(-1)) {
+			var sheet = wb.createSheet("test");
+			for (int i = 0; i < 1_000_000; i++) {
+				Excel.cell(sheet, i, 0, 1.0);
+				Excel.cell(sheet, i, i, 1.0);
+				Excel.cell(sheet, 0, i, 1.0);
+			}
+			try (var stream = new FileOutputStream(file);
+					 var buffer = new BufferedOutputStream(stream)) {
+				wb.write(buffer);
+			}
 		}
 		Assert.assertTrue(file.length() > 0);
 		Files.delete(file.toPath());

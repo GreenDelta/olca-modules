@@ -165,7 +165,6 @@ public class MatrixExcelExport extends MatrixExport {
 			var file = new File(folder, name + ".xlsx");
 			try (var stream = new FileOutputStream(file)) {
 				wb.write(stream);
-				wb.dispose();
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(

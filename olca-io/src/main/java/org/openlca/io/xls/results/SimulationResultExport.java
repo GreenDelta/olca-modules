@@ -23,21 +23,21 @@ import org.openlca.io.xls.Excel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Exports a simulation result to Excel. */
+/// Exports a simulation result to Excel.
 public class SimulationResultExport {
 
 	private static final String[] FLOW_HEADER = {
-			"Flow UUID",
-			"Flow",
-			"Category",
-			"Sub-category",
-			"Unit"
+		"Flow UUID",
+		"Flow",
+		"Category",
+		"Sub-category",
+		"Unit"
 	};
 
 	private static final String[] IMPACT_HEADER = {
-			"Impact category UUID",
-			"Impact category",
-			"Reference unit"
+		"Impact category UUID",
+		"Impact category",
+		"Reference unit"
 	};
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -50,8 +50,9 @@ public class SimulationResultExport {
 	private CellWriter writer;
 	private boolean useStreaming = false;
 
-	public SimulationResultExport(CalculationSetup setup,
-			SimulationResult result, EntityCache cache) {
+	public SimulationResultExport(
+		CalculationSetup setup, SimulationResult result, EntityCache cache
+	) {
 		this.setup = setup;
 		this.result = result;
 		this.cache = cache;
@@ -69,38 +70,35 @@ public class SimulationResultExport {
 		return _items;
 	}
 
-	/**
-	 * Runs the result export. The given file should be an xlsx file.
-	 */
+	/// Runs the result export. The given file should be an xlsx file.
 	public void run(File file) throws Exception {
 		useStreaming = result.getNumberOfRuns() > 150;
 		log.trace("create workbook, using streaming: {}", useStreaming);
-		var wb = useStreaming
-				? new SXSSFWorkbook(-1)
-				: new XSSFWorkbook();
-		writer = new CellWriter(cache, wb);
 
-		// total LCI & LCIA results
-		InfoSheet.write(wb, writer, setup, null, "Simulation result");
-		writeInventorySheet(wb);
-		if (result.hasImpacts()) {
-			writeImpactSheet(wb);
-		}
+		// closing the workbook also deletes the temporary files of a
+		// streaming workbook, also when the export fails
+		try (var wb = useStreaming ? new SXSSFWorkbook(-1) : new XSSFWorkbook()) {
+			writer = new CellWriter(cache, wb);
 
-		// pinned contributions
-		int pcount = 0;
-		for (TechFlow pp : result.getPinnedProducts()) {
-			pcount++;
-			Sheet psheet = wb.createSheet("Contributions " + pcount);
-			fillContributions(pp, psheet);
-			flushSheet(psheet);
-		}
+			// total LCI & LCIA results
+			InfoSheet.write(wb, writer, setup, null, "Simulation result");
+			writeInventorySheet(wb);
+			if (result.hasImpacts()) {
+				writeImpactSheet(wb);
+			}
 
-		try (FileOutputStream fos = new FileOutputStream(file)) {
-			wb.write(fos);
-		}
-		if (wb instanceof SXSSFWorkbook) {
-			((SXSSFWorkbook) wb).dispose();
+			// pinned contributions
+			int pcount = 0;
+			for (TechFlow pp : result.getPinnedProducts()) {
+				pcount++;
+				Sheet psheet = wb.createSheet("Contributions " + pcount);
+				fillContributions(pp, psheet);
+				flushSheet(psheet);
+			}
+
+			try (var fos = new FileOutputStream(file)) {
+				wb.write(fos);
+			}
 		}
 		log.trace("result written to file {}", file);
 	}
@@ -136,8 +134,9 @@ public class SimulationResultExport {
 		flushSheet(sheet);
 	}
 
-	private void writeInventorySection(List<EnviFlow> flows,
-			boolean forInputs, Sheet sheet) {
+	private void writeInventorySection(
+		List<EnviFlow> flows, boolean forInputs, Sheet sheet
+	) {
 		row++;
 		String section = forInputs ? "Inputs" : "Outputs";
 		writer.cell(sheet, row, 1, section, true);
@@ -221,21 +220,22 @@ public class SimulationResultExport {
 		writeFlowContributions(flows, pp, false, result::getAllDirect, sheet);
 
 		writer.headerRow(sheet, row++, 1,
-				"Upstream LCI contributions - Inputs");
+			"Upstream LCI contributions - Inputs");
 		writeFlowContributions(flows, pp, true, result::getAllUpstream, sheet);
 
 		writer.headerRow(sheet, row++, 1,
-				"Upstream LCI contributions - Outputs");
+			"Upstream LCI contributions - Outputs");
 		writeFlowContributions(flows, pp, false, result::getAllUpstream, sheet);
 
 	}
 
 	private void writeFlowContributions(
-			List<EnviFlow> flows,
-			TechFlow pp,
-			boolean forInputs,
-			BiFunction<TechFlow, EnviFlow, double[]> fn,
-			Sheet sheet) {
+		List<EnviFlow> flows,
+		TechFlow pp,
+		boolean forInputs,
+		BiFunction<TechFlow, EnviFlow, double[]> fn,
+		Sheet sheet
+	) {
 		writer.headerRow(sheet, row, 1, FLOW_HEADER);
 		int valCol = FLOW_HEADER.length + 1;
 		writeValueHeaders(sheet, row++, valCol);
@@ -251,8 +251,8 @@ public class SimulationResultExport {
 	}
 
 	private void writeValueHeaders(Sheet sheet, int row, int startCol) {
-		String[] vals = { "Mean", "Standard deviation", "Minimum", "Maximum",
-				"Median", "5% Percentile", "95% Percentile" };
+		String[] vals = {"Mean", "Standard deviation", "Minimum", "Maximum",
+			"Median", "5% Percentile", "95% Percentile"};
 		for (int i = 0; i < vals.length; i++)
 			writer.cell(sheet, row, startCol + i, vals[i], true);
 		int nextCol = startCol + vals.length;
@@ -260,8 +260,9 @@ public class SimulationResultExport {
 			writer.cell(sheet, row, nextCol++, "Run " + (i + 1), true);
 	}
 
-	private void writeValues(Sheet sheet, int row, int startCol,
-			double[] values) {
+	private void writeValues(
+		Sheet sheet, int row, int startCol, double[] values
+	) {
 		if (values == null)
 			return;
 		int col = startCol;

@@ -88,8 +88,11 @@ public class ResultExport implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			workbook = new SXSSFWorkbook(-1);
+		// use auto-close for the workbook so that temporary files are deleted
+		// in case of an exception; sharing it via a field is not a nice design
+		// currently.
+		try (var wb = new SXSSFWorkbook(-1)) {
+			workbook = wb;
 			writer = new CellWriter(cache, workbook);
 			DQSetup dqSetup = dqResult != null
 					? dqResult.setup
@@ -108,7 +111,6 @@ public class ResultExport implements Runnable {
 					workbook.write(stream);
 				}
 			}
-			workbook.dispose();
 		} catch (Exception e) {
 			log.error("Error exporting results", e);
 			success = false;
