@@ -14,7 +14,7 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.EnviFlow;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.model.CalculationSetup;
-import org.openlca.core.model.Location;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.results.ResultItemOrder;
 import org.openlca.core.results.SimulationResult;
@@ -164,7 +164,7 @@ public class SimulationResultExport {
 			label += pp.provider().name;
 			if (pp.provider() instanceof ProcessDescriptor p) {
 				if (p.location != null) {
-					Location loc = cache.get(Location.class, p.location);
+					var loc = cache.get(LocationDescriptor.class, p.location);
 					if (loc != null) {
 						label += " - " + loc.code;
 					}
@@ -174,7 +174,7 @@ public class SimulationResultExport {
 		if (pp.flow() != null) {
 			label += " | " + pp.flow().name;
 			if (pp.flow().location != null) {
-				Location loc = cache.get(Location.class, pp.flow().location);
+				var loc = cache.get(LocationDescriptor.class, pp.flow().location);
 				if (loc != null) {
 					label += " - " + loc.code;
 				}

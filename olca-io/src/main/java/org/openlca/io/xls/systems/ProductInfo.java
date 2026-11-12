@@ -8,8 +8,8 @@ import org.openlca.core.database.EntityCache;
 import org.openlca.core.matrix.index.TechFlow;
 import org.openlca.core.matrix.index.TechIndex;
 import org.openlca.core.model.Category;
-import org.openlca.core.model.Location;
 import org.openlca.core.model.descriptors.FlowDescriptor;
+import org.openlca.core.model.descriptors.LocationDescriptor;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.openlca.core.model.descriptors.RootDescriptor;
 import org.openlca.io.CategoryPair;
@@ -53,10 +53,9 @@ class ProductInfo implements Comparable<ProductInfo> {
 				info.processCategory = catPair.getCategory();
 				info.processSubCategory = catPair.getSubCategory();
 			}
-			if (process instanceof ProcessDescriptor) {
-				ProcessDescriptor p = (ProcessDescriptor) process;
+			if (process instanceof ProcessDescriptor p) {
 				if (p.location != null) {
-					Location loc = cache.get(Location.class, p.location);
+					var loc = cache.get(LocationDescriptor.class, p.location);
 					if (loc != null)
 						info.processLocation = loc.code;
 				}
