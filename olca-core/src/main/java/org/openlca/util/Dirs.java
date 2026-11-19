@@ -3,6 +3,7 @@ package org.openlca.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,23 +12,21 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-/**
- * A simple utility class for directory operations.
- */
+/// A simple utility class for directory operations.
 public final class Dirs {
 
-	/**
-	 * Returns true if and only if the given file is an empty folder.
-	 */
+	/// The delays in milliseconds between the attempts to delete a file that
+	/// is temporarily locked; see `internalDelete`.
+	private static final long[] RETRY_DELAYS = {50, 100, 200, 400, 800};
+
+	/// Returns true if and only if the given file is an empty folder.
 	public static boolean isEmpty(File file) {
 		if (file == null)
 			return false;
 		return isEmpty(file.toPath());
 	}
 
-	/**
-	 * Returns true if and only if the given path points to an empty folder.
-	 */
+	/// Returns true if and only if the given path points to an empty folder.
 	public static boolean isEmpty(Path path) {
 		if (path == null)
 			return false;
@@ -76,10 +75,8 @@ public final class Dirs {
 		clean(dir.toPath());
 	}
 
-	/**
-	 * Deletes the content from the given directory but not the directory
-	 * itself.
-	 */
+	/// Deletes the content from the given directory but not the directory
+	/// itself.
 	public static void clean(Path dir) {
 		if (dir == null)
 			return;
@@ -90,9 +87,7 @@ public final class Dirs {
 		}
 	}
 
-	/**
-	 * Copies a directory recursively.
-	 */
+	/// Copies a directory recursively.
 	public static void copy(Path from, Path to) {
 		if (from == null || to == null || !Files.exists(from))
 			return;
@@ -109,16 +104,12 @@ public final class Dirs {
 		delete(dir.toPath());
 	}
 
-	/**
-	 * Deletes a directory recursively.
-	 */
+	/// Deletes a directory recursively.
 	public static void delete(String path) {
 		delete(Paths.get(path));
 	}
 
-	/**
-	 * Deletes a directory recursively.
-	 */
+	/// Deletes a directory recursively.
 	public static void delete(Path dir) {
 		if (dir == null || !Files.exists(dir))
 			return;
@@ -136,17 +127,13 @@ public final class Dirs {
 		}
 	}
 
-	/**
-	 * Moves the given directory to the new location.
-	 */
+	/// Moves the given directory to the new location.
 	public static void move(Path from, Path to) {
 		copy(from, to);
 		delete(from);
 	}
 
-	/**
-	 * Determines the size of the content of a directory recursively.
-	 */
+	/// Determines the size of the content of a directory recursively.
 	public static long size(Path dir) {
 		if (dir == null || !Files.exists(dir))
 			return 0;
@@ -159,7 +146,32 @@ public final class Dirs {
 		}
 	}
 
+	/// Deletes the given file or empty directory. On Windows, other programs
+	/// like file synchronization clients (e.g. OneDrive), the file explorer, or
+	/// virus scanners often hold a file or directory open for a short time,
+	/// which results in an access-denied or directory-not-empty exception
+	/// (deleted files in a directory are only removed when all handles to them
+	/// are closed). Thus, we retry the deletion a few times with an increasing
+	/// delay before we give up.
 	private static void internalDelete(Path file) throws IOException {
+		for (int attempt = 0; ; attempt++) {
+			try {
+				deleteOnce(file);
+				return;
+			} catch (AccessDeniedException | DirectoryNotEmptyException e) {
+				if (attempt >= RETRY_DELAYS.length)
+					throw e;
+				try {
+					Thread.sleep(RETRY_DELAYS[attempt]);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					throw e;
+				}
+			}
+		}
+	}
+
+	private static void deleteOnce(Path file) throws IOException {
 		try {
 			Files.delete(file);
 		} catch (AccessDeniedException e) {
