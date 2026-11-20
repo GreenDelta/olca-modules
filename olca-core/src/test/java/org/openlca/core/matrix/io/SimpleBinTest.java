@@ -23,13 +23,29 @@ public class SimpleBinTest {
 		Assert.assertArrayEquals(new double[] { 2, 5 }, m.getColumn(1), 1e-16);
 		Assert.assertArrayEquals(new double[] { 3, 6 }, m.getColumn(2), 1e-16);
 
-		// https://bugs.openjdk.java.net/browse/JDK-6558368
-		// SimpleBin does memory mapping; this means that the file cannot
-		// be deleted on Windows until the MappedByteBuffer is released
-		// via the garbage collector. Files.delete then fails.
-		// Files.delete(f.toPath());
-		if (!f.delete()) {
-			f.deleteOnExit();
-		}
+		// the memory mappings are released when SimpleBin returns, so the
+		// file can be deleted directly, also on Windows (see issue #17)
+		Files.delete(f.toPath());
+	}
+
+	@Test
+	public void testOverwriteLargerFile() throws Exception {
+		var f = Files.createTempFile("olcamat-", ".bin").toFile();
+		var big = new DenseMatrix(10, 10);
+		SimpleBin.write(big, f);
+
+		// writing a smaller matrix must truncate the file
+		var small = new DenseMatrix(1, 2);
+		small.set(0, 0, 42);
+		small.set(0, 1, 21);
+		SimpleBin.write(small, f);
+		Assert.assertEquals(8 + 2 * 8, f.length());
+
+		var m = SimpleBin.read(f);
+		Assert.assertEquals(1, m.rows());
+		Assert.assertEquals(2, m.columns());
+		Assert.assertEquals(42, m.get(0, 0), 1e-16);
+		Assert.assertEquals(21, m.get(0, 1), 1e-16);
+		Files.delete(f.toPath());
 	}
 }
