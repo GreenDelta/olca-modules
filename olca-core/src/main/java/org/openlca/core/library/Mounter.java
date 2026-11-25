@@ -14,9 +14,12 @@ import org.openlca.jsonld.input.UpdateMode;
 
 import jakarta.persistence.Table;
 
-/**
- * Mounts a library and its dependencies on a database.
- */
+/// Mounts a library and its dependencies on a database.
+///
+/// When existing data sets of the database are converted into library data
+/// sets ([MountAction#UPDATE] or [MountAction#RETAG]), their exchanges and
+/// parameters are removed from the database. The product systems are then
+/// cleaned up with [LibraryLinkCleanup].
 public class Mounter implements Runnable {
 
 	private final IDatabase db;
@@ -61,6 +64,7 @@ public class Mounter implements Runnable {
 	public void run() {
 		try {
 			boolean shouldCompress = false;
+			boolean needsCleanup = false;
 			for (var lib : Libraries.dependencyOrderOf(library)) {
 				var action = actions.getOrDefault(lib, MountAction.UPDATE);
 				if (action == MountAction.SKIP)
@@ -69,9 +73,14 @@ public class Mounter implements Runnable {
 					var retagger = Retagger.of(db, lib);
 					retagger.exec();
 					shouldCompress = retagger.hasDeleted();
+					needsCleanup = true;
 				} else {
 					mount(lib);
+					needsCleanup |= action == MountAction.UPDATE;
 				}
+			}
+			if (needsCleanup) {
+				LibraryLinkCleanup.of(db).run();
 			}
 			if (db instanceof Derby derby && shouldCompress) {
 				derby.compress();
