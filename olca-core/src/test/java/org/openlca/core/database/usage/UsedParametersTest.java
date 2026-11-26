@@ -12,6 +12,7 @@ import org.openlca.core.model.Exchange;
 import org.openlca.core.model.ModelType;
 import org.openlca.core.model.Parameter;
 import org.openlca.core.model.ParameterRedef;
+import org.openlca.core.model.ParameterRedefSet;
 import org.openlca.core.model.ParameterScope;
 import org.openlca.core.model.Process;
 import org.openlca.core.model.ProductSystem;
@@ -110,24 +111,25 @@ public class UsedParametersTest {
 
 	@Test
 	public void testAllocationFactor() {
-	    parameter(ParameterScope.GLOBAL, "af", 0.5);
+		parameter(ParameterScope.GLOBAL, "af", 0.5);
 
-	    var process = new Process();
-	    var exchange = new Exchange();
-	    process.exchanges.add(exchange);
-	    var factor = new AllocationFactor();
-	    factor.formula = "af";
-	    process.allocationFactors.add(factor);
-	    process = db.insert(process);
+		var process = new Process();
+		var exchange = new Exchange();
+		process.exchanges.add(exchange);
+		var factor = new AllocationFactor();
+		factor.formula = "af";
+		process.allocationFactors.add(factor);
+		process = db.insert(process);
 
-	    var system = new ProductSystem();
-	    system.processes.add(process.id);
-	    system = db.insert(system);
+		var system = new ProductSystem();
+		system.processes.add(process.id);
+		system = db.insert(system);
 
-	    var used = UsedParameters.ofSystem(db, Descriptor.of(system));
-	    Assert.assertTrue(contains(used, "af"));
-	    Assert.assertEquals(1, used.size());
+		var used = UsedParameters.ofSystem(db, Descriptor.of(system));
+		Assert.assertTrue(contains(used, "af"));
+		Assert.assertEquals(1, used.size());
 	}
+
 	@Test
 	public void testCyclicParametersNotUsed() {
 		parameter(ParameterScope.GLOBAL, "a", "b");
@@ -234,6 +236,88 @@ public class UsedParametersTest {
 		Assert.assertTrue(contains(used, "p2", ModelType.PROCESS, p4.id));
 		Assert.assertTrue(contains(used, "g6", ModelType.PROCESS, p4.id));
 		Assert.assertEquals(8, used.size());
+	}
+
+	@Test
+	public void testParameterRedefinitionSet() {
+		var g1 = parameter(ParameterScope.GLOBAL, "g1", 2);
+		parameter(ParameterScope.GLOBAL, "g2", 2);
+		var p = parameter(ParameterScope.PROCESS, "p1", 2);
+		db.insert(Parameter.global("g3", "3*g2"));
+
+		var p1 = new Process();
+		var e1 = new Exchange();
+		e1.formula = "g1";
+		p1.exchanges.add(e1);
+		p1 = db.insert(p1);
+
+		var p2 = new Process();
+		var e2 = new Exchange();
+		e2.formula = "g3";
+		p2.exchanges.add(e2);
+		p2 = db.insert(p2);
+
+		var p3 = new Process();
+		var e3 = new Exchange();
+		e3.formula = "p1";
+		p3.exchanges.add(e3);
+		p3.parameters.add(p);
+		p3 = db.insert(p3);
+
+		var redefs = new ParameterRedefSet();
+		redefs.name = "set1";
+		redefs.parameters.add(ParameterRedef.of(g1, 3));
+		redefs.parameters.add(ParameterRedef.of(p, p3, 3));
+		
+		var ps = new ProductSystem();
+		ps.processes.add(p1.id);
+		ps.processes.add(p2.id);
+		ps.processes.add(p3.id);
+		ps.parameterSets.add(redefs);
+		ps = db.insert(ps);
+
+		var used = UsedParameters.ofSystem(db, Descriptor.of(ps));
+		Assert.assertTrue(contains(used, "g1"));
+		Assert.assertTrue(contains(used, "g2"));
+		Assert.assertTrue(contains(used, "p1", ModelType.PROCESS, p3.id));
+		Assert.assertEquals(3, used.size());
+		var redefG1 = find(used, "g1", null);
+		Assert.assertEquals(2d, redefG1.value, 0);
+		var redefG2 = find(used, "g2", null);
+		Assert.assertEquals(2d, redefG2.value, 0);
+		var redefP1 = find(used, "p1", p3.id);
+		Assert.assertEquals(2d, redefP1.value, 0);
+
+		used = UsedParameters.ofSystem(db, Descriptor.of(ps), redefs.name);
+		Assert.assertTrue(contains(used, "g1"));
+		Assert.assertTrue(contains(used, "g2"));
+		Assert.assertTrue(contains(used, "p1", ModelType.PROCESS, p3.id));
+		Assert.assertEquals(3, used.size());
+		redefG1 = find(used, "g1", null);
+		Assert.assertEquals(3d, redefG1.value, 0);
+		redefG2 = find(used, "g2", null);
+		Assert.assertEquals(2d, redefG2.value, 0);
+		redefP1 = find(used, "p1", p3.id);
+		Assert.assertEquals(3d, redefP1.value, 0);
+}
+
+	private ParameterRedef find(
+			List<ParameterRedef> redefs,
+			String name,
+			Long contextId) {
+		for (var redef : redefs) {
+			if (!redef.name.equals(name))
+				continue;
+			if (contextId != redef.contextId)
+				continue;
+			var contextType = contextId != null
+					? ModelType.PROCESS
+					: null;
+			if (redef.contextType != contextType)
+				continue;
+			return redef;
+		}
+		return null;
 	}
 
 	private boolean contains(

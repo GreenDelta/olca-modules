@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.openlca.commons.Strings;
@@ -26,18 +27,29 @@ public class UsedParameters {
 	private final Map<Long, Long> contextIds = new HashMap<>();
 	private final Map<String, Parameter> parameters = new HashMap<>();
 	private final Map<String, Parameter> used = new HashMap<>();
+	private final Map<String, Double> redefs = new HashMap<>();
 	private final Set<String> checked = new HashSet<>();
-	
-	public static List<ParameterRedef> ofSystem(IDatabase db, ProductSystemDescriptor system) {
-		if (db == null || system == null)
-			return null;
-		return new UsedParameters(db, system).get();
+
+	public static List<ParameterRedef> ofSystem(
+			IDatabase db,
+			ProductSystemDescriptor system) {
+		return ofSystem(db, system, null);
 	}
 
-	private UsedParameters(IDatabase db, ProductSystemDescriptor system) {
+	public static List<ParameterRedef> ofSystem(
+			IDatabase db,
+			ProductSystemDescriptor system,
+			String parameterSetName) {
+		if (db == null || system == null)
+			return null;
+		return new UsedParameters(db, system, parameterSetName).get();
+	}
+
+	private UsedParameters(IDatabase db, ProductSystemDescriptor system, String parameterSetName) {
 		this.db = db;
 		this.processes = ProductSystems.processesOf(db, system);
 		loadParameters();
+		loadRedefinitions(system, parameterSetName);
 		collectFormulas();
 	}
 
@@ -56,11 +68,13 @@ public class UsedParameters {
 				.collect(Collectors.toList());
 	}
 
-	private void put(Parameter param) {
+	private void put(
+			Parameter param) {
 		used.put(keyOf(param), param);
 	}
 
-	private boolean isUsed(Parameter param) {
+	private boolean isUsed(
+			Parameter param) {
 		var key = keyOf(param);
 		if (checked.contains(key))
 			return used.containsKey(key);
@@ -68,8 +82,8 @@ public class UsedParameters {
 		for (var formula : formulas) {
 			if (formula.matches(param, contextIds.get(param.id))) {
 				// check if process parameter is used and not global parameter
-				if (param.scope == ParameterScope.GLOBAL 
-						&& formula.ownerId != null 
+				if (param.scope == ParameterScope.GLOBAL
+						&& formula.ownerId != null
 						&& parameters.containsKey(keyOf(param.name, formula.ownerId)))
 					continue;
 				if (!formula.isParam())
@@ -88,23 +102,32 @@ public class UsedParameters {
 		return false;
 	}
 
-	private String keyOf(Parameter param) {
+	private String keyOf(
+			Parameter param) {
 		if (param.scope == ParameterScope.GLOBAL)
 			return param.name;
 		return keyOf(param.name, contextIds.get(param.id));
 	}
 
-	private String keyOf(String name, Long contextId) {
-		if (contextId == null)
+	private String keyOf(
+			String name,
+			Long contextId) {
+		if (contextId == null || contextId == 0)
 			return name;
 		return contextId + ":" + name;
 	}
 
-	private ParameterRedef redefOf(Parameter param, Long contextId) {
+	private ParameterRedef redefOf(
+			Parameter param,
+			Long contextId) {
 		var redef = ParameterRedef.of(param);
 		if (contextId != null) {
 			redef.contextType = ModelType.PROCESS;
 			redef.contextId = contextId;
+		}
+		var key = keyOf(param.name, contextId);
+		if (redefs.containsKey(key)) {
+			redef.value = redefs.get(key);
 		}
 		return redef;
 	}
@@ -119,7 +142,6 @@ public class UsedParameters {
 		/* 6 */ "value, " +
 		/* 7 */ "formula FROM tbl_parameters";
 		NativeSql.on(db).query(sql, r -> {
-
 			var scopeStr = r.getString(2);
 			var scope = scopeStr == null
 					? ParameterScope.GLOBAL
@@ -146,7 +168,52 @@ public class UsedParameters {
 			parameters.put(keyOf(param), param);
 			return true;
 		});
+	}
 
+	private void loadRedefinitions(
+			ProductSystemDescriptor system,
+			String redefSetName) {
+		if (Strings.isBlank(redefSetName))
+			return;
+		var sql = "SELECT "
+				+ "id "
+				+ "FROM tbl_parameter_redef_sets "
+				+ "WHERE name = '" + redefSetName + "' "
+				+ "AND f_product_system = " + system.id;
+		var id = new AtomicLong(0);
+		NativeSql.on(db).query(sql, r -> {
+			id.set(r.getLong(1));
+			return false;
+		});
+		if (id.get() == 0l)
+			return;
+		sql = "SELECT "
+				+ "context_type,"
+				+ "f_context,"
+				+ "name,"
+				+ "value "
+				+ "FROM tbl_parameter_redefs "
+				+ "WHERE f_owner = " + id;
+		NativeSql.on(db).query(sql, r -> {
+			var scopeStr = r.getString(1);
+			var scope = scopeStr == null
+					? ParameterScope.GLOBAL
+					: ParameterScope.valueOf(scopeStr);
+
+			if (scope == ParameterScope.IMPACT)
+				return true;
+
+			var contextId = r.getLong(2);
+			var name = r.getString(3);
+			var value = r.getDouble(4);
+
+			if (scope == ParameterScope.PROCESS)
+				if (!processes.contains(contextId))
+					return true;
+
+			redefs.put(keyOf(name, contextId), value);
+			return true;
+		});
 	}
 
 	private void collectFormulas() {
@@ -197,7 +264,7 @@ public class UsedParameters {
 				/* 1 */ + "f_owner, "
 				/* 2 */ + "name, "
 				/* 3 */ + "formula, "
-				/* 4 */	+ "scope FROM tbl_parameters "
+				/* 4 */ + "scope FROM tbl_parameters "
 				+ "WHERE formula IS NOT NULL AND is_input_param = 0";
 		NativeSql.on(db).query(sql, r -> {
 			var scopeStr = r.getString(4);
@@ -227,7 +294,9 @@ public class UsedParameters {
 			this(formula, null, scope, ownerId);
 		}
 
-		private boolean matches(Parameter param, Long contextId) {
+		private boolean matches(
+				Parameter param,
+				Long contextId) {
 			if (param.scope != ParameterScope.GLOBAL && scope == ParameterScope.GLOBAL)
 				return false;
 			if (contextId != null && !contextId.equals(ownerId))
